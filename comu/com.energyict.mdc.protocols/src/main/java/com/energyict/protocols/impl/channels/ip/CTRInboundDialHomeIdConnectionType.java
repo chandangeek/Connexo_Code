@@ -1,29 +1,40 @@
 package com.energyict.protocols.impl.channels.ip;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocols.impl.channels.VoidComChannel;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
+import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Inbound TCP connection type created for the CTR protocol base (as used by MTU155 and EK155 DeviceProtocols).<br></br>
+ * Inbound TCP connection type created for the CTR protocol base (as used by MTU155 and EK155 DeviceProtocols).<br>
  * Conform the CTR spec, this connectionType contains a required property for CallHomeId - as knocking devices are unique identified by their CallHomeID.
- * <p/>
  */
 public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
 
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
 
+    private final PropertySpecService propertySpecService;
+
+    @Inject
+    public CTRInboundDialHomeIdConnectionType(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+    }
+
     private PropertySpec callHomeIdPropertySpec() {
-        return RequiredPropertySpecFactory.newInstance().stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
+        return this.propertySpecService.basicPropertySpec(CALL_HOME_ID_PROPERTY_NAME, true, new StringFactory());
     }
 
     protected String callHomeIdPropertyValue() {
@@ -31,8 +42,8 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
-        propertySpecs.add(this.callHomeIdPropertySpec());
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(this.callHomeIdPropertySpec());
     }
 
     @Override
@@ -77,4 +88,5 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
     public String getVersion() {
         return "$Date: 2013-06-26 15:15:49 +0200 (Mit, 26 Jun 2013) $";
     }
+
 }

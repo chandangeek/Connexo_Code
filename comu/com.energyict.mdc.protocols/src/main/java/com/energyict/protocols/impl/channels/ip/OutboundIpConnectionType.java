@@ -1,21 +1,24 @@
 package com.energyict.protocols.impl.channels.ip;
 
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Groups common behavior for outbound IP related connectionTypes.
- *
+ * <p>
  * Copyrights EnergyICT
+ *
  * @since 9/11/12 (11:28)
  */
 public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
@@ -24,8 +27,19 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     public static final String PORT_PROPERTY_NAME = "portNumber";
     public static final String CONNECTION_TIMEOUT_PROPERTY_NAME = "connectionTimeout";
 
+    private final PropertySpecService propertySpecService;
+
+    public OutboundIpConnectionType(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
     private PropertySpec hostPropertySpec() {
-        return RequiredPropertySpecFactory.newInstance().stringPropertySpec(HOST_PROPERTY_NAME);
+        return this.propertySpecService.basicPropertySpec(HOST_PROPERTY_NAME, true, new StringFactory());
     }
 
     protected String hostPropertyValue() {
@@ -53,7 +67,8 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     protected int intProperty(BigDecimal value) {
         if (value == null) {
             return 0;
-        } else {
+        }
+        else {
             return value.intValue();
         }
     }
@@ -61,16 +76,18 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     protected int intProperty(TimeDuration value) {
         if (value == null) {
             return 0;
-        } else {
+        }
+        else {
             return (int) value.getMilliSeconds();
         }
     }
 
     @Override
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
-        propertySpecs.add(this.hostPropertySpec());
-        propertySpecs.add(this.portNumberPropertySpec());
-        propertySpecs.add(this.connectionTimeOutPropertySpec());
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                this.hostPropertySpec(),
+                this.portNumberPropertySpec(),
+                this.connectionTimeOutPropertySpec());
     }
 
     @Override
@@ -91,4 +108,5 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     public Direction getDirection() {
         return Direction.OUTBOUND;
     }
+
 }

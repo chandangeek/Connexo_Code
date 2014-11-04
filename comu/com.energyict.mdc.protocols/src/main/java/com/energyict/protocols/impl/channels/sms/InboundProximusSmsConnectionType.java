@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -61,9 +62,10 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
     }
 
     @Override
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
-        propertySpecs.add(this.phoneNumberPropertySpec());
-        propertySpecs.add(this.callHomeIdPropertySpec());
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                this.phoneNumberPropertySpec(),
+                this.callHomeIdPropertySpec());
     }
 
 }

@@ -126,16 +126,6 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
-        propertySpecs.add(this.phoneNumberPropertySpec());
-        propertySpecs.add(this.connectionURLPropertySpec());
-        propertySpecs.add(this.sourcePropertySpec());
-        propertySpecs.add(this.authenticationPropertySpec());
-        propertySpecs.add(this.serviceCodePropertySpec());
-
-    }
-
-    @Override
     public PropertySpec getPropertySpec(String name) {
         switch (name) {
             case PHONE_NUMBER_PROPERTY_NAME:
@@ -162,4 +152,5 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     public Direction getDirection() {
         return Direction.OUTBOUND;
     }
+
 }

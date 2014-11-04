@@ -156,7 +156,7 @@ public class ServerSocketStreamConnection extends StreamPortConnection {
             throw new NestedIOException(new IOException("IP port is not open"));
         }
 
-    } // protected void doClose() throws NestedIOException
+    }
 
     protected void doServerClose() throws NestedIOException {
         if (boolOpen) {
@@ -175,7 +175,7 @@ public class ServerSocketStreamConnection extends StreamPortConnection {
             throw new NestedIOException(new IOException("IP server port is not open"));
         }
 
-    } // protected void doClose() throws NestedIOException
+    }
 
     //****************************************************************************************
     // Private core methods

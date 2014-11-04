@@ -1,14 +1,20 @@
 package com.energyict.protocols.impl.channels.serial.optical.dlms;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -19,8 +25,9 @@ import java.util.Set;
  */
 public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
 
-    public LegacyOpticalDlmsConnectionType() {
-        super(new SioOpticalConnectionType());
+    @Inject
+    public LegacyOpticalDlmsConnectionType(@Named(ConnectionTypeServiceImpl.SERIAL_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService, PropertySpecService propertySpecService) {
+        super(propertySpecService, new SioOpticalConnectionType(serialComponentService));
     }
 
     @Override
@@ -72,13 +79,14 @@ public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
     }
 
     @Override
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
-        propertySpecs.addAll(this.getActualConnectionType().getPropertySpecs());
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(this.getActualConnectionType().getPropertySpecs());
         propertySpecs.add(this.getAddressingModePropertySpec());
         propertySpecs.add(this.getConnectionPropertySpec());
         propertySpecs.add(this.getServerMacAddress());
         propertySpecs.add(this.getServerLowerMacAddress());
         propertySpecs.add(this.getServerUpperMacAddress());
+        return propertySpecs;
     }
 
     @Override

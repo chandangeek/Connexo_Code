@@ -130,7 +130,7 @@ public class SocketStreamConnection extends StreamPortConnection {
             }
         }
 
-    } // protected void doClose() throws NestedIOException
+    }
 
 
     //****************************************************************************************

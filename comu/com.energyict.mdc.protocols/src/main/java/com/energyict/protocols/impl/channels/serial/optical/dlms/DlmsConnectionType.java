@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 
 /**
@@ -33,10 +34,18 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     public static final String PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
     public static final String PROPERTY_NAME_CONNECTION = "Connection";
 
+    private final PropertySpecService propertySpecService;
     private final ServerConnectionType actualConnectionType;
 
-    protected DlmsConnectionType(ServerConnectionType actualConnectionType) {
+    @Inject
+    public DlmsConnectionType(PropertySpecService propertySpecService, ServerConnectionType actualConnectionType) {
+        super();
+        this.propertySpecService = propertySpecService;
         this.actualConnectionType = actualConnectionType;
+    }
+
+    PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     ConnectionType getActualConnectionType() {
@@ -46,7 +55,7 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     abstract PropertySpec getAddressingModePropertySpec();
 
     final PropertySpec getAddressingModePropertySpec(boolean required) {
-        PropertySpecBuilder<BigDecimal> builder = this.getPropertySpecService().newPropertySpecBuilder(new BigDecimalFactory());
+        PropertySpecBuilder<BigDecimal> builder = this.propertySpecService.newPropertySpecBuilder(new BigDecimalFactory());
         builder.
             name(PROPERTY_NAME_ADDRESSING_MODE).
             markExhaustive().
@@ -64,28 +73,29 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     abstract PropertySpec getServerMacAddress();
 
     final PropertySpec getServerMacAddress(boolean required){
-        return this.getPropertySpecService().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, required, DEFAULT_SERVER_MAC_ADDRESS);
+        return this.propertySpecService.bigDecimalPropertySpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, required, DEFAULT_SERVER_MAC_ADDRESS);
     }
 
     abstract PropertySpec getServerUpperMacAddress();
 
     final PropertySpec getServerUpperMacAddress(boolean required){
-        return this.getPropertySpecService().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, required, DEFAULT_SERVER_UPPER_MAC_ADDRESS);
+        return this.propertySpecService.bigDecimalPropertySpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, required, DEFAULT_SERVER_UPPER_MAC_ADDRESS);
     }
 
     abstract PropertySpec getServerLowerMacAddress();
 
     final PropertySpec getServerLowerMacAddress(boolean required) {
-        return this.getPropertySpecService().bigDecimalPropertySpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, required, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
+        return this.propertySpecService.bigDecimalPropertySpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, required, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
     }
 
     abstract PropertySpec getConnectionPropertySpec();
     final PropertySpec getConnectionPropertySpec(boolean required) {
-        return this.getPropertySpecService().bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, required, DEFAULT_CONNECTION);
+        return this.propertySpecService.bigDecimalPropertySpec(PROPERTY_NAME_CONNECTION, required, DEFAULT_CONNECTION);
     }
 
     @Override
     public Direction getDirection() {
         return Direction.OUTBOUND;
     }
+
 }

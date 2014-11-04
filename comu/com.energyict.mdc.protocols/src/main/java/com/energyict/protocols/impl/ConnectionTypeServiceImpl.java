@@ -4,6 +4,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.LibraryType;
 import com.energyict.mdc.io.ModemType;
 import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -39,13 +40,16 @@ import java.util.Map;
 @Component(name = "com.energyict.protocols.mdc.services.connectiontypeservice", service = ConnectionTypeService.class, immediate = true)
 public class ConnectionTypeServiceImpl implements ConnectionTypeService {
 
+    public static final String RXTX_PLAIN_GUICE_INJECTION_NAME = "rxtx-none";
     public static final String RXTX_AT_GUICE_INJECTION_NAME = "rxtx-at";
+    public static final String SERIAL_PLAIN_GUICE_INJECTION_NAME = "serial-none";
     public static final String SERIAL_AT_GUICE_INJECTION_NAME = "serial-at";
     public static final String SERIAL_CASE_GUICE_INJECTION_NAME = "serial-case";
     public static final String SERIAL_PAKNET_GUICE_INJECTION_NAME = "serial-paknet";
     public static final String SERIAL_PEMP_GUICE_INJECTION_NAME = "serial-pemp";
 
     private volatile PropertySpecService propertySpecService;
+    private volatile SocketService socketService;
     private volatile Map<String, SerialComponentService> serialComponentServices = new HashMap<>();
     private Injector injector;
 
@@ -55,9 +59,10 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     }
 
     @Inject
-    public ConnectionTypeServiceImpl(PropertySpecService propertySpecService) {
+    public ConnectionTypeServiceImpl(PropertySpecService propertySpecService, SocketService socketService) {
         this();
         this.setPropertySpecService(propertySpecService);
+        this.setSocketService(socketService);
         this.activate();
     }
 
@@ -66,6 +71,7 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
             @Override
             public void configure() {
                 this.bind(PropertySpecService.class).toInstance(propertySpecService);
+                this.bind(SocketService.class).toInstance(socketService);
                 serialComponentServices
                     .forEach((k, v) -> this
                             .bind(SerialComponentService.class)
@@ -89,9 +95,24 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
         this.propertySpecService = propertySpecService;
     }
 
+    @Reference
+    public void setSocketService(SocketService socketService) {
+        this.socketService = socketService;
+    }
+
+    @Reference(target = "(&(library=" + LibraryType.Target.RXTX + ")(modem-type=" + ModemType.Target.NONE + "))")
+    public void setRxTxPlainComponentService(SerialComponentService serialComponentService) {
+        this.serialComponentServices.put(RXTX_PLAIN_GUICE_INJECTION_NAME, serialComponentService);
+    }
+
     @Reference(target = "(&(library=" + LibraryType.Target.RXTX + ")(modem-type=" + ModemType.Target.AT + "))")
     public void setRxTxAtComponentService(SerialComponentService serialComponentService) {
         this.serialComponentServices.put(RXTX_AT_GUICE_INJECTION_NAME, serialComponentService);
+    }
+
+    @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.NONE + "))")
+    public void setSioPlainComponentService(SerialComponentService serialComponentService) {
+        this.serialComponentServices.put(SERIAL_PLAIN_GUICE_INJECTION_NAME, serialComponentService);
     }
 
     @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.AT + "))")

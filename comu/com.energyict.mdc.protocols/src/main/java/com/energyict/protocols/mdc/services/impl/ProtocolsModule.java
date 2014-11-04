@@ -16,7 +16,7 @@ import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
-import com.energyict.protocols.mdc.services.SocketService;
+import com.energyict.mdc.io.SocketService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -35,6 +35,7 @@ public class ProtocolsModule extends AbstractModule {
         requireBinding(Clock.class);
         requireBinding(NlsService.class);
         requireBinding(PropertySpecService.class);
+        requireBinding(SocketService.class);
 
         bind(ConnectionTypeService.class).to(ConnectionTypeServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceProtocolMessageService.class).to(DeviceProtocolMessageServiceImpl.class).in(Scopes.SINGLETON);
@@ -42,7 +43,6 @@ public class ProtocolsModule extends AbstractModule {
         bind(DeviceProtocolService.class).to(DeviceProtocolServiceImpl.class).in(Scopes.SINGLETON);
         bind(InboundDeviceProtocolService.class).to(InboundDeviceProtocolServiceImpl.class).in(Scopes.SINGLETON);
         bind(LicensedProtocolService.class).to(LicensedProtocolServiceImpl.class).in(Scopes.SINGLETON);
-        bind(SocketService.class).to(SocketServiceImpl.class).in(Scopes.SINGLETON);
         bind(HexService.class).to(HexServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceCacheMarshallingService.class).to(DeviceCacheMarshallingServiceImpl.class).in(Scopes.SINGLETON);
         bind(PropertySpecServiceDependency.class).in(Scopes.SINGLETON);

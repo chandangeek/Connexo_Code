@@ -200,7 +200,7 @@ public class ServerDatagramConnection extends StreamPortConnection {
             throw new NestedIOException(new IOException("IP port is not open"));
         }
 
-    } // protected void doClose() throws NestedIOException
+    }
 
     protected void doServerClose() throws NestedIOException {
         if (boolOpen) {
@@ -215,7 +215,7 @@ public class ServerDatagramConnection extends StreamPortConnection {
             throw new NestedIOException(new IOException("ServerDatagramConnection, doServerClose, IP server port is not open"));
         }
 
-    } // protected void doClose() throws NestedIOException
+    }
 
     //****************************************************************************************
     // Private core methods

@@ -1,5 +1,6 @@
 package com.energyict.protocols.impl.channels.serial.direct.serialio;
 
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
@@ -7,8 +8,10 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
-import com.energyict.protocols.impl.channels.serial.AbstractSerialConnectionType;
+import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
 
 /**
@@ -18,9 +21,10 @@ import java.util.List;
  * Date: 17/08/12
  * Time: 11:39
  */
-public abstract class SioSerialConnectionType extends AbstractSerialConnectionType {
+public class SioPlainSerialConnectionType extends SioSerialConnectionType {
 
-    public SioSerialConnectionType(SerialComponentService serialComponentService) {
+    @Inject
+    public SioPlainSerialConnectionType(@Named(ConnectionTypeServiceImpl.SERIAL_PLAIN_GUICE_INJECTION_NAME)SerialComponentService serialComponentService) {
         super(serialComponentService);
     }
 
@@ -41,6 +45,16 @@ public abstract class SioSerialConnectionType extends AbstractSerialConnectionTy
                         getNrOfStopBitsValue(),
                         getParityValue(),
                         getFlowControlValue());
+    }
+
+    @Override
+    public String getVersion() {
+        return "$Date: 2014-11-04 14:09:00 +0100 $";
+    }
+
+    @Override
+    public void disconnect(ComChannel comChannel) throws ConnectionException {
+        // No explicit disconnect for this SioSerialConnectionType
     }
 
 }

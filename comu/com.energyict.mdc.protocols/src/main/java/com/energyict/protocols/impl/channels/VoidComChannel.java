@@ -1,9 +1,7 @@
 package com.energyict.protocols.impl.channels;
 
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.impl.AbstractComChannel;
-
-import java.io.IOException;
 
 /**
  * Provides an implementation of the {@link ComChannel} interface
@@ -14,28 +12,9 @@ import java.io.IOException;
  * Date: 18/10/12
  * Time: 14:06
  */
-public class VoidComChannel extends AbstractComChannel {
+public class VoidComChannel implements ComChannel {
 
-    @Override
-    public boolean doStartReading () {
-        //nothing to do
-        return true;
-    }
-
-    @Override
-    public int doRead() {
-        return 0;
-    }
-
-    @Override
-    public int doRead(byte[] buffer) {
-        return 0;
-    }
-
-    @Override
-    public int doRead(byte[] buffer, int offset, int length) {
-        return 0;
-    }
+    private TypedProperties connectionTaskProperties = TypedProperties.empty();
 
     @Override
     public int available() {
@@ -43,29 +22,60 @@ public class VoidComChannel extends AbstractComChannel {
     }
 
     @Override
-    public boolean doStartWriting () {
+    public final void close () {
+        // nothing to close
+    }
+
+    @Override
+    public final void flush () {
+        // nothing to do
+    }
+
+    @Override
+    public final boolean startReading () {
         //nothing to do
         return true;
     }
 
     @Override
-    public int doWrite(int b) {
+    public final int read () {
         return 0;
     }
 
     @Override
-    public int doWrite(byte[] bytes) {
+    public final int read (byte[] buffer) {
         return 0;
     }
 
     @Override
-    public void doClose() {
-        // nothing to close
+    public final int read (byte[] buffer, int offset, int length) {
+        return 0;
     }
 
     @Override
-    public void doFlush() throws IOException {
-        // nothing to do
+    public final boolean startWriting () {
+        //nothing to do
+        return true;
+    }
+
+    @Override
+    public final int write (int b) {
+        return 0;
+    }
+
+    @Override
+    public final int write (byte[] bytes) {
+        return 0;
+    }
+
+    @Override
+    public TypedProperties getProperties() {
+        return this.connectionTaskProperties;
+    }
+
+    @Override
+    public void addProperties(TypedProperties typedProperties) {
+        this.connectionTaskProperties.setAllProperties(typedProperties);
     }
 
 }

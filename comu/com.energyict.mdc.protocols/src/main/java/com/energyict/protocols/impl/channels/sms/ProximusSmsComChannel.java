@@ -1,9 +1,10 @@
 package com.energyict.protocols.impl.channels.sms;
 
-import com.energyict.mdc.io.impl.AbstractComChannel;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,12 +14,13 @@ import java.io.IOException;
  * @author sva
  * @since 19/06/13 - 9:21
  */
-public class ProximusSmsComChannel extends AbstractComChannel {
+public class ProximusSmsComChannel implements ComChannel {
 
     private ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(new byte[0]);
     private ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     private final String phoneNumber;
     private ProximusSmsSender smsSender;
+    private TypedProperties connectionTaskProperties = TypedProperties.empty();
 
     public ProximusSmsComChannel(String phoneNumber, String apiConnectionURL, String apiSource, String apiAuthentication, String apiServiceCode) {
         super();
@@ -31,7 +33,12 @@ public class ProximusSmsComChannel extends AbstractComChannel {
     }
 
     @Override
-    protected void doClose() {
+    public int available() {
+        return byteArrayInputStream.available();
+    }
+
+    @Override
+    public final void close () {
         try {
             byteArrayOutputStream.close();
         } catch (IOException e) {
@@ -40,7 +47,7 @@ public class ProximusSmsComChannel extends AbstractComChannel {
     }
 
     @Override
-    protected void doFlush() throws IOException {
+    public final void flush () throws IOException {
         // Get the SMS message form the byteArrayOutputStream
         byte[] messageContent = byteArrayOutputStream.toByteArray();
 
@@ -53,23 +60,38 @@ public class ProximusSmsComChannel extends AbstractComChannel {
     }
 
     @Override
-    protected boolean doStartReading() {
+    public final boolean startReading () {
         return true;
     }
 
     @Override
-    protected boolean doStartWriting() {
+    public final int read () {
+        return byteArrayInputStream.read();
+    }
+
+    @Override
+    public final int read (byte[] buffer) {
+        return byteArrayInputStream.read(buffer, 0, buffer.length);
+    }
+
+    @Override
+    public final int read (byte[] buffer, int offset, int length) {
+        return byteArrayInputStream.read(buffer, offset, length);
+    }
+
+    @Override
+    public final boolean startWriting () {
         return true;
     }
 
     @Override
-    protected int doWrite(int b) {
+    public final int write (int b) {
         byteArrayOutputStream.write(b);
         return 1;
     }
 
     @Override
-    protected int doWrite(byte[] bytes) {
+    public final int write (byte[] bytes) {
         try {
             byteArrayOutputStream.write(bytes);
             return bytes.length;
@@ -79,23 +101,13 @@ public class ProximusSmsComChannel extends AbstractComChannel {
     }
 
     @Override
-    protected int doRead() {
-        return byteArrayInputStream.read();
+    public TypedProperties getProperties() {
+        return this.connectionTaskProperties;
     }
 
     @Override
-    protected int doRead(byte[] buffer) {
-        return byteArrayInputStream.read(buffer, 0, buffer.length);
-    }
-
-    @Override
-    protected int doRead(byte[] buffer, int offset, int length) {
-        return byteArrayInputStream.read(buffer, offset, length);
-    }
-
-    @Override
-    public int available() {
-        return byteArrayInputStream.available();
+    public void addProperties(TypedProperties typedProperties) {
+        this.connectionTaskProperties.setAllProperties(typedProperties);
     }
 
 }

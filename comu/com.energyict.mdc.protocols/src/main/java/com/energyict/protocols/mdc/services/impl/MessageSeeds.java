@@ -119,7 +119,6 @@ public enum MessageSeeds implements MessageSeed {
     ENCRYPTION_ERROR(222, "encryptionError", "Failure to decrypt encrypted data received from device", Level.SEVERE),
     INBOUND_UNEXPECTED_FRAME(223, "unexpectedInboundFrame", "Received an unexpected first inbound frame\\: '{0}'. {1}", Level.SEVERE),
     INBOUND_TIMEOUT(224, "inboundTimeout", "A timeout occurred while trying to receive an inbound frame\\: {0}", Level.SEVERE),
-    UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION(225, "unexpectedInboundCommException", "Unexpected inbound communication exception, see stacktrace for more details", Level.SEVERE),
     UNEXPECTED_IO_EXCEPTION(226, "unexpectedIOException", "Exception occurred while communication with a device", Level.SEVERE),
     TIMEOUT(243, "protocol.timeout", "Timeout", Level.INFO),
     RETRIES(243, "protocol.retries", "Retries", Level.INFO),

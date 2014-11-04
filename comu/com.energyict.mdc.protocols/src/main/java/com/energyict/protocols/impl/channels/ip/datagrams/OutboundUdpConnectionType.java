@@ -1,22 +1,27 @@
 package com.energyict.protocols.impl.channels.ip.datagrams;
 
-import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
+
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 /**
  * Provides an implementation for the {@link ConnectionType} interface for UDP.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/11/12
  * Time: 11:20
@@ -25,8 +30,12 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
 
     public static final String BUFFER_SIZE_NAME = "udpdatagrambuffersize";
 
-    public OutboundUdpConnectionType() {
-        super();
+    private final SocketService socketService;
+
+    @Inject
+    public OutboundUdpConnectionType(PropertySpecService propertySpecService, SocketService socketService) {
+        super(propertySpecService);
+        this.socketService = socketService;
     }
 
     @Override
@@ -45,18 +54,17 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
-    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
-        for (ConnectionProperty property : properties) {
-            if (property.getValue() != null) {
-                this.setProperty(property.getName(), property.getValue());
-            }
-        }
-        return this.newUDPConnection(this.getBufferSizePropertyValue(), this.hostPropertyValue(), this.portNumberPropertyValue());
+    public ComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
+        properties
+            .stream()
+            .filter(property -> property.getValue() != null)
+            .forEach(property -> this.setProperty(property.getName(), property.getValue()));
+        return this.newUDPConnection(this.socketService, this.getBufferSizePropertyValue(), this.hostPropertyValue(), this.portNumberPropertyValue());
     }
 
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
-        // no explicit disconnection for this OutboundUdpConnectionType
+        // no explicit disconnect for this OutboundUdpConnectionType
     }
 
     private int getBufferSizePropertyValue() {
@@ -65,23 +73,26 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
-        super.addPropertySpecs(propertySpecs);
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
         propertySpecs.add(this.bufferSizePropertySpec());
+        return propertySpecs;
     }
 
     private PropertySpec bufferSizePropertySpec() {
-        return RequiredPropertySpecFactory.newInstance().bigDecimalPropertySpec(BUFFER_SIZE_NAME);
+        return this.getPropertySpecService().basicPropertySpec(BUFFER_SIZE_NAME, true, new BigDecimalFactory());
     }
 
     @Override
     public PropertySpec getPropertySpec(String name) {
         PropertySpec superPropertySpec = super.getPropertySpec(name);
-        if(superPropertySpec != null){
+        if (superPropertySpec != null) {
             return superPropertySpec;
-        } else if(BUFFER_SIZE_NAME.equals(name)) {
+        }
+        else if (BUFFER_SIZE_NAME.equals(name)) {
             return this.bufferSizePropertySpec();
-        } else {
+        }
+        else {
             return null;
         }
     }

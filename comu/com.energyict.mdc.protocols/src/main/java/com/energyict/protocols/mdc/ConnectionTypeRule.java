@@ -2,14 +2,15 @@ package com.energyict.protocols.mdc;
 
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.ConnectionType;
+
 import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
 import com.energyict.protocols.impl.channels.ip.CTRInboundDialHomeIdConnectionType;
 import com.energyict.protocols.impl.channels.ip.InboundIpConnectionType;
 import com.energyict.protocols.impl.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.impl.channels.ip.socket.TcpIpPostDialConnectionType;
-import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxSerialConnectionType;
-import com.energyict.protocols.impl.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.protocols.impl.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.protocols.impl.channels.serial.modem.serialio.SioCaseModemConnectionType;
@@ -20,6 +21,7 @@ import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConn
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.impl.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.protocols.impl.channels.sms.OutboundProximusSmsConnectionType;
+
 import java.util.Optional;
 
 /**
@@ -30,10 +32,10 @@ public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionTyp
     OutboundUdp(OutboundUdpConnectionType.class),
     OutboundTcpIp(OutboundTcpIpConnectionType.class),
     TcpIpPostDial(TcpIpPostDialConnectionType.class),
-    RxTxSerial(RxTxSerialConnectionType.class),
+    RxTxSerial(RxTxPlainSerialConnectionType.class),
     RxTxAtModem(RxTxAtModemConnectionType.class),
     RxTxOptical(RxTxOpticalConnectionType.class),
-    SioSerial(SioSerialConnectionType.class),
+    SioSerial(SioPlainSerialConnectionType.class),
     SioCaseModem(SioCaseModemConnectionType.class),
     SioAtModem(SioAtModemConnectionType.class),
     SioPEMPModem(SioPEMPModemConnectionType.class),

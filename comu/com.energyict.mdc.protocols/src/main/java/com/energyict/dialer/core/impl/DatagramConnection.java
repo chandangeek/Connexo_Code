@@ -118,7 +118,7 @@ public class DatagramConnection extends StreamPortConnection {
             }
         }
 
-    } // protected void doClose() throws NestedIOException
+    }
 
 
     //****************************************************************************************

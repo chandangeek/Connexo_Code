@@ -1,12 +1,15 @@
 package com.energyict.protocols.impl.channels.ip.socket;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
 
+import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -19,8 +22,16 @@ import java.util.Set;
  */
 public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
 
-    public OutboundTcpIpConnectionType() {
-        super();
+    private final SocketService socketService;
+
+    @Inject
+    public OutboundTcpIpConnectionType(PropertySpecService propertySpecService, SocketService socketService) {
+        super(propertySpecService);
+        this.socketService = socketService;
+    }
+
+    protected SocketService getSocketService() {
+        return socketService;
     }
 
     @Override
@@ -50,7 +61,7 @@ public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
                 this.setProperty(property.getName(), property.getValue());
             }
         }
-        return this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+        return this.newTcpIpConnection(this.socketService, this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
     }
 
     @Override

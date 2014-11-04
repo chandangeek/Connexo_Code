@@ -1,13 +1,15 @@
 package com.energyict.protocols.impl.channels.ip;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.impl.channels.VoidComChannel;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -18,8 +20,8 @@ import java.util.Set;
 public class InboundIpConnectionType extends ConnectionTypeImpl {
 
     @Override
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
-        // No properties
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
     }
 
     @Override

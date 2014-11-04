@@ -1,12 +1,14 @@
 package com.energyict.protocols.impl.channels;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -43,8 +45,8 @@ public class EmptyConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs) {
-        // No properties to add
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -61,4 +63,5 @@ public class EmptyConnectionType extends ConnectionTypeImpl {
     public Direction getDirection() {
         return Direction.OUTBOUND;
     }
+
 }
