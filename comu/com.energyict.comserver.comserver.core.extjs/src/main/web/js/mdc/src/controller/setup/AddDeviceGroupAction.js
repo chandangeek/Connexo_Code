@@ -198,8 +198,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     addDeviceGroupAndReturnToList: function() {
         this.addDeviceGroupWidget = null;
         this.addDeviceGroup();
-        var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('devices/devicegroups').forward();
+        this.getDeviceGroupsStore().load();
+        //var router = this.getController('Uni.controller.history.Router');
+        //router.getRoute('devices/devicegroups').forward();
     },
 
     addDeviceGroup: function () {
