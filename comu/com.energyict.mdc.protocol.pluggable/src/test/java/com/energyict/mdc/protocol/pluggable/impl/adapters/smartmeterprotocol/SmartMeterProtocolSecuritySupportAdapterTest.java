@@ -15,7 +15,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapt
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
-import com.energyict.protocols.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;

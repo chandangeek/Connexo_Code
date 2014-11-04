@@ -37,7 +37,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.protocols.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;

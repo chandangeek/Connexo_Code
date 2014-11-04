@@ -6,7 +6,6 @@ import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdw.cpo.PropertySpecBuilder;
 
 /**
  * Provides support to convert {@link com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec legacy PropertySpecs}

@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapt
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
-import com.energyict.protocols.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 
 /**

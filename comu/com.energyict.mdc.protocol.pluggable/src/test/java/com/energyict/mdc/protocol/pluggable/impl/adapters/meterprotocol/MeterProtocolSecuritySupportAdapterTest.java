@@ -17,7 +17,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocols.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
 import java.util.Arrays;
 import java.util.List;

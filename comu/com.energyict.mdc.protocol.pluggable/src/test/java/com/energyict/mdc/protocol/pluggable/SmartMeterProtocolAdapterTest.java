@@ -285,7 +285,6 @@ public class SmartMeterProtocolAdapterTest {
         });
     }
 
-
     @Test
     public void getDeviceProtocolDialect() {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();

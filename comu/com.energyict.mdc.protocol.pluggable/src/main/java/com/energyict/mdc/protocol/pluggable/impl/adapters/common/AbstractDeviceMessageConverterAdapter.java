@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -21,7 +22,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
 
 import java.io.IOException;
 import java.util.ArrayList;

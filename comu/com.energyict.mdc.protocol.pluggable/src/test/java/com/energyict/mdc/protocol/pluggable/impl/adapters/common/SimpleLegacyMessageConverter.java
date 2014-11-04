@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
+import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 
 import java.util.Date;
 import java.util.EnumSet;

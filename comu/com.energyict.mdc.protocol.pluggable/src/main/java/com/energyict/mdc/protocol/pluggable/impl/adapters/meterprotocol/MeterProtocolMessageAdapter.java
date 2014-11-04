@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceMessageConverterAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.NonExistingMessageConverter;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
+import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 
 /**
  * Adapter between a {@link MessageProtocol}

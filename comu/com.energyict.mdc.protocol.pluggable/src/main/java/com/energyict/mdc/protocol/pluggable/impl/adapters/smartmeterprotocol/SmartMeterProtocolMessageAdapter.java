@@ -1,13 +1,14 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceMessageConverterAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.NonExistingMessageConverter;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
-import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+
+import com.elster.jupiter.orm.DataModel;
 
 /**
  * Adapter between a {@link MessageProtocol}

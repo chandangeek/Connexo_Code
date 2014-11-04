@@ -9,7 +9,7 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.protocols.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
 import java.io.IOException;
 import java.io.InputStream;

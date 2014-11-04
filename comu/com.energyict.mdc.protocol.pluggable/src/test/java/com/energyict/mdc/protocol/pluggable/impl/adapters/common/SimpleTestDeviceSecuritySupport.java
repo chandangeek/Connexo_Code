@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import com.energyict.protocols.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
 import java.util.Arrays;
 import java.util.List;
