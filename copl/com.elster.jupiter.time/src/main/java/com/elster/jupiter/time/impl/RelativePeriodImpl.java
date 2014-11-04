@@ -4,7 +4,11 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.time.*;
+import com.elster.jupiter.time.EventType;
+import com.elster.jupiter.time.RelativeDate;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.google.common.collect.Range;
@@ -17,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@Unique(fields="name", groups = Save.Create.class)
+@Unique(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
@@ -66,7 +70,7 @@ public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = name.trim();
     }
 
     public void setRelativeDateFrom(RelativeDate from) {

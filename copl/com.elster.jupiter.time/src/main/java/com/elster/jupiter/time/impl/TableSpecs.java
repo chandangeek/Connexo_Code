@@ -8,9 +8,6 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
-
 public enum TableSpecs {
     TME_RELATIVEPERIOD() {
         @Override
@@ -19,7 +16,7 @@ public enum TableSpecs {
             table.map(RelativePeriodImpl.class);
             table.setJournalTableName("TME_RELATIVEPERIODJRNL");
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").map("name").varChar(80).notNull().add();
+            table.column("NAME").map("name").varChar().notNull().add();
             table.column("START_DATE").map("from.relativeDate").varChar(256).notNull().add();
             table.column("END_DATE").map("to.relativeDate").varChar(256).notNull().add();
             table.addAuditColumns();

@@ -4,7 +4,6 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -36,7 +35,8 @@ public class TimeServiceImpl implements TimeService, InstallService {
     private volatile UserService userService;
     private volatile EventService eventService;
 
-    public TimeServiceImpl() {}
+    public TimeServiceImpl() {
+    }
 
     @Inject
     public TimeServiceImpl(QueryService queryService, OrmService ormService, NlsService nlsService, UserService userService, EventService eventService) {
@@ -90,11 +90,6 @@ public class TimeServiceImpl implements TimeService, InstallService {
 
     @Override
     public RelativePeriodCategory createRelativePeriodCategory(String name) {
-        if(findRelativePeriodCategoryByName(name).isPresent()) {
-            // probably IllegalArgumentException is enough because categories are not created by user but be other bundles at the init time
-            // throw new IllegalArgumentException("Name is not unique");
-            throw new LocalizedFieldValidationException(MessageSeeds.NAME_MUST_BE_UNIQUE, "name");
-        }
         RelativePeriodCategoryImpl category = RelativePeriodCategoryImpl.from(getDataModel(), name);
         category.save();
         return category;
