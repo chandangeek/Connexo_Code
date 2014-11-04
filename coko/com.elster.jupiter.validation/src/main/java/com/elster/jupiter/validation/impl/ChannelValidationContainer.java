@@ -3,7 +3,6 @@ package com.elster.jupiter.validation.impl;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import com.elster.jupiter.validation.ChannelValidation;

@@ -1,15 +1,13 @@
 package com.elster.jupiter.validation.impl;
 
+import java.util.Map;
+
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.Validator;
-import com.google.common.collect.Range;
-
-import java.time.Instant;
-import java.util.Map;
 
 public interface IValidationRule extends ValidationRule {
 

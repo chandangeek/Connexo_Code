@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,11 +11,8 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingStorer;
-import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
-import com.elster.jupiter.validation.ChannelValidation;
-import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Range;
 

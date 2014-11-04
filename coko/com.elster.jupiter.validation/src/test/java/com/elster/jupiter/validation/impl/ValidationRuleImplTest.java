@@ -1,11 +1,35 @@
 package com.elster.jupiter.validation.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.inject.Provider;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -20,36 +44,11 @@ import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Provider;
-
-import static com.elster.jupiter.util.Ranges.copy;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationRuleImplTest extends EqualsContractTest {
@@ -115,12 +114,6 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Before
     public void setUp() {
         when(channel.findReadingQuality(new ReadingQualityType("3.6." + ID), DATE1)).thenReturn(Optional.<ReadingQualityRecord>empty(), Optional.of(readingQuality));        
-        when(dataModel.getInstance(ValidationRulePropertiesImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ValidationRulePropertiesImpl();
-            }
-        });
         when(dataModel.mapper(IValidationRule.class)).thenReturn(ruleFactory);
         when(dataModel.mapper(ReadingTypeInValidationRule.class)).thenReturn(readingTypesInRuleFactory);
         when(dataModel.mapper(ValidationRuleProperties.class)).thenReturn(rulePropertiesFactory);
@@ -129,7 +122,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(validator.getPropertySpecs()).thenReturn(Arrays.asList(properySpec));
         when(properySpec.getName()).thenReturn(PROPERTY_NAME);
         when(properySpec.getValueFactory()).thenReturn(valueFactory);
-        doReturn(Optional.<ReadingQualityType>empty()).when(validator).getReadingQualityTypeCode();
+        doReturn(Optional.empty()).when(validator).getReadingQualityTypeCode();
         when(channel.getIntervalReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(intervalReadingRecord));
         when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));        
     }

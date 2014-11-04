@@ -24,13 +24,11 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
@@ -143,6 +141,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
             List<ReadingQuality> qualities = new ArrayList<>(readingQualities.get(readingTimestamp));
             result.add(createDataValidationStatusListFor(readingTimestamp, false, qualities, validationRuleMap));
         }
+        result.sort(Comparator.comparing(DataValidationStatus::getReadingTimestamp));
         return result;
     }
 

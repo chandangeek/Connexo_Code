@@ -13,11 +13,8 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.validation.ValidationRule;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
 final class ChannelValidationImpl implements IChannelValidation {

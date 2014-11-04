@@ -276,7 +276,6 @@ public class ValidationServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void testApplyRuleSetWithChannelsAndOverwrite() {
         when(meterActivation.getId()).thenReturn(ID);
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
@@ -315,8 +314,7 @@ public class ValidationServiceImplTest {
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
         validationService.validate(meterActivation, Instant.EPOCH);
-        verify(channelValidation2).moveLastCheckedBefore(Instant.ofEpochMilli(0L));
-        verify(meterActivationValidation).save();
+        verify(meterActivationValidation).moveLastCheckedBefore(Instant.ofEpochMilli(0L));      
     }
 
     @Test

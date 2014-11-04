@@ -1,30 +1,9 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.validation.ChannelValidation;
-import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validation.Validator;
-import com.google.common.collect.Range;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -36,11 +15,29 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 
-import static com.elster.jupiter.util.Ranges.copy;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.Validator;
+import com.google.common.collect.Range;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeterActivationValidationImplTest {
@@ -160,7 +157,6 @@ public class MeterActivationValidationImplTest {
     }
 
     @Test
-    @Ignore
     public void testValidateBothRulesApplyToBothChannels() throws Exception {
         doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule1).getReadingTypes();
         doReturn(new HashSet<>(Arrays.asList(readingType1, readingType2))).when(rule2).getReadingTypes();

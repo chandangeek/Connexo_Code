@@ -1,15 +1,15 @@
 package com.elster.jupiter.validation.impl;
 
+import java.math.BigDecimal;
+import java.util.Objects;
+
+import javax.inject.Inject;
+
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
-
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.util.Objects;
 
 final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 

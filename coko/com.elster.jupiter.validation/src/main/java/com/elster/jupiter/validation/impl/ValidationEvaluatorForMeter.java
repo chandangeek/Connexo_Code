@@ -111,6 +111,7 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
             boolean fullyValidated = configured && wasValidated;
             result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities));
         });
+        result.sort(Comparator.comparing(DataValidationStatus::getReadingTimestamp));
         return result;
     }
 
@@ -142,17 +143,6 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
                 .map(ChannelValidation::getLastChecked)
                 .filter(notNull())
                 .max(naturalOrder());
-    }
-
-    private ImmutableMultimap<Instant, ReadingQualityRecord> initReadingQualitiesMap(Meter meter, Range<Instant> interval) {
-        ImmutableMultimap.Builder<Instant, ReadingQualityRecord> readingQualityMapBuilder = ImmutableMultimap.builder();
-        meter.getMeterActivations().stream()
-                .flatMap(m -> m.getChannels().stream())
-                .flatMap(c -> c.findReadingQuality(interval).stream())
-                .forEach(r -> {
-                    readingQualityMapBuilder.put(r.getTimestamp(), r);
-                });
-        return readingQualityMapBuilder.build();
     }
 
     private ImmutableMap<Long, MeterActivationValidationContainer> initMeterActivationMap(ValidationServiceImpl validationService, Meter meter) {
@@ -231,13 +221,6 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
         Map<String, IValidationRule> collect = iValidationRules.stream()
                 .collect(Collectors.toMap(IValidationRule::getImplementation, Function.<IValidationRule>identity(), (a, b) -> a.isObsolete() ? b : a));
         return new ArrayList<>(collect.values());
-    }
-
-    private Multimap<Instant, ReadingQualityRecord> getReadingQualities() {
-        if (readingQualities == null) {
-            readingQualities = initReadingQualitiesMap(meter, interval);
-        }
-        return readingQualities;
     }
 
     private Map<Long, MeterActivationValidationContainer> getMapToValidation() {
