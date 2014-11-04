@@ -47,7 +47,11 @@ public class ComTaskExecutionSessionInfoFactory {
         for (ComTask comTask : comTaskExecution.getComTasks()) {
             info.comTasks.add(new IdWithNameInfo(comTask));
         }
-        info.name = comTaskExecution.getComTasks().stream().map(ComTask::getName).collect(Collectors.joining(" + "));
+        if(comTaskExecution.usesSharedSchedule()){
+            info.name = ((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getName();
+        } else {
+            info.name = comTaskExecution.getComTasks().stream().map(ComTask::getName).collect(Collectors.joining(" + "));
+        }
         info.id = comTaskExecutionSession.getId();
         Device device = comTaskExecutionSession.getDevice();
         info.device = new IdWithNameInfo(device.getmRID(), device.getName());
