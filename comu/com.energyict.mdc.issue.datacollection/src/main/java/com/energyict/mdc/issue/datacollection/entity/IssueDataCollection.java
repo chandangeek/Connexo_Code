@@ -15,8 +15,8 @@ public interface IssueDataCollection extends Issue {
     Optional<ComTaskExecution> getCommunicationTask();
     void setCommunicationTask(ComTaskExecution task);
 
-    String getDeviceSerialNumber();
-    void setDeviceSerialNumber(String deviceSerialNumber);
+    String getDeviceMRID();
+    void setDeviceMRID(String deviceMRID);
     
     Optional<ComSession> getComSession();
     void setComSession(ComSession comSession);

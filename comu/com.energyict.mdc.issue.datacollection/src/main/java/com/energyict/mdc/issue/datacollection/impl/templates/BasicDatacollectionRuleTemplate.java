@@ -1,8 +1,19 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
+import java.util.Optional;
+
+import javax.inject.Inject;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 import com.elster.jupiter.issue.share.cep.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.cep.IssueEvent;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -12,13 +23,6 @@ import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.AutoResolutionParameter;
 import com.energyict.mdc.issue.datacollection.impl.templates.params.EventTypeParameter;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import java.util.List;
-import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate",
            property = {"uuid=" + BasicDatacollectionRuleTemplate.BASIC_TEMPLATE_UUID},
@@ -123,16 +127,10 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
 
     @Override
     public Optional<? extends Issue> resolveIssue(CreationRule rule, IssueEvent event) {
-        List<CreationRuleParameter> ruleParameters = rule.getParameters();
         Optional<? extends Issue> issue = event.findExistingIssue();
-        if (issue.isPresent() && !issue.get().getStatus().isHistorical()){
-            for (CreationRuleParameter parameter : ruleParameters) {
-                if (AutoResolutionParameter.AUTO_RESOLUTION_PARAMETER_KEY.equalsIgnoreCase(parameter.getKey())){
-                    OpenIssue openIssue = (OpenIssue) issue.get();
-                    issue = Optional.of(openIssue.close(issueService.findStatus(IssueStatus.RESOLVED).get()));
-                    break;
-                }
-            }
+        if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
+            OpenIssue openIssue = (OpenIssue) issue.get();
+            issue = Optional.of(openIssue.close(issueService.findStatus(IssueStatus.RESOLVED).get()));
         }
         return issue;
     }

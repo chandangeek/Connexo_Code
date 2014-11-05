@@ -6,14 +6,17 @@ import com.energyict.mdc.issue.datacollection.event.ConnectionLostEvent;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureEvent;
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
-import com.energyict.mdc.issue.datacollection.event.UnknownDeviceEvent;
+import com.energyict.mdc.issue.datacollection.event.UnknownInboundDeviceEvent;
+import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.osgi.service.event.EventConstants;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -59,14 +62,14 @@ public enum DataCollectionEventDescription implements EventDescription {
     UNKNOWN_INBOUND_DEVICE(
             "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE",
             null,
-            UnknownDeviceEvent.class,
+            UnknownInboundDeviceEvent.class,
             MessageSeeds.EVENT_TITLE_UNKNOWN_INBOUND_DEVICE) {
     },
 
     UNKNOWN_OUTBOUND_DEVICE(
             "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE",
             null,
-            UnknownDeviceEvent.class,
+            UnknownSlaveDeviceEvent.class,
             MessageSeeds.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE);
 
     private String topic;

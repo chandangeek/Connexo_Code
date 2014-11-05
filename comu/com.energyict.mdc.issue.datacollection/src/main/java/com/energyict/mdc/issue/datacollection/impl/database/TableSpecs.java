@@ -83,7 +83,7 @@ public enum TableSpecs {
             Column connectionTaskColRef = table.column(IDC_CONNECTION_TASK).number().conversion(NUMBER2LONG).add();
             Column comTaskColRef = table.column(IDC_COMMUNICATION_TASK).number().conversion(NUMBER2LONG).add();
             Column comSessionColRef = table.column(IDC_COM_SESSION).type("number").conversion(NUMBER2LONG).add();
-            table.column(IDC_DEVICE_NUMBER).varChar(NAME_LENGTH).map("deviceSerialNumber").add();
+            table.column(IDC_DEVICE_MRID).varChar(NAME_LENGTH).map("deviceMRID").add();
 
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH){

@@ -45,7 +45,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     private final Thesaurus thesaurus;
 
     private Device device;
-    private EndDevice koreDevice;
+    private EndDevice endDevice;
     private IssueStatus status;
     private EventDescription eventDescription;
     private Optional<? extends Issue> existingIssue;
@@ -96,8 +96,8 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         this.device = device;
     }
 
-    protected void setKoreDevice(EndDevice koreDevice) {
-        this.koreDevice = koreDevice;
+    protected void setEndDevice(EndDevice endDevice) {
+        this.endDevice = endDevice;
     }
 
     protected void setEventDescription(EventDescription eventDescription) {
@@ -126,13 +126,13 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
         device = getDeviceService().findDeviceById(amrId.orElse(0L));
         if (device != null) {
-            koreDevice = findKoreDeviceByDevice();
+            endDevice = findEndDeviceByMdcDevice();
         } else {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId);
         }
     }
 
-    public EndDevice findKoreDeviceByDevice() {
+    public EndDevice findEndDeviceByMdcDevice() {
         Optional<AmrSystem> amrSystemRef = getMeteringService().findAmrSystem(MDC_AMR_ID);
         if (amrSystemRef.isPresent()){
             Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
@@ -200,8 +200,12 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     }
 
     @Override
-    public EndDevice getKoreDevice() {
-        return koreDevice;
+    public EndDevice getEndDevice() {
+        return endDevice;
+    }
+    
+    public Device getDevice() {
+        return device;
     }
 
     @Override
@@ -232,7 +236,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     public DataCollectionEvent clone() {
         DataCollectionEvent clone = injector.getInstance(eventDescription.getEventClass());
         clone.eventDescription = eventDescription;
-        clone.koreDevice = koreDevice;
+        clone.endDevice = endDevice;
         clone.device = device;
         return clone;
     }
@@ -242,9 +246,9 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         DataCollectionEvent clone = this.clone();
         clone.device = device.getPhysicalGateway();
         if (clone.device != null) {
-            clone.koreDevice = findKoreDeviceByDevice();
+            clone.endDevice = findEndDeviceByMdcDevice();
         } else {
-            clone.koreDevice = null;
+            clone.endDevice = null;
         }
         return clone;
     }

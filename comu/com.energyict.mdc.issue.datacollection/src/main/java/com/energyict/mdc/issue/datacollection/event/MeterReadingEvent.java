@@ -48,7 +48,7 @@ public class MeterReadingEvent implements IssueEvent {
     }
 
     @Override
-    public EndDevice getKoreDevice() {
+    public EndDevice getEndDevice() {
         return meter;
     }
 
@@ -80,7 +80,7 @@ public class MeterReadingEvent implements IssueEvent {
                         readingType);
         if (!isValidReadings(readings, trendPeriodInMillis)) {
             //Nothing to do because at least two measurement points needed
-            LOG.log(Level.INFO, () -> "Device '" + getKoreDevice().getMRID() + "' hasn't enought readings (only " + readings.size() + ")");
+            LOG.log(Level.INFO, () -> "Device '" + getEndDevice().getMRID() + "' hasn't enought readings (only " + readings.size() + ")");
             return 0d;
         }
 
@@ -102,7 +102,7 @@ public class MeterReadingEvent implements IssueEvent {
         LOG.log(Level.INFO, () -> "Processed readings:" + sb.toString());
         BigDecimal s0 = new BigDecimal(s0d);
         double result = Math.abs(s0.multiply(t1).subtract(s1.multiply(t0)).divide(s0.multiply(s2).subtract(s1.multiply(s1)), RoundingMode.HALF_UP).doubleValue());
-        LOG.log(Level.INFO, () -> "Slope for device '" + getKoreDevice().getMRID() + "' with " + readings.size() + " readings is: " + result);
+        LOG.log(Level.INFO, () -> "Slope for device '" + getEndDevice().getMRID() + "' with " + readings.size() + " readings is: " + result);
         return result;
     }
 

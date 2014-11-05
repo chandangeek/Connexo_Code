@@ -14,7 +14,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.event.UnknownDeviceEvent;
+import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
@@ -47,7 +47,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
             Issue baseIssue = getBaseIssue(rule, meter);
 
             BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
-            UnknownDeviceEvent event = getUnknownDeviceEvent(1L);
+            UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
 
             assertThat(template.createIssue(baseIssue, event).isPresent()).isTrue();
         }
@@ -62,14 +62,14 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
             baseIssue.save();
             OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
             idcIssue.init(baseIssue);
-            idcIssue.setDeviceSerialNumber("001234");
+            idcIssue.setDeviceMRID("001234");
             idcIssue.save();
 
             meter = createMeter("2", "mrid2");
             baseIssue = getBaseIssue(rule, meter);
 
             BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
-            UnknownDeviceEvent event = getUnknownDeviceEvent(2L);
+            UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(2L);
 
             assertThat(template.createIssue(baseIssue, event).isPresent()).isTrue();
         }
@@ -85,11 +85,11 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
 
             OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
             idcIssue.init(baseIssue);
-            idcIssue.setDeviceSerialNumber("1");
+            idcIssue.setDeviceMRID("1");
             idcIssue.save();
             baseIssue = getBaseIssue(rule, meter);
             BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
-            UnknownDeviceEvent event = getUnknownDeviceEvent(1L);
+            UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
             assertThat(template.createIssue(baseIssue, event).isPresent()).isFalse();
         }
     }
@@ -105,12 +105,12 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
 
             OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
             idcIssue.init(baseIssue);
-            idcIssue.setDeviceSerialNumber("1");
+            idcIssue.setDeviceMRID("1");
             idcIssue.setStatus(getIssueService().findStatus(IssueStatus.IN_PROGRESS).get());
             idcIssue.save();
             baseIssue = getBaseIssue(rule, meter);
             BasicDatacollectionRuleTemplate template = getInjector().getInstance(BasicDatacollectionRuleTemplate.class);
-            UnknownDeviceEvent event = getUnknownDeviceEvent(1L);
+            UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
             assertThat(template.createIssue(baseIssue, event).isPresent()).isFalse();
             Optional<OpenIssueDataCollection> openIssue = getIssueDataCollectionService().findOpenIssue(idcIssue.getId());
             assertThat(openIssue.isPresent()).isTrue();
@@ -129,7 +129,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
             // Create data-collection issue
             OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
             idcIssue.init(baseIssue);
-            idcIssue.setDeviceSerialNumber("1");
+            idcIssue.setDeviceMRID("1");
             idcIssue.save();
             // Mock rule parameters
             List<CreationRuleParameter> parameters = new ArrayList<>();
@@ -171,12 +171,12 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         return baseIssue;
     }
 
-    private UnknownDeviceEvent getUnknownDeviceEvent(Long amrId) {
+    private UnknownSlaveDeviceEvent getUnknownDeviceEvent(Long amrId) {
         DeviceService mockDeviceDataService = mock(DeviceService.class);
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(amrId);
         when(mockDeviceDataService.findDeviceById(Matchers.anyLong())).thenReturn(device);
-        UnknownDeviceEvent event = new UnknownDeviceEvent(getIssueDataCollectionService(), getIssueService(), getMeteringService(), mockDeviceDataService, getCommunicationTaskService(), getThesaurus(), mock(Injector.class));
+        UnknownSlaveDeviceEvent event = new UnknownSlaveDeviceEvent(getIssueDataCollectionService(), getIssueService(), getMeteringService(), mockDeviceDataService, getCommunicationTaskService(), getThesaurus(), mock(Injector.class));
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, amrId.toString());

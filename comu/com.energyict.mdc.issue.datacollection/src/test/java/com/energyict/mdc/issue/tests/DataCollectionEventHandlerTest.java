@@ -15,7 +15,8 @@ import com.energyict.mdc.issue.datacollection.event.ConnectionLostResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureEvent;
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectResolvedEvent;
-import com.energyict.mdc.issue.datacollection.event.UnknownDeviceEvent;
+import com.energyict.mdc.issue.datacollection.event.UnknownInboundDeviceEvent;
+import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandlerFactory;
 
@@ -157,7 +158,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         Message message = getMockMessage(getJsonService().serialize(messageMap));
-        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownDeviceEvent.class);
+        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownInboundDeviceEvent.class);
         getDataCollectionEventHandler(mock).process(message);
         assertThat(mock.isSuccessfull()).isTrue();
     }
@@ -170,7 +171,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, "1");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         Message message = getMockMessage(getJsonService().serialize(messageMap));
-        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownDeviceEvent.class);
+        CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownSlaveDeviceEvent.class);
         getDataCollectionEventHandler(mock).process(message);
         assertThat(mock.isSuccessfull()).isTrue();
     }

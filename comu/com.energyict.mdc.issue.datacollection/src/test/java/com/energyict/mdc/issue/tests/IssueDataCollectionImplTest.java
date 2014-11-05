@@ -49,14 +49,14 @@ public class IssueDataCollectionImplTest extends BaseTest {
             Issue baseIssue = getBaseIssue(rule);
             dcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
             dcIssue.init(baseIssue);
-            dcIssue.setDeviceSerialNumber("001234");
+            dcIssue.setDeviceMRID("001234");
             dcIssue.save();
             context.commit();
         }
         try (TransactionContext context = getContext()) {
             HistoricalIssueDataCollection closed = dcIssue.close(getIssueService().findStatus(IssueStatus.RESOLVED).get());
             assertThat(closed.getId()).isEqualTo(dcIssue.getId());
-            assertThat(closed.getDeviceSerialNumber()).isEqualTo(dcIssue.getDeviceSerialNumber());
+            assertThat(closed.getDeviceMRID()).isEqualTo(dcIssue.getDeviceMRID());
             assertThat(closed.getCommunicationTask().orElse(null)).isEqualTo(dcIssue.getCommunicationTask().orElse(null));
             assertThat(closed.getConnectionTask().orElse(null)).isEqualTo(dcIssue.getConnectionTask().orElse(null));
             assertThat(closed.getReason().getKey()).isEqualTo(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);

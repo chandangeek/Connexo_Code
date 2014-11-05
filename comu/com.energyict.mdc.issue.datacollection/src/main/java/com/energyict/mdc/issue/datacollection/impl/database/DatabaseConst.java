@@ -16,7 +16,7 @@ public final class DatabaseConst {
     public static final String IDC_BASE_ISSUE = "ISSUE";
     public static final String IDC_CONNECTION_TASK = "CON_TASK";
     public static final String IDC_COMMUNICATION_TASK = "COM_TASK";
-    public static final String IDC_DEVICE_NUMBER = "DEVICE_NUMBER";
+    public static final String IDC_DEVICE_MRID = "DEVICE_MRID";
     public static final String IDC_COM_SESSION = "COM_SESSION";
 
     public static final String IDC_ISSUE_PK = "IDC_ISSUE_PK";

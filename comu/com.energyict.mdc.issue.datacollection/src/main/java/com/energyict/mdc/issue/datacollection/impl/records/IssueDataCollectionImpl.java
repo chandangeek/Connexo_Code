@@ -35,7 +35,7 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
     private Reference<ComTaskExecution> comTask = ValueReference.absent();
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
     private Reference<ComSession> comSession = ValueReference.absent();
-    private String deviceSerialNumber;
+    private String deviceMRID;
 
     @Inject
     public IssueDataCollectionImpl(DataModel dataModel) {
@@ -185,18 +185,18 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
     }
 
     @Override
-    public String getDeviceSerialNumber() {
-        if (!is(deviceSerialNumber).emptyOrOnlyWhiteSpace()) {
-            return deviceSerialNumber;
+    public String getDeviceMRID() {
+        if (!is(deviceMRID).emptyOrOnlyWhiteSpace()) {
+            return deviceMRID;
         } else if (getBaseIssue() != null && getBaseIssue().getDevice() != null) {
-            return getBaseIssue().getDevice().getSerialNumber();
+            return getBaseIssue().getDevice().getMRID();
         }
         return "";
     }
 
     @Override
-    public void setDeviceSerialNumber(String deviceSerialNumber) {
-        this.deviceSerialNumber = deviceSerialNumber;
+    public void setDeviceMRID(String deviceMRID) {
+        this.deviceMRID = deviceMRID;
     }
     
     @Override
@@ -225,7 +225,7 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
             this.comTask.set(source.comTask.orNull());
             this.connectionTask.set(source.connectionTask.orNull());
             this.comSession.set(source.comSession.orNull());
-            this.deviceSerialNumber = source.deviceSerialNumber;
+            this.deviceMRID = source.deviceMRID;
         }
         return this;
     }

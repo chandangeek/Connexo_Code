@@ -67,13 +67,23 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
         }
     },
 
-    UNKNOWN_DEVICE_EVENT_AUTO_RESOLVE(
-            "com/elster/jupiter/metering/enddeviceevent/CREATED",
+    UNKNOWN_INBOUND_DEVICE_EVENT_AUTO_RESOLVE(
+            "com/energyict/mdc/device/data/device/CREATED",
             UnknownDeviceResolvedEvent.class){
 
         @Override
         public String getUniqueKey() {
             return DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE.getUniqueKey();
+        }
+    },
+    
+    UNKNOWN_OUTBOUND_DEVICE_EVENT_AUTO_RESOLVE(
+            "com/energyict/mdc/device/data/device/CREATED",
+            UnknownDeviceResolvedEvent.class){
+
+        @Override
+        public String getUniqueKey() {
+            return DataCollectionEventDescription.UNKNOWN_OUTBOUND_DEVICE.getUniqueKey();
         }
     };
 
