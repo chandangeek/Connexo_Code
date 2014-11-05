@@ -44,4 +44,9 @@ class DataExportOccurrenceImpl implements DataExportOccurrence {
         }
         return exportedDataRange;
     }
+
+    @Override
+    public Instant getTriggerTime() {
+        return taskOccurrence.get().getTriggerTime();
+    }
 }

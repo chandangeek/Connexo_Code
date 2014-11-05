@@ -49,4 +49,6 @@ public interface ReadingTypeDataExportTask extends HasName {
     List<PropertySpec<?>> getPropertySpecs();
 
     ScheduleExpression getScheduleExpression();
+
+    Optional<? extends DataExportOccurrence> getLastOccurence();
 }

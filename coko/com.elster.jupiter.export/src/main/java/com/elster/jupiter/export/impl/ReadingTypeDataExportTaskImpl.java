@@ -17,6 +17,8 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
@@ -139,6 +141,12 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public List<? extends DataExportOccurrence> getOccurrences(Range<Instant> interval) {
         return Collections.emptyList(); // TODO
+    }
+
+    @Override
+    public Optional<? extends DataExportOccurrence> getLastOccurence() {
+        return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("taskOccurrence", this), new Order[] {Order.descending("startDate")},
+                false, new String[]{}, 1, 1). stream().findAny();
     }
 
     @Override
