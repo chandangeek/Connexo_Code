@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -41,8 +42,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.ChannelValidation;
-import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -275,11 +274,12 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     }
     
     @Override
-    @Deprecated
-    public void validate(MeterActivation meterActivation, Range<Instant> interval) {
-    	validate(meterActivation);
+    public void validate(MeterActivation meterActivation, ReadingType readingType) {
+    	if (isValidationActive(meterActivation)) {
+    		updatedMeterActivationValidationsFor(meterActivation).validate(readingType);
+    	}
     }
-
+    
     public void validate(MeterActivation meterActivation, Instant instant) {
     	MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
     	container.moveLastCheckedBefore(instant);
@@ -295,17 +295,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     		.map(MeterValidationImpl::getActivationStatus)
     		.orElse(!meter.isPresent());
        }
-
-    @Override
-    @Deprecated
-    public void validate(MeterActivation meterActivation, String readingTypeCode, Range<Instant> interval) {
-        if (isValidationActive(meterActivation)) {
-            List<IMeterActivationValidation> meterActivationValidations = getUpdatedMeterActivationValidations(meterActivation);
-            meterActivationValidations.stream()
-                    .filter(MeterActivationValidation::isActive)
-                    .forEach(m -> m.validate(readingTypeCode));
-        }
-    }
 
     List<IMeterActivationValidation> getUpdatedMeterActivationValidations(MeterActivation meterActivation) {
         List<ValidationRuleSet> ruleSets = ruleSetResolvers.stream()
@@ -338,12 +327,12 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
 
     List<IMeterActivationValidation> getIMeterActivationValidations(MeterActivation meterActivation) {
         Condition condition = where("meterActivation").isEqualTo(meterActivation).and(where("obsoleteTime").isNull());
-        return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class).select(condition);
+        return dataModel.query(IMeterActivationValidation.class, IChannelValidation.class).select(condition);
     }
 
     private List<IMeterActivationValidation> getActiveIMeterActivationValidations(MeterActivation meterActivation) {
         Condition condition = where("meterActivation").isEqualTo(meterActivation).and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull()).and(where("active").isEqualTo(true));
-        return dataModel.query(IMeterActivationValidation.class, ChannelValidation.class).select(condition);
+        return dataModel.query(IMeterActivationValidation.class, IChannelValidation.class).select(condition);
     }
 
     private IMeterActivationValidation applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
@@ -356,13 +345,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         return meterActivationValidation;
     }
 
-    @Override
-    public List<? extends MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation) {
+    public List<? extends IMeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation) {
         return getUpdatedMeterActivationValidations(meterActivation);
     }
 
-    @Override
-    public List<? extends MeterActivationValidation> getActiveMeterActivationValidations(MeterActivation meterActivation) {
+    public List<? extends IMeterActivationValidation> getActiveMeterActivationValidations(MeterActivation meterActivation) {
         return getActiveIMeterActivationValidations(meterActivation);
     }
 
@@ -376,7 +363,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
         return queryService.wrap(dataModel.query(IValidationRule.class));
     }
 
-    List<? extends ChannelValidation> getChannelValidations(Channel channel) {
+    List<? extends IChannelValidation> getChannelValidations(Channel channel) {
         return dataModel.mapper(IChannelValidation.class).find("channel", channel);
     }
 
@@ -459,4 +446,35 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     DataModel getDataModel() {
         return dataModel;
     }
+
+	private Optional<? extends IMeterActivationValidation> findMeterActivationValidation(MeterActivation meterActivation, ValidationRuleSet ruleSet) {
+		return getMeterActivationValidations(meterActivation).stream()
+		.filter(meterActivationValidation -> meterActivationValidation.getRuleSet().equals(ruleSet))
+		.findFirst();
+	}
+
+	@Override
+	public void activate(MeterActivation meterActivation, ValidationRuleSet ruleSet) {
+		findMeterActivationValidation(meterActivation, ruleSet).ifPresent(meterActivationValidation -> {
+			meterActivationValidation.activate();
+			meterActivationValidation.save();
+		});			
+	}
+
+	@Override
+	public void deactivate(MeterActivation meterActivation, ValidationRuleSet ruleSet) {
+		findMeterActivationValidation(meterActivation, ruleSet).ifPresent(meterActivationValidation -> {
+			meterActivationValidation.deactivate();
+			meterActivationValidation.save();
+		});			
+	}
+
+	@Override
+	public List<ValidationRuleSet> activeRuleSets(MeterActivation meterActivation) {
+		return getActiveIMeterActivationValidations(meterActivation).stream()
+			.map(IMeterActivationValidation::getRuleSet)
+			.collect(Collectors.toList());				
+	}
+
+    
 }

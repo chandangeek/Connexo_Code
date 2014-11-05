@@ -23,7 +23,8 @@ final class ChannelValidationImpl implements IChannelValidation {
     private long channelId;
     private Reference<IMeterActivationValidation> meterActivationValidation = ValueReference.absent();
     private Instant lastChecked;
-    private boolean activeRules;
+    @SuppressWarnings("unused")
+	private boolean activeRules;
     private Channel channel;
 
     @Inject

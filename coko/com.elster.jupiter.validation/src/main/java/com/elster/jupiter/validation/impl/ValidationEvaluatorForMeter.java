@@ -27,9 +27,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.ImmutableListMultimap;
@@ -47,12 +45,10 @@ import com.google.common.collect.Range;
 class ValidationEvaluatorForMeter implements ValidationEvaluator {
 
     private final Meter meter;
-    private final Range<Instant> interval;
     private final ValidationServiceImpl validationService;
 
-    private Map<Long, MeterActivationValidationContainer> mapToValidation;
-    private Multimap<Instant, ReadingQualityRecord> readingQualities;
-    private Multimap<Long, ChannelValidation> mapChannelToValidation;
+    private Map<Long, MeterActivationValidationContainer> mapToValidation;   
+    private Multimap<Long, IChannelValidation> mapChannelToValidation;
     private Multimap<String, IValidationRule> mapQualityToRule;
 
     private Optional<Boolean> isEnabled = Optional.empty();
@@ -60,7 +56,6 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
     ValidationEvaluatorForMeter(ValidationServiceImpl validationService, Meter meter, Range<Instant> interval) {
         this.validationService = validationService;
         this.meter = meter;
-        this.interval = interval;
     }
 
 
@@ -77,11 +72,11 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
     @Override
     public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
         List<DataValidationStatus> result = new ArrayList<>();
-        Collection<ChannelValidation> channelValidations = getMapChannelToValidation().get(channel.getId());
+        Collection<IChannelValidation> channelValidations = getMapChannelToValidation().get(channel.getId());
         boolean configured = !channelValidations.isEmpty();
         Instant lastChecked = configured ? getMinLastChecked(channelValidations.stream()
-                .filter(ChannelValidation::hasActiveRules)
-                .map(ChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
+                .filter(IChannelValidation::hasActiveRules)
+                .map(IChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
 
         ListMultimap<Instant, ReadingQualityRecord> readingQualities = getActualReadingQualities(channel, interval);
 
@@ -128,8 +123,8 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
 
     @Override
     public boolean isValidationEnabled(Channel channel) {
-        Collection<ChannelValidation> channelValidations = getMapChannelToValidation().get(channel.getId());
-        return channelValidations != null && channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
+        Collection<IChannelValidation> channelValidations = getMapChannelToValidation().get(channel.getId());
+        return channelValidations != null && channelValidations.stream().anyMatch(IChannelValidation::hasActiveRules);
     }
 
     @Override
@@ -140,7 +135,7 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
                 .map(c -> getMapChannelToValidation().get(c.getId()))
                 .filter(notNull())
                 .flatMap(Collection::stream)
-                .map(ChannelValidation::getLastChecked)
+                .map(IChannelValidation::getLastChecked)
                 .filter(notNull())
                 .max(naturalOrder());
     }
@@ -154,8 +149,8 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
         return validationMapBuilder.build();
     }
 
-    private ImmutableMultimap<Long, ChannelValidation> initChannelMap(Meter meter) {
-        ImmutableMultimap.Builder<Long, ChannelValidation> channelValidationMapBuilder = ImmutableMultimap.builder();
+    private ImmutableMultimap<Long, IChannelValidation> initChannelMap(Meter meter) {
+        ImmutableMultimap.Builder<Long, IChannelValidation> channelValidationMapBuilder = ImmutableMultimap.builder();
         meter.getMeterActivations().stream()
                 .flatMap(m -> m.getChannels().stream())
                 .forEach(c -> {
@@ -170,8 +165,8 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
     private ImmutableListMultimap<String, IValidationRule> initRulesPerQuality() {
         Query<IValidationRule> ruleQuery = this.validationService.getAllValidationRuleQuery();
         Set<IValidationRule> rules = getMapChannelToValidation().values().stream()
-                .map(ChannelValidation::getMeterActivationValidation)
-                .map(MeterActivationValidation::getRuleSet)
+                .map(IChannelValidation::getMeterActivationValidation)
+                .map(IMeterActivationValidation::getRuleSet)
                 .map(ValidationRuleSet::getId)
                 .map(id -> ruleQuery.select(Operator.EQUAL.compare("ruleSetId", id)))
                 .flatMap(l -> l.stream())
@@ -230,7 +225,7 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
         return mapToValidation;
     }
 
-    private Multimap<Long, ChannelValidation> getMapChannelToValidation() {
+    private Multimap<Long, IChannelValidation> getMapChannelToValidation() {
         if (mapChannelToValidation == null) {
             mapChannelToValidation = initChannelMap(meter);
         }

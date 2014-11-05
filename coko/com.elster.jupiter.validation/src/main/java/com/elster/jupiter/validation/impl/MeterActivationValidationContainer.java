@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.validation.ChannelValidation;
+import com.elster.jupiter.metering.ReadingType;
 
 public class MeterActivationValidationContainer {
 	
@@ -26,6 +26,10 @@ public class MeterActivationValidationContainer {
 	
 	void validate() {
 		meterActivationValidations.forEach(IMeterActivationValidation::validate);
+	}
+	
+	public void validate(ReadingType readingType) {
+		meterActivationValidations.forEach(meterActivationValidation -> meterActivationValidation.validate(readingType));		
 	}
 	
 	void moveLastCheckedBefore(Instant instant) {
@@ -56,7 +60,7 @@ public class MeterActivationValidationContainer {
     Optional<Instant> getLastChecked() {
     	return meterActivationValidations.stream()
     		.filter(IMeterActivationValidation::isActive)
-            .filter(m -> m.getChannelValidations().stream().anyMatch(ChannelValidation::hasActiveRules))
+            .filter(m -> m.getChannelValidations().stream().anyMatch(IChannelValidation::hasActiveRules))
             .map(IMeterActivationValidation::getMinLastChecked)
             .filter(Objects::nonNull)
             .min(naturalOrder());       		
@@ -87,5 +91,7 @@ public class MeterActivationValidationContainer {
     		.map(IChannelValidation.class::cast)
     		.collect(Collectors.toList());
     }
+
+	
 }
 	

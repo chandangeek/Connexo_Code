@@ -48,7 +48,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -57,7 +56,6 @@ import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
-import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -75,16 +73,7 @@ public class ValidationIT {
     private static final String MAX_NUMBER_IN_SEQUENCE = "maxNumberInSequence";
     private static final String MIN = "min";
     private static final String MAX = "max";
-    private static final long METERACTIVATION_ID = 101L;
-    private static final long CHANNEL1_ID = 1001L;
-    private static final long CHANNEL2_ID = 1002L;
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant date2 = ZonedDateTime.of(1983, 5, 31, 15, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant date3 = ZonedDateTime.of(1983, 5, 31, 16, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant date4 = ZonedDateTime.of(1983, 5, 31, 17, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant date5 = ZonedDateTime.of(1983, 5, 31, 18, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant date6 = ZonedDateTime.of(1983, 5, 31, 19, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
@@ -214,7 +203,7 @@ public class ValidationIT {
             @Override
             protected void doPerform() {
                 ValidationService service = injector.getInstance(ValidationService.class);
-                service.validate(meterActivation, interval(date1, date5));
+                service.validate(meterActivation);
 
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
                 List<IMeterActivationValidation> meterActivationValidations = valDataModel.mapper(IMeterActivationValidation.class).find("meterActivation", meterActivation);
@@ -225,10 +214,6 @@ public class ValidationIT {
 
             }
         });
-    }
-
-    private Range<Instant> interval(Instant from, Instant to) {
-        return Ranges.closed(from, to);
     }
 
 

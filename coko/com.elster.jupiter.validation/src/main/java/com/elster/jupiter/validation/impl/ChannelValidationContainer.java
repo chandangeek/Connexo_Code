@@ -5,8 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import com.elster.jupiter.validation.ChannelValidation;
-
 public class ChannelValidationContainer {
 
 	private final List<IChannelValidation> channelValidations;
@@ -29,7 +27,7 @@ public class ChannelValidationContainer {
 	}
 	
 	boolean isValidationActive() {
-    	return channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
+    	return channelValidations.stream().anyMatch(IChannelValidation::hasActiveRules);
     }
 	
 	Optional<Instant> getLastChecked() {

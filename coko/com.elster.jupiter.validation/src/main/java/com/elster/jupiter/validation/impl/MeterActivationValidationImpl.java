@@ -26,7 +26,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 class MeterActivationValidationImpl implements IMeterActivationValidation {
@@ -77,8 +76,8 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     public ChannelValidationImpl addChannelValidation(Channel channel) {
         ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(this, channel);
         Condition condition = Where.where("channel").isEqualTo(channel).and(Where.where("meterActivationValidation.obsoleteTime").isNull());
-        dataModel.query(ChannelValidation.class,  IMeterActivationValidation.class).select(condition).stream()
-        	.map(ChannelValidation::getLastChecked)
+        dataModel.query(IChannelValidation.class,  IMeterActivationValidation.class).select(condition).stream()
+        	.map(IChannelValidation::getLastChecked)
         	.min(Comparator.naturalOrder())
         	.filter(lastChecked -> lastChecked.isAfter(channelValidation.getLastChecked()))
         	.ifPresent(lastChecked -> channelValidation.updateLastChecked(lastChecked));        
@@ -115,7 +114,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     @Override
-    public Set<ChannelValidation> getChannelValidations() {
+    public Set<IChannelValidation> getChannelValidations() {
         return Collections.unmodifiableSet(new HashSet<>(channelValidations));
     }
     
@@ -130,13 +129,13 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     }
 
     @Override
-    public void validate(String readingTypeCode) {
+    public void validate(ReadingType readingType) {
         if (!isActive()) {
             return;
         }
         getMeterActivation().getChannels().stream()
-                .filter(c -> c.getReadingTypes().stream().map(ReadingType::getMRID).anyMatch(readingTypeCode::equals))
-                .forEach(c -> validateChannel(c));
+                .filter(channel -> channel.hasReadingType(readingType))
+                .forEach(channel -> validateChannel(channel));
         save();
     }
 
@@ -210,7 +209,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
                     .noneMatch(c -> c.hasActiveRules() && comparator.compare(c.getLastChecked(), c.getChannel().getLastDateTime()) < 0);
         }
         return channelValidations.stream()
-                .noneMatch(ChannelValidation::hasActiveRules);
+                .noneMatch(IChannelValidation::hasActiveRules);
     }
 
     @Override
@@ -230,8 +229,8 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     private Stream<Instant> lastCheckedStream() {
         return channelValidations.stream()
                 .filter(notNull())
-                .filter(ChannelValidation::hasActiveRules)
-                .map(ChannelValidation::getLastChecked)
+                .filter(IChannelValidation::hasActiveRules)
+                .map(IChannelValidation::getLastChecked)
                 .filter(notNull());
     }
 

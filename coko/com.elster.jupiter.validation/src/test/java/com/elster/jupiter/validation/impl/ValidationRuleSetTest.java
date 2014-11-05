@@ -141,7 +141,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testPersistWithRules() {
-        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
+        validationRuleSet.addRule(ValidationAction.FAIL, "A", "rulename");
 
         validationRuleSet.save();
 

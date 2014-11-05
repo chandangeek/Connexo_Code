@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -49,6 +50,12 @@ public interface ValidationService {
     void activateValidation(Meter meter);
 
     void deactivateValidation(Meter meter);
+    
+    void activate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
+    
+    void deactivate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
+    
+    List<ValidationRuleSet> activeRuleSets(MeterActivation meterActivation); 
 
     boolean validationEnabled(Meter meter);
 
@@ -62,18 +69,8 @@ public interface ValidationService {
 
     void validate(MeterActivation meterActivation);
     
-    @Deprecated
-    void validate(MeterActivation meterActivation, Range<Instant> interval);
-
-    @Deprecated
-    void validate(MeterActivation meterActivation, String readingTypeCode, Range<Instant> interval);
-
-    @Deprecated
-    List<? extends MeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation);
-
-    @Deprecated
-    List<? extends MeterActivationValidation> getActiveMeterActivationValidations(MeterActivation meterActivation);
-
+    void validate(MeterActivation meterActivation, ReadingType readingType);
+    
     ValidationEvaluator getEvaluator();
 
     ValidationEvaluator getEvaluator(Meter meter, Range<Instant> interval);

@@ -61,7 +61,6 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -85,16 +84,8 @@ public class ValidationAddRemoveIT {
     private static final String MY_RULE_SET = "MyRuleSet";
     private static final String MIN = "min";
     private static final String MAX = "max";
-    private static final long METERACTIVATION_ID = 101L;
-    private static final long CHANNEL1_ID = 1001L;
-    private static final long CHANNEL2_ID = 1002L;
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant date2 = ZonedDateTime.of(1983, 5, 31, 15, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant date3 = ZonedDateTime.of(1983, 5, 31, 16, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant date4 = ZonedDateTime.of(1983, 5, 31, 17, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant date5 = ZonedDateTime.of(1983, 5, 31, 18, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant date6 = ZonedDateTime.of(1983, 5, 31, 19, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-
+    
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
@@ -222,7 +213,7 @@ public class ValidationAddRemoveIT {
             	meter.store(meterReading);
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
                 List<IMeterActivationValidation> meterActivationValidations = valDataModel.mapper(IMeterActivationValidation.class).find("meterActivation", meterActivation);
-                ChannelValidation channelValidation = meterActivationValidations.get(0).getChannelValidations().iterator().next();
+                IChannelValidation channelValidation = meterActivationValidations.get(0).getChannelValidations().iterator().next();
                 assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900*3));
                 Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
                 List<BaseReadingRecord> readings = channel.getReadings(Range.all());

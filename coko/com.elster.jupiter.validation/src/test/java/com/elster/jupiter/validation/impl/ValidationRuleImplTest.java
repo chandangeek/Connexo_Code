@@ -67,7 +67,6 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     public static final Instant END = ZonedDateTime.of(2012, 12, 5, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
     private static final Range<Instant> INTERVAL = Ranges.closed(START, END);
     private static final Instant DATE1 = ZonedDateTime.of(2012, 12, 3, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant DATE2 = ZonedDateTime.of(2012, 12, 4, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
 
     private ValidationRuleImpl validationRule;
 
@@ -182,7 +181,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Test
     public void testPersistWithProperties() {
         ValidationRuleImpl testPersistValidationRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
-        ValidationRuleProperties property1 = testPersistValidationRule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
+        testPersistValidationRule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
 
         testPersistValidationRule.save();
 
@@ -192,7 +191,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Test
     public void testDeleteWithProperties() {
         ValidationRuleImpl rule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
-        ValidationRuleProperties property1 = rule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
+        rule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
         field("id").ofType(Long.TYPE).in(rule).set(ID);
         rule.save();
         rule.delete();
@@ -213,7 +212,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(rulePropertiesFactory.find()).thenReturn(Arrays.asList(property1, property2));
 
         validationRule.deleteProperty(property1);
-        ValidationRuleProperties property3 = validationRule.addProperty(PROPERTY_NAME_3, PROPERTY_VALUE);
+        validationRule.addProperty(PROPERTY_NAME_3, PROPERTY_VALUE);
 
         validationRule.save();
 
@@ -223,7 +222,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Test
     public void testPersistWithReadingTypes() {
         ValidationRuleImpl newRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
-        ReadingTypeInValidationRule readingTypeInValidationRule = newRule.addReadingType(readingType1);
+        newRule.addReadingType(readingType1);
 
         newRule.save();
 
@@ -233,7 +232,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Test
     public void testDeleteWithReadingTypes() {
         ValidationRuleImpl newRule = newRule().init(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, "rulename");
-        ReadingTypeInValidationRule readingTypeInValidationRule = newRule.addReadingType(readingType1);
+        newRule.addReadingType(readingType1);
         field("id").ofType(Long.TYPE).in(newRule).set(ID);
         newRule.save();
         newRule.delete();
@@ -252,7 +251,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         when(readingTypesInRuleFactory.find("ruleId", validationRule.getId())).thenReturn(Arrays.asList(type1, type2));
 
         validationRule.deleteReadingType(readingType1);
-        ReadingTypeInValidationRule type3 = validationRule.addReadingType(readingType3);
+        validationRule.addReadingType(readingType3);
 
         validationRule.save();
 

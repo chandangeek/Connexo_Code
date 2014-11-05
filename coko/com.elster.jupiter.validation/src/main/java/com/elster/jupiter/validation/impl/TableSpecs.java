@@ -5,7 +5,6 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
@@ -88,7 +87,7 @@ public enum TableSpecs {
     VAL_CH_VALIDATION {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<ChannelValidation> table = dataModel.addTable(name(), ChannelValidation.class);
+        	Table<IChannelValidation> table = dataModel.addTable(name(), IChannelValidation.class);
             table.map(ChannelValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column channelRef = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).map("channelId").add();
