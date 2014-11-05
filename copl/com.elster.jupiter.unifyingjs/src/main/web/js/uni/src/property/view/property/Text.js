@@ -9,7 +9,8 @@ Ext.define('Uni.property.view.property.Text', {
             itemId: me.key,
             width: me.width,
             msgTarget: 'under',
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            allowBlank: me.allowBlank
         }
     },
 

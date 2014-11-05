@@ -30,7 +30,7 @@ Ext.define('Uni.form.field.StartPeriod', {
     inputValueDate: 'date',
 
     lastTask: undefined,
-    previousValue: undefined,
+    selectedValue: undefined,
 
     initComponent: function () {
         var me = this;
@@ -59,6 +59,32 @@ Ext.define('Uni.form.field.StartPeriod', {
             });
         }
 
+        if (me.showOptionDate) {
+            me.items.push({
+                xtype: 'container',
+                itemId: 'option-date',
+                layout: 'hbox',
+                margin: '0 0 6 0',
+                name: 'rb',
+                items: [
+                    {
+                        xtype: 'radio',
+                        name: me.baseRadioName,
+                        inputValue: me.inputValueDate
+                    },
+                    {
+                        xtype: 'datefield',
+                        name: 'start-date',
+                        allowBlank: false,
+                        value: new Date(),
+                        maxValue: new Date(),
+                        width: 128,
+                        margin: '0 0 0 6'
+                    }
+                ]
+            });
+        }
+
         me.items.push({
             xtype: 'container',
             itemId: 'option-ago',
@@ -79,6 +105,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                     hideLabel: true,
                     value: 1,
                     minValue: 1,
+                    editable: false,
                     allowBlank: false,
                     width: 64,
                     margin: '0 6 0 6'
@@ -118,46 +145,28 @@ Ext.define('Uni.form.field.StartPeriod', {
                 }
             ]
         });
-
-        if (me.showOptionDate) {
-            me.items.push({
-                xtype: 'container',
-                itemId: 'option-date',
-                layout: 'hbox',
-                margin: '6 0 0 0',
-                name: 'rb',
-                items: [
-                    {
-                        xtype: 'radio',
-                        name: me.baseRadioName,
-                        inputValue: me.inputValueDate
-                    },
-                    {
-                        xtype: 'datefield',
-                        name: 'start-date',
-                        allowBlank: false,
-                        value: new Date(),
-                        maxValue: new Date(),
-                        width: 128,
-                        margin: '0 0 0 6'
-                    }
-                ]
-            });
-        }
     },
 
     initListeners: function () {
         var me = this;
+
         if (me.showOptionNow) {
+            me.selectedValue = 'now';
+
             me.getOptionNowRadio().on('change', function (scope, newValue, oldValue) {
                 if (newValue) {
-                    me.fireEvent('periodchange', me.getValue());
+                    me.selectedValue = 'now';
+                    me.fireEvent('periodchange', me.getStartValue());
                 }
             }, me);
+        } else {
+            me.selectedValue = 'ago';
         }
 
         me.getOptionAgoRadio().on('change', function (scope, newValue, oldValue) {
             if (newValue) {
+                me.selectedValue = 'ago';
+
                 if (me.showOptionDate) {
                     me.getOptionDateRadio().suspendEvents();
                     me.getOptionDateRadio().setValue(false);
@@ -170,7 +179,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                     me.getOptionNowRadio().resumeEvents();
                 }
 
-                me.fireEvent('periodchange', me.getValue());
+                me.fireEvent('periodchange', me.getStartValue());
             }
         }, me);
 
@@ -193,7 +202,8 @@ Ext.define('Uni.form.field.StartPeriod', {
         if (me.showOptionDate) {
             me.getOptionDateRadio().on('change', function (scope, newValue, oldValue) {
                 if (newValue) {
-                    me.fireEvent('periodchange', me.getValue());
+                    me.selectedValue = 'date';
+                    me.fireEvent('periodchange', me.getStartValue());
                 }
             }, me);
 
@@ -204,32 +214,38 @@ Ext.define('Uni.form.field.StartPeriod', {
     },
 
     selectOptionNow: function (suspendEvent) {
+        this.selectedValue = 'now';
+
         this.getOptionNowRadio().suspendEvents();
         this.getOptionNowRadio().setValue(true);
         this.getOptionNowRadio().resumeEvents();
 
         if (!suspendEvent) {
-            this.fireEvent('periodchange', this.getValue());
+            this.fireEvent('periodchange', this.getStartValue());
         }
     },
 
     selectOptionAgo: function (suspendEvent) {
+        this.selectedValue = 'ago';
+
         this.getOptionAgoRadio().suspendEvents();
         this.getOptionAgoRadio().setValue(true);
         this.getOptionAgoRadio().resumeEvents();
 
         if (!suspendEvent) {
-            this.fireEvent('periodchange', this.getValue());
+            this.fireEvent('periodchange', this.getStartValue());
         }
     },
 
     selectOptionDate: function (suspendEvent) {
+        this.selectedValue = 'date';
+
         this.getOptionDateRadio().suspendEvents();
         this.getOptionDateRadio().setValue(true);
         this.getOptionDateRadio().resumeEvents();
 
         if (!suspendEvent) {
-            this.fireEvent('periodchange', this.getValue());
+            this.fireEvent('periodchange', this.getStartValue());
         }
     },
 
@@ -253,27 +269,11 @@ Ext.define('Uni.form.field.StartPeriod', {
         return this.down('#option-date');
     },
 
-    getValue: function () {
+    getStartValue: function () {
         var me = this,
-            selectedRadio = me.callParent(arguments),
-            selectedValues = selectedRadio[me.baseRadioName],
-            selectedValue = undefined,
+            selectedValue = me.selectedValue,
             amountAgoValue = me.getOptionAgoContainer().down('numberfield').getValue(),
             freqAgoValue = me.getOptionAgoContainer().down('combobox').getValue();
-
-        if (Ext.isArray(selectedValues)) {
-            for (var i = 0; i < selectedValues.length; i++) {
-                var value = selectedValues[i];
-
-                if (value !== me.previousValue) {
-                    me.previousValue = value;
-                    selectedValue = value;
-                    break;
-                }
-            }
-        } else {
-            selectedValue = selectedValues;
-        }
 
         var result = {
             startNow: selectedValue === 'now'
