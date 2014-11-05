@@ -62,7 +62,7 @@ public class DataExportTaskResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ReadingTypeDataExportTask> list = queryTasks(params);
 
-        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list));
+        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus);
         infos.total = params.determineTotal(list.size());
 
         return infos;
@@ -78,7 +78,7 @@ public class DataExportTaskResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return new DataExportTaskInfo(fetchDataExportTask(id, securityContext));
+        return new DataExportTaskInfo(fetchDataExportTask(id, securityContext), thesaurus);
     }
 
     @POST
@@ -114,7 +114,7 @@ public class DataExportTaskResource {
             dataExportTask.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask)).build();
+        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus)).build();
     }
 
     @GET

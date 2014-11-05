@@ -4,6 +4,7 @@ import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpression;
@@ -34,7 +35,7 @@ public class DataExportTaskInfo {
     public long nextRun;
 
 
-    public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask) {
+    public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus) {
         id = dataExportTask.getId();
         name = dataExportTask.getName();
 
@@ -47,12 +48,12 @@ public class DataExportTaskInfo {
         //TODO schedule !!
         //schedule = dataExportTask.getSchedule() ?
 
-        exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod());
+        exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod(), thesaurus);
         exportContinuousData = dataExportTask.getStrategy().isExportContinuousData();
         exportUpdate = dataExportTask.getStrategy().isExportUpdate();
         Optional<RelativePeriod> dataExportTaskUpdatePeriod = dataExportTask.getUpdatePeriod();
         if (dataExportTaskUpdatePeriod.isPresent()) {
-            updatePeriod = new RelativePeriodInfo(dataExportTaskUpdatePeriod.get());
+            updatePeriod = new RelativePeriodInfo(dataExportTaskUpdatePeriod.get(), thesaurus);
         }
         validatedDataOption = dataExportTask.getStrategy().getValidatedDataOption();
 
