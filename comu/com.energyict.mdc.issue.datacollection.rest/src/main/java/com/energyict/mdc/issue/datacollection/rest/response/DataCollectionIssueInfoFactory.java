@@ -29,7 +29,7 @@ public class DataCollectionIssueInfoFactory {
     public DataCollectionIssueInfo<?> asInfo(IssueDataCollection issue, Class<? extends DeviceInfo> deviceInfoClass) {
         DataCollectionIssueInfo<?> info = new DataCollectionIssueInfo<>(issue, deviceInfoClass);
         
-        if (!issue.getDevice().getAmrSystem().is(KnownAmrSystem.MDC)) {
+        if (issue.getDevice() == null || !issue.getDevice().getAmrSystem().is(KnownAmrSystem.MDC)) {
             return info;
         }
         Device device = deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId()));
@@ -42,7 +42,7 @@ public class DataCollectionIssueInfoFactory {
             if (comTaskExecution.isPresent()) {
                 //communication issue
                 info.comTaskId = getComTask(comTaskExecution.get());
-                info.comTaskSessionId = getComTaskExecutionSession(comSession.get(), issue.getConnectionTask().get(), comTaskExecution.get());
+                info.comTaskSessionId = getComTaskExecutionSession(comSession.get(), comTaskExecution.get());
             } else {
                 //connection issue
                 info.connectionTaskId = connectionTask.get().getId();
@@ -64,7 +64,7 @@ public class DataCollectionIssueInfoFactory {
         return null;
     }
     
-    private Long getComTaskExecutionSession(ComSession comSession, ConnectionTask<?, ?> connectionTask, ComTaskExecution comTaskExecution) {
+    private Long getComTaskExecutionSession(ComSession comSession, ComTaskExecution comTaskExecution) {
         return comSession.getComTaskExecutionSessions().stream()
                 .filter(es -> es.getComTaskExecution().getId() == comTaskExecution.getId() &&
                              (es.getSuccessIndicator() == ComTaskExecutionSession.SuccessIndicator.Failure || es.getSuccessIndicator() == ComTaskExecutionSession.SuccessIndicator.Interrupted))
