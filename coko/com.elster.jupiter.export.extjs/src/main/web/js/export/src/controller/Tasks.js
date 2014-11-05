@@ -69,9 +69,6 @@ Ext.define('Dxp.controller.Tasks', {
             'tasks-action-menu': {
                 click: this.chooseAction
             }
-          /*  'data-export-tasks-setup tasks-action-menu': {
-                click: this.chooseAction
-            }*/
             /*    'data-export-tasks-add #task-name': {
              blur: this.setDefaultPrefixName
              },        */
@@ -206,6 +203,8 @@ Ext.define('Dxp.controller.Tasks', {
                     }
                 });
                 record.set('nextRun', moment(form.down('#start-on').getValue()).valueOf());
+            } else {
+                record.set('schedule', null);
             }
             record.set('exportperiod', {
                 id: form.down('#export-period-combo').getValue(),
