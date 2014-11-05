@@ -30,7 +30,6 @@ import java.time.Instant;
 import static com.elster.jupiter.validators.impl.ThresholdValidator.MAX;
 import static com.elster.jupiter.validators.impl.ThresholdValidator.MIN;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)

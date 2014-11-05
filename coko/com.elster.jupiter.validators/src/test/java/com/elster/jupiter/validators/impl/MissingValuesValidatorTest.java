@@ -1,15 +1,8 @@
 package com.elster.jupiter.validators.impl;
 
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.devtools.tests.rules.MockitoRule;
-import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.validation.ValidationResult;
-import com.google.common.collect.Range;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -18,7 +11,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
@@ -30,9 +22,16 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.Mock;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.tests.rules.MockitoRule;
+import com.elster.jupiter.devtools.tests.rules.Using;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.validation.ValidationResult;
+import com.google.common.collect.Range;
 
 @RunWith(Parameterized.class)
 public class MissingValuesValidatorTest {
