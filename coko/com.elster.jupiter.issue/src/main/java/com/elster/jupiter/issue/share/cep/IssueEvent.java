@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface IssueEvent {
     String getEventType();
     IssueStatus getStatus();
-    EndDevice getKoreDevice();
+    EndDevice getEndDevice();
 
     Optional<? extends Issue> findExistingIssue();
     void apply(Issue issue);
