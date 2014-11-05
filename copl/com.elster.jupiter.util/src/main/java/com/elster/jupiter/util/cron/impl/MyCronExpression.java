@@ -1,7 +1,6 @@
 package com.elster.jupiter.util.cron.impl;
 
 import com.elster.jupiter.util.cron.CronExpression;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeFieldType;
@@ -13,6 +12,7 @@ import org.joda.time.MutableDateTime;
 import org.joda.time.ReadableDateTime;
 import org.joda.time.ReadableInstant;
 import org.joda.time.ReadablePartial;
+
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -22,6 +22,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -70,9 +71,9 @@ class MyCronExpression implements CronExpression {
     private boolean lastWeekDay;
 
     @Override
-    public ZonedDateTime nextOccurrence(ZonedDateTime time) {
+    public Optional<ZonedDateTime> nextOccurrence(ZonedDateTime time) {
         //TODO automatically generated method body, provide implementation.
-        return null;
+        return Optional.empty();
     }
 
     @Override
