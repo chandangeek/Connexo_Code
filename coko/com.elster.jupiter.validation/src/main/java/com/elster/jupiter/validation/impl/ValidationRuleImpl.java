@@ -406,7 +406,7 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public ReadingQualityType getReadingQualityType() {
-        return createNewValidator().getReadingQualityTypeCode().orElse(ReadingQualityType.defaultCodeForRuleId(getId()));
+        return getValidator().getReadingQualityTypeCode().orElse(ReadingQualityType.defaultCodeForRuleId(getId()));
     }
     
     @Override
