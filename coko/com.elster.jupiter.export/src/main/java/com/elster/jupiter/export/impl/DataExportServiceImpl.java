@@ -28,6 +28,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -159,6 +160,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                 bind(IDataExportService.class).toInstance(DataExportServiceImpl.this);
                 bind(TaskService.class).toInstance(taskService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
     }

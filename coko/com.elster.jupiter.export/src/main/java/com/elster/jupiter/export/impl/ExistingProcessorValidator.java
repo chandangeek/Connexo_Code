@@ -1,14 +1,10 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataProcessorFactory;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Validates the {@link IsExistingProcessor} constraint.
@@ -16,12 +12,12 @@ import static com.elster.jupiter.util.Checks.is;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-01 (16:47)
  */
-public class ExistingProcessorValidator implements ConstraintValidator<IsExistingProcessor, ReadingTypeDataExportTask> {
+public class ExistingProcessorValidator implements ConstraintValidator<IsExistingProcessor, String> {
 
-    private final DataExportService dataExportService;
+    private final IDataExportService dataExportService;
 
     @Inject
-    public ExistingProcessorValidator(DataExportService dataExportService) {
+    public ExistingProcessorValidator(IDataExportService dataExportService) {
         this.dataExportService = dataExportService;
     }
 
@@ -31,13 +27,10 @@ public class ExistingProcessorValidator implements ConstraintValidator<IsExistin
     }
 
     @Override
-    public boolean isValid(ReadingTypeDataExportTask task, ConstraintValidatorContext context) {
-        if (is(task.getDataFormatter()).empty()) {
-            return true;
-        }
+    public boolean isValid(String processorName, ConstraintValidatorContext context) {
         return dataExportService.getAvailableProcessors().stream()
                 .map(DataProcessorFactory::getName)
-                .anyMatch(task.getDataFormatter()::equals);
+                .anyMatch(name -> name.equals(processorName));
     }
 
 }
