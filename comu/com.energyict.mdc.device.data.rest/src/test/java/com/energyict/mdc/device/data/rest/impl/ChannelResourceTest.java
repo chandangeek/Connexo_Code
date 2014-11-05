@@ -215,7 +215,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .put(Entity.json(new TriggerValidationInfo()));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateChannel(channel1, null, LAST_READING);
+        verify(deviceValidation).validateChannel(channel1);
     }
 
     @Test
@@ -231,7 +231,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .put(Entity.json(triggerValidationInfo));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateChannel(channel1, LAST_CHECKED.toInstant(), LAST_READING);
+        verify(deviceValidation).setLastChecked(channel1, LAST_CHECKED.toInstant());
+        verify(deviceValidation).validateChannel(channel1);
     }
 
 }

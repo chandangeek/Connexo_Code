@@ -96,11 +96,10 @@ public class RegisterResource {
     }
 
     private void validateRegister(Register<?> register, Instant start) {
-        if (register.getLastReadingDate().isPresent() && register.getLastReadingDate().get().after(Date.from(start))) {
-            register.getDevice().forValidation().validateRegister(register, start, register.getLastReadingDate().get().toInstant());
-        } else if (start != null) {
-            register.getDevice().forValidation().setLastChecked(register, start);
-        }
+    	if (start != null) {
+    		register.getDevice().forValidation().setLastChecked(register, start);
+    	}
+        register.getDevice().forValidation().validateRegister(register);
     }
 
     private Register<?> doGetRegister(String mRID, long registerId) {
