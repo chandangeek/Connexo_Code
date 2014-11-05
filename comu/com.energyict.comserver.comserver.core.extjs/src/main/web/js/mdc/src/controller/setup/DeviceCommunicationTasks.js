@@ -170,7 +170,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                                 nameOfDefaultConnectionMethod = value.data.name;
                             };
                         });
-                        connectionMethodsOfDeviceStore.add(Ext.create('Mdc.model.DeviceConnectionMethod', {
+                        connectionMethodsOfDeviceStore.insert(0,Ext.create('Mdc.model.DeviceConnectionMethod', {
                             id: -1,
                             name: Uni.I18n.translate('deviceCommunicationTask.default', 'MDC', 'Default') + ' (' + nameOfDefaultConnectionMethod + ')',
                             isDefault: false
