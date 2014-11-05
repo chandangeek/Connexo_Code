@@ -47,8 +47,6 @@ public class IdsCrudTest {
         }
     }
 
-    private static final boolean printSql = true;
-
     private ZoneId zoneId = ZoneId.systemDefault();
 
     @BeforeClass
@@ -61,7 +59,7 @@ public class IdsCrudTest {
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new IdsModule(),
-                new TransactionModule(printSql));
+                new TransactionModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(IdsService.class);
             ctx.commit();

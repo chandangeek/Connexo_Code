@@ -45,9 +45,7 @@ public class DerivedFieldTest {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
         }
     }
-    
-    private static final boolean printSql = true;
-    
+   
     private ZoneId defaultZone = ZoneId.systemDefault();
 
     @BeforeClass
@@ -60,7 +58,7 @@ public class DerivedFieldTest {
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
         			new IdsModule(),
-        			new TransactionModule(printSql));
+        			new TransactionModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(IdsService.class);
         	ctx.commit();
