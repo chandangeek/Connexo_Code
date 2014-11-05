@@ -51,6 +51,7 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
     },
 
     applyFilter: function () {
+        this.initAddDeviceGroupActionController();
         var filterForm = this.getSideFilterForm();
         filterForm.updateRecord();
         filterForm.getRecord().save();
@@ -68,6 +69,7 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
     },
 
     removeTheFilter: function (key) {
+        this.initAddDeviceGroupActionController();
         var router = this.getController('Uni.controller.history.Router');
         var record = router.filter;
         switch (key) {
@@ -82,6 +84,7 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
     },
 
     clearFilter: function () {
+        this.initAddDeviceGroupActionController();
         this.getCriteriaPanel().getContainer().removeAll();
         var router = this.getController('Uni.controller.history.Router');
         var record = router.filter;
@@ -93,6 +96,10 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         var filterForm = this.getSideFilterForm();
         filterForm.loadRecord(record);
         this.applyFilter();
+    },
+
+    initAddDeviceGroupActionController: function() {
+        this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').disableCreateWidget();
     },
 
     setFilterView: function () {

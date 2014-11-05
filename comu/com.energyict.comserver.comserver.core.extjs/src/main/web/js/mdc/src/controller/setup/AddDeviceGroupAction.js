@@ -79,13 +79,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             selector: 'devicegroup-wizard-step2 uni-form-error-message'
         },
         /*{
-            ref: 'staticGrid',
-            selector: 'mdc-search-results bulk-selection-mdc-search-results-grid'
-        },
-        {
-            ref: 'dynamicGrid',
-            selector: 'mdc-search-results mdc-search-results-grid'
-        },*/
+         ref: 'staticGrid',
+         selector: 'mdc-search-results bulk-selection-mdc-search-results-grid'
+         },
+         {
+         ref: 'dynamicGrid',
+         selector: 'mdc-search-results mdc-search-results-grid'
+         },*/
         {
             ref: 'staticGrid',
             selector: 'mdc-search-results #static-grid'
@@ -106,7 +106,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     addDeviceGroupWidget: null,
 
+    createWidget: true,
+
     init: function () {
+        this.createWidget = true;
         this.control({
             'adddevicegroup-wizard #backButton': {
                 click: this.backClick
@@ -134,10 +137,11 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     nextClick: function () {
+        this.createWidget = false;
         var layout = this.getAddDeviceGroupWizard().getLayout();
         if ((layout.getNext().name == 'deviceGroupWizardStep2') &&
             (this.getNameTextField().getValue() == '')) {
-                this.getStep1FormErrorMessage().setVisible(true);
+            this.getStep1FormErrorMessage().setVisible(true);
             this.getStep1FormNameErrorMessage().setVisible(false);
         } else if ((layout.getNext().name == 'deviceGroupWizardStep2') &&
             (this.getNameTextField().getValue() !== '') &&
@@ -193,6 +197,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         } else {
             this.addDeviceGroupAndReturnToList();
         }
+    },
+
+    disableCreateWidget: function() {
+        this.createWidget = false;
     },
 
     addDeviceGroupAndReturnToList: function() {
@@ -263,11 +271,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     showAddDeviceGroupAction: function () {
-        if (this.addDeviceGroupWidget == null) {
+        if (this.createWidget) {
+            //if (this.addDeviceGroupWidget == null) {
             this.addDeviceGroupWidget = Ext.widget('add-devicegroup-browse');
             this.getAddDeviceGroupSideFilter().setVisible(false);
             this.getApplication().fireEvent('changecontentevent', this.addDeviceGroupWidget);
         }
+        this.createWidget = true;
     },
 
 
