@@ -27,6 +27,7 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -45,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -294,7 +296,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comTask2.getName()).thenReturn("Basic check");
         when(comTaskExecution1.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
         ScheduledConnectionTask connectionTask = mockConnectionTask();
-        when(comTaskExecution1.getConnectionTask()).thenReturn((ConnectionTask) connectionTask);
+        doReturn(connectionTask).when(comTaskExecution1).getConnectionTask();
         Map<String, Object> map = target("/communications").queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
         assertThat(map).containsKey("total");
@@ -377,6 +379,9 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
         when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(java.util.Optional.of(comTaskExecutionSession));
+        ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(connectionTypePluggableClass.getName()).thenReturn(CommunicationResourceTest.class.getSimpleName());
+        when(connectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
         return connectionTask;
     }
 

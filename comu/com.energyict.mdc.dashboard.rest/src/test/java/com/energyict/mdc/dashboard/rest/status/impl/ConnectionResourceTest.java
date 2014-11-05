@@ -60,6 +60,7 @@ import static org.mockito.Mockito.when;
  */
 public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
+    private static final String CONNECTION_TYPE_PLUGGABLE_CLASS_NAME = ConnectionResourceTest.class.getSimpleName();
     @Mock
     private PropertySpecService propertySpecService;
     @Mock
@@ -277,6 +278,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getLastComSession()).thenReturn(Optional.of(comSession));
         when(connectionTask.getNextExecutionTimestamp()).thenReturn(plannedNext);
         when(connectionTask.getCommunicationWindow()).thenReturn(window);
+        ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(connectionTypePluggableClass.getName()).thenReturn(CONNECTION_TYPE_PLUGGABLE_CLASS_NAME);
+        when(connectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
         when(communicationTaskService.findLastSessionFor(comTaskExecution1)).thenReturn(Optional.of(comTaskExecutionSession));
@@ -312,7 +316,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].comPortPool.id")).isEqualTo(1234321);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].comPortPool.name")).isEqualTo("Com port pool");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].direction")).isEqualTo("Outbound");
-        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionType")).isEqualTo("OutboundTcpIp");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionType")).isEqualTo(CONNECTION_TYPE_PLUGGABLE_CLASS_NAME);
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].connectionMethod.id")).isEqualTo(991);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionMethod.name")).isEqualTo("partial connection task name (default)");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].connectionStrategy.id")).isEqualTo("asSoonAsPossible");
