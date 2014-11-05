@@ -123,4 +123,9 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId, CanGoOffline
      * Updates the release date of this device message. Will only be allowed for messages in state WAITING. Will be persisted by save()
      */
     public void setReleaseDate(Instant releaseDate);
+
+    /**
+     * Cancels/revokes this DeviceMessage
+     */
+    public void revoke();
 }
