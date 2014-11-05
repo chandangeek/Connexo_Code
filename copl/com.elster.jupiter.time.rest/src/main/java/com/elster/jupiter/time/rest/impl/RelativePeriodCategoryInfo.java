@@ -12,9 +12,13 @@ public class RelativePeriodCategoryInfo {
 
     public RelativePeriodCategoryInfo() {}
 
-    public RelativePeriodCategoryInfo(Long id, String name) {
+    private RelativePeriodCategoryInfo(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public RelativePeriodCategoryInfo(RelativePeriodCategory category , Thesaurus thesaurus) {
+        this(category.getId(), getName(category, thesaurus));
     }
 
     static public List<RelativePeriodCategoryInfo> from (List<RelativePeriodCategory> categories, Thesaurus thesaurus) {

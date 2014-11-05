@@ -177,7 +177,7 @@ public class RelativePeriodResource {
     @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
     @Produces(MediaType.APPLICATION_JSON)
     public RelativePeriodCategoryInfos getCategories(@Context UriInfo uriInfo) {
-        return new RelativePeriodCategoryInfos(timeService.getRelativePeriodCategories());
+        return new RelativePeriodCategoryInfos(timeService.getRelativePeriodCategories(), thesaurus);
     }
 
     private ZonedDateTime getZonedDateTime(RelativeDatePreviewInfo relativeDatePreviewInfo) {
