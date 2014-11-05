@@ -271,6 +271,15 @@ public class FieldResource {
             return messageTemplate;
         }
 
+        @Override
+        public String getStringBeyondComponent(String key, String defaultMessage) {
+            return key;
+        }
+
+        @Override
+        public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
+            return key;
+        }
     }
 
 }
