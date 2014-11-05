@@ -480,7 +480,7 @@ public enum TableSpecs {
             table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modDate").add();
             table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).map("message").add();
-            table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
+            table.column("LOGLEVEL").number().notNull().conversion(NUMBER2ENUM).map("logLevel").add();
             table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION").
                     on(comtaskexecsession).
                     references(DDC_COMTASKEXECSESSION.name()).

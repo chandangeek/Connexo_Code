@@ -21,17 +21,11 @@ public class ComTaskExecutionMessageJournalEntryImpl
         extends ComTaskExecutionJournalEntryImpl<ComTaskExecutionMessageJournalEntry>
         implements ComTaskExecutionMessageJournalEntry {
 
-    private ComServer.LogLevel logLevel;
     private String message;
 
     @Inject
     ComTaskExecutionMessageJournalEntryImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(ComTaskExecutionMessageJournalEntry.class, dataModel, eventService, thesaurus);
-    }
-
-    @Override
-    public ComServer.LogLevel getLogLevel() {
-        return this.logLevel;
     }
 
     @Override
@@ -59,10 +53,8 @@ public class ComTaskExecutionMessageJournalEntryImpl
     }
 
     private ComTaskExecutionMessageJournalEntryImpl init(Instant timestamp, ComTaskExecutionSessionImpl comTaskExecutionSession, ComServer.LogLevel logLevel, String message, String errorDescription) {
+        this.init(timestamp, logLevel, errorDescription);
         this.comTaskExecutionSession.set(comTaskExecutionSession);
-        this.timestamp = timestamp;
-        this.errorDescription = errorDescription;
-        this.logLevel = logLevel;
         this.message = message;
         return this;
     }

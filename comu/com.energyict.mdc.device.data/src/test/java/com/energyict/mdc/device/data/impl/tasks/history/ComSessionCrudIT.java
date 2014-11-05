@@ -554,6 +554,9 @@ public class ComSessionCrudIT {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder = connectionTaskService.buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
                     .addComTaskExecutionSession(comTaskExecution, device, taskStartTime)
                     .addComCommandJournalEntry(journalEntryTime, CompletionCode.Ok, "AOK", "OpenValve")
+                    .addComCommandJournalEntry(journalEntryTime, CompletionCode.Rescheduled, "Whatever")
+                    .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConfigurationWarning, "Just a warning", "ConfigurationWarning")
+                    .addComCommandJournalEntry(journalEntryTime, CompletionCode.ConfigurationError, "This is an error", "ConfigurationError")
                     .add(taskStopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
                     .endSession(stopTime, ComSession.SuccessIndicator.Success);
             ComSession comSession = endedComSessionBuilder.create();
@@ -571,8 +574,11 @@ public class ComSessionCrudIT {
 
         ComTaskExecutionSession comTaskExecutionSession = foundSession.getComTaskExecutionSessions().get(0);
 
-        assertThat(comTaskExecutionSession.getComTaskExecutionJournalEntries()).hasSize(1);
-        assertThat(comTaskExecutionSession.findComTaskExecutionJournalEntries(EnumSet.noneOf(ComServer.LogLevel.class)).find()).hasSize(1);
+        assertThat(comTaskExecutionSession.getComTaskExecutionJournalEntries()).hasSize(4);
+        assertThat(comTaskExecutionSession.findComTaskExecutionJournalEntries(EnumSet.noneOf(ComServer.LogLevel.class)).find()).isEmpty();
+        assertThat(comTaskExecutionSession.findComTaskExecutionJournalEntries(EnumSet.of(ComServer.LogLevel.INFO)).find()).hasSize(2);
+        assertThat(comTaskExecutionSession.findComTaskExecutionJournalEntries(EnumSet.of(ComServer.LogLevel.WARN)).find()).hasSize(1);
+        assertThat(comTaskExecutionSession.findComTaskExecutionJournalEntries(EnumSet.of(ComServer.LogLevel.ERROR)).find()).hasSize(1);
 
         ComTaskExecutionJournalEntry journalEntry = comTaskExecutionSession.getComTaskExecutionJournalEntries().get(0);
 

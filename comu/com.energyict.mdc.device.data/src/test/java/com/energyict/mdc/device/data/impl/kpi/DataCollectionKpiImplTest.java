@@ -158,7 +158,7 @@ public class DataCollectionKpiImplTest {
         cronExpression = mock(CronExpression.class);
         when(cronExpression.encoded()).thenReturn("0 0 0/1 * * ? *");
         when(cronExpressionParser.parse(anyString())).thenReturn(Optional.of(cronExpression));
-        when(cronExpression.nextOccurrence(any())).thenReturn(ZonedDateTime.now());
+        doReturn(Optional.of(ZonedDateTime.now())).when(cronExpression).nextOccurrence(any());
         taskService = mock(TaskService.class);
         licenseService = mock(LicenseService.class);
         when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.empty());
