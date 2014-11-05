@@ -35,7 +35,7 @@ Ext.define('Uni.grid.column.Icon', {
         }
         if (Ext.isDefined(value.deletedTime)) {
             res.value = value.deletedTime;
-            res.iconCls = 'icon-delete';
+            res.iconCls = 'icon-deleted';
             res.tipString = Uni.I18n.formatDate('deletedDate.format', value.deletedTime, 'MDC', '\\D\\e\\l\\e\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
         }
         Ext.defer(me.deferredRenderer, 1, me, [res, record, view]);
