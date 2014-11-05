@@ -85,6 +85,7 @@ public class DeviceComTaskInfoFactory {
         }
         else {
             deviceComTasksInfo.connectionMethod = comTaskExecution.getConnectionTask().getName();
+            deviceComTasksInfo.connectionDefinedOnDevice = true;
         }
         setConnectionStrategy(deviceComTasksInfo, comTaskExecution);
         deviceComTasksInfo.urgency = comTaskExecution.getPlannedPriority();
@@ -123,6 +124,7 @@ public class DeviceComTaskInfoFactory {
         else {
             ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask();
             deviceComTasksInfo.connectionMethod = connectionTask.getName();
+            deviceComTasksInfo.connectionDefinedOnDevice = true;
             ConnectionStrategyAdapter connectionStrategyAdapter = new ConnectionStrategyAdapter();
             if (connectionTask instanceof ScheduledConnectionTask) {
                 ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
