@@ -28,7 +28,6 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -36,6 +35,7 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -73,7 +73,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4;
@@ -82,7 +81,6 @@ import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVIC
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -127,7 +125,7 @@ public class SecurityPropertySetImplCrudIT {
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     private MeteringService meteringService;
 
-    public void initializeDatabase(boolean showSqlLogging, boolean createMasterData) {
+    public void initializeDatabase(boolean showSqlLogging) {
         bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
@@ -155,6 +153,7 @@ public class SecurityPropertySetImplCrudIT {
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
+                new MdcIOModule(),
                 new EngineModelModule(),
                 new IssuesModule(),
                 new ProtocolsModule(),
@@ -192,7 +191,7 @@ public class SecurityPropertySetImplCrudIT {
         when(authLevel2.getId()).thenReturn(2);
         when(encLevel.getId()).thenReturn(2);
         when(principal.hasPrivilege(any(Privilege.class))).thenReturn(true);
-        initializeDatabase(false, false);
+        initializeDatabase(false);
     }
 
     private class MockModule extends AbstractModule {
@@ -246,9 +245,8 @@ public class SecurityPropertySetImplCrudIT {
 
     @Test
     public void testDeletion() {
-        DeviceCommunicationConfiguration communicationConfiguration;
-        SecurityPropertySet propertySet = null;
-        DeviceConfiguration deviceConfiguration = null;
+        SecurityPropertySet propertySet;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -279,9 +277,8 @@ public class SecurityPropertySetImplCrudIT {
 
     @Test
     public void testUpdate() {
-        DeviceCommunicationConfiguration communicationConfiguration;
-        SecurityPropertySet propertySet = null;
-        DeviceConfiguration deviceConfiguration = null;
+        SecurityPropertySet propertySet;
+        DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -325,8 +322,6 @@ public class SecurityPropertySetImplCrudIT {
     @Test()
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     public void testCreateWithoutName () {
-        DeviceCommunicationConfiguration communicationConfiguration;
-        SecurityPropertySet propertySet = null;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -334,7 +329,7 @@ public class SecurityPropertySetImplCrudIT {
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet(null)
+            deviceConfiguration.createSecurityPropertySet(null)
                     .authenticationLevel(1)
                     .encryptionLevel(2)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES1)
@@ -348,8 +343,6 @@ public class SecurityPropertySetImplCrudIT {
     @Test()
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}", property = "name")
     public void testCreateWithEmptyName () {
-        DeviceCommunicationConfiguration communicationConfiguration;
-        SecurityPropertySet propertySet = null;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -357,7 +350,7 @@ public class SecurityPropertySetImplCrudIT {
             DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("       ")
+            deviceConfiguration.createSecurityPropertySet("       ")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES1)
@@ -371,8 +364,6 @@ public class SecurityPropertySetImplCrudIT {
     @Test()
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name")
     public void testCreateWithLongName () {
-        DeviceCommunicationConfiguration communicationConfiguration;
-        SecurityPropertySet propertySet = null;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -395,7 +386,6 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NAME_UNIQUE + '}')
     public void testCreateWithDuplicateNameInSameConfiguration () {
         DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet = null;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -403,7 +393,7 @@ public class SecurityPropertySetImplCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+            deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES1)
@@ -413,7 +403,7 @@ public class SecurityPropertySetImplCrudIT {
             context.commit();
         }
         try (TransactionContext context = transactionService.getContext()) {
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+            deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES1)
@@ -471,7 +461,6 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testAuthenticationLevelIsRequiredWhenProtocolProvidesAtLeastOneAuthenticationLevel () {
         DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet = null;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -479,7 +468,7 @@ public class SecurityPropertySetImplCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+            deviceConfiguration.createSecurityPropertySet("Name")
                     .encryptionLevel(2)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
@@ -493,7 +482,6 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testAuthenticationLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideAuthenticationLevels () {
         DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet = null;
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.<AuthenticationDeviceAccessLevel>emptyList());
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -502,7 +490,7 @@ public class SecurityPropertySetImplCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+            deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES1)
@@ -517,7 +505,6 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testEncryptionLevelIsRequiredWhenProtocolProvidesAtLeastOneEncryptionLevel () {
         DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet = null;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -525,7 +512,7 @@ public class SecurityPropertySetImplCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+            deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES2)
@@ -539,7 +526,6 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testEncryptionLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels () {
         DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet = null;
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<EncryptionDeviceAccessLevel>emptyList());
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -548,7 +534,7 @@ public class SecurityPropertySetImplCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+            deviceConfiguration.createSecurityPropertySet("Name")
                     .authenticationLevel(1)
                     .encryptionLevel(2)
                     .addUserAction(EDITDEVICESECURITYPROPERTIES1)
@@ -563,7 +549,7 @@ public class SecurityPropertySetImplCrudIT {
     @Test
     public void testEditIsNotAllowedWithoutUserActions () {
         DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet = null;
+        SecurityPropertySet propertySet;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -586,7 +572,7 @@ public class SecurityPropertySetImplCrudIT {
     @Test
     public void testEditIsNotAllowedWithOnlyViewUserActions () {
         DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet = null;
+        SecurityPropertySet propertySet;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -613,7 +599,7 @@ public class SecurityPropertySetImplCrudIT {
     @Test
     public void testEditIsAllowedWithAtLeastOneEditUserAction () {
         DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet = null;
+        SecurityPropertySet propertySet;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -637,7 +623,7 @@ public class SecurityPropertySetImplCrudIT {
     @Test
     public void testViewIsNotAllowedWithOnlyEditUserActions () {
         DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet = null;
+        SecurityPropertySet propertySet;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();
@@ -663,7 +649,7 @@ public class SecurityPropertySetImplCrudIT {
     @Test
     public void testViewIsAllowedWithAtLeastOneViewUserAction () {
         DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet = null;
+        SecurityPropertySet propertySet;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
             deviceType.save();

@@ -13,6 +13,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -186,6 +187,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new TasksModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
+                new MdcIOModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
                 new IssuesModule(),
@@ -196,11 +198,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new PluggableModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
-//            ormService = injector.getInstance(OrmService.class);
-//            eventService = injector.getInstance(EventService.class);
-//            nlsService = injector.getInstance(NlsService.class);
-//            meteringService = injector.getInstance(MeteringService.class);
-//            readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             engineModelService = injector.getInstance(EngineModelService.class);
             protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);

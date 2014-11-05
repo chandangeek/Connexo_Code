@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Environment;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Translator;
@@ -17,6 +16,7 @@ import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -44,7 +44,6 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -83,7 +82,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -91,7 +89,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class PartialConnectionInitiationTaskCrudIT {
 
-    private static final ComWindow COM_WINDOW = new ComWindow(3600, 7200);
     private OutboundComPortPool outboundComPortPool, outboundComPortPool1;
     private ConnectionTypePluggableClass connectionTypePluggableClass, connectionTypePluggableClass2;
 
@@ -109,20 +106,14 @@ public class PartialConnectionInitiationTaskCrudIT {
     @Mock
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private OrmService ormService;
-    private EventService eventService;
-    private NlsService nlsService;
     private DeviceConfigurationServiceImpl deviceConfigurationService;
-    private MeteringService meteringService;
     private DataModel dataModel;
     private Injector injector;
     @Mock
     private ApplicationContext applicationContext;
     private ProtocolPluggableService protocolPluggableService;
-    private MdcReadingTypeUtilService readingTypeUtilService;
     private EngineModelService engineModelService;
     private InMemoryBootstrapModule bootstrapModule;
-    private InboundDeviceProtocolService inboundDeviceProtocolService;
     private InboundDeviceProtocolPluggableClass discoveryPluggable;
     @Mock
     private LicenseService licenseService;
@@ -140,10 +131,9 @@ public class PartialConnectionInitiationTaskCrudIT {
                 }
             });
         }
-
     }
 
-    public void initializeDatabase(boolean showSqlLogging, boolean createMasterData) {
+    public void initializeDatabase(boolean showSqlLogging) {
         bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
@@ -170,6 +160,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                 new MasterDataModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
+                new MdcIOModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
@@ -181,14 +172,14 @@ public class PartialConnectionInitiationTaskCrudIT {
                 new SchedulingModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
-            ormService = injector.getInstance(OrmService.class);
-            eventService = injector.getInstance(EventService.class);
-            nlsService = injector.getInstance(NlsService.class);
-            meteringService = injector.getInstance(MeteringService.class);
-            readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
+            injector.getInstance(OrmService.class);
+            injector.getInstance(EventService.class);
+            injector.getInstance(NlsService.class);
+            injector.getInstance(MeteringService.class);
+            injector.getInstance(MdcReadingTypeUtilService.class);
             engineModelService = injector.getInstance(EngineModelService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-            inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
+            injector.getInstance(InboundDeviceProtocolService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
             injector.getInstance(PluggableService.class);
@@ -210,7 +201,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         when(applicationContext.getTranslator()).thenReturn(translator);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
-        initializeDatabase(false, false);
+        initializeDatabase(false);
         protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
         engineModelService = injector.getInstance(EngineModelService.class);
 
@@ -235,7 +226,6 @@ public class PartialConnectionInitiationTaskCrudIT {
             outboundComPortPool1.save();
             context.commit();
         }
-
 
     }
 
@@ -301,7 +291,6 @@ public class PartialConnectionInitiationTaskCrudIT {
             context.commit();
         }
 
-        ComWindow newComWindow = new ComWindow(7200, 10800);
         try (TransactionContext context = transactionService.getContext()) {
             PartialConnectionInitiationTask partialConnectionInitiationTask = deviceConfiguration.getPartialConnectionInitiationTasks().get(0);
             partialConnectionInitiationTask.setComportPool(outboundComPortPool1);
@@ -366,7 +355,6 @@ public class PartialConnectionInitiationTaskCrudIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD + "}")
     public void createWithIncorrectConnectionTypeTest() {
-        PartialConnectionInitiationTaskImpl connectionInitiationTask;
         DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             ConnectionTypePluggableClass inboundConnectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("OutboundNoParamsConnectionType", OutboundNoParamsConnectionTypeImpl.class.getName());
@@ -376,7 +364,7 @@ public class PartialConnectionInitiationTaskCrudIT {
 
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
 
-            connectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("MyInitiation", inboundConnectionTypePluggableClass, TimeDuration.seconds(60))
+            deviceConfiguration.newPartialConnectionInitiationTask("MyInitiation", inboundConnectionTypePluggableClass, TimeDuration.seconds(60))
                     .comPortPool(outboundComPortPool)
                     .build();
             deviceConfiguration.save();
@@ -384,7 +372,6 @@ public class PartialConnectionInitiationTaskCrudIT {
             context.commit();
         }
     }
-
 
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
