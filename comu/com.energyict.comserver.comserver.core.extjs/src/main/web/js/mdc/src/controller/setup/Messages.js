@@ -1,7 +1,6 @@
 Ext.define('Mdc.controller.setup.Messages', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Mdc.store.MessageCategories',
         'Mdc.model.MessageCategory',
         'Mdc.model.MessageActivate',
         'Mdc.store.MessagesPrivileges',
@@ -13,7 +12,6 @@ Ext.define('Mdc.controller.setup.Messages', {
     stores: [
         'DeviceConfigMessages',
         'MessagesPrivileges',
-        'MessageCategories',
         'MessagesGridStore'
     ],
     models: [ 'Mdc.model.MessageCategory' ],
@@ -58,7 +56,6 @@ Ext.define('Mdc.controller.setup.Messages', {
         var  widget = Ext.widget('messages-overview', { deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId });
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigId = deviceConfigId;
-        me.getMessageCategoriesStore().getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
