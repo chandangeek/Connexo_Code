@@ -8,6 +8,7 @@ import java.time.temporal.ChronoField;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * TemporalExpression represent a recurring time.
@@ -182,7 +183,7 @@ public final class TemporalExpression implements ScheduleExpression {
     }
 
     @Override
-    public ZonedDateTime nextOccurrence(ZonedDateTime time) {
+    public Optional<ZonedDateTime> nextOccurrence(ZonedDateTime time) {
         ZonedDateTime result = time;
 
         result = every.getTimeUnit().truncate(result);
@@ -197,7 +198,7 @@ public final class TemporalExpression implements ScheduleExpression {
         if (!result.isAfter(time)) {
             result = result.plus(every.getCount(), every.getTemporalUnit());
         }
-        return result;
+        return Optional.of(result);
     }
 
     @Override
