@@ -9,10 +9,13 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -20,6 +23,8 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -276,5 +281,24 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(occurrences).hasSize(1);
         DataExportOccurrence occ = occurrences.get(0);
         assertThat(occ.getExportedDataInterval()).isNotNull();
+    }
+
+    @Test
+    public void testReadingTypeDataExportItemPersistence() {
+        Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
+        DataModel model = injector.getInstance(OrmService.class).getDataModel(DataExportService.COMPONENTNAME).get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            meter.save();
+
+            ReadingTypeDataExportItemImpl item = ReadingTypeDataExportItemImpl.from(model, Instant.now(), Instant.now(), "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", meter);
+            model.persist(item);
+            context.commit();
+        }
+
+        List<ReadingTypeDataExportItem> readingTypeDataExportItems = model.mapper(ReadingTypeDataExportItem.class).find();
+        assertThat(readingTypeDataExportItems).hasSize(1);
+        assertThat(readingTypeDataExportItems.get(0).getReadingContainer()).isNotNull();
+        assertThat(readingTypeDataExportItems.get(0).getReadingContainer()).isEqualTo(meter);
     }
 }

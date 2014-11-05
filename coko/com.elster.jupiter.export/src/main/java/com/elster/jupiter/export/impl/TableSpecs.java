@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
@@ -94,7 +95,22 @@ enum TableSpecs {
             table.foreignKey("DES_FK_EXPOCC_RTEXPORTTASK").on(task).references(DES_RTDATAEXPORTTASK.name()).map("readingTask").onDelete(DeleteRule.RESTRICT).add();
 
         }
+    },
+    DES_RTDATAEXPORTITEM(ReadingTypeDataExportItem.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(ReadingTypeDataExportItemImpl.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            table.addRefAnyColumns("READINGCONT", true, "readingContainer");
+            table.column("LASTRUN").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastRun").add();
+            table.column("LASTEXPORTED").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastExportedDate").add();
+            table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRId").add();
+
+            table.primaryKey("DES_PK_RTEXPITEM").on(idColumn).add();
+        }
     };
+
 
     private final Class<?> api;
 
