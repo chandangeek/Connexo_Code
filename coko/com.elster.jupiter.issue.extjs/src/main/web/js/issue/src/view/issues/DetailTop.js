@@ -21,6 +21,7 @@ Ext.define('Isu.view.issues.DetailTop', {
             },
             {
                 xtype: 'button',
+                itemId: 'issue-detail-top-actions-button',
                 text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
