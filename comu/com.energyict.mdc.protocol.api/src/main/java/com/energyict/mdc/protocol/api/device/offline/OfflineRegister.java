@@ -58,14 +58,6 @@ public interface OfflineRegister extends Offline {
     public Unit getUnit();
 
     /**
-     * Returns the unique identifier of the
-     * device owning this OfflineRegister.
-     *
-     * @return The Device's id
-     */
-    public long getDeviceId ();
-
-    /**
      * The serialNumber of the {@link OfflineDevice} owning this OfflineRegister.
      *
      * @return the serialNumber of the Device owning this Register

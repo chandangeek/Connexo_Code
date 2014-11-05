@@ -1,6 +1,8 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
 import com.energyict.mdc.common.Offline;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
@@ -24,6 +26,8 @@ public interface OfflineDeviceMessage extends Offline {
      * @return The DeviceMessageSpec
      */
     public DeviceMessageSpec getSpecification ();
+
+    public MessageIdentifier getIdentifier();
 
     /**
      * @return the ID of the DeviceMessage
