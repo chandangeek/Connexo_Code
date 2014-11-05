@@ -6,10 +6,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-
-import java.time.Clock;
-import java.time.Instant;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +15,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -61,7 +59,7 @@ public class DefaultRecurrentTaskBuilderTest {
         defaultRecurrentTaskBuilder = new DefaultRecurrentTaskBuilder(dataModel, cronExpressionParser);
         when(clock.instant()).thenReturn(NOW);
         when(cronExpressionParser.parse(CRON_STRING)).thenReturn(Optional.of(cronExpression));
-        when(cronExpression.nextOccurrence(ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()))).thenReturn(ZonedDateTime.ofInstant(FIRST, ZoneId.systemDefault()));
+        when(cronExpression.nextOccurrence(ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()))).thenReturn(Optional.of(ZonedDateTime.ofInstant(FIRST, ZoneId.systemDefault())));
     }
 
     @After
