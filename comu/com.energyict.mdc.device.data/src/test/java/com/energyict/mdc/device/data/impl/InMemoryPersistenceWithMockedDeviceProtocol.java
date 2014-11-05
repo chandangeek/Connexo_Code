@@ -15,6 +15,7 @@ import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -174,6 +175,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
                 new MdcCommonModule(),
+                new MdcIOModule(),
                 new SchedulingModule(),
                 new DeviceDataModule());
         this.transactionService = injector.getInstance(TransactionService.class);

@@ -45,6 +45,7 @@ import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
@@ -114,8 +115,6 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     private InMemoryBootstrapModule bootstrapModule;
     private Injector injector;
     private TransactionService transactionService;
-    private OrmService ormService;
-    private EventService eventService;
     private ProtocolPluggableService protocolPluggableService;
     private DeviceConfigurationService deviceConfigurationService;
     private CommunicationTaskService communicationTaskService;
@@ -165,6 +164,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new TaskModule(),
                 new TasksModule(),
                 new MdcCommonModule(),
+                new MdcIOModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
@@ -179,8 +179,8 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new SchedulingModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
-            this.eventService = injector.getInstance(EventService.class);
-            this.ormService = this.injector.getInstance(OrmService.class);
+            injector.getInstance(EventService.class);
+            this.injector.getInstance(OrmService.class);
             this.deviceConfigurationService = this.injector.getInstance(DeviceConfigurationService.class);
             this.protocolPluggableService = this.injector.getInstance(ProtocolPluggableService.class);
             injector.getInstance(MeteringGroupsService.class);

@@ -3,6 +3,8 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 
+import javax.inject.Inject;
+
 /**
  * Copyrights EnergyICT
  * Date: 6/19/14
@@ -10,6 +12,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
  */
 public class OutboundIpConnectionTypeImpl extends IpConnectionType {
 
+    @Inject
     public OutboundIpConnectionTypeImpl(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }

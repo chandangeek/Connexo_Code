@@ -13,6 +13,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -33,6 +34,7 @@ public abstract class IpConnectionType implements ServerConnectionType {
 
     private final PropertySpecService propertySpecService;
 
+    @Inject
     public IpConnectionType(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;

@@ -36,6 +36,7 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
@@ -225,6 +226,7 @@ public class ComSessionCrudIT {
                 new KpiModule(),
                 new TasksModule(),
                 new MdcCommonModule(),
+                new MdcIOModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
                 new ValidationModule(),

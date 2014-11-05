@@ -14,6 +14,7 @@ import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -268,6 +269,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new ValidationModule(),
                     new DeviceConfigurationModule(),
                     new MdcCommonModule(),
+                    new MdcIOModule(),
                     new ProtocolApiModule(),
                     new KpiModule(),
                     new MeteringGroupsModule(),
