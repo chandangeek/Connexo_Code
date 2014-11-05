@@ -84,6 +84,7 @@ public class MeterActivationValidationContainer {
     		.map(meterActivation -> meterActivation.getChannelValidation(channel))
     		.filter(Optional::isPresent)
     		.map(Optional::get)
+    		.map(IChannelValidation.class::cast)
     		.collect(Collectors.toList());
     }
 
