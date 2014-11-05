@@ -302,10 +302,10 @@ Ext.define('Mdc.controller.setup.Messages', {
 
         selectPrivilegesPanel.show(
             {
-                title: isMessageCategory ?
+                title: !setAlreadyChecked ?
                     Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of commands of '{0}'") :
                     Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for command '{0}'"),
-                msg: isMessageCategory ? Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that weren`t already active.') : ''
+                msg: setAlreadyChecked ? '' : Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that already active.')
             });
         if (setAlreadyChecked) {
             var checked = record.get('privileges');
@@ -390,15 +390,17 @@ Ext.define('Mdc.controller.setup.Messages', {
     },
 
     changePrivilegesForAll: function (messagesCategory, privileges) {
-        var inactiveEnablements = [];
+        var activeEnablements = [];
         Ext.each(messagesCategory.deviceMessageEnablementsStore.getRange(), function (e) {
-            inactiveEnablements.push(e.get('id'));
+                if (e.get('active')) {
+                    activeEnablements.push(e.get('id'));
+                }
         });
         var router = this.getController('Uni.controller.history.Router');
         var model = Ext.create('Mdc.model.MessageActivate');
         model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
         model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
-        model.set('messageIds', inactiveEnablements);
+        model.set('messageIds', activeEnablements);
         model.set('privileges', privileges);
         model.save();
         this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
