@@ -200,10 +200,10 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     }
 
     @Override
-    public EndDevice getEndDevice() {
+    public EndDevice getKoreDevice() {
         return endDevice;
     }
-    
+
     public Device getDevice() {
         return device;
     }
