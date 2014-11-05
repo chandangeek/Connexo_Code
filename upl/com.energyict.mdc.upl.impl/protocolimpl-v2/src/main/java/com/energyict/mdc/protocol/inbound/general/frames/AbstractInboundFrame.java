@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
+import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Environment;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.InboundParameters;
@@ -94,7 +95,11 @@ public abstract class AbstractInboundFrame {
      */
     private boolean findDevice() {
         this.callHomeIdPlaceHolder.setSerialNumber(getInboundParameters().getSerialNumber());
-        device = getDeviceIdentifierByDialHomeIdPlaceHolder().findDevice();
+        try {
+            device = getDeviceIdentifierByDialHomeIdPlaceHolder().findDevice();
+        } catch (NotFoundException e) {
+            return false;
+        }
         Environment.getDefault().closeConnection();
         return device != null;
     }
