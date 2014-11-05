@@ -182,7 +182,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     public void testConnectionTaskJournalEntries() throws Exception {
         setupJournalMocking();
         String response = target("/devices/XAW1/connectionmethods/3/comsessions/888/journals")
-                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("connections")).create())
+                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("Connections")).create())
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .request().get(String.class);
@@ -195,7 +195,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     public void testConnectionTaskJournalEntriesByLogLevel() throws Exception {
         setupJournalMocking();
         String response = target("/devices/XAW1/connectionmethods/3/comsessions/888/journals")
-                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("connections")).create())
+                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("Connections")).create())
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .request().get(String.class);
@@ -248,7 +248,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     public void testComTaskExecutionJournalEntries() throws Exception {
         setupJournalMocking();
         String response = target("/devices/XAW1/connectionmethods/3/comsessions/888/journals")
-                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("communications")).create())
+                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("Communications")).create())
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .request().get(String.class);
