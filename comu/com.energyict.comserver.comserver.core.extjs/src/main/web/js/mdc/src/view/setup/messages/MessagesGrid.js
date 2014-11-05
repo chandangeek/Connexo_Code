@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
     },
     columns: [
         {
-            header: Uni.I18n.translate('messages.grid.name', 'MDC', 'Messages'),
+            header: Uni.I18n.translate('commands.grid.name', 'MDC', 'Commands'),
             dataIndex: 'name',
             flex: 4
         },
@@ -78,8 +78,8 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
             dock: 'top',
             store: me.store,
             usesExactCount: true,
-            displayMsg: Uni.I18n.translatePlural('messages.pagingtoolbartop.displayMsg', 0 ,'MDC', '{2} messages'),
-            emptyMsg: Uni.I18n.translate('messages.pagingtoolbartop.emptyMsg', 'MDC', 'There are no messages'),
+            displayMsg: Uni.I18n.translatePlural('commands.pagingtoolbartop.displayMsg', 0 ,'MDC', '{2} commands'),
+            emptyMsg: Uni.I18n.translate('commands.pagingtoolbartop.emptyMsg', 'MDC', 'There are no commands'),
             items: [
                 {
                     xtype: 'component',

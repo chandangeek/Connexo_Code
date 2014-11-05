@@ -365,7 +365,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 },
                                                 //messages routes
                                                 messages: {
-                                                    title: 'Messages',
+                                                    title: 'Commands',
                                                     route: 'messages',
                                                     controller: 'Mdc.controller.setup.Messages',
                                                     action: 'showMessagesOverview'

@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
             {
                 ui: 'large',
                 xtype: 'panel',
-                title: Uni.I18n.translate('messages.overview.title', 'MDC', 'Messages'),
+                title: Uni.I18n.translate('commands.overview.title', 'MDC', 'Commands'),
                 items: [
                     {
                         xtype: 'preview-container',
@@ -37,10 +37,10 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('messages.categoriesGrid.empty.title', 'MDC', 'Device protocol did not specify any messages.'),
+                            title: Uni.I18n.translate('commands.categoriesGrid.empty.title', 'MDC', 'Device protocol did not specify any commands.'),
                             reasons: [
-                                Uni.I18n.translate('messages.CategoriesGrid.emptyCmp.item1', 'MDC', 'No message categories have been defined yet.'),
-                                Uni.I18n.translate('messages.CategoriesGrid.emptyCmp.item2', 'MDC', 'No message categories available for this device configuration.')
+                                Uni.I18n.translate('commands.CategoriesGrid.emptyCmp.item1', 'MDC', 'No command categories have been defined yet.'),
+                                Uni.I18n.translate('commands.CategoriesGrid.emptyCmp.item2', 'MDC', 'No command categories available for this device configuration.')
                             ]
                         },
                         previewComponent: {
