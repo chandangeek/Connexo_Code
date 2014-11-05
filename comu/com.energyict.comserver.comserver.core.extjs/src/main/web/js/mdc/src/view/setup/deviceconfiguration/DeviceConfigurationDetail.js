@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                 {
                                     xtype: 'container',
                                     flex: 1
-                                },
+                                }
                             ]
                         }                    ]
                 },

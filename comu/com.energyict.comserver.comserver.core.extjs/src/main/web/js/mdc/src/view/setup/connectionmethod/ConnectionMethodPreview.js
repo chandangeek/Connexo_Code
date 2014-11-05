@@ -112,7 +112,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                                         timeInString = '0' + timeInString;
                                                     }
                                                     return timeInString;
-                                                }
+                                                };
                                                 return Uni.I18n.translate('connectionmethod.between', 'MDC', 'Between') + ' ' + addZeroIfOneSymbol(startMinutes) + ':' + addZeroIfOneSymbol(startSeconds)  + ' ' + Uni.I18n.translate('general.and', 'MDC', 'And').toLowerCase() + ' ' + addZeroIfOneSymbol(endMinutes) + ':' + addZeroIfOneSymbol(endSeconds);
 
                                             } else {
@@ -120,7 +120,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                             }
                                         }
                                     }
-                                },
+                                }
                             ]
                         },
                         {

@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                                                 xtype: 'no-items-found-panel',
                                                 title: Uni.I18n.translate('deviceconnectionhistory.empty.title', 'MDC', 'No history found'),
                                                 reasons: [
-                                                    Uni.I18n.translate('deviceconnectionhistory.empty.list.item1', 'MDC', 'The communication task has never been executed on the device'),
+                                                    Uni.I18n.translate('deviceconnectionhistory.empty.list.item1', 'MDC', 'The communication task has never been executed on the device')
                                                 ]
                                             },
                                             previewComponent:   {
