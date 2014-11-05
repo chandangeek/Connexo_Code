@@ -1,8 +1,20 @@
 package com.elster.jupiter.validation.rest;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo.ReadingTypeNames;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
@@ -25,16 +37,20 @@ import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.util.measurement.Measurement;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -355,8 +371,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(rule.isActive()).thenReturn(true);
         when(rule.getRuleSet()).thenReturn(ruleSet);
 
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        ReadingType readingType = mockReadingType();
         Set<ReadingType> readingTypes = new HashSet<>();
         readingTypes.add(readingType);
         when(rule.getReadingTypes()).thenReturn(readingTypes);
@@ -382,6 +397,25 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
         when(validationService.getValidationRule(1)).thenReturn(Optional.of(rule));
         return rule;
+    }
+    
+    private ReadingType mockReadingType() {
+    	ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+    	when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+    	when(readingType.getAggregate()).thenReturn(Aggregate.NOTAPPLICABLE);
+    	when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+    	when(readingType.getAccumulation()).thenReturn(Accumulation.NOTAPPLICABLE);
+    	when(readingType.getFlowDirection()).thenReturn(FlowDirection.NOTAPPLICABLE);
+    	when(readingType.getCommodity()).thenReturn(Commodity.NOTAPPLICABLE);
+    	when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.NOTAPPLICABLE);
+    	when(readingType.getInterharmonic()).thenReturn(RationalNumber.NOTAPPLICABLE);
+    	when(readingType.getArgument()).thenReturn(RationalNumber.NOTAPPLICABLE);    	    	    	
+    	when(readingType.getPhases()).thenReturn(Phase.NOTAPPLICABLE);
+    	when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+    	when(readingType.getUnit()).thenReturn(ReadingTypeUnit.NOTAPPLICABLE);
+    	when(readingType.getCurrency()).thenReturn(Currency.getInstance("XXX"));
+    	return readingType;
     }
     
     private List<PropertyInfo> createPropertyInfos() {
