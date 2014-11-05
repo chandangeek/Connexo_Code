@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -48,7 +49,7 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
     private final ValidationServiceImpl validationService;
 
     private Map<Long, MeterActivationValidationContainer> mapToValidation;   
-    private Multimap<Long, IChannelValidation> mapChannelToValidation;
+    private Map<Long, ChannelValidationContainer> mapChannelToValidation;
     private Multimap<String, IValidationRule> mapQualityToRule;
 
     private Optional<Boolean> isEnabled = Optional.empty();
@@ -72,16 +73,11 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
     @Override
     public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
         List<DataValidationStatus> result = new ArrayList<>();
-        Collection<IChannelValidation> channelValidations = getMapChannelToValidation().get(channel.getId());
+        ChannelValidationContainer channelValidations = getMapChannelToValidation().get(channel.getId());
         boolean configured = !channelValidations.isEmpty();
-        Instant lastChecked = configured ? getMinLastChecked(channelValidations.stream()
-                .filter(IChannelValidation::hasActiveRules)
-                .map(IChannelValidation::getLastChecked).collect(Collectors.toSet())) : null;
-
+        Instant lastChecked = channelValidations.getLastChecked().orElse(null);                
         ListMultimap<Instant, ReadingQualityRecord> readingQualities = getActualReadingQualities(channel, interval);
-
         Set<Instant> timesWithReadings = new HashSet<>();
-
         ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         for (BaseReading reading : readings) {
             boolean containsKey = readingQualities.containsKey(reading.getTimeStamp());
@@ -123,20 +119,20 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
 
     @Override
     public boolean isValidationEnabled(Channel channel) {
-        Collection<IChannelValidation> channelValidations = getMapChannelToValidation().get(channel.getId());
-        return channelValidations != null && channelValidations.stream().anyMatch(IChannelValidation::hasActiveRules);
+        ChannelValidationContainer channelValidations = getMapChannelToValidation().get(channel.getId());
+        return channelValidations != null && channelValidations.isValidationActive();
     }
 
     @Override
-    public Optional<Instant> getLastChecked(Meter meter, ReadingType readingType) {
+    public Optional<Instant> getLastChecked(Meter meter, ReadingType readingType) {    
         return meter.getMeterActivations().stream()
                 .flatMap(m -> m.getChannels().stream())
                 .filter(c -> c.getReadingTypes().contains(readingType))
-                .map(c -> getMapChannelToValidation().get(c.getId()))
-                .filter(notNull())
-                .flatMap(Collection::stream)
-                .map(IChannelValidation::getLastChecked)
-                .filter(notNull())
+                .map(channel -> getMapChannelToValidation().get(channel.getId()))
+                .filter(Objects::nonNull)
+                .map(ChannelValidationContainer::getLastChecked)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .max(naturalOrder());
     }
 
@@ -149,37 +145,23 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
         return validationMapBuilder.build();
     }
 
-    private ImmutableMultimap<Long, IChannelValidation> initChannelMap(Meter meter) {
-        ImmutableMultimap.Builder<Long, IChannelValidation> channelValidationMapBuilder = ImmutableMultimap.builder();
+    private Map<Long, ChannelValidationContainer> initChannelMap(Meter meter) {
+        ImmutableMap.Builder<Long, ChannelValidationContainer> channelValidationMapBuilder = ImmutableMap.builder();
         meter.getMeterActivations().stream()
-                .flatMap(m -> m.getChannels().stream())
-                .forEach(c -> {
-                    getMapToValidation().get(c.getMeterActivation().getId()).stream()
-                            .flatMap(m -> m.getChannelValidations().stream())
-                            .filter(cv -> cv.getChannel().getId() == c.getId())
-                            .forEach(cv -> channelValidationMapBuilder.put(c.getId(), cv));
-                });
+                .flatMap(m -> m.getChannels().stream())             
+                .forEach(c -> channelValidationMapBuilder.put(c.getId(), getMapToValidation().get(c.getMeterActivation().getId()).channelValidationsFor(c)));                                           
         return channelValidationMapBuilder.build();
     }
 
     private ImmutableListMultimap<String, IValidationRule> initRulesPerQuality() {
-        Query<IValidationRule> ruleQuery = this.validationService.getAllValidationRuleQuery();
-        Set<IValidationRule> rules = getMapChannelToValidation().values().stream()
-                .map(IChannelValidation::getMeterActivationValidation)
-                .map(IMeterActivationValidation::getRuleSet)
-                .map(ValidationRuleSet::getId)
-                .map(id -> ruleQuery.select(Operator.EQUAL.compare("ruleSetId", id)))
-                .flatMap(l -> l.stream())
+        Set<IValidationRule> rules = getMapToValidation().values().stream()
+                .flatMap(meterActivationValidationContainer -> meterActivationValidationContainer.ruleSets().stream())
+                .distinct()
+                .flatMap(ruleSet -> ruleSet.getRules().stream())
+                .map(IValidationRule.class::cast)
                 .collect(Collectors.toSet());
         return Multimaps.index(rules, i -> i.getReadingQualityType().getCode());
     }
-
-
-    private Instant getMinLastChecked(Iterable<Instant> dates) {
-        Comparator<Instant> comparator = nullsFirst(naturalOrder());
-        return dates.iterator().hasNext() ? Ordering.from(comparator).min(dates) : null;
-    }
-
 
     private ListMultimap<Instant, ReadingQualityRecord> getActualReadingQualities(Channel channel, Range<Instant> interval) {
         List<ReadingQualityRecord> readingQualities = channel.findActualReadingQuality(interval);
@@ -225,7 +207,7 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
         return mapToValidation;
     }
 
-    private Multimap<Long, IChannelValidation> getMapChannelToValidation() {
+    private Map<Long, ChannelValidationContainer> getMapChannelToValidation() {
         if (mapChannelToValidation == null) {
             mapChannelToValidation = initChannelMap(meter);
         }

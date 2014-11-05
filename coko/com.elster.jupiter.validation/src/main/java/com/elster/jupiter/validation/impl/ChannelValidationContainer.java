@@ -36,4 +36,7 @@ public class ChannelValidationContainer {
 			.min(Comparator.naturalOrder());
 	}
 	
+	boolean isEmpty() {
+		return channelValidations.isEmpty();
+	}
 }

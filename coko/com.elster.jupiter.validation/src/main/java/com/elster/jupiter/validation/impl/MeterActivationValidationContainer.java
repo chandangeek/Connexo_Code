@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 public class MeterActivationValidationContainer {
 	
@@ -73,13 +74,8 @@ public class MeterActivationValidationContainer {
     boolean isAllDataValidated() {
     	return meterActivationValidations.stream().allMatch(IMeterActivationValidation::isAllDataValidated);
     }
-    
-    @Deprecated
-    Stream<IMeterActivationValidation> stream() {
-    	return meterActivationValidations.stream();
-    }
 
-    private ChannelValidationContainer channelValidationsFor(Channel channel) {
+    ChannelValidationContainer channelValidationsFor(Channel channel) {
     	return ChannelValidationContainer.of(getChannelValidations(channel));
     }
     
@@ -88,10 +84,14 @@ public class MeterActivationValidationContainer {
     		.map(meterActivation -> meterActivation.getChannelValidation(channel))
     		.filter(Optional::isPresent)
     		.map(Optional::get)
-    		.map(IChannelValidation.class::cast)
     		.collect(Collectors.toList());
     }
 
+    List<ValidationRuleSet> ruleSets() {
+    	return meterActivationValidations.stream()
+    		.map(IMeterActivationValidation::getRuleSet)
+    		.collect(Collectors.toList());
+    }
 	
 }
 	
