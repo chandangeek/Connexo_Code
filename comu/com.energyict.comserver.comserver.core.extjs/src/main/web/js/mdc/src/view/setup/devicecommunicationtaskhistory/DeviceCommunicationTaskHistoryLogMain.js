@@ -111,7 +111,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                                 fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.connectionUsed', 'MDC', 'Connection used'),
                                                 name: 'comSession',
                                                 renderer: function(value){
-                                                    debugger;
                                                     if(value && value!==''){
                                                         var data = this.up('form').getRecord().data;
 
