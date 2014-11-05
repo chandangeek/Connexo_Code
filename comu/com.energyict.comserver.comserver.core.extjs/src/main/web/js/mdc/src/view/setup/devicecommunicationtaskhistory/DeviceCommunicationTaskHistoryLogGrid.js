@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-//                displayMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.log.displayMsg', 'MDC', '{0} - {1} of {2} log lines'),
+                displayMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbartop.log.displayMsg', 'MDC', '{0} - {1} of {2} log lines'),
                 displayMoreMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbartop.log.displayMoreMsg', 'MDC', '{0} - {1} of {2} log lines')
 //                emptyMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.log.emptyMsg', 'MDC', 'There are no log lines')
             }
