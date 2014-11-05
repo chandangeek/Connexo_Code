@@ -31,6 +31,7 @@ Ext.define('Idc.view.Preview', {
         me.tools = [
             {
                 xtype: 'button',
+                itemId: 'data-collection-issues-preview-actions-button',
                 text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
