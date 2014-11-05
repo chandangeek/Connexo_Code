@@ -30,8 +30,8 @@ public class ComSessionResource {
 
     private static final String LOG_LEVELS_FILTER_PROPERTY = "logLevels";
     private static final String LOG_TYPES_FILTER_PROPERTY = "logTypes";
-    private static final String CONNECTIONS_FILTER_ITEM = "connections";
-    private static final String COMMUNICATIONS_FILTER_ITEM = "communications";
+    private static final String CONNECTIONS_FILTER_ITEM = "Connections";
+    private static final String COMMUNICATIONS_FILTER_ITEM = "Communications";
 
     private final ResourceHelper resourceHelper;
     private final ConnectionTaskService connectionTaskService;
