@@ -29,4 +29,5 @@ interface IReadingTypeDataExportTask extends ReadingTypeDataExportTask {
     void setExportContinuousData(boolean exportContinuousData);
 
     void setExportUpdate(boolean exportUpdate);
+
 }

@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStrategy;
@@ -7,6 +8,8 @@ import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
@@ -18,6 +21,8 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,9 +41,14 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private final DataExportStrategyImpl dataExportStrategy = new DataExportStrategyImpl();
 
     private long id;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")
     private String name;
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<RelativePeriod> exportPeriod = ValueReference.absent();
     private Reference<RelativePeriod> updatePeriod = ValueReference.absent();
+    @NotNull
+    @IsExistingProcessor
     private String dataProcessor;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
@@ -261,5 +271,10 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public List<PropertySpec<?>> getPropertySpecs() {
         return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(IllegalArgumentException::new).getProperties();
+    }
+
+    @Override
+    public ScheduleExpression getScheduleExpression() {
+        return recurrentTask.get().getScheduleExpression();
     }
 }

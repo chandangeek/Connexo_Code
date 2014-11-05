@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -47,4 +48,5 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     List<PropertySpec<?>> getPropertySpecs();
 
+    ScheduleExpression getScheduleExpression();
 }

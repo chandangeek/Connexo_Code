@@ -1,7 +1,6 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.MessageSeeds;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
