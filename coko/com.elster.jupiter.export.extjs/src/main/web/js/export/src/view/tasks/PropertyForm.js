@@ -30,7 +30,7 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
                         labelWidth: 250,
                         width: 235,
                         allowBlank: !property.get('required'),
-                        boxLabel: property.get('key')
+                        boxLabel: Uni.I18n.translate(property.get('key'), 'DXP', property.get('key'))
                     }),
                     groupName = partitions.join('.');
 

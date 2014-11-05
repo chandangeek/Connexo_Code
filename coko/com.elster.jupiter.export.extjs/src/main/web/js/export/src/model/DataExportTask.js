@@ -13,7 +13,9 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'lastRun',
             persist: false,
             mapping: function (data) {
-                return moment(data.lastExportOccurence.lastRun).format('ddd DD MMM YYYY') + ' ' + Uni.I18n.translate('general.at', 'DXP', 'at') + ' ' + moment(data.lastExportOccurence.lastRun).format('hh:mm A');
+                if (data.lastExportOccurence) {
+                    return moment(data.lastExportOccurence.lastRun).format('ddd DD MMM YYYY') + ' ' + Uni.I18n.translate('general.at', 'DXP', 'at') + ' ' + moment(data.lastExportOccurence.lastRun).format('hh:mm A');
+                }
             }
         },
         {
@@ -33,14 +35,18 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'status',
             persist: false,
             mapping: function (data) {
-                return data.lastExportOccurence.status;
+                if (data.lastExportOccurence && data.lastExportOccurence.status) {
+                    return data.lastExportOccurence.status;
+                } else {
+                    return '-';
+                }
             }
         },
         {
             name: 'trigger',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence.trigger) {
+                if (data.lastExportOccurence && data.lastExportOccurence.trigger) {
                     return data.lastExportOccurence.trigger;
                 } else {
                     return '-';
@@ -51,7 +57,7 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'startedOn',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence.startedOn) {
+                if (data.lastExportOccurence && data.lastExportOccurence.startedOn) {
                     return moment(data.lastExportOccurence.startedOn).format('ddd DD MMM YYYY') + ' ' + Uni.I18n.translate('general.at', 'DXP', 'at') + ' ' + moment(data.lastExportOccurence.startedOn).format('hh:mm A');
                 } else {
                     return '-';
@@ -62,7 +68,7 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'finishedOn',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence.finishedOn) {
+                if (data.lastExportOccurence && data.lastExportOccurence.finishedOn) {
                     return moment(data.lastExportOccurence.finishedOn).format('ddd DD MMM YYYY') + ' ' + Uni.I18n.translate('general.at', 'DXP', 'at') + ' ' + moment(data.lastExportOccurence.finishedOn).format('hh:mm A');
                 } else {
                     return '-';
@@ -73,7 +79,7 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'duration',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence.duration) {
+                if (data.lastExportOccurence && data.lastExportOccurence.duration) {
                     return data.lastExportOccurence.duration / 3750000 + ' ' + Uni.I18n.translate('general.hours', 'DXP', 'hours');
                 } else {
                     return '-';
