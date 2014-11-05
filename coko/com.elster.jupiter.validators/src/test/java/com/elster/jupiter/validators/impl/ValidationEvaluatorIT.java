@@ -296,7 +296,7 @@ public class ValidationEvaluatorIT {
         	meter.store(meterReading);
         	return null;
         });
-        ValidationEvaluator evaluator = validationService.getEvaluator();
+        ValidationEvaluator evaluator = validationService.getEvaluator(meter, Range.openClosed(date1, date1.plusSeconds(900*3)));
         Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900*3));
         List<DataValidationStatus> validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
