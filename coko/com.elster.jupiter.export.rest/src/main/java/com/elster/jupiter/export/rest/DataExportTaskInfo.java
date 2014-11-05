@@ -53,7 +53,6 @@ public class DataExportTaskInfo {
             schedule = TemporalExpressionInfo.from((TemporalExpression) dataExportTask.getScheduleExpression());
         }
 
-
         exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod(), thesaurus);
         exportContinuousData = dataExportTask.getStrategy().isExportContinuousData();
         exportUpdate = dataExportTask.getStrategy().isExportUpdate();
@@ -66,13 +65,12 @@ public class DataExportTaskInfo {
         dataProcessor = dataExportTask.getDataFormatter();
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
 
-        //todo last occurence
-        // lastExportOccurence = new LastExportOccurenceInfo(dataExportTask.getLastOccurence());
+        lastExportOccurence = dataExportTask.getLastOccurence().map(LastExportOccurenceInfo::new).orElse(null);
+
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {
             nextRun = nextExecution.toEpochMilli();
         }
-
 
     }
 
