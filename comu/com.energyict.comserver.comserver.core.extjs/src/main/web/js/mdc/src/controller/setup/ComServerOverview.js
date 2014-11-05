@@ -25,7 +25,7 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
         {
             ref: 'comServerGrid',
             selector: 'comServersSetup comServersGrid'
-        },
+        }
     ],
 
     init: function () {

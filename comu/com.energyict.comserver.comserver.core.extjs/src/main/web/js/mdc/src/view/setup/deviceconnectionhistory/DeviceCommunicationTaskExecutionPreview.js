@@ -179,7 +179,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                             return '';
                                         }
                                     }
-                                },
+                                }
                             ]
                         }
                     ]

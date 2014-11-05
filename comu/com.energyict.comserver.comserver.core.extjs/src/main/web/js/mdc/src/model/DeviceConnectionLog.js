@@ -3,7 +3,7 @@ Ext.define('Mdc.model.DeviceConnectionLog', {
     fields: [
         {name: 'timestamp', dateFormat: 'time', type: 'date'},
         {name: 'details', type: 'string'},
-        {name: 'logLevel', type: 'string'},
+        {name: 'logLevel', type: 'string'}
     ],
     proxy: {
         type: 'rest',

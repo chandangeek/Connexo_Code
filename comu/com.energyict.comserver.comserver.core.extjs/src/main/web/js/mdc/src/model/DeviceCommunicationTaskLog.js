@@ -4,7 +4,7 @@ Ext.define('Mdc.model.DeviceCommunicationTaskLog', {
         {name: 'timestamp', dateFormat: 'time', type: 'date'},
         {name: 'details', type: 'string'},
         {name: 'errorDetails', type: 'string'},
-        {name: 'logLevel', type: 'string'},
+        {name: 'logLevel', type: 'string'}
     ],
     proxy: {
         type: 'rest',
