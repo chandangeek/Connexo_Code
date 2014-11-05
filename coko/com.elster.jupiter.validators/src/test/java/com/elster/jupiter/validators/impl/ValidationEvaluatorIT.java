@@ -48,7 +48,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.validation.ChannelValidation;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationEvaluator;
