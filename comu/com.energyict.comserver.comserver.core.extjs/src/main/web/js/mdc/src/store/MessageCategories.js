@@ -9,10 +9,10 @@ Ext.define('Mdc.store.MessageCategories', {
 
     proxy: {
         type: 'rest',
-        url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/devicemessageenablements',
+        url: '/api/cts/comtasks/messages',
         reader: {
             type: 'json',
-            root: 'categories'
+            root: 'data'
         },
         timeout: 300000,
         pageParam: false,

@@ -105,10 +105,10 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
                 header: Uni.I18n.translate('deviceCommunicationTask.connectionMethod', 'MDC', 'Connection method'),
                 dataIndex: 'connectionMethod',
                 flex: 2,
-                renderer: function(value,metadata) {
-                    if (!value) {
-                        metadata.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationTask.noConnectionMethod', 'MDC', 'No connection method') + '"';
-                        return '-';
+                renderer: function(value,metaData,rowValue) {
+                    if(!rowValue.data.connectionDefinedOnDevice){
+                         metaData.tdAttr = 'data-qtip="' + Uni.I18n.translate('deviceCommunicationTask.connectionNotDefinedOnDevice', 'MDC', 'This connection is not defined on the device yet') + '"';
+                         return '<tpl><img src="../sky/build/resources/images/shared/bullet-red.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + value + '</span></tpl>'
                     } else {
                         return value;
                     }

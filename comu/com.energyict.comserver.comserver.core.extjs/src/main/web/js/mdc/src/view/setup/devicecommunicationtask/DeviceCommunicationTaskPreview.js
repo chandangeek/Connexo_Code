@@ -88,6 +88,18 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                     xtype: 'displayfield',
                                     name: 'connectionMethod',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationTask.connectionMethod', 'MDC', 'Connection method'),
+                                    renderer: function(value){
+                                        if(value!==''){
+                                            if(!this.up('form').getRecord().data.connectionDefinedOnDevice){
+                                                this.inputAttrTpl = " data-qtip='This is my quick tip!' ";
+                                                return '<tpl data-qtip=\''+ Uni.I18n.translate('deviceCommunicationTask.connectionNotDefinedOnDevice', 'MDC', 'This connection is not defined on the device yet') + '\'><img src="../sky/build/resources/images/shared/bullet-red.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + value + '</span></tpl>'
+                                            } else {
+                                                return value;
+                                            }
+                                        }
+
+                                    }
+
                                 },
                                 {
                                     xtype: 'displayfield',
