@@ -1,6 +1,5 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -15,9 +14,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-class DataExportOccurrenceImpl implements DataExportOccurrence {
+class DataExportOccurrenceImpl implements IDataExportOccurrence {
 
-    private long id;
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
     private Reference<IReadingTypeDataExportTask> readingTask = ValueReference.absent();
     private Instant startDate;
@@ -72,12 +70,12 @@ class DataExportOccurrenceImpl implements DataExportOccurrence {
         return exportedDataRange;
     }
 
-    public void save() {
-        if (id == 0) {
-            dataModel.persist(this);
-        } else {
-            dataModel.update(this);
-        }
+    public void persist() {
+        dataModel.persist(this);
+    }
 
+    @Override
+    public void update() {
+        dataModel.update(this);
     }
 }

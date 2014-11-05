@@ -15,5 +15,4 @@ public interface DataExportOccurrence {
 
     Range<Instant> getExportedDataInterval();
 
-    void save();
 }

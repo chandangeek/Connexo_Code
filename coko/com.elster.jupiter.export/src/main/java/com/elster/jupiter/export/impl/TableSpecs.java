@@ -81,7 +81,6 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(DataExportOccurrenceImpl.class);
-            Column idColumn = table.addAutoIdColumn();
             Column taskOccurrence = table.column("TASKOCC").number().notNull().add();
             Column task = table.column("RTEXPORTTASK").number().notNull().add();
             table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
@@ -90,7 +89,7 @@ enum TableSpecs {
             table.column("INTERVALENDPTBEHAVIOUR").number().conversion(ColumnConversion.NUMBER2ENUM).map("exportedDataBoundaryType").add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
 
-            table.primaryKey("DES_PK_EXPOCC").on(idColumn).add();
+            table.primaryKey("DES_PK_EXPOCC").on(taskOccurrence).add();
             table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE").map("taskOccurrence").onDelete(DeleteRule.RESTRICT).add();
             table.foreignKey("DES_FK_EXPOCC_RTEXPORTTASK").on(task).references(DES_RTDATAEXPORTTASK.name()).map("readingTask").onDelete(DeleteRule.RESTRICT).add();
 

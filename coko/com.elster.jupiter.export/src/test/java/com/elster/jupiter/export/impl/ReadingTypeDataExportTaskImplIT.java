@@ -269,7 +269,7 @@ public class ReadingTypeDataExportTaskImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             TaskOccurrence test = recurrentTask.createTaskOccurrence();
 
-            dataExportService.createExportOccurrence(test).save();
+            dataExportService.createExportOccurrence(test).persist();
             context.commit();
         }
         List<? extends DataExportOccurrence> occurrences = task.getOccurrences(Range.atLeast(Instant.EPOCH));

@@ -1,6 +1,5 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -14,6 +13,6 @@ interface IDataExportService extends DataExportService {
 
     Optional<DataProcessorFactory> getDataProcessorFactory(String name);
 
-    DataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence);
+    IDataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence);
 
 }

@@ -2,7 +2,6 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataProcessor;
@@ -210,7 +209,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
-    public DataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence) {
+    public IDataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence) {
         IReadingTypeDataExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
         return DataExportOccurrenceImpl.from(dataModel, taskOccurrence, task);
     }

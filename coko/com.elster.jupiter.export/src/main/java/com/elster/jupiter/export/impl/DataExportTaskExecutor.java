@@ -1,6 +1,5 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
@@ -19,7 +18,7 @@ public class DataExportTaskExecutor implements TaskExecutor {
 
     @Override
     public void execute(TaskOccurrence occurrence) {
-        DataExportOccurrence dataExportOccurrence = service.createExportOccurrence(occurrence);
-        dataExportOccurrence.save();
+        IDataExportOccurrence dataExportOccurrence = service.createExportOccurrence(occurrence);
+        dataExportOccurrence.persist();
     }
 }
