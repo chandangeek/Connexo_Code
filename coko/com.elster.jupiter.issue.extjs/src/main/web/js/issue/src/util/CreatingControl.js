@@ -198,9 +198,9 @@ Ext.define('Isu.util.CreatingControl', {
                 items: []
             },
             controls = [
+                obj.control.userControl,
                 obj.control.groupControl,
-                obj.control.roleControl,
-                obj.control.userControl
+                obj.control.roleControl
             ];
 
         Ext.Array.each(controls, function (item, index) {
