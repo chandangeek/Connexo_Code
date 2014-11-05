@@ -47,8 +47,11 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                 Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item4', 'MDC', 'There are shared communication schedules defined in administration but one or more communication tasks in the communication schedule are already scheduled on the device with a shared communication schedule (a communication task on device level can only be scheduled in maximum one communication schedule)'),
                                 Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item4', 'MDC', 'There are shared communication schedules defined in administration but the communication tasks in the communication schedule doesn\'t have the same connection method, security set, protocol dialect and/or urgency')
                             ],
+                            stepsText: '',
                             stepItems: [
                                 {
+                                    xtype: 'button',
+                                    ui: 'link',
                                     text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                     href: '#/devices/'+this.mRID+'/communicationplanning'
                                 }
