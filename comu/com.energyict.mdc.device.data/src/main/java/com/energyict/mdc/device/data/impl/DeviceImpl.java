@@ -1,6 +1,45 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.common.*;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.DatabaseException;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -71,43 +110,7 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Lists;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -115,26 +118,40 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
 import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
@@ -1779,12 +1796,6 @@ public class DeviceImpl implements Device, CanLock {
     @Override
     public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId) {
         return new InternalDeviceMessageBuilder(deviceMessageId);
-    }
-
-    @Override
-    public void removeDeviceMessage(DeviceMessage<?> deviceMessage) {
-
-        throw new NoSuchMethodError("Method removeDeviceMessage is not yet implemented on DeviceImpl");
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{

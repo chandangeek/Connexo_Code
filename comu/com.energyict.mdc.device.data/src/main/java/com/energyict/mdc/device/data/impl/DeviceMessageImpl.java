@@ -10,13 +10,16 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.InvalidDeviceMessageStatusMove;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.HasValidDeviceMessageAttributes;
+import com.energyict.mdc.device.data.impl.constraintvalidators.IsRevokeAllowed;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UserHasTheMessagePrivilege;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidDeviceMessageId;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ValidReleaseDateUpdate;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -27,17 +30,17 @@ import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Copyrights EnergyICT
- * Date: 10/27/14
- * Time: 1:06 PM
+ * Straightforward implementation of a ServerDeviceMessage
  */
 @ValidDeviceMessageId(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}")
+@UserHasTheMessagePrivilege(groups = {Save.Create.class, Save.Update.class})
 @HasValidDeviceMessageAttributes(groups = {Save.Create.class, Save.Update.class})
-public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> implements DeviceMessage<Device>{
+public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> implements ServerDeviceMessage {
 
     public enum Fields {
         DEVICEMESSAGEID("deviceMessageId"),
@@ -48,7 +51,7 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
         RELEASEDATE("releaseDate"),
         SENTDATE("sentDate"),
         DEVICEMESSAGEATTRIBUTES("deviceMessageAttributes"),
-        ;
+        USER("user"),;
 
         private final String javaFieldName;
 
@@ -65,17 +68,19 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private Clock clock;
 
-    private long id;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.USER_IS_REQUIRED + "}")
     private Reference<User> user = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_IS_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
     private DeviceMessageId deviceMessageId;
     private DeviceMessageStatus deviceMessageStatus;
+    @IsRevokeAllowed(groups = {Save.Create.class, Save.Update.class})
+    private RevokeChecker revokeChecker;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CREATE_DATE_IS_REQUIRED + "}")
     private Instant creationDate;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.RELEASE_DATE_IS_REQUIRED + "}")
     private Instant releaseDate;
+    @ValidReleaseDateUpdate(groups = {Save.Create.class, Save.Update.class})
+    private ReleaseDateUpdater releaseDateUpdater;
     private Instant sentDate;
     private String trackingId;
     private String protocolInfo;
@@ -85,13 +90,13 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
 
     @Inject
     public DeviceMessageImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, DeviceMessageSpecificationService deviceMessageSpecificationService, Clock clock) {
-        super(DeviceMessage.class, dataModel, eventService, thesaurus);
+        super(ServerDeviceMessage.class, dataModel, eventService, thesaurus);
         this.threadPrincipalService = threadPrincipalService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.clock = clock;
     }
 
-    public DeviceMessageImpl initialize(Device device, DeviceMessageId deviceMessageId){
+    public DeviceMessageImpl initialize(Device device, DeviceMessageId deviceMessageId) {
         this.deviceMessageId = deviceMessageId;
         this.device.set(device);
         this.user.set((User) this.threadPrincipalService.getPrincipal());
@@ -148,14 +153,14 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
 
     @Override
     public DeviceMessageStatus getStatus() {
-        if(statusIsPending()){
+        if (statusIsPending()) {
             return DeviceMessageStatus.PENDING;
         }
         return this.deviceMessageStatus;
     }
 
     private boolean statusIsPending() {
-        return this.deviceMessageStatus == DeviceMessageStatus.WAITING && !getReleaseDate().isAfter(this.clock.instant());
+        return this.deviceMessageStatus == DeviceMessageStatus.WAITING && this.releaseDate != null && !this.releaseDate.isAfter(this.clock.instant());
     }
 
     @Override
@@ -185,17 +190,12 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
 
     @Override
     public User getUser() {
-        return user.get();
+        return user.orNull();
     }
 
     @Override
     public OfflineDeviceMessage goOffline() {
         return null;
-    }
-
-    @Override
-    public long getId() {
-        return id;
     }
 
     @Override
@@ -217,12 +217,71 @@ public class DeviceMessageImpl extends PersistentIdObject<DeviceMessage> impleme
     }
 
     public void setReleaseDate(Instant releaseDate) {
+        getReleaseDateUpdater().setNewReleaseDate(releaseDate);
         this.releaseDate = releaseDate;
+    }
+
+    @Override
+    public void revoke() {
+        this.revokeChecker = new RevokeChecker(deviceMessageStatus);
+        this.deviceMessageStatus = DeviceMessageStatus.CANCELED;
     }
 
     public <T> void addProperty(String key, T value) {
         DeviceMessageAttributeImpl<T> deviceMessageAttribute = this.getDataModel().getInstance(DeviceMessageAttributeImpl.class).initialize(this, key);
         deviceMessageAttribute.setValue(value);
         deviceMessageAttributes.add(deviceMessageAttribute);
+    }
+
+    @Override
+    public void moveTo(DeviceMessageStatus status) {
+        if (!getStatus().isPredecessorOf(status)) {
+            throw new InvalidDeviceMessageStatusMove(getThesaurus(), this.deviceMessageStatus, status);
+        }
+        this.deviceMessageStatus = status;
+    }
+
+    private ReleaseDateUpdater getReleaseDateUpdater() {
+        if (this.releaseDateUpdater == null) {
+            this.releaseDateUpdater = new ReleaseDateUpdater(getStatus(), this.releaseDate);
+        }
+        return releaseDateUpdater;
+    }
+
+    public class ReleaseDateUpdater {
+
+        private final DeviceMessageStatus status;
+        private final Instant initialReleaseDate;
+        private Instant newReleaseDate;
+
+        private EnumSet<DeviceMessageStatus> allowedStatusses =
+                EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING);
+
+        private ReleaseDateUpdater(DeviceMessageStatus status, Instant initialReleaseDate) {
+            this.status = status;
+            this.initialReleaseDate = initialReleaseDate;
+        }
+
+        public boolean canUpdate() {
+            return this.initialReleaseDate == null
+                    || this.newReleaseDate != null && this.initialReleaseDate.equals(this.newReleaseDate)
+                    || allowedStatusses.stream().anyMatch(deviceMessageStatus -> deviceMessageStatus.equals(this.status));
+        }
+
+        public void setNewReleaseDate(Instant releaseDate) {
+            newReleaseDate = releaseDate;
+        }
+    }
+
+    public class RevokeChecker {
+        private final DeviceMessageStatus initialStatus;
+
+        private RevokeChecker(DeviceMessageStatus initialStatus) {
+            this.initialStatus = initialStatus;
+        }
+
+        public boolean isRevokeAllowed(){
+            return initialStatus.isPredecessorOf(DeviceMessageStatus.CANCELED);
+        }
     }
 }

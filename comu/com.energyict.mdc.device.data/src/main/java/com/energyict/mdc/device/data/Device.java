@@ -382,8 +382,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId);
 
-    public void removeDeviceMessage(DeviceMessage<?> deviceMessage);
-
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask
      */
