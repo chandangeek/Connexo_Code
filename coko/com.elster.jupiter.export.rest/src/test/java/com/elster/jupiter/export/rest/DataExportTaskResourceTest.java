@@ -18,6 +18,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Answers;
 import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
@@ -38,7 +39,7 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
     public static final ZonedDateTime NEXT_EXECUTION = ZonedDateTime.of(2015, 1, 13, 0, 0, 0, 0, ZoneId.systemDefault());
     @Mock
     private RestQueryService restQueryService;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataExportService dataExportService;
     @Mock
     private MeteringService meteringService;

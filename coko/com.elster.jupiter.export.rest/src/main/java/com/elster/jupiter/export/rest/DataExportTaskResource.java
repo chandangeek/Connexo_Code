@@ -87,7 +87,7 @@ public class DataExportTaskResource {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
                 .setDataProcessorName(info.dataProcessor)
-                .setScheduleExpression(info.schedule.asTemporalExpression())
+                .setScheduleExpression(info.schedule.asScheduleExpression())
                 .setExportPeriod(getRelativePeriod(info.exportperiod))
                 .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
                 .setValidatedDataOption(info.validatedDataOption)
