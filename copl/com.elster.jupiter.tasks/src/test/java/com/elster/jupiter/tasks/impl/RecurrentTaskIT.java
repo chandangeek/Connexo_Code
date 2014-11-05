@@ -10,10 +10,14 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskLogEntry;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -28,7 +32,6 @@ import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,6 +47,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.logging.Level;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -128,20 +133,7 @@ public class RecurrentTaskIT {
     @Test
     public void testCreateRecurrentTask() {
         long id;
-        try (TransactionContext context = transactionService.getContext()) {
-            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
-            RecurrentTask recurrentTask = taskService.newBuilder()
-                    .setScheduleExpressionString("0 0 18 * * ? *")
-                    .scheduleImmediately()
-                    .setName(NAME)
-                    .setPayLoad(PAY_LOAD)
-                    .setDestination(destination)
-                    .build();
-            recurrentTask.save();
-            id = recurrentTask.getId();
-            context.commit();
-        }
+        id = createRecurrentTask("0 0 18 * * ? *");
         RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
         assertThat(recurrentTask).isNotNull();
         recurrentTask.updateNextExecution();
@@ -169,6 +161,52 @@ public class RecurrentTaskIT {
         assertThat(recurrentTask).isNotNull();
         recurrentTask.updateNextExecution();
         assertThat(recurrentTask.getNextExecution()).isEqualTo(nextExecution);
+    }
+
+    @Test
+    public void testTaskOccurrenceLog() {
+        long id = createRecurrentTask("0 0 18 * * ? *");
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
+        OrmService instance = injector.getInstance(OrmService.class);
+        DataModel dataModel = instance.getDataModel(TaskService.COMPONENTNAME).get();
+
+        long taskOccurrenceId;
+        try (TransactionContext context = transactionService.getContext()) {
+            TaskOccurrence taskOccurrence = recurrentTask.createTaskOccurrence();
+            taskOccurrence.log(Level.INFO, now, "   Coucou   ");
+
+            taskOccurrenceId = taskOccurrence.getId();
+            context.commit();
+        }
+
+        TaskOccurrence occurrence = dataModel.mapper(TaskOccurrence.class).getExisting(taskOccurrenceId);
+        List<TaskLogEntry> logs = occurrence.getLogs();
+        assertThat(logs).hasSize(1);
+        TaskLogEntry entry = logs.get(0);
+        assertThat(entry.getTaskOccurrence()).isEqualTo(occurrence);
+        assertThat(entry.getTimeStamp()).isEqualTo(now);
+        assertThat(entry.getLevel()).isEqualTo(Level.INFO);
+        assertThat(entry.getMessage()).isEqualTo("Coucou");
+
+    }
+
+    private long createRecurrentTask(String scheduleExpressionString) {
+        long id;
+        try (TransactionContext context = transactionService.getContext()) {
+            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
+            RecurrentTask recurrentTask = taskService.newBuilder()
+                    .setScheduleExpressionString(scheduleExpressionString)
+                    .scheduleImmediately()
+                    .setName(NAME)
+                    .setPayLoad(PAY_LOAD)
+                    .setDestination(destination)
+                    .build();
+            recurrentTask.save();
+            id = recurrentTask.getId();
+            context.commit();
+        }
+        return id;
     }
 
 }

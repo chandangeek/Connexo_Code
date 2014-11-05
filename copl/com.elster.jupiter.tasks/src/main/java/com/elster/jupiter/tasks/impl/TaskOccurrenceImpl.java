@@ -2,11 +2,15 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskLogEntry;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
 
 class TaskOccurrenceImpl implements TaskOccurrence {
 
@@ -14,6 +18,8 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     private long recurrentTaskId;
     private RecurrentTask recurrentTask;
     private Instant triggerTime;
+
+    private List<TaskLogEntry> logEntries = new ArrayList<>();
 
     private final DataModel dataModel;
 
@@ -68,5 +74,15 @@ class TaskOccurrenceImpl implements TaskOccurrence {
 
     public void hasRun() {
         ((RecurrentTaskImpl) recurrentTask).updateLastRun(getTriggerTime());
+    }
+
+    @Override
+    public void log(Level level, Instant timestamp, String message) {
+        logEntries.add(dataModel.getInstance(TaskLogEntryImpl.class).init(this, timestamp, level, message));
+    }
+
+    @Override
+    public List<TaskLogEntry> getLogs() {
+        return Collections.unmodifiableList(logEntries);
     }
 }

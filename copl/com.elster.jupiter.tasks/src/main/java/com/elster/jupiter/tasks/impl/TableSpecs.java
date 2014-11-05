@@ -5,11 +5,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskLogEntry;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 enum TableSpecs {
 
@@ -36,6 +37,22 @@ enum TableSpecs {
             table.column("TRIGGERTIME").type("number").conversion(NUMBER2INSTANT).map("triggerTime").add();
             table.foreignKey("TSK_FKOCCURRENCE_TASK").references(TSK_RECURRENT_TASK.name()).onDelete(DeleteRule.CASCADE).map("recurrentTask").on(recurrentIdColumn).add();
             table.primaryKey("TSK_PK_TASK_OCCURRENCE").on(idColumn).add();
+        }
+    },
+    TSK_TASK_LOG(TaskLogEntry.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(TaskLogEntryImpl.class);
+            Column taskOccurrenceColumn = table.column("TASKOCCCURRENCE").number().notNull().conversion(NUMBER2LONG).add();
+            Column position = table.column("POSITION").number().notNull().map("position").conversion(NUMBER2INT).add();
+            table.column("TIMESTAMP").number().notNull().conversion(NUMBER2INSTANT).map("timeStamp").add();
+            table.column("LEVEL").number().notNull().conversion(NUMBER2INT).map("level").add();
+            table.column("MESSAGE").varChar(DESCRIPTION_LENGTH).map("message").add();
+            table.column("STACKTRACE").type("CLOB").map("stackTrace").add();
+
+            table.primaryKey("TSK_PK_LOG_ENTRY").on(taskOccurrenceColumn, position).add();
+            table.foreignKey("TSK_FKTASKLOG_OCCURRENCE").references(TSK_TASK_OCCURRENCE.name()).on(taskOccurrenceColumn).onDelete(DeleteRule.CASCADE)
+                    .map("taskOccurrence").reverseMap("logEntries").reverseMapOrder("position").composition().add();
         }
     };
 
