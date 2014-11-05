@@ -41,11 +41,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.energyict</groupId>
-      <artifactId>mdc.protocols</artifactId>
-      <version>${jupiter.version}</version>
-    </dependency>
-    <dependency>
       <groupId>com.energyict.dataconcentrator.external</groupId>
       <artifactId>serialio</artifactId>
     </dependency>
