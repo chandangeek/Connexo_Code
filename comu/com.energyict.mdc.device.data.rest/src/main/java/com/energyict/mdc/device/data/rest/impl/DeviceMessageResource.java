@@ -105,7 +105,8 @@ public class DeviceMessageResource {
     public Response deleteDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceMessage<?> deviceMessage = findDeviceMessageOrThrowException(device, deviceMessageId);
-        device.removeDeviceMessage(deviceMessage);
+        deviceMessage.revoke();
+        deviceMessage.save();
         return Response.status(Response.Status.OK).build();
     }
 

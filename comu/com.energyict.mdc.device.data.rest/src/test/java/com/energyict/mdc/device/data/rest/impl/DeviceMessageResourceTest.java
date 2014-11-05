@@ -340,9 +340,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
         Response response = target("/devices/ZABF010000080004/devicemessages/2").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        ArgumentCaptor<DeviceMessage> argumentCaptor = ArgumentCaptor.forClass(DeviceMessage.class);
-        verify(device, times(1)).removeDeviceMessage(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getId()).isEqualTo(2L);
+        verify(msg2, times(1)).revoke();
     }
 
     @Test
