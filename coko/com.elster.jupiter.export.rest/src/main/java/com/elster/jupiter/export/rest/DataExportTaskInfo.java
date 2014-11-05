@@ -11,6 +11,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -62,7 +63,10 @@ public class DataExportTaskInfo {
 
         //todo last occurence
         // lastExportOccurence = new LastExportOccurenceInfo(dataExportTask.getLastOccurence());
-        nextRun = dataExportTask.getNextExecution().toEpochMilli();
+        Instant nextExecution = dataExportTask.getNextExecution();
+        if (nextExecution != null) {
+            nextRun = nextExecution.toEpochMilli();
+        }
 
 
     }
