@@ -52,8 +52,4 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
         return NAME;
     }
 
-    //@Override
-    public DataProcessor createTemplateDataFormatter() {
-        return null;
-    }
 }
