@@ -55,7 +55,7 @@ public final class ReadingQualityType {
     }
 
     public static ReadingQualityType defaultCodeForRuleId(long id) {
-        return ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, (int) id);
+        return ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, (int) (1000 + id));
     }
 
     @Override
