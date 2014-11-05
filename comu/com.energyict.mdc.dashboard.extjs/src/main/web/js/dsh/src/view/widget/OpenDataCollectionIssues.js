@@ -108,8 +108,8 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                     {
                         dataIndex: 'title',
                         flex: 1,
-                        renderer: function(value, meta, record){
-                            var href = me.router.getRoute('workspace/datacollection/issues/view').buildUrl({id: record.get('id')});
+                        renderer: function (value, meta, record) {
+                            var href = me.router.getRoute('workspace/datacollection/issues/view').buildUrl({issueId: record.get('id')});
                             return '<a href="' + href + '">' + value + '</a>'
                         }
                     }
