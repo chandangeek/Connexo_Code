@@ -75,7 +75,7 @@ public final class ExecutionContext implements JournalEntryFactory {
 
         public ConnectionTaskService connectionTaskService();
 
-        public DeviceService deviceDataService();
+        public DeviceService deviceService();
 
     }
 

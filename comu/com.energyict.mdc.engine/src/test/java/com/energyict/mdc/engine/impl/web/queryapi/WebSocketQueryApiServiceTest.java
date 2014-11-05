@@ -127,7 +127,7 @@ public class WebSocketQueryApiServiceTest {
     private static void initializeMocks() {
         deviceService = mock(DeviceService.class);
         serviceProvider = mock(ServiceProvider.class);
-        when(serviceProvider.deviceDataService()).thenReturn(deviceService);
+        when(serviceProvider.deviceService()).thenReturn(deviceService);
         ServiceProvider.instance.set(serviceProvider);
     }
 

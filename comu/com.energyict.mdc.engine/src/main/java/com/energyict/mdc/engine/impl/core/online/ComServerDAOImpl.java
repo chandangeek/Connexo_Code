@@ -22,9 +22,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.impl.ConnectionTaskCompletionEventInfo;
 import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
@@ -94,7 +92,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         public CommunicationTaskService communicationTaskService();
 
-        public DeviceService deviceDataService();
+        public DeviceService deviceService();
 
         public EngineService engineService();
 
@@ -116,7 +114,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private DeviceService getDeviceDataService() {
-        return this.serviceProvider.deviceDataService();
+        return this.serviceProvider.deviceService();
     }
 
     private CommunicationTaskService getCommunicationTaskService() {

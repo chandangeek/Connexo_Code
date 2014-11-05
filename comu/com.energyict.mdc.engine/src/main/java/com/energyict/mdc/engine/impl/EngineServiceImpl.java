@@ -348,7 +348,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
         }
 
         @Override
-        public DeviceService deviceDataService() {
+        public DeviceService deviceService() {
             return deviceService;
         }
 

@@ -470,8 +470,8 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         }
 
         @Override
-        public DeviceService deviceDataService() {
-            return serviceProvider.deviceDataService();
+        public DeviceService deviceService() {
+            return serviceProvider.deviceService();
         }
 
     }

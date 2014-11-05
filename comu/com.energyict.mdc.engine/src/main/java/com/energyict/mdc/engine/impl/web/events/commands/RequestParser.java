@@ -24,7 +24,7 @@ public class RequestParser {
 
         public CommunicationTaskService communicationTaskService();
 
-        public DeviceService deviceDataService();
+        public DeviceService deviceService();
 
         public EngineModelService engineModelService();
 
@@ -70,7 +70,7 @@ public class RequestParser {
                         new InfoLoggingRequestType(),
                         new DebugLoggingRequestType(),
                         new TraceLoggingRequestType(),
-                        new DeviceRequestType(serviceProvider.deviceDataService()),
+                        new DeviceRequestType(serviceProvider.deviceService()),
                         new ConnectionTaskRequestType(serviceProvider.connectionTaskService()),
                         new ComTaskExecutionRequestType(serviceProvider.communicationTaskService()),
                         new ComPortRequestType(serviceProvider.engineModelService()),

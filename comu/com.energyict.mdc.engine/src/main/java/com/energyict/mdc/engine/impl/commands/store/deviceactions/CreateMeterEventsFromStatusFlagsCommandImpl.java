@@ -17,8 +17,8 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByDeviceAndObisCode;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +78,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImpl extends SimpleComComman
                     }
                     collectedMeterEvents.addAll(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                 }
-                DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById((int) loadProfileCommand.getOfflineDevice().getId());
+                DeviceIdentifier deviceIdentifier = loadProfileCommand.getOfflineDevice().getDeviceIdentifier();
                 DeviceLogBook deviceLogBook = new DeviceLogBook(new LogBookIdentifierByDeviceAndObisCode(deviceIdentifier, DeviceLogBook.GENERIC_LOGBOOK_TYPE_OBISCODE));
                 deviceLogBook.setMeterEvents(collectedMeterEvents);
                 this.loadProfileCommand.addCollectedDataItem(deviceLogBook);

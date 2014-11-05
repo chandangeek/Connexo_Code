@@ -36,7 +36,7 @@ import com.energyict.mdc.io.SocketService;
  * Time: 13:24
  */
 public class FakeServiceProvider
-        implements
+    implements
         ServiceProvider,
         ComChannelBasedComPortListenerImpl.ServiceProvider,
         AbstractComServerEventImpl.ServiceProvider,
@@ -118,7 +118,7 @@ public class FakeServiceProvider
     }
 
     @Override
-    public DeviceService deviceDataService() {
+    public DeviceService deviceService() {
         return deviceService;
     }
 

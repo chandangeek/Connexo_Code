@@ -60,7 +60,7 @@ public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublish
         }
 
         @Override
-        public DeviceService deviceDataService() {
+        public DeviceService deviceService() {
             return deviceService;
         }
 

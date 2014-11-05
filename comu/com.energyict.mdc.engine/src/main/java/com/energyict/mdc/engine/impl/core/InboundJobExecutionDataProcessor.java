@@ -76,13 +76,13 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                 ProtocolTask logBooksTask = getLogBooksTask(comTaskExecution);
                 ProtocolTask messageTask = getMessageTask(comTaskExecution);
                 if (registersTask != null) {
-                    InboundCollectedRegisterCommandImpl inboundCollectedRegisterListCommand = new InboundCollectedRegisterCommandImpl((RegistersTask) registersTask, offlineDevice, root, comTaskExecution, data, serviceProvider.deviceDataService());
+                    InboundCollectedRegisterCommandImpl inboundCollectedRegisterListCommand = new InboundCollectedRegisterCommandImpl((RegistersTask) registersTask, offlineDevice, root, comTaskExecution, data, serviceProvider.deviceService());
                     addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedRegisterListCommand);
                 } else if (loadProfilesTask != null) {
                     InboundCollectedLoadProfileCommandImpl inboundCollectedLoadProfileReadCommand = new InboundCollectedLoadProfileCommandImpl((LoadProfilesTask) loadProfilesTask, offlineDevice, root, comTaskExecution, data);
                     addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedLoadProfileReadCommand);
                 } else if (logBooksTask != null) {
-                    InboundCollectedLogBookCommandImpl inboundCollectedLogBookReadCommand = new InboundCollectedLogBookCommandImpl((LogBooksTask) logBooksTask, offlineDevice, root, comTaskExecution, data, serviceProvider.deviceDataService());
+                    InboundCollectedLogBookCommandImpl inboundCollectedLogBookReadCommand = new InboundCollectedLogBookCommandImpl((LogBooksTask) logBooksTask, offlineDevice, root, comTaskExecution, data, serviceProvider.deviceService());
                     addNewInboundComCommand(allPreparedComTaskExecutions, root, comTaskExecution, inboundCollectedLogBookReadCommand);
 
                 /*Todo reenable onces Messages are ported
@@ -182,7 +182,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
         @Override
         public DeviceService deviceDataService() {
-            return serviceProvider.deviceDataService();
+            return serviceProvider.deviceService();
         }
 
         @Override

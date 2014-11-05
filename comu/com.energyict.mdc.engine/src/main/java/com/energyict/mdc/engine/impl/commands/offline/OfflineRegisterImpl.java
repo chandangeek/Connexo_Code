@@ -163,11 +163,6 @@ public class OfflineRegisterImpl implements OfflineRegister {
     }
 
     @Override
-    public long getDeviceId() {
-        return this.deviceId;
-    }
-
-    @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
         return new DeviceIdentifierForAlreadyKnownDevice(this.device);
     }
@@ -186,4 +181,5 @@ public class OfflineRegisterImpl implements OfflineRegister {
     public boolean isText() {
         return isText;
     }
+
 }

@@ -88,7 +88,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         public LogBookService logBookService();
 
-        public DeviceService deviceDataService();
+        public DeviceService deviceService();
 
         public EngineService engineService();
 
@@ -547,7 +547,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         @Override
         public DeviceService deviceDataService() {
-            return JobExecution.this.serviceProvider.deviceDataService();
+            return JobExecution.this.serviceProvider.deviceService();
         }
 
         @Override

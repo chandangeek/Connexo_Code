@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -127,6 +128,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new MeteringGroupsModule(),
                 new OrmModule(),
                 new MdcCommonModule(),
+                new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new IdsModule(),

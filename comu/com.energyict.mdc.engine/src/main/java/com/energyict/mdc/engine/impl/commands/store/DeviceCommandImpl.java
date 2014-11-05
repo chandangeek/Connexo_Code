@@ -50,7 +50,7 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
     }
 
     protected DeviceService getDeviceDataService() {
-        return ServiceProvider.instance.get().deviceDataService();
+        return ServiceProvider.instance.get().deviceService();
     }
 
     protected MdcReadingTypeUtilService getMdcReadingTypeUtilService() {

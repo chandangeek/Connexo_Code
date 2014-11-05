@@ -7,6 +7,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.model.UDPBasedInboundComPort;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.InboundCommunicationException;
+import com.energyict.mdc.io.InboundUdpSession;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.io.impl.MessageSeeds;
 import com.energyict.mdc.io.impl.SocketServiceImpl;
@@ -28,9 +29,7 @@ import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -39,6 +38,7 @@ import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -61,6 +61,8 @@ public class UDPPortConnectorTest {
     private EventPublisherImpl eventPublisher;
     @Mock
     private HexService hexService;
+    @Mock
+    private InboundUdpSession inboundUdpSession;
 
     private SocketService socketService;
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
@@ -69,6 +71,7 @@ public class UDPPortConnectorTest {
     @Before
     public void mockSocketService() {
         this.socketService = mock(SocketService.class);
+        when(this.socketService.newInboundUdpSession(anyInt(), anyInt())).thenReturn(this.inboundUdpSession);
     }
 
     private void useRealSocketService() {
@@ -100,13 +103,10 @@ public class UDPPortConnectorTest {
     public void initializeMocksAndFactories() throws IOException {
         when(this.socketService.newInboundUDPSocket(anyInt())).thenReturn(this.datagramSocket);
         ArgumentCaptor<DatagramPacket> datagramPacketArgumentCaptor = ArgumentCaptor.forClass(DatagramPacket.class);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                DatagramPacket datagramPacket = (DatagramPacket) invocationOnMock.getArguments()[0];
-                datagramPacket.setPort(PORT_NUMBER);
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            DatagramPacket datagramPacket = (DatagramPacket) invocationOnMock.getArguments()[0];
+            datagramPacket.setPort(PORT_NUMBER);
+            return null;
         }).when(this.datagramSocket).receive(datagramPacketArgumentCaptor.capture());
     }
 
@@ -120,15 +120,12 @@ public class UDPPortConnectorTest {
 
     @Test(timeout = 2000)
     public void testProperAccept() throws IOException {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                if (invocationOnMock.getArguments()[0] instanceof DatagramPacket) {
-                    DatagramPacket packet = (DatagramPacket) invocationOnMock.getArguments()[0];
-                    packet.setPort(PORT_NUMBER);
-                }
-                return null;  // really nothing to do, but we need to come back instead of block
+        doAnswer(invocationOnMock -> {
+            if (invocationOnMock.getArguments()[0] instanceof DatagramPacket) {
+                DatagramPacket packet = (DatagramPacket) invocationOnMock.getArguments()[0];
+                packet.setPort(PORT_NUMBER);
             }
+            return null;  // really nothing to do, but we need to come back instead of block
         }).when(datagramSocket).receive(any(DatagramPacket.class));
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
@@ -141,31 +138,17 @@ public class UDPPortConnectorTest {
         // asserts
         assertThat(accept).isNotNull();
         assertThat(accept).isInstanceOf(ComPortRelatedComChannel.class);
-    }
-
-    @Test(timeout = 1000, expected = InboundCommunicationException.class)
-    public void testConstructorFailure() throws InboundCommunicationException, SocketException {
-        doThrow(new SocketException("Something fishy happened for testing purposes")).when(this.socketService).newInboundUDPSocket(anyInt());
-
-        UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-
-        try {
-            // business method
-            new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService);
-        } catch (InboundCommunicationException e) {
-            if (!e.getMessageSeed().equals(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION)) {
-                fail("Message should have indicated that their was an exception during the setup of the inbound call, but was " + e.getMessageSeed());
-            } else {
-                throw e;
-            }
-        }
+        verify(this.inboundUdpSession).accept();
     }
 
     @Test(timeout = 2000, expected = InboundCommunicationException.class)
     public void testAcceptFailure() throws IOException, InboundCommunicationException {
-        doThrow(new IOException("Something fishy happened during the accept for testing purposes")).
-                when(this.datagramSocket).
-                receive(any(DatagramPacket.class));
+        doThrow(
+            new InboundCommunicationException(
+                    MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION,
+                    new IOException("Something fishy happened during the accept for testing purposes")))
+            .when(this.inboundUdpSession)
+            .accept();
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
 

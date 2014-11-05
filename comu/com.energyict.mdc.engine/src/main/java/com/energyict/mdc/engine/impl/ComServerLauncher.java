@@ -197,8 +197,8 @@ public final class ComServerLauncher {
         }
 
         @Override
-        public DeviceService deviceDataService() {
-            return serviceProvider.deviceDataService();
+        public DeviceService deviceService() {
+            return serviceProvider.deviceService();
         }
 
         @Override

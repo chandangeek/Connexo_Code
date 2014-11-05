@@ -37,7 +37,7 @@ public class CommandRootServiceProviderAdapter implements CommandRoot.ServicePro
 
     @Override
     public DeviceService deviceDataService() {
-        return delegate.deviceDataService();
+        return delegate.deviceService();
     }
 
     @Override
