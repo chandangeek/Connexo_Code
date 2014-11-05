@@ -8,12 +8,16 @@ import com.elster.jupiter.nls.TranslationKey;
  * Time: 13:11
  */
 public enum FormatterProperties implements TranslationKey {
-    FILENAME_PREFIX("fileFormat.filenamePrefix", "File name prefix"),
-    FILE_EXTENSION("fileFormat.fileExtension", "File extension"),
-    UPDATE_IN_SEPARATE_FILE("fileFormat.updatedData.separateFile", "Separate file"),
-    UPDATE_FILE_PREFIX("fileFormat.updatedData.updateFilenamePrefix", "File name prefix"),
-    UPDATE_FILE_EXTENSION("fileFormat.updatedData.updateFileExtension", "File extension"),
-    SEPARATOR("formatterProperties.separator", "Separator");
+    FORMATTER("fileFormat", "File format"),
+    FILENAME_PREFIX(FORMATTER.getKey() + ".filenamePrefix", "File name prefix"),
+    FILE_EXTENSION(FORMATTER.getKey() + ".fileExtension", "File extension"),
+    UPDATEDDATA("updatedData", "Updated data"),
+    UPDATE_IN_SEPARATE_FILE(FORMATTER.getKey() + "." + UPDATEDDATA.getKey() + ".separateFile", "Separate file"),
+    UPDATE_FILE_PREFIX(FORMATTER.getKey() + "." + UPDATEDDATA.getKey() + ".updateFilenamePrefix", "File name prefix"),
+    UPDATE_FILE_EXTENSION(FORMATTER.getKey() + "." + UPDATEDDATA.getKey() + ".updateFileExtension", "File extension"),
+    FORMATTER_PROPERTIES("formatterProperties", "Formatter properties"),
+    SEPARATOR(FORMATTER_PROPERTIES.getKey() + ".separator", "Separator");
+
 
     private String name;
     private String defaultTranslation;

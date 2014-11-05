@@ -21,12 +21,12 @@ public class Translations implements TranslationKeyProvider {
 
     @Override
     public String getComponentName() {
-        return DataExportService.COMPONENTNAME;
+        return "DXP";
     }
 
     @Override
     public Layer getLayer() {
-        return Layer.DOMAIN;
+        return Layer.REST;
     }
 
     @Override
