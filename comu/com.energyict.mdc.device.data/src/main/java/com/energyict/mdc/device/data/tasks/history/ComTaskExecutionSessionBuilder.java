@@ -14,6 +14,8 @@ public interface ComTaskExecutionSessionBuilder extends BuildsStatistics<ComTask
 
     ComSessionBuilder add(Instant stopDate, ComTaskExecutionSession.SuccessIndicator successIndicator);
 
+    ComTaskExecutionSessionBuilder addComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String commandDescription);
+
     ComTaskExecutionSessionBuilder addComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String errorDesciption, String commandDescription);
 
     ComTaskExecutionSessionBuilder addComTaskExecutionMessageJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDesciption);
