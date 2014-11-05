@@ -1,3 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package:
+Private-Package:  \
+	com.elster.jupiter.gogo
