@@ -158,28 +158,30 @@ Ext.define('Dsh.controller.Connections', {
     initConnectionMenu: function (record, me) {
         this.getConnectionsGridActionMenu().menu.removeAll();
         this.getConnectionsPreviewActionMenu().menu.removeAll();
-        var menuItem = {
-            text: Uni.I18n.translate('connection.widget.details.connectionMenuItem', 'MDC', 'View connection log'),
-            action: {
-                action: 'viewlog',
-                connection: {
-                    mRID: record.get('device').id,
-                    connectionMethodId: record.get('id'),
-                    sessionId: record.get('comSessionId')
+        if(record.get('comSessionId')!==0){
+            var menuItem = {
+                text: Uni.I18n.translate('connection.widget.details.connectionMenuItem', 'MDC', 'View connection log'),
+                action: {
+                    action: 'viewlog',
+                    connection: {
+                        mRID: record.get('device').id,
+                        connectionMethodId: record.get('id'),
+                        sessionId: record.get('comSessionId')
 
+                    }
+                },
+                listeners: {
+                    click: me.viewConnectionLog
                 }
-            },
-            listeners: {
-                click: me.viewConnectionLog
-            }
-        };
-        this.getConnectionsGridActionMenu().menu.add(menuItem);
-        this.getConnectionsPreviewActionMenu().menu.add(menuItem);
+            };
+            this.getConnectionsGridActionMenu().menu.add(menuItem);
+            this.getConnectionsPreviewActionMenu().menu.add(menuItem);
+        }
     },
 
     viewConnectionLog: function(item){
         location.href = '#/devices/' + item.action.connection.mRID + '/connectionmethods/' + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22connections%22%2C%22communications%22%5D%7D'
+            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
     },
 
     viewCommunicationLog: function(item){
