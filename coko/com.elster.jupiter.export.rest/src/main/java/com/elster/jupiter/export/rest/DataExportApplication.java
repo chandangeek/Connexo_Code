@@ -107,6 +107,7 @@ public class DataExportApplication extends Application {
                 bind(meteringGroupsService).to(MeteringGroupsService.class);
                 bind(timeService).to(TimeService.class);
                 bind(meteringService).to(MeteringService.class);
+                bind(transactionService).to(TransactionService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);

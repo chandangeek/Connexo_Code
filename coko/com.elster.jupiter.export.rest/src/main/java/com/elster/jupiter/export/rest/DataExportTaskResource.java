@@ -16,6 +16,8 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Order;
 
 import javax.inject.Inject;
@@ -41,15 +43,17 @@ public class DataExportTaskResource {
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
     private final Thesaurus thesaurus;
+    private final TransactionService transactionService;
 
     @Inject
-    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus) {
+    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService) {
         this.queryService = queryService;
         this.dataExportService = dataExportService;
         this.timeService = timeService;
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
         this.thesaurus = thesaurus;
+        this.transactionService = transactionService;
     }
 
     @GET
@@ -64,13 +68,11 @@ public class DataExportTaskResource {
         return infos;
     }
 
-
     private List<? extends ReadingTypeDataExportTask> queryTasks(QueryParameters queryParameters) {
         Query<? extends ReadingTypeDataExportTask> query = dataExportService.getReadingTypeDataExportTaskQuery();
         RestQuery<? extends ReadingTypeDataExportTask> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
-
 
     @GET
     @Path("/{id}/")
@@ -108,6 +110,10 @@ public class DataExportTaskResource {
                 });
 
         ReadingTypeDataExportTask dataExportTask = builder.build();
+        try (TransactionContext context = transactionService.getContext()) {
+            dataExportTask.save();
+            context.commit();
+        }
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask)).build();
     }
 
