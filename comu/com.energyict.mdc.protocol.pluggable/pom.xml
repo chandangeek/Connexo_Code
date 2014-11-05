@@ -30,11 +30,6 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
-      <artifactId>mdc.protocols</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.energyict</groupId>
       <artifactId>mdc.pluggable</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -61,6 +56,12 @@
     </dependency>
 
     <!-- Testing -->
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.protocols</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert-core</artifactId>

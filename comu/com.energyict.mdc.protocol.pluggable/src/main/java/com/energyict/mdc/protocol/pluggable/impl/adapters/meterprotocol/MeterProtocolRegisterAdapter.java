@@ -16,7 +16,6 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers.RegisterDataIdentifier;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -87,7 +86,7 @@ public class MeterProtocolRegisterAdapter implements DeviceRegisterSupport {
 
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRegister){
-        return new RegisterDataIdentifier(offlineRegister.getAmrRegisterObisCode(), offlineRegister.getObisCode(), new DeviceIdentifierById((int) offlineRegister.getDeviceId()));
+        return new RegisterDataIdentifier(offlineRegister.getAmrRegisterObisCode(), offlineRegister.getObisCode(), offlineRegister.getDeviceIdentifier());
     }
 
     private CollectedDataFactory getCollectedDataFactory() {

@@ -21,7 +21,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -161,7 +160,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     private CollectedMessage delegatePendingMessageToProtocol(MessageEntry messageEntry, OfflineDeviceMessage offlineDeviceMessage) {
         MessageResult messageResult;
         CollectedMessage collectedMessage;
-        collectedMessage = this.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(offlineDeviceMessage.getDeviceMessageId()));
+        collectedMessage = this.getCollectedDataFactory().createCollectedMessage(offlineDeviceMessage.getIdentifier());
         try {
             messageResult = this.messageProtocol.queryMessage(messageEntry);
             collectedMessage.setNewDeviceMessageStatus(getNewDeviceMessageStatus(messageResult));
