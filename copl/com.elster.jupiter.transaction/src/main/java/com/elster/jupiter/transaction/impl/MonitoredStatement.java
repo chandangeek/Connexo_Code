@@ -32,6 +32,8 @@ class MonitoredStatement extends PreparedStatementWrapper {
     private final String text;
     private MonitoredResultSet resultSet;
     private final TransactionServiceImpl transactionService;
+    private int batchCount;
+    private int rowCount;
 
     MonitoredStatement(TransactionServiceImpl transactionService, PreparedStatement statement, Connection connection, String text) {
     	super(statement,connection);
@@ -67,13 +69,11 @@ class MonitoredStatement extends PreparedStatementWrapper {
     public void close() throws SQLException {
         stopWatch.stop();
         super.close();
-        transactionService.publish(new SqlEvent(stopWatch, text, parameters, resultSet == null ? -1 : resultSet.getFetchCount()));
+        int fetchCount = resultSet == null ? -1 : resultSet.getFetchCount();
+        SqlEvent event = new SqlEvent(stopWatch, text, parameters, fetchCount, rowCount, batchCount);
+        transactionService.publish(event);
         if (transactionService.printSql()) {
-        	if (resultSet == null) {
-        		System.out.println("Executed Sql: " + text );
-        	} else {
-        		System.out.println("Fetched " + resultSet.getFetchCount() + " tuples from " + text);
-        	} 
+        	System.out.println(event.print());
         }
     }
 
@@ -364,4 +364,20 @@ class MonitoredStatement extends PreparedStatementWrapper {
         super.setUnicodeStream(arg0, arg1, arg2);
     }
 
+    @Override
+    public int executeUpdate() throws SQLException {
+    	int result = super.executeUpdate();
+    	rowCount += result;
+    	return result;
+    }
+    
+    @Override
+    public int[] executeBatch() throws SQLException {
+    	int [] result = super.executeBatch();
+    	batchCount++;
+    	rowCount += result.length;
+    	return super.executeBatch();
+    }
+    
+    
 }
