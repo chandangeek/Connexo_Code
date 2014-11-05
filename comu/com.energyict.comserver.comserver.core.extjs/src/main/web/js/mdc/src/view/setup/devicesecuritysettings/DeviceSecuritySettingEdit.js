@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
     alias: 'widget.deviceSecuritySettingEdit',
     itemId: 'deviceSecuritySettingEdit',
     edit: false,
+    modal: true,
 
     required: [
         'Uni.property.form.Property'

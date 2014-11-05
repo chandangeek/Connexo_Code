@@ -74,22 +74,22 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
     initComponent: function () {
         var me = this;
         me.dockedItems = [{
-            xtype: 'toolbar',
+            xtype: 'pagingtoolbartop',
             dock: 'top',
+            store: me.store,
+            usesExactCount: true,
+            displayMsg: Uni.I18n.translatePlural('messages.pagingtoolbartop.displayMsg', 0 ,'MDC', '{2} messages'),
+            emptyMsg: Uni.I18n.translate('messages.pagingtoolbartop.emptyMsg', 'MDC', 'There are no messages'),
             items: [
                 {
-                    xtype: 'container',
-                    itemId: 'deviceMessagesCount'
-                },
-                {
-                    xtype: 'container',
+                    xtype: 'component',
                     flex: 1
                 },
                 {
                     xtype: 'button',
-                    itemId: 'messages-actionbutton',
                     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                    iconCls: 'x-uni-action-iconD'
+                    iconCls: 'x-uni-action-iconD',
+                    itemId: 'messages-actionbutton'
                 }
             ]
         }
