@@ -110,7 +110,7 @@ public class ValidationPerformanceIT {
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new TransactionModule(true),
+                new TransactionModule(),
                 new ValidationModule(),
                 new NlsModule(),
                 new EventsModule(),
@@ -120,8 +120,7 @@ public class ValidationPerformanceIT {
         injector.getInstance(TransactionService.class).execute(() -> {
         	MeteringService meteringService = injector.getInstance(MeteringService.class);
         	ValidationService validationService = injector.getInstance(ValidationService.class);
-            validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
-        	System.out.println("Test setup ============================");
+            validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));       
             readingType = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
             	.measure(MeasurementKind.ENERGY)
             	.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
@@ -190,7 +189,6 @@ public class ValidationPerformanceIT {
         	sqlCount = context.getStats().getSqlCount();
         }
         meter = meteringService.findMeter(meter.getId()).get();
-        System.out.println("Storing 10 readings ==========================");
         try (TransactionContext context = txService.getContext()) {
         	MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         	for (int j = 0 ; j < 10 ; j++) {
@@ -198,8 +196,7 @@ public class ValidationPerformanceIT {
         	}
         	meter.store(meterReading);
         	context.commit();
-        	assertThat(context.getStats().getSqlCount()).isEqualTo(sqlCount);
-        	System.out.println(context.getStats().getSqlCount());
+        	assertThat(context.getStats().getSqlCount()).isEqualTo(sqlCount);        	
         }
     }
  }
