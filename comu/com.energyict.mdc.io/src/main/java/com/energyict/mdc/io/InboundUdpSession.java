@@ -1,8 +1,5 @@
 package com.energyict.mdc.io;
 
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.VirtualUdpSession;
-
 /**
  * Insert your comments here.
  *
