@@ -31,9 +31,10 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
                         width: 235,
                         allowBlank: !property.get('required'),
                         boxLabel: Uni.I18n.translate(property.get('key'), 'DXP', property.get('key'))
+
                     }),
                     groupName = partitions.join('.');
-
+                control.fieldLabel = Uni.I18n.translate(property.get('key'), 'DXP', property.get('key'));
                 if (type === 'BOOLEAN') {
                     control.fieldLabel = '';
                 }
