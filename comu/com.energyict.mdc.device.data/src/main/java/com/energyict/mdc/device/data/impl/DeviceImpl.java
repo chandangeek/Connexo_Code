@@ -2,18 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.*;
 import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.CommunicationTopologyEntry;
-import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
@@ -107,14 +96,12 @@ import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.function.Supplier;
@@ -1779,6 +1766,24 @@ public class DeviceImpl implements Device, CanLock {
             return GatewayType.NONE;
         }
         return configuration.getGetwayType();
+    }
+
+    @Override
+    public List<CommunicationGatewayReference> getRecentlyAddedCommunicationReferencingDevices(int count) {
+        List<CommunicationGatewayReference> references = deviceService.getCommunicationReferencingDevices(this).paged(0, count).find();
+        if (count < references.size()){
+            references = references.subList(0, count);
+        }
+        return references;
+    }
+
+    @Override
+    public List<PhysicalGatewayReference> getRecentlyAddedPhysicalConnectedDevices(int count) {
+        List<PhysicalGatewayReference> references = deviceService.getPhysicalConnectedDevices(this).paged(0, count).find();
+        if (count < references.size()){
+            references = references.subList(0, count);
+        }
+        return references;
     }
 
     private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
