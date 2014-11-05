@@ -1,3 +1,13 @@
+/* line 249, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-notification-success-collapsed-bottom-frameInfo {
+  font-family: dh-8-8-8-8-0-0-0-0-8-8-8-8;
+}
+
+/* line 315, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-notification-success-collapsed-bottom-tl {
+  background-position: 0 -16px;
+}
+
 /* line 319, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-notification-success-collapsed-bottom-tr {
   background-position: right -24px;

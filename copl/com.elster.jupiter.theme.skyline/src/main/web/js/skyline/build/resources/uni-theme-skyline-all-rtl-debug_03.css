@@ -7812,76 +7812,81 @@
   overflow: visible;
 }
 /* line 56, ../../sass/src/panel/Panel.scss */
+*[class*='x-panel-header-body-'] .x-box-inner .x-panel-header-text-container-tile {
+  line-height: 32px;
+}
+/* line 60, ../../sass/src/panel/Panel.scss */
 *[class*='x-panel-header-body-'] .x-box-inner .x-panel-header-text-container-large {
   line-height: 75px;
 }
-/* line 60, ../../sass/src/panel/Panel.scss */
+/* line 64, ../../sass/src/panel/Panel.scss */
 *[class*='x-panel-header-body-'] .x-box-inner .x-panel-header-text-container-medium {
   line-height: 36px;
 }
 
-/* line 67, ../../sass/src/panel/Panel.scss */
+/* line 72, ../../sass/src/panel/Panel.scss */
+.x-panel-header-tile-horizontal,
 .x-panel-header-large-horizontal,
 .x-panel-header-medium-horizontal {
   padding-bottom: 8px !important;
 }
 
-/* line 73, ../../sass/src/panel/Panel.scss */
+/* line 78, ../../sass/src/panel/Panel.scss */
 .x-panel-large {
   padding: 16px 0 0 0;
 }
 
-/* line 79, ../../sass/src/panel/Panel.scss */
+/* line 84, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed {
   overflow: visible;
 }
-/* line 82, ../../sass/src/panel/Panel.scss */
+/* line 87, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header {
   border-color: #71adc7;
   background: #71adc7;
 }
-/* line 85, ../../sass/src/panel/Panel.scss */
+/* line 90, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-panel-header-text-container {
   color: white;
 }
-/* line 89, ../../sass/src/panel/Panel.scss */
+/* line 94, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-btn-default-small {
   background-color: transparent;
 }
-/* line 95, ../../sass/src/panel/Panel.scss */
+/* line 100, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header .x-btn-default-small-menu-active,
 .x-panel-default-framed .x-panel-header .x-btn-default-small-focus,
 .x-panel-default-framed .x-panel-header .x-btn-default-small-over {
   background-color: #1e7d9e;
 }
-/* line 99, ../../sass/src/panel/Panel.scss */
+/* line 104, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel-header-top {
   padding: 4px 4px 4px 16px;
 }
-/* line 102, ../../sass/src/panel/Panel.scss */
+/* line 107, ../../sass/src/panel/Panel.scss */
 .x-panel-default-framed .x-panel {
   padding: 0;
 }
 
-/* line 108, ../../sass/src/panel/Panel.scss */
+/* line 113, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text {
   float: none;
   color: #686868;
   clear: both;
   display: block;
 }
-/* line 114, ../../sass/src/panel/Panel.scss */
+/* line 119, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-medium {
   font-size: 20px;
   line-height: 20px;
 }
-/* line 118, ../../sass/src/panel/Panel.scss */
+/* line 123, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-large {
   font-size: 30px;
   line-height: 20px;
 }
 
-/* line 124, ../../sass/src/panel/Panel.scss */
+/* line 129, ../../sass/src/panel/Panel.scss */
 .x-panel-filter {
   background-color: #ebebeb;
   -webkit-border-radius: 10px;
@@ -7890,26 +7895,26 @@
   -o-border-radius: 10px;
   border-radius: 10px;
 }
-/* line 128, ../../sass/src/panel/Panel.scss */
+/* line 133, ../../sass/src/panel/Panel.scss */
 .x-panel-filter .x-panel-body {
   background: transparent;
 }
 
-/* line 133, ../../sass/src/panel/Panel.scss */
+/* line 138, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar {
   padding: 8px 0;
 }
-/* line 135, ../../sass/src/panel/Panel.scss */
+/* line 140, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-header-text-container {
   width: 64px;
   color: #686868;
   font-weight: bold;
 }
-/* line 140, ../../sass/src/panel/Panel.scss */
+/* line 145, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-box-item {
   margin-right: 8px;
 }
-/* line 143, ../../sass/src/panel/Panel.scss */
+/* line 148, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-panel-body {
   background: transparent;
 }
@@ -10028,12 +10033,12 @@
   border-width: 1px !important;
 }
 
-/* line 166, ../../sass/src/panel/Panel.scss */
+/* line 171, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
 }
 
-/* line 170, ../../sass/src/panel/Panel.scss */
+/* line 175, ../../sass/src/panel/Panel.scss */
 *[class*='x-panel-'].no-side-padding {
   padding-right: 0;
   padding-left: 0;
@@ -17338,14 +17343,4 @@ div.x-form-spinner-down {
   -o-border-radius: 0px;
   border-radius: 0px;
   background-color: transparent;
-}
-
-/* line 249, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-notification-success-collapsed-bottom-frameInfo {
-  font-family: dh-8-8-8-8-0-0-0-0-8-8-8-8;
-}
-
-/* line 315, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-window-header-notification-success-collapsed-bottom-tl {
-  background-position: 0 -16px;
 }
