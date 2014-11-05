@@ -19,7 +19,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Never;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
@@ -111,7 +110,6 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
 
     }
 
-    @Ignore
     @Test
     public void getTasksTest() {
         DataExportTaskInfo info = new DataExportTaskInfo();
@@ -142,7 +140,6 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
     }
 
 
-    @Ignore
     @Test
     public void getCreateTasksTest() {
         DataExportTaskInfo info = new DataExportTaskInfo();
@@ -154,7 +151,7 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
 
         Response response = target("/dataexporttask").request().post(json);
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
 //        verify(myTestOutboundPool1).removeOutboundComPort(any(OutboundComPort.class));
 //        verify(myTestOutboundPool3).addOutboundComPort(any(OutboundComPort.class));
@@ -172,10 +169,10 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
                 if (DataExportTaskBuilder.PropertyBuilder.class.isAssignableFrom(method.getReturnType())) {
                     return builderGetter.get();
                 }
-                return taskgetter.get();
+                return taskGetter.get();
             }
 
-            private Supplier<ReadingTypeDataExportTask> taskgetter = () -> readingTypeDataExportTask;
+            private Supplier<ReadingTypeDataExportTask> taskGetter = () -> readingTypeDataExportTask;
             private Supplier<DataExportTaskBuilder> builderGetter = () -> builder;
         });
         return (DataExportTaskBuilder) proxyInstance;
