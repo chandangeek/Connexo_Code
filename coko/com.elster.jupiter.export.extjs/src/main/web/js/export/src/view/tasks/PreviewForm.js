@@ -128,7 +128,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             labelAlign: 'top',
             items: [
                 {
-                    xtype: 'property-form',
+                    xtype: 'tasks-property-form',
                     isEdit: false,
                     frame: false,
                     defaults: {
