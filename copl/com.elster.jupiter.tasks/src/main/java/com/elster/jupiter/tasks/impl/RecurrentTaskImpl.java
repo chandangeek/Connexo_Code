@@ -71,7 +71,7 @@ class RecurrentTaskImpl implements RecurrentTask {
         nextExecution = nextOccurrence.map(ZonedDateTime::toInstant).orElse(null);
     }
 
-    private ScheduleExpression getScheduleExpression() {
+    public ScheduleExpression getScheduleExpression() {
         if (scheduleExpression == null) {
             scheduleExpression = scheduleExpressionParser.parse(cronString).get();
         }
