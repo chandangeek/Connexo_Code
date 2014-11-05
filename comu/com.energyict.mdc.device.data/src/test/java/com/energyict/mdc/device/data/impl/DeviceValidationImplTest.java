@@ -86,7 +86,7 @@ public class DeviceValidationImplTest {
         when(channelValidation3.hasActiveRules()).thenReturn(false);
         when(clock.instant()).thenReturn(NOW.toInstant());
 
-        when(meterActivationValidation1.getChannelValidation(koreChannel)).thenReturn(Optional.of(channelValidation2));
+        doReturn(Optional.of(channelValidation2)).when(meterActivationValidation1).getChannelValidation(koreChannel);
 
         when(channelValidation2.getChannel()).thenReturn(koreChannel);
         when(channelValidation1.getChannel()).thenReturn(otherKoreChannel);

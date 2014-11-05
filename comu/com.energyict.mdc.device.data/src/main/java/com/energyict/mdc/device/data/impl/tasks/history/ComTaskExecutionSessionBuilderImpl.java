@@ -83,6 +83,12 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     }
 
     @Override
+    public ComTaskExecutionSessionBuilder addComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String commandDescription) {
+        journalEntryBuilders.add(new ComCommandJournalEntryBuilder(timestamp, completionCode, commandDescription));
+        return this;
+    }
+
+    @Override
     public ComTaskExecutionSessionBuilder addComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String errorDesciption, String commandDescription) {
         journalEntryBuilders.add(new ComCommandJournalEntryBuilder(timestamp, completionCode, errorDesciption, commandDescription));
         return this;
@@ -124,6 +130,13 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
         private final CompletionCode completionCode;
         private final String errorDescription;
         private final String commandDescription;
+
+        private ComCommandJournalEntryBuilder(Instant timestamp, CompletionCode completionCode, String commandDescription) {
+            this.timestamp = timestamp;
+            this.completionCode = completionCode;
+            this.errorDescription = null;
+            this.commandDescription = commandDescription;
+        }
 
         private ComCommandJournalEntryBuilder(Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
             this.timestamp = timestamp;

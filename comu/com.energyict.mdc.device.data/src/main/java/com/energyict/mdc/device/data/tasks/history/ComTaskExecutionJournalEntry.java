@@ -32,5 +32,4 @@ public interface ComTaskExecutionJournalEntry extends HasId {
      */
     public ComServer.LogLevel getLogLevel();
 
-
 }

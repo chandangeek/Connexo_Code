@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.engine.model.ComServer;
+
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.util.Map;
@@ -47,12 +49,19 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
 
     Reference<ComTaskExecutionSession> comTaskExecutionSession = ValueReference.absent();
 
-    String errorDescription;
-    Instant timestamp;
+    private Instant timestamp;
+    private ComServer.LogLevel logLevel;
+    private String errorDescription;
     private Instant modDate;
 
     ComTaskExecutionJournalEntryImpl(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(domainClass, dataModel, eventService, thesaurus);
+    }
+
+    protected void init(Instant timestamp, ComServer.LogLevel logLevel, String errorDescription) {
+        this.timestamp = timestamp;
+        this.logLevel = logLevel;
+        this.errorDescription = errorDescription;
     }
 
     @Override
@@ -63,6 +72,11 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
     @Override
     public Instant getTimestamp () {
         return this.timestamp;
+    }
+
+    @Override
+    public ComServer.LogLevel getLogLevel() {
+        return this.logLevel;
     }
 
     @Override
