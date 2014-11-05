@@ -63,15 +63,15 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.SideFilter', {
                 items: [
                     {
                         itemId: 'connection',
-                        inputValue: 'connections',
+                        inputValue: 'Connections',
                         name: 'logTypes',
-                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.connection', 'MDC', 'Connection')
+                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.connection', 'MDC', 'Connections')
                     },
                     {
                         itemId: 'communications',
-                        inputValue: 'communications',
+                        inputValue: 'Communications',
                         name: 'logTypes',
-                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.communicationTask', 'MDC', 'Communication task')
+                        boxLabel: Uni.I18n.translate('deviceconnectionhistory.communicationTask', 'MDC', 'Communications')
                     }
                 ]
             }
