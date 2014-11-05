@@ -69,9 +69,6 @@ Ext.define('Dxp.controller.Tasks', {
             'tasks-action-menu': {
                 click: this.chooseAction
             }
-            /*    'data-export-tasks-add #task-name': {
-             blur: this.setDefaultPrefixName
-             },        */
         });
     },
 
@@ -88,11 +85,15 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             page = me.getPage(),
             preview = page.down('tasks-preview'),
-            previewForm = page.down('tasks-preview-form');
+            previewForm = page.down('tasks-preview-form'),
+            propertyForm = previewForm.down('property-form');
 
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
         preview.down('tasks-action-menu').record = record;
+        if (record.properties() && record.properties().count()) {
+            propertyForm.loadRecord(record);
+        }
     },
 
     chooseAction: function (menu, item) {
@@ -115,14 +116,19 @@ Ext.define('Dxp.controller.Tasks', {
     showTaskDetailsView: function (taskId) {
         var me = this,
             view = Ext.create('Dxp.view.tasks.Details'),
-            detailsForm = view.down('tasks-preview-form'),
             taskModel = me.getModel('Dxp.model.DataExportTask');
 
         me.getApplication().fireEvent('changecontentevent', view);
         taskModel.load(taskId, {
             success: function (record) {
+                var detailsForm = view.down('tasks-preview-form'),
+                    propertyForm = detailsForm.down('property-form');
+
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 detailsForm.loadRecord(record);
+                if (record.properties() && record.properties().count()) {
+                    propertyForm.loadRecord(record);
+                }
             }
         });
     },
@@ -357,17 +363,4 @@ Ext.define('Dxp.controller.Tasks', {
         me.readingTypeIndex = me.readingTypeIndex + 1;
         return widget;
     }
-
-    /*   setDefaultPrefixName: function (nameField) {
-     var me = this,
-     page = me.getAddPage(),
-     prefixField = page.down('#file-name-prefix'),
-     nameFieldValue = nameField.getValue(),
-     trimValue;
-
-     if (!prefixField.getValue()) {
-     trimValue = nameFieldValue.replace(/\s+/g, '');
-     prefixField.setValue(trimValue);
-     }
-     },  */
 });
