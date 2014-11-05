@@ -185,7 +185,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
                 .put(Entity.json(new TriggerValidationInfo()));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateLoadProfile(loadProfile, null, LAST_READING);
+        verify(deviceValidation).validateLoadProfile(loadProfile);
     }
 
     @Test
@@ -201,7 +201,7 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
                 .put(Entity.json(triggerValidationInfo));
 
         assertThat(response.getEntity()).isNotNull();
-        verify(deviceValidation).validateLoadProfile(loadProfile, LAST_CHECKED.toInstant(), LAST_READING);
+        verify(deviceValidation).validateLoadProfile(loadProfile);
     }
 
 }
