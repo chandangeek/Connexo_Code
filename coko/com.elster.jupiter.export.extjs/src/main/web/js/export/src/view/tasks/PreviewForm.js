@@ -10,7 +10,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             xtype: 'displayfield',
             fieldLabel: Uni.I18n.translate('deviceloadprofiles.name', 'DXP', 'Name'),
             name: 'name',
-            labelWidth: 200
+            labelWidth: 250
         },
         {
             xtype: 'fieldcontainer',
@@ -19,7 +19,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             layout: 'vbox',
             defaults: {
                 xtype: 'displayfield',
-                labelWidth: 200
+                labelWidth: 250
             },
             items: [
                 {
@@ -49,7 +49,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             layout: 'vbox',
             defaults: {
                 xtype: 'displayfield',
-                labelWidth: 200
+                labelWidth: 250
             },
             items: [
                 {
@@ -92,7 +92,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             layout: 'vbox',
             defaults: {
                 xtype: 'displayfield',
-                labelWidth: 200
+                labelWidth: 250
             },
             items: [
                 {
@@ -113,7 +113,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             layout: 'vbox',
             defaults: {
                 xtype: 'displayfield',
-                labelWidth: 200
+                labelWidth: 250
             },
             items: [
                 {
@@ -123,7 +123,21 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             ]
         },
         {
-            xtype: 'tasks-property-form'
+            xtype: 'fieldcontainer',
+            fieldLabel: Uni.I18n.translate('general.formatterProperties', 'DXP', 'Formatter properties'),
+            labelAlign: 'top',
+            items: [
+                {
+                    xtype: 'property-form',
+                    isEdit: false,
+                    frame: false,
+                    defaults: {
+                        xtype: 'container',
+                        resetButtonHidden: true,
+                        labelWidth: 250
+                    }
+                }
+            ]
         }
     ]
 });

@@ -13,7 +13,7 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'lastRun',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence) {
+                if (data.lastExportOccurence && data.lastExportOccurence.lastRun) {
                     return moment(data.lastExportOccurence.lastRun).format('ddd DD MMM YYYY') + ' ' + Uni.I18n.translate('general.at', 'DXP', 'at') + ' ' + moment(data.lastExportOccurence.lastRun).format('hh:mm A');
                 }
             }
@@ -110,8 +110,7 @@ Ext.define('Dxp.model.DataExportTask', {
         type: 'rest',
         url: '/api/export/dataexporttask',
         reader: {
-            type: 'json',
-            root: 'dataExportTasks'
+            type: 'json'
         }
     }
 });
