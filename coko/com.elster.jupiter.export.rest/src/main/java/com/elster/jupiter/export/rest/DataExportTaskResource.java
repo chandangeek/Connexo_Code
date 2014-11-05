@@ -19,6 +19,7 @@ import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.time.Never;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -87,7 +88,7 @@ public class DataExportTaskResource {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
                 .setDataProcessorName(info.dataProcessor)
-                .setScheduleExpression(info.schedule.asScheduleExpression())
+                .setScheduleExpression(info.schedule == null ? Never.NEVER : info.schedule.asScheduleExpression())
                 .setExportPeriod(getRelativePeriod(info.exportperiod))
                 .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
                 .setValidatedDataOption(info.validatedDataOption)

@@ -8,8 +8,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
+import com.elster.jupiter.util.time.Never;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -23,14 +23,14 @@ public class DataExportTaskInfo {
     public boolean active = true;
     public String name = "name";
     public String dataProcessor = "dataProcessor"; //dataprocessor name
-    public TemporalExpressionInfo schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(6)));
+    public TemporalExpressionInfo schedule;
     public RelativePeriodInfo exportperiod;
     public RelativePeriodInfo updatePeriod;
     public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
     public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
     public boolean exportUpdate;
     public boolean exportContinuousData;
-    public ValidatedDataOption validatedDataOption = ValidatedDataOption.INCLUDE_ALL;
+    public ValidatedDataOption validatedDataOption;
     public DeviceGroupInfo deviceGroup;
     public LastExportOccurenceInfo lastExportOccurence;
     public long nextRun;
@@ -46,8 +46,13 @@ public class DataExportTaskInfo {
         }
 
         active = dataExportTask.isActive();
-        //TODO schedule !!
-        //schedule = dataExportTask.getSchedule() ?
+
+        if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
+            schedule = null;
+        } else {
+            schedule = TemporalExpressionInfo.from((TemporalExpression) dataExportTask.getScheduleExpression());
+        }
+
 
         exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod(), thesaurus);
         exportContinuousData = dataExportTask.getStrategy().isExportContinuousData();
