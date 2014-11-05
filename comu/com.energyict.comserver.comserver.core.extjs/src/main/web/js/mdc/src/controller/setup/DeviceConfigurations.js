@@ -78,7 +78,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 click: this.chooseAction,
                 show: this.configureMenu
             },
-            '#createEditButton': {
+            'deviceConfigurationEdit #createEditButton': {
                 click: this.createEditDeviceConfiguration
             },
             '#deviceConfigurationEditForm #deviceIsGatewayCombo': {
