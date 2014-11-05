@@ -3,8 +3,6 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStrategy;
-import com.elster.jupiter.export.DataProcessor;
-import com.elster.jupiter.export.NoSuchDataProcessorException;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -120,7 +118,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public Map<String, Object> getProperties() {
         return properties.stream()
-            .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
+                .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
     }
 
     @Override
@@ -171,16 +169,10 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     public PropertySpec<?> getPropertySpec(String name) {
-        return getTemplateDataProcessor(getDataFormatter()).getPropertySpecs().stream()
+        return getPropertySpecs().stream()
                 .filter(p -> name.equals(p.getName()))
                 .findFirst()
                 .orElse(null);
-    }
-
-    private DataProcessor getTemplateDataProcessor(String name) {
-        return dataExportService.getDataProcessorFactory(name)
-                .orElseThrow(NoSuchDataProcessorException::new)
-                .createTemplateDataFormatter();
     }
 
     @Override
@@ -268,6 +260,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public List<PropertySpec<?>> getPropertySpecs() {
-        return getTemplateDataProcessor(getDataFormatter()).getPropertySpecs();
+        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(IllegalArgumentException::new).getProperties();
     }
 }

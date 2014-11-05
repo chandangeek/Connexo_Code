@@ -149,8 +149,7 @@ public class ReadingTypeDataExportTaskImplIT {
             return null;
         });
         when(dataProcessorFactory.getName()).thenReturn(FORMATTER);
-        when(dataProcessorFactory.createTemplateDataFormatter()).thenReturn(dataProcessor);
-        when(dataProcessor.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        when(dataProcessorFactory.getProperties()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
         when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
     }
