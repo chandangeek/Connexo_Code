@@ -47,4 +47,5 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     List<PropertySpec<?>> getPropertySpecs();
 
+    List<ReadingTypeDataExportItem> getExportItems();
 }

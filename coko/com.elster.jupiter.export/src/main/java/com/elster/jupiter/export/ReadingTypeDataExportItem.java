@@ -3,6 +3,7 @@ package com.elster.jupiter.export;
 import com.elster.jupiter.metering.ReadingContainer;
 
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -10,13 +11,13 @@ import java.time.Instant;
  * Time: 13:49
  */
 public interface ReadingTypeDataExportItem {
-    Instant getLastRun();
+    ReadingTypeDataExportTask getTask();
 
     ReadingContainer getReadingContainer();
 
     String getReadingTypeMRId();
 
-    Instant getLastExportedDate();
+    Optional<Instant> getLastRun();
 
-    ReadingTypeDataExportTask getTask();
+    Optional<Instant> getLastExportedDate();
 }

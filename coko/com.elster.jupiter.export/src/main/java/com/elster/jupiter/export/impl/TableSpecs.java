@@ -110,7 +110,7 @@ enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             table.addRefAnyColumns("READINGCONT", true, "readingContainer");
-            Column task = table.column("TASK").number().notNull().map("task").add();
+            Column task = table.column("TASK").number().notNull().add();
             table.column("LASTRUN").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastRun").add();
             table.column("LASTEXPORTED").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastExportedDate").add();
             table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRId").add();

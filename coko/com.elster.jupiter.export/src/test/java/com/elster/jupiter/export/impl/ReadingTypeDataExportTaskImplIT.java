@@ -24,8 +24,6 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -285,28 +283,31 @@ public class ReadingTypeDataExportTaskImplIT {
     }
 
     @Test
-    public void testReadingTypeDataExportItemPersistence() {
+    public void testReadingTypeDataExportItemPersistence() throws Exception {
         Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
-        DataModel model = injector.getInstance(OrmService.class).getDataModel(DataExportService.COMPONENTNAME).get();
 
-        ReadingTypeDataExportTask task = createDataExportTask();
+        ReadingTypeDataExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter.save();
+            task.addExportItem(meter, "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
             task.save();
-            ReadingTypeDataExportItemImpl item = ReadingTypeDataExportItemImpl.from(model, task, Instant.now(), Instant.now(), "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", meter);
-            model.persist(item);
             context.commit();
         }
 
-        List<ReadingTypeDataExportItem> readingTypeDataExportItems = model.mapper(ReadingTypeDataExportItem.class).find();
+        ReadingTypeDataExportTask retrievedTask = dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
+        List<ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getExportItems();
         assertThat(readingTypeDataExportItems).hasSize(1);
-        assertThat(readingTypeDataExportItems.get(0).getReadingContainer()).isNotNull();
-        assertThat(readingTypeDataExportItems.get(0).getReadingContainer()).isEqualTo(meter);
-        assertThat(readingTypeDataExportItems.get(0).getTask()).isEqualTo(task);
+        ReadingTypeDataExportItem exportItem = readingTypeDataExportItems.get(0);
+        assertThat(exportItem.getReadingContainer()).isNotNull();
+        assertThat(exportItem.getReadingContainer()).isEqualTo(meter);
+        assertThat(exportItem.getTask()).isEqualTo(task);
+        assertThat(exportItem.getReadingTypeMRId()).isEqualTo("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        assertThat(exportItem.getLastRun()).isAbsent();
+        assertThat(exportItem.getLastExportedDate()).isAbsent();
     }
 
-    private ReadingTypeDataExportTask createDataExportTask() {
-        ReadingTypeDataExportTask exportTask;
+    private ReadingTypeDataExportTaskImpl createDataExportTask() {
+        ReadingTypeDataExportTaskImpl exportTask;
         try (TransactionContext context = transactionService.getContext()) {
             RelativeDate startOfTheYearBeforeLastYear = createYearsAgoStartofYearRelativeDate(2);
             RelativeDate startOfLastYear = createYearsAgoStartofYearRelativeDate(1);
@@ -317,7 +318,7 @@ public class ReadingTypeDataExportTaskImplIT {
             EnumeratedEndDeviceGroup endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
             endDeviceGroup.save();
 
-            exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
+            exportTask = (ReadingTypeDataExportTaskImpl) createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
             context.commit();
         }
         return exportTask;

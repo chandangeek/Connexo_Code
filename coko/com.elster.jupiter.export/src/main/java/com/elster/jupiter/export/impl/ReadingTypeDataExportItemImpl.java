@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -23,7 +24,7 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     private Instant lastExportedDate;
     private String readingTypeMRId;
     private RefAny readingContainer;
-    private Reference<ReadingTypeDataExportTask> task = ValueReference.absent();
+    private Reference<IReadingTypeDataExportTask> task = ValueReference.absent();
 
     private transient DataModel dataModel;
 
@@ -33,22 +34,20 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
         dataModel = model;
     }
 
-    static ReadingTypeDataExportItemImpl from(DataModel model, ReadingTypeDataExportTask readingTypeExportTask, Instant lastRun, Instant lastExportedDate, String readingTypeMRId, ReadingContainer readingContainer) {
-        return model.getInstance(ReadingTypeDataExportItemImpl.class).init(readingTypeExportTask, lastRun, lastExportedDate, readingTypeMRId, readingContainer);
+    static ReadingTypeDataExportItemImpl from(DataModel model, IReadingTypeDataExportTask readingTypeExportTask, ReadingContainer readingContainer, String readingTypeMRId) {
+        return model.getInstance(ReadingTypeDataExportItemImpl.class).init(readingTypeExportTask, readingContainer, readingTypeMRId);
     }
 
-    ReadingTypeDataExportItemImpl init(ReadingTypeDataExportTask readingTypeDataExportTask, Instant lastRun, Instant lastExportedDate, String readingTypeMRId, ReadingContainer readingContainer) {
+    private ReadingTypeDataExportItemImpl init(IReadingTypeDataExportTask readingTypeDataExportTask, ReadingContainer readingContainer, String readingTypeMRId) {
         this.task.set(readingTypeDataExportTask);
-        this.lastRun = lastRun;
-        this.lastExportedDate = lastExportedDate;
         this.readingTypeMRId = readingTypeMRId;
         this.readingContainer = dataModel.asRefAny(readingContainer);
         return this;
     }
 
     @Override
-    public Instant getLastRun() {
-        return lastRun;
+    public Optional<Instant> getLastRun() {
+        return Optional.ofNullable(lastRun);
     }
 
     @Override
@@ -62,8 +61,8 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
-    public Instant getLastExportedDate() {
-        return lastExportedDate;
+    public Optional<Instant> getLastExportedDate() {
+        return Optional.ofNullable(lastExportedDate);
     }
 
     @Override
