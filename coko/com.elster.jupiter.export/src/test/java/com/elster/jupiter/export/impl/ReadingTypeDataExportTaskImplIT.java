@@ -40,6 +40,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
+import com.elster.jupiter.util.time.Never;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -75,13 +76,25 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeDataExportTaskImplIT {
+
+    private class MockModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(UserService.class).toInstance(userService);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(CronExpressionParser.class).toInstance(new DefaultCronExpressionParser());
+            bind(LogService.class).toInstance(logService);
+        }
+    }
     public static final String FORMATTER = "formatter";
-    private Injector injector;
 
     private static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 12, 9, 46, 12, 241615214, TimeZoneNeutral.getMcMurdo());
 
     @Rule
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
+    private Injector injector;
 
     @Mock
     private BundleContext bundleContext;
@@ -108,18 +121,30 @@ public class ReadingTypeDataExportTaskImplIT {
     private MeteringService meteringService;
     private MeteringGroupsService meteringGroupsService;
     private ReadingType readingType;
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(CronExpressionParser.class).toInstance(new DefaultCronExpressionParser());
-            bind(LogService.class).toInstance(logService);
-        }
-    }
+    private TimeService timeService;
+    private final RelativeDate startOfTheYearBeforeLastYear = new RelativeDate(
+            YEAR.minus(2),
+            MONTH.equalTo(1),
+            DAY.equalTo(1),
+            HOUR.equalTo(0),
+            MINUTES.equalTo(0)
+    );
+    private final RelativeDate startOfLastYear = new RelativeDate(
+            YEAR.minus(1),
+            MONTH.equalTo(1),
+            DAY.equalTo(1),
+            HOUR.equalTo(0),
+            MINUTES.equalTo(0)
+    );
+    private final RelativeDate startOfThisYear = new RelativeDate(
+            MONTH.equalTo(1),
+            DAY.equalTo(1),
+            HOUR.equalTo(0),
+            MINUTES.equalTo(0)
+    );
+    private RelativePeriod lastYear;
+    private RelativePeriod oneYearBeforeLastYear;
+    private EndDeviceGroup endDeviceGroup;
 
     @Before
     public void setUp() throws SQLException {
@@ -148,6 +173,10 @@ public class ReadingTypeDataExportTaskImplIT {
             dataExportService = (DataExportServiceImpl) injector.getInstance(DataExportService.class);
             return null;
         });
+        timeService = injector.getInstance(TimeService.class);
+        meteringService = injector.getInstance(MeteringService.class);
+        meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+
         when(dataProcessorFactory.getName()).thenReturn(FORMATTER);
         when(dataProcessorFactory.getProperties()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
@@ -163,68 +192,7 @@ public class ReadingTypeDataExportTaskImplIT {
     @Test
     public void testCreation() {
 
-        RelativePeriod lastYear = null;
-        RelativePeriod oneYearBeforeLastYear = null;
-        EndDeviceGroup endDeviceGroup = null;
-
-        try (TransactionContext context = transactionService.getContext()) {
-            TimeService timeService = injector.getInstance(TimeService.class);
-            meteringService = injector.getInstance(MeteringService.class);
-            meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-
-            RelativeDate startOfTheYearBeforeLastYear = new RelativeDate(
-                    YEAR.minus(2),
-                    MONTH.equalTo(1),
-                    DAY.equalTo(1),
-                    HOUR.equalTo(0),
-                    MINUTES.equalTo(0)
-            );
-            RelativeDate startOfLastYear = new RelativeDate(
-                    YEAR.minus(1),
-                    MONTH.equalTo(1),
-                    DAY.equalTo(1),
-                    HOUR.equalTo(0),
-                    MINUTES.equalTo(0)
-            );
-            RelativeDate startOfThisYear = new RelativeDate(
-                    MONTH.equalTo(1),
-                    DAY.equalTo(1),
-                    HOUR.equalTo(0),
-                    MINUTES.equalTo(0)
-            );
-            lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
-            oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
-
-            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
-            endDeviceGroup.save();
-
-            context.commit();
-        }
-        ReadingTypeDataExportTask exportTask = null;
-        try (TransactionContext context = transactionService.getContext()) {
-
-            readingType = meteringService.getReadingType("0.0.3.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-
-            dataExportService.addResource(dataProcessorFactory);
-
-            exportTask = dataExportService.newBuilder()
-                    .setExportPeriod(lastYear)
-                    .scheduleImmediately()
-                    .setDataProcessorName(FORMATTER)
-                    .setName("NAME")
-                    .setEndDeviceGroup(endDeviceGroup)
-                    .addReadingType(readingType)
-                    .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
-                    .setUpdatePeriod(oneYearBeforeLastYear)
-                    .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
-                    .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
-                    .exportUpdate(true)
-                    .exportContinuousData(true)
-                    .build();
-
-            exportTask.save();
-            context.commit();
-        }
+        ReadingTypeDataExportTask exportTask = createAndSaveTask();
 
         Optional<? extends ReadingTypeDataExportTask> found = dataExportService.findExportTask(exportTask.getId());
 
@@ -245,6 +213,80 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getStrategy().isExportUpdate()).isTrue();
         assertThat(readingTypeDataExportTask.getReadingTypes()).containsExactly(readingType);
         assertThat(readingTypeDataExportTask.getProperties()).hasSize(1).contains(entry("propy", BigDecimal.valueOf(100, 0)));
+    }
+
+    @Test
+    public void testUpdate() {
+
+        ReadingTypeDataExportTask exportTask = createAndSaveTask();
+
+        Optional<? extends ReadingTypeDataExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        Instant instant = ZonedDateTime.of(2019, 4, 18, 2, 47, 14, 124000000, ZoneId.of("UTC")).toInstant();
+
+        try(TransactionContext context = transactionService.getContext()) {
+            ReadingTypeDataExportTask readingTypeDataExportTask = found.get();
+            readingTypeDataExportTask.setNextExecution(instant);
+            readingTypeDataExportTask.setScheduleExpression(Never.NEVER);
+            readingTypeDataExportTask.save();
+            context.commit();
+        }
+
+        found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        assertThat(found.get().getNextExecution()).isEqualTo(instant);
+        assertThat(found.get().getScheduleExpression()).isEqualTo(Never.NEVER);
+    }
+
+    private ReadingTypeDataExportTask createAndSaveTask() {
+        lastYear = null;
+        oneYearBeforeLastYear = null;
+        endDeviceGroup = null;
+
+        try (TransactionContext context = transactionService.getContext()) {
+            lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
+            oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
+
+            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
+            endDeviceGroup.save();
+
+            context.commit();
+        }
+        ReadingTypeDataExportTask exportTask = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
+
+            exportTask.save();
+            context.commit();
+        }
+        return exportTask;
+    }
+
+    private ReadingTypeDataExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup) {
+        ReadingTypeDataExportTask exportTask;
+        readingType = meteringService.getReadingType("0.0.3.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+
+        dataExportService.addResource(dataProcessorFactory);
+
+        exportTask = dataExportService.newBuilder()
+                .setExportPeriod(lastYear)
+                .scheduleImmediately()
+                .setDataProcessorName(FORMATTER)
+                .setName("NAME")
+                .setEndDeviceGroup(endDeviceGroup)
+                .addReadingType(readingType)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .setUpdatePeriod(oneYearBeforeLastYear)
+                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .exportUpdate(true)
+                .exportContinuousData(true)
+                .build();
+        return exportTask;
     }
 
 }

@@ -38,6 +38,23 @@ import java.util.stream.Collectors;
 
 class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
+    private class DataExportStrategyImpl implements DataExportStrategy {
+        @Override
+        public boolean isExportUpdate() {
+            return exportUpdate;
+        }
+
+        @Override
+        public boolean isExportContinuousData() {
+            return exportContinuousData;
+        }
+
+        @Override
+        public ValidatedDataOption getValidatedDataOption() {
+            return validatedDataOption;
+        }
+    }
+
     private final TaskService taskService;
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
@@ -65,6 +82,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     private transient boolean scheduleImmediately;
     private transient ScheduleExpression scheduleExpression;
+    private transient boolean recurrentTaskDirty;
 
     @Inject
     ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService, MeteringService meteringService) {
@@ -76,16 +94,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     static ReadingTypeDataExportTaskImpl from(DataModel dataModel, String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup) {
         return dataModel.getInstance(ReadingTypeDataExportTaskImpl.class).init(name, exportPeriod, dataProcessor, scheduleExpression, endDeviceGroup);
-    }
-
-    private ReadingTypeDataExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup) {
-        this.name = name;
-        this.exportPeriod.set(exportPeriod);
-        this.dataProcessor = dataProcessor;
-        this.scheduleExpression = scheduleExpression;
-        this.endDeviceGroup.set(endDeviceGroup);
-
-        return this;
     }
 
     @Override
@@ -101,12 +109,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public void deactivate() {
-        //TODO automatically generated method body, provide implementation.
-
-    }
-
-    @Override
-    public void execute(DataExportOccurrence occurrence, Logger logger) {
         //TODO automatically generated method body, provide implementation.
 
     }
@@ -148,14 +150,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public Optional<? extends DataExportOccurrence> getLastOccurence() {
-// TODO comment in when TABLESPECS HAVE BEEN DEFINED FOR  DataExportOccurrence
-//       return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("taskOccurrence", this), new Order[] {Order.descending("startDate")},
-//                false, new String[]{}, 1, 1). stream().findAny();
-        return Optional.empty();
-    }
-
-    @Override
     public DataExportStrategy getStrategy() {
         return dataExportStrategy;
     }
@@ -183,8 +177,12 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
             recurrentTask.set(task);
             Save.CREATE.save(dataModel, this);
         } else {
+            if (recurrentTaskDirty) {
+                recurrentTask.get().save();
+            }
             Save.UPDATE.save(dataModel, this);
         }
+        recurrentTaskDirty = false;
     }
 
     @Override
@@ -193,8 +191,37 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public String getName() {
-        return name;
+    public boolean isActive() {
+        return recurrentTask.get().getNextExecution() != null;
+    }
+
+    @Override
+    public String getDataFormatter() {
+        return dataProcessor;
+    }
+
+    @Override
+    public List<PropertySpec<?>> getPropertySpecs() {
+        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(IllegalArgumentException::new).getProperties();
+    }
+
+    @Override
+    public ScheduleExpression getScheduleExpression() {
+        return recurrentTask.get().getScheduleExpression();
+    }
+
+    @Override
+    public Optional<? extends DataExportOccurrence> getLastOccurence() {
+// TODO comment in when TABLESPECS HAVE BEEN DEFINED FOR  DataExportOccurrence
+//       return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("taskOccurrence", this), new Order[] {Order.descending("startDate")},
+//                false, new String[]{}, 1, 1). stream().findAny();
+        return Optional.empty();
+    }
+
+    @Override
+    public void execute(DataExportOccurrence occurrence, Logger logger) {
+        //TODO automatically generated method body, provide implementation.
+
     }
 
     public PropertySpec<?> getPropertySpec(String name) {
@@ -225,20 +252,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public void addReadingType(String mRID) {
         readingTypes.add(toReadingTypeInExportTask(mRID));
-    }
-
-    private ReadingTypeInExportTask toReadingTypeInExportTask(String mRID) {
-        return meteringService.getReadingType(mRID)
-                    .map(r -> ReadingTypeInExportTask.from(dataModel, this, r))
-                    .orElseGet(() -> readingTypeInValidationRuleFor(mRID));
-    }
-
-    private ReadingTypeInExportTask readingTypeInValidationRuleFor(String mRID) {
-        ReadingTypeInExportTask empty = ReadingTypeInExportTask.from(dataModel, this, mRID);
-        if (getId() != 0) {
-            Save.UPDATE.validate(dataModel, empty);
-        }
-        return empty;
     }
 
 
@@ -280,40 +293,44 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         this.exportUpdate = exportUpdate;
     }
 
-    private class DataExportStrategyImpl implements DataExportStrategy {
-        @Override
-        public boolean isExportUpdate() {
-            return exportUpdate;
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setNextExecution(Instant instant) {
+        this.recurrentTask.get().setNextExecution(instant);
+        recurrentTaskDirty = true;
+    }
+
+    @Override
+    public void setScheduleExpression(ScheduleExpression scheduleExpression) {
+        this.recurrentTask.get().setScheduleExpression(scheduleExpression);
+        recurrentTaskDirty = true;
+    }
+
+    private ReadingTypeDataExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup) {
+        this.name = name;
+        this.exportPeriod.set(exportPeriod);
+        this.dataProcessor = dataProcessor;
+        this.scheduleExpression = scheduleExpression;
+        this.endDeviceGroup.set(endDeviceGroup);
+
+        return this;
+    }
+
+    private ReadingTypeInExportTask toReadingTypeInExportTask(String mRID) {
+        return meteringService.getReadingType(mRID)
+                    .map(r -> ReadingTypeInExportTask.from(dataModel, this, r))
+                    .orElseGet(() -> readingTypeInValidationRuleFor(mRID));
+    }
+
+    private ReadingTypeInExportTask readingTypeInValidationRuleFor(String mRID) {
+        ReadingTypeInExportTask empty = ReadingTypeInExportTask.from(dataModel, this, mRID);
+        if (getId() != 0) {
+            Save.UPDATE.validate(dataModel, empty);
         }
-
-        @Override
-        public boolean isExportContinuousData() {
-            return exportContinuousData;
-        }
-
-        @Override
-        public ValidatedDataOption getValidatedDataOption() {
-            return validatedDataOption;
-        }
-    }
-
-    @Override
-    public boolean isActive() {
-        return recurrentTask.get().getNextExecution() != null;
-    }
-
-    @Override
-    public String getDataFormatter() {
-        return dataProcessor;
-    }
-
-    @Override
-    public List<PropertySpec<?>> getPropertySpecs() {
-        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(IllegalArgumentException::new).getProperties();
-    }
-
-    @Override
-    public ScheduleExpression getScheduleExpression() {
-        return recurrentTask.get().getScheduleExpression();
+        return empty;
     }
 }
