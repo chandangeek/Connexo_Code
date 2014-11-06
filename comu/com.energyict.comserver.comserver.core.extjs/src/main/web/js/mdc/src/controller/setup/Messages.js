@@ -396,13 +396,8 @@ Ext.define('Mdc.controller.setup.Messages', {
                     activeEnablements.push(e.get('id'));
                 }
         });
+        this.changeRequest(activeEnablements, privileges);
         var router = this.getController('Uni.controller.history.Router');
-        var model = Ext.create('Mdc.model.MessageActivate');
-        model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
-        model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
-        model.set('messageIds', activeEnablements);
-        model.set('privileges', privileges);
-        model.save();
         this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
         this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
         this.getMessagesCategoriesGrid().store.load();
@@ -437,17 +432,37 @@ Ext.define('Mdc.controller.setup.Messages', {
     changePrivileges: function (message, privileges) {
         var messageIds = [];
         messageIds.push(message.get('id'));
+        this.changeRequest(messageIds, privileges);
         var router = this.getController('Uni.controller.history.Router');
-        var model = Ext.create('Mdc.model.MessageActivate');
-        model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
-        model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
-        model.set('messageIds', messageIds);
-        model.set('privileges', privileges);
-        model.save();
         this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
         this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
         this.getMessagesCategoriesGrid().store.load();
 
+    },
+    changeRequest: function(message, privileges) {
+        var router = this.getController('Uni.controller.history.Router');
+        Ext.Ajax.request({
+            url: '/api/dtc/devicetypes/' + router.arguments.deviceTypeId + '/deviceconfigurations/' + router.arguments.deviceConfigurationId
+                + '/devicemessageenablements/',
+            method: 'PUT',
+            jsonData: {
+                "messageIds": message,
+                "privileges": privileges
+            },
+            waitMsg: 'Changing privileges...',
+            success: function () {
+            },
+            failure: function (response) {
+                var errorText = "Unknown error occurred";
+
+                if (response.status == 400) {
+                    var result = Ext.JSON.decode(response.responseText, true);
+                    if (result && result.message) {
+                        errorText = result.message;
+                    }
+                }
+            }
+        });
     }
 });
 
