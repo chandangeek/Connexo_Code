@@ -1,10 +1,12 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import javax.inject.Inject;
+import java.util.Optional;
 
 /**
  * Implementation for a {@link com.energyict.mdc.tasks.BasicCheckTask}.
@@ -12,7 +14,7 @@ import javax.inject.Inject;
  * @author gna
  * @since 23/04/12 - 14:08
  */
-class BasicCheckTaskImpl extends ProtocolTaskImpl implements BasicCheckTask {
+class BasicCheckTaskImpl extends ProtocolTaskImpl implements BasicCheckTask, PersistenceAware {
 
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags();
 
@@ -36,9 +38,14 @@ class BasicCheckTaskImpl extends ProtocolTaskImpl implements BasicCheckTask {
     private TimeDuration maximumClockDifference;
 
     @Inject
-    public BasicCheckTaskImpl(DataModel dataModel) {
+    BasicCheckTaskImpl(DataModel dataModel) {
         super(dataModel);
         setFlags(FLAGS);
+    }
+
+    @Override
+    public void postLoad() {
+        this.maximumClockDifference = this.postLoad(this.maximumClockDifference);
     }
 
     @Override
@@ -57,8 +64,8 @@ class BasicCheckTaskImpl extends ProtocolTaskImpl implements BasicCheckTask {
     }
 
     @Override
-    public TimeDuration getMaximumClockDifference() {
-        return maximumClockDifference;
+    public Optional<TimeDuration> getMaximumClockDifference() {
+        return Optional.ofNullable(this.maximumClockDifference);
     }
 
     @Override

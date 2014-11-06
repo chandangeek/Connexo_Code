@@ -77,9 +77,12 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
         assertThat(taskByType.getClockTaskType()).isEqualTo(ClockTaskType.SETCLOCK);
-        assertThat(taskByType.getMaximumClockDifference()).isEqualTo(maximumClockDifference);
-        assertThat(taskByType.getMaximumClockShift()).isEqualTo(maximumClockShift);
-        assertThat(taskByType.getMinimumClockDifference()).isEqualTo(minimumClockDifference);
+        assertThat(taskByType.getMaximumClockDifference().isPresent()).isTrue();
+        assertThat(taskByType.getMaximumClockDifference().get()).isEqualTo(maximumClockDifference);
+        assertThat(taskByType.getMaximumClockShift().isPresent()).isTrue();
+        assertThat(taskByType.getMaximumClockShift().get()).isEqualTo(maximumClockShift);
+        assertThat(taskByType.getMinimumClockDifference().isPresent()).isTrue();
+        assertThat(taskByType.getMinimumClockDifference().get()).isEqualTo(minimumClockDifference);
     }
 
     @Test
@@ -134,9 +137,12 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
         assertThat(taskByType.getClockTaskType()).isEqualTo(ClockTaskType.SYNCHRONIZECLOCK);
-        assertThat(taskByType.getMaximumClockDifference()).isEqualTo(maximumClockDifference);
-        assertThat(taskByType.getMaximumClockShift()).isEqualTo(maximumClockShift);
-        assertThat(taskByType.getMinimumClockDifference()).isEqualTo(minimumClockDifference);
+        assertThat(taskByType.getMaximumClockDifference().isPresent()).isTrue();
+        assertThat(taskByType.getMaximumClockDifference().get()).isEqualTo(maximumClockDifference);
+        assertThat(taskByType.getMaximumClockShift().isPresent()).isTrue();
+        assertThat(taskByType.getMaximumClockShift().get()).isEqualTo(maximumClockShift);
+        assertThat(taskByType.getMinimumClockDifference().isPresent()).isTrue();
+        assertThat(taskByType.getMinimumClockDifference().get()).isEqualTo(minimumClockDifference);
     }
 
     @Test
@@ -179,9 +185,12 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
         assertThat(taskByType.getClockTaskType()).isEqualTo(ClockTaskType.FORCECLOCK);
-        assertThat(taskByType.getMaximumClockDifference()).isEqualTo(maximumClockDifference);
-        assertThat(taskByType.getMaximumClockShift()).isEqualTo(maximumClockShift);
-        assertThat(taskByType.getMinimumClockDifference()).isEqualTo(minimumClockDifference);
+        assertThat(taskByType.getMaximumClockDifference().isPresent()).isTrue();
+        assertThat(taskByType.getMaximumClockDifference().get()).isEqualTo(maximumClockDifference);
+        assertThat(taskByType.getMaximumClockShift().isPresent()).isTrue();
+        assertThat(taskByType.getMaximumClockShift().get()).isEqualTo(maximumClockShift);
+        assertThat(taskByType.getMinimumClockDifference().isPresent()).isTrue();
+        assertThat(taskByType.getMinimumClockDifference().get()).isEqualTo(minimumClockDifference);
     }
 
     @Test
@@ -204,9 +213,12 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(reloadedTaskByType).isNotNull();
         assertThat(reloadedTaskByType.getComTask().getId()).isEqualTo(comTask.getId());
         assertThat(reloadedTaskByType.getClockTaskType()).isEqualTo(ClockTaskType.FORCECLOCK);
-        assertThat(reloadedTaskByType.getMaximumClockDifference()).isEqualTo(TimeDuration.days(1));
-        assertThat(reloadedTaskByType.getMaximumClockShift()).isEqualTo(TimeDuration.minutes(1));
-        assertThat(reloadedTaskByType.getMinimumClockDifference()).isEqualTo(TimeDuration.hours(1));
+        assertThat(reloadedTaskByType.getMaximumClockDifference().isPresent()).isTrue();
+        assertThat(reloadedTaskByType.getMaximumClockDifference().get()).isEqualTo(TimeDuration.days(1));
+        assertThat(reloadedTaskByType.getMaximumClockShift().isPresent()).isTrue();
+        assertThat(reloadedTaskByType.getMaximumClockShift().get()).isEqualTo(TimeDuration.minutes(1));
+        assertThat(reloadedTaskByType.getMinimumClockDifference().isPresent()).isTrue();
+        assertThat(reloadedTaskByType.getMinimumClockDifference().get()).isEqualTo(TimeDuration.hours(1));
     }
 
     @Test
@@ -236,9 +248,9 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
         assertThat(taskByType.getClockTaskType()).isEqualTo(ClockTaskType.FORCECLOCK);
-        assertThat(taskByType.getMaximumClockDifference().getCount()).isEqualTo(0);
-        assertThat(taskByType.getMaximumClockShift().getCount()).isEqualTo(0);
-        assertThat(taskByType.getMinimumClockDifference().getCount()).isEqualTo(0);
+        assertThat(taskByType.getMaximumClockDifference().isPresent()).isFalse();
+        assertThat(taskByType.getMaximumClockShift().isPresent()).isFalse();
+        assertThat(taskByType.getMinimumClockDifference().isPresent()).isFalse();
     }
 
     @Test
@@ -294,7 +306,8 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(taskByType.createMeterEventsFromStatusFlags()).isTrue();
         assertThat(taskByType.failIfLoadProfileConfigurationMisMatch()).isTrue();
         assertThat(taskByType.isMarkIntervalsAsBadTime()).isTrue();
-        assertThat(taskByType.getMinClockDiffBeforeBadTime()).isEqualTo(TimeDuration.days(1));
+        assertThat(taskByType.getMinClockDiffBeforeBadTime().isPresent()).isTrue();
+        assertThat(taskByType.getMinClockDiffBeforeBadTime().get()).isEqualTo(TimeDuration.days(1));
     }
 
     @Test
@@ -324,7 +337,8 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(reloadedTaskByType.createMeterEventsFromStatusFlags()).isFalse();
         assertThat(reloadedTaskByType.failIfLoadProfileConfigurationMisMatch()).isFalse();
         assertThat(reloadedTaskByType.isMarkIntervalsAsBadTime()).isFalse();
-        assertThat(reloadedTaskByType.getMinClockDiffBeforeBadTime()).isEqualTo(TimeDuration.hours(1));
+        assertThat(reloadedTaskByType.getMinClockDiffBeforeBadTime().isPresent()).isTrue();
+        assertThat(reloadedTaskByType.getMinClockDiffBeforeBadTime().get()).isEqualTo(TimeDuration.hours(1));
     }
 
     @Test
@@ -559,7 +573,8 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         BasicCheckTask actual = getTaskByType(reloadedComTask.getProtocolTasks(), BasicCheckTask.class);
         assertThat(actual).isNotNull();
-        assertThat(actual.getMaximumClockDifference()).isEqualTo(TimeDuration.days(1));
+        assertThat(actual.getMaximumClockDifference().isPresent()).isTrue();
+        assertThat(actual.getMaximumClockDifference().get()).isEqualTo(TimeDuration.days(1));
         assertThat(actual.verifyClockDifference()).isTrue();
         assertThat(actual.verifySerialNumber()).isTrue();
     }
@@ -582,7 +597,8 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         actual = getTaskByType(reReloadedComTask.getProtocolTasks(), BasicCheckTask.class);
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         assertThat(actual).isNotNull();
-        assertThat(actual.getMaximumClockDifference()).isEqualTo(TimeDuration.hours(1));
+        assertThat(actual.getMaximumClockDifference().isPresent()).isTrue();
+        assertThat(actual.getMaximumClockDifference().get()).isEqualTo(TimeDuration.hours(1));
         assertThat(actual.verifyClockDifference()).isFalse();
         assertThat(actual.verifySerialNumber()).isFalse();
     }

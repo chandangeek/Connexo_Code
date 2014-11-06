@@ -2,6 +2,8 @@ package com.energyict.mdc.tasks;
 
 import com.elster.jupiter.time.TimeDuration;
 
+import java.util.Optional;
+
 /**
  * Models the {@link com.energyict.mdc.tasks.ProtocolTask} which serves basic functionality.
  * <p>
@@ -26,7 +28,7 @@ public interface BasicCheckTask extends ProtocolTask {
      *
      * @return a {@link TimeDuration} containing the maximum allowed clock difference
      */
-    public TimeDuration getMaximumClockDifference();
+    public Optional<TimeDuration> getMaximumClockDifference();
     public void setMaximumClockDifference(TimeDuration maximumClockDifference);
 
     /**

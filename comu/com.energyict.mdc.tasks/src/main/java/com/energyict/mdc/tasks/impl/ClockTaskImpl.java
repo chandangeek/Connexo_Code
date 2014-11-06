@@ -2,12 +2,14 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
 /**
  * Implementation for a {@link com.energyict.mdc.tasks.ClockTask}.
@@ -16,7 +18,7 @@ import javax.validation.constraints.NotNull;
  * @since 24/04/12 - 8:35
  */
 @ValidClockTask( groups = {Save.Create.class, Save.Update.class} )
-class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
+class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask, PersistenceAware {
 
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags();
 
@@ -48,6 +50,13 @@ class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
     }
 
     @Override
+    public void postLoad() {
+        this.minimumClockDiff = this.postLoad(this.minimumClockDiff);
+        this.maximumClockDiff = this.postLoad(this.maximumClockDiff);
+        this.maximumClockShift = this.postLoad(this.maximumClockShift);
+    }
+
+    @Override
     void deleteDependents() {
         // currently no dependents to delete
     }
@@ -68,8 +77,8 @@ class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
      * @return the minimum clock difference
      */
     @Override
-    public TimeDuration getMinimumClockDifference() {
-        return this.minimumClockDiff;
+    public Optional<TimeDuration> getMinimumClockDifference() {
+        return Optional.ofNullable(this.minimumClockDiff);
     }
 
     /**
@@ -78,8 +87,8 @@ class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
      * @return the maximum clock difference
      */
     @Override
-    public TimeDuration getMaximumClockDifference() {
-        return this.maximumClockDiff;
+    public Optional<TimeDuration> getMaximumClockDifference() {
+        return Optional.ofNullable(this.maximumClockDiff);
     }
 
     /**
@@ -88,8 +97,8 @@ class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
      * @return the maximum clock shift
      */
     @Override
-    public TimeDuration getMaximumClockShift() {
-        return this.maximumClockShift;
+    public Optional<TimeDuration> getMaximumClockShift() {
+        return Optional.ofNullable(this.maximumClockShift);
     }
 
     @Override
@@ -111,4 +120,5 @@ class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask {
     public void setMaximumClockShift(TimeDuration maximumClockShift) {
         this.maximumClockShift = maximumClockShift;
     }
+
 }

@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.*;
@@ -53,14 +54,7 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask,
 
     @Override
     public void postLoad() {
-        if (this.minClockDiffBeforeBadTime != null && this.minClockDiffBeforeBadTime.getTimeUnitCode() <= 0) {
-            /* The TimeDuration was injected by ORM but then the latter realized to late
-             * that the database values were actually null so it has not injected
-             * a value nor a unit.
-             * Should in fact set minClockDiffBeforeBadTime to null
-             * but will set it to 0 seconds for backwards compatibility reasons. */
-            this.minClockDiffBeforeBadTime = TimeDuration.seconds(0);
-         }
+        this.minClockDiffBeforeBadTime = this.postLoad(this.minClockDiffBeforeBadTime);
     }
 
     @Inject
@@ -147,8 +141,8 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask,
      * @return the minimum clock difference
      */
     @Override
-    public TimeDuration getMinClockDiffBeforeBadTime() {
-        return this.minClockDiffBeforeBadTime;
+    public Optional<TimeDuration> getMinClockDiffBeforeBadTime() {
+        return Optional.ofNullable(this.minClockDiffBeforeBadTime);
     }
 
     @Override

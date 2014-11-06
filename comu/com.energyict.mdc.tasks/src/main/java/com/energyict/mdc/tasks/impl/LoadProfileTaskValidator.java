@@ -11,19 +11,22 @@ public class LoadProfileTaskValidator implements ConstraintValidator<ValidLoadPr
 
     @Override
     public boolean isValid(LoadProfilesTaskImpl value, ConstraintValidatorContext context) {
-        boolean valid=true;
+        boolean valid = true;
         if (value.isMarkIntervalsAsBadTime()) {
-            if (value.getMinClockDiffBeforeBadTime()==null) {
+            if (!value.getMinClockDiffBeforeBadTime().isPresent()) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY +"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
-                valid=false;
+                valid = false;
             }
-            if (value.getMinClockDiffBeforeBadTime()!=null && value.getMinClockDiffBeforeBadTime().getCount()<=0) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.VALUE_TOO_SMALL +"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
-                valid=false;
+            else {
+                if (value.getMinClockDiffBeforeBadTime().get().getCount() <= 0) {
+                    context.disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.VALUE_TOO_SMALL +"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
+                    valid = false;
+                }
             }
         }
         return valid;
     }
+
 }

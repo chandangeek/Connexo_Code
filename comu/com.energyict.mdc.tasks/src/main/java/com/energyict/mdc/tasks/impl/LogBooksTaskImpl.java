@@ -6,7 +6,6 @@ import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.LogBooksTask;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.inject.Inject;
@@ -41,7 +40,7 @@ class LogBooksTaskImpl extends ProtocolTaskImpl implements LogBooksTask {
     private List<LogBookTypeUsageInProtocolTask> logBookTypeUsageInProtocolTasks = new ArrayList<>();
 
     @Inject
-    public LogBooksTaskImpl(DataModel dataModel) {
+    LogBooksTaskImpl(DataModel dataModel) {
         super(dataModel);
         setFlags(FLAGS);
     }

@@ -1,7 +1,6 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.RegistersTask;
@@ -40,7 +39,7 @@ class RegistersTaskImpl extends ProtocolTaskImpl implements RegistersTask {
     private List<RegisterGroupUsage> registerGroupUsages = new ArrayList<>();
 
     @Inject
-    public RegistersTaskImpl(DataModel dataModel) {
+    RegistersTaskImpl(DataModel dataModel) {
         super(dataModel);
         setFlags(FLAGS);
     }
