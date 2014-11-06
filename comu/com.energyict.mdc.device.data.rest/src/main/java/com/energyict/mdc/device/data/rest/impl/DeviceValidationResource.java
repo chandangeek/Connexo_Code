@@ -9,7 +9,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.MeterActivationValidation;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
@@ -87,20 +86,8 @@ public class DeviceValidationResource {
     }
 
     private void fillValidationRuleSetStatus(List<ValidationRuleSet> linkedRuleSets, Optional<? extends MeterActivation> activation, List<DeviceValidationRuleSetInfo> result) {
-        List<? extends MeterActivationValidation> validations = activation.isPresent() ? validationService.getMeterActivationValidations(activation.get()) : Collections.<MeterActivationValidation>emptyList();
-        for (ValidationRuleSet ruleset : linkedRuleSets) {
-            MeterActivationValidation meterActivationValidationForRuleset = getMeterActivationValidationForRuleset(validations, ruleset);
-            result.add(new DeviceValidationRuleSetInfo(ruleset, meterActivationValidationForRuleset == null || meterActivationValidationForRuleset.isActive()));
-        }
-    }
-
-    private MeterActivationValidation getMeterActivationValidationForRuleset(List<? extends MeterActivationValidation> validations, ValidationRuleSet ruleset) {
-        for (MeterActivationValidation validation : validations) {
-            if (validation.getRuleSet().equals(ruleset)) {
-                return validation;
-            }
-        }
-        return null;
+        List<? extends ValidationRuleSet> activeRuleSets = activation.map(validationService::activeRuleSets).orElse(Collections.emptyList());
+        linkedRuleSets.forEach(ruleset -> result.add(new DeviceValidationRuleSetInfo(ruleset, activeRuleSets.contains(ruleset))));       
     }
 
     @Path("/{validationRuleSetId}/status")
@@ -120,18 +107,12 @@ public class DeviceValidationResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    private void setValidationRuleSetActivationStatus(MeterActivation activation, ValidationRuleSet ruleset, boolean status) {
-        List<? extends MeterActivationValidation> validations = validationService.getMeterActivationValidations(activation);
-        for (MeterActivationValidation validation : validations) {
-            if (validation.getRuleSet().equals(ruleset)) {
-                if (status) {
-                    validation.activate();
-                } else {
-                    validation.deactivate();
-                }
-                validation.save();
-            }
-        }
+    private void setValidationRuleSetActivationStatus(MeterActivation activation, ValidationRuleSet ruleSet, boolean status) {
+      if (status) {
+    	  validationService.activate(activation, ruleSet);
+      } else {
+    	  validationService.activate(activation, ruleSet);
+      }    
     }
 
     @Path("/validationstatus")
@@ -261,7 +242,7 @@ public class DeviceValidationResource {
             meterActivations.forEach(meterActivation -> {
                 if (!evaluator.isAllDataValidated(meterActivation)) {
                     Instant instant = validationService.getLastChecked(meterActivation).orElse(meterActivation.getStart());
-                    validationService.validate(meterActivation, Range.atLeast(instant));
+                    validationService.validate(meterActivation);
                 }
             });
         }

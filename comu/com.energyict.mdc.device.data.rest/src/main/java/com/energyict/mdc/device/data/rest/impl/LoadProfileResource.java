@@ -173,12 +173,10 @@ public class LoadProfileResource {
     }
 
     private void validateLoadProfile(LoadProfile loadProfile, Instant start) {
-        if (loadProfile.getLastReading().isPresent() && (start == null || loadProfile.getLastReading().get().isAfter(start))) {
-            loadProfile.getDevice().forValidation().validateLoadProfile(loadProfile, start, loadProfile.getLastReading().get());
-        } else if (start != null) {
-            loadProfile.getChannels().stream()
-                    .forEach(c -> loadProfile.getDevice().forValidation().setLastChecked(c, start));
-        }
+    	if (start != null) {
+    		loadProfile.getChannels().forEach(c -> loadProfile.getDevice().forValidation().setLastChecked(c, start));
+    	}
+        loadProfile.getDevice().forValidation().validateLoadProfile(loadProfile);        
     }
 
     private boolean hasSuspects(LoadProfileDataInfo info) {

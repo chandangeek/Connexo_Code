@@ -182,7 +182,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     public void testConnectionTaskJournalEntries() throws Exception {
         setupJournalMocking();
         String response = target("/devices/XAW1/connectionmethods/3/comsessions/888/journals")
-                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("connections")).create())
+                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("Connections")).create())
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .request().get(String.class);
@@ -195,7 +195,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     public void testConnectionTaskJournalEntriesByLogLevel() throws Exception {
         setupJournalMocking();
         String response = target("/devices/XAW1/connectionmethods/3/comsessions/888/journals")
-                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("connections")).create())
+                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("Connections")).create())
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .request().get(String.class);
@@ -248,22 +248,22 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     public void testComTaskExecutionJournalEntries() throws Exception {
         setupJournalMocking();
         String response = target("/devices/XAW1/connectionmethods/3/comsessions/888/journals")
-                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("communications")).create())
+                .queryParam("filter", ExtjsFilter.filter().property("logLevels", Arrays.asList("Debug", "Information")).property("logTypes", Arrays.asList("Communications")).create())
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(3);
-        assertThat(jsonModel.<Long>get("$.journals[0].timestamp")).isEqualTo(1412939410000L);
+        assertThat(jsonModel.<Long>get("$.journals[0].timestamp")).isEqualTo(start.toEpochMilli());
         assertThat(jsonModel.<String>get("$.journals[0].logLevel")).isEqualTo("Information");
         assertThat(jsonModel.<String>get("$.journals[0].details")).isEqualTo("Starting connection");
         assertThat(jsonModel.<String>get("$.journals[0].errorDetails")).isEqualTo("i/o error");
-        assertThat(jsonModel.<Long>get("$.journals[1].timestamp")).isEqualTo(1412939411000L);
+        assertThat(jsonModel.<Long>get("$.journals[1].timestamp")).isEqualTo(start.plusSeconds(1).toEpochMilli());
         assertThat(jsonModel.<String>get("$.journals[1].logLevel")).isEqualTo("Trace");
         assertThat(jsonModel.<String>get("$.journals[1].details")).isEqualTo("ATDT");
         assertThat(jsonModel.<String>get("$.journals[1].errorDetails")).isEqualTo(""); // == OK
-        assertThat(jsonModel.<Long>get("$.journals[2].timestamp")).isEqualTo(1412939420000L);
+        assertThat(jsonModel.<Long>get("$.journals[2].timestamp")).isEqualTo(end.toEpochMilli());
         assertThat(jsonModel.<String>get("$.journals[2].logLevel")).isEqualTo("Information");
         assertThat(jsonModel.<String>get("$.journals[2].details")).isEqualTo("Ending connection");
         assertThat(jsonModel.<String>get("$.journals[2].errorDetails")).isEqualTo("finished");

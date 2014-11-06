@@ -76,7 +76,7 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfile.getId(), channelSpecId));
     }
 
-    public Condition getQueryConditionForDevice(StandardParametersBean params) {
+    /*public Condition getQueryConditionForDevice(StandardParametersBean params) {
         ImmutableMap<String, BiFunction<String, StandardParametersBean, Condition>> keyToConditionFunction =
             ImmutableMap.of(
                     "mRID", (String k, StandardParametersBean p) -> toSimpleCondition(p, k),
@@ -90,7 +90,50 @@ public class ResourceHelper {
             .reduce(
                 Condition.TRUE,
                 (c1, c2) -> c1.and(c2));
+    }*/
+
+    public Condition getQueryConditionForDevice(StandardParametersBean params) {
+        Condition condition = Condition.TRUE;
+        if (params.getQueryParameters().size() > 0) {
+            condition = condition.and(addDeviceQueryCondition(params));
+        }
+        return condition;
     }
+
+    private Condition addDeviceQueryCondition(StandardParametersBean params) {
+        Condition conditionDevice = Condition.TRUE;
+        String mRID = params.getFirst("mRID");
+        if (mRID != null) {
+            conditionDevice = !params.wasRegExp()
+                    ? conditionDevice.and(where("mRID").isEqualTo(mRID))
+                    : conditionDevice.and(where("mRID").likeIgnoreCase(mRID));
+        }
+        String serialNumber = params.getFirst("serialNumber");
+        if (serialNumber != null) {
+            conditionDevice = !params.wasRegExp()
+                    ? conditionDevice.and(where("serialNumber").isEqualTo(serialNumber))
+                    : conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
+        }
+        String deviceType = params.getFirst("deviceTypeName");
+        if (deviceType != null) {
+            conditionDevice = conditionDevice.and(createMultipleConditions(deviceType, "deviceConfiguration.deviceType.name"));
+        }
+        String deviceConfiguration = params.getFirst("deviceConfigurationName");
+        if (deviceConfiguration != null) {
+            conditionDevice = conditionDevice.and(createMultipleConditions(deviceConfiguration, "deviceConfiguration.name"));
+        }
+        return conditionDevice;
+    }
+
+    private Condition createMultipleConditions(String params, String conditionField) {
+        Condition condition = Condition.FALSE;
+        String[] values = params.split(",");
+        for (String value : values) {
+            condition = condition.or(where(conditionField).isEqualTo(value.trim()));
+        }
+        return condition;
+    }
+
 
     private Condition toSimpleCondition(StandardParametersBean params, String key) {
         String value = params.getFirst(key);

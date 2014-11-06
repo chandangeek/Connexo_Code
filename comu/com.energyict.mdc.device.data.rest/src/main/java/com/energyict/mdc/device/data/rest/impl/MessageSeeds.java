@@ -54,7 +54,7 @@ public enum MessageSeeds implements MessageSeed {
     PENDING(63, "Pending", "Pending"),
     COMMAND_FAILED(64, "Failed", "Failed"),
     BUSY(65, "Busy", "Busy"),
-    ON_HOLD(66, "OnHold", "On hold"),
+    ON_HOLD(66, "OnHold", "Inactive"),
     RETRYING(67, "Retrying", "Retrying"),
     NEVER_COMPLETED(68, "NeverCompleted", "Never completed"),
     WAITING(69, "Waiting", "Waiting"),
@@ -181,7 +181,8 @@ public enum MessageSeeds implements MessageSeed {
     COMMAND_WAITING(210, "CommandWaiting", "Waiting"),
     NO_SUCH_USER(211, "NoSuchUser", "No such user"),
     NO_SUCH_MESSAGE_SPEC(212, "NoSuchMessageSpec", "No such device message specification"),
-    NO_SUCH_MESSAGE(213, "NoSuchMessage", "No such device message exists on the device" )
+    NO_SUCH_MESSAGE(213, "NoSuchMessage", "No such device message exists on the device" ),
+    NOT_DEFINED_YET(214, "NotDefinedYet", "(not defined yet)"),
     ;
 
 
