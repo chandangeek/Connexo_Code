@@ -1,6 +1,4 @@
-package com.energyict.mdc.device.data.impl;
-
-import com.energyict.mdc.device.data.Device;
+package com.energyict.mdc.device.data;
 
 /**
  * Defines the link object between a {@link com.energyict.mdc.device.data.Device}
@@ -18,6 +16,4 @@ public interface CommunicationGatewayReference extends GatewayReference {
      * @return the current communication gateway device
      */
     public Device getCommunicationGateway();
-
-    Device getOrigin();
 }

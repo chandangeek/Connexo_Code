@@ -54,23 +54,40 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
         visitor.visit(this);
     }
 
-    @Override
-    public ComServer.LogLevel getLogLevel() {
-        return ComServer.LogLevel.INFO;
-    }
-
     public static ComCommandJournalEntryImpl from(DataModel dataModel, ComTaskExecutionSession comTaskExecutionSession, Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
         ComCommandJournalEntryImpl instance = dataModel.getInstance(ComCommandJournalEntryImpl.class);
         return instance.init(comTaskExecutionSession, timestamp, completionCode, errorDescription, commandDescription);
     }
 
     private ComCommandJournalEntryImpl init(ComTaskExecutionSession comTaskExecutionSession, Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
+        this.init(timestamp, this.logLevelFor(completionCode), errorDescription);
         this.comTaskExecutionSession.set(comTaskExecutionSession);
         this.completionCode = completionCode;
-        this.errorDescription = errorDescription;
-        this.timestamp = timestamp;
         this.commandDescription = commandDescription;
         return this;
+    }
+
+    private ComServer.LogLevel logLevelFor(CompletionCode completionCode) {
+        switch (completionCode) {
+            case Rescheduled:   // Intentional fall-through
+            case Ok: {
+                return ComServer.LogLevel.INFO;
+            }
+            case ConfigurationWarning: {
+                return ComServer.LogLevel.WARN;
+            }
+            case ProtocolError:   // Intentional fall-through
+            case TimeError:   // Intentional fall-through
+            case ConfigurationError:   // Intentional fall-through
+            case IOError:   // Intentional fall-through
+            case UnexpectedError:   // Intentional fall-through
+            case ConnectionError: {
+                return ComServer.LogLevel.ERROR;
+            }
+            default: {
+                return ComServer.LogLevel.INFO;
+            }
+        }
     }
 
 }

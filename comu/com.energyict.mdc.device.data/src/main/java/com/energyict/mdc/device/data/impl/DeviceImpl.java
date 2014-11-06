@@ -44,6 +44,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
@@ -52,15 +53,18 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.CommunicationGatewayReference;
 import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.GatewayReference;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.PhysicalGatewayReference;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
@@ -112,12 +116,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -149,9 +147,16 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import static com.elster.jupiter.util.Checks.is;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME;
 import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
@@ -1655,7 +1660,7 @@ public class DeviceImpl implements Device, CanLock {
         while (connectionTaskIterator.hasNext() && removedNone) {
             ConnectionTaskImpl<?, ?> connectionTaskToRemove = connectionTaskIterator.next();
             if (connectionTaskToRemove.getId() == connectionTask.getId()) {
-                connectionTask.makeObsolete();
+                connectionTaskToRemove.delete();
                 connectionTaskIterator.remove();
                 removedNone = false;
             }
@@ -1772,12 +1777,21 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
+    public List<SecurityProperty> getSecurityPropertiesStatus(SecurityPropertySet securityPropertySet) {
+        return this.getSecurityPropertiesStatus(clock.instant(), securityPropertySet);
+    }
+
+    @Override
     public List<ProtocolDialectConfigurationProperties> getProtocolDialects() {
         return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
     }
 
     private List<SecurityProperty> getSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
         return this.securityPropertyService.getSecurityProperties(this, when, securityPropertySet);
+    }
+
+    private List<SecurityProperty> getSecurityPropertiesStatus(Instant when, SecurityPropertySet securityPropertySet) {
+        return this.securityPropertyService.getSecurityPropertiesStatus(this, when, securityPropertySet);
     }
 
     @Override
@@ -1791,6 +1805,33 @@ public class DeviceImpl implements Device, CanLock {
             deviceValidation = new DeviceValidationImpl(getMdcAmrSystem().get(), validationService, clock, this);
         }
         return deviceValidation;
+    }
+
+    @Override
+    public GatewayType getConfigurationGatewayType(){
+        DeviceConfiguration configuration = getDeviceConfiguration();
+        if (configuration == null) {
+            return GatewayType.NONE;
+        }
+        return configuration.getGetwayType();
+    }
+
+    @Override
+    public List<CommunicationGatewayReference> getRecentlyAddedCommunicationReferencingDevices(int count) {
+        List<CommunicationGatewayReference> references = deviceService.getCommunicationReferencingDevices(this).paged(0, count).find();
+        if (count < references.size()){
+            references = references.subList(0, count);
+        }
+        return references;
+    }
+
+    @Override
+    public List<PhysicalGatewayReference> getRecentlyAddedPhysicalConnectedDevices(int count) {
+        List<PhysicalGatewayReference> references = deviceService.getPhysicalConnectedDevices(this).paged(0, count).find();
+        if (count < references.size()){
+            references = references.subList(0, count);
+        }
+        return references;
     }
 
     @Override

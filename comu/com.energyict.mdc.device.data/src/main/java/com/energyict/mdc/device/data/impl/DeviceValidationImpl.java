@@ -149,19 +149,18 @@ public class DeviceValidationImpl implements DeviceValidation {
 
 
     @Override
-    public void validateLoadProfile(LoadProfile loadProfile, Instant start, Instant until) {
-        loadProfile.getChannels().stream()
-                .forEach(c -> this.validateChannel(c, start, until));
+    public void validateLoadProfile(LoadProfile loadProfile) {
+        loadProfile.getChannels().forEach(c -> this.validateChannel(c));
     }
 
     @Override
-    public void validateChannel(Channel channel, Instant start, Instant until) {
-        validateReadingType(channel.getReadingType(), start, until);
+    public void validateChannel(Channel channel) {
+        validate(channel.getReadingType());
     }
 
     @Override
-    public void validateRegister(Register<?> register, Instant start, Instant until) {
-        validateReadingType(register.getReadingType(), start, until);
+    public void validateRegister(Register<?> register) {
+        validate(register.getReadingType());
     }
 
     @Override
@@ -251,55 +250,9 @@ public class DeviceValidationImpl implements DeviceValidation {
         return Range.closed(min, max);
     }
 
-    private void validateReadingType(ReadingType readingType, Instant start, Instant until) {
-        if (start != null) {
-            doValidate(readingType, start, until);
-            return;
-        }
-        doValidate(readingType, until);
-    }
-
-    private void doValidate(ReadingType readingType, Instant until) {
+    private void validate(ReadingType readingType) {
         fetchKoreMeter().getMeterActivations().stream()
-                .flatMap(m -> m.getChannels().stream())
-                .filter(c -> c.getReadingTypes().contains(readingType))
-                .map(c -> Pair.of(c, clippedInterval(c, readingType, until)))
-                .forEach(p -> validationService.validate(p.getFirst().getMeterActivation(), readingType.getMRID(), p.getLast()));
-    }
-
-    private void doValidate(ReadingType readingType, Instant start, Instant until) {
-        Range<Instant> interval = Range.closed(start, until);
-        fetchKoreMeter().getMeterActivations().stream()
-                .filter(m -> does(m.getRange()).overlap(interval))
-                .flatMap(m -> m.getChannels().stream())
-                .filter(c -> c.getReadingTypes().contains(readingType))
-                .forEach(c -> validationService.validate(c.getMeterActivation(), readingType.getMRID(), clippedInterval(c, start, until)));
-    }
-
-    private Range<Instant> clippedInterval(com.elster.jupiter.metering.Channel c, Instant start, Instant until) {
-        return Range.closed(clippedStart(c, start), clippedEnd(c, until));
-    }
-
-    private Range<Instant> clippedInterval(com.elster.jupiter.metering.Channel c, ReadingType readingType, Instant until) {
-        return Range.closed(defaultStart(c, readingType), clippedEnd(c, until));
-    }
-
-    private Instant clippedEnd(com.elster.jupiter.metering.Channel c, Instant until) {
-        return Ordering.<Instant>from(nullsLast(naturalOrder())).min(until, c.getMeterActivation().getRange().hasUpperBound() ? c.getMeterActivation().getRange().upperEndpoint() : null);
-    }
-
-    private Instant defaultStart(com.elster.jupiter.metering.Channel channel, ReadingType readingType) {
-        return getEvaluator().getLastChecked(fetchKoreMeter(), readingType).orElseGet(() -> firstReading(channel));
-    }
-
-    private Instant clippedStart(com.elster.jupiter.metering.Channel channel, Instant from) {
-        return Ordering.<Instant>from(nullsFirst(naturalOrder())).max(from, firstReading(channel));
-    }
-
-    private Instant firstReading(com.elster.jupiter.metering.Channel channel) {
-        int minutes = channel.getMainReadingType().getMeasuringPeriod().getMinutes();
-        Instant start = channel.getMeterActivation().getRange().lowerEndpoint();
-        return Instant.from(start.plus(minutes, ChronoUnit.MINUTES));
+                .forEach(meterActivation -> validationService.validate(meterActivation, readingType));
     }
 
     private Meter fetchKoreMeter() {

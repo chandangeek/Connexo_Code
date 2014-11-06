@@ -26,24 +26,15 @@ import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.BillingReading;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.NumericalReading;
-import com.energyict.mdc.device.data.Reading;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -1035,6 +1026,51 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         device.save();
     }
 
+    @Test
+    @Transactional
+    public void testGatewayTypeMethodsForHAN() {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config").gatewayType(GatewayType.HOME_AREA_NETWORK);
+        DeviceConfiguration deviceConfiguration = config.add();
+        deviceConfiguration.activate();
+        deviceType.save();
+
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "name", "description");
+        device.save();
+
+        assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.HOME_AREA_NETWORK);
+    }
+
+    @Test
+    @Transactional
+    public void testGatewayTypeMethodsForLAN() {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config").gatewayType(GatewayType.LOCAL_AREA_NETWORK);
+        DeviceConfiguration deviceConfiguration = config.add();
+        deviceConfiguration.activate();
+        deviceType.save();
+
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "name", "description");
+        device.save();
+
+        assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.LOCAL_AREA_NETWORK);
+    }
+
+    @Test
+    @Transactional
+    public void testGatewayTypeMethodsForNonConcentrator() {
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
+        DeviceType.DeviceConfigurationBuilder config = deviceType.newConfiguration("some config");
+        DeviceConfiguration deviceConfiguration = config.add();
+        deviceConfiguration.activate();
+        deviceType.save();
+
+        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "name", "description");
+        device.save();
+
+        assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.NONE);
+    }
+
     private ComSchedule createComSchedule(String mRIDAndName) {
         ComTask simpleComTask = inMemoryPersistence.getTaskService().newComTask("Simple task");
         simpleComTask.createStatusInformationTask();
@@ -1243,6 +1279,78 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
         assertThat(readings).hasSize(4 * 6);  // 4 per hour, during 6 hours
+    }
+
+    @Test
+    @Transactional
+    public void testGetSortedPhysicalGatewayReferences() {
+        Device gateway = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "gateway", "physGateway");
+        gateway.save();
+
+        Device slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave1", "slave1");
+        slave.save();
+        slave.setPhysicalGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave2", "slave2");
+        slave.save();
+        slave.setPhysicalGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave3", "slave3");
+        slave.save();
+        slave.setPhysicalGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave4", "slave4");
+        slave.save();
+        slave.setPhysicalGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave5", "slave5");
+        slave.save();
+        slave.setPhysicalGateway(gateway);
+
+        List<PhysicalGatewayReference> list = gateway.getRecentlyAddedPhysicalConnectedDevices(3);
+        assertThat(list.size()).isEqualTo(3);
+        assertThat(list.get(0).getOrigin().getName()).isEqualTo("slave5");
+        assertThat(list.get(1).getOrigin().getName()).isEqualTo("slave4");
+        assertThat(list.get(2).getOrigin().getName()).isEqualTo("slave3");
+
+        list = gateway.getRecentlyAddedPhysicalConnectedDevices(20);
+        assertThat(list.size()).isEqualTo(5);
+    }
+
+    @Test
+    @Transactional
+    public void testGetSortedCommunicationGatewayReference() {
+        Device gateway = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "gateway", "commGateway");
+        gateway.save();
+
+        Device slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave1", "slave1");
+        slave.save();
+        slave.setCommunicationGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave2", "slave2");
+        slave.save();
+        slave.setCommunicationGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave3", "slave3");
+        slave.save();
+        slave.setCommunicationGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave4", "slave4");
+        slave.save();
+        slave.setCommunicationGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave5", "slave5");
+        slave.save();
+        slave.setCommunicationGateway(gateway);
+
+        List<CommunicationGatewayReference> list = gateway.getRecentlyAddedCommunicationReferencingDevices(3);
+        assertThat(list.size()).isEqualTo(3);
+        assertThat(list.get(0).getOrigin().getName()).isEqualTo("slave5");
+        assertThat(list.get(1).getOrigin().getName()).isEqualTo("slave4");
+        assertThat(list.get(2).getOrigin().getName()).isEqualTo("slave3");
+
+        list = gateway.getRecentlyAddedCommunicationReferencingDevices(20);
+        assertThat(list.size()).isEqualTo(5);
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {

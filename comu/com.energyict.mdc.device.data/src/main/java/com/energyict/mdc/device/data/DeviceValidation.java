@@ -44,11 +44,11 @@ public interface DeviceValidation {
 
     List<DataValidationStatus> getValidationStatus(Register<?> register, List<? extends BaseReading> readings);
 
-    void validateLoadProfile(LoadProfile loadProfile, Instant start, Instant until); // TODO : interval
+    void validateLoadProfile(LoadProfile loadProfile); 
 
-    void validateChannel(Channel channel, Instant start, Instant until);
+    void validateChannel(Channel channel);
 
-    void validateRegister(Register<?> register, Instant start, Instant until);
+    void validateRegister(Register<?> register);
 
     boolean hasData(Channel c);
 

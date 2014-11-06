@@ -2,14 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.ConnectionTaskFields;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -490,7 +483,7 @@ public enum TableSpecs {
             table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modDate").add();
             table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).map("message").add();
-            table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
+            table.column("LOGLEVEL").number().notNull().conversion(NUMBER2ENUM).map("logLevel").add();
             table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION").
                     on(comtaskexecsession).
                     references(DDC_COMTASKEXECSESSION.name()).

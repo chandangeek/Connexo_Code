@@ -131,16 +131,10 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
 
     @Override
     public Finder<ComTaskExecutionJournalEntry> findComTaskExecutionJournalEntries(Set<ComServer.LogLevel> levels) {
-        Condition queryComCommands = Condition.FALSE;
-        if (levels.contains(ComServer.LogLevel.INFO) || levels.isEmpty()) {
-            queryComCommands = where("class").isEqualTo(ComTaskExecutionJournalEntryImpl.ComCommandJournalEntryImplDiscriminator);
-        }
-        return DefaultFinder.of(ComTaskExecutionJournalEntry.class,
-                Where.where(ComTaskExecutionJournalEntryImpl.Fields.ComTaskExecutionSession.fieldName()).isEqualTo(this)
-                        .and(queryComCommands
-                            .or(where("class").isEqualTo(ComTaskExecutionJournalEntryImpl.ComTaskExecutionMessageJournalEntryImplDiscriminator)
-                                    .and(where(ComTaskExecutionJournalEntryImpl.Fields.LogLevel.fieldName()).in(new ArrayList<>(levels))))),
-                this.dataModel)
+        return DefaultFinder
+                .of(ComTaskExecutionJournalEntry.class,
+                         where(ComTaskExecutionJournalEntryImpl.Fields.ComTaskExecutionSession.fieldName()).isEqualTo(this)
+                    .and(where(ComTaskExecutionJournalEntryImpl.Fields.LogLevel.fieldName()).in(new ArrayList<>(levels))), this.dataModel)
                 .sorted(ComTaskExecutionJournalEntryImpl.Fields.timestamp.fieldName(), false);
     }
 

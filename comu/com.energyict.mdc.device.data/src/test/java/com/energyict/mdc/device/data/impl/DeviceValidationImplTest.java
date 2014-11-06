@@ -1,17 +1,18 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ChannelValidation;
-import com.elster.jupiter.validation.MeterActivationValidation;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.data.Channel;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Range;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Optional;
+
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -20,14 +21,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Date;
-import java.util.Optional;
-
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.IChannelValidation;
+import com.energyict.mdc.device.data.Channel;
+import com.google.common.collect.Range;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceValidationImplTest {
@@ -53,10 +56,6 @@ public class DeviceValidationImplTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
-    private MeterActivationValidation meterActivationValidation1, meterActivationValidation2;
-    @Mock
-    private ChannelValidation channelValidation1, channelValidation2, channelValidation3;
-    @Mock
     private com.elster.jupiter.metering.ReadingType readingType;
     @Mock
     private MeterActivation meterActivation1, meterActivation2;
@@ -78,20 +77,7 @@ public class DeviceValidationImplTest {
         doReturn(asList(meterActivation)).when(meter).getMeterActivations();
         when(meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(meterActivation.getChannels()).thenReturn(asList(koreChannel));
-        when(meterActivationValidation1.getChannelValidations()).thenReturn(ImmutableSet.of(channelValidation1, channelValidation2));
-        when(meterActivationValidation2.getChannelValidations()).thenReturn(ImmutableSet.of(channelValidation3));
-        doReturn(asList(meterActivationValidation1, meterActivationValidation2)).when(validationService).getMeterActivationValidations(meterActivation);
-        when(channelValidation1.hasActiveRules()).thenReturn(false);
-        when(channelValidation2.hasActiveRules()).thenReturn(false);
-        when(channelValidation3.hasActiveRules()).thenReturn(false);
-        when(clock.instant()).thenReturn(NOW.toInstant());
-
-        when(meterActivationValidation1.getChannelValidation(koreChannel)).thenReturn(Optional.of(channelValidation2));
-
-        when(channelValidation2.getChannel()).thenReturn(koreChannel);
-        when(channelValidation1.getChannel()).thenReturn(otherKoreChannel);
-        when(channelValidation3.getChannel()).thenReturn(otherKoreChannel);
-
+        when(clock.instant()).thenReturn(NOW.toInstant());        
         when(channel.getReadingType()).thenReturn(readingType);
         when(device.findOrCreateKoreMeter(amrSystem)).thenReturn(meter);
         when(validationService.getEvaluator(eq(meter), any(Range.class))).thenReturn(validationEvaluator);
@@ -132,7 +118,6 @@ public class DeviceValidationImplTest {
     public void testValidationActiveForChannel() {
         when(validationEvaluator.isValidationEnabled(meter)).thenReturn(true);
         when(validationEvaluator.isValidationEnabled(koreChannel)).thenReturn(true);
-        when(channelValidation2.hasActiveRules()).thenReturn(true);
 
         boolean validationActive = deviceValidation.isValidationActive(channel, NOW.toInstant());
         assertThat(validationActive).isTrue();
@@ -159,10 +144,10 @@ public class DeviceValidationImplTest {
         when(meterActivation1.getRange()).thenReturn(Range.closedOpen(Instant.EPOCH, SWITCH.toInstant()));
         when(meterActivation2.getRange()).thenReturn(Range.atLeast(SWITCH.toInstant()));
 
-        deviceValidation.validateChannel(channel, null, NOW.toInstant());
+        deviceValidation.validateChannel(channel);
 
-        verify(validationService).validate(meterActivation1, "MRID", Interval.startAt(LAST_CHECKED.toInstant()).withEnd(SWITCH.toInstant()).toClosedRange());
-        verify(validationService).validate(meterActivation2, "MRID", Interval.startAt(SWITCH.toInstant()).withEnd(NOW.toInstant()).toClosedRange());
+        verify(validationService).validate(meterActivation1, readingType);
+        verify(validationService).validate(meterActivation2, readingType);
     }
 
     @Test
@@ -185,10 +170,10 @@ public class DeviceValidationImplTest {
         when(meterActivation1.getRange()).thenReturn(Range.closed(Instant.EPOCH, SWITCH.toInstant()));
         when(meterActivation2.getRange()).thenReturn(Range.atLeast(SWITCH.toInstant()));
 
-        deviceValidation.validateChannel(channel, MANUAL_LAST_CHECKED.toInstant(), NOW.toInstant());
+        deviceValidation.validateChannel(channel);
 
-        verify(validationService).validate(meterActivation1, "MRID", Interval.startAt(MANUAL_LAST_CHECKED.toInstant()).withEnd(SWITCH.toInstant()).toClosedRange());
-        verify(validationService).validate(meterActivation2, "MRID", Interval.startAt(SWITCH.toInstant()).withEnd(NOW.toInstant()).toClosedRange());
+        verify(validationService).validate(meterActivation1, readingType);
+        verify(validationService).validate(meterActivation2, readingType);
     }
 
 }
