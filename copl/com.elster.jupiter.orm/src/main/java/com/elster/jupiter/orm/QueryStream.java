@@ -13,6 +13,7 @@ public interface QueryStream<T> extends Stream<T> {
 	QueryStream<T> join(Class<?> clazz);
 	QueryStream<T> filter(Condition condition);
 	QueryStream<T> sorted(Order order, Order ...orders);
+	boolean anyMatch(Condition condition);
 	/*
 	 * more performant version of collect(Collectors.toList())
 	 */
@@ -30,7 +31,7 @@ public interface QueryStream<T> extends Stream<T> {
 	@Override
 	QueryStream<T> sequential();
 	@Override
-	QueryStream<T >parallel();
+	QueryStream<T> parallel();
 	@Override
 	QueryStream<T> unordered();
 	@Override

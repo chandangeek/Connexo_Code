@@ -8,6 +8,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.elster.jupiter.orm.SqlDialect;
+import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -60,6 +62,17 @@ final class JoinExecutor<T> {
 		if (from != 0) {
 			this.builder = builder.asPageBuilder(from,to);
 		}	
+	}
+	
+	private void appendCountSql(Condition condition) {
+		boolean isOracle = root.getTable().getDataModel().getSqlDialect().equals(SqlDialect.ORACLE);
+		builder.append("select count(distinct ");
+		builder.append(root.alias());
+		builder.append(".");
+		builder.append(isOracle ? "ROWID" : "_ROWID_");
+		builder.append(") from ");
+		root.appendFromClause(builder,null,false);
+		appendWhereClause(builder, condition , " where ");		
 	}
 	
 	private void appendSelectClause() {
@@ -122,6 +135,24 @@ final class JoinExecutor<T> {
 			}
 		}
 		return separator;		
+	}
+	
+	long count(Condition condition) throws SQLException {
+		builder = new SqlBuilder();
+		JoinTreeMarker.on(root).visit(condition);
+		root.prune();
+		root.clearCache();
+		// remark all nodes with a where clause contribution.
+		JoinTreeMarker.on(root).visit(condition);
+		appendCountSql(condition);		
+		try (Connection connection = root.getTable().getDataModel().getConnection(false)) {				
+			try(PreparedStatement statement = builder.prepare(connection)) {
+				try (ResultSet resultSet = statement.executeQuery()) {
+					resultSet.next();
+					return resultSet.getLong(1);					
+				}				
+			} 
+		}
 	}
 
     List<T> select(Condition condition,Order[] orderBy , boolean eager, String[] exceptions) throws SQLException {

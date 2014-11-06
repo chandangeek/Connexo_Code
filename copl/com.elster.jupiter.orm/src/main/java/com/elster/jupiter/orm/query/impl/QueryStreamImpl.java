@@ -33,7 +33,7 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 
 	private final DataMapperImpl<T> dataMapper;
 	private final List<Class<?>> eagers = new ArrayList<>();
-	private Optional<Condition> condition = Optional.empty(); 
+	private Condition condition = Condition.TRUE;
 	private Optional<Consumer<T>> peeker = Optional.empty();
 	private long limit;
 	private long skip;
@@ -47,7 +47,10 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 	
 	@Override
 	public Stream<T> filter(Predicate<? super T> predicate) {
-		return condition.map(ignored -> stream().filter(predicate)).orElseThrow(() -> new IllegalStateException("Condition not yet set"));
+		if (condition == Condition.TRUE) {
+			throw new IllegalStateException("Condition not yet set");
+		}
+		return stream().filter(predicate);
 	}
 
 	@Override
@@ -85,11 +88,14 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 		return stream().flatMapToLong(mapper);
 	}
 
+	@Override
 	public DoubleStream flatMapToDouble(Function<? super T, ? extends DoubleStream> mapper) {
 		return stream().flatMapToDouble(mapper);
 	}
 
+	@Override
 	public QueryStream<T> distinct() {
+		// queries always return distinct values
 		return this;
 	}
 
@@ -180,12 +186,18 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 
 	@Override
 	public long count() {
-		return stream().count();
+		return peeker.map(consumer -> stream().peek(consumer).count()).orElseGet(() ->
+			dataMapper.query(eagers.toArray(new Class<?>[eagers.size()])).count(condition));
 	}
 
 	@Override
 	public boolean anyMatch(Predicate<? super T> predicate) {
 		return stream().anyMatch(predicate);
+	}
+	
+	@Override
+	public boolean anyMatch(Condition condition) {
+		return filter(condition).findFirst().isPresent();
 	}
 
 	@Override
@@ -257,7 +269,7 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 
 	@Override
 	public QueryStream<T> filter(Condition newCondition) {
-		this.condition = Optional.of(condition.map(current -> current.and(newCondition)).orElse(newCondition));
+		this.condition = condition.and(newCondition);
 		return this;
 	}
 
@@ -278,7 +290,6 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 	
 	private List<T> doSelect() {
 		List<T> result;
-		Condition condition = this.condition.orElse(Condition.TRUE);
 		if (limit == 0) {
 			result = dataMapper.query(eagers.toArray(new Class<?>[eagers.size()])).select(condition,orders);
 		} else {
