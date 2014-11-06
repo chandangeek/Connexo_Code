@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.SideFilter', {
                     },
                     {
                         itemId: 'deviceRegisterDataFilterResetBtn',
-                        text: Uni.I18n.translate('general.reset', 'MDC', 'Reset'),
+                        text: Uni.I18n.translate('general.clearAll', 'MDC', 'Clear all'),
                         action: 'resetfilter'
                     }
                 ]

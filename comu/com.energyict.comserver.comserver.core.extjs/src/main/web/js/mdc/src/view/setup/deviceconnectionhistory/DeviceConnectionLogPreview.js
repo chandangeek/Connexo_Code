@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
                 {
                     xtype: 'displayfield',
                     name: 'details',
-                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.details', 'MDC', 'Details'),
+                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.descriiption', 'MDC', 'Description'),
                     itemId: 'details',
                     renderer: function(value,field){
                         if(!value){
@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
                 {
                     xtype: 'displayfield',
                     name: 'errorDetails',
-                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.error', 'MDC', 'Error'),
+                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.details', 'MDC', 'Details'),
                     itemId: 'error',
                     renderer: function(value,field){
                         if(!value){

@@ -149,7 +149,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             nonSuspectField = filterForm.down('#nonSuspect'),
             suspect = suspectField.boxLabel,
             nonSuspect = nonSuspectField.boxLabel;
-        filterView.down('#Reset').setText('Reset');
         if (suspectField.getValue()) {
             filterView.setFilter('onlySuspect', filterForm.down('#suspectContainer').getFieldLabel(), suspect);
         }
