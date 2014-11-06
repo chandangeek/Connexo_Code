@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
         'Mdc.view.setup.deviceloadprofilechannels.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofilechannels.TableView',
         'Mdc.view.setup.deviceloadprofilechannels.GraphView',
-        'Mdc.view.setup.deviceloadprofilechannels.SideFilter'
+        'Mdc.view.setup.deviceloadprofilechannels.SideFilter',
+        'Uni.view.toolbar.PagingTop'
     ],
 
     router: null,
@@ -45,28 +46,12 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
                     emptyText: Uni.I18n.translate('general.none', 'MDC', 'None')
                 },
                 {
-                    tbar: {
-                        xtype: 'toolbar',
-                        items: [
-                            {
-                                xtype: 'container',
-                                itemId: 'readingsCount',
-                                hidden: true,
-                                flex: 1
-                            },
-                            '->',
-                            {
-                                xtype: 'button',
-                                text: Uni.I18n.translate('deviceloadprofilechannels.data.editReadings', 'MDC', 'Edit readings'),
-                                href: me.router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data/editreadings').buildUrl()
-                            }
-                        ]
-                    },
                     items: [
 
                         {
                             xtype: 'deviceLoadProfileChannelTableView',
                             channel: me.channel,
+                            router: me.router,
                             hidden: true
                         },
                         {
