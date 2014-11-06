@@ -32,11 +32,4 @@ public interface OfflineDeviceMessageAttribute {
      */
     public String getDeviceMessageAttributeValue();
 
-    /**
-     * The OfflineDeviceMessage which owns this DeviceMessageAttribute
-     *
-     * @return the OfflineDeviceMessage which owns this DeviceMessageAttribute
-     */
-    public OfflineDeviceMessage getDeviceMessage();
-
 }

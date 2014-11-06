@@ -1,10 +1,8 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.common.CanGoOffline;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.time.Instant;
@@ -29,7 +27,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (16:13)
  */
-public interface DeviceMessage<D extends BaseDevice> extends HasId, CanGoOffline<OfflineDeviceMessage> {
+public interface DeviceMessage<D extends BaseDevice> extends HasId {
 
     public void save();
 
