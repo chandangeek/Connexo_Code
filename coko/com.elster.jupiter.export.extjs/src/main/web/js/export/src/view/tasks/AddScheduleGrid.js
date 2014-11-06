@@ -20,7 +20,7 @@ Ext.define('Dxp.view.tasks.AddScheduleGrid', {
         items: [
             {
                 itemId: 'schedule',
-                header: Uni.I18n.translate('general.schedule', 'DXP', 'Schedule'),
+                header: Uni.I18n.translate('general.schedule', 'DES', 'Schedule'),
                 dataIndex: 'schedule',
                 flex: 1,
                 renderer: function (value) {
@@ -29,7 +29,7 @@ Ext.define('Dxp.view.tasks.AddScheduleGrid', {
             },
             {
                 itemId: 'startPeriod',
-                header: Uni.I18n.translate('general.startExportPeriod', 'DXP', 'Start export period'),
+                header: Uni.I18n.translate('general.startExportPeriod', 'DES', 'Start export period'),
                 dataIndex: 'start',
                 flex: 1,
                 renderer: function (value) {
@@ -38,7 +38,7 @@ Ext.define('Dxp.view.tasks.AddScheduleGrid', {
             },
             {
                 itemId: 'endPeriod',
-                header: Uni.I18n.translate('general.endExportPeriod', 'DXP', 'End export period'),
+                header: Uni.I18n.translate('general.endExportPeriod', 'DES', 'End export period'),
                 dataIndex: 'end',
                 flex: 1,
                 renderer: function (value) {

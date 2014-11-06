@@ -13,7 +13,7 @@ Ext.define('Dxp.view.tasks.Add', {
         me.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('general.addDataExportTask', 'DXP', 'Add data export task'),
+                title: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
                 itemId: 'add-data-export-task-form',
                 ui: 'large',
                 width: '100%',
@@ -36,19 +36,19 @@ Ext.define('Dxp.view.tasks.Add', {
                         width: 500,
                         required: true,
                         maskRe: /[^:\\/*?"<>|]/,
-                        emptyText: Uni.I18n.translate('general.emptyTextName', 'DXP', 'Enter a name'),
-                        fieldLabel: Uni.I18n.translate('general.name', 'DXP', 'Name'),
+                        emptyText: Uni.I18n.translate('general.emptyTextName', 'DES', 'Enter a name'),
+                        fieldLabel: Uni.I18n.translate('general.name', 'DES', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 255
                     },
                     {
-                        title: Uni.I18n.translate('general.dataSources', 'DXP', 'Data sources'),
+                        title: Uni.I18n.translate('general.dataSources', 'DES', 'Data sources'),
                         ui: 'medium'
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.deviceGroup', 'DXP', 'Device group'),
+                        fieldLabel: Uni.I18n.translate('general.deviceGroup', 'DES', 'Device group'),
                         required: true,
                         layout: 'hbox',
                         items: [
@@ -68,13 +68,13 @@ Ext.define('Dxp.view.tasks.Add', {
                                 xtype: 'displayfield',
                                 itemId: 'no-device',
                                 hidden: true,
-                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('general.noDeviceGroup', 'DXP', 'No device group defined yet.') + '</div>',
+                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('general.noDeviceGroup', 'DES', 'No device group defined yet.') + '</div>',
                                 width: 235
                             },
                             {
                                 xtype: 'button',
                                 margin: '0 0 0 20',
-                                text: Uni.I18n.translate('general.addDeviceGroup', 'DXP', 'Add device group'),
+                                text: Uni.I18n.translate('general.addDeviceGroup', 'DES', 'Add device group'),
                                 ui: 'link',
                                 href: '#/devices/devicegroups/add'
                             }
@@ -96,7 +96,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 items: [
                                     {
                                         xtype: 'textfield',
-                                        fieldLabel: Uni.I18n.translate('general.readingTypes', 'DXP', 'Reading type(s)'),
+                                        fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading type(s)'),
                                         labelAlign: 'right',
                                         itemId: 'readingType1',
                                         name: 'readingType1',
@@ -124,7 +124,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         layout: 'hbox',
                         items: [
                             {
-                                text: '+ ' + Uni.I18n.translate('general.addAnother', 'DXP', 'Add another'),
+                                text: '+ ' + Uni.I18n.translate('general.addAnother', 'DES', 'Add another'),
                                 xtype: 'button',
                                 action: 'addReadingTypeAction',
                                 itemId: 'addReadingTypeAction'
@@ -132,12 +132,12 @@ Ext.define('Dxp.view.tasks.Add', {
                         ]
                     },
                     {
-                        title: Uni.I18n.translate('general.schedule', 'DXP', 'Schedule'),
+                        title: Uni.I18n.translate('general.schedule', 'DES', 'Schedule'),
                         ui: 'medium'
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.recurrence', 'DXP', 'Recurrence'),
+                        fieldLabel: Uni.I18n.translate('general.recurrence', 'DES', 'Recurrence'),
                         itemId: 'recurrence-container',
                         layout: 'hbox',
                         items: [
@@ -155,13 +155,13 @@ Ext.define('Dxp.view.tasks.Add', {
                                 items: [
                                     {
                                         itemId: 'none-recurrence',
-                                        boxLabel: Uni.I18n.translate('general.none', 'DXP', 'None'),
+                                        boxLabel: Uni.I18n.translate('general.none', 'DES', 'None'),
                                         inputValue: false,
                                         checked: true
                                     },
                                     {
                                         itemId: 'every',
-                                        boxLabel: Uni.I18n.translate('general.every', 'DXP', 'Every'),
+                                        boxLabel: Uni.I18n.translate('general.every', 'DES', 'Every'),
                                         inputValue: true
                                     }
                                 ]
@@ -217,7 +217,7 @@ Ext.define('Dxp.view.tasks.Add', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.startOn', 'DXP', 'Start on'),
+                        fieldLabel: Uni.I18n.translate('general.startOn', 'DES', 'Start on'),
                         layout: 'hbox',
                         items: [
                             {
@@ -229,7 +229,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                     allowBlank: true
                                 },
                                 hoursConfig: {
-                                    fieldLabel: Uni.I18n.translate('general.at', 'DXP', 'at'),
+                                    fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10'
                                 },
@@ -240,12 +240,12 @@ Ext.define('Dxp.view.tasks.Add', {
                         ]
                     },
                     {
-                        title: Uni.I18n.translate('general.dataOptions', 'DXP', 'Data options'),
+                        title: Uni.I18n.translate('general.dataOptions', 'DES', 'Data options'),
                         ui: 'medium'
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DXP', 'Export period'),
+                        fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
                         required: true,
                         layout: 'hbox',
                         items: [
@@ -258,14 +258,14 @@ Ext.define('Dxp.view.tasks.Add', {
                                 store: 'Dxp.store.ExportPeriods',
                                 editable: false,
                                 allowBlank: false,
-                                emptyText: Uni.I18n.translate('general.emptyTextExportPeriod', 'DXP', 'Select an extra period'),
+                                emptyText: Uni.I18n.translate('general.emptyTextExportPeriod', 'DES', 'Select an extra period'),
                                 displayField: 'name',
                                 valueField: 'id'
                             },
                             {
                                 xtype: 'button',
                                 margin: '0 0 0 20',
-                                text: Uni.I18n.translate('general.addExportPeriod', 'DXP', 'Add export period'),
+                                text: Uni.I18n.translate('general.addExportPeriod', 'DES', 'Add export period'),
                                 ui: 'link',
                                 href: '#/administration/relativeperiods/add'
                             }
@@ -274,7 +274,7 @@ Ext.define('Dxp.view.tasks.Add', {
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'schedule-preview',
-                        fieldLabel: Uni.I18n.translate('general.previewNext', 'DXP', 'Preview (next 5)'),
+                        fieldLabel: Uni.I18n.translate('general.previewNext', 'DES', 'Preview (next 5)'),
                         hidden: true,
                         layout: 'hbox',
                         items: [
@@ -285,12 +285,12 @@ Ext.define('Dxp.view.tasks.Add', {
                         ]
                     },
                     {
-                        title: Uni.I18n.translate('general.formatter', 'DXP', 'Formatter'),
+                        title: Uni.I18n.translate('general.formatter', 'DES', 'Formatter'),
                         ui: 'medium'
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.formatter', 'DXP', 'Formatter'),
+                        fieldLabel: Uni.I18n.translate('general.formatter', 'DES', 'Formatter'),
                         layout: 'hbox',
                         required: true,
                         items: [
@@ -330,14 +330,14 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'button',
                                 itemId: 'add-button',
-                                text: Uni.I18n.translate('general.add', 'DXP', 'Add'),
+                                text: Uni.I18n.translate('general.add', 'DES', 'Add'),
                                 ui: 'action',
                                 action: 'add'
                             },
                             {
                                 xtype: 'button',
                                 itemId: 'cancel-link',
-                                text: Uni.I18n.translate('general.cancel', 'DXP', 'Cancel'),
+                                text: Uni.I18n.translate('general.cancel', 'DES', 'Cancel'),
                                 ui: 'link',
                                 href: '#/administration/dataexporttasks/'
                             }
