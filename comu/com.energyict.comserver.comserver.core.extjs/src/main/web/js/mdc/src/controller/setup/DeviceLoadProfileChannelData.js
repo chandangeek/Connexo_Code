@@ -27,10 +27,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             ref: 'deviceLoadProfileChannelGraphView',
             selector: '#deviceLoadProfileChannelGraphView'
         },
-        {
-            ref: 'readingsCount',
-            selector: 'deviceLoadProfileChannelData #readingsCount'
-        },
         {ref: 'deviceLoadProfileChannelDataPreview', selector: '#deviceLoadProfileChannelDataPreview'},
         {
             ref: 'sideFilter',
@@ -133,7 +129,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 widget.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(isTable);
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
-                        me.showReadingsCount(dataStore);
                         if (!isTable) {
                             me.showGraphView(record);
                         }
@@ -253,10 +248,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         previewPanel.setTitle(record.get('interval_end'));
         form.loadRecord(record);
 
-    },
-
-    showReadingsCount: function (store) {
-        this.getReadingsCount().update(store.getCount() + ' ' + Uni.I18n.translate('devicetype.readings', 'MDC', 'reading(s)'));
     },
 
     applyFilter: function () {

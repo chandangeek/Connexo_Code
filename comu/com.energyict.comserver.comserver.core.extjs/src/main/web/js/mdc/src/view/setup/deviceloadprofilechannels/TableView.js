@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.TableView', {
     ],
 
     channel: null,
+    router: null,
 
     emptyComponent: {
         xtype: 'no-items-found-panel',
@@ -19,17 +20,19 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.TableView', {
     },
 
     initComponent: function () {
-        this.grid = {
+        var me = this;
+
+        me.grid = {
             xtype: 'deviceLoadProfileChannelDataGrid',
-            channelRecord: this.channel
+            channelRecord: this.channel,
+            router: me.router
         };
 
-        this.previewComponent = {
+        me.previewComponent = {
             xtype: 'deviceLoadProfileChannelDataPreview',
             channelRecord: this.channel
         };
 
-        this.callParent(arguments);
-
+        me.callParent(arguments);
     }
 });

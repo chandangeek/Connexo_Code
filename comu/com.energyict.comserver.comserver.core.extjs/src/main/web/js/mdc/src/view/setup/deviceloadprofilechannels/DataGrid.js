@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
         'Uni.grid.column.Action',
         'Mdc.view.setup.deviceloadprofilechannels.DataActionMenu',
         'Uni.grid.column.IntervalFlags',
-        'Uni.grid.column.Edited'
+        'Uni.grid.column.Edited',
+        'Uni.view.toolbar.PagingTop'
     ],
     height: 395,
     plugins: [
@@ -18,6 +19,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
     //test
 
     channelRecord: null,
+    router: null,
 
     initComponent: function () {
         var me = this,
@@ -84,6 +86,26 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
                 width: 150
+            }
+        ];
+
+        me.dockedItems = [
+            {
+                itemId: 'pagingtoolbartop',
+                xtype: 'pagingtoolbartop',
+                dock: 'top',
+                store: me.store,
+                isFullTotalCount: true,
+                displayMsg: '{2} reading(s)',
+                items: [
+                    '->',
+                    {
+                        xtype: 'button',
+                        itemId: 'device-load-profile-channel-data-edit-readings-button',
+                        text: Uni.I18n.translate('deviceloadprofilechannels.data.editReadings', 'MDC', 'Edit readings'),
+                        href: me.router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data/editreadings').buildUrl()
+                    }
+                ]
             }
         ];
 
