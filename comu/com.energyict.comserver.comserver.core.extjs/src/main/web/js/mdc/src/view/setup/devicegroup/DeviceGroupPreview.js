@@ -77,7 +77,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
                             align: 'stretch'
                         },
                         defaults: {
-                            labelWidth: 640
+                            labelWidth: 320
                         },
                         items: [
                             {
