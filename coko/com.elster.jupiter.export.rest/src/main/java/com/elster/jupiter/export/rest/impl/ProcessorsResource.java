@@ -1,0 +1,47 @@
+package com.elster.jupiter.export.rest.impl;
+
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.rest.ProcessorInfos;
+import com.elster.jupiter.nls.Thesaurus;
+
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+import java.util.List;
+
+/**
+ * Copyrights EnergyICT
+ * Date: 6/11/2014
+ * Time: 13:48
+ */
+@Path("/processors")
+public class ProcessorsResource {
+
+    private final DataExportService dataExportService;
+    private final Thesaurus thesaurus;
+
+    @Inject
+    public ProcessorsResource(DataExportService dataExportService, Thesaurus thesaurus) {
+        this.dataExportService = dataExportService;
+        this.thesaurus = thesaurus;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public ProcessorInfos getAvailableProcessors(@Context UriInfo uriInfo) {
+        ProcessorInfos infos = new ProcessorInfos();
+        List<DataProcessorFactory> processors = dataExportService.getAvailableProcessors();
+        PropertyUtils propertyUtils = new PropertyUtils();
+        for (DataProcessorFactory processor : processors) {
+            infos.add(processor.getName(), thesaurus.getString(processor.getName(), processor.getName()),
+                    propertyUtils.convertPropertySpecsToPropertyInfos(processor.getProperties()));
+        }
+        infos.total = processors.size();
+        return infos;
+    }
+}

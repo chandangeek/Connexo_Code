@@ -2,20 +2,23 @@ package com.elster.jupiter.export.rest;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Copyrights EnergyICT
  * Date: 30/10/2014
  * Time: 14:18
  */
-public class DeviceGroupInfo {
+@XmlRootElement
+public class MeterGroupInfo {
 
     public long id;
     public String name;
 
-    public DeviceGroupInfo() {
+    public MeterGroupInfo() {
     }
 
-    public DeviceGroupInfo(EndDeviceGroup group) {
+    public MeterGroupInfo(EndDeviceGroup group) {
         id = group.getId();
         name = group.getName();
     }

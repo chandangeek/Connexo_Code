@@ -3,6 +3,7 @@ package com.elster.jupiter.export.rest;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 
 /**
@@ -10,6 +11,7 @@ import java.time.Instant;
  * Date: 30/10/2014
  * Time: 14:38
  */
+@XmlRootElement
 public class LastExportOccurenceInfo {
     public DataExportStatus status;
     public long lastRun;

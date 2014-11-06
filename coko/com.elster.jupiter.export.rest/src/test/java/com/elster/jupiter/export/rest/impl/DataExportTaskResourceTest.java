@@ -1,4 +1,4 @@
-package com.elster.jupiter.export.rest;
+package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Query;
@@ -6,6 +6,9 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.rest.DataExportTaskInfo;
+import com.elster.jupiter.export.rest.DataExportTaskInfos;
+import com.elster.jupiter.export.rest.MeterGroupInfo;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -134,16 +137,11 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
 //        verify(myTestOutboundPool2, never()).removeOutboundComPort(any(OutboundComPort.class));
     }
 
-    @Test
-    public void testToMakeBuildPass() {
-        // empty test until other methods can be unignored
-    }
-
 
     @Test
     public void getCreateTasksTest() {
         DataExportTaskInfo info = new DataExportTaskInfo();
-        info.deviceGroup = new DeviceGroupInfo();
+        info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 5;
 
         Entity<DataExportTaskInfo> json = Entity.json(info);

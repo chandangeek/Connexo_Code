@@ -1,10 +1,11 @@
-package com.elster.jupiter.export.rest;
+package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.rest.DataExportTaskInfo;
+import com.elster.jupiter.export.rest.DataExportTaskInfos;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -117,22 +118,6 @@ public class DataExportTaskResource {
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus)).build();
     }
 
-    @GET
-    @Path("/processors")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ProcessorInfos getAvailableProcessors(@Context UriInfo uriInfo) {
-        ProcessorInfos infos = new ProcessorInfos();
-        List<DataProcessorFactory> processors = dataExportService.getAvailableProcessors();
-        PropertyUtils propertyUtils = new PropertyUtils();
-        for (DataProcessorFactory processor : processors) {
-            infos.add(
-                processor.getName(),
-                thesaurus.getString(processor.getName(), processor.getName()),
-                propertyUtils.convertPropertySpecsToPropertyInfos(processor.getProperties()));
-        }
-        infos.total = processors.size();
-        return infos;
-    }
 
     private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
         return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
