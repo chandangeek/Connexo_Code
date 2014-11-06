@@ -30,7 +30,7 @@ public class ABBA1350UserFileMessageEntry implements MessageEntryCreator {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         String userFileAttributeName;
-        if (offlineDeviceMessage.getSpecification().getId().equals(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_SETTINGS)) {
+        if (offlineDeviceMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_SETTINGS)) {
             userFileAttributeName = DeviceMessageConstants.SwitchPointClockSettings;
         }
         else {

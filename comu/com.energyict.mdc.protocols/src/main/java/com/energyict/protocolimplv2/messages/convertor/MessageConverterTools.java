@@ -52,10 +52,6 @@ public class MessageConverterTools {
             return "";
         }
 
-        @Override
-        public OfflineDeviceMessage getDeviceMessage() {
-            return this.offlineDeviceMessage;
-        }
     }
 
     private static class EmptyAttributePropertySpec implements PropertySpec<String> {
