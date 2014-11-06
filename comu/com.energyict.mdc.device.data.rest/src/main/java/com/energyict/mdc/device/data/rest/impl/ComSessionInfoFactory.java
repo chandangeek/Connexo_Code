@@ -45,7 +45,8 @@ public class ComSessionInfoFactory {
         String direction = partialConnectionTask.getConnectionType().getDirection().name();
         info.direction = thesaurus.getString(direction, direction);
         info.connectionType = partialConnectionTask.getPluggableClass().getName();
-        info.status = comSession.getSuccessIndicator().equals(ComSession.SuccessIndicator.Success)?
+        info.status = comSession.getSuccessIndicator().equals(ComSession.SuccessIndicator.Success)
+                && comSession.getComTaskExecutionSessions().stream().allMatch(comTaskExecutionSession -> comTaskExecutionSession.getSuccessIndicator().equals(ComTaskExecutionSession.SuccessIndicator.Success))?
                 thesaurus.getString(MessageSeeds.SUCCESS.getKey(), "Success"):
                 thesaurus.getString(MessageSeeds.FAILURE.getKey(), "Failure");
 
