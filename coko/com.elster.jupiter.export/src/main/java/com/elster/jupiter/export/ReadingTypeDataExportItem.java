@@ -17,4 +17,6 @@ public interface ReadingTypeDataExportItem {
     String getReadingTypeMRId();
 
     Instant getLastExportedDate();
+
+    ReadingTypeDataExportTask getTask();
 }

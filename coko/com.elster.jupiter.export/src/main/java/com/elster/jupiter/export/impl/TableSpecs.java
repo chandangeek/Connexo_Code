@@ -62,9 +62,12 @@ enum TableSpecs {
             table.map(ReadingTypeInExportTask.class);
             Column exportTask = table.column("RTEXPORTTASK").number().notNull().add();
             Column readingType = table.column("READINGTYPE").varChar(Table.NAME_LENGTH).notNull().map("readingTypeMRID").add();
-            table.foreignKey("DES_FK_RTINET_RTEXPORTTASK").on(exportTask).references(DES_RTDATAEXPORTTASK.name()).map("readingTypeDataExportTask").reverseMap("readingTypes").onDelete(DeleteRule.CASCADE).composition().add();
-            table.foreignKey("DES_FK_RTINET_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").map("readingType").onDelete(DeleteRule.RESTRICT).add();
+
             table.primaryKey("DES_PK_RT_RTEXPORTTASK").on(exportTask, readingType).add();
+            table.foreignKey("DES_FK_RTINET_RTEXPORTTASK").on(exportTask).references(DES_RTDATAEXPORTTASK.name()).onDelete(DeleteRule.CASCADE)
+                    .map("readingTypeDataExportTask").reverseMap("readingTypes").composition().add();
+            table.foreignKey("DES_FK_RTINET_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").onDelete(DeleteRule.RESTRICT)
+                    .map("readingType").add();
         }
     },
     DES_PROPERTY_IN_TASK(DataExportProperty.class) {
@@ -74,8 +77,10 @@ enum TableSpecs {
             Column taskColumn = table.column("TASK").number().notNull().add();
             Column nameColumn = table.column("NAME").varChar(Table.NAME_LENGTH).notNull().map("name").add();
             table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
-            table.foreignKey("DES_FK_PRPINET_RTEXPORTTASK").on(taskColumn).references(DES_RTDATAEXPORTTASK.name()).map("task").reverseMap("properties").onDelete(DeleteRule.CASCADE).composition().add();
+
             table.primaryKey("DES_PK_RTETPROPERTY").on(taskColumn, nameColumn).add();
+            table.foreignKey("DES_FK_PRPINET_RTEXPORTTASK").on(taskColumn).references(DES_RTDATAEXPORTTASK.name()).onDelete(DeleteRule.CASCADE)
+                    .map("task").reverseMap("properties").composition().add();
         }
     },
     DES_OCCURRENCE(DataExportOccurrence.class) {
@@ -91,8 +96,10 @@ enum TableSpecs {
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
 
             table.primaryKey("DES_PK_EXPOCC").on(taskOccurrence).add();
-            table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE").map("taskOccurrence").onDelete(DeleteRule.RESTRICT).add();
-            table.foreignKey("DES_FK_EXPOCC_RTEXPORTTASK").on(task).references(DES_RTDATAEXPORTTASK.name()).map("readingTask").onDelete(DeleteRule.RESTRICT).add();
+            table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE").onDelete(DeleteRule.CASCADE)
+                    .map("taskOccurrence").add();
+            table.foreignKey("DES_FK_EXPOCC_RTEXPORTTASK").on(task).references(DES_RTDATAEXPORTTASK.name()).onDelete(DeleteRule.CASCADE)
+                    .map("readingTask").add();
 
         }
     },
@@ -103,11 +110,14 @@ enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             table.addRefAnyColumns("READINGCONT", true, "readingContainer");
+            Column task = table.column("TASK").number().notNull().map("task").add();
             table.column("LASTRUN").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastRun").add();
             table.column("LASTEXPORTED").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastExportedDate").add();
             table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRId").add();
 
             table.primaryKey("DES_PK_RTEXPITEM").on(idColumn).add();
+            table.foreignKey("DES_FK_RTEXPITEM_TASK").on(task).references(DES_RTDATAEXPORTTASK.name()).onDelete(DeleteRule.CASCADE)
+                    .map("task").reverseMap("exportItems").composition().add();
         }
     };
 

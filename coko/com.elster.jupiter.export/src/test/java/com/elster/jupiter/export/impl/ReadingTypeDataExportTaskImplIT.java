@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -288,10 +289,11 @@ public class ReadingTypeDataExportTaskImplIT {
         Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
         DataModel model = injector.getInstance(OrmService.class).getDataModel(DataExportService.COMPONENTNAME).get();
 
+        ReadingTypeDataExportTask task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter.save();
-
-            ReadingTypeDataExportItemImpl item = ReadingTypeDataExportItemImpl.from(model, Instant.now(), Instant.now(), "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", meter);
+            task.save();
+            ReadingTypeDataExportItemImpl item = ReadingTypeDataExportItemImpl.from(model, task, Instant.now(), Instant.now(), "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", meter);
             model.persist(item);
             context.commit();
         }
@@ -300,5 +302,25 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(readingTypeDataExportItems).hasSize(1);
         assertThat(readingTypeDataExportItems.get(0).getReadingContainer()).isNotNull();
         assertThat(readingTypeDataExportItems.get(0).getReadingContainer()).isEqualTo(meter);
+        assertThat(readingTypeDataExportItems.get(0).getTask()).isEqualTo(task);
     }
+
+    private ReadingTypeDataExportTask createDataExportTask() {
+        ReadingTypeDataExportTask exportTask;
+        try (TransactionContext context = transactionService.getContext()) {
+            RelativeDate startOfTheYearBeforeLastYear = createYearsAgoStartofYearRelativeDate(2);
+            RelativeDate startOfLastYear = createYearsAgoStartofYearRelativeDate(1);
+            RelativeDate startOfThisYear = createYearsAgoStartofYearRelativeDate(0);
+            RelativePeriod lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
+            RelativePeriod oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
+
+            EnumeratedEndDeviceGroup endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
+            endDeviceGroup.save();
+
+            exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
+            context.commit();
+        }
+        return exportTask;
+    }
+
 }

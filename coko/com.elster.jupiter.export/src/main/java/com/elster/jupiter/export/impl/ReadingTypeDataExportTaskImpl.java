@@ -48,6 +48,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private boolean exportContinuousData;
     private ValidatedDataOption validatedDataOption;
     private List<ReadingTypeInExportTask> readingTypes = new ArrayList<>();
+    private List<ReadingTypeDataExportItemImpl> exportItems = new ArrayList<>();
 
     private transient boolean scheduleImmediately;
     private transient ScheduleExpression scheduleExpression;
