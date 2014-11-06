@@ -246,7 +246,7 @@ Ext.define('Mdc.controller.setup.Messages', {
                 confirmation: function () {
                     var privileges = this.down('checkboxgroup').getChecked();
                     var privIds = [];
-                    if (action == 'changePrivilegesForAll' || action == 'activateAll' || action == 'activate') {
+                    if (action == 'changePrivilegesForAll' || action == 'activateAll' || action == 'activate' || action == 'changePrivileges') {
                         Ext.each(privileges, function (privilege) {
                             privIds.push({privilege: privilege.inputValue})
                         })
