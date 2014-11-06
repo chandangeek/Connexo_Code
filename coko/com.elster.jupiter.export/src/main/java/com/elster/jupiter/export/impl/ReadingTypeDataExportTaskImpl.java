@@ -22,6 +22,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -58,6 +59,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private boolean exportUpdate;
     private boolean exportContinuousData;
     private ValidatedDataOption validatedDataOption;
+    @Valid
     private List<ReadingTypeInExportTask> readingTypes = new ArrayList<>();
 
     private transient boolean scheduleImmediately;
