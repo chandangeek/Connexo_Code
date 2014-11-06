@@ -1,6 +1,8 @@
 package com.elster.jupiter.datavault.impl;
 
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.Random;
@@ -8,12 +10,15 @@ import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -28,6 +33,8 @@ public class KeyStoreDataVaultTest {
     Random random;
     @Mock
     Thesaurus thesaurus;
+    @Mock
+    NlsService nlsService;
 
     private KeyStoreDataVault keyStoreDataVault;
 
@@ -36,6 +43,16 @@ public class KeyStoreDataVaultTest {
     @Before
     public void setUp() throws Exception {
         when(random.nextInt(anyInt())).thenReturn(RANDOM_INT);
+        when(nlsService.getThesaurus(anyString(), anyObject())).thenReturn(thesaurus);
+        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
+            for (MessageSeed messageSeeds : MessageSeeds.values()) {
+                if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
+                    return messageSeeds.getDefaultFormat();
+                }
+            }
+            return (String) invocationOnMock.getArguments()[1];
+        });
+        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
 
         keyStoreDataVault = new JarKeyStoreDataVault(random, new ExceptionFactory(thesaurus));
    }
@@ -84,11 +101,7 @@ public class KeyStoreDataVaultTest {
 
     @Test
     public void testEncryptEmptyArray() throws Exception {
-        try {
-            keyStoreDataVault.encrypt(new byte[0]);
-        } catch (Exception e) {
-            fail("Should not throw an exception, was "+e);
-        }
+        keyStoreDataVault.encrypt(new byte[0]);
     }
 
     @Test
