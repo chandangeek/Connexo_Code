@@ -4,10 +4,10 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
-import com.energyict.mdc.engine.impl.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
@@ -38,7 +38,7 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl {
     public void doExecute(ComServerDAO comServerDAO) {
         for (OfflineDeviceMessage offlineDeviceMessage : allDeviceMessages) {
             boolean notFound = true;
-            final DeviceMessageIdentifierById offlineDeviceMessageIdentifier = new DeviceMessageIdentifierById(offlineDeviceMessage.getDeviceMessageId());
+            final MessageIdentifier offlineDeviceMessageIdentifier = offlineDeviceMessage.getIdentifier();
             for (CollectedMessage collectedMessage : this.deviceProtocolMessageList.getCollectedMessages()) {
                 if(collectedMessage.getMessageIdentifier().equals(offlineDeviceMessageIdentifier)){
                     comServerDAO.updateDeviceMessageInformation(collectedMessage.getMessageIdentifier(), collectedMessage.getNewDeviceMessageStatus(), collectedMessage.getDeviceProtocolInformation());
