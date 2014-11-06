@@ -5,6 +5,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 /**
@@ -23,7 +24,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
-                    newPropertySpecBuilder(new EncryptedStringFactory()).
+                    newPropertySpecBuilder(new PasswordFactory()).
                     name(SecurityPropertySpecName.PASSWORD.toString()).
                     finish();
         }
