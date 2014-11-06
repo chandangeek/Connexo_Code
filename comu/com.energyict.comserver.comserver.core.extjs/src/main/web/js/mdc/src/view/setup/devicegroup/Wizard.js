@@ -1,16 +1,23 @@
 Ext.define('Mdc.view.setup.devicegroup.Wizard', {
     extend: 'Ext.form.Panel',
+    alias: 'widget.adddevicegroup-wizard',
+
     requires: [
         'Ext.layout.container.Card',
         'Mdc.view.setup.devicegroup.Step1',
         'Mdc.view.setup.devicegroup.Step2'
     ],
-    alias: 'widget.adddevicegroup-wizard',
+
     autoHeight: true,
     border: false,
     layout: 'card',
     activeItemId: 0,
     buttonAlign: 'left',
+
+    defaults: {
+        cls: 'content-wrapper'
+    },
+
     items: [
         {
             xtype: 'devicegroup-wizard-step1',
@@ -23,6 +30,7 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
             navigationIndex: 1
         }
     ],
+
     bbar: {
         defaults: {
             xtype: 'button'

@@ -411,6 +411,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
         if (record) {
             record.set(values);
+            if (!record.get('canBeGateway')) {
+                record.set('gatewayType', 'NONE')
+            };
             record.getProxy().setExtraParam('deviceType', this.deviceTypeId);
             record.save({
                 success: function (record) {

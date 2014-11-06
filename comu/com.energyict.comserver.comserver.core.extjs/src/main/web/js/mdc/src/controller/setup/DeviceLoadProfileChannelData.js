@@ -75,15 +75,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         });
     },
 
-    showTableOverview: function (mRID, loadProfileId, channelId) {
-        this.showOverview(mRID, loadProfileId, channelId, true);
-    },
-
-    showGraphOverview: function (mRID, loadProfileId, channelId) {
-        this.showOverview(mRID, loadProfileId, channelId, false);
-    },
-
-    showOverview: function (mRID, loadProfileId, channelId, isTable) {
+    showOverview: function (mRID, loadProfileId, channelId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             models = {
@@ -93,6 +85,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             },
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
             router = me.getController('Uni.controller.history.Router'),
+            isTable = router.queryParams.view === 'table',
             widget;
 
         viewport.setLoading();
@@ -132,14 +125,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 });
                 me.channelModel = record;
                 me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
-                if (isTable) {
-                    widget.down('#deviceLoadProfileChannelSubMenuPanel #channelOfLoadProfileOfDeviceDataLink').hide();
-                    widget.down('#deviceLoadProfileChannelSubMenuPanel #channelOfLoadProfileOfDeviceDataTableLink').show();
-                } else {
-                    widget.down('#deviceLoadProfileChannelSubMenuPanel #channelOfLoadProfileOfDeviceDataTableLink').hide();
-                    widget.down('#deviceLoadProfileChannelSubMenuPanel #channelOfLoadProfileOfDeviceDataLink').show();
-                }
-                widget.down('#deviceLoadProfileChannelSubMenuPanel').setParams(mRID, loadProfileId, record);
+                widget.down('#deviceLoadProfileChannelSubMenuPanel').setParams(record);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 viewport.setLoading(false);
                 widget.setLoading();
@@ -244,7 +230,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             showTable = button.action === 'showTableView';
 
         if (showTable) {
-            router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/tableData').forward();
+            router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data').forward(router.arguments, {view: 'table'});
         } else {
             router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data').forward();
         }

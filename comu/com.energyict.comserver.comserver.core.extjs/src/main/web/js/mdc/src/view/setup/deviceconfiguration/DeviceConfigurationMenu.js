@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 hrefTarget: '_self'
             },
             {
-                text: 'Messages',
+                text: 'Commands',
                 pressed: false,
                 itemId: 'messagesLink',
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/messages',

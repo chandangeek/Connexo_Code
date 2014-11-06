@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.setup.Messages', {
             var enablements = record['deviceMessageEnablementsStore'];
             if (enablements && enablements.getRange().length > 0) {
                 var store = grid.getStore();
-                grid.setTitle(Uni.I18n.translate('messages.titleof', 'MDC', 'Messages of ') + record.get('name'));
+                grid.setTitle(Uni.I18n.translate('commands.titleof', 'MDC', 'Commands of ') + record.get('name'));
 
                 record['deviceMessageEnablementsStore'].each(function (rec) {
                     store.add(rec);
@@ -112,7 +112,7 @@ Ext.define('Mdc.controller.setup.Messages', {
 
                 grid.down('pagingtoolbartop').store = store;
                 grid.down('pagingtoolbartop').store.totalCount = store.getCount();
-                grid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('messages.messages', store.getCount(), 'MDC', '{2} messages'),
+                grid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('commands.commands', store.getCount(), 'MDC', '{2} commands'),
                 grid.down('pagingtoolbartop').updateInfo();
 
                 Ext.defer(function () {
@@ -156,10 +156,10 @@ Ext.define('Mdc.controller.setup.Messages', {
                 gridContainer.add(
                     {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('messages.grid.empty.title', 'MDC', 'Device protocol did not specify any messages.'),
+                        title: Uni.I18n.translate('commands.grid.empty.title', 'MDC', 'Device protocol did not specify any commands.'),
                         reasons: [
-                            Uni.I18n.translate('messages.grid.emptyCmp.item1', 'MDC', 'No messages have been defined yet.'),
-                            Uni.I18n.translate('messages.grid.emptyCmp.item2', 'MDC', 'No messages is available for this category.')
+                            Uni.I18n.translate('commands.grid.emptyCmp.item1', 'MDC', 'No commands have been defined yet.'),
+                            Uni.I18n.translate('commands.grid.emptyCmp.item2', 'MDC', 'No commands is available for this category.')
                         ]
                     }
                 );
@@ -302,10 +302,10 @@ Ext.define('Mdc.controller.setup.Messages', {
 
         selectPrivilegesPanel.show(
             {
-                title: isMessageCategory ?
-                    Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of messages of '{0}'") :
-                    Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for message '{0}'"),
-                msg: isMessageCategory ? Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the messages that weren`t already active.') : ''
+                title: !setAlreadyChecked ?
+                    Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of commands of '{0}'") :
+                    Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for command '{0}'"),
+                msg: setAlreadyChecked ? '' : Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that already active.')
             });
         if (setAlreadyChecked) {
             var checked = record.get('privileges');
@@ -390,17 +390,14 @@ Ext.define('Mdc.controller.setup.Messages', {
     },
 
     changePrivilegesForAll: function (messagesCategory, privileges) {
-        var inactiveEnablements = [];
+        var activeEnablements = [];
         Ext.each(messagesCategory.deviceMessageEnablementsStore.getRange(), function (e) {
-            inactiveEnablements.push(e.get('id'));
+                if (e.get('active')) {
+                    activeEnablements.push(e.get('id'));
+                }
         });
+        this.changeRequest(activeEnablements, privileges);
         var router = this.getController('Uni.controller.history.Router');
-        var model = Ext.create('Mdc.model.MessageActivate');
-        model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
-        model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
-        model.set('messageIds', inactiveEnablements);
-        model.set('privileges', privileges);
-        model.save();
         this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
         this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
         this.getMessagesCategoriesGrid().store.load();
@@ -435,17 +432,37 @@ Ext.define('Mdc.controller.setup.Messages', {
     changePrivileges: function (message, privileges) {
         var messageIds = [];
         messageIds.push(message.get('id'));
+        this.changeRequest(messageIds, privileges);
         var router = this.getController('Uni.controller.history.Router');
-        var model = Ext.create('Mdc.model.MessageActivate');
-        model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
-        model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
-        model.set('messageIds', messageIds);
-        model.set('privileges', privileges);
-        model.save();
         this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
         this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
         this.getMessagesCategoriesGrid().store.load();
 
+    },
+    changeRequest: function(message, privileges) {
+        var router = this.getController('Uni.controller.history.Router');
+        Ext.Ajax.request({
+            url: '/api/dtc/devicetypes/' + router.arguments.deviceTypeId + '/deviceconfigurations/' + router.arguments.deviceConfigurationId
+                + '/devicemessageenablements/',
+            method: 'PUT',
+            jsonData: {
+                "messageIds": message,
+                "privileges": privileges
+            },
+            waitMsg: 'Changing privileges...',
+            success: function () {
+            },
+            failure: function (response) {
+                var errorText = "Unknown error occurred";
+
+                if (response.status == 400) {
+                    var result = Ext.JSON.decode(response.responseText, true);
+                    if (result && result.message) {
+                        errorText = result.message;
+                    }
+                }
+            }
+        });
     }
 });
 

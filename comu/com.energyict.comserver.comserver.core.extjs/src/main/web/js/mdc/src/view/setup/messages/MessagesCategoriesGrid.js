@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.messages.MessagesCategoriesGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('messages.category.name', 'MDC', 'Message category'),
+                header: Uni.I18n.translate('commands.category.name', 'MDC', 'Command category'),
                 dataIndex: 'name',
                 flex: 1
             },
@@ -29,14 +29,14 @@ Ext.define('Mdc.view.setup.messages.MessagesCategoriesGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('messages.pagingtoolbartop.displayMsgMessageCategories', 'MDC', '{0} - {1} of {2} message categories'),
-                displayMoreMsg: Uni.I18n.translate('messages.pagingtoolbartop.displayMoreMsgMessageCategories', 'MDC', '{0} - {1} of more than {2} message categories'),
-                emptyMsg: Uni.I18n.translate('messages.pagingtoolbartop.emptyMsgMessageCategories', 'MDC', 'There are no message categories to display')
+                displayMsg: Uni.I18n.translate('commands.pagingtoolbartop.displayMsgMessageCategories', 'MDC', '{0} - {1} of {2} command categories'),
+                displayMoreMsg: Uni.I18n.translate('commands.pagingtoolbartop.displayMoreMsgMessageCategories', 'MDC', '{0} - {1} of more than {2} command categories'),
+                emptyMsg: Uni.I18n.translate('commands.pagingtoolbartop.emptyMsgMessageCategories', 'MDC', 'There are no command categories to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('message.pagingtoolbarbottom.itemsPerPageMessageCategories', 'MDC', 'Message categories per page'),
+                itemsPerPageMsg: Uni.I18n.translate('commands.pagingtoolbarbottom.itemsPerPageMessageCategories', 'MDC', 'Command categories per page'),
                 dock: 'bottom'
             }
         ];

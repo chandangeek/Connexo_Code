@@ -7,7 +7,9 @@ Ext.define('Mdc.view.setup.devicegroup.Navigation', {
     ui: 'medium',
     padding: '0 0 0 0',
     margin: '0 0 0 0',
+
     title: Uni.I18n.translate('devicegroup.wizardMenu', 'MDC', 'Add device group'),
+
     items: [
         {
             itemId: 'General',
@@ -18,5 +20,4 @@ Ext.define('Mdc.view.setup.devicegroup.Navigation', {
             text: Uni.I18n.translate('devicegroup.add.devicegroup', 'MDC', 'Device group')
         }
     ]
-
 });

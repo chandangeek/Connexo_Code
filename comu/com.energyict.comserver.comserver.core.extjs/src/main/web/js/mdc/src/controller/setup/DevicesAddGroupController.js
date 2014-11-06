@@ -36,11 +36,11 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         }
     ],
 
-    getCriteriaPanel: function() {
+    getCriteriaPanel: function () {
         return this.getDevicesSearchFilterPanel();
     },
 
-    getSideFilterForm: function() {
+    getSideFilterForm: function () {
         return this.getDevicesSearchSideFilterForm();
     },
 
@@ -53,8 +53,10 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
     applyFilter: function () {
         this.initAddDeviceGroupActionController();
         var filterForm = this.getSideFilterForm();
+
         filterForm.updateRecord();
         filterForm.getRecord().save();
+
         var store;
         if (this.getDynamicRadioButton().checked) {
             store = this.getStore('Mdc.store.Devices');
@@ -86,14 +88,17 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
     clearFilter: function () {
         this.initAddDeviceGroupActionController();
         this.getCriteriaPanel().getContainer().removeAll();
-        var router = this.getController('Uni.controller.history.Router');
-        var record = router.filter;
+
+        var router = this.getController('Uni.controller.history.Router'),
+            record = router.filter,
+            filterForm = this.getSideFilterForm();
+
         record.set('mRID', null);
         record.set('serialNumber', null);
         record.set('deviceTypes', null);
         record.set('deviceConfigurations', null);
         record.save();
-        var filterForm = this.getSideFilterForm();
+
         filterForm.loadRecord(record);
         this.applyFilter();
     },
@@ -114,6 +119,7 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         if (serialNumberValue != "") {
             filterView.setFilter('serialNumber', serialNumberField.getFieldLabel(), serialNumberValue);
         }
+
         if (mRIDValue != "") {
             filterView.setFilter('mRID', mRIDField.getFieldLabel(), mRIDValue);
         }
