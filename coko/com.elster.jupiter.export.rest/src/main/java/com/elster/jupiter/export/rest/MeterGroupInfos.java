@@ -2,9 +2,11 @@ package com.elster.jupiter.export.rest;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
+@XmlRootElement
 public class MeterGroupInfos {
 
     public int total;

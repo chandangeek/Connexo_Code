@@ -4,6 +4,9 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class TemporalExpressionInfo {
     public TimeDurationInfo every;
     public TimeDurationInfo offset;

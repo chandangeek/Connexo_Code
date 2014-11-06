@@ -2,6 +2,9 @@ package com.elster.jupiter.export.rest;
 
 import com.elster.jupiter.time.TimeDuration;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class TimeDurationInfo {
     public long count;
     public String timeUnit = TimeDuration.TimeUnit.SECONDS.getDescription();

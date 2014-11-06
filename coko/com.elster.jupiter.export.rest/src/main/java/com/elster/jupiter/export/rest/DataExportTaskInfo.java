@@ -12,12 +12,14 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.util.time.Never;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@XmlRootElement
 public class DataExportTaskInfo {
 
     public long id = 0;
