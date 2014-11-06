@@ -30,6 +30,17 @@ Ext.define('Mdc.view.setup.devicesearch.BulkSelectionDevicesGrid', {
         'Select devices in table'
     ),
 
+    allChosenByDefault: false,
+
+    counterTextFn: function (count) {
+        return Uni.I18n.translatePlural(
+            'setup.searchitems.bulk.DevicesSelectionGrid.counterText',
+            count,
+            'MDC',
+            '{0} devices selected'
+        );
+    },
+
     initComponent: function () {
         var me = this;
 
