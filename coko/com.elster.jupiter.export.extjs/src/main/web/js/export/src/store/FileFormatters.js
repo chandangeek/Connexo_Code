@@ -5,7 +5,7 @@ Ext.define('Dxp.store.FileFormatters', {
 
     proxy: {
         type: 'rest',
-        url: '/api/export/dataexporttask/processors',
+        url: '/api/export/processors',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,

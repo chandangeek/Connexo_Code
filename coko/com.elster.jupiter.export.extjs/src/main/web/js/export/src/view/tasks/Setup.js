@@ -18,7 +18,7 @@ Ext.define('Dxp.view.tasks.Setup', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('general.dataExportTasks', 'DXP', 'Data export tasks'),
+                title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
                 ui: 'medium',
                 items: [
                     {
@@ -32,7 +32,7 @@ Ext.define('Dxp.view.tasks.Setup', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('general.overview', 'DXP', 'Overview'),
+            title: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
             items: [
                 {
                     xtype: 'preview-container',
@@ -42,15 +42,15 @@ Ext.define('Dxp.view.tasks.Setup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('dataExportTasks.empty.title', 'DXP', 'No data export tasks found'),
+                        title: Uni.I18n.translate('dataExportTasks.empty.title', 'DES', 'No data export tasks found'),
                         reasons: [
-                            Uni.I18n.translate('dataExportTasks.empty.list.item1', 'DXP', 'No data export tasks have been defined yet.'),
-                            Uni.I18n.translate('dataExportTasks.empty.list.item2', 'DXP', 'Data export tasks exist, but you do not have permission to view them.'),
-                            Uni.I18n.translate('dataExportTasks.empty.list.item3', 'DXP', 'The filter is too narrow.')
+                            Uni.I18n.translate('dataExportTasks.empty.list.item1', 'DES', 'No data export tasks have been defined yet.'),
+                            Uni.I18n.translate('dataExportTasks.empty.list.item2', 'DES', 'Data export tasks exist, but you do not have permission to view them.'),
+                            Uni.I18n.translate('dataExportTasks.empty.list.item3', 'DES', 'The filter is too narrow.')
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('general.addDataExportTask', 'DXP', 'Add data export task'),
+                                text: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
                                 ui: 'action',
                                 href: '#/administration/dataexporttasks/add'
                             }

@@ -30,10 +30,11 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
                         labelWidth: 250,
                         width: 235,
                         allowBlank: !property.get('required'),
-                        boxLabel: Uni.I18n.translate(property.get('key'), 'DXP', property.get('key'))
+                        boxLabel: Uni.I18n.translate(property.get('key'), 'DES', property.get('key'))
+
                     }),
                     groupName = partitions.join('.');
-
+                control.fieldLabel = Uni.I18n.translate(property.get('key'), 'DES', property.get('key'));
                 if (type === 'BOOLEAN') {
                     control.fieldLabel = '';
                 }
@@ -53,7 +54,7 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
                     itemId: 'group-fieldcontainer'
                 };
             if (namesArray.length > 1) {
-                fieldContainer.fieldLabel = Uni.I18n.translate(namesArray[1], 'DXP', namesArray[1]);
+                fieldContainer.fieldLabel = Uni.I18n.translate(namesArray[1], 'DES', namesArray[1]);
                 fieldContainer.items = groupItems;
                 Ext.Array.each(groupItems, function (groupItem) {
                     groupItem.setWidth(600);
@@ -61,7 +62,7 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
                 })
             } else {
                 me.add({
-                    title: Uni.I18n.translate(namesArray[0], 'DXP', namesArray[0]),
+                    title: Uni.I18n.translate(namesArray[0], 'DES', namesArray[0]),
                     ui: 'medium'
                 });
             }

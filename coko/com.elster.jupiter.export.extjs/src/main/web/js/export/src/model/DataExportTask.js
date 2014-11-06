@@ -14,7 +14,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if (data.lastExportOccurence && data.lastExportOccurence.lastRun) {
-                    return moment(data.lastExportOccurence.lastRun).format('ddd DD MMM YYYY') + ' ' + Uni.I18n.translate('general.at', 'DXP', 'at') + ' ' + moment(data.lastExportOccurence.lastRun).format('hh:mm A');
+                    return moment(data.lastExportOccurence.lastRun).format('ddd DD MMM YYYY') + ' ' + Uni.I18n.translate('general.at', 'DES', 'at') + ' ' + moment(data.lastExportOccurence.lastRun).format('hh:mm A');
                 }
             }
         },
@@ -24,9 +24,9 @@ Ext.define('Dxp.model.DataExportTask', {
             mapping: function (data) {
                 var result;
                 if (data.nextRun && (data.nextRun !== 0)) {
-                    result = moment(data.nextRun).format('ddd DD MMM YYYY') + ' ' + Uni.I18n.translate('general.at', 'DXP', 'at') + ' ' + moment(data.nextRun).format('hh:mm A');
+                    result = moment(data.nextRun).format('ddd DD MMM YYYY') + ' ' + Uni.I18n.translate('general.at', 'DES', 'at') + ' ' + moment(data.nextRun).format('hh:mm A');
                 } else {
-                    result = Uni.I18n.translate('general.at', 'DXP', 'Not scheduled')
+                    result = Uni.I18n.translate('general.at', 'DES', 'Not scheduled')
                 }
                 return result;
             }

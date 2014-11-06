@@ -10,7 +10,7 @@ Ext.define('Dxp.view.tasks.Preview', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'DXP', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'DES', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'tasks-action-menu'

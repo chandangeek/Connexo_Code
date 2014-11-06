@@ -8,13 +8,13 @@ Ext.define('Dxp.view.tasks.Menu', {
         me.callParent(me);
         me.add(
             {
-                text: Uni.I18n.translate('general.overview', 'DXP', 'Overview'),
+                text: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
                 itemId: 'tasks-view-link',
                 href: '#/administration/dataexporttasks',
                 hrefTarget: '_self'
             },
             {
-                text: Uni.I18n.translate('general.history', 'DXP', 'History'),
+                text: Uni.I18n.translate('general.history', 'DES', 'History'),
                 itemId: 'tasks-history-link',
                 hidden: true,
                 href: '#/administration/dataexporttasks',

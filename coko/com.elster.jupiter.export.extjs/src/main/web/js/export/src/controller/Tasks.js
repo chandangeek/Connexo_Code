@@ -221,7 +221,7 @@ Ext.define('Dxp.controller.Tasks', {
             record.save({
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addDataExportTask.successMsg', 'DXP', 'Data export task added'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addDataExportTask.successMsg', 'DES', 'Data export task added'));
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
@@ -300,12 +300,12 @@ Ext.define('Dxp.controller.Tasks', {
                 if (typeof startDateLong !== 'undefined') {
                     var startDate = new Date(startDateLong),
                         startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
-                    startZonedDate = startDateUtc - (60000*zoneOffset);
+                    startZonedDate = startDateUtc - (60000 * zoneOffset);
                 }
                 if (typeof endDateLong !== 'undefined') {
                     var endDate = new Date(endDateLong),
                         endDateUtc = endDate.getTime() + (endDate.getTimezoneOffset() * 60000);
-                    endZonedDate = endDateUtc - (60000*zoneOffset);
+                    endZonedDate = endDateUtc - (60000 * zoneOffset);
                 }
                 scheduleRecord.set('schedule', moment(startOnDate).add(everyAmount * i, everyTimeKey).valueOf());
 
@@ -330,43 +330,43 @@ Ext.define('Dxp.controller.Tasks', {
             page = me.getAddPage(),
             readingTypesContainer = page.down('#readingValuesTextFieldsContainer'),
             widget = readingTypesContainer.add(
-            {
-                xtype: 'container',
-                itemId: 'readingType' + me.readingTypeIndex,
-                name: 'readingType' + me.readingTypeIndex,
-                layout: {
-                    type: 'hbox'
-                },
-                items: [
-                    {
-                        xtype: 'textfield',
-                        fieldLabel: '&nbsp',
-                        labelAlign: 'right',
-                        name: 'readingType',
-                        msgTarget: 'under',
-                        labelWidth: 250,
-                        maskRe: /^($|\S.*$)/,
-                        maxLength: 80,
-                        validateOnChange: false,
-                        validateOnBlur: false,
-                        allowBlank: false,
-                        enforceMaxLength: true,
-                        width: 500
+                {
+                    xtype: 'container',
+                    itemId: 'readingType' + me.readingTypeIndex,
+                    name: 'readingType' + me.readingTypeIndex,
+                    layout: {
+                        type: 'hbox'
                     },
-                    {
-                        text: '-',
-                        xtype: 'button',
-                        action: 'removeReadingTypeAction',
-                        pack: 'center',
-                        margin: '0 0 5 5',
-                        itemId: 'readingTypeRemoveButton' + me.readingTypeIndex,
-                        handler: function () {
-                            readingTypesContainer.remove(Ext.ComponentQuery.query('#readingType' + indexToRemove)[0]);
+                    items: [
+                        {
+                            xtype: 'textfield',
+                            fieldLabel: '&nbsp',
+                            labelAlign: 'right',
+                            name: 'readingType',
+                            msgTarget: 'under',
+                            labelWidth: 250,
+                            maskRe: /^($|\S.*$)/,
+                            maxLength: 80,
+                            validateOnChange: false,
+                            validateOnBlur: false,
+                            allowBlank: false,
+                            enforceMaxLength: true,
+                            width: 500
+                        },
+                        {
+                            text: '-',
+                            xtype: 'button',
+                            action: 'removeReadingTypeAction',
+                            pack: 'center',
+                            margin: '0 0 5 5',
+                            itemId: 'readingTypeRemoveButton' + me.readingTypeIndex,
+                            handler: function () {
+                                readingTypesContainer.remove(Ext.ComponentQuery.query('#readingType' + indexToRemove)[0]);
+                            }
                         }
-                    }
-                ]
-            }
-        );
+                    ]
+                }
+            );
 
         me.readingTypeIndex = me.readingTypeIndex + 1;
         return widget;

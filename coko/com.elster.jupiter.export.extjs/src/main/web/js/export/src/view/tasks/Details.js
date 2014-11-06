@@ -9,7 +9,7 @@ Ext.define('Dxp.view.tasks.Details', {
     side: [
         {
             xtype: 'panel',
-            title: Uni.I18n.translate('general.dataExportTasks', 'DXP', 'Data export tasks'),
+            title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
             ui: 'medium',
             items: [
                 {

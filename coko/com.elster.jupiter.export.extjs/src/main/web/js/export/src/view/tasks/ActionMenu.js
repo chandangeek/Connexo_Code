@@ -7,13 +7,13 @@ Ext.define('Dxp.view.tasks.ActionMenu', {
     items: [
         {
             itemId: 'edit-task',
-            text: Uni.I18n.translate('general.edit', 'DXP', 'Edit'),
+            text: Uni.I18n.translate('general.edit', 'DES', 'Edit'),
             action: 'editTask',
             hidden: true
         },
         {
             itemId: 'view-details',
-            text: Uni.I18n.translate('general.viewDetails', 'DXP', 'View details'),
+            text: Uni.I18n.translate('general.viewDetails', 'DES', 'View details'),
             action: 'viewDetails'
         }
     ]

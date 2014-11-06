@@ -10,7 +10,7 @@ Ext.define('Dxp.controller.history.Export', {
             disabled: true,
             items: {
                 dataexporttasks: {
-                    title: Uni.I18n.translate('general.dataexporttasks', 'DXP', 'Data export tasks'),
+                    title: Uni.I18n.translate('general.dataexporttasks', 'DES', 'Data export tasks'),
                     route: 'dataexporttasks',
                     controller: 'Dxp.controller.Tasks',
                     action: 'showDataExportTasks',
@@ -22,7 +22,7 @@ Ext.define('Dxp.controller.history.Export', {
                             action: 'showAddExportTask'
                         },
                         dataexporttask: {
-                            title: Uni.I18n.translate('general.dataexporttasks', 'DXP', 'Data export task'),
+                            title: Uni.I18n.translate('general.dataexporttasks', 'DES', 'Data export task'),
                             route: '{taskId}',
                             controller: 'Dxp.controller.Tasks',
                             action: 'showTaskDetailsView',

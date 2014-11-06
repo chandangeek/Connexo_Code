@@ -7,13 +7,13 @@ Ext.define('Dxp.store.DeviceGroups', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devicegroups?type=QueryEndDeviceGroup"',
+        url: '/api/export/metergroups',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
         reader: {
             type: 'json',
-            root: 'devicegroups'
+            root: 'metergroups'
         }
     }
 });

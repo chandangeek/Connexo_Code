@@ -8,13 +8,13 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
     items: [
         {
             xtype: 'displayfield',
-            fieldLabel: Uni.I18n.translate('deviceloadprofiles.name', 'DXP', 'Name'),
+            fieldLabel: Uni.I18n.translate('deviceloadprofiles.name', 'DES', 'Name'),
             name: 'name',
             labelWidth: 250
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('general.dataSources', 'DXP', 'Data sources'),
+            fieldLabel: Uni.I18n.translate('general.dataSources', 'DES', 'Data sources'),
             labelAlign: 'top',
             layout: 'vbox',
             defaults: {
@@ -23,7 +23,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.deviceGroup', 'DXP', 'Device group'),
+                    fieldLabel: Uni.I18n.translate('general.deviceGroup', 'DES', 'Device group'),
                     name: 'deviceGroup',
                     renderer: function (value) {
                         if (value) {
@@ -32,11 +32,11 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.readingTypes', 'DXP', 'Reading type(s)'),
+                    fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading type(s)'),
                     name: 'readingTypes',
                     renderer: function (value) {
                         if (value) {
-                            return value.length + ' ' + Uni.I18n.translate('general.readingtypes', 'DXP', 'reading type(s)');
+                            return value.length + ' ' + Uni.I18n.translate('general.readingtypes', 'DES', 'reading type(s)');
                         }
                     }
                 }
@@ -44,7 +44,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('general.schedule', 'DXP', 'Schedule'),
+            fieldLabel: Uni.I18n.translate('general.schedule', 'DES', 'Schedule'),
             labelAlign: 'top',
             layout: 'vbox',
             defaults: {
@@ -53,41 +53,41 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.trigger', 'DXP', 'Trigger'),
+                    fieldLabel: Uni.I18n.translate('general.trigger', 'DES', 'Trigger'),
                     name: 'trigger'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.lastRun', 'DXP', 'Last run'),
+                    fieldLabel: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
                     name: 'lastRun',
                     renderer: function (value) {
                         return value ? value : '-';
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.status', 'DXP', 'Status'),
+                    fieldLabel: Uni.I18n.translate('general.status', 'DES', 'Status'),
                     name: 'status'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.startedOn', 'DXP', 'Started on'),
+                    fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),
                     name: 'startedOn'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.finishedOn', 'DXP', 'Finished on'),
+                    fieldLabel: Uni.I18n.translate('general.finishedOn', 'DES', 'Finished on'),
                     name: 'finishedOn'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.duration', 'DXP', 'Duration'),
+                    fieldLabel: Uni.I18n.translate('general.duration', 'DES', 'Duration'),
                     name: 'duration'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.nextRun', 'DXP', 'Next run'),
+                    fieldLabel: Uni.I18n.translate('general.nextRun', 'DES', 'Next run'),
                     name: 'nextRun_formatted'
                 }
             ]
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('general.dataOptions', 'DXP', 'Data options'),
+            fieldLabel: Uni.I18n.translate('general.dataOptions', 'DES', 'Data options'),
             labelAlign: 'top',
             layout: 'vbox',
             defaults: {
@@ -96,7 +96,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DXP', 'Export period'),
+                    fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
                     name: 'exportperiod',
                     renderer: function (value) {
                         if (value) {
@@ -108,7 +108,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('general.formatter', 'DXP', 'Formatter'),
+            fieldLabel: Uni.I18n.translate('general.formatter', 'DES', 'Formatter'),
             labelAlign: 'top',
             layout: 'vbox',
             defaults: {
@@ -117,18 +117,18 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.formatter', 'DXP', 'Formatter'),
+                    fieldLabel: Uni.I18n.translate('general.formatter', 'DES', 'Formatter'),
                     name: 'dataProcessor'
                 }
             ]
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('general.formatterProperties', 'DXP', 'Formatter properties'),
+            fieldLabel: Uni.I18n.translate('general.formatterProperties', 'DES', 'Formatter properties'),
             labelAlign: 'top',
             items: [
                 {
-                    xtype: 'property-form',
+                    xtype: 'tasks-property-form',
                     isEdit: false,
                     frame: false,
                     defaults: {

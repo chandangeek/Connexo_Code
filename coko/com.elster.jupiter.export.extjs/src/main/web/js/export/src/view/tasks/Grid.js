@@ -12,7 +12,7 @@ Ext.define('Dxp.view.tasks.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('general.name', 'DXP', 'Name'),
+                header: Uni.I18n.translate('general.name', 'DES', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl({taskId: record.get('id')});
@@ -21,19 +21,19 @@ Ext.define('Dxp.view.tasks.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.lastRun', 'DXP', 'Last run'),
+                header: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
                 dataIndex: 'lastRun',
                 renderer: function (value, metaData, record) {
                     if (value) {
                         return record.get('status') + ' ' + value;
                     } else {
-                        return Uni.I18n.translate('general.notPerformedYet', 'DXP', 'Not performed yet')
+                        return Uni.I18n.translate('general.notPerformedYet', 'DES', 'Not performed yet')
                     }
                 },
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.nextRun', 'DXP', 'Next run'),
+                header: Uni.I18n.translate('general.nextRun', 'DES', 'Next run'),
                 dataIndex: 'nextRun_formatted',
                 flex: 1
             },
@@ -51,14 +51,14 @@ Ext.define('Dxp.view.tasks.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.displayMsg', 'DXP', '{0} - {1} of {2} data export tasks'),
-                displayMoreMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.displayMoreMsg', 'DXP', '{0} - {1} of more than {2} data export tasks'),
-                emptyMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.emptyMsg', 'DXP', 'There are no data export tasks to display'),
+                displayMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.displayMsg', 'DES', '{0} - {1} of {2} data export tasks'),
+                displayMoreMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.displayMoreMsg', 'DES', '{0} - {1} of more than {2} data export tasks'),
+                emptyMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.emptyMsg', 'DES', 'There are no data export tasks to display'),
                 items: [
                     '->',
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.addDataExportTask', 'DXP', 'Add data export task'),
+                        text: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
                         ui: 'action',
                         href: '#/administration/dataexporttasks/add'
                     }
@@ -67,7 +67,7 @@ Ext.define('Dxp.view.tasks.Grid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbarbottom.itemsPerPage', 'DXP', 'Data export tasks per page'),
+                itemsPerPageMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbarbottom.itemsPerPage', 'DES', 'Data export tasks per page'),
                 dock: 'bottom'
             }
         ];

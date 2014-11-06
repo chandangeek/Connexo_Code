@@ -1,7 +1,6 @@
 package com.elster.jupiter.export.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
-import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -18,16 +17,16 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.export.extjs", service = {TranslationKeyProvider.class},
-        property = {"name=" + DxpUiInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
-public class DxpUiInstaller implements TranslationKeyProvider {
+        property = {"name=" + DataExportUIInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
+public class DataExportUIInstaller implements TranslationKeyProvider {
 
-    public static final String COMPONENT_NAME = "DXP";
     public static final String HTTP_RESOURCE_ALIAS = "/dxp";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/export";
-    private static final Logger LOGGER = Logger.getLogger(DxpUiInstaller.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DataExportUIInstaller.class.getName());
+    public static final String COMPONENT_NAME = "DES";
     private volatile ServiceRegistration<HttpResource> registration;
 
-    public DxpUiInstaller() {
+    public DataExportUIInstaller() {
     }
 
     @Activate
