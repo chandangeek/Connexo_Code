@@ -342,6 +342,7 @@ public enum TableSpecs {
                     map("properties").
                     composition().
                     reverseMap("propertyList").
+                    onDelete(CASCADE).
                     add();
             table.primaryKey("PK_DTC_DIALECTCONFIGPROPSATTR").on(id,name).add();
         }
@@ -536,7 +537,7 @@ public enum TableSpecs {
                 foreignKey("FK_DTC_COMTASKENABLMNT_PDCP").
                 on(dialectConfigurationProperties).
                 references(DTC_DIALECTCONFIGPROPERTIES.name()).
-                map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName()).add();
+                map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName()).onDelete(CASCADE).add();
             table.unique("UK_DTC_COMTASKENABLEMENT").on(comtask,deviceCommunicationConfigation).add();
             table.primaryKey("PK_DTC_COMTASKENABLEMENT").on(id).add();
         }
