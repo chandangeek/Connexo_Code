@@ -45,7 +45,7 @@ public abstract class KeyStoreDataVault implements DataVault {
     private final Random random;
     private final ExceptionFactory exceptionFactory;
 
-    private final char[] chars = {'g', '#', 'V', '+', 'p', 'R', '!', 'S', 'T', 'u', '5', '6'};
+    private final char[] chars = {'1','#','g','W','X','i','A','E','y','9','R','n','b','6','M','%','C','o','j','E'};
 
     @Inject
     public KeyStoreDataVault(Random random, ExceptionFactory exceptionFactory)  {
@@ -108,15 +108,15 @@ public abstract class KeyStoreDataVault implements DataVault {
     }
 
     @Override
-    public void createVault(OutputStream tempKeyStore) throws LocalizedException {
+    public void createVault(OutputStream stream) throws LocalizedException {
         try {
-            doCreateVault(tempKeyStore);
+            doCreateVault(stream);
         } catch (Exception e) {
             throw exceptionFactory.newException(MessageSeeds.KEYSTORE_CREATION_FAILED, e.getLocalizedMessage());
         }
     }
 
-    private void doCreateVault(OutputStream tempKeyStore) throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
+    private void doCreateVault(OutputStream stream) throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
         final KeyStore jks = KeyStore.getInstance("JCEKS"); // JCEKS allows storing AES symmetric keys
 
         jks.load(null); // This initializes the empty keystore
@@ -126,7 +126,7 @@ public abstract class KeyStoreDataVault implements DataVault {
             jks.setEntry("KEY-" + keyCount, secretKeyEntry, new KeyStore.PasswordProtection(getPassword()));
         }
 
-        jks.store(tempKeyStore, getPassword());
+        jks.store(stream, getPassword());
 
     }
 
