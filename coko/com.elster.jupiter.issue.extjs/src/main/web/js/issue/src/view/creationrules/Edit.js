@@ -189,7 +189,6 @@ Ext.define('Isu.view.creationrules.Edit', {
                                     itemId: 'addAction',
                                     text: 'Add action',
                                     action: 'addAction',
-                                    ui: 'action',
                                     margin: '0 0 10 0'
                                 },
                                 {
