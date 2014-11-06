@@ -1,0 +1,137 @@
+package com.elster.jupiter.datavault.impl;
+
+import com.elster.jupiter.nls.Thesaurus;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.util.Random;
+import javax.inject.Inject;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.when;
+
+/**
+ * Copyrights EnergyICT
+ *
+ * @since 10/1/12 2:21 PM
+ */
+@RunWith(MockitoJUnitRunner.class)
+public class KeyStoreDataVaultTest {
+
+    @Mock
+    Random random;
+    @Mock
+    Thesaurus thesaurus;
+
+    private KeyStoreDataVault keyStoreDataVault;
+
+    private static final Integer RANDOM_INT = 7;
+
+    @Before
+    public void setUp() throws Exception {
+        when(random.nextInt(anyInt())).thenReturn(RANDOM_INT);
+
+        keyStoreDataVault = new JarKeyStoreDataVault(random, new ExceptionFactory(thesaurus));
+   }
+
+    @Test
+    public void testEncryptDecryptResultsInOriginalMessage() throws Exception {
+        String plainText = "my secret message";
+        String cipherText = keyStoreDataVault.encrypt(plainText.getBytes());
+        byte[] decrypted = keyStoreDataVault.decrypt(cipherText);
+
+        assertThat(plainText).isEqualTo(new String(decrypted));
+    }
+
+    @Test
+    public void testEncryptDecryptShortMessageResultsInOriginalMessage() throws Exception {
+        String plainText = "my";
+        String cipherText = keyStoreDataVault.encrypt(plainText.getBytes());
+        byte[] decrypted = keyStoreDataVault.decrypt(cipherText);
+
+        assertThat(plainText).isEqualTo(new String(decrypted));
+    }
+
+    @Test
+    public void testEncryptDecryptLongMessageResultsInOriginalMessage() throws Exception {
+        String plainText = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+        String cipherText = keyStoreDataVault.encrypt(plainText.getBytes());
+        byte[] decrypted = keyStoreDataVault.decrypt(cipherText);
+
+        assertThat(plainText).isEqualTo(new String(decrypted));
+    }
+
+    @Test
+    public void testEncryptingTwiceWithSameKeyYieldsDifferentCipherText() throws Exception {
+        String plainText = "my secret message";
+        String cipherText1 = keyStoreDataVault.encrypt(plainText.getBytes());
+        String cipherText2 = keyStoreDataVault.encrypt(plainText.getBytes());
+
+        assertThat(cipherText1).isNotEqualTo(cipherText2);
+    }
+
+    @Test
+    public void testEncryptNull() throws Exception {
+        final String encrypt = keyStoreDataVault.encrypt(null);
+        assertThat(encrypt).isEqualTo("");
+    }
+
+    @Test
+    public void testEncryptEmptyArray() throws Exception {
+        try {
+            keyStoreDataVault.encrypt(new byte[0]);
+        } catch (Exception e) {
+            fail("Should not throw an exception, was "+e);
+        }
+    }
+
+    @Test
+    public void testDecryptNull() throws Exception {
+        try {
+            keyStoreDataVault.decrypt(null);
+        } catch (Exception e) {
+            fail("Should not throw an exception, was "+e);
+        }
+    }
+
+    @Test
+    public void testDecryptEmptyString() throws Exception {
+        try {
+            keyStoreDataVault.decrypt("");
+        } catch (Exception e) {
+            fail("Should not throw an exception, was "+e);
+        }
+    }
+
+    class JarKeyStoreDataVault extends KeyStoreDataVault {
+
+        private String eictKeyStoreResourceName = "eictKeyStore";
+
+        @Inject
+        public JarKeyStoreDataVault(Random random, ExceptionFactory exceptionFactory) {
+            super(random, exceptionFactory);
+        }
+
+        @Override
+        protected KeyStore readKeyStore(char[] password) {
+            try {
+                KeyStore keyStore = KeyStore.getInstance("JCEKS");
+                final InputStream stream = this.getClass().getClassLoader().getResourceAsStream(eictKeyStoreResourceName);
+                if (stream==null) {
+                    throw new Exception("Key store not found: "+ eictKeyStoreResourceName);
+                }
+                keyStore.load(stream, password);
+                return keyStore;
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to load KeyStore from jar", e);
+            }
+        }
+
+    }
+}
