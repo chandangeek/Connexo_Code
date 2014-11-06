@@ -8,8 +8,6 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import java.time.Clock;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,10 +17,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -69,7 +68,7 @@ public class RecurrentTaskImplTest {
         recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, clock).init(NAME, cronExpression, destination, PAYLOAD);
 
         when(clock.instant()).thenReturn(NOW);
-        when(cronExpression.nextOccurrence(zoned(NOW))).thenReturn(zoned(NEXT));
+        when(cronExpression.nextOccurrence(zoned(NOW))).thenReturn(Optional.of(zoned(NEXT)));
     }
 
     private ZonedDateTime zoned(Instant instant) {

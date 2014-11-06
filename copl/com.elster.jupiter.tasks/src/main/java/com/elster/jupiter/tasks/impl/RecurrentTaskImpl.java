@@ -67,11 +67,11 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public void updateNextExecution() {
         ZonedDateTime now = ZonedDateTime.ofInstant(clock.instant(), ZoneId.systemDefault());
-        ZonedDateTime nextOccurrence = getScheduleExpression().nextOccurrence(now);
-        nextExecution = nextOccurrence.toInstant();
+        Optional<ZonedDateTime> nextOccurrence = getScheduleExpression().nextOccurrence(now);
+        nextExecution = nextOccurrence.map(ZonedDateTime::toInstant).orElse(null);
     }
 
-    private ScheduleExpression getScheduleExpression() {
+    public ScheduleExpression getScheduleExpression() {
         if (scheduleExpression == null) {
             scheduleExpression = scheduleExpressionParser.parse(cronString).get();
         }

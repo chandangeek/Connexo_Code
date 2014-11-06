@@ -16,6 +16,7 @@ import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -76,6 +77,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
         CompositeScheduleExpressionParser scheduleExpressionParser = new CompositeScheduleExpressionParser();
         scheduleExpressionParser.add(new TemporalExpressionParser());
         scheduleExpressionParser.add(cronExpressionParser);
+        scheduleExpressionParser.add(Never.NEVER);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
