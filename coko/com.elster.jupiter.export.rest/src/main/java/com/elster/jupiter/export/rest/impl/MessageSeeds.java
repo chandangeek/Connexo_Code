@@ -1,4 +1,4 @@
-package com.elster.jupiter.export.rest;
+package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.NlsMessageFormat;

@@ -7,15 +7,15 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
  * Date: 30/10/2014
  * Time: 14:18
  */
-public class DeviceGroupInfo {
+public class MeterGroupInfo {
 
     public long id;
     public String name;
 
-    public DeviceGroupInfo() {
+    public MeterGroupInfo() {
     }
 
-    public DeviceGroupInfo(EndDeviceGroup group) {
+    public MeterGroupInfo(EndDeviceGroup group) {
         id = group.getId();
         name = group.getName();
     }

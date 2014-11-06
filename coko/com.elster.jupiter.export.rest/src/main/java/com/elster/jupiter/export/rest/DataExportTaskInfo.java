@@ -2,6 +2,7 @@ package com.elster.jupiter.export.rest;
 
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.export.rest.impl.PropertyUtils;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
@@ -31,7 +32,7 @@ public class DataExportTaskInfo {
     public boolean exportUpdate;
     public boolean exportContinuousData;
     public ValidatedDataOption validatedDataOption;
-    public DeviceGroupInfo deviceGroup;
+    public MeterGroupInfo deviceGroup;
     public LastExportOccurenceInfo lastExportOccurence;
     public long nextRun;
 
@@ -40,7 +41,7 @@ public class DataExportTaskInfo {
         id = dataExportTask.getId();
         name = dataExportTask.getName();
 
-        deviceGroup = new DeviceGroupInfo(dataExportTask.getEndDeviceGroup());
+        deviceGroup = new MeterGroupInfo(dataExportTask.getEndDeviceGroup());
         for (ReadingType readingType : dataExportTask.getReadingTypes()) {
             readingTypes.add(new ReadingTypeInfo(readingType));
         }
