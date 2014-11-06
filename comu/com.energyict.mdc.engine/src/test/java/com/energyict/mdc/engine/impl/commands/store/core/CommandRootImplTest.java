@@ -32,7 +32,6 @@ import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
 
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -40,6 +39,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -83,16 +83,14 @@ public class CommandRootImplTest extends CommonCommandImplTests {
 
         ClockTask clockTask = mock(ClockTask.class);
         when(clockTask.getClockTaskType()).thenReturn(ClockTaskType.FORCECLOCK);
-        when(clockTask.getMaximumClockDifference()).thenReturn(MAX_CLOCK_DIFF);
-        when(clockTask.getMaximumClockShift()).thenReturn(MAX_CLOCK_SHIFT);
-        when(clockTask.getMinimumClockDifference()).thenReturn(MIN_CLOCK_DIFF);
+        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(MAX_CLOCK_DIFF));
+        when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(MAX_CLOCK_SHIFT));
+        when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(MIN_CLOCK_DIFF));
 
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
         when(basicCheckTask.verifyClockDifference()).thenReturn(true);
         when(basicCheckTask.verifySerialNumber()).thenReturn(true);
-        when(basicCheckTask.getMaximumClockDifference()).thenReturn(MAX_CLOCK_DIFF);
-
-        MessagesTask messagesTask = mock(MessagesTask.class);
+        when(basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.of(MAX_CLOCK_DIFF));
 
         RegistersTask registersTask = mock(RegistersTask.class);
 

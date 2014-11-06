@@ -58,7 +58,7 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
     }
 
     private int getMaxDiff() {
-        return clockCommand.getClockTask().getMaximumClockDifference().getSeconds();
+        return clockCommand.getClockTask().getMaximumClockDifference().map(TimeDuration::getSeconds).orElse(0);
     }
 
     private boolean belowMinimum(final long timeDifference) {
@@ -66,7 +66,7 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
     }
 
     private int getMinDiff() {
-        return clockCommand.getClockTask().getMinimumClockDifference().getSeconds();
+        return clockCommand.getClockTask().getMinimumClockDifference().map(TimeDuration::getSeconds).orElse(0);
     }
 
     @Override

@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Date;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -48,7 +49,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
     private BasicCheckTask createCheckTimeDifference() {
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
         when(basicCheckTask.verifyClockDifference()).thenReturn(true);
-        when(basicCheckTask.getMaximumClockDifference()).thenReturn(TimeDuration.seconds(30));
+        when(basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.of(TimeDuration.seconds(30)));
         return basicCheckTask;
     }
 
@@ -62,7 +63,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
         when(basicCheckTask.verifySerialNumber()).thenReturn(true);
         when(basicCheckTask.verifyClockDifference()).thenReturn(true);
-        when(basicCheckTask.getMaximumClockDifference()).thenReturn(new TimeDuration(111));
+        when(basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.of(new TimeDuration(111)));
         return basicCheckTask;
     }
 

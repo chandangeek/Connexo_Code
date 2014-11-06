@@ -38,7 +38,7 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
     public VerifyTimeDifferenceCommandImpl(BasicCheckCommand basicCheckCommand, final CommandRoot commandRoot) {
         super(commandRoot);
         this.basicCheckCommand = basicCheckCommand;
-        maximumClockDifference = basicCheckCommand.getBasicCheckTask().getMaximumClockDifference();
+        maximumClockDifference = basicCheckCommand.getBasicCheckTask().getMaximumClockDifference().orElseGet(() -> TimeDuration.millis(0));
     }
 
     @Override

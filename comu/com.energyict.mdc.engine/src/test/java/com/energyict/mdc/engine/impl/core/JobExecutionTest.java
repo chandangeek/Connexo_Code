@@ -84,7 +84,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Test to check if the organizeComCommands() method on the interface GenericDeviceProtocol is triggered correctly
+ * Test to check if the organizeComCommands() method on the interface GenericDeviceProtocol is triggered correctly.
  * <p>
  * Copyrights EnergyICT
  * Date: 30/01/13
@@ -402,7 +402,7 @@ public class JobExecutionTest {
         when(comTaskPreparationContext.getDeviceProtocol()).thenReturn(deviceProtocol);
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionSteps = mock(ComTaskExecutionConnectionSteps.class);
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
-        when(basicCheckTask.getMaximumClockDifference()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
+        when(basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.of(TimeDuration.seconds(1)));
         when(basicCheckTask.verifyClockDifference()).thenReturn(true);
         createMockedComTaskWithGivenProtocolTasks(basicCheckTask);
 
@@ -436,6 +436,7 @@ public class JobExecutionTest {
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionSteps = mock(ComTaskExecutionConnectionSteps.class);
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
         when(basicCheckTask.verifySerialNumber()).thenReturn(true);
+        when(basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.empty());
         createMockedComTaskWithGivenProtocolTasks(basicCheckTask);
         jobExecution.setExecutionContext(jobExecution.newExecutionContext(this.connectionTask, this.comPort));
 

@@ -75,13 +75,13 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         builder.addProperty("readClockDifference").append(this.basicCheckTask.verifyClockDifference());
-        if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG) && this.basicCheckTask.getMaximumClockDifference() != null) {
-            builder.addProperty("readClockDifferenceMaximum(s)").append(this.basicCheckTask.getMaximumClockDifference().getSeconds());
+        if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG) && this.basicCheckTask.getMaximumClockDifference().isPresent()) {
+            builder.addProperty("readClockDifferenceMaximum(s)").append(this.basicCheckTask.getMaximumClockDifference().get().getSeconds());
         }
         if (this.basicCheckTask.verifySerialNumber()) {
             builder.addLabel("check serial number");
         }
-        if (   this.verifyTimeDifferenceCommand!= null) {
+        if (this.verifyTimeDifferenceCommand != null) {
             builder.addProperty("getTimeDifference").append(this.verifyTimeDifferenceCommand.getTimeDifference().map(TimeDuration::toString).orElse(""));
         }
     }
