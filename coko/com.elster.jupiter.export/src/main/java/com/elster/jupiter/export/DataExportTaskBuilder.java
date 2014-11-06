@@ -27,6 +27,8 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder addReadingType(ReadingType readingType);
 
+    DataExportTaskBuilder addReadingType(String readingType);
+
     DataExportTaskBuilder setValidatedDataOption(ValidatedDataOption validatedDataOption);
 
     PropertyBuilder addProperty(String name);

@@ -18,6 +18,8 @@ interface IReadingTypeDataExportTask extends ReadingTypeDataExportTask {
 
     void addReadingType(ReadingType readingType);
 
+    void addReadingType(String mrid);
+
     void setProperty(String name, Object value);
 
     void setScheduleImmediately(boolean scheduleImmediately);

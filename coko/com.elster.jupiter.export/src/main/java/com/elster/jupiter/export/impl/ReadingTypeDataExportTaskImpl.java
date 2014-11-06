@@ -5,6 +5,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -39,6 +40,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
     private final DataExportStrategyImpl dataExportStrategy = new DataExportStrategyImpl();
+    private final MeteringService meteringService;
 
     private long id;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -62,10 +64,11 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private transient ScheduleExpression scheduleExpression;
 
     @Inject
-    ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService) {
+    ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService, MeteringService meteringService) {
         this.taskService = taskService;
         this.dataModel = dataModel;
         this.dataExportService = dataExportService;
+        this.meteringService = meteringService;
     }
 
     static ReadingTypeDataExportTaskImpl from(DataModel dataModel, String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup) {
@@ -210,6 +213,26 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         readingTypes.add(ReadingTypeInExportTask.from(dataModel, this, readingType));
 
     }
+
+    @Override
+    public void addReadingType(String mRID) {
+        readingTypes.add(toReadingTypeInExportTask(mRID));
+    }
+
+    private ReadingTypeInExportTask toReadingTypeInExportTask(String mRID) {
+        return meteringService.getReadingType(mRID)
+                    .map(r -> ReadingTypeInExportTask.from(dataModel, this, r))
+                    .orElseGet(() -> readingTypeInValidationRuleFor(mRID));
+    }
+
+    private ReadingTypeInExportTask readingTypeInValidationRuleFor(String mRID) {
+        ReadingTypeInExportTask empty = ReadingTypeInExportTask.from(dataModel, this, mRID);
+        if (getId() != 0) {
+            Save.UPDATE.validate(dataModel, empty);
+        }
+        return empty;
+    }
+
 
     @Override
     public void setProperty(String name, Object value) {
