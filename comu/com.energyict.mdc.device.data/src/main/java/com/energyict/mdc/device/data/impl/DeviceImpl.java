@@ -831,7 +831,7 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public List<DeviceMessage<Device>> getMessagesByState(DeviceMessageStatus status) {
-        return Collections.emptyList();
+        return this.deviceMessages.stream().filter(deviceMessage -> deviceMessage.getStatus().equals(status)).collect(toList());
     }
 
     @Override
