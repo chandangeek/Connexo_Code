@@ -247,9 +247,9 @@ Ext.define('Isu.util.CreatingControl', {
                 items: []
             },
             controls = [
+                obj.control.userControl,
                 obj.control.groupControl,
-                obj.control.roleControl,
-                obj.control.userControl
+                obj.control.roleControl
             ];
 
         Ext.Array.each(controls, function (item, index) {
@@ -4091,6 +4091,7 @@ Ext.define('Isu.view.issues.DetailTop', {
             },
             {
                 xtype: 'button',
+                itemId: 'issue-detail-top-actions-button',
                 text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
