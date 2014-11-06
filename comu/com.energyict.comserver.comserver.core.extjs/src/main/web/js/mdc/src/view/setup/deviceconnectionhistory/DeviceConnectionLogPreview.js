@@ -51,6 +51,20 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
                 },
                 {
                     xtype: 'displayfield',
+                    name: 'errorDetails',
+                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.error', 'MDC', 'Error'),
+                    itemId: 'error',
+                    renderer: function(value,field){
+                        if(!value){
+                            field.hide();
+                        } else {
+                            field.show();
+                            return value;
+                        }
+                    }
+                },
+                {
+                    xtype: 'displayfield',
                     name: 'logLevel',
                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.logLevel', 'MDC', 'Log level'),
                     itemId: 'logLevel'
