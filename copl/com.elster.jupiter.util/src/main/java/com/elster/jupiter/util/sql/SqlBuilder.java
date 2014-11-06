@@ -161,6 +161,14 @@ public final class SqlBuilder implements SqlFragment {
         result.addInt(from);
         return result;
     }
+    
+    public SqlBuilder asTop(int n) {
+    	SqlBuilder result = new SqlBuilder("select * from (");
+        result.add(this);
+        result.append(") where ROWNUM <= ");
+        result.addInt(n);
+        return result;
+    }
 
     public boolean add(String field, Range<Instant> range, String lead) {
         boolean result = false;
