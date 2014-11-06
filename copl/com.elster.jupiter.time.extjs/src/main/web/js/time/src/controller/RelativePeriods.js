@@ -50,55 +50,24 @@ Ext.define('Tme.controller.RelativePeriods', {
         if (form.isValid()) {
             formErrorsPanel.hide();
             record.set('name', nameFieldValue);
+
             Ext.Array.each(categories.getValue(), function (item) {
                 record.categories().add(Ext.create(Tme.model.Categories, {id: item}));
             });
+
             record.set('categories', arrCategories);
 
-            var relativeDateStartStart = form.down('#relative-date-start uni-form-field-startperiod').getValue();
-            var relativeDateStartOn = form.down('#relative-date-start uni-form-field-onperiod').getValue();
-            var relativeDateStartAt = form.down('#relative-date-start uni-form-field-atperiod').getValue();
+            var startPeriodValue = form.down('#relative-date-start').getValue(),
+                startDateModel = me.createModelFromRelativePeriodValue(startPeriodValue);
 
-            var relativeDateStart = Ext.create(Tme.model.RelativeDate);
+            record.set('from', startDateModel.data);
 
-            relativeDateStart.set('startPeriodAgo', relativeDateStartStart.startPeriodAgo);
-            relativeDateStart.set('startAmountAgo', relativeDateStartStart.startAmountAgo);
-            relativeDateStart.set('startNow', relativeDateStartStart.startNow);
-            relativeDateStart.set('startFixedDay', relativeDateStartStart.startFixedDay);
-            relativeDateStart.set('startFixedMonth', relativeDateStartStart.startFixedMonth);
-            relativeDateStart.set('startFixedYear', relativeDateStartStart.startFixedYear);
-            relativeDateStart.set('onCurrentDay', relativeDateStartOn.onCurrentDay);
-            relativeDateStart.set('onDayOfMonth', relativeDateStartOn.onDayOfMonth);
-            relativeDateStart.set('onDayOfWeek', relativeDateStartOn.onDayOfWeek);
-            relativeDateStart.set('atHour', relativeDateStartAt.atHour);
-            relativeDateStart.set('atMinute', relativeDateStartAt.atMinute);
+            var endPeriodValue = form.down('#relative-date-end').getValue(),
+                endDateModel = me.createModelFromRelativePeriodValue(endPeriodValue);
 
-            record.set('from', relativeDateStart.data);
-
-            var relativeDateEnd = Ext.create(Tme.model.RelativeDate);
-
-            var relativeDateEndEnd = form.down('#relative-date-end uni-form-field-startperiod').getValue();
-            var relativeDateEndOn = form.down('#relative-date-end uni-form-field-onperiod').getValue();
-            var relativeDateEndAt = form.down('#relative-date-end uni-form-field-atperiod').getValue();
-
-            relativeDateEnd.set('startPeriodAgo', relativeDateEndEnd.startPeriodAgo);
-            relativeDateEnd.set('startAmountAgo', relativeDateEndEnd.startAmountAgo);
-            relativeDateEnd.set('startNow', relativeDateEndEnd.startNow);
-            relativeDateEnd.set('startFixedDay', relativeDateEndEnd.startFixedDay);
-            relativeDateEnd.set('startFixedMonth', relativeDateEndEnd.startFixedMonth);
-            relativeDateEnd.set('startFixedYear', relativeDateEndEnd.startFixedYear);
-            relativeDateEnd.set('onCurrentDay', relativeDateEndOn.onCurrentDay);
-            relativeDateEnd.set('onDayOfMonth', relativeDateEndOn.onDayOfMonth);
-            relativeDateEnd.set('onDayOfWeek', relativeDateEndOn.onDayOfWeek);
-            relativeDateEnd.set('atHour', relativeDateEndAt.atHour);
-            relativeDateEnd.set('atMinute', relativeDateEndAt.atMinute);
-
-            record.set('to', relativeDateEnd.data);
+            record.set('to', endDateModel.data);
 
             record.save({
-                /*            params: {
-                 id: ruleSetId
-                 },*/
                 success: function (record, operation) {
                     var messageText;
                     if (button.action === 'editRuleAction') {
@@ -121,6 +90,24 @@ Ext.define('Tme.controller.RelativePeriods', {
         } else {
             formErrorsPanel.show();
         }
+    },
+
+    createModelFromRelativePeriodValue: function (value) {
+        var model = Ext.create(Tme.model.RelativeDate);
+
+        model.set('startPeriodAgo', value.startPeriodAgo);
+        model.set('startAmountAgo', value.startAmountAgo);
+        model.set('startNow', value.startNow);
+        model.set('startFixedDay', value.startFixedDay);
+        model.set('startFixedMonth', value.startFixedMonth);
+        model.set('startFixedYear', value.startFixedYear);
+        model.set('onCurrentDay', value.onCurrentDay);
+        model.set('onDayOfMonth', value.onDayOfMonth);
+        model.set('onDayOfWeek', value.onDayOfWeek);
+        model.set('atHour', value.atHour);
+        model.set('atMinute', value.atMinute);
+
+        return model;
     },
 
     showValidationActivationErrors: function (errors) {
