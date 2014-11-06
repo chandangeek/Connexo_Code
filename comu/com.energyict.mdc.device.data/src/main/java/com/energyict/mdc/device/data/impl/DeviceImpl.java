@@ -1770,7 +1770,9 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public List<CommunicationGatewayReference> getRecentlyAddedCommunicationReferencingDevices(int count) {
-        List<CommunicationGatewayReference> references = deviceService.getCommunicationReferencingDevices(this).paged(0, count).find();
+        List<CommunicationGatewayReference> references = deviceService.getCommunicationReferencingDevices(this)
+                .sorted(CommunicationGatewayReferenceImpl.Field.CREATION_TIME.fieldName(), false)
+                .paged(0, count).find();
         if (count < references.size()){
             references = references.subList(0, count);
         }
@@ -1779,7 +1781,9 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public List<PhysicalGatewayReference> getRecentlyAddedPhysicalConnectedDevices(int count) {
-        List<PhysicalGatewayReference> references = deviceService.getPhysicalConnectedDevices(this).paged(0, count).find();
+        List<PhysicalGatewayReference> references = deviceService.getPhysicalConnectedDevices(this)
+                .sorted(CommunicationGatewayReferenceImpl.Field.CREATION_TIME.fieldName(), false)
+                .paged(0, count).find();
         if (count < references.size()){
             references = references.subList(0, count);
         }

@@ -26,6 +26,7 @@ public class CommunicationGatewayReferenceImpl implements CommunicationGatewayRe
     public enum Field implements ImplField {
         CREATION_TIME("interval.start"),
         GATEWAY("gateway"),
+        ORIGIN("origin"),
         ;
 
         private final String javaFieldName;

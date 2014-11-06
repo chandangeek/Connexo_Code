@@ -190,14 +190,13 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Finder<CommunicationGatewayReference> getCommunicationReferencingDevices(Device device) {
-        return DefaultFinder.of(CommunicationGatewayReference.class, where(CommunicationGatewayReferenceImpl.Field.GATEWAY.fieldName()).isEqualTo(device), this.deviceDataModelService.dataModel())
-                .sorted(CommunicationGatewayReferenceImpl.Field.CREATION_TIME.fieldName(), false);
+        return DefaultFinder.of(CommunicationGatewayReference.class, where(CommunicationGatewayReferenceImpl.Field.GATEWAY.fieldName()).isEqualTo(device), this.deviceDataModelService.dataModel(), Device.class)                .defaultSortColumn(CommunicationGatewayReferenceImpl.Field.ORIGIN.fieldName() + "." + DeviceFields.MRID.fieldName());
     }
 
     @Override
     public Finder<PhysicalGatewayReference> getPhysicalConnectedDevices(Device device) {
-        return DefaultFinder.of(PhysicalGatewayReference.class, where(PhysicalGatewayReferenceImpl.Field.GATEWAY.fieldName()).isEqualTo(device), this.deviceDataModelService.dataModel())
-                .sorted(PhysicalGatewayReferenceImpl.Field.CREATION_TIME.fieldName(), false);
+        return DefaultFinder.of(PhysicalGatewayReference.class, where(PhysicalGatewayReferenceImpl.Field.GATEWAY.fieldName()).isEqualTo(device), this.deviceDataModelService.dataModel(), Device.class)
+                .defaultSortColumn(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName() + "." + DeviceFields.MRID.fieldName());
     }
 
 }
