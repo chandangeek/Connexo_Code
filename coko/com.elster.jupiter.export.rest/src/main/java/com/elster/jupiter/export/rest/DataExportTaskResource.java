@@ -106,9 +106,8 @@ public class DataExportTaskResource {
                 });
 
         info.readingTypes.stream()
-                .forEach(r -> {
-                    meteringService.getReadingType(r.mRID).ifPresent(builder::addReadingType);
-                });
+                .map(r -> r.mRID)
+                .forEach(builder::addReadingType);
 
         ReadingTypeDataExportTask dataExportTask = builder.build();
         try (TransactionContext context = transactionService.getContext()) {
