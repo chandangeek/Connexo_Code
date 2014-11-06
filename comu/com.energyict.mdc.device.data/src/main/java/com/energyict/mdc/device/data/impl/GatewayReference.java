@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data;
+package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.associations.Effectivity;
 
@@ -22,5 +22,4 @@ public interface GatewayReference extends Effectivity {
      */
     void terminate(Instant closingDate);
 
-    Device getOrigin();
 }

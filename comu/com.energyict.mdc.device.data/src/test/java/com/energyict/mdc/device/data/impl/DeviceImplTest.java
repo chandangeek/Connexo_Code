@@ -27,7 +27,13 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.BillingReading;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
@@ -1279,78 +1285,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
         assertThat(readings).hasSize(4 * 6);  // 4 per hour, during 6 hours
-    }
-
-    @Test
-    @Transactional
-    public void testGetSortedPhysicalGatewayReferences() {
-        Device gateway = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "gateway", "physGateway");
-        gateway.save();
-
-        Device slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave1", "slave1");
-        slave.save();
-        slave.setPhysicalGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave2", "slave2");
-        slave.save();
-        slave.setPhysicalGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave3", "slave3");
-        slave.save();
-        slave.setPhysicalGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave4", "slave4");
-        slave.save();
-        slave.setPhysicalGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave5", "slave5");
-        slave.save();
-        slave.setPhysicalGateway(gateway);
-
-        List<PhysicalGatewayReference> list = gateway.getRecentlyAddedPhysicalConnectedDevices(3);
-        assertThat(list.size()).isEqualTo(3);
-        assertThat(list.get(0).getOrigin().getName()).isEqualTo("slave5");
-        assertThat(list.get(1).getOrigin().getName()).isEqualTo("slave4");
-        assertThat(list.get(2).getOrigin().getName()).isEqualTo("slave3");
-
-        list = gateway.getRecentlyAddedPhysicalConnectedDevices(20);
-        assertThat(list.size()).isEqualTo(5);
-    }
-
-    @Test
-    @Transactional
-    public void testGetSortedCommunicationGatewayReference() {
-        Device gateway = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "gateway", "commGateway");
-        gateway.save();
-
-        Device slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave1", "slave1");
-        slave.save();
-        slave.setCommunicationGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave2", "slave2");
-        slave.save();
-        slave.setCommunicationGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave3", "slave3");
-        slave.save();
-        slave.setCommunicationGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave4", "slave4");
-        slave.save();
-        slave.setCommunicationGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "slave5", "slave5");
-        slave.save();
-        slave.setCommunicationGateway(gateway);
-
-        List<CommunicationGatewayReference> list = gateway.getRecentlyAddedCommunicationReferencingDevices(3);
-        assertThat(list.size()).isEqualTo(3);
-        assertThat(list.get(0).getOrigin().getName()).isEqualTo("slave5");
-        assertThat(list.get(1).getOrigin().getName()).isEqualTo("slave4");
-        assertThat(list.get(2).getOrigin().getName()).isEqualTo("slave3");
-
-        list = gateway.getRecentlyAddedCommunicationReferencingDevices(20);
-        assertThat(list.size()).isEqualTo(5);
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {

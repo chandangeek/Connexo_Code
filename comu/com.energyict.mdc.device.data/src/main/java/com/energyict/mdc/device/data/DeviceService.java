@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.impl.InfoType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -152,9 +153,5 @@ public interface DeviceService {
     public boolean isLinkedToDevices(ComSchedule comSchedule);
 
     public Finder<Device> findDevicesByDeviceConfiguration(DeviceConfiguration deviceConfiguration);
-
-    Finder<CommunicationGatewayReference> getCommunicationReferencingDevices(Device device);
-
-    Finder<PhysicalGatewayReference> getPhysicalConnectedDevices(Device device);
 
 }
