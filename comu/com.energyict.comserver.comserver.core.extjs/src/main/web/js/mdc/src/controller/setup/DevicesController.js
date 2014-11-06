@@ -26,19 +26,19 @@ Ext.define('Mdc.controller.setup.DevicesController', {
                 clearAllFilters: this.clearFilter
             };
             /*control[this.prefix + ' uni-filter-combo'] = {
-                updateTopFilterPanelTagButtons: this.onFilterChange,
-                specialkey: this.applyFilter
-            };
-            control[this.prefix + ' textfield'] = {
-                specialkey: this.applyFilter
-            };*/
+             updateTopFilterPanelTagButtons: this.onFilterChange,
+             specialkey: this.applyFilter
+             };
+             control[this.prefix + ' textfield'] = {
+             specialkey: this.applyFilter
+             };*/
             control[this.prefix + ' button[action=applyfilter]'] = {
                 click: this.applyFilter
             };
             control[this.prefix + ' button[action=clearfilter]'] = {
                 click: this.clearFilter
             };
-            control[this.prefix +  ' mdc-search-results-side-filter'] = {
+            control[this.prefix + ' mdc-search-results-side-filter'] = {
                 afterrender: this.initFilterModel
             };
             this.control(control);
@@ -68,7 +68,6 @@ Ext.define('Mdc.controller.setup.DevicesController', {
         }
     },
 
-
     setFilterView: function () {
         var filterForm = this.getSideFilterForm();
         var filterView = this.getCriteriaPanel();
@@ -86,12 +85,16 @@ Ext.define('Mdc.controller.setup.DevicesController', {
         }
     },
 
-    applyFilter: function() {},
+    applyFilter: function () {
+    },
 
-    getSideFilterForm: function() {},
+    getSideFilterForm: function () {
+    },
 
-    getCriteriaPanel: function() {},
+    getCriteriaPanel: function () {
+    },
 
-    initFilterModel: function() {}
+    initFilterModel: function () {
+    }
 
 });
