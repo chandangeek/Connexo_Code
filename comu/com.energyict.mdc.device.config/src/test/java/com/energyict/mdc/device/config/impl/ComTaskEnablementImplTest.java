@@ -21,6 +21,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.*;
 import org.mockito.ArgumentCaptor;
@@ -636,4 +637,46 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         // Asserts: see expected exception rule
     }
 
+
+    @Test
+    @Transactional
+    public void setDefaultConnectionTaskUpdatesComTaskEnablementsTest() {
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        comTaskEnablementBuilder.useDefaultConnectionTask(true);
+        ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
+
+        Optional<ComTaskEnablement> reloadedComTaskEnablement = getReloadedComTaskEnablement(comTaskEnablement);
+        assertThat(reloadedComTaskEnablement.get().getPartialConnectionTask().isPresent()).isFalse();
+
+        this.partialConnectionTask1.setDefault(true);
+        this.partialConnectionTask1.save();
+
+        Optional<ComTaskEnablement> enabledWithDefault = getReloadedComTaskEnablement(comTaskEnablement);
+        assertThat(enabledWithDefault.get().getPartialConnectionTask().get().getId()).isEqualTo(this.partialConnectionTask1.getId());
+    }
+
+    @Test
+    @Transactional
+    public void unSetDefaultConnectionTaskUpdatesComTaskEnablementsTest() {
+        this.partialConnectionTask1.setDefault(true);
+        this.partialConnectionTask1.save();
+
+        ComTaskEnablementBuilder comTaskEnablementBuilder = this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1);
+        comTaskEnablementBuilder.useDefaultConnectionTask(true);
+        ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
+
+        Optional<ComTaskEnablement> reloadedComTaskEnablement = getReloadedComTaskEnablement(comTaskEnablement);
+        assertThat(reloadedComTaskEnablement.get().getPartialConnectionTask().isPresent()).isTrue();
+
+
+        this.partialConnectionTask1.setDefault(false);
+        this.partialConnectionTask1.save();
+
+        Optional<ComTaskEnablement> usingNonExistingDefaultConnectionTaskEnablement = getReloadedComTaskEnablement(comTaskEnablement);
+        assertThat(usingNonExistingDefaultConnectionTaskEnablement.get().getPartialConnectionTask().isPresent()).isFalse();
+    }
+
+    private Optional<ComTaskEnablement> getReloadedComTaskEnablement(ComTaskEnablement comTaskEnablement) {
+        return inMemoryPersistence.getDeviceConfigurationService().findComTaskEnablement(comTaskEnablement.getId());
+    }
 }
