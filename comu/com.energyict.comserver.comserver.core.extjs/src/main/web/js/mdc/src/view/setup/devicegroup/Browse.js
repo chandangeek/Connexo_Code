@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.devicegroup.Browse', {
     extend: 'Uni.view.container.ContentContainer',
     xtype: 'add-devicegroup-browse',
     itemId: 'add-devicegroup-browse',
+
     requires: [
         'Mdc.view.setup.devicegroup.Navigation',
         'Mdc.view.setup.devicegroup.Wizard',
@@ -32,10 +33,7 @@ Ext.define('Mdc.view.setup.devicegroup.Browse', {
     content: [
         {
             xtype: 'adddevicegroup-wizard',
-            itemId: 'adddevicegroupwizard',
-            defaults: {
-                cls: 'content-wrapper'
-            }
+            itemId: 'adddevicegroupwizard'
         }
     ]
 });

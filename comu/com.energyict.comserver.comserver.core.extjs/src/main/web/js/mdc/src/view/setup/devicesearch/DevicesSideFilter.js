@@ -1,5 +1,4 @@
 Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
-    //extend: 'Ext.panel.Panel',
     extend: 'Uni.view.navigation.SubMenu',
     xtype: 'mdc-search-results-side-filter',
 
@@ -11,9 +10,7 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
     ],
 
     cls: 'filter-form',
-    //width: 250,
     title: Uni.I18n.translate('searchItems.sideFilter.title', 'MDC', 'Filter'),
-    //ui: 'medium',
 
     initComponent: function () {
         var me = this;
@@ -22,10 +19,6 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
             {
                 xtype: 'form',
                 ui: 'filter',
-                /*layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },*/
                 defaults: {
                     labelAlign: 'top'
                 },
@@ -47,7 +40,7 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
                         fieldLabel: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
                         displayField: 'name',
                         valueField: 'id',
-                        store: 'Mdc.store.filter.DeviceTypes',
+                        store: Ext.getStore('Mdc.store.filter.DeviceTypes') || Ext.create('Mdc.store.filter.DeviceTypes'),
                         listeners: {
                             collapse: {
                                 scope: me,
