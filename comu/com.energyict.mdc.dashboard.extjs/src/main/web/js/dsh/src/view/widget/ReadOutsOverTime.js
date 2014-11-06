@@ -144,7 +144,6 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                     },
                     lineWidth: 2,
                     tickWidth: 1,
-//                    gridLineWidth: 0,
                     floor: 0,
                     ceiling: 100,
                     tickInterval: 10
@@ -154,12 +153,4 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
             }
         );
     },
-
-    getFakeData: function () {
-        var fakeDataArray = [];
-        for (var i = 0; i < 24; i++) {
-            fakeDataArray.push(Math.floor((Math.random() * 100)));
-        }
-        return fakeDataArray;
-    }
 });

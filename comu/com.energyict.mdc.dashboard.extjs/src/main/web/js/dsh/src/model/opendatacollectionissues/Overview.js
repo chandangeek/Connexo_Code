@@ -23,7 +23,6 @@ Ext.define('Dsh.model.opendatacollectionissues.Overview', {
 
     proxy: {
         type: 'ajax',
-//        url: '../dsh/src/fakeData/MyOpenDataCollectionIssues.json'
         url: '/api/dsr/myopenissuesoverview'
     }
 });
