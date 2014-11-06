@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 {
                     xtype: 'displayfield',
                     name: 'details',
-                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.details', 'MDC', 'Details'),
+                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.description', 'MDC', 'Description'),
                     renderer: function(value,field){
                         if(!value){
                             field.hide();
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 {
                     xtype: 'displayfield',
                     name: 'errorDetails',
-                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.errorDetails', 'MDC', 'Error'),
+                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.details', 'MDC', 'Details'),
                     renderer: function(value,field){
                         if(!value){
                             field.hide();
