@@ -149,19 +149,10 @@ public class ComSessionImpl implements ComSession {
 
     @Override
     public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries(Set<ComServer.LogLevel> levels) {
-        // Todo: Ask Karel how to specify a condition to match a subclass
-        /* select * from DDC_COMTASKEXECJOURNALENTRY cteje
-             join DDC_COMTASKEXECSESSION ctes on cteje.COMTASKEXECSESSION = ctes.id
-            where (    discriminator = '1'
-                   and logLevel in (???))
-               and ctes.comsession = this.id
-         */
         return DefaultFinder.of(
                 ComTaskExecutionJournalEntry.class,
-                where("comTaskExecutionSession.comSession").isEqualTo(this)
-                        .and(where("class").isEqualTo(ComTaskExecutionJournalEntryImpl.ComCommandJournalEntryImplDiscriminator)
-                            .or(where("class").isEqualTo(ComTaskExecutionJournalEntryImpl.ComTaskExecutionMessageJournalEntryImplDiscriminator)
-                                .and(where("logLevel").in(new ArrayList<>(levels))))),
+                         where("comTaskExecutionSession.comSession").isEqualTo(this)
+                    .and(where("logLevel").in(new ArrayList<>(levels))),
                 this.dataModel,
                 ComTaskExecutionSession.class).
                 defaultSortColumn("timestamp desc");
@@ -435,18 +426,21 @@ public class ComSessionImpl implements ComSession {
 
     private class ComCommandJournalEntryAsCombinedLogEntry implements CombinedLogEntry {
         private final Instant timestamp;
+        private final ComServer.LogLevel logLevel;
         private final String commandDescription;
         private final CompletionCode completionCode;
 
         private ComCommandJournalEntryAsCombinedLogEntry(ResultSet resultSet) throws SQLException {
             this(
                 Instant.ofEpochMilli(resultSet.getLong(2)),
+                ComServer.LogLevel.values()[resultSet.getInt(3)],
                 resultSet.getString(4),
                 CompletionCode.values()[resultSet.getInt(6)]);
         }
 
-        private ComCommandJournalEntryAsCombinedLogEntry(Instant timestamp, String commandDescription, CompletionCode completionCode) {
+        private ComCommandJournalEntryAsCombinedLogEntry(Instant timestamp, ComServer.LogLevel logLevel, String commandDescription, CompletionCode completionCode) {
             this.timestamp = timestamp;
+            this.logLevel = logLevel;
             this.commandDescription = commandDescription;
             this.completionCode = completionCode;
         }
@@ -458,7 +452,7 @@ public class ComSessionImpl implements ComSession {
 
         @Override
         public ComServer.LogLevel getLogLevel() {
-            return ComServer.LogLevel.INFO;
+            return this.logLevel;
         }
 
         @Override
