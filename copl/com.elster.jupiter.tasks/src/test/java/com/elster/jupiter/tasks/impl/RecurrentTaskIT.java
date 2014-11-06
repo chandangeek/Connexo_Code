@@ -25,6 +25,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
+import com.elster.jupiter.util.time.Never;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -149,6 +150,61 @@ public class RecurrentTaskIT {
     }
 
     @Test
+    public void testUpdateScheduleOfRecurrentTask() {
+        long id;
+        try (TransactionContext context = transactionService.getContext()) {
+            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
+            RecurrentTask recurrentTask = taskService.newBuilder()
+                    .setScheduleExpressionString("0 0 18 * * ? *")
+                    .scheduleImmediately()
+                    .setName(NAME)
+                    .setPayLoad(PAY_LOAD)
+                    .setDestination(destination)
+                    .build();
+            recurrentTask.save();
+            id = recurrentTask.getId();
+            context.commit();
+        }
+        try (TransactionContext context = transactionService.getContext()) {
+            RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
+            recurrentTask.setScheduleExpression(Never.NEVER);
+            recurrentTask.save();
+            context.commit();
+        }
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
+        assertThat(recurrentTask.getScheduleExpression()).isEqualTo(Never.NEVER);
+    }
+
+    @Test
+    public void testUpdateNextExecutionOfRecurrentTask() {
+        long id;
+        try (TransactionContext context = transactionService.getContext()) {
+            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
+            RecurrentTask recurrentTask = taskService.newBuilder()
+                    .setScheduleExpressionString("0 0 18 * * ? *")
+                    .scheduleImmediately()
+                    .setName(NAME)
+                    .setPayLoad(PAY_LOAD)
+                    .setDestination(destination)
+                    .build();
+            recurrentTask.save();
+            id = recurrentTask.getId();
+            context.commit();
+        }
+        Instant instant = ZonedDateTime.of(2017, 9, 15, 15, 21, 12, 888000000, ZoneId.of("UTC")).toInstant();
+        try (TransactionContext context = transactionService.getContext()) {
+            RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
+            recurrentTask.setNextExecution(instant);
+            recurrentTask.save();
+            context.commit();
+        }
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
+        assertThat(recurrentTask.getNextExecution()).isEqualTo(instant);
+    }
+
+    @Test
     public void testCreateRecurrentTaskWithTemporalExpression() {
         long id;
         try (TransactionContext context = transactionService.getContext()) {
@@ -168,6 +224,7 @@ public class RecurrentTaskIT {
         RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
         assertThat(recurrentTask).isNotNull();
         recurrentTask.updateNextExecution();
+
         assertThat(recurrentTask.getNextExecution()).isEqualTo(nextExecution);
     }
 

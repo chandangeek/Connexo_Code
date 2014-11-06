@@ -123,6 +123,7 @@ class RecurrentTaskImpl implements RecurrentTask {
         return name;
     }
 
+    @Override
     public void setNextExecution(Instant nextExecution) {
         this.nextExecution = nextExecution;
     }
@@ -137,6 +138,12 @@ class RecurrentTaskImpl implements RecurrentTask {
     public void suspend() {
         this.nextExecution = null;
         save();
+    }
+
+    @Override
+    public void setScheduleExpression(ScheduleExpression scheduleExpression) {
+        this.scheduleExpression = scheduleExpression;
+        this.cronString = scheduleExpression.encoded();
     }
 
     @Override
