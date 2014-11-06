@@ -187,6 +187,7 @@ Ext.define('Dxp.controller.Tasks', {
                 var readingTypeMRID = readingTypes.items[i].items.items[0],
                     readingType = readingTypeMRID.value,
                     readingTypeRecord = Ext.create('Dxp.model.ReadingType');
+                readingTypeMRID.name = 'readingTypes[' + i + '].readingTypeMRID';
                 readingTypeRecord.set('mRID', readingType);
                 arrReadingTypes.push(readingTypeRecord);
             }
@@ -221,6 +222,13 @@ Ext.define('Dxp.controller.Tasks', {
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addDataExportTask.successMsg', 'DXP', 'Data export task added'));
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        form.getForm().markInvalid(json.errors);
+                        formErrorsPanel.show();
+                    }
                 }
             })
         } else {

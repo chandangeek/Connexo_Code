@@ -23,7 +23,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 var result;
-                if (data.nextRun) {
+                if (data.nextRun && (data.nextRun !== 0)) {
                     result = moment(data.nextRun).format('ddd DD MMM YYYY') + ' ' + Uni.I18n.translate('general.at', 'DXP', 'at') + ' ' + moment(data.nextRun).format('hh:mm A');
                 } else {
                     result = Uni.I18n.translate('general.at', 'DXP', 'Not scheduled')

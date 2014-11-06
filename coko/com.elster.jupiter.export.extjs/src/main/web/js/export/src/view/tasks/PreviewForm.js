@@ -57,7 +57,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     name: 'trigger'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.readingTypes', 'DXP', 'Last run'),
+                    fieldLabel: Uni.I18n.translate('general.lastRun', 'DXP', 'Last run'),
                     name: 'lastRun',
                     renderer: function (value) {
                         return value ? value : '-';

@@ -264,6 +264,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             },
                             {
                                 xtype: 'button',
+                                itemId: 'add-task-add-export-period',
                                 margin: '0 0 0 20',
                                 text: Uni.I18n.translate('general.addExportPeriod', 'DXP', 'Add export period'),
                                 ui: 'link',
@@ -297,7 +298,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'combobox',
                                 itemId: 'file-formatter-combo',
-                                name: 'file-formatter',
+                                name: 'dataProcessor',
                                 width: 235,
                                 queryMode: 'local',
                                 store: 'Dxp.store.FileFormatters',
