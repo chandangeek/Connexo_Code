@@ -152,5 +152,5 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                 me.doLayout();
             }
         );
-    },
+    }
 });
