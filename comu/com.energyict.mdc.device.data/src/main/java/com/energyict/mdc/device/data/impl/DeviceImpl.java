@@ -138,7 +138,7 @@ public class DeviceImpl implements Device, CanLock {
     private final ValidationService validationService;
     private final ServerConnectionTaskService connectionTaskService;
     private final ServerCommunicationTaskService communicationTaskService;
-    private final DeviceService deviceService;
+    private final ServerDeviceService deviceService;
     private final SecurityPropertyService securityPropertyService;
     private final ProtocolPluggableService protocolPluggableService;
 
@@ -196,7 +196,7 @@ public class DeviceImpl implements Device, CanLock {
             ValidationService validationService,
             ServerConnectionTaskService connectionTaskService,
             ServerCommunicationTaskService communicationTaskService,
-            DeviceService deviceService,
+            ServerDeviceService deviceService,
             SecurityPropertyService securityPropertyService,
             Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
             Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,

@@ -1,16 +1,16 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
@@ -27,7 +27,7 @@ import java.io.Serializable;
 public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Serializable {
 
     private final DataModel dataModel;
-    private final DeviceService deviceService;
+    private final ServerDeviceService deviceService;
     private final Thesaurus thesaurus;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -36,7 +36,7 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
     private Reference<Device> device = ValueReference.absent();
 
     @Inject
-    public DeviceProtocolPropertyImpl(DataModel dataModel, DeviceService deviceService, Thesaurus thesaurus) {
+    public DeviceProtocolPropertyImpl(DataModel dataModel, ServerDeviceService deviceService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.deviceService = deviceService;
         this.thesaurus = thesaurus;
