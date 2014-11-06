@@ -16,12 +16,12 @@ import java.util.List;
  * Date: 29/10/2014
  * Time: 13:07
  */
-@Component(name = "com.elster.jupiter.export.processor.translations", service = {TranslationKeyProvider.class}, property = {"name=" + DataExportService.COMPONENTNAME}, immediate = true)
+@Component(name = "com.elster.jupiter.export.processor.translations", service = {TranslationKeyProvider.class}, immediate = true)
 public class Translations implements TranslationKeyProvider {
 
     @Override
     public String getComponentName() {
-        return "DXP";
+        return DataExportService.COMPONENTNAME;
     }
 
     @Override
