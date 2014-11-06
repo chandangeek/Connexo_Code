@@ -181,10 +181,10 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
                 return " ct.lastsession is null";
             }
             case SUCCESS: {
-                return " ct.lastSessionStatus = " + successIndicator.ordinal();
+                return " ct.lastSessionStatus = " + 1;
             }
             case FAILURE: {
-                return " ct.lastSessionStatus = " + successIndicator.ordinal();
+                return " ct.lastSessionStatus = " + 0;
             }
             default: {
                 throw new IllegalArgumentException("Unsupported ConnectionTask.SuccessIndicator: " + successIndicator.name());
