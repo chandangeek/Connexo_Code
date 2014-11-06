@@ -42,6 +42,7 @@ import org.osgi.service.event.EventAdmin;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -60,7 +61,7 @@ public class DataModelTest {
         }
     }
     
-    private static final boolean printSql = false;
+    private static final boolean printSql = true;
 
     @BeforeClass
     public static void setUp() throws SQLException {
@@ -121,6 +122,7 @@ public class DataModelTest {
         	PartyRole role = partyService.getPartyRoles().get(0);
         	organization.assumeRole(role, Instant.now());
         	Condition condition = Where.where("party.description").isEqualTo(organization.getDescription());
+        	assertThat(dataModel.stream(PartyInRole.class).join(Party.class).filter(condition).sorted(Order.ascending("party")).select()).hasSize(1);
         	assertThat(dataModel.query(PartyInRole.class, Party.class).select(condition,Order.ascending("party"))).hasSize(1);
         	assertThat(dataModel.mapper(Party.class).find("description", organization.getDescription(),Order.descending("description"))).hasSize(1);
         	User user = injector.getInstance(UserService.class).findUser("admin").get();
@@ -152,6 +154,7 @@ public class DataModelTest {
         	}
         	assertThat(count).isNotZero();
         }
+        assertThat(dataModel.stream(Party.class).count()).isNotZero();
     }
     
     @Test
@@ -189,6 +192,7 @@ public class DataModelTest {
 		PartyServiceImpl partyService = (PartyServiceImpl) getPartyService();
 		DataModel dataModel = partyService.getDataModel();
 		dataModel.query(PartyInRole.class, Party.class);
-		dataModel.query(PartyInRole.class, PartyImpl.class);
+		Optional<PartyInRole> optional = dataModel.stream(PartyInRole.class).join(PartyImpl.class).sorted(Order.ascending("name")).findFirst();
+		assertThat(optional).isNotNull();
     }
 }
