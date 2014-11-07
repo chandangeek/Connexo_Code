@@ -46,9 +46,9 @@ enum TableSpecs {
             Column taskOccurrenceColumn = table.column("TASKOCCCURRENCE").number().notNull().conversion(NUMBER2LONG).add();
             Column position = table.column("POSITION").number().notNull().map("position").conversion(NUMBER2INT).add();
             table.column("TIMESTAMP").number().notNull().conversion(NUMBER2INSTANT).map("timeStamp").add();
-            table.column("LEVEL").number().notNull().conversion(NUMBER2INT).map("level").add();
+            table.column("LOGLEVEL").number().notNull().conversion(NUMBER2INT).map("level").add();
             table.column("MESSAGE").varChar(DESCRIPTION_LENGTH).map("message").add();
-            table.column("STACKTRACE").type("CLOB").map("stackTrace").add();
+            table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
 
             table.primaryKey("TSK_PK_LOG_ENTRY").on(taskOccurrenceColumn, position).add();
             table.foreignKey("TSK_FKTASKLOG_OCCURRENCE").references(TSK_TASK_OCCURRENCE.name()).on(taskOccurrenceColumn).onDelete(DeleteRule.CASCADE)
