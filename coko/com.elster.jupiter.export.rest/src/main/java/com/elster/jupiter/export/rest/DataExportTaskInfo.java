@@ -36,7 +36,7 @@ public class DataExportTaskInfo {
     public ValidatedDataOption validatedDataOption;
     public MeterGroupInfo deviceGroup;
     public LastExportOccurenceInfo lastExportOccurence;
-    public long nextRun;
+    public Long nextRun;
 
 
     public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus) {
