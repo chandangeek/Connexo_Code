@@ -60,7 +60,7 @@ public class DataExportTaskInfo {
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
 
         //todo last occurence
-        // lastExportOccurence = new LastExportOccurenceInfo(dataExportTask.getLastOccurence());
+        // lastExportOccurence = new LastExportOccurenceInfo(dataExportTask.getLastOccurrence());
         nextRun = dataExportTask.getNextExecution().toEpochMilli();
 
 
