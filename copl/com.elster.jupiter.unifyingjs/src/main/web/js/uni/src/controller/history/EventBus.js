@@ -57,8 +57,6 @@ Ext.define('Uni.controller.history.EventBus', {
         }
         this.setCurrentPath(token);
 
-
-
         crossroads.parse(token);
     }
 });
