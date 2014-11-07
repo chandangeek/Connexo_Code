@@ -1043,10 +1043,10 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     items: {
                                                         data: {
                                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                                            route: 'data',
+                                                            route: 'graph',
                                                             controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
                                                             privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
-                                                            action: 'showOverview',
+                                                            action: 'showGraphOverview',
                                                             filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
                                                             items: {
                                                                 editreadings: {
@@ -1059,11 +1059,18 @@ Ext.define('Mdc.controller.history.Setup', {
                                                                 }
                                                             }
                                                         },
+                                                        tableData: {
+                                                            title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
+                                                            route: 'table',
+                                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
+                                                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                                            action: 'showTableOverview',
+                                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
+                                                        },
                                                         validation: {
                                                             title: Uni.I18n.translate('routing.channelValidation', 'MDC', 'Channel validation'),
                                                             route: 'validation'
                                                         }
-
                                                     }
                                                 }
                                             }

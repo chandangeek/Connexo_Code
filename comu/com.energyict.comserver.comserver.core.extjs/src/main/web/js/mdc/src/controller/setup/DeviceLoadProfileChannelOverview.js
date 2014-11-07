@@ -44,7 +44,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
                 if (!widget.isDestroyed) {
                     me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
                     widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(record);
-                    widget.down('#deviceLoadProfileChannelSubMenuPanel').setParams(record);
+                    widget.down('#deviceLoadProfileChannelSubMenuPanel').setParams(mRID, loadProfileId, record);
                     widget.setLoading(false);
                 }
             }
