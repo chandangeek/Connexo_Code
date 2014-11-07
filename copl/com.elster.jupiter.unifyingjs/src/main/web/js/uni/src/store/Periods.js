@@ -2,7 +2,7 @@
  * @class Uni.store.Periods
  */
 Ext.define('Uni.store.Periods', {
-    extend: 'Ext.data.SimpleStore',
+    extend: 'Ext.data.ArrayStore',
 
     data: [
         [Uni.I18n.translate('period.months', 'UNI', 'month(s)'), 'months'],
