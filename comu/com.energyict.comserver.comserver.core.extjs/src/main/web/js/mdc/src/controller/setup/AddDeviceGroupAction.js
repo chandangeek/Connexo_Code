@@ -276,9 +276,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         if (this.createWidget) {
             //if (this.addDeviceGroupWidget == null) {
             this.addDeviceGroupWidget = Ext.widget('add-devicegroup-browse');
-            this.getAddDeviceGroupSideFilter().setVisible(false);
             this.getApplication().fireEvent('changecontentevent', this.addDeviceGroupWidget);
             this.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').initFilterModel();
+            this.getAddDeviceGroupSideFilter().setVisible(false);
         }
         this.createWidget = true;
     },
