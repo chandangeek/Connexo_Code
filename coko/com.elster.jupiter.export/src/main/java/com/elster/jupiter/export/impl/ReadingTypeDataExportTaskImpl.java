@@ -82,6 +82,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private transient boolean scheduleImmediately;
     private transient ScheduleExpression scheduleExpression;
     private transient boolean recurrentTaskDirty;
+    private transient boolean propertiesDirty;
 
     @Inject
     ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService, MeteringService meteringService) {
@@ -179,9 +180,13 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
             if (recurrentTaskDirty) {
                 recurrentTask.get().save();
             }
+            if (propertiesDirty) {
+                properties.forEach(DataExportProperty::save);
+            }
             Save.UPDATE.save(dataModel, this);
         }
         recurrentTaskDirty = false;
+        propertiesDirty = false;
     }
 
     @Override
@@ -260,6 +265,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
                     return property;
                 });
         dataExportProperty.setValue(value);
+        propertiesDirty = true;
     }
 
     @Override
@@ -302,6 +308,26 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     public void setScheduleExpression(ScheduleExpression scheduleExpression) {
         this.recurrentTask.get().setScheduleExpression(scheduleExpression);
         recurrentTaskDirty = true;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void setExportPeriod(RelativePeriod relativePeriod) {
+        this.exportPeriod.set(relativePeriod);
+    }
+
+    @Override
+    public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
+        this.endDeviceGroup.set(endDeviceGroup);
+    }
+
+    @Override
+    public void removeReadingType(ReadingType readingType) {
+        this.readingTypes.removeIf(r -> r.getReadingType().equals(readingType));
     }
 
     private ReadingTypeDataExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup) {

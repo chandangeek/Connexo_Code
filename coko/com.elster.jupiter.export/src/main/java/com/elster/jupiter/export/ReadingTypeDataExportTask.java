@@ -55,4 +55,18 @@ public interface ReadingTypeDataExportTask extends HasName {
     void setNextExecution(Instant instant);
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
+
+    void setName(String name);
+
+    void setExportPeriod(RelativePeriod relativePeriod);
+
+    void setProperty(String key, Object value);
+
+    void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+
+    void removeReadingType(ReadingType readingType);
+
+    void addReadingType(ReadingType readingType);
+
+    void setUpdatePeriod(RelativePeriod relativePeriod);
 }
