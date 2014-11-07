@@ -33,6 +33,14 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         {
             ref: 'dynamicRadioButton',
             selector: 'devicegroup-wizard-step1 #dynamicDeviceGroup'
+        },
+        {
+            ref: 'dynamicGrid',
+            selector: 'mdc-search-results #dynamic-grid'
+        },
+        {
+            ref: 'staticGrid',
+            selector: 'mdc-search-results #static-grid'
         }
     ],
 
@@ -59,9 +67,9 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
 
         var store;
         if (this.getDynamicRadioButton().checked) {
-            store = this.getStore('Mdc.store.Devices');
+            store = this.getDynamicGrid().getStore();
         } else {
-            store = this.getStore('Mdc.store.DevicesBuffered');
+            store = this.getStaticGrid().getStore();
         }
         var router = this.getController('Uni.controller.history.Router');
         router.filter = filterForm.getRecord();
