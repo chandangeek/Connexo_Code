@@ -22,7 +22,7 @@ import java.util.logging.Level;
  * Date: 6/11/2014
  * Time: 18:29
  */
-@Component(name = "com.elster.jupiter.export.impl.command",
+@Component(name = "com.elster.jupiter.export.impl.command", service = ExportRunCommand.class,
         property = {"osgi.command.scope=export", "osgi.command.function=runExport"}, immediate = true)
 public class ExportRunCommand {
 
@@ -72,7 +72,8 @@ public class ExportRunCommand {
     }
 
     private void doExport(TaskOccurrence taskOccurrence, Range<Instant> exportedDataInterval, IReadingTypeDataExportItem exportItem) {
-        taskOccurrence.log(Level.INFO, Instant.now(), "Exported data for meter " + exportItem.getReadingContainer() + ":" + exportItem.getReadingTypeMRId() + " for period " + exportedDataInterval);
+        String meterAndReadingType = ((Meter) exportItem.getReadingContainer()).getMRID() + " and reading type " + exportItem.getReadingTypeMRId();
+        taskOccurrence.log(Level.INFO, Instant.now(), "Exported data for meter " + meterAndReadingType + " for period " + exportedDataInterval);
         exportItem.updateLastRunAndLastExported(Instant.now(), exportedDataInterval.upperEndpoint());
         exportItem.update();
     }
