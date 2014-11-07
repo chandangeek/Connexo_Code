@@ -43,6 +43,14 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
+	
+	public long count(Condition condition) {
+		try {
+			return new JoinExecutor<>(root.copy(), getEffectiveDate()).count(restriction.and(condition));
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		}
+	}
 
 	@Override
 	public boolean hasField(String fieldName) {

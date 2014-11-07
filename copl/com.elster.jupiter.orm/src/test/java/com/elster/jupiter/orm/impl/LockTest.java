@@ -8,14 +8,13 @@ import java.sql.SQLException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 
-import com.elster.jupiter.bootstrap.oracle.impl.OracleBootstrapModule;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
@@ -32,12 +31,11 @@ import com.google.inject.Module;
 
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class LockTest {
 
     private Injector injector;
-    private OracleBootstrapModule bootstrapModule = new OracleBootstrapModule();
-    //private InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+    //private OracleBootstrapModule bootstrapModule = new OracleBootstrapModule();
+    private InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
 
     @Mock
     private Principal principal;

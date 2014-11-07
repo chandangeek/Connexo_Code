@@ -29,6 +29,8 @@ public interface DataModel {
     <T> DataMapper<T> mapper(Class<T> api);
 
     <T> QueryExecutor<T> query(Class<T> api, Class<?>... eagers);
+    
+    <T> QueryStream<T> stream(Class<T> api);
 
     RefAny asRefAny(Object object);
 

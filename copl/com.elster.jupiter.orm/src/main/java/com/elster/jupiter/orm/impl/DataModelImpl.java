@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -12,6 +13,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
+import com.elster.jupiter.orm.query.impl.QueryStreamImpl;
 
 import java.time.Clock;
 
@@ -370,7 +372,6 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public <T> QueryExecutor<T> query(Class<T> api, Class<?>... eagers) {
-        checkRegistered();
         return query(mapper(api), eagers);        
     }
     
@@ -388,6 +389,10 @@ public class DataModelImpl implements DataModel {
             }
         }
         return root.with(mappers);
+    }
+    
+    public<T> QueryStream<T> stream(Class<T> api) {
+    	return new QueryStreamImpl<>(mapper(api));    
     }
 
     Module getModule() {

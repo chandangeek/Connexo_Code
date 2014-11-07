@@ -248,6 +248,10 @@ final class JoinTreeNode<T>  {
 		return semiJoin() || children.stream().anyMatch(child -> child.hasSemiJoin());
 	}
 	
+	String alias() {
+		return value.getAlias();
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
