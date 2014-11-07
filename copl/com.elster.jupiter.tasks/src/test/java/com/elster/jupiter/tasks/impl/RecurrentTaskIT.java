@@ -33,7 +33,6 @@ import com.elster.jupiter.util.time.Never;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -221,7 +220,6 @@ public class RecurrentTaskIT {
     }
 
     @Test
-    public void testCreateRecurrentTaskWithTemporalExpression() {
     public void testTaskOccurrenceLog() {
         long id = createRecurrentTask("0 0 18 * * ? *");
         RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
@@ -264,11 +262,7 @@ public class RecurrentTaskIT {
             id = recurrentTask.getId();
             context.commit();
         }
-        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
-        assertThat(recurrentTask).isNotNull();
-        recurrentTask.updateNextExecution();
-
-        assertThat(recurrentTask.getNextExecution()).isEqualTo(nextExecution);
+        return id;
     }
 
 }
