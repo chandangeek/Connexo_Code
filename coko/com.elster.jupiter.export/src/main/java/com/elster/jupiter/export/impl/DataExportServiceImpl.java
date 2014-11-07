@@ -32,13 +32,14 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Component(name = "com.elster.jupiter.export", service = {DataExportService.class, InstallService.class}, property = "name=" + DataExportService.COMPONENTNAME, immediate = true)
+@Component(name = "com.elster.jupiter.export", service = {DataExportService.class, IDataExportService.class, InstallService.class}, property = "name=" + DataExportService.COMPONENTNAME, immediate = true)
 public class DataExportServiceImpl implements IDataExportService, InstallService {
 
     public static final String DESTINATION_NAME = "DataExport";
@@ -49,6 +50,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile MeteringService meteringService;
     private volatile MessageService messageService;
     private volatile Thesaurus thesaurus;
+    private volatile Clock clock;
 
     private List<DataProcessorFactory> dataProcessorFactories = new CopyOnWriteArrayList<>();
     private DestinationSpec destinationSpec;
@@ -58,7 +60,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -67,6 +69,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setNlsService(nlsService);
         setMeteringService(meteringService);
         setQueryService(queryService);
+        setClock(clock);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -158,6 +161,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         }
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     public void removeResource(DataProcessorFactory dataProcessorFactory) {
         dataProcessorFactories.remove(dataProcessorFactory);
     }
@@ -170,6 +178,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                 bind(IDataExportService.class).toInstance(DataExportServiceImpl.this);
                 bind(TaskService.class).toInstance(taskService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(Clock.class).toInstance(clock);
             }
         });
     }

@@ -9,6 +9,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -25,12 +26,14 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     private DataExportStatus status = DataExportStatus.BUSY;
 
     private final DataModel dataModel;
+    private final Clock clock;
 
     private transient Range<Instant> exportedDataRange;
 
     @Inject
-    DataExportOccurrenceImpl(DataModel dataModel) {
+    DataExportOccurrenceImpl(DataModel dataModel, Clock clock) {
         this.dataModel = dataModel;
+        this.clock = clock;
     }
 
     static DataExportOccurrenceImpl from(DataModel model, TaskOccurrence occurrence, IReadingTypeDataExportTask task) {
@@ -77,5 +80,21 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     @Override
     public void update() {
         dataModel.update(this);
+    }
+
+    @Override
+    public IReadingTypeDataExportTask getTask() {
+        return readingTask.orElseThrow(IllegalStateException::new);
+    }
+
+    @Override
+    public void start() {
+        startDate = clock.instant();
+    }
+
+    @Override
+    public void end(DataExportStatus status) {
+        this.status = status;
+        this.endDate = clock.instant();
     }
 }

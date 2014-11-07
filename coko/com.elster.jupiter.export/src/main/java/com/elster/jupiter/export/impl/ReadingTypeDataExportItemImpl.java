@@ -1,6 +1,6 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.orm.DataModel;
@@ -17,7 +17,7 @@ import java.util.Optional;
  * Date: 5/11/2014
  * Time: 13:28
  */
-public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem {
+public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem {
 
     private long id;
     private Instant lastRun;
@@ -68,5 +68,16 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     @Override
     public ReadingTypeDataExportTask getTask() {
         return task.orElseThrow(IllegalStateException::new);
+    }
+
+    @Override
+    public void updateLastRunAndLastExported(Instant lastRun, Instant lastExported) {
+        this.lastRun = lastRun;
+        this.lastExportedDate = lastExported;
+    }
+
+    @Override
+    public void update() {
+        Save.UPDATE.save(dataModel, this);
     }
 }

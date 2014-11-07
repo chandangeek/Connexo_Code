@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.RelativePeriod;
@@ -29,4 +30,6 @@ interface IReadingTypeDataExportTask extends ReadingTypeDataExportTask {
     void setExportContinuousData(boolean exportContinuousData);
 
     void setExportUpdate(boolean exportUpdate);
+
+    IReadingTypeDataExportItem addExportItem(Meter meter, String readingTypeMRId);
 }

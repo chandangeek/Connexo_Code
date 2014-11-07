@@ -251,9 +251,10 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         return Collections.unmodifiableList(exportItems);
     }
 
-    public void addExportItem(Meter meter, String readingTypeMRId) {
+    public IReadingTypeDataExportItem addExportItem(Meter meter, String readingTypeMRId) {
         ReadingTypeDataExportItemImpl item = ReadingTypeDataExportItemImpl.from(dataModel, this, meter, readingTypeMRId);
         exportItems.add(item);
+        return item;
     }
 
     @Override
