@@ -353,6 +353,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     title: 'Validation rule sets',
                                                     route: 'validationrulesets',
                                                     controller: 'Mdc.controller.setup.ValidationRuleSets',
+                                                    privileges:['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration'],
                                                     action: 'showValidationRuleSetsOverview',
                                                     items: {
                                                         add: {
@@ -946,7 +947,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Data validation',
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
-                            privileges: ['privilege.view.validateDevice'],
+                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration','privilege.view.fineTuneValidationConfiguration'],
                             action: 'showDeviceDataValidationMainView'
                         },
                         communicationschedules: {

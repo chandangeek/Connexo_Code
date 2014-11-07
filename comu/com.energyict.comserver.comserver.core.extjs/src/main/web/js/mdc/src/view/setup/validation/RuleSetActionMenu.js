@@ -14,6 +14,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetActionMenu', {
         },
         {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration'),
             itemId: 'removeRuleSet',
             action: 'removeRuleSet'
         }

@@ -326,6 +326,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     itemId: 'rulesForChannelPreviewContainer',
                     grid: {
                         xtype: 'load-profile-configuration-detail-rules-grid',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration']),
                         deviceTypeId: me.deviceTypeId,
                         deviceConfigId: me.deviceConfigurationId,
                         channelConfigId: channelId
@@ -335,7 +336,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         title: Uni.I18n.translate('validation.empty.rules.title', 'CFG', 'No validation rules found'),
                         reasons: [
                             Uni.I18n.translate('channelConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.'),
-                            Uni.I18n.translate('validation.empty.list.item2', 'MDC', 'Validation rules exist, but you do not have permission to view them.')
                         ]
                     },
                     previewComponent: {

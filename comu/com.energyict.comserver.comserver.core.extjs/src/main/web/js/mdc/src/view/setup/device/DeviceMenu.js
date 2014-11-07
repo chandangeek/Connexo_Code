@@ -54,6 +54,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             },
             {
                 text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Data validation'),
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration','privilege.view.fineTuneValidationConfiguration']),
                 itemId: 'dataValidationLink',
                 href: '#/devices/' + this.mRID + '/datavalidation',
                 hrefTarget: '_self'

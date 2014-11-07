@@ -25,11 +25,11 @@ Ext.define('Mdc.view.setup.validation.RuleSetView', {
                     title: Uni.I18n.translate('validation.empty.title', 'MDC', 'No validation rules found'),
                     reasons: [
                         Uni.I18n.translate('validation.empty.list.item1', 'MDC', 'No validation rules have been defined yet.'),
-                        Uni.I18n.translate('validation.empty.list.item2', 'MDC', 'Validation rules exist, but you do not have permission to view them.')
                     ],
                     stepItems: [
                         {
                             text: Uni.I18n.translate('validation.addValidationRules', 'MDC', 'Add validation rule'),
+                            privileges: ['privilege.administrate.validationConfiguration'],
                             ui: 'action',
                             action: 'addValidationRule',
                             href: '#/administration/validation/rulesets/' + me.validationRuleSetId + '/rules/add'

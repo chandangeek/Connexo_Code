@@ -53,6 +53,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                                         xtype: 'button',
                                         itemId: 'deviceDataValidationStateChangeBtn',
                                         text: Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'),
+                                        hidden: Uni.Auth.hasNoPrivilege('privilege.view.fineTuneValidationConfiguration'),
                                         action: ''
                                     }
                                 ]

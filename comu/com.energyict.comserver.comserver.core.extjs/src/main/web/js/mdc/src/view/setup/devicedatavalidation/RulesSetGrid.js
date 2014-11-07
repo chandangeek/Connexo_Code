@@ -49,6 +49,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                hidden: Uni.Auth.hasNoPrivilege('privilege.view.fineTuneValidationConfiguration'),
                 items: 'Mdc.view.setup.devicedatavalidation.RulesSetActionMenu'
             }
         ];
