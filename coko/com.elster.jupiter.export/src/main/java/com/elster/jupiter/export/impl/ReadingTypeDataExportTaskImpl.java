@@ -6,11 +6,10 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -231,14 +230,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public Optional<? extends DataExportOccurrence> getLastOccurence() {
-// TODO comment in when TABLESPECS HAVE BEEN DEFINED FOR  DataExportOccurrence
-//       return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("taskOccurrence", this), new Order[] {Order.descending("startDate")},
-//                false, new String[]{}, 1, 1). stream().findAny();
-        return Optional.empty();
-    }
-
-    @Override
     public void execute(DataExportOccurrence occurrence, Logger logger) {
         //TODO automatically generated method body, provide implementation.
 
@@ -394,8 +385,8 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     private ReadingTypeInExportTask toReadingTypeInExportTask(String mRID) {
         return meteringService.getReadingType(mRID)
-                    .map(r -> ReadingTypeInExportTask.from(dataModel, this, r))
-                    .orElseGet(() -> readingTypeInValidationRuleFor(mRID));
+                .map(r -> ReadingTypeInExportTask.from(dataModel, this, r))
+                .orElseGet(() -> readingTypeInValidationRuleFor(mRID));
     }
 
     private ReadingTypeInExportTask readingTypeInValidationRuleFor(String mRID) {

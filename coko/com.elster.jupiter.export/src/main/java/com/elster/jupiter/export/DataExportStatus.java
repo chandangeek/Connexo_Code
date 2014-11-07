@@ -10,7 +10,7 @@ public enum DataExportStatus {
     private String name;
 
     DataExportStatus(String name) {
-       this.name = name;
+        this.name = name;
     }
 
     @Override

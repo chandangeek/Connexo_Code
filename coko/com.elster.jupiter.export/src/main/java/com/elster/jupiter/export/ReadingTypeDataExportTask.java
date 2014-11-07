@@ -53,8 +53,8 @@ public interface ReadingTypeDataExportTask extends HasName {
     ScheduleExpression getScheduleExpression();
 
     Optional<? extends DataExportOccurrence> getLastOccurrence();
+
     List<ReadingTypeDataExportItem> getExportItems();
-    Optional<? extends DataExportOccurrence> getLastOccurence();
 
     void setNextExecution(Instant instant);
 

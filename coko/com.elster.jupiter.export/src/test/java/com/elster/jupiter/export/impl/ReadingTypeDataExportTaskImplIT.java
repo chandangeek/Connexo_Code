@@ -130,8 +130,6 @@ public class ReadingTypeDataExportTaskImplIT {
     private TransactionService transactionService;
     private MeteringService meteringService;
     private MeteringGroupsService meteringGroupsService;
-    private ReadingType readingType;
-    private TimeService timeService;
     private ReadingType readingType, anotherReadingType;
     private TimeService timeService;
     private final RelativeDate startOfTheYearBeforeLastYear = new RelativeDate(
@@ -189,6 +187,7 @@ public class ReadingTypeDataExportTaskImplIT {
             return null;
         });
         readingType = meteringService.getReadingType("0.0.3.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        anotherReadingType = meteringService.getReadingType("0.0.14.4.19.1.12.0.0.0.0.2.0.0.0.0.72.0").get();
         dataExportService.addResource(dataProcessorFactory);
         when(dataProcessorFactory.getName()).thenReturn(FORMATTER);
         when(dataProcessorFactory.getProperties()).thenReturn(Arrays.asList(propertySpec));
@@ -240,7 +239,7 @@ public class ReadingTypeDataExportTaskImplIT {
 
         Instant instant = ZonedDateTime.of(2019, 4, 18, 2, 47, 14, 124000000, ZoneId.of("UTC")).toInstant();
 
-        try(TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext()) {
             ReadingTypeDataExportTask readingTypeDataExportTask = found.get();
             readingTypeDataExportTask.setNextExecution(instant);
             readingTypeDataExportTask.setScheduleExpression(Never.NEVER);
@@ -295,29 +294,6 @@ public class ReadingTypeDataExportTaskImplIT {
         return exportTask;
     }
 
-    private ReadingTypeDataExportTask createExportTask(RelativePeriod exportPeriod, RelativePeriod updatePeriod, EndDeviceGroup endDeviceGroup) {
-        ReadingTypeDataExportTask exportTask;
-        readingType = meteringService.getReadingType("0.0.3.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-        anotherReadingType = meteringService.getReadingType("0.0.14.4.19.1.12.0.0.0.0.2.0.0.0.0.72.0").get();
-
-        dataExportService.addResource(dataProcessorFactory);
-
-        exportTask = dataExportService.newBuilder()
-                .setExportPeriod(exportPeriod)
-                .scheduleImmediately()
-                .setDataProcessorName(FORMATTER)
-                .setName("NAME")
-                .setEndDeviceGroup(endDeviceGroup)
-                .addReadingType(readingType)
-                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
-                .setUpdatePeriod(updatePeriod)
-                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
-                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
-                .exportUpdate(true)
-                .exportContinuousData(true)
-                .build();
-        return exportTask;
-    }
 
     private ReadingTypeDataExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup) {
         return dataExportService.newBuilder()
@@ -340,9 +316,6 @@ public class ReadingTypeDataExportTaskImplIT {
     public void testCreateOccurrence() throws Exception {
         ReadingTypeDataExportTask exportTask = null;
         try (TransactionContext context = transactionService.getContext()) {
-            RelativeDate startOfTheYearBeforeLastYear = createYearsAgoStartofYearRelativeDate(2);
-            RelativeDate startOfLastYear = createYearsAgoStartofYearRelativeDate(1);
-            RelativeDate startOfThisYear = createYearsAgoStartofYearRelativeDate(0);
             RelativePeriod lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
             RelativePeriod oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
 
@@ -397,9 +370,6 @@ public class ReadingTypeDataExportTaskImplIT {
     private ReadingTypeDataExportTaskImpl createDataExportTask() {
         ReadingTypeDataExportTaskImpl exportTask;
         try (TransactionContext context = transactionService.getContext()) {
-            RelativeDate startOfTheYearBeforeLastYear = createYearsAgoStartofYearRelativeDate(2);
-            RelativeDate startOfLastYear = createYearsAgoStartofYearRelativeDate(1);
-            RelativeDate startOfThisYear = createYearsAgoStartofYearRelativeDate(0);
             RelativePeriod lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
             RelativePeriod oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
 
