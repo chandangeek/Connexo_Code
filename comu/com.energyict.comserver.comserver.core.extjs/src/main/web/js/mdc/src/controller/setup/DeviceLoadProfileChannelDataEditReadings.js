@@ -152,7 +152,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
                     page.setLoading(false);
                 },
                 success: function () {
-                    router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/tableData').forward();
+                    router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/tableData').forward(router.arguments, router.queryParams);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceloadprofilechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
                 },
                 failure: function (response) {
@@ -171,7 +171,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
                                 },
                                 cancellation: function () {
                                     this.close();
-                                    router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/tableData').forward();
+                                    router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/tableData').forward(router.arguments, router.queryParams);
                                 }
                             }).show({
                                 msg: failureResponseText.message ? failureResponseText.message :
