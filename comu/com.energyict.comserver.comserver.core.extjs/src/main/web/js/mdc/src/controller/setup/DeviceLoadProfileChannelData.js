@@ -82,7 +82,16 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
             router = me.getController('Uni.controller.history.Router'),
             isTable = router.queryParams.view === 'table',
+            page = me.getPage(),
             widget;
+
+        if (page) {
+            page.down('#deviceLoadProfileChannelGraphViewBtn').setDisabled(!isTable);
+            page.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(isTable);
+            page.down('#deviceLoadProfileChannelGraphView').setVisible(!isTable);
+            page.down('#deviceLoadProfileChannelTableView').setVisible(isTable);
+            return
+        }
 
         viewport.setLoading();
         dataStore.getProxy().setUrl({
@@ -129,9 +138,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 widget.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(isTable);
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
-                        if (!isTable) {
-                            me.showGraphView(record);
-                        }
+                        me.showGraphView(record);
                         widget.down('#deviceLoadProfileChannelGraphView').setVisible(!isTable);
                         widget.down('#deviceLoadProfileChannelTableView').setVisible(isTable);
                         widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfileChannelTableView').isVisible() && dataStore.count());
