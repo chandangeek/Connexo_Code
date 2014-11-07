@@ -95,16 +95,11 @@ Ext.define('Cfg.view.validation.RulePreview', {
     },
 
     addReadingTypes: function (selectedRule) {
-        var readingTypes = selectedRule.data.readingTypes;
         this.down('#readingTypesArea').removeAll();
-        for (var i = 0; i < readingTypes.length; i++) {
-            var readingType = readingTypes[i];
-            var aliasName = readingType.aliasName;
-            var mRID = readingType.mRID;
-            var fieldlabel = Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)');
-            if (i > 0) {
-                fieldlabel = '&nbsp';
-            }
+        for (var i = 0; i < selectedRule.data.readingTypes.length; i++) {
+            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)'),
+                readingType = selectedRule.data.readingTypes[i];
+
             this.down('#readingTypesArea').add(
                 {
                     xtype: 'container',
@@ -113,17 +108,10 @@ Ext.define('Cfg.view.validation.RulePreview', {
                     },
                     items: [
                         {
-                            xtype: 'displayfield',
+                            xtype: 'reading-type-displayfield',
                             fieldLabel: fieldlabel,
                             labelWidth: 260,
-                            width: 500,
-                            value: mRID
-                        },
-                        {
-                            xtype: 'component',
-                            width: 500,
-                            html: '<span style="color:grey"><i>' + aliasName + '</i></span>',
-                            margin: '5 0 0 10'
+                            value: readingType
                         }
                     ]
                 }
