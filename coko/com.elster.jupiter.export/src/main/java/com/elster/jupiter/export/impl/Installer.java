@@ -1,6 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -52,13 +53,18 @@ class Installer {
     }
 
     private void createTranslations() {
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
+        List<Translation> translations = new ArrayList<>(/*MessageSeeds.values().length*/);
         NlsKey categoryKey = SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, RELATIVE_PERIOD_CATEGORY);
         Translation translation = SimpleTranslation.translation(categoryKey, Locale.ENGLISH, "Data Export");
         translations.add(translation);
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
             NlsKey nlsKey = SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
             translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
+        }
+        for (DataExportStatus status : DataExportStatus.values()) {
+            NlsKey statusKey = SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, status.toString());
+            Translation statusTranslation = SimpleTranslation.translation(statusKey, Locale.ENGLISH, status.toString());
+            translations.add(statusTranslation);
         }
         thesaurus.addTranslations(translations);
     }

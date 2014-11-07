@@ -8,6 +8,7 @@ import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -187,6 +188,11 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         }
         recurrentTaskDirty = false;
         propertiesDirty = false;
+    }
+
+    @Override
+    public void delete() {
+        dataModel.remove(this);
     }
 
     @Override
