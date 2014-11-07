@@ -80,6 +80,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                     {
                         xtype: 'datefield',
                         allowBlank: false,
+                        editable: false,
                         value: new Date(),
                         width: 128,
                         margin: '0 6 0 6'
