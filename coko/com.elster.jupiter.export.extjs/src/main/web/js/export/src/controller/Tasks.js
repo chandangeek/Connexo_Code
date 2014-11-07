@@ -315,9 +315,6 @@ Ext.define('Dxp.controller.Tasks', {
                 scheduleRecord.set('end', endZonedDate);
                 scheduleRecords.push(scheduleRecord);
 
-
-
-                debugger;
                 if (i < 4) {
                     i++;
                     me.fillGrid(i, scheduleRecords);
