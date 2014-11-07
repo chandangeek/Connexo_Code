@@ -13,6 +13,8 @@ import java.util.Objects;
 
 final class DataExportPropertyImpl implements DataExportProperty, PersistenceAware {
 
+    private final DataModel dataModel;
+
     private String name;
     private String stringValue;
     private transient PropertySpec propertySpec;
@@ -20,8 +22,8 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
     private Reference<IReadingTypeDataExportTask> task = ValueReference.absent();
 
     @Inject
-    DataExportPropertyImpl() {
-        //for persistence
+    DataExportPropertyImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
     DataExportPropertyImpl init(IReadingTypeDataExportTask rule, PropertySpec propertySpec, Object value) {
@@ -78,6 +80,11 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
     @Override
     public String toString() {
         return getName() + ": " + getValue();
+    }
+
+    @Override
+    public void save() {
+        dataModel.mapper(DataExportProperty.class).update(this);
     }
 
     @Override

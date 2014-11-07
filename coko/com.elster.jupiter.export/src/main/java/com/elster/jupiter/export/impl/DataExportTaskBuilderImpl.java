@@ -23,11 +23,43 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private String dataProcessor;
     private RelativePeriod exportPeriod;
     private RelativePeriod updatePeriod;
-    private List<ReadingType> readingTypes = new ArrayList<>();
+    private List<ReadingTypeDefinition> readingTypes = new ArrayList<>();
     private EndDeviceGroup endDeviceGroup;
     private ValidatedDataOption validatedDataOption;
     private boolean exportUpdate;
     private boolean exportContinuousData;
+
+    private interface ReadingTypeDefinition {
+        public void addTo(ReadingTypeDataExportTaskImpl task);
+    }
+
+    public class ReadingTypeByMrid implements ReadingTypeDefinition {
+        private final String mrid;
+
+        public ReadingTypeByMrid(String mrid) {
+            this.mrid = mrid;
+        }
+
+        @Override
+        public void addTo(ReadingTypeDataExportTaskImpl task) {
+            task.addReadingType(mrid);
+        }
+    }
+
+    public class ReadingTypeHolder implements ReadingTypeDefinition {
+
+        private final ReadingType readingType;
+
+        public ReadingTypeHolder(ReadingType readingType) {
+            this.readingType = readingType;
+        }
+
+        @Override
+        public void addTo(ReadingTypeDataExportTaskImpl task) {
+            task.addReadingType(readingType);
+        }
+    }
+
 
     public DataExportTaskBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -65,7 +97,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         exportTask.setValidatedDataOption(validatedDataOption);
         exportTask.setExportUpdate(exportUpdate);
         exportTask.setExportContinuousData(exportContinuousData);
-        readingTypes.stream().forEach(exportTask::addReadingType);
+        readingTypes.stream().forEach(d -> d.addTo(exportTask));
         properties.stream().forEach(p -> exportTask.setProperty(p.name, p.value));
         return exportTask;
     }
@@ -96,7 +128,13 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
 
     @Override
     public DataExportTaskBuilder addReadingType(ReadingType readingType) {
-        this.readingTypes.add(readingType);
+        this.readingTypes.add(new ReadingTypeHolder(readingType));
+        return this;
+    }
+
+    @Override
+    public DataExportTaskBuilder addReadingType(String readingType) {
+        this.readingTypes.add(new ReadingTypeByMrid(readingType));
         return this;
     }
 

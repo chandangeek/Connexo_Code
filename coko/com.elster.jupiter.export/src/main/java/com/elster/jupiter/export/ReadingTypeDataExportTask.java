@@ -42,6 +42,8 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     void save();
 
+    void delete();
+
     boolean isActive();
 
     String getDataFormatter();
@@ -52,4 +54,25 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     Optional<? extends DataExportOccurrence> getLastOccurrence();
     List<ReadingTypeDataExportItem> getExportItems();
+    Optional<? extends DataExportOccurrence> getLastOccurence();
+
+    void setNextExecution(Instant instant);
+
+    void setScheduleExpression(ScheduleExpression scheduleExpression);
+
+    void setName(String name);
+
+    void setExportPeriod(RelativePeriod relativePeriod);
+
+    void setProperty(String key, Object value);
+
+    void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+
+    void removeReadingType(ReadingType readingType);
+
+    void addReadingType(ReadingType readingType);
+
+    void addReadingType(String readingTypeMrid);
+
+    void setUpdatePeriod(RelativePeriod relativePeriod);
 }

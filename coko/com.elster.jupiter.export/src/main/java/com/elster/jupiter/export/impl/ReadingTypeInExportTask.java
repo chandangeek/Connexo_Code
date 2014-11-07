@@ -38,6 +38,13 @@ class ReadingTypeInExportTask {
         return dataModel.getInstance(ReadingTypeInExportTask.class).init(task, readingType);
     }
 
+    static ReadingTypeInExportTask from(DataModel dataModel, IReadingTypeDataExportTask task, String readingTypeMRID) {
+        ReadingTypeInExportTask readingTypeInExportTask = dataModel.getInstance(ReadingTypeInExportTask.class);
+        readingTypeInExportTask.readingTypeDataExportTask.set(task);
+        readingTypeInExportTask.readingTypeMRID = readingTypeMRID;
+        return readingTypeInExportTask;
+    }
+
     public ReadingTypeDataExportTask getReadingTypeDataExportTask() {
         return readingTypeDataExportTask.get();
     }

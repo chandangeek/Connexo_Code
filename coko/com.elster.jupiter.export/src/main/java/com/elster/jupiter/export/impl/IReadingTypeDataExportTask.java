@@ -6,7 +6,6 @@ import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.RelativePeriod;
 
 import java.util.logging.Logger;
 
@@ -17,13 +16,7 @@ interface IReadingTypeDataExportTask extends ReadingTypeDataExportTask {
 
     String getDisplayName(String name);
 
-    void addReadingType(ReadingType readingType);
-
-    void setProperty(String name, Object value);
-
     void setScheduleImmediately(boolean scheduleImmediately);
-
-    void setUpdatePeriod(RelativePeriod updatePeriod);
 
     void setValidatedDataOption(ValidatedDataOption validatedDataOption);
 

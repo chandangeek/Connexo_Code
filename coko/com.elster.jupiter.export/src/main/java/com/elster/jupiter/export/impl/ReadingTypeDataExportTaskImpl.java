@@ -6,9 +6,11 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -25,6 +27,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -39,10 +42,28 @@ import java.util.stream.Collectors;
 
 class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
+    private class DataExportStrategyImpl implements DataExportStrategy {
+        @Override
+        public boolean isExportUpdate() {
+            return exportUpdate;
+        }
+
+        @Override
+        public boolean isExportContinuousData() {
+            return exportContinuousData;
+        }
+
+        @Override
+        public ValidatedDataOption getValidatedDataOption() {
+            return validatedDataOption;
+        }
+    }
+
     private final TaskService taskService;
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
     private final DataExportStrategyImpl dataExportStrategy = new DataExportStrategyImpl();
+    private final MeteringService meteringService;
 
     private long id;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -60,31 +81,25 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private boolean exportUpdate;
     private boolean exportContinuousData;
     private ValidatedDataOption validatedDataOption;
+    @Valid
     private List<ReadingTypeInExportTask> readingTypes = new ArrayList<>();
     private List<ReadingTypeDataExportItemImpl> exportItems = new ArrayList<>();
 
     private transient boolean scheduleImmediately;
     private transient ScheduleExpression scheduleExpression;
+    private transient boolean recurrentTaskDirty;
+    private transient boolean propertiesDirty;
 
     @Inject
-    ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService) {
+    ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService, MeteringService meteringService) {
         this.taskService = taskService;
         this.dataModel = dataModel;
         this.dataExportService = dataExportService;
+        this.meteringService = meteringService;
     }
 
     static ReadingTypeDataExportTaskImpl from(DataModel dataModel, String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup) {
         return dataModel.getInstance(ReadingTypeDataExportTaskImpl.class).init(name, exportPeriod, dataProcessor, scheduleExpression, endDeviceGroup);
-    }
-
-    private ReadingTypeDataExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup) {
-        this.name = name;
-        this.exportPeriod.set(exportPeriod);
-        this.dataProcessor = dataProcessor;
-        this.scheduleExpression = scheduleExpression;
-        this.endDeviceGroup.set(endDeviceGroup);
-
-        return this;
     }
 
     @Override
@@ -100,12 +115,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public void deactivate() {
-        //TODO automatically generated method body, provide implementation.
-
-    }
-
-    @Override
-    public void execute(DataExportOccurrence occurrence, Logger logger) {
         //TODO automatically generated method body, provide implementation.
 
     }
@@ -184,13 +193,55 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
             recurrentTask.set(task);
             Save.CREATE.save(dataModel, this);
         } else {
+            if (recurrentTaskDirty) {
+                recurrentTask.get().save();
+            }
+            if (propertiesDirty) {
+                properties.forEach(DataExportProperty::save);
+            }
             Save.UPDATE.save(dataModel, this);
         }
+        recurrentTaskDirty = false;
+        propertiesDirty = false;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public void delete() {
+        dataModel.remove(this);
+    }
+
+    @Override
+    public boolean isActive() {
+        return recurrentTask.get().getNextExecution() != null;
+    }
+
+    @Override
+    public String getDataFormatter() {
+        return dataProcessor;
+    }
+
+    @Override
+    public List<PropertySpec<?>> getPropertySpecs() {
+        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(IllegalArgumentException::new).getProperties();
+    }
+
+    @Override
+    public ScheduleExpression getScheduleExpression() {
+        return recurrentTask.get().getScheduleExpression();
+    }
+
+    @Override
+    public Optional<? extends DataExportOccurrence> getLastOccurence() {
+// TODO comment in when TABLESPECS HAVE BEEN DEFINED FOR  DataExportOccurrence
+//       return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("taskOccurrence", this), new Order[] {Order.descending("startDate")},
+//                false, new String[]{}, 1, 1). stream().findAny();
+        return Optional.empty();
+    }
+
+    @Override
+    public void execute(DataExportOccurrence occurrence, Logger logger) {
+        //TODO automatically generated method body, provide implementation.
+
     }
 
     public PropertySpec<?> getPropertySpec(String name) {
@@ -219,6 +270,12 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
+    public void addReadingType(String mRID) {
+        readingTypes.add(toReadingTypeInExportTask(mRID));
+    }
+
+
+    @Override
     public void setProperty(String name, Object value) {
         DataExportProperty dataExportProperty = properties.stream()
                 .filter(p -> p.getName().equals(name))
@@ -229,6 +286,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
                     return property;
                 });
         dataExportProperty.setValue(value);
+        propertiesDirty = true;
     }
 
     @Override
@@ -287,40 +345,64 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         return result;
     }
 
-    private class DataExportStrategyImpl implements DataExportStrategy {
-        @Override
-        public boolean isExportUpdate() {
-            return exportUpdate;
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setNextExecution(Instant instant) {
+        this.recurrentTask.get().setNextExecution(instant);
+        recurrentTaskDirty = true;
+    }
+
+    @Override
+    public void setScheduleExpression(ScheduleExpression scheduleExpression) {
+        this.recurrentTask.get().setScheduleExpression(scheduleExpression);
+        recurrentTaskDirty = true;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void setExportPeriod(RelativePeriod relativePeriod) {
+        this.exportPeriod.set(relativePeriod);
+    }
+
+    @Override
+    public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
+        this.endDeviceGroup.set(endDeviceGroup);
+    }
+
+    @Override
+    public void removeReadingType(ReadingType readingType) {
+        this.readingTypes.removeIf(r -> r.getReadingType().equals(readingType));
+    }
+
+    private ReadingTypeDataExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup) {
+        this.name = name;
+        this.exportPeriod.set(exportPeriod);
+        this.dataProcessor = dataProcessor;
+        this.scheduleExpression = scheduleExpression;
+        this.endDeviceGroup.set(endDeviceGroup);
+
+        return this;
+    }
+
+    private ReadingTypeInExportTask toReadingTypeInExportTask(String mRID) {
+        return meteringService.getReadingType(mRID)
+                    .map(r -> ReadingTypeInExportTask.from(dataModel, this, r))
+                    .orElseGet(() -> readingTypeInValidationRuleFor(mRID));
+    }
+
+    private ReadingTypeInExportTask readingTypeInValidationRuleFor(String mRID) {
+        ReadingTypeInExportTask empty = ReadingTypeInExportTask.from(dataModel, this, mRID);
+        if (getId() != 0) {
+            Save.UPDATE.validate(dataModel, empty);
         }
-
-        @Override
-        public boolean isExportContinuousData() {
-            return exportContinuousData;
-        }
-
-        @Override
-        public ValidatedDataOption getValidatedDataOption() {
-            return validatedDataOption;
-        }
-    }
-
-    @Override
-    public boolean isActive() {
-        return recurrentTask.get().getNextExecution() != null;
-    }
-
-    @Override
-    public String getDataFormatter() {
-        return dataProcessor;
-    }
-
-    @Override
-    public List<PropertySpec<?>> getPropertySpecs() {
-        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(IllegalArgumentException::new).getProperties();
-    }
-
-    @Override
-    public ScheduleExpression getScheduleExpression() {
-        return recurrentTask.get().getScheduleExpression();
+        return empty;
     }
 }
