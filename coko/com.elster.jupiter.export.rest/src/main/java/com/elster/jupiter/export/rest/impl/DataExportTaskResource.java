@@ -132,8 +132,8 @@ public class DataExportTaskResource {
     public Response removeDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
 
-        if (task.getLastOccurence().isPresent() && task.getLastOccurence().get().getStatus().equals(DataExportStatus.BUSY)) {
-           throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
+        if (task.getLastOccurrence().isPresent() && DataExportStatus.BUSY.equals(task.getLastOccurrence().get().getStatus())) {
+            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
         }
         try (TransactionContext context = transactionService.getContext()) {
             task.delete();

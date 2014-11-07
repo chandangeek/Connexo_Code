@@ -22,9 +22,13 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-@Component(name = "com.elster.jupiter.export.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/export",  "name=" + DataExportApplication.COMPONENT_NAME})
+@Component(name = "com.elster.jupiter.export.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/export", "name=" + DataExportApplication.COMPONENT_NAME})
 public class DataExportApplication extends Application implements InstallService {
     public static final String COMPONENT_NAME = "DER";
     private volatile DataExportService dataExportService;
