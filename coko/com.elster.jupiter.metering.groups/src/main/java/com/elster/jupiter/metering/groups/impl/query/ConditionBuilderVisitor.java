@@ -49,6 +49,6 @@ class ConditionBuilderVisitor implements OperationVisitor {
     }
 
     public Condition pop() {
-        return current.pop();
+        return (current.isEmpty() ? Condition.TRUE : current.pop());
     }
 }
