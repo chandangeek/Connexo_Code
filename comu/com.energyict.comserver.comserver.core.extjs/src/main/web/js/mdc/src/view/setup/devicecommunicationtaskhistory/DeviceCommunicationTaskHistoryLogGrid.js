@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             },
             {
                 itemId: 'details',
-                text: Uni.I18n.translate('devicecommunicationtaskhistory.details', 'MDC', 'Details'),
+                text: Uni.I18n.translate('devicecommunicationtaskhistory.description', 'MDC', 'Description'),
                 dataIndex: 'details',
                 flex: 3
             },
