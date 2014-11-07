@@ -290,9 +290,9 @@ Ext.define('Mdc.controller.setup.Messages', {
                         columns: 1,
                         vertical: true,
                         items: [
-                            { boxLabel: 'Level 1', name: 'cbgroup', inputValue: 'execute.device.message.level1'},
-                            { boxLabel: 'Level 2', name: 'cbgroup', inputValue: 'execute.device.message.level2'},
-                            { boxLabel: 'Level 3', name: 'cbgroup', inputValue: 'execute.device.message.level3'},
+                            { boxLabel: 'Level 1', name: 'cbgroup', inputValue: 'execute.device.message.level1', checked: true},
+                            { boxLabel: 'Level 2', name: 'cbgroup', inputValue: 'execute.device.message.level2', checked: true},
+                            { boxLabel: 'Level 3', name: 'cbgroup', inputValue: 'execute.device.message.level3', checked: true},
                             { boxLabel: 'Level 4', name: 'cbgroup', inputValue: 'execute.device.message.level4'}
                         ]
                     }
@@ -305,15 +305,25 @@ Ext.define('Mdc.controller.setup.Messages', {
                 title: !setAlreadyChecked ?
                     Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of commands of '{0}'") :
                     Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for command '{0}'"),
-                msg: setAlreadyChecked ? '' : Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that already active.')
+                msg: (!setAlreadyChecked && action == 'changePrivilegesForAll') ? (Uni.I18n.translate('messages.selectPrivilegesPanelChange.msg', 'MDC', 'The selected privileges will only apply to the commands that are active now.'))
+                    : (setAlreadyChecked ? '' : Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that are not active yet.'))
             });
         if (setAlreadyChecked) {
             var checked = record.get('privileges');
             var checkboxgroup = selectPrivilegesPanel.down('checkboxgroup');
+            if (checked == '') {
+                Ext.each(checkboxgroup.items.items, function (checkbox) {
+                    checkbox.setValue(false);
+                })
+            }
+
             Ext.each(checkboxgroup.items.items, function (checkbox) {
                 for (var i = 0, l = checked.length; i < l; i++) {
-                    if (checkbox.inputValue == checked[i].privilege)
+                    if (checkbox.inputValue == checked[i].privilege) {
                         checkbox.setValue(true);
+                    } else {
+                        checkbox.setValue(false);
+                    }
                 }
             });
         }
