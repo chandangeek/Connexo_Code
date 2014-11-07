@@ -13,6 +13,9 @@ Ext.define('Dxp.view.tasks.AddScheduleGrid', {
     enableColumnResize: false,
     sortableColumns: false,
     collapsible: false,
+    viewConfig:{
+        markDirty:false
+    },
     selModel: {
         mode: 'SINGLE'
     },
