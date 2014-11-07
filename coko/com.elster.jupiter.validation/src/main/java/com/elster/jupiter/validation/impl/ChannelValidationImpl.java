@@ -122,7 +122,7 @@ final class ChannelValidationImpl implements IChannelValidation {
     
     @Override
     public boolean moveLastCheckedBefore(Instant instant) {
-    	if (!lastChecked.isAfter(instant)) {
+    	if (instant.isAfter(lastChecked)) {
     		return false;
     	}
     	Optional<BaseReadingRecord> reading = getChannel().getReadingsBefore(instant, 1).stream().findFirst();
