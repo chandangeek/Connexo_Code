@@ -128,12 +128,14 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
         }
 
         if (!Ext.isEmpty(me.stepItems) && Ext.isArray(me.stepItems) || Ext.isObject(me.stepItems)) {
-            wrapper.add({
-                xtype: 'component',
-                html: '<span class="steps-text">' + me.stepsText + '</span>'
-            });
+            if (typeof me.privileges === 'undefined' || Uni.Auth.hasAnyPrivilege(me.privileges)) {
+                wrapper.add({
+                    xtype: 'component',
+                    html: '<span class="steps-text">' + me.stepsText + '</span>'
+                });
 
-            wrapper.add(me.createSteps(me.stepItems));
+                wrapper.add(me.createSteps(me.stepItems));
+            }
         }
     },
 
