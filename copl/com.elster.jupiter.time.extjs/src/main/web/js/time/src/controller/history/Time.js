@@ -17,7 +17,7 @@ Ext.define('Tme.controller.history.Time', {
                     disabled: true, // TODO Enable when there is an actual overview page.
                     items: {
                         add: {
-                            title: Uni.I18n.translate('general.add', 'UNI', 'Add'),
+                            title: Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'),
                             route: 'add',
                             controller: 'Tme.controller.RelativePeriods',
                             action: 'showAddRelativePeriod'
