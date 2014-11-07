@@ -29,6 +29,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('validation.addRuleSet', 'CFG', 'Add validation rule set'),
+                                privileges: ['privilege.administrate.validationConfiguration'],
                                 ui: 'action',
                                 href: '#/administration/validation/rulesets/add'
                             }
@@ -38,6 +39,7 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
                         xtype: 'container',
                         itemId: 'ruleSetBrowsePreviewCt'
                     }
+
                 }
             ]
         }
