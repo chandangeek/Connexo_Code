@@ -53,11 +53,13 @@ class RegisterIncreaseValidator extends AbstractValidator {
         }
         BigDecimal previous = records.get(0).getValue();
         BigDecimal current = readingRecord.getValue();
-        
-        int comparisonResult = previous.compareTo(current);
-    
-        if (comparisonResult > 0 || comparisonResult == 0 && failEqualData) {
-            return ValidationResult.SUSPECT;
+
+        if (previous != null && current != null) {
+            int comparisonResult = previous.compareTo(current);
+
+            if (comparisonResult > 0 || comparisonResult == 0 && failEqualData) {
+                return ValidationResult.SUSPECT;
+            }
         }
         return ValidationResult.VALID;
     }
