@@ -151,7 +151,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public Optional<? extends DataExportOccurrence> getLastOccurence() {
+    public Optional<? extends DataExportOccurrence> getLastOccurrence() {
         return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("readingTask", this), new Order[]{Order.descending("startDate")},
                 false, new String[]{}, 1, 1).stream().findAny();
     }

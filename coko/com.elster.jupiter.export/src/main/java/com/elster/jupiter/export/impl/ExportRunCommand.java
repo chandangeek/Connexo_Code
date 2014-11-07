@@ -39,7 +39,7 @@ public class ExportRunCommand {
         this.dataExportService = (IDataExportService) dataExportService;
     }
 
-    public void runExport(long taskId) {
+    public void runExport(long taskId, int millisBetweenItems) {
         ReadingTypeDataExportTaskImpl exportTask = (ReadingTypeDataExportTaskImpl) dataExportService.findExportTask(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("No task with id '" + taskId + "' found"));
         try (TransactionContext context = transactionService.getContext()) {
@@ -55,12 +55,12 @@ public class ExportRunCommand {
                     Meter endDevice = (Meter) endDeviceMembership.getEndDevice();
                     for (ReadingType readingType : readingTypes) {
                         IReadingTypeDataExportItem exportItem = task.addExportItem(endDevice, readingType.getMRID());
-                        doExport(taskOccurrence, exportedDataInterval, exportItem);
+                        doExport(taskOccurrence, exportedDataInterval, exportItem, millisBetweenItems);
                     }
                 }
             } else {
                 for (ReadingTypeDataExportItem exportItem : task.getExportItems()) {
-                    doExport(taskOccurrence, exportedDataInterval, (IReadingTypeDataExportItem) exportItem);
+                    doExport(taskOccurrence, exportedDataInterval, (IReadingTypeDataExportItem) exportItem, millisBetweenItems);
                 }
             }
             exportOccurrence.end(DataExportStatus.SUCCESS);
@@ -71,10 +71,14 @@ public class ExportRunCommand {
         }
     }
 
-    private void doExport(TaskOccurrence taskOccurrence, Range<Instant> exportedDataInterval, IReadingTypeDataExportItem exportItem) {
+    private void doExport(TaskOccurrence taskOccurrence, Range<Instant> exportedDataInterval, IReadingTypeDataExportItem exportItem, int millisToWait) {
         String meterAndReadingType = ((Meter) exportItem.getReadingContainer()).getMRID() + " and reading type " + exportItem.getReadingTypeMRId();
         taskOccurrence.log(Level.INFO, Instant.now(), "Exported data for meter " + meterAndReadingType + " for period " + exportedDataInterval);
         exportItem.updateLastRunAndLastExported(Instant.now(), exportedDataInterval.upperEndpoint());
         exportItem.update();
+        try {
+            Thread.sleep(millisToWait);
+        } catch (InterruptedException e) {
+        }
     }
 }

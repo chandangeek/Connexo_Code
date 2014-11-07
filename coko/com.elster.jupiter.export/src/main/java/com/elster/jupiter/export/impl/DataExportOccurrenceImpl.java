@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
@@ -13,6 +14,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 class DataExportOccurrenceImpl implements IDataExportOccurrence {
@@ -101,5 +103,10 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     @Override
     public Instant getTriggerTime() {
         return taskOccurrence.get().getTriggerTime();
+    }
+
+    @Override
+    public List<? extends LogEntry> getLogs() {
+        return taskOccurrence.get().getLogs();
     }
 }

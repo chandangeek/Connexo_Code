@@ -1,8 +1,10 @@
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.util.logging.LogEntry;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public interface DataExportOccurrence {
@@ -16,4 +18,6 @@ public interface DataExportOccurrence {
     Range<Instant> getExportedDataInterval();
 
     Instant getTriggerTime();
+
+    List<? extends LogEntry> getLogs();
 }
