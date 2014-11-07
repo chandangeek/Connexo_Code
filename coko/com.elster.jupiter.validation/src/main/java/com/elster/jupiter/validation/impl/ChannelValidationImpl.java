@@ -76,7 +76,7 @@ final class ChannelValidationImpl implements IChannelValidation {
     private List<IValidationRule> activeRules() {
     	return getMeterActivationValidation().getRuleSet().getRules().stream()
     			.map(IValidationRule.class::cast)
-    			.filter(rule -> rule.appliesTo(channel))    			
+    			.filter(rule -> rule.appliesTo(getChannel()))    			
                 .collect(Collectors.toList());
     }
     
