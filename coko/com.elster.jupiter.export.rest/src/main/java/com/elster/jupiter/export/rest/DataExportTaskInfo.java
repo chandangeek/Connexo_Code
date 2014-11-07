@@ -2,67 +2,78 @@ package com.elster.jupiter.export.rest;
 
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.export.rest.impl.PropertyUtils;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
+import com.elster.jupiter.util.time.Never;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@XmlRootElement
 public class DataExportTaskInfo {
 
     public long id = 0;
     public boolean active = true;
     public String name = "name";
     public String dataProcessor = "dataProcessor"; //dataprocessor name
-    public TemporalExpressionInfo schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(6)));
+    public TemporalExpressionInfo schedule;
     public RelativePeriodInfo exportperiod;
     public RelativePeriodInfo updatePeriod;
     public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
     public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
     public boolean exportUpdate;
     public boolean exportContinuousData;
-    public ValidatedDataOption validatedDataOption = ValidatedDataOption.INCLUDE_ALL;
-    public DeviceGroupInfo deviceGroup;
+    public ValidatedDataOption validatedDataOption;
+    public MeterGroupInfo deviceGroup;
     public LastExportOccurenceInfo lastExportOccurence;
     public long nextRun;
 
 
-    public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask) {
+    public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus) {
         id = dataExportTask.getId();
         name = dataExportTask.getName();
 
-        deviceGroup = new DeviceGroupInfo(dataExportTask.getEndDeviceGroup());
+        deviceGroup = new MeterGroupInfo(dataExportTask.getEndDeviceGroup());
         for (ReadingType readingType : dataExportTask.getReadingTypes()) {
             readingTypes.add(new ReadingTypeInfo(readingType));
         }
 
         active = dataExportTask.isActive();
-        //TODO schedule !!
-        //schedule = dataExportTask.getSchedule() ?
 
-        exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod());
+        if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
+            schedule = null;
+        } else {
+            schedule = TemporalExpressionInfo.from((TemporalExpression) dataExportTask.getScheduleExpression());
+        }
+
+        exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod(), thesaurus);
         exportContinuousData = dataExportTask.getStrategy().isExportContinuousData();
         exportUpdate = dataExportTask.getStrategy().isExportUpdate();
         Optional<RelativePeriod> dataExportTaskUpdatePeriod = dataExportTask.getUpdatePeriod();
         if (dataExportTaskUpdatePeriod.isPresent()) {
-            updatePeriod = new RelativePeriodInfo(dataExportTaskUpdatePeriod.get());
+            updatePeriod = new RelativePeriodInfo(dataExportTaskUpdatePeriod.get(), thesaurus);
         }
         validatedDataOption = dataExportTask.getStrategy().getValidatedDataOption();
 
         dataProcessor = dataExportTask.getDataFormatter();
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
 
-        //todo last occurence
-        // lastExportOccurence = new LastExportOccurenceInfo(dataExportTask.getLastOccurrence());
-        nextRun = dataExportTask.getNextExecution().toEpochMilli();
+        lastExportOccurence = dataExportTask.getLastOccurence().map(LastExportOccurenceInfo::new).orElse(null);
 
+        Instant nextExecution = dataExportTask.getNextExecution();
+        if (nextExecution != null) {
+            nextRun = nextExecution.toEpochMilli();
+        }
 
     }
 

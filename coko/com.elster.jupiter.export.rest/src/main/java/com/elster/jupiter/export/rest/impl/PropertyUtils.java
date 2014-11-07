@@ -1,4 +1,4 @@
-package com.elster.jupiter.export.rest;
+package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.ListValueEntry;
@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 public class PropertyUtils {
-    
+
     private PropertyInfoFactory propertyInfoFactory = new PropertyInfoFactory();
-    
+
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(List<PropertySpec<?>> propertySpecs) {
         return convertPropertySpecsToPropertyInfos(propertySpecs, null);//no initial values for properties
     }
@@ -46,7 +46,7 @@ public class PropertyUtils {
         }
         return new PropertyValueInfo<>(propertyValue, defaultValue);
     }
-    
+
     private Object getPropertyValue(PropertySpec<?> propertySpec, Map<String, Object> values) {
         if (values == null) {
             return null;
@@ -81,8 +81,10 @@ public class PropertyUtils {
         }
 
         PropertySelectionMode selectionMode = PropertySelectionMode.UNSPECIFIED;
-        if ( PropertyType.LISTVALUE == propertyType ) {
+        if (PropertyType.LISTVALUE == propertyType) {
             selectionMode = PropertySelectionMode.LIST;
+        } else if (possibleValues.isExhaustive()) {
+            selectionMode = PropertySelectionMode.COMBOBOX;
         }
 
         return new PredefinedPropertyValuesInfo<>(possibleObjects, selectionMode, propertySpec.getPossibleValues().isExhaustive());
@@ -96,11 +98,11 @@ public class PropertyUtils {
         }
         return null;
     }
-    
+
     private boolean matches(PropertyInfo propertyInfo, PropertySpec<?> propertySpec) {
         return propertySpec.getName().equals(propertyInfo.key);
     }
-    
+
     private boolean hasValue(PropertyInfo propertyInfo) {
         PropertyValueInfo<?> propertyValueInfo = propertyInfo.getPropertyValueInfo();
         return propertyValueInfo != null && propertyValueInfo.getValue() != null && !propertyValueInfo.getValue().equals("");

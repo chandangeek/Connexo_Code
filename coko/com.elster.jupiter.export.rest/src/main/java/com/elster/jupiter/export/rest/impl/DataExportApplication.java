@@ -1,4 +1,4 @@
-package com.elster.jupiter.export.rest;
+package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.metering.MeteringService;
@@ -41,6 +41,8 @@ public class DataExportApplication extends Application {
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
                 DataExportTaskResource.class,
+                MeterGroupsResource.class,
+                ProcessorsResource.class,
                 LocalizedExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
                 ConstraintViolationExceptionMapper.class);
@@ -107,6 +109,7 @@ public class DataExportApplication extends Application {
                 bind(meteringGroupsService).to(MeteringGroupsService.class);
                 bind(timeService).to(TimeService.class);
                 bind(meteringService).to(MeteringService.class);
+                bind(transactionService).to(TransactionService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
