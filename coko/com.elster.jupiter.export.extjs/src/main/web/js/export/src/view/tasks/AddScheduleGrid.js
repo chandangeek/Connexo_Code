@@ -42,7 +42,7 @@ Ext.define('Dxp.view.tasks.AddScheduleGrid', {
                 dataIndex: 'end',
                 flex: 1,
                 renderer: function (value) {
-                    return moment(value).format('dddd MMMM D, YYYY HH:mm:ss') + ' ' + Uni.I18n.translate('general.at', 'DXP', 'at') + ' ' + moment(value).format('HH:mm:ss')
+                    return moment(value).format('dddd MMMM D, YYYY') + ' ' + Uni.I18n.translate('general.at', 'DXP', 'at') + ' ' + moment(value).format('HH:mm:ss')
                 }
             }
         ]
