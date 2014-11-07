@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
@@ -21,13 +22,11 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-@Component(name = "com.elster.jupiter.export.rest", service = Application.class, immediate = true, property = {"alias=/export"})
-public class DataExportApplication extends Application {
-
+@Component(name = "com.elster.jupiter.export.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/export",  "name=" + DataExportApplication.COMPONENT_NAME})
+public class DataExportApplication extends Application implements InstallService {
+    public static final String COMPONENT_NAME = "DER";
     private volatile DataExportService dataExportService;
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
@@ -92,6 +91,16 @@ public class DataExportApplication extends Application {
     @Deactivate
     public void deactivate() {
 
+    }
+
+    @Override
+    public final void install() {
+        new TranslationInstaller(thesaurus).createTranslations();
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "NLS", "DES");
     }
 
     @Override

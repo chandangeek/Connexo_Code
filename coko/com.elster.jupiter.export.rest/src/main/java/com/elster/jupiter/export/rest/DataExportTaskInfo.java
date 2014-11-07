@@ -68,7 +68,7 @@ public class DataExportTaskInfo {
         dataProcessor = dataExportTask.getDataFormatter();
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
 
-        lastExportOccurence = dataExportTask.getLastOccurence().map(LastExportOccurenceInfo::new).orElse(null);
+        lastExportOccurence = dataExportTask.getLastOccurence().map(oc -> new LastExportOccurenceInfo(oc, thesaurus)).orElse(null);
 
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {

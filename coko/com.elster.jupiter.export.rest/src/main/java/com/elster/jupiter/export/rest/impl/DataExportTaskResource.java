@@ -2,6 +2,7 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
@@ -10,6 +11,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
@@ -17,7 +20,9 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.impl.*;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
+import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Order;
@@ -38,6 +43,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.sql.SQLException;
+import java.sql.SQLTransientConnectionException;
 import java.util.List;
 
 @Path("/dataexporttask")
@@ -120,6 +127,24 @@ public class DataExportTaskResource {
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus)).build();
+    }
+
+    @DELETE
+    @Path("/{id}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response removeDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
+        ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
+
+        if (task.getLastOccurence().isPresent() && task.getLastOccurence().get().getStatus().equals(DataExportStatus.BUSY)) {
+           throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
+        }
+        try (TransactionContext context = transactionService.getContext()) {
+            task.delete();
+            context.commit();
+        } catch (CommitException ex) {
+            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_SQL_EXCEPTION, "status", thesaurus.getStringBeyondComponent(task.getName(), task.getName()));
+        }
+        return Response.status(Response.Status.OK).build();
     }
 
     @PUT
