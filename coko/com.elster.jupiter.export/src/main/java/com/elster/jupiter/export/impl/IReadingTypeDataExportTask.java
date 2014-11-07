@@ -14,8 +14,6 @@ interface IReadingTypeDataExportTask extends ReadingTypeDataExportTask {
 
     String getDisplayName(String name);
 
-    void addReadingType(String mrid);
-
     void setScheduleImmediately(boolean scheduleImmediately);
 
     void setValidatedDataOption(ValidatedDataOption validatedDataOption);

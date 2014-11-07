@@ -68,5 +68,7 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     void addReadingType(ReadingType readingType);
 
+    void addReadingType(String readingTypeMrid);
+
     void setUpdatePeriod(RelativePeriod relativePeriod);
 }
