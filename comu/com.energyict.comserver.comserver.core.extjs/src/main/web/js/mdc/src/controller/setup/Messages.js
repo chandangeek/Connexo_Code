@@ -350,9 +350,7 @@ Ext.define('Mdc.controller.setup.Messages', {
         model.set('messageIds', inactiveEnablements);
         model.set('privileges', privileges);
         model.save();
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
-        this.getMessagesCategoriesGrid().store.load();
+        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
     },
 
     deactivateRequest: function(message) {
@@ -393,10 +391,7 @@ Ext.define('Mdc.controller.setup.Messages', {
             me.deactivateRequest(e);
         });
 
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
-        this.getMessagesCategoriesGrid().store.load();
-
+        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
     },
 
     changePrivilegesForAll: function (messagesCategory, privileges) {
@@ -408,9 +403,7 @@ Ext.define('Mdc.controller.setup.Messages', {
         });
         this.changeRequest(activeEnablements, privileges);
         var router = this.getController('Uni.controller.history.Router');
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
-        this.getMessagesCategoriesGrid().store.load();
+        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
     },
 
     activate: function (message, privileges) {
@@ -423,10 +416,7 @@ Ext.define('Mdc.controller.setup.Messages', {
         model.set('messageIds', messageIds);
         model.set('privileges', privileges);
         model.save();
-
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
-        this.getMessagesCategoriesGrid().store.load();
+        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
     },
 
     deactivate: function (message) {
@@ -434,9 +424,7 @@ Ext.define('Mdc.controller.setup.Messages', {
         messageIds.push(message.get('id'));
         this.deactivateRequest(messageIds);
         var router = this.getController('Uni.controller.history.Router');
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
-        this.getMessagesCategoriesGrid().store.load();
+        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
     },
 
     changePrivileges: function (message, privileges) {
@@ -444,10 +432,7 @@ Ext.define('Mdc.controller.setup.Messages', {
         messageIds.push(message.get('id'));
         this.changeRequest(messageIds, privileges);
         var router = this.getController('Uni.controller.history.Router');
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
-        this.getMessagesCategoriesGrid().store.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
-        this.getMessagesCategoriesGrid().store.load();
-
+        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
     },
     changeRequest: function(message, privileges) {
         var router = this.getController('Uni.controller.history.Router');
