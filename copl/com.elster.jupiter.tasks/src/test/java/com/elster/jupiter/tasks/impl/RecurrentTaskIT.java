@@ -184,8 +184,8 @@ public class RecurrentTaskIT {
         assertThat(logs).hasSize(1);
         TaskLogEntry entry = logs.get(0);
         assertThat(entry.getTaskOccurrence()).isEqualTo(occurrence);
-        assertThat(entry.getTimeStamp()).isEqualTo(now);
-        assertThat(entry.getLevel()).isEqualTo(Level.INFO);
+        assertThat(entry.getTimestamp()).isEqualTo(now);
+        assertThat(entry.getLogLevel()).isEqualTo(Level.INFO);
         assertThat(entry.getMessage()).isEqualTo("Coucou");
 
     }

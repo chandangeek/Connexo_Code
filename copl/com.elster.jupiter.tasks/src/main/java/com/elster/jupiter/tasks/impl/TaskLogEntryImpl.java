@@ -42,7 +42,7 @@ public class TaskLogEntryImpl implements TaskLogEntry {
     }
 
     @Override
-    public Instant getTimeStamp() {
+    public Instant getTimestamp() {
         return timeStamp;
     }
 
@@ -52,7 +52,7 @@ public class TaskLogEntryImpl implements TaskLogEntry {
     }
 
     @Override
-    public Level getLevel() {
+    public Level getLogLevel() {
         return Level.parse(Integer.toString(level));
     }
 
