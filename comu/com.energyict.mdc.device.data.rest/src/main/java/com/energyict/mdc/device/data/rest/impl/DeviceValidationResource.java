@@ -250,7 +250,7 @@ public class DeviceValidationResource {
     @Path("/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.VALIDATE_DEVICE)
+    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.VALIDATE_MANUAL)
     public Response validateDeviceData(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);

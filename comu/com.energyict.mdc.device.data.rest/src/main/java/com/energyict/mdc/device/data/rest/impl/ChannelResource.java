@@ -236,7 +236,7 @@ public class ChannelResource {
     @Path("{channelid}/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.VALIDATE_DEVICE)
+    @RolesAllowed(Privileges.VALIDATE_MANUAL)
     public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
 
         Instant start = validationInfo.lastChecked == null ? null : Instant.ofEpochMilli(validationInfo.lastChecked);
