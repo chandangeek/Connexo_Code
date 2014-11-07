@@ -36,4 +36,8 @@ public interface RecurrentTask extends HasName {
     void resume();
 
     ScheduleExpression getScheduleExpression();
+
+    void setNextExecution(Instant instant);
+
+    void setScheduleExpression(ScheduleExpression scheduleExpression);
 }
