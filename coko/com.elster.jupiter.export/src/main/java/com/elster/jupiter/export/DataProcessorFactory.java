@@ -13,5 +13,4 @@ public interface DataProcessorFactory extends HasName {
 
     String getName();
 
-    DataProcessor createTemplateDataFormatter();
 }

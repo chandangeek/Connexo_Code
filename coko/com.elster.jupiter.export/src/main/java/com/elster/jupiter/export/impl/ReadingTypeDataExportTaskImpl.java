@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStrategy;
@@ -11,6 +12,8 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
@@ -22,6 +25,8 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,9 +45,14 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private final DataExportStrategyImpl dataExportStrategy = new DataExportStrategyImpl();
 
     private long id;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")
     private String name;
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<RelativePeriod> exportPeriod = ValueReference.absent();
     private Reference<RelativePeriod> updatePeriod = ValueReference.absent();
+    @NotNull
+    @IsExistingProcessor
     private String dataProcessor;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
@@ -141,6 +151,14 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
+    public Optional<? extends DataExportOccurrence> getLastOccurence() {
+// TODO comment in when TABLESPECS HAVE BEEN DEFINED FOR  DataExportOccurrence
+//       return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("taskOccurrence", this), new Order[] {Order.descending("startDate")},
+//                false, new String[]{}, 1, 1). stream().findAny();
+        return Optional.empty();
+    }
+
+    @Override
     public DataExportStrategy getStrategy() {
         return dataExportStrategy;
     }
@@ -166,9 +184,9 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
             RecurrentTask task = builder.build();
             task.save();
             recurrentTask.set(task);
-            dataModel.persist(this);
+            Save.CREATE.save(dataModel, this);
         } else {
-            dataModel.update(this);
+            Save.UPDATE.save(dataModel, this);
         }
     }
 
@@ -178,16 +196,10 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     public PropertySpec<?> getPropertySpec(String name) {
-        return getTemplateDataProcessor(getDataFormatter()).getPropertySpecs().stream()
+        return getPropertySpecs().stream()
                 .filter(p -> name.equals(p.getName()))
                 .findFirst()
                 .orElse(null);
-    }
-
-    private DataProcessor getTemplateDataProcessor(String name) {
-        return dataExportService.getDataProcessorFactory(name)
-                .orElseThrow(NoSuchDataProcessorException::new)
-                .createTemplateDataFormatter();
     }
 
     @Override
@@ -246,37 +258,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         this.exportUpdate = exportUpdate;
     }
 
-    @Override
-    public List<ReadingTypeDataExportItem> getExportItems() {
-        return Collections.unmodifiableList(exportItems);
-    }
-
-    public IReadingTypeDataExportItem addExportItem(Meter meter, String readingTypeMRId) {
-        ReadingTypeDataExportItemImpl item = ReadingTypeDataExportItemImpl.from(dataModel, this, meter, readingTypeMRId);
-        exportItems.add(item);
-        return item;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ReadingTypeDataExportTaskImpl that = (ReadingTypeDataExportTaskImpl) o;
-
-        if (id != that.id) return false;
-        if (!name.equals(that.name)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + name.hashCode();
-        return result;
-    }
-
     private class DataExportStrategyImpl implements DataExportStrategy {
         @Override
         public boolean isExportUpdate() {
@@ -306,6 +287,11 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public List<PropertySpec<?>> getPropertySpecs() {
-        return getTemplateDataProcessor(getDataFormatter()).getPropertySpecs();
+        return dataExportService.getDataProcessorFactory(dataProcessor).orElseThrow(IllegalArgumentException::new).getProperties();
+    }
+
+    @Override
+    public ScheduleExpression getScheduleExpression() {
+        return recurrentTask.get().getScheduleExpression();
     }
 }

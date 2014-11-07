@@ -4,12 +4,10 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -33,6 +31,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +52,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile Clock clock;
 
     private List<DataProcessorFactory> dataProcessorFactories = new CopyOnWriteArrayList<>();
-    private DestinationSpec destinationSpec;
+    private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private QueryService queryService;
 
     public DataExportServiceImpl() {
@@ -106,14 +105,16 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public List<PropertySpec<?>> getPropertiesSpecsForProcessor(String name) {
         return getDataProcessorFactory(name)
-                .map(DataProcessorFactory::createTemplateDataFormatter)
-                .map(DataProcessor::getPropertySpecs)
+                .map(DataProcessorFactory::getProperties)
                 .orElse(Collections.emptyList());
     }
 
     @Override
     public DestinationSpec getDestination() {
-        return destinationSpec;
+        if (!destinationSpec.isPresent()) {
+            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
+        }
+        return destinationSpec.orElse(null);
     }
 
     @Override
@@ -125,19 +126,13 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public void install() {
-        try {
-            dataModel.install(true, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
-        destinationSpec.save();
+        Installer installer = new Installer(dataModel, messageService, timeService, thesaurus);
+        installer.install();
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME);
+        return Arrays.asList(OrmService.COMPONENTNAME, TimeService.COMPONENT_NAME, MeteringService.COMPONENTNAME, TaskService.COMPONENTNAME, MeteringGroupsService.COMPONENTNAME, MessageService.COMPONENTNAME, NlsService.COMPONENTNAME);
     }
 
     @Reference
@@ -156,9 +151,6 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
-        if (dataModel.isInstalled()) {
-            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME).get();
-        }
     }
 
     @Reference
@@ -178,6 +170,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                 bind(IDataExportService.class).toInstance(DataExportServiceImpl.this);
                 bind(TaskService.class).toInstance(taskService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
             }
         });
@@ -187,7 +180,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     public final void deactivate() {
     }
 
-
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.DOMAIN);
     }
@@ -215,15 +208,5 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
-    }
-
-    @Override
-    public IDataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence) {
-        IReadingTypeDataExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
-        return DataExportOccurrenceImpl.from(dataModel, taskOccurrence, task);
-    }
-
-    private Optional<IReadingTypeDataExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
-        return dataModel.mapper(IReadingTypeDataExportTask.class).getUnique("recurrentTask", recurrentTask);
     }
 }

@@ -97,4 +97,9 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
         this.status = status;
         this.endDate = clock.instant();
     }
+
+    @Override
+    public Instant getTriggerTime() {
+        return taskOccurrence.get().getTriggerTime();
+    }
 }

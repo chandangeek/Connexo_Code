@@ -1,7 +1,6 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.MessageSeeds;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -17,7 +16,7 @@ class ReadingTypeInExportTask {
 
     private final MeteringService meteringService;
 
-    @ValidReadingType(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NO_SUCH_READINGTYPE + "}")
+    @ValidReadingType(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NO_SUCH_READINGTYPE + "}")
     private String readingTypeMRID;
 
     private transient ReadingType readingType;

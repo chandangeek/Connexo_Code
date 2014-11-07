@@ -15,4 +15,5 @@ public interface DataExportOccurrence {
 
     Range<Instant> getExportedDataInterval();
 
+    Instant getTriggerTime();
 }

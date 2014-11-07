@@ -163,8 +163,7 @@ public class ReadingTypeDataExportTaskImplIT {
         readingType = meteringService.getReadingType("0.0.3.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         dataExportService.addResource(dataProcessorFactory);
         when(dataProcessorFactory.getName()).thenReturn(FORMATTER);
-        when(dataProcessorFactory.createTemplateDataFormatter()).thenReturn(dataProcessor);
-        when(dataProcessor.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        when(dataProcessorFactory.getProperties()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
         when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
     }
