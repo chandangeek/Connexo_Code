@@ -3,8 +3,6 @@ package com.elster.jupiter.datavault.impl;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import java.io.InputStream;
-import java.security.KeyStore;
 import java.util.Random;
 import javax.inject.Inject;
 import org.junit.Before;
@@ -129,22 +127,7 @@ public class KeyStoreDataVaultTest {
         @Inject
         public JarKeyStoreDataVault(Random random, ExceptionFactory exceptionFactory) {
             super(random, exceptionFactory);
+            readKeyStore(this.getClass().getClassLoader().getResourceAsStream(eictKeyStoreResourceName));
         }
-
-        @Override
-        protected KeyStore readKeyStore(char[] password) {
-            try {
-                KeyStore keyStore = KeyStore.getInstance("JCEKS");
-                final InputStream stream = this.getClass().getClassLoader().getResourceAsStream(eictKeyStoreResourceName);
-                if (stream==null) {
-                    throw new Exception("Key store not found: "+ eictKeyStoreResourceName);
-                }
-                keyStore.load(stream, password);
-                return keyStore;
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to load KeyStore from jar", e);
-            }
-        }
-
     }
 }

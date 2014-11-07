@@ -10,10 +10,10 @@ public enum TableSpecs {
     DVA_KEYSTORE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<KeyStoreImpl> table = dataModel.addTable(name(), KeyStoreImpl.class);
-            table.map(KeyStoreImpl.class);
+            Table<OrmKeyStoreImpl> table = dataModel.addTable(name(), OrmKeyStoreImpl.class);
+            table.map(OrmKeyStoreImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("STOREDATA").number().conversion(BLOB2BYTE).map(KeyStoreImpl.Fields.STORE_DATA.fieldName()).add();
+            table.column("STOREDATA").number().conversion(BLOB2BYTE).map(OrmKeyStoreImpl.Fields.STORE_DATA.fieldName()).add();
             table.primaryKey("PK_DVA_STORE").on(idColumn).add();
         }
     };

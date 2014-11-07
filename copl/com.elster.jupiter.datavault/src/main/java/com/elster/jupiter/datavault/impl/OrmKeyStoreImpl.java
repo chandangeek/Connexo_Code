@@ -2,10 +2,7 @@ package com.elster.jupiter.datavault.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.security.KeyStore;
-import java.util.Random;
 import javax.inject.Inject;
 
 /**
@@ -15,10 +12,10 @@ import javax.inject.Inject;
  *
  * @since 10/4/12 10:48 AM
  */
-public class KeyStoreImpl extends KeyStoreDataVault {
+public class OrmKeyStoreImpl {
 
-    private final ExceptionFactory exceptionFactory;
     private final DataModel dataModel;
+    private final KeyStoreDataVault keyStoreDataVault;
 
     enum Fields {
         STORE_DATA("keyStore"),
@@ -38,26 +35,14 @@ public class KeyStoreImpl extends KeyStoreDataVault {
     private byte[] keyStore;
 
     @Inject
-    public KeyStoreImpl(ExceptionFactory exceptionFactory, DataModel dataModel, Random random) {
-        super(random, exceptionFactory);
-        this.exceptionFactory = exceptionFactory;
+    public OrmKeyStoreImpl(DataModel dataModel, KeyStoreDataVault keyStoreDataVault) {
         this.dataModel = dataModel;
+        this.keyStoreDataVault = keyStoreDataVault;
     }
 
-    protected KeyStore readKeyStore(char[] password)  {
-        try {
-            KeyStore keyStore = KeyStore.getInstance("JCEKS");
-            final ByteArrayInputStream stream = new ByteArrayInputStream(this.keyStore);
-            keyStore.load(stream, password);
-            return keyStore;
-        } catch (Exception e) {
-            throw exceptionFactory.newException(MessageSeeds.KEYSTORE_LOAD_FILE);
-        }
-    }
-
-    public KeyStoreImpl createNewDataVault() {
+    public OrmKeyStoreImpl createNewDataVault() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        super.createVault(outputStream);
+        keyStoreDataVault.createVault(outputStream);
         this.keyStore = outputStream.toByteArray();
         this.save();
         return this;
@@ -67,8 +52,12 @@ public class KeyStoreImpl extends KeyStoreDataVault {
         Save.action(this.id).save(dataModel, this);
     }
 
-    public boolean hasKeyStore() {
-        return false;
+    public long getId() {
+        return id;
     }
 
+
+    public byte[] getKeyStoreBytes() {
+        return keyStore;
+    }
 }

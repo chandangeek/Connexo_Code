@@ -4,6 +4,7 @@ import com.elster.jupiter.datavault.DataVault;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.util.Checks;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -37,7 +38,7 @@ import javax.inject.Inject;
  * -appending that key's id to the cipherText
  * -base64 encoding the encrypted value for easy storage as varchar
  */
-public abstract class KeyStoreDataVault implements DataVault {
+public class KeyStoreDataVault implements DataVault {
     private static final int IV_SIZE = 16;
     private static final String AES_CBC_PKCS5_PADDING = "AES/CBC/PKCS5Padding";
 
@@ -53,14 +54,14 @@ public abstract class KeyStoreDataVault implements DataVault {
         this.exceptionFactory = exceptionFactory;
     }
 
-    private KeyStore getKeyStore() {
-        if (keyStore==null) {
-            keyStore=readKeyStore(getPassword());
+    void readKeyStore(InputStream keyStoreBytes) {
+        try {
+            this.keyStore = KeyStore.getInstance("JCEKS");
+            keyStore.load(keyStoreBytes, getPassword());
+        } catch (Exception e) {
+            throw exceptionFactory.newException(MessageSeeds.KEYSTORE_LOAD_FILE);
         }
-        return keyStore;
     }
-
-    abstract protected KeyStore readKeyStore(char[] password);
 
     @Override
     public String encrypt(byte[] plainText) {
@@ -68,7 +69,7 @@ public abstract class KeyStoreDataVault implements DataVault {
             return "";
         }
         try {
-            int encryptionKeyId = random.nextInt(getKeyStore().size()) + 1;
+            int encryptionKeyId = random.nextInt(this.keyStore.size()) + 1;
             Cipher cipher = getEncryptionCipherForKey(getKeyAlias(encryptionKeyId));
             byte[] cipherText = cipher.doFinal(plainText);
             byte[] iv = cipher.getIV();
@@ -150,7 +151,7 @@ public abstract class KeyStoreDataVault implements DataVault {
     }
 
     private SecretKeySpec createKeySpecForKey(String keyAlias) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException, IOException, CertificateException {
-        final Key key = getKeyStore().getKey(keyAlias, getPassword());
+        final Key key = this.keyStore.getKey(keyAlias, getPassword());
         if (key==null) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_KEY); // Not giving details about key for security reasons
         }
