@@ -11,7 +11,7 @@ Ext.define('MdcApp.controller.Main', {
         'privilege.view.creationRule','privilege.administrate.creationRule','privilege.view.assignmentRule','privilege.administrate.validationConfiguration',
         'privilege.view.validationConfiguration','privilege.administrate.schedule','privilege.view.schedule','privilege.administrate.communicationInfrastructure',
         'privilege.view.communicationInfrastructure','privilege.administrate.protocol','privilege.view.protocol','privilege.administrate.deviceConfiguration',
-        'privilege.view.deviceConfiguration','privilege.administrate.device','privilege.view.device','privilege.view.validateDevice','privilege.view.scheduleDevice',
+        'privilege.view.deviceConfiguration','privilege.administrate.device','privilege.view.device','privilege.view.validateManual','privilege.view.fineTuneValidationConfiguration','privilege.view.scheduleDevice',
         'privilege.import.inventoryManagement','privilege.revoke.inventoryManagement','privilege.create.inventoryManagement','privilege.administrate.deviceSecurity',
         'privilege.view.deviceSecurity'],
     controllers: [
