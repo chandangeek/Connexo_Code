@@ -454,7 +454,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
                                 me.availableMeasurementTypesStore.load({
                                     callback: function () {
-                                        debugger;
                                         var readingTypesStore = Ext.create('Ext.data.Store', { model: 'Mdc.model.ReadingType' });
                                         this.each(function (record) {
                                             readingTypesStore.add(record.get('readingType'));
