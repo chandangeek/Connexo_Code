@@ -38,6 +38,8 @@ Ext.define('Dxp.controller.Tasks', {
         }
     ],
 
+    readingTypeIndex: 2,
+
     init: function () {
         this.control({
             'data-export-tasks-add #recurrence-trigger': {
