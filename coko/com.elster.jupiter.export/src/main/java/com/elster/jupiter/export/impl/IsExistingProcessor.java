@@ -9,16 +9,16 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Target({ ElementType.FIELD })
+@Target({ElementType.FIELD})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { ExistingProcessorValidator.class })
+@Constraint(validatedBy = {ExistingProcessorValidator.class})
 public @interface IsExistingProcessor {
 
     String message() default "{" + MessageSeeds.Keys.NO_SUCH_PROCESSOR + "}";
 
-    Class<?>[] groups() default { };
+    Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default { };
+    Class<? extends Payload>[] payload() default {};
 
 }
