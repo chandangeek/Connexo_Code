@@ -28,7 +28,7 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         },
         {
             ref: 'devicesSearchSideFilterForm',
-            selector: 'mdc-search-results-side-filter form'
+            selector: 'mdc-search-results-side-filter'
         },
         {
             ref: 'dynamicRadioButton',

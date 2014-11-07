@@ -78,14 +78,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             ref: 'step2FormErrorMessage',
             selector: 'devicegroup-wizard-step2 uni-form-error-message'
         },
-        /*{
-         ref: 'staticGrid',
-         selector: 'mdc-search-results bulk-selection-mdc-search-results-grid'
-         },
-         {
-         ref: 'dynamicGrid',
-         selector: 'mdc-search-results mdc-search-results-grid'
-         },*/
         {
             ref: 'staticGrid',
             selector: 'mdc-search-results #static-grid'
@@ -274,8 +266,8 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     showAddDeviceGroupAction: function () {
         if (this.createWidget) {
-            //if (this.addDeviceGroupWidget == null) {
             this.addDeviceGroupWidget = Ext.widget('add-devicegroup-browse');
+
             this.getApplication().fireEvent('changecontentevent', this.addDeviceGroupWidget);
             this.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').initFilterModel();
             this.getAddDeviceGroupSideFilter().setVisible(false);
