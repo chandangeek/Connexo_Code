@@ -80,8 +80,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
             {
                 xtype: 'edited-column',
                 header: '',
-                dataIndex: 'modificationState',
-                width: 30
+                dataIndex: 'editedTime'
             },
             {
                 xtype: 'interval-flags-column',
