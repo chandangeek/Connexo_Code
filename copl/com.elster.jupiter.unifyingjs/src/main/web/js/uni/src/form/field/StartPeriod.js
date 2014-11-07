@@ -126,11 +126,11 @@ Ext.define('Uni.form.field.StartPeriod', {
                         fields: ['name', 'value'],
                         data: (function () {
                             return [
-                                {name: Uni.I18n.translate('period.months', 'UNI', 'Month(s)'), value: 'months'},
-                                {name: Uni.I18n.translate('period.weeks', 'UNI', 'Week(s)'), value: 'weeks'},
-                                {name: Uni.I18n.translate('period.days', 'UNI', 'Day(s)'), value: 'days'},
-                                {name: Uni.I18n.translate('period.hours', 'UNI', 'Hour(s)'), value: 'hours'},
-                                {name: Uni.I18n.translate('period.minutes', 'UNI', 'Minute(s)'), value: 'minutes'}
+                                {name: Uni.I18n.translate('period.months', 'UNI', 'month(s)'), value: 'months'},
+                                {name: Uni.I18n.translate('period.weeks', 'UNI', 'week(s)'), value: 'weeks'},
+                                {name: Uni.I18n.translate('period.days', 'UNI', 'day(s)'), value: 'days'},
+                                {name: Uni.I18n.translate('period.hours', 'UNI', 'hour(s)'), value: 'hours'},
+                                {name: Uni.I18n.translate('period.minutes', 'UNI', 'minute(s)'), value: 'minutes'}
                             ];
                         })()
                     }),
