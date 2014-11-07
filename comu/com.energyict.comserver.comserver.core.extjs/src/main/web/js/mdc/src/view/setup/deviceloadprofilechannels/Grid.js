@@ -19,18 +19,13 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channel', 'MDC', 'Channel'),
-                dataIndex: 'name',
-                renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data').buildUrl({mRID: me.mRID, loadProfileId: me.loadProfileId, channelId: record.getId()});
-                    return '<a href="' + url + '">' + value + '</a>';
-                },
-                flex: 2
-            },
-            {
-                header: Uni.I18n.translate('deviceloadprofiles.unitOfMeasure', 'MDC', 'Unit of measure'),
-                dataIndex: 'unitOfMeasure_formatted',
-                flex: 2
+                xtype: 'reading-type-column',
+                dataIndex: 'readingType',
+                flex: 2,
+                showTimeAttribute: false,
+                makeLink: function (record) {
+                    return me.router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data').buildUrl({mRID: me.mRID, loadProfileId: me.loadProfileId, channelId: record.getId()});
+                }
             },
             {
                 xtype: 'uni-actioncolumn',

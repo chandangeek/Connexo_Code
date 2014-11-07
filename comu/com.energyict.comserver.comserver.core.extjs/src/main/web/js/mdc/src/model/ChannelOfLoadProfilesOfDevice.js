@@ -8,7 +8,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         {name: 'name', type: 'string'},
         {name: 'interval', type: 'auto'},
         {name: 'unitOfMeasure', type: 'auto'},
-        {name: 'cimReadingType', type: 'string'},
+        {name: 'readingType', type: 'auto'},
         {name: 'obisCode', type: 'string'},
         {name: 'multiplier', type: 'int'},
         {name: 'overflowValue', type: 'int'},

@@ -27,17 +27,10 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
                     },
                     items: [
                         {
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.name', 'MDC', 'Name'),
-                            name: 'name'
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.unitOfMeasure', 'MDC', 'Unit of measure'),
-                            name: 'unitOfMeasure_formatted'
-                        },
-                        {
                             xtype: 'reading-type-displayfield',
+                            name: 'readingType',
                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'),
-                            name: 'cimReadingType'
+                            showTimeAttribute: false
                         },
                         {
                             xtype: 'obis-displayfield',

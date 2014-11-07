@@ -28,11 +28,12 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigGrid', {
             {
                 header: Uni.I18n.translate('registerConfigs.name', 'MDC', 'Register type'),
                 dataIndex: 'name',
-                flex: 3
+                flex: 1
             },
             {
                 xtype: 'reading-type-column',
-                dataIndex: 'readingType'
+                dataIndex: 'readingType',
+                flex: 1
             },
             {
                 xtype: 'obis-column',

@@ -34,8 +34,10 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
                                 },
                                 items: [
                                     {
-                                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.name', 'MDC', 'Name'),
-                                        name: 'name'
+                                        xtype: 'reading-type-displayfield',
+                                        name: 'readingType',
+                                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'),
+                                        showTimeAttribute: false
                                     },
                                     {
                                         fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
@@ -70,11 +72,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
                                                 width: 16
                                             }
                                         ]
-                                    },
-                                    {
-                                        xtype: 'reading-type-displayfield',
-                                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'),
-                                        name: 'cimReadingType'
                                     },
                                     {
                                         xtype: 'obis-displayfield',

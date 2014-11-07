@@ -35,17 +35,17 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddMeasurementTypesGri
         {
             header: 'Name',
             dataIndex: 'name',
-            flex: 3
+            flex: 2
         },
         {
             xtype: 'obis-column',
-            dataIndex: 'obisCode'
+            dataIndex: 'obisCode',
+            flex: 1
         },
         {
             xtype: 'reading-type-column',
-            header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
             dataIndex: 'readingType',
-            align: 'right'
+            flex: 2
         }
     ]
 });

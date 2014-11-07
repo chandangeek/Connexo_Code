@@ -23,11 +23,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
             },
             {
                 xtype: 'reading-type-column',
-                dataIndex: 'readingType'
+                dataIndex: 'readingType',
+                flex: 3
             },
             {
                 xtype: 'obis-column',
-                dataIndex: 'obisCode'
+                dataIndex: 'obisCode',
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('registerMappings.type', 'MDC', 'Type'),

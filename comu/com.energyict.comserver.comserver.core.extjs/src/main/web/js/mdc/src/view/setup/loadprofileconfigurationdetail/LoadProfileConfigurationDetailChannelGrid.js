@@ -19,18 +19,14 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     initComponent: function () {
         this.columns = [
             {
-                header: 'Measurement Type',
-                dataIndex: 'name',
+                xtype: 'reading-type-column',
+                dataIndex: 'readingType',
                 flex: 3
             },
             {
-                xtype: 'reading-type-column',
-                header: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
-                dataIndex: 'readingType'
-            },
-            {
                 xtype: 'obis-column',
-                dataIndex: 'overruledObisCode'
+                dataIndex: 'overruledObisCode',
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',

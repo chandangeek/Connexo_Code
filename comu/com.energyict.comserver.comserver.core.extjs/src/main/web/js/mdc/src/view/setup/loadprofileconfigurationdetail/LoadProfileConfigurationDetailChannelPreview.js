@@ -30,12 +30,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     columnWidth: 0.6,
                     items: [
                         {
-                            fieldLabel: 'Measurement type',
-                            name: 'name'
-                        },
-                        {
                             xtype: 'reading-type-displayfield',
-                            fieldLabel: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
                             name: 'readingType'
                         },
                         {

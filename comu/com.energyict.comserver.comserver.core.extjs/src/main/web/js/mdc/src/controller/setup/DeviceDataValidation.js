@@ -108,8 +108,10 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             validationRule = grid.lastSelected,
             properties = validationRule.data.properties,
             readingTypes = validationRule.data.readingTypes;
+
         rulePreview.loadRecord(validationRule);
         rulePreview.setTitle(validationRule.get('name'));
+
         rulePreview.down('#propertiesArea').removeAll();
         for (var i = 0; i < properties.length; i++) {
             var property = properties[i];
@@ -129,15 +131,12 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 }
             );
         }
+
         rulePreview.down('#readingTypesArea').removeAll();
         for (var i = 0; i < readingTypes.length; i++) {
-            var readingType = readingTypes[i];
-            var aliasName = readingType.aliasName;
-            var mRID = readingType.mRID;
-            var fieldlabel = Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)');
-            if (i > 0) {
-                fieldlabel = '&nbsp';
-            }
+            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)'),
+                readingType = readingTypes[i];
+
             rulePreview.down('#readingTypesArea').add(
                 {
                     xtype: 'container',
@@ -146,17 +145,10 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                     },
                     items: [
                         {
-                            xtype: 'displayfield',
+                            xtype: 'reading-type-displayfield',
                             fieldLabel: fieldlabel,
                             labelWidth: 260,
-                            width: 500,
-                            value: mRID
-                        },
-                        {
-                            xtype: 'component',
-                            width: 500,
-                            html: '<span style="color:grey"><i>' + aliasName + '</i></span>',
-                            margin: '5 0 0 10'
+                            value: readingType
                         }
                     ]
                 }

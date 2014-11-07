@@ -31,35 +31,19 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     margin: '0 0 32 0'
                 },
                 {
-                    xtype: 'displayfield',
-                    required: true,
-                    fieldLabel: 'Measurement type',
-                    name: 'measurementtype',
-                    value: 'measurementType',
+                    xtype: 'reading-type-displayfield',
                     hidden: true
                 },
                 {
-                    xtype: 'combobox',
+                    xtype: 'reading-type-combo',
                     required: true,
                     allowBlank: false,
-                    fieldLabel: 'Measurement type',
-                    emptyText: 'Select a measurement type',
-                    name: 'measurementType',
-                    displayField: 'name',
-                    forceSelection: true,
-                    valueField: 'id',
-                    queryMode: 'local'
-                },
-                {
-                    xtype: 'reading-type-displayfield',
-                    fieldLabel: Uni.I18n.translate('registerMappings.readingType', 'MDC', 'Reading type'),
-                    emptyText: 'Select a measurement type first',
-                    name: 'readingType'
+                    submitValue: false
                 },
                 {
                     xtype: 'obis-displayfield',
                     name: 'obiscode',
-                    value: 'Select a measurement type first'
+                    value: 'Select a reading type first'
                 },
                 {
                     xtype: 'obis-field',
@@ -90,7 +74,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 },
                 {
                     xtype: 'numberfield',
-                    fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC' ,'Number of fraction digits'),
+                    fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC', 'Number of fraction digits'),
                     name: 'nbrOfFractionDigits',
                     required: true,
                     value: 0,
