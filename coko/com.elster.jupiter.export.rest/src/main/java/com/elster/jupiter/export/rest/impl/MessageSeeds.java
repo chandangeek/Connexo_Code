@@ -9,7 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
-    ;
+    DELETE_TASK_STATUS_BUSY(1, Keys.DELETE_TASK_STATUS_BUSY, "The data export task cannot be removed because the task is running at this moment.", Level.SEVERE),
+    DELETE_TASK_SQL_EXCEPTION(2, Keys.DELETE_TASK_SQL_EXCEPTION, "Data export task {0} could not be removed. There was a problem accessing the database", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -56,5 +57,12 @@ public enum MessageSeeds implements MessageSeed {
     public void log(Logger logger, Thesaurus thesaurus, Throwable t, Object... args) {
         NlsMessageFormat format = thesaurus.getFormat(this);
         logger.log(getLevel(), format.format(args), t);
+    }
+
+    public enum Keys {
+        ;
+        private static final String KEY_PREFIX = DataExportService.COMPONENTNAME + '.';
+        public static final String DELETE_TASK_STATUS_BUSY = "DeleteTaskStatusBusy";
+        public static final String DELETE_TASK_SQL_EXCEPTION = "DeleteTaskSqlException";
     }
 }
