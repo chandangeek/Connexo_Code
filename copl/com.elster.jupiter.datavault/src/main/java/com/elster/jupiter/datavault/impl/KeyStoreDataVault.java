@@ -39,8 +39,10 @@ import javax.inject.Inject;
  * -base64 encoding the encrypted value for easy storage as varchar
  */
 public class KeyStoreDataVault implements DataVault {
+
     private static final int IV_SIZE = 16;
     private static final String AES_CBC_PKCS5_PADDING = "AES/CBC/PKCS5Padding";
+    public static final String KEYSTORE_TYPE = "JCEKS"; // JCEKS allows storing AES symmetric keys
 
     private KeyStore keyStore;
     private final Random random;
@@ -56,7 +58,7 @@ public class KeyStoreDataVault implements DataVault {
 
     void readKeyStore(InputStream keyStoreBytes) {
         try {
-            this.keyStore = KeyStore.getInstance("JCEKS");
+            this.keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
             keyStore.load(keyStoreBytes, getPassword());
         } catch (Exception e) {
             throw exceptionFactory.newException(MessageSeeds.KEYSTORE_LOAD_FILE);
@@ -124,7 +126,7 @@ public class KeyStoreDataVault implements DataVault {
     }
 
     private void doCreateVault(OutputStream stream) throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
-        final KeyStore jks = KeyStore.getInstance("JCEKS"); // JCEKS allows storing AES symmetric keys
+        final KeyStore jks = KeyStore.getInstance(KEYSTORE_TYPE);
 
         jks.load(null); // This initializes the empty keystore
 
@@ -159,7 +161,7 @@ public class KeyStoreDataVault implements DataVault {
     private SecretKeySpec createKeySpecForKey(String keyAlias) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException, IOException, CertificateException {
         final Key key = this.keyStore.getKey(keyAlias, getPassword());
         if (key==null) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_KEY); // Not giving details about key for security reasons
+            throw exceptionFactory.newException(MessageSeeds.DECRYPTION_FAILED); // Not giving details about key for security reasons
         }
         byte[] raw = key.getEncoded();
 

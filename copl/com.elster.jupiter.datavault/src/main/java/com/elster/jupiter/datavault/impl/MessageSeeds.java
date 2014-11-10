@@ -8,7 +8,6 @@ public enum MessageSeeds implements MessageSeed {
 
     ENCRYPTION_FAILED(1, "EncryptionFailed", "Encryption failed: {0}"),
     KEYSTORE_CREATION_FAILED(2, "KeystoreCreationFailed", "Failed to create KeyStore: {0}"),
-    NO_SUCH_KEY(3, "NoSuchKey", "The key could not be located"),
     DECRYPTION_FAILED(4, "DecryptionFailed", "Decryption failed: {0}"),
     KEYSTORE_LOAD_FILE(5, "ReadKeystoreFailed", "Failed to load key store from user file"),
     AMBIGUOUS_KEYSTORE(6, "AmbiguousKeyStore", "More than one key store was initialized"),
