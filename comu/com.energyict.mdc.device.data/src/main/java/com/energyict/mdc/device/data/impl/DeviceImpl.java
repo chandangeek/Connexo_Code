@@ -7,7 +7,6 @@ import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -60,8 +59,9 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -72,6 +72,8 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -94,27 +96,29 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Lists;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import com.google.common.collect.Range;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.function.Supplier;
@@ -1199,6 +1203,13 @@ public class DeviceImpl implements Device, CanLock {
             if (!meterReadings.isEmpty()) {
                 meterHasData = true;
             }
+            for (IntervalReadingRecord meterReading : meterReadings) {
+                LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
+                loadProfileReading.setChannelData(mdcChannel, meterReading);
+                loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
+                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+            }
+            
             Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
             if (koreChannel.isPresent()) {
                 List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval.toClosedRange());
@@ -1210,12 +1221,17 @@ public class DeviceImpl implements Device, CanLock {
                                 loadProfileReading.setDataValidationStatus(mdcChannel, s);
                             }
                         });
-            }
-            for (IntervalReadingRecord meterReading : meterReadings) {
-                LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                loadProfileReading.setChannelData(mdcChannel, meterReading);
-                loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
-                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+                
+                //code below is the processing of removed readings use-case
+                
+                sortedLoadProfileReadingMap.values().stream()
+                        .filter(r -> r.getChannelValues().isEmpty())
+                        .forEach(r -> {
+                            Optional<ReadingQualityRecord> readingQuality = koreChannel.get().findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED), r.getInterval().toClosedOpenRange()).stream().findAny();
+                            if (readingQuality.isPresent()) {
+                                r.setReadingTime(readingQuality.get().getReadingTimestamp());
+                            }
+                        });
             }
         }
         return meterHasData;
