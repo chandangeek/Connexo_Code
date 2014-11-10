@@ -4,11 +4,12 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -19,6 +20,8 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
@@ -79,6 +82,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private ValidatedDataOption validatedDataOption;
     @Valid
     private List<ReadingTypeInExportTask> readingTypes = new ArrayList<>();
+    private List<ReadingTypeDataExportItemImpl> exportItems = new ArrayList<>();
 
     private transient boolean scheduleImmediately;
     private transient ScheduleExpression scheduleExpression;
@@ -147,7 +151,17 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public List<? extends DataExportOccurrence> getOccurrences(Range<Instant> interval) {
-        return Collections.emptyList(); // TODO
+        return dataModel.mapper(DataExportOccurrenceImpl.class).find("readingTask", this);
+    }
+
+    RecurrentTask getRecurrentTask() {
+        return recurrentTask.get();
+    }
+
+    @Override
+    public Optional<? extends DataExportOccurrence> getLastOccurrence() {
+        return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("readingTask", this), new Order[]{Order.descending("startDate")},
+                false, new String[]{}, 1, 1).stream().findAny();
     }
 
     @Override
@@ -216,14 +230,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public ScheduleExpression getScheduleExpression() {
         return recurrentTask.get().getScheduleExpression();
-    }
-
-    @Override
-    public Optional<? extends DataExportOccurrence> getLastOccurence() {
-// TODO comment in when TABLESPECS HAVE BEEN DEFINED FOR  DataExportOccurrence
-//       return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("taskOccurrence", this), new Order[] {Order.descending("startDate")},
-//                false, new String[]{}, 1, 1). stream().findAny();
-        return Optional.empty();
     }
 
     @Override
@@ -303,6 +309,37 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
+    public List<ReadingTypeDataExportItem> getExportItems() {
+        return Collections.unmodifiableList(exportItems);
+    }
+
+    public IReadingTypeDataExportItem addExportItem(Meter meter, String readingTypeMRId) {
+        ReadingTypeDataExportItemImpl item = ReadingTypeDataExportItemImpl.from(dataModel, this, meter, readingTypeMRId);
+        exportItems.add(item);
+        return item;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ReadingTypeDataExportTaskImpl that = (ReadingTypeDataExportTaskImpl) o;
+
+        if (id != that.id) return false;
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + name.hashCode();
+        return result;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -351,8 +388,8 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     private ReadingTypeInExportTask toReadingTypeInExportTask(String mRID) {
         return meteringService.getReadingType(mRID)
-                    .map(r -> ReadingTypeInExportTask.from(dataModel, this, r))
-                    .orElseGet(() -> readingTypeInValidationRuleFor(mRID));
+                .map(r -> ReadingTypeInExportTask.from(dataModel, this, r))
+                .orElseGet(() -> readingTypeInValidationRuleFor(mRID));
     }
 
     private ReadingTypeInExportTask readingTypeInValidationRuleFor(String mRID) {

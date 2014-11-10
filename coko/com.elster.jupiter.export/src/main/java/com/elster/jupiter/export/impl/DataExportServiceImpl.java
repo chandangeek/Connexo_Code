@@ -17,6 +17,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.google.inject.AbstractModule;
@@ -29,13 +31,14 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Component(name = "com.elster.jupiter.export", service = {DataExportService.class, InstallService.class}, property = "name=" + DataExportService.COMPONENTNAME, immediate = true)
+@Component(name = "com.elster.jupiter.export", service = {DataExportService.class, IDataExportService.class, InstallService.class}, property = "name=" + DataExportService.COMPONENTNAME, immediate = true)
 public class DataExportServiceImpl implements IDataExportService, InstallService {
 
     public static final String DESTINATION_NAME = "DataExport";
@@ -46,6 +49,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile MeteringService meteringService;
     private volatile MessageService messageService;
     private volatile Thesaurus thesaurus;
+    private volatile Clock clock;
 
     private List<DataProcessorFactory> dataProcessorFactories = new CopyOnWriteArrayList<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
@@ -55,7 +59,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -64,6 +68,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setNlsService(nlsService);
         setMeteringService(meteringService);
         setQueryService(queryService);
+        setClock(clock);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -148,6 +153,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     public void removeResource(DataProcessorFactory dataProcessorFactory) {
         dataProcessorFactories.remove(dataProcessorFactory);
     }
@@ -161,6 +171,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                 bind(TaskService.class).toInstance(taskService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(Clock.class).toInstance(clock);
             }
         });
     }
@@ -197,5 +208,15 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
+    }
+
+    @Override
+    public IDataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence) {
+        IReadingTypeDataExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
+        return DataExportOccurrenceImpl.from(dataModel, taskOccurrence, task);
+    }
+
+    private Optional<IReadingTypeDataExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
+        return dataModel.mapper(IReadingTypeDataExportTask.class).getUnique("recurrentTask", recurrentTask);
     }
 }

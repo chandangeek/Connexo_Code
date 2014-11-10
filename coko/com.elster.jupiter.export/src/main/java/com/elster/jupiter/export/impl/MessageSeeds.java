@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public enum MessageSeeds implements MessageSeed {
 
     NO_SUCH_READINGTYPE(1001, Keys.NO_SUCH_READINGTYPE, "Reading type {0} does not exist.", Level.SEVERE),
-    FIELD_CAN_NOT_BE_EMPTY(1002,Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
+    FIELD_CAN_NOT_BE_EMPTY(1002, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH(1003, Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH, "Field's text length should be between 1 and " + Table.NAME_LENGTH + " symbols", Level.SEVERE),
     NO_SUCH_PROCESSOR(1004, Keys.NO_SUCH_PROCESSOR, "Processor {0} does not exist.", Level.SEVERE);
 
