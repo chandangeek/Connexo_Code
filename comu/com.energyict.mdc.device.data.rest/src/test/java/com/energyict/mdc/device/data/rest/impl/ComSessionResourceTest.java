@@ -43,8 +43,8 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 10/3/14.
  */
 public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest {
-    private final Instant start = ZonedDateTime.of(2014, 10, 10, 13, 10, 10, 0, ZoneId.systemDefault()).toInstant();
-    private final Instant end = ZonedDateTime.of(2014, 10,10,13,10,20, 0, ZoneId.systemDefault()).toInstant();
+    private final Instant start = ZonedDateTime.of(2014, 10, 10, 13, 10, 10, 0, ZoneId.of("Europe/Brussels")).toInstant();
+    private final Instant end = ZonedDateTime.of(2014, 10,10,13,10,20, 0, ZoneId.of("Europe/Brussels")).toInstant();
     private ComSession comSession1;
 
     @Test
