@@ -12,6 +12,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import java.util.Arrays;
 import java.util.List;
+import javax.validation.MessageInterpolator;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -50,6 +51,7 @@ public class SecretServiceImpl implements SecretService, InstallService {
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(NlsService.class).toInstance(nlsService);
                 bind(ExceptionFactory.class);
                 bind(DataVault.class).toProvider(DataVaultProvider.class);
