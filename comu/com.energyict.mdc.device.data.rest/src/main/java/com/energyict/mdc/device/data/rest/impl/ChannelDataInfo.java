@@ -12,9 +12,11 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
+
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
@@ -27,8 +29,11 @@ public class ChannelDataInfo {
     public IntervalInfo interval;
     @JsonProperty("readingTime")
     public Instant readingTime;
-    @JsonProperty("editedTime")
-    public Instant editedTime;
+    @JsonProperty("modificationFlag")
+    @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
+    public ReadingModificationFlag modificationFlag;
+    @JsonProperty("reportedDateTime")
+    public Instant reportedDateTime;
     @JsonProperty("intervalFlags")
     public List<String> intervalFlags;
     @JsonProperty("value")
@@ -62,9 +67,15 @@ public class ChannelDataInfo {
             Channel valueOwnerChannel = null;
             for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
                 valueOwnerChannel = entry.getKey();
-                channelIntervalInfo.value=entry.getValue().getValue(); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
-                channelIntervalInfo.editedTime = entry.getValue().edited() ? entry.getValue().getReportedDateTime() : null;
+                channelIntervalInfo.value = entry.getValue().getValue(); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
+                channelIntervalInfo.modificationFlag = ReadingModificationFlag.getFlag(entry.getValue());
+                channelIntervalInfo.reportedDateTime = entry.getValue().getReportedDateTime();
             }
+            if (loadProfileReading.getChannelValues().isEmpty() && loadProfileReading.getReadingTime() != null) {
+                channelIntervalInfo.modificationFlag = ReadingModificationFlag.REMOVED;
+                channelIntervalInfo.reportedDateTime = loadProfileReading.getReadingTime();
+            }
+ 
             if (channelIntervalInfo.value != null && valueOwnerChannel != null){
                 channelIntervalInfo.value= channelIntervalInfo.value.setScale(valueOwnerChannel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP);
             }
