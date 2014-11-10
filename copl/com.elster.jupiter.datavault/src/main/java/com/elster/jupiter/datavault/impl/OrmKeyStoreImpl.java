@@ -15,7 +15,6 @@ import javax.inject.Inject;
 public class OrmKeyStoreImpl {
 
     private final DataModel dataModel;
-    private final KeyStoreDataVault keyStoreDataVault;
 
     enum Fields {
         STORE_DATA("keyStore"),
@@ -35,17 +34,12 @@ public class OrmKeyStoreImpl {
     private byte[] keyStore;
 
     @Inject
-    public OrmKeyStoreImpl(DataModel dataModel, KeyStoreDataVault keyStoreDataVault) {
+    public OrmKeyStoreImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.keyStoreDataVault = keyStoreDataVault;
     }
 
-    public OrmKeyStoreImpl createNewDataVault() {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        keyStoreDataVault.createVault(outputStream);
+    public void setKeyStore(ByteArrayOutputStream outputStream) {
         this.keyStore = outputStream.toByteArray();
-        this.save();
-        return this;
     }
 
     final public void save() {

@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -19,17 +20,21 @@ import org.osgi.service.component.annotations.Reference;
  * Created by bvn on 11/6/14.
  */
 @Component(name = "com.elster.kore.datavault", service = {SecretService.class, InstallService.class}, property = "name=" + SecretService.COMPONENT_NAME, immediate = true)
-public class DataVaultServiceImpl implements SecretService, InstallService {
-
-    public DataVaultServiceImpl() {
-    }
+public class SecretServiceImpl implements SecretService, InstallService {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
 
+    public SecretServiceImpl() {
+    }
+
     @Reference
-    public void setDataModel(DataModel dataModel) {
+    public void setOrmService(OrmService ormService) {
+        DataModel dataModel = ormService.newDataModel(COMPONENT_NAME, "Data vault");
+        for (TableSpecs tableSpecs : TableSpecs.values()) {
+            tableSpecs.addTo(dataModel);
+        }
         this.dataModel = dataModel;
     }
 
@@ -46,8 +51,8 @@ public class DataVaultServiceImpl implements SecretService, InstallService {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(NlsService.class).toInstance(nlsService);
-                bind(ExceptionFactory.class).to(ExceptionFactory.class);
-                bind(DataVault.class).toProvider(DataVaultProvider.class).asEagerSingleton();
+                bind(ExceptionFactory.class);
+                bind(DataVault.class).toProvider(DataVaultProvider.class);
             }
         };
     }
@@ -68,13 +73,14 @@ public class DataVaultServiceImpl implements SecretService, InstallService {
     }
 
     @Override
-    public String encrypt(byte[] decrypted) {
-        KeyStoreDataVault dataVault = dataModel.getInstance(KeyStoreDataVault.class);
-        return null;
+    public String encrypt(byte[] plainText) {
+        DataVault dataVault = dataModel.getInstance(DataVault.class);
+        return dataVault.encrypt(plainText);
     }
 
     @Override
     public byte[] decrypt(String encrypted) {
-        return new byte[0];
+        DataVault dataVault = dataModel.getInstance(DataVault.class);
+        return dataVault.decrypt(encrypted);
     }
 }

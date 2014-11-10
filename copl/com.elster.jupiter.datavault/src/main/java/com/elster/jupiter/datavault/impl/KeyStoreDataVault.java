@@ -65,6 +65,9 @@ public class KeyStoreDataVault implements DataVault {
 
     @Override
     public String encrypt(byte[] plainText) {
+        if (this.keyStore==null) {
+            throw exceptionFactory.newException(MessageSeeds.NO_KEYSTORE);
+        }
         if (plainText==null) {
             return "";
         }
@@ -91,6 +94,9 @@ public class KeyStoreDataVault implements DataVault {
 
     @Override
     public byte[] decrypt(String encrypted) {
+        if (this.keyStore==null) {
+            throw exceptionFactory.newException(MessageSeeds.NO_KEYSTORE);
+        }
         if (Checks.is(encrypted).emptyOrOnlyWhiteSpace()) {
             return new byte[0];
         }

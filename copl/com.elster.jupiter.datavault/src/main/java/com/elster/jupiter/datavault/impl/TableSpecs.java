@@ -13,7 +13,7 @@ public enum TableSpecs {
             Table<OrmKeyStoreImpl> table = dataModel.addTable(name(), OrmKeyStoreImpl.class);
             table.map(OrmKeyStoreImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("STOREDATA").number().conversion(BLOB2BYTE).map(OrmKeyStoreImpl.Fields.STORE_DATA.fieldName()).add();
+            table.column("STOREDATA").type("blob").conversion(BLOB2BYTE).map(OrmKeyStoreImpl.Fields.STORE_DATA.fieldName()).add();
             table.primaryKey("PK_DVA_STORE").on(idColumn).add();
         }
     };
