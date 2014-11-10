@@ -16,7 +16,7 @@ Ext.define('Dxp.controller.history.Export', {
                     action: 'showDataExportTasks',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('general.add', 'UNI', 'Add'),
+                            title: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
                             route: 'add',
                             controller: 'Dxp.controller.Tasks',
                             action: 'showAddExportTask'
