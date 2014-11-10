@@ -367,3 +367,11 @@ TODO Move this into a separate button UI.
   height: 13px;
   width: 13px;
 }
+
+/* line 404, ../../sass/etc/all.scss */
+.icon-remove {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAgUlEQVR4Xp3SgQaAMBSF4Ugv1jNUQ09XKqVH6xG6Uye2HHMWGj9yfbRrxe9zdHWFVuTErEczKlOwowtZgAwszNYXhg8ARJABNUXkxNCHGJyofUwWfoEUegGMgNiSRh45Db5/zwhmgSGvYESLuHSTWc4YUYk2Bmqr/CoYTgwSODC4AfgYBvI33Gc0AAAAAElFTkSuQmCC);
+  display: inline-block;
+  height: 13px;
+  width: 13px;
+}

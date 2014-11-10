@@ -1396,7 +1396,7 @@ Ext.define('Uni.Auth', {
 });
 
 /**
- * @cls Uni.view.window.Acknowledgement
+ * @class Uni.view.window.Acknowledgement
  */
 Ext.define('Uni.view.window.Acknowledgement', {
     extend: 'Ext.window.Window',
@@ -1468,7 +1468,7 @@ Ext.define('Uni.view.window.Acknowledgement', {
 });
 
 /**
- * @cls Uni.controller.Acknowledgements
+ * @class Uni.controller.Acknowledgements
  *
  * Acknowledgements controller that is responsible for displaying acknowledgements
  * and removing them from the screen when required.
@@ -2507,12 +2507,14 @@ Ext.define('Uni.view.container.ContentContainer', {
     extend: 'Ext.container.Container',
     alias: 'widget.contentcontainer',
     ui: 'contentcontainer',
+    overflowY: 'auto',
 
     requires: [
     ],
 
-    //baseCls: Uni.About.baseCssPrefix + 'content-container',
-    layout: 'border',
+    layout: {
+        type: 'hbox'
+    },
 
     /**
      * @cfg {Object/Ext.Component}
@@ -2530,17 +2532,17 @@ Ext.define('Uni.view.container.ContentContainer', {
 
     items: [
         {
-            region: 'west',
             xtype: 'container',
             itemId: 'westContainer',
+            overflowY: 'auto',
             cls: 'west'
         },
         {
-            region: 'center',
             xtype: 'container',
             itemId: 'centerContainer',
-            cls: 'center',
             overflowY: 'auto',
+            cls: 'center',
+            flex: 1,
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -2787,7 +2789,6 @@ Ext.define('Uni.controller.history.Router', {
              */
             buildUrl: function (arguments, queryParams) {
                 arguments = Ext.applyIf(arguments || {}, me.arguments);
-                queryParams = Ext.applyIf(queryParams || {}, me.queryParams);
                 var url = this.crossroad ?
                     '#' + this.crossroad.interpolate(arguments) :
                     '#' + this.path;
@@ -2960,7 +2961,7 @@ Ext.define('Uni.controller.Navigation', {
 
     applicationTitle: 'Connexo Multi Sense',
     applicationTitleSeparator: '-',
-    searchEnabled: true,
+    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device']),
 
     init: function () {
         var me = this;
@@ -3010,9 +3011,9 @@ Ext.define('Uni.controller.Navigation', {
         }
 
         if (!Ext.isEmpty(text)) {
-            Ext.getDoc().dom.title = me.applicationTitle + ' '
+            Ext.getDoc().dom.title = text + ' '
                 + me.applicationTitleSeparator + ' '
-                + text;
+                + me.applicationTitle;
         } else {
             Ext.getDoc().dom.title = me.applicationTitle;
         }
@@ -3160,6 +3161,12 @@ Ext.define('Uni.controller.Navigation', {
         if (token) {
             token = token.indexOf(Uni.controller.history.Settings.tokenDelimiter) === 0 ? token.substring(1) : token;
             token = token.replace(/#\/|#/g, ''); // Regex to replace all '#' or '#/'.
+
+            // Strip the query parameters if necessary.
+            if (token.indexOf('?') >= 0) {
+                token = token.slice(0, token.indexOf('?'));
+            }
+
             return token.split(Uni.controller.history.Settings.tokenDelimiter);
         } else {
             return [];
@@ -4765,6 +4772,13 @@ Ext.define('Uni.controller.AppController', {
     searchEnabled: true,
 
     /**
+     * @cfg {String[]} privileges
+     * The privileges that allow user to access application.
+     * Empty by default.
+     */
+    privileges: [],
+
+    /**
      * @cfg {Object[]} packages
      *
      * The packages that need to be loaded in by the application.
@@ -4773,18 +4787,20 @@ Ext.define('Uni.controller.AppController', {
     packages: [],
 
     init: function () {
+
         var me = this;
+        if (Uni.Auth.hasAnyPrivilege(me.privileges)){
+            me.initCrossroads();
 
-        me.initCrossroads();
+            me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
+            me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
+            me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
+            me.getApplication().on('changecontentevent', me.showContent, me);
+            me.getApplication().on('sessionexpired', me.redirectToLogin, me);
 
-        me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
-        me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
-        me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
-        me.getApplication().on('changecontentevent', me.showContent, me);
-        me.getApplication().on('sessionexpired', me.redirectToLogin, me);
-
-        me.loadControllers();
-        me.callParent(arguments);
+            me.loadControllers();
+            me.callParent(arguments);
+        }
     },
 
     /**
@@ -5120,16 +5136,20 @@ Ext.define('Uni.data.store.Filterable', {
      * Initialises filters from filter model
      * @param config
      */
-    constructor: function(config) {
+    constructor: function (config) {
         var me = this;
 
-        this.callParent(arguments);
-        var router = this.router = config.router || Uni.util.History.getRouterController();
+        config = config || {};
+
+        me.callParent(arguments);
+
+        var router = me.router = config.router || Uni.util.History.getRouterController();
+
         if (me.hydrator && Ext.isString(me.hydrator)) {
             me.hydrator = Ext.create(me.hydrator);
         }
 
-        router.on('routematch', function() {
+        router.on('routematch', function () {
             if (router.filter) {
                 me.setFilterModel(router.filter);
             }
@@ -5140,7 +5160,7 @@ Ext.define('Uni.data.store.Filterable', {
      * returns data in a format of filter:
      * [{property: key, value: item}]
      */
-    setFilterModel: function(model) {
+    setFilterModel: function (model) {
         var me = this,
             data = me.hydrator ? me.hydrator.extract(model) : model.getData(),
             filters = [];
@@ -5156,6 +5176,954 @@ Ext.define('Uni.data.store.Filterable', {
     }
 });
 
+
+/**
+ * @class Uni.form.field.StartPeriod
+ */
+Ext.define('Uni.form.field.StartPeriod', {
+    extend: 'Ext.form.RadioGroup',
+    xtype: 'uni-form-field-startperiod',
+
+    fieldLabel: Uni.I18n.translate('form.field.startPeriod.label', 'UNI', 'From'),
+    columns: 1,
+    vertical: true,
+
+    baseRadioName: undefined,
+
+    /**
+     * @cfg showOptionNow
+     *
+     * Determines whether to show the now option, defaults to true.
+     */
+    showOptionNow: true,
+
+    /**
+     * @cfg showOptionDate
+     *
+     * Determines whether to show the custom date option, defaults to true.
+     */
+    showOptionDate: true,
+
+    inputValueNow: 'now',
+    inputValueAgo: 'ago',
+    inputValueDate: 'date',
+
+    lastTask: undefined,
+    selectedValue: undefined,
+
+    initComponent: function () {
+        var me = this;
+
+        me.buildItems();
+        me.callParent(arguments);
+
+        me.on('afterrender', me.initListeners, me);
+    },
+
+    buildItems: function () {
+        var me = this;
+
+        me.baseRadioName = me.getId() + 'startperiod';
+
+        me.items = [];
+
+        if (me.showOptionNow) {
+            me.items.push({
+                boxLabel: Uni.I18n.translate('form.field.startPeriod.optionNow.label', 'UNI', 'Now'),
+                itemId: 'option-now',
+                name: me.baseRadioName,
+                inputValue: me.inputValueNow,
+                margin: '0 0 6 0',
+                value: true
+            });
+        }
+
+        if (me.showOptionDate) {
+            me.items.push({
+                xtype: 'container',
+                itemId: 'option-date',
+                layout: 'hbox',
+                margin: '0 0 6 0',
+                name: 'rb',
+                items: [
+                    {
+                        xtype: 'radio',
+                        name: me.baseRadioName,
+                        inputValue: me.inputValueDate
+                    },
+                    {
+                        xtype: 'datefield',
+                        name: 'start-date',
+                        allowBlank: false,
+                        editable: false,
+                        value: new Date(),
+                        maxValue: new Date(),
+                        width: 128,
+                        margin: '0 0 0 6'
+                    }
+                ]
+            });
+        }
+
+        me.items.push({
+            xtype: 'container',
+            itemId: 'option-ago',
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    xtype: 'radio',
+                    name: me.baseRadioName,
+                    inputValue: me.inputValueAgo,
+                    value: !me.showOptionNow
+                },
+                {
+                    xtype: 'numberfield',
+                    name: 'frequency',
+                    hideLabel: true,
+                    value: 1,
+                    minValue: 1,
+                    editable: false,
+                    allowBlank: false,
+                    width: 64,
+                    margin: '0 6 0 6'
+                },
+                {
+                    xtype: 'combobox',
+                    name: 'period-interval',
+                    displayField: 'name',
+                    valueField: 'value',
+                    queryMode: 'local',
+                    editable: false,
+                    hideLabel: true,
+                    value: 'months',
+                    width: 200,
+                    margin: '0 6 0 0',
+                    store: new Ext.data.Store({
+                        fields: ['name', 'value'],
+                        data: (function () {
+                            return [
+                                {name: Uni.I18n.translate('period.months', 'UNI', 'Month(s)'), value: 'months'},
+                                {name: Uni.I18n.translate('period.weeks', 'UNI', 'Week(s)'), value: 'weeks'},
+                                {name: Uni.I18n.translate('period.days', 'UNI', 'Day(s)'), value: 'days'},
+                                {name: Uni.I18n.translate('period.hours', 'UNI', 'Hour(s)'), value: 'hours'},
+                                {name: Uni.I18n.translate('period.minutes', 'UNI', 'Minute(s)'), value: 'minutes'}
+                            ];
+                        })()
+                    }),
+                    allowBlank: false,
+                    forceSelection: true
+                },
+                {
+                    xtype: 'label',
+                    text: Uni.I18n.translate('form.field.startPeriod.optionAgo.label', 'UNI', 'ago'),
+                    cls: Ext.baseCSSPrefix + 'form-item-label',
+                    style: {
+                        fontWeight: 'normal'
+                    }
+                }
+            ]
+        });
+    },
+
+    initListeners: function () {
+        var me = this;
+
+        if (me.showOptionNow) {
+            me.selectedValue = 'now';
+
+            me.getOptionNowRadio().on('change', function (scope, newValue, oldValue) {
+                if (newValue) {
+                    me.selectedValue = 'now';
+                    me.fireEvent('periodchange', me.getStartValue());
+                }
+            }, me);
+        } else {
+            me.selectedValue = 'ago';
+        }
+
+        me.getOptionAgoRadio().on('change', function (scope, newValue, oldValue) {
+            if (newValue) {
+                me.selectedValue = 'ago';
+
+                if (me.showOptionDate) {
+                    me.getOptionDateRadio().suspendEvents();
+                    me.getOptionDateRadio().setValue(false);
+                    me.getOptionDateRadio().resumeEvents();
+                }
+
+                if (me.showOptionNow) {
+                    me.getOptionNowRadio().suspendEvents();
+                    me.getOptionNowRadio().setValue(false);
+                    me.getOptionNowRadio().resumeEvents();
+                }
+
+                me.fireEvent('periodchange', me.getStartValue());
+            }
+        }, me);
+
+        me.getOptionAgoContainer().down('numberfield').on('change', function () {
+            if (me.lastTask) {
+                me.lastTask.cancel();
+            }
+
+            me.lastTask = new Ext.util.DelayedTask(function () {
+                me.selectOptionAgo();
+            });
+
+            me.lastTask.delay(256);
+        }, me);
+
+        me.getOptionAgoContainer().down('combobox').on('change', function () {
+            me.selectOptionAgo();
+        }, me);
+
+        if (me.showOptionDate) {
+            me.getOptionDateRadio().on('change', function (scope, newValue, oldValue) {
+                if (newValue) {
+                    me.selectedValue = 'date';
+                    me.fireEvent('periodchange', me.getStartValue());
+                }
+            }, me);
+
+            me.getOptionDateContainer().down('datefield').on('change', function () {
+                me.selectOptionDate();
+            }, me);
+        }
+    },
+
+    selectOptionNow: function (suspendEvent) {
+        this.selectedValue = 'now';
+
+        this.getOptionNowRadio().suspendEvents();
+        this.getOptionNowRadio().setValue(true);
+        this.getOptionNowRadio().resumeEvents();
+
+        if (!suspendEvent) {
+            this.fireEvent('periodchange', this.getStartValue());
+        }
+    },
+
+    selectOptionAgo: function (suspendEvent) {
+        this.selectedValue = 'ago';
+
+        this.getOptionAgoRadio().suspendEvents();
+        this.getOptionAgoRadio().setValue(true);
+        this.getOptionAgoRadio().resumeEvents();
+
+        if (!suspendEvent) {
+            this.fireEvent('periodchange', this.getStartValue());
+        }
+    },
+
+    selectOptionDate: function (suspendEvent) {
+        this.selectedValue = 'date';
+
+        this.getOptionDateRadio().suspendEvents();
+        this.getOptionDateRadio().setValue(true);
+        this.getOptionDateRadio().resumeEvents();
+
+        if (!suspendEvent) {
+            this.fireEvent('periodchange', this.getStartValue());
+        }
+    },
+
+    getOptionNowRadio: function () {
+        return this.down('#option-now');
+    },
+
+    getOptionAgoRadio: function () {
+        return this.getOptionAgoContainer().down('radio');
+    },
+
+    getOptionDateRadio: function () {
+        return this.getOptionDateContainer().down('radio');
+    },
+
+    getOptionAgoContainer: function () {
+        return this.down('#option-ago');
+    },
+
+    getOptionDateContainer: function () {
+        return this.down('#option-date');
+    },
+
+    getStartValue: function () {
+        var me = this,
+            selectedValue = me.selectedValue,
+            amountAgoValue = me.getOptionAgoContainer().down('numberfield').getValue(),
+            freqAgoValue = me.getOptionAgoContainer().down('combobox').getValue();
+
+        var result = {
+            startNow: selectedValue === 'now'
+        };
+
+        if (selectedValue === 'date') {
+            var dateValue = me.getOptionDateContainer().down('datefield').getValue();
+
+            var fixedDate = {
+                startFixedDay: dateValue.getDate(),
+                startFixedMonth: dateValue.getMonth() + 1,
+                startFixedYear: dateValue.getFullYear()
+            };
+            Ext.apply(result, fixedDate);
+        } else if (selectedValue === 'ago') {
+            var shiftDate = {
+                startAmountAgo: amountAgoValue,
+                startPeriodAgo: freqAgoValue
+            };
+            Ext.apply(result, shiftDate);
+        }
+
+        return result;
+    }
+});
+
+/**
+ * @class Uni.form.field.OnPeriod
+ */
+Ext.define('Uni.form.field.OnPeriod', {
+    extend: 'Ext.form.RadioGroup',
+    xtype: 'uni-form-field-onperiod',
+
+    fieldLabel: Uni.I18n.translate('form.field.onPeriod.label', 'UNI', 'On'),
+    columns: 1,
+    vertical: true,
+
+    baseRadioName: undefined,
+    selectedValue: undefined,
+
+    initComponent: function () {
+        var me = this;
+
+        me.buildItems();
+        me.callParent(arguments);
+
+        me.on('afterrender', me.initListeners, me);
+    },
+
+    buildItems: function () {
+        var me = this;
+
+        me.baseRadioName = me.getId() + 'onperiod';
+        me.selectedValue = 'currentday';
+
+        me.items = [
+            {
+                boxLabel: Uni.I18n.translate('form.field.onPeriod.optionCurrent.label', 'UNI', 'Current day of the month'),
+                itemId: 'option-current',
+                name: me.baseRadioName,
+                inputValue: 'currentday',
+                margin: '0 0 6 0',
+                value: true
+            },
+            {
+                xtype: 'container',
+                itemId: 'option-dom',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+                items: [
+                    {
+                        xtype: 'radio',
+                        name: me.baseRadioName,
+                        inputValue: 'dayofmonth',
+                        margin: '0 6 0 0'
+                    },
+                    {
+                        xtype: 'label',
+                        text: Uni.I18n.translate('form.field.onPeriod.optionDayOfMonth.day', 'UNI', 'Day'),
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    },
+                    {
+                        xtype: 'combobox',
+                        name: 'period-interval',
+                        displayField: 'name',
+                        valueField: 'value',
+                        queryMode: 'local',
+                        editable: false,
+                        hideLabel: true,
+                        value: 1,
+                        width: 64,
+                        margin: '0 6 0 6',
+                        store: new Ext.data.Store({
+                            fields: ['name', 'value'],
+                            data: (function () {
+                                var data = [];
+
+                                for (var i = 1; i < 29; i++) {
+                                    data.push({
+                                        name: i,
+                                        value: i
+                                    });
+                                }
+
+                                data.push({
+                                    name: 'Last',
+                                    value: 31
+                                });
+
+                                return data;
+                            })()
+                        }),
+                        allowBlank: false,
+                        forceSelection: true
+                    },
+                    {
+                        xtype: 'label',
+                        text: Uni.I18n.translate('form.field.onPeriod.optionDayOfMonth.month', 'UNI', 'of the month'),
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    }
+                ]
+            },
+            {
+                xtype: 'container',
+                itemId: 'option-dow',
+                layout: 'hbox',
+                margin: '6 0 0 0',
+                items: [
+                    {
+                        xtype: 'radio',
+                        name: me.baseRadioName,
+                        inputValue: 'dayofweek'
+                    },
+                    {
+                        xtype: 'combobox',
+                        name: 'period-interval',
+                        displayField: 'name',
+                        valueField: 'value',
+                        queryMode: 'local',
+                        editable: false,
+                        hideLabel: true,
+                        value: 1,
+                        width: 128,
+                        margin: '0 6 0 6',
+                        store: new Ext.data.Store({
+                            fields: ['name', 'value'],
+                            data: (function () {
+                                // TODO Create a days of week store.
+                                return [
+                                    {name: Uni.I18n.translate('general.day.monday', 'UNI', 'Monday'), value: 1},
+                                    {name: Uni.I18n.translate('general.day.tuesday', 'UNI', 'Tuesday'), value: 2},
+                                    {name: Uni.I18n.translate('general.day.wednesday', 'UNI', 'Wednesday'), value: 3},
+                                    {name: Uni.I18n.translate('general.day.thursday', 'UNI', 'Thursday'), value: 4},
+                                    {name: Uni.I18n.translate('general.day.friday', 'UNI', 'Friday'), value: 5},
+                                    {name: Uni.I18n.translate('general.day.saturday', 'UNI', 'Saturday'), value: 6},
+                                    {name: Uni.I18n.translate('general.day.sunday', 'UNI', 'Sunday'), value: 7}
+                                ];
+                            })()
+                        }),
+                        allowBlank: false,
+                        forceSelection: true
+                    }
+                ]
+            }
+        ];
+    },
+
+    initListeners: function () {
+        var me = this;
+
+        me.getOptionCurrentRadio().on('change', function (scope, newValue, oldValue) {
+            if (newValue) {
+                me.selectedValue = 'currentday';
+                me.fireEvent('periodchange', me.getOnValue());
+            }
+        }, me);
+
+        me.getOptionDayOfMonthRadio().on('change', function (scope, newValue, oldValue) {
+            if (newValue) {
+                me.selectedValue = 'dayofmonth';
+                me.fireEvent('periodchange', me.getOnValue());
+            }
+        }, me);
+
+        me.getOptionDayOfMonthContainer().down('combobox').on('change', function () {
+            me.selectOptionDayOfMonth();
+        }, me);
+
+        me.getOptionDayOfWeekRadio().on('change', function (scope, newValue, oldValue) {
+            if (newValue) {
+                me.selectedValue = 'dayofweek';
+                me.fireEvent('periodchange', me.getOnValue());
+            }
+        }, me);
+
+        me.getOptionDayOfWeekContainer().down('combobox').on('change', function () {
+            me.selectOptionDayOfWeek();
+        }, me);
+    },
+
+    selectOptionCurrent: function (suspendEvent) {
+        this.getOptionCurrentRadio().suspendEvents();
+        this.getOptionCurrentRadio().setValue(true);
+        this.getOptionCurrentRadio().resumeEvents();
+
+        if (!suspendEvent) {
+            this.fireEvent('periodchange', this.getValue());
+        }
+    },
+
+    selectOptionDayOfMonth: function (suspendEvent) {
+        this.selectedValue = 'dayofmonth';
+
+        this.getOptionDayOfMonthRadio().suspendEvents();
+        this.getOptionDayOfMonthRadio().setValue(true);
+        this.getOptionDayOfMonthRadio().resumeEvents();
+
+        if (!suspendEvent) {
+            this.fireEvent('periodchange', this.getValue());
+        }
+    },
+
+    selectOptionDayOfWeek: function (suspendEvent) {
+        this.selectedValue = 'dayofweek';
+
+        this.getOptionDayOfWeekRadio().suspendEvents();
+        this.getOptionDayOfWeekRadio().setValue(true);
+        this.getOptionDayOfWeekRadio().resumeEvents();
+
+        if (!suspendEvent) {
+            this.fireEvent('periodchange', this.getValue());
+        }
+    },
+
+    getOptionCurrentRadio: function () {
+        return this.down('#option-current');
+    },
+
+    getOptionDayOfMonthRadio: function () {
+        return this.getOptionDayOfMonthContainer().down('radio');
+    },
+
+    getOptionDayOfWeekRadio: function () {
+        return this.getOptionDayOfWeekContainer().down('radio');
+    },
+
+    getOptionDayOfMonthContainer: function () {
+        return this.down('#option-dom');
+    },
+
+    getOptionDayOfWeekContainer: function () {
+        return this.down('#option-dow');
+    },
+
+    setOptionCurrentDisabled: function (disabled) {
+        var me = this;
+
+        me.getOptionCurrentRadio().setDisabled(disabled);
+
+        me.selectAvailableOption();
+    },
+
+    setOptionDayOfMonthDisabled: function (disabled) {
+        var me = this,
+            radio = me.getOptionDayOfMonthRadio(),
+            combo = me.getOptionDayOfMonthContainer().down('combobox');
+
+        radio.setDisabled(disabled);
+        combo.setDisabled(disabled);
+
+        if (disabled) {
+            me.getOptionDayOfMonthContainer().addCls(Ext.baseCSSPrefix + 'item-disabled');
+        } else {
+            me.getOptionDayOfMonthContainer().removeCls(Ext.baseCSSPrefix + 'item-disabled');
+        }
+
+        me.selectAvailableOption();
+    },
+
+    setOptionDayOfWeekDisabled: function (disabled) {
+        var me = this,
+            radio = me.getOptionDayOfWeekRadio(),
+            combo = me.getOptionDayOfWeekContainer().down('combobox');
+
+        radio.setDisabled(disabled);
+        combo.setDisabled(disabled);
+
+        me.selectAvailableOption();
+    },
+
+    selectAvailableOption: function () {
+        var me = this,
+            dayRadio = me.getOptionCurrentRadio(),
+            monthRadio = me.getOptionDayOfMonthRadio(),
+            weekRadio = me.getOptionDayOfWeekRadio();
+
+        if (!monthRadio.getValue() && dayRadio.getValue() && dayRadio.isDisabled()) {
+            monthRadio.suspendEvents();
+            monthRadio.setValue(true);
+            monthRadio.resumeEvents();
+        }
+
+        if (!weekRadio.getValue() && monthRadio.getValue() && monthRadio.isDisabled()) {
+            weekRadio.suspendEvents();
+            weekRadio.setValue(true);
+            weekRadio.resumeEvents();
+        }
+
+        if (!dayRadio.getValue() && weekRadio.getValue() && weekRadio.isDisabled()) {
+            dayRadio.suspendEvents();
+            dayRadio.setValue(true);
+            dayRadio.resumeEvents();
+        }
+    },
+
+    getOnValue: function () {
+        var me = this,
+            selectedValue = me.selectedValue,
+            dayOfMonthValue = me.getOptionDayOfMonthContainer().down('combobox').getValue(),
+            dayOfWeekValue = me.getOptionDayOfWeekContainer().down('combobox').getValue();
+
+        var result = {
+            onCurrentDay: selectedValue === 'currentday'
+        };
+
+        if (selectedValue === 'dayofmonth') {
+            Ext.apply(result, {
+                onDayOfMonth: dayOfMonthValue
+            });
+        } else if (selectedValue === 'dayofweek') {
+            Ext.apply(result, {
+                onDayOfWeek: dayOfWeekValue
+            });
+        }
+
+        return result;
+    }
+});
+
+/**
+ * @class Uni.form.field.AtPeriod
+ */
+Ext.define('Uni.form.field.AtPeriod', {
+    extend: 'Ext.form.FieldContainer',
+    xtype: 'uni-form-field-atperiod',
+
+    fieldLabel: Uni.I18n.translate('form.field.atPeriod.label', 'UNI', 'At'),
+
+    layout: {
+        type: 'hbox'
+    },
+
+    lastHourTask: undefined,
+    lastMinuteTask: undefined,
+
+    initComponent: function () {
+        var me = this;
+
+        me.buildItems();
+        me.callParent(arguments);
+
+        me.on('afterrender', me.initListeners, me);
+    },
+
+    buildItems: function () {
+        var me = this;
+
+        me.items = [
+            {
+                xtype: 'numberfield',
+                itemId: 'hour-field',
+                hideLabel: true,
+                valueToRaw: me.formatDisplayOfTime,
+                value: 0,
+                minValue: 0,
+                maxValue: 23,
+                editable: false,
+                allowBlank: false,
+                width: 64,
+                margin: '0 6 0 0'
+            },
+            {
+                xtype: 'label',
+                text: ':',
+                cls: Ext.baseCSSPrefix + 'form-item-label',
+                style: {
+                    fontWeight: 'normal'
+                }
+            },
+            {
+                xtype: 'numberfield',
+                itemId: 'minute-field',
+                hideLabel: true,
+                valueToRaw: me.formatDisplayOfTime,
+                value: 0,
+                minValue: 0,
+                maxValue: 59,
+                editable: false,
+                allowBlank: false,
+                width: 64,
+                margin: '0 6 0 6'
+            }
+        ];
+    },
+
+    initListeners: function () {
+        var me = this;
+
+        me.getHourField().on('change', function () {
+            if (me.lastHourTask) {
+                me.lastHourTask.cancel();
+            }
+
+            me.lastHourTask = new Ext.util.DelayedTask(function () {
+                me.fireEvent('periodchange', me.getValue());
+            });
+
+            me.lastHourTask.delay(256);
+        }, me);
+
+        me.getMinuteField().on('change', function () {
+            if (me.lastMinuteTask) {
+                me.lastMinuteTask.cancel();
+            }
+
+            me.lastMinuteTask = new Ext.util.DelayedTask(function () {
+                me.fireEvent('periodchange', me.getValue());
+            });
+
+            me.lastMinuteTask.delay(256);
+        }, me);
+    },
+
+    getHourField: function () {
+        return this.down('#hour-field');
+    },
+
+    getMinuteField: function () {
+        return this.down('#minute-field');
+    },
+
+    getValue: function () {
+        var me = this,
+            hourValue = me.getHourField().getValue(),
+            minuteValue = me.getMinuteField().getValue();
+
+        return {
+            atHour: hourValue,
+            atMinute: minuteValue
+        };
+    },
+
+    // TODO Use the date-time xtype for this.
+    formatDisplayOfTime: function (value) {
+        var result = '00';
+
+        if (value) {
+            if (value < 10 && value > 0) {
+                result = '0' + value;
+            } else if (value >= 10) {
+                result = value;
+            }
+        }
+        return result;
+    }
+});
+
+/**
+ * @class Uni.form.RelativePeriod
+ */
+Ext.define('Uni.form.RelativePeriod', {
+    extend: 'Ext.form.FieldContainer',
+    xtype: 'uni-form-relativeperiod',
+
+    requires: [
+        'Uni.form.field.StartPeriod',
+        'Uni.form.field.OnPeriod',
+        'Uni.form.field.AtPeriod'
+    ],
+
+    /**
+     * @cfg startPeriodCfg
+     *
+     * Custom config for the start period component.
+     */
+    startPeriodCfg: {},
+
+    /**
+     * @cfg noPreviewDateErrorMsg
+     *
+     * Message shown in the preview when no preview date has been defined.
+     */
+    noPreviewDateErrorMsg: Uni.I18n.translate('form.relativePeriod.errorMsg', 'UNI', 'It was not possible to calculate the preview date.'),
+
+    previewUrl: '/api/tmr/relativeperiods/preview',
+
+    formatPreviewTextFn: function (dateString) {
+        return Uni.I18n.translate(
+            'form.relativePeriod.previewText',
+            'UNI',
+            'The date and time of the relative period is {0}.',
+            [dateString]
+        );
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.buildItems();
+        me.callParent(arguments);
+        me.initListeners();
+
+        me.on('afterrender', me.onAfterRender, me);
+    },
+
+    onAfterRender: function () {
+        var me = this;
+
+        me.updatePeriodFields(me.getValue().startPeriodAgo);
+        me.updatePreview();
+    },
+
+    buildItems: function () {
+        var me = this;
+
+        me.items = [
+            Ext.apply(
+                {
+                    xtype: 'uni-form-field-startperiod',
+                    required: true
+                },
+                me.startPeriodCfg
+            ),
+            {
+                xtype: 'uni-form-field-onperiod'
+            },
+            {
+                xtype: 'uni-form-field-atperiod'
+            },
+            {
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('form.relativePeriod.preview', 'UNI', 'Preview'),
+                items: [
+                    {
+                        xtype: 'component',
+                        itemId: 'preview-label',
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        },
+                        html: ''
+                    }
+                ]
+            }
+        ];
+    },
+
+    initListeners: function () {
+        var me = this;
+
+        me.getStartPeriodField().on('periodchange', me.onStartPeriodChange, me);
+        me.getOnPeriodField().on('periodchange', me.updatePreview, me);
+        me.getAtPeriodField().on('periodchange', me.updatePreview, me);
+    },
+
+    onStartPeriodChange: function (value) {
+        var me = this;
+
+        me.updatePeriodFields(value.startPeriodAgo);
+        me.updatePreview();
+    },
+
+    updatePeriodFields: function (frequency) {
+        var me = this,
+            startField = me.getStartPeriodField(),
+            useStartDate = startField.showOptionDate ? startField.getOptionDateRadio().getValue() : false,
+            onField = me.getOnPeriodField(),
+            atField = me.getAtPeriodField(),
+            atHourField = atField.getHourField(),
+            atMinuteField = atField.getMinuteField();
+
+        onField.setOptionCurrentDisabled(frequency !== 'months' || useStartDate);
+        onField.setOptionDayOfMonthDisabled(frequency !== 'months' || useStartDate);
+        onField.setOptionDayOfWeekDisabled(frequency !== 'weeks' || useStartDate);
+
+        atHourField.setDisabled(frequency === 'hours' || frequency === 'minutes');
+        atMinuteField.setDisabled(frequency === 'minutes');
+    },
+
+    updatePreview: function () {
+        var me = this,
+            label = me.down('#preview-label'),
+            dateString = me.noPreviewDateErrorMsg;
+
+        me.fireEvent('periodchange', me.getValue());
+        label.mask();
+
+        Ext.Ajax.request({
+            url: me.previewUrl,
+            method: 'PUT',
+            jsonData: me.formatJsonPreviewRequest(),
+            success: function (response, data) {
+                var json = Ext.decode(response.responseText, true);
+                var dateLong = json.date;
+                var zoneOffset = json.zoneOffset;
+                if (typeof dateLong !== 'undefined') {
+                    var startDate = new Date(dateLong);
+                    var startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
+                    var zonedDate = new Date(startDateUtc - (60000 * zoneOffset));
+                    dateString = Uni.I18n.formatDate('datetime.longdate', new Date(zonedDate), 'UNI', 'l F j, Y \\a\\t H:i a');
+                    dateString = me.formatPreviewTextFn(dateString);
+                }
+            },
+            failure: function (response) {
+                // Already caught be the default value of the date string.
+            },
+            callback: function () {
+                label.update(dateString);
+                label.unmask();
+            }
+        });
+    },
+
+    formatJsonPreviewRequest: function () {
+        var me = this,
+            date = new Date(),
+            value = me.getValue();
+
+        return {
+            date: date.getTime(),
+            zoneOffset: date.getTimezoneOffset(),
+            relativeDateInfo: value
+        };
+    },
+
+    getStartPeriodField: function () {
+        return this.down('uni-form-field-startperiod');
+    },
+
+    getOnPeriodField: function () {
+        return this.down('uni-form-field-onperiod');
+    },
+
+    getAtPeriodField: function () {
+        return this.down('uni-form-field-atperiod');
+    },
+
+    getValue: function () {
+        var me = this,
+            result = {},
+            startValue = me.getStartPeriodField().getStartValue(),
+            onValue = me.getOnPeriodField().getOnValue(),
+            atValue = me.getAtPeriodField().getValue();
+
+        Ext.apply(result, startValue);
+        Ext.apply(result, onValue);
+        Ext.apply(result, atValue);
+
+        return result;
+    }
+});
 
 /**
  * @class Uni.form.field.DateTime
@@ -5226,6 +6194,7 @@ Ext.define('Uni.form.field.DateTime', {
                 xtype: 'datefield',
                 itemId: 'date-time-field-date',
                 submitValue: false,
+                allowBlank: false,
                 width: '100%',
                 listeners: {
                     change: {
@@ -5356,6 +6325,10 @@ Ext.define('Uni.form.field.DateTime', {
             }
         }
 
+        if(me.getRawValue) {
+            return date;
+        }
+
         date = new Date(date);
 
         return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
@@ -5379,6 +6352,306 @@ Ext.define('Uni.form.field.DateTime', {
     }
 });
 
+
+/**
+ * @class Uni.form.RelativePeriodPreview
+ */
+Ext.define('Uni.form.RelativePeriodPreview', {
+    extend: 'Ext.container.Container',
+    xtype: 'uni-form-relativeperiodpreview',
+
+    requires: [
+        'Uni.form.field.DateTime'
+    ],
+
+    /**
+     * @cfg noPreviewDateErrorMsg
+     *
+     * Message shown in the preview when no preview date has been defined.
+     */
+    noPreviewDateErrorMsg: Uni.I18n.translate('form.relativePeriod.errorMsg', 'UNI', 'It was not possible to calculate the preview date.'),
+
+    previewUrl: '/api/tmr/relativeperiods/preview',
+
+    /**
+     * @cfg startPeriodValue
+     */
+    startPeriodValue: undefined,
+
+    startPeriodDate: undefined,
+
+    /**
+     * @cfg endPeriodValue
+     */
+    endPeriodValue: undefined,
+
+    endPeriodDate: undefined,
+
+    initComponent: function () {
+        var me = this;
+
+        me.buildItems();
+        me.callParent(arguments);
+        me.initListeners();
+
+        me.on('afterrender', me.onAfterRender, me);
+    },
+
+    onAfterRender: function () {
+        var me = this;
+
+        me.updatePreview();
+    },
+
+    buildItems: function () {
+        var me = this;
+
+        me.items = [
+            {
+                xtype: 'component',
+                itemId: 'preview-label',
+                html: me.noPreviewDateErrorMsg,
+                cls: Ext.baseCSSPrefix + 'form-item-label',
+                style: {
+                    fontWeight: 'normal'
+                },
+                margin: '8 0 8 0'
+            },
+            {
+                xtype: 'container',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+                items: [
+                    {
+                        xtype: 'label',
+                        text: 'The relative period is defined using',
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    },
+                    {
+                        xtype: 'datefield',
+                        allowBlank: false,
+                        value: new Date(),
+                        width: 128,
+                        margin: '0 6 0 6'
+                    },
+                    {
+                        xtype: 'label',
+                        text: 'at',
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    },
+                    {
+                        xtype: 'numberfield',
+                        itemId: 'hour-field',
+                        hideLabel: true,
+                        valueToRaw: me.formatDisplayOfTime,
+                        value: 0,
+                        minValue: 0,
+                        maxValue: 23,
+                        allowBlank: false,
+                        width: 64,
+                        margin: '0 6 0 6'
+                    },
+                    {
+                        xtype: 'label',
+                        text: ':',
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    },
+                    {
+                        xtype: 'numberfield',
+                        itemId: 'minute-field',
+                        hideLabel: true,
+                        valueToRaw: me.formatDisplayOfTime,
+                        value: 0,
+                        minValue: 0,
+                        maxValue: 59,
+                        allowBlank: false,
+                        width: 64,
+                        margin: '0 6 0 6'
+                    },
+                    {
+                        xtype: 'label',
+                        text: 'as reference',
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    },
+                    {
+                        xtype: 'button',
+                        tooltip: Uni.I18n.translate('relativeperiod.form.referencedete.tooltip', 'TME', 'You can change the reference to define another relative period'),
+                        iconCls: 'icon-info-small',
+                        ui: 'blank',
+                        itemId: 'latestReadingHelp',
+                        shadow: false,
+                        margin: '6 0 0 6',
+                        width: 16
+                    }
+                ]
+            }
+        ];
+    },
+
+    initListeners: function () {
+        var me = this;
+
+        me.getDateField().on('change', me.updatePreview, me);
+        me.getHourField().on('change', me.updatePreview, me);
+        me.getMinuteField().on('change', me.updatePreview, me);
+    },
+
+    updatePreview: function () {
+        var me = this,
+            label = me.getPreviewLabel(),
+            dateString = me.noPreviewDateErrorMsg;
+
+        label.mask();
+
+        if (typeof me.startPeriodValue !== 'undefined' && typeof me.endPeriodValue !== 'undefined') {
+            me.startPeriodDate = undefined;
+            me.endPeriodDate = undefined;
+
+            Ext.Ajax.request({
+                url: me.previewUrl,
+                method: 'PUT',
+                jsonData: me.formatJsonPreviewRequest(me.startPeriodValue),
+                success: function (response, data) {
+                    var json = Ext.decode(response.responseText, true);
+                    var dateLong = json.date;
+                    var zoneOffset = json.zoneOffset;
+                    if (typeof dateLong !== 'undefined') {
+                        var startDate = new Date(dateLong);
+                        var startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
+                        var zonedDate = new Date(startDateUtc - (60000*zoneOffset));
+                        me.startPeriodDate = new Date(zonedDate);
+                    }
+
+                    me.updatePreviewLabel(me.startPeriodDate, me.endPeriodDate);
+                },
+                failure: function (response) {
+                    me.getPreviewLabel().update(dateString);
+                }
+            });
+
+            Ext.Ajax.request({
+                url: me.previewUrl,
+                method: 'PUT',
+                jsonData: me.formatJsonPreviewRequest(me.endPeriodValue),
+                success: function (response, data) {
+                    var json = Ext.decode(response.responseText, true);
+                    var dateLong = json.date;
+                    var zoneOffset = json.zoneOffset;
+                    if (typeof dateLong !== 'undefined') {
+                        var startDate = new Date(dateLong);
+                        var startDateUtc = startDate.getTime() + (startDate.getTimezoneOffset() * 60000);
+                        var zonedDate = new Date(startDateUtc - (60000*zoneOffset));
+                        me.endPeriodDate = new Date(zonedDate);
+                    }
+
+                    me.updatePreviewLabel(me.startPeriodDate, me.endPeriodDate);
+                },
+                failure: function (response) {
+                    me.getPreviewLabel().update(dateString);
+                }
+            });
+        }
+    },
+
+    updatePreviewLabel: function (startDate, endDate) {
+        var me = this,
+            startDateString = Uni.I18n.formatDate('datetime.longdate', startDate, 'UNI', 'l F j, Y \\a\\t H:i a'),
+            endDateString = Uni.I18n.formatDate('datetime.longdate', endDate, 'UNI', 'l F j, Y \\a\\t H:i a'),
+            dateString = me.formatPreviewTextFn(startDateString, endDateString);
+
+        if (typeof startDate !== 'undefined' && typeof endDate !== 'undefined') {
+            me.getPreviewLabel().update(dateString);
+            me.getPreviewLabel().unmask();
+        }
+    },
+
+    updateStartPeriodValue: function (startPeriodValue) {
+        this.startPeriodValue = startPeriodValue;
+    },
+
+    updateEndPeriodValue: function (endPeriodValue) {
+        this.endPeriodValue = endPeriodValue;
+    },
+
+    formatPreviewTextFn: function (startDateString, endDateString) {
+        return Uni.I18n.translate(
+            'form.relativeperiodpreview.previewText',
+            'UNI',
+            'From {0} to {1}.',
+            [startDateString, endDateString]
+        );
+    },
+
+    formatJsonPreviewRequest: function (periodValue) {
+        var me = this,
+            date = me.getValue();
+
+        var result = {
+            date: date.getTime(),
+            zoneOffset: date.getTimezoneOffset(),
+            relativeDateInfo: periodValue
+        };
+        return result;
+    },
+
+    getPreviewLabel: function () {
+        return this.down('#preview-label');
+    },
+
+    getDateField: function () {
+        return this.down('datefield');
+    },
+
+    getHourField: function () {
+        return this.down('#hour-field');
+    },
+
+    getMinuteField: function () {
+        return this.down('#minute-field');
+    },
+
+    getValue: function () {
+        var me = this,
+            date = me.getDateField().getValue(),
+            hours = me.getHourField().getValue(),
+            minutes = me.getMinuteField().getValue();
+
+        date.setHours(hours);
+        date.setMinutes(minutes);
+        date.setSeconds(0);
+        date.setMilliseconds(0);
+
+        return date;
+    },
+
+    // TODO Use the date-time xtype for this.
+    formatDisplayOfTime: function (value) {
+        var result = '00';
+
+        if (value) {
+            if (value < 10 && value > 0) {
+                result = '0' + value;
+            } else if (value >= 10) {
+                result = value;
+            }
+        }
+        return result;
+    }
+});
 
 /**
  * @class Uni.form.field.DisplayFieldWithInfoIcon
@@ -5451,15 +6724,30 @@ Ext.define('Uni.form.field.EditedDisplay', {
     },
 
     renderer: function (value, field) {
-        var icon;
+        var icon,
+            date,
+            tooltipText;
 
         if (value) {
-            value = Ext.isDate(value) ? value : new Date(value);
+            date = Ext.isDate(value.date) ? value.date : new Date(value.date);
             icon = document.createElement('span');
-            icon.className = 'icon-edit';
+            switch (value.flag) {
+                case 'ADDED':
+                    icon.className = 'icon-edit';
+                    tooltipText = Uni.I18n.formatDate('editedDate.format', value, 'MDC', '\\A\\d\\d\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    break;
+                case 'EDITED':
+                    icon.className = 'icon-edit';
+                    tooltipText = Uni.I18n.formatDate('addedDate.format', value, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    break;
+                case 'REMOVED':
+                    icon.className = 'icon-remove';
+                    tooltipText = Uni.I18n.formatDate('removedDate.format', value, 'MDC', '\\R\\e\\m\\o\\v\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    break;
+            }
             Ext.create('Ext.tip.ToolTip', {
                 target: icon,
-                html: Uni.I18n.formatDate('editedDate.format', value, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+                html: tooltipText
             });
             Ext.defer(this.deferredRenderer, 1, this, [field, icon]);
         }
@@ -5763,6 +7051,7 @@ Ext.define('Uni.form.field.ObisDisplay', {
 Ext.define('Uni.form.field.Password', {
     extend: 'Ext.form.FieldContainer',
     xtype: 'password-field',
+    readOnly: false,
     fieldLabel: Uni.I18n.translate('form.password', 'UNI', 'Password'),
     layout: {
         type: 'vbox',
@@ -5782,7 +7071,8 @@ Ext.define('Uni.form.field.Password', {
             required: true,
             allowBlank: false,
             inputType: 'password',
-            name: this.name
+            name: this.name,
+            readOnly: this.readOnly
         },
         {
             xtype: 'checkbox',
@@ -5796,6 +7086,10 @@ Ext.define('Uni.form.field.Password', {
         this.items[1].scope = this;
 
         this.callParent(arguments);
+    },
+
+    setValue: function(value) {
+        this.down('textfield').setValue(value);
     }
 });
 
@@ -5813,7 +7107,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         'Ext.button.Button'
     ],
 
-    deferredRenderer: function (value, field) {
+    deferredRenderer: function (value, field, name) {
         var me = this;
 
         new Ext.button.Button({
@@ -5825,18 +7119,117 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
                 display: 'inline-block',
                 "text-decoration": 'none !important'
             },
-            handler: function() {
-                me.handler(value);
+            handler: function () {
+                me.handler(value, name);
             }
         });
 
         field.updateLayout();
     },
 
-    handler: function (value) {
+    handler: function (value, name) {
         var widget = Ext.widget('readingTypeDetails');
-
-        widget.down('form').getForm().setValues(value);
+        widget.setTitle('<span style="margin: 10px 0 0 10px">' + name + '</span>');
+        var tpl = new Ext.XTemplate(
+            '<table style="width: 100%; margin: 30px 10px">',
+            '<tr>',
+            '<td colspan="2">',
+            '<table style="width: 100%; margin-bottom: 30px">',
+            '<tr>',
+            '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.name', 'UNI', 'Reading type name') + '</td>',
+            '<td style="width: 70%; text-align: left; padding-bottom: 10px">' + name + '</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.cimCode', 'UNI', 'CIM code') + '</td>',
+            '<td style="width: 70%; text-align: left; padding-bottom: 10px">{mrid}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 30%; text-align: right; font-weight: bold; padding-right: 20px">' + Uni.I18n.translate('readingType.description', 'UNI', 'Description') + '</td>',
+            '<td style="width: 70%; text-align: left">{description}</td>',
+            '</tr>',
+            '</table>',
+            '</td>',
+            '</tr>',
+            '<tr>',
+            '<td colspan="2" style="padding-bottom: 20px; font-weight: bold; font-size: 1.5em; color: grey">' + Uni.I18n.translate('readingType.cimCodeDetails', 'UNI', 'CIM code details') + '</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; vertical-align: top">',
+            '<table style="width: 100%">',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timePeriodOfInterest', 'UNI', 'Time-period of interest') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{timePeriodOfInterest}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.dataQualifier', 'UNI', 'Data qualifier') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{dataQualifier}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timeAttributeEnumerations', 'UNI', 'Time attribute enumerations') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{timeAttributeEnumerations}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.accumulationBehaviour', 'UNI', 'Accumulation behavior') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{accumulationBehaviour}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.directionOfFlow', 'UNI', 'Direction of flow') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{directionOfFlow}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.commodity', 'UNI', 'Commodity') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{commodity}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.measurementKind', 'UNI', 'Kind') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{measurementKind}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.interharmonics', 'UNI', '(Compound) Interharmonics') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{interharmonics}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.argumentReference', 'UNI', '(Compound) Numerator and Denominator Argument Reference') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{argumentReference}</td>',
+            '</tr>',
+            '</table>',
+            '</td>',
+            '<td style="width: 50%; vertical-align: top">',
+            '<table style="width: 100%">',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timeOfUse', 'UNI', 'Time of use') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{timeOfUse}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.criticalPeakPeriod', 'UNI', 'Critical peak period') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{criticalPeakPeriod}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.comsumptionTier', 'UNI', 'Consumption tier') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{consumptionTier}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.phase', 'UNI', 'Phase') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{phase}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.powerOfTenMultiplier', 'UNI', 'Power of ten multiplier') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{powerOfTenMultiplier}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.unitOfMeasure', 'UNI', 'Unit of measure') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{unitOfMeasure}</td>',
+            '</tr>',
+            '<tr>',
+            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.currency', 'UNI', 'Currency') + '</td>',
+            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{currency}</td>',
+            '</tr>',
+            '</table>',
+            '</td>',
+            '</tr>',
+            '</table>'
+        );
+        tpl.overwrite(widget.down('panel').body, value);
         widget.show();
     },
 
@@ -5845,10 +7238,56 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
             return this.emptyText;
         }
 
-        Ext.defer(this.deferredRenderer, 1, this, [value, field]);
-        return '<span style="display: inline-block; width: 230px; float: left;">' + (value.mrid || value) + '</span>';
+        var assembledName = '';
+        if (value.name && Ext.isObject(value.name)) {
+            assembledName = value.name.alias + ' ' + value.name.timeOfUse + '(' + value.name.unitOfMeasure + ') [' + value.name.timeAttribute + ']';
+        }
+
+        Ext.defer(this.deferredRenderer, 1, this, [value, field, (assembledName || value.mrid)]);
+        return '<span style="display: inline-block; width: 230px; float: left;">' + (assembledName || value.mrid) + '</span>';
     }
 });
+
+Ext.define('Uni.form.filter.FilterCombobox', {
+    extend: 'Ext.form.field.ComboBox',
+    alias: 'widget.uni-filter-combo',
+    editable: false,
+    multiSelect: true,
+    queryMode: 'local',
+    triggerAction: 'all',
+
+    loadStore: true,
+
+    initComponent: function () {
+        var me = this;
+        me.listConfig = {
+            getInnerTpl: function () {
+                return '<div class="x-combo-list-item"><img src="' + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" /> {' + me.displayField + '}</div>';
+            }
+        };
+
+        me.callParent(arguments);
+
+        if (this.loadStore) {
+            me.store.load({
+                callback: function () {
+                    me.select(me.getValue());
+                    me.fireEvent('updateTopFilterPanelTagButtons', me);
+                }
+            });
+        }
+    },
+
+    getValue: function () {
+        var me = this;
+        me.callParent(arguments);
+        if (_.isArray(me.value)) {
+            me.value = _.compact(me.value)
+        }
+        return me.value
+    }
+});
+
 
 /**
  * @class Uni.grid.column.Action
@@ -5899,7 +7338,8 @@ Ext.define('Uni.grid.column.Action', {
         me.menu = Ext.widget(menuXtype, me.menu);
         me.menu.on('click', function(menu, item, e, eOpts) {
             me.fireEvent('menuclick', menu, item, e, eOpts);
-            if (item.action) {
+            if (item.action && !Ext.isObject(item.action)) {
+
                 me.fireEvent(item.action, menu.record);
             }
         });
@@ -5984,6 +7424,9 @@ Ext.define('Uni.grid.column.Edited', {
     }
 });
 
+/**
+ * @class Uni.grid.column.IntervalFlags
+ */
 Ext.define('Uni.grid.column.IntervalFlags', {
     extend: 'Ext.grid.column.Column',
     xtype: 'interval-flags-column',
@@ -6065,107 +7508,15 @@ Ext.define('Uni.view.window.ReadingTypeDetails', {
     extend: 'Ext.window.Window',
     xtype: 'readingTypeDetails',
     closable: true,
-    width: 700,
-    height: 500,
+    width: 800,
+    height: 550,
     constrain: true,
     autoShow: true,
     modal: true,
     layout: 'fit',
     closeAction: 'destroy',
     floating: true,
-    title: Uni.I18n.translate('readingType.readingTypeDetails', 'UNI', 'Reading type details'),
-    items: {
-        xtype: 'form',
-        border: false,
-        itemId: 'readingTypeDetailsForm',
-        layout: 'column',
-        defaults: {
-            columnWidth: 0.5,
-            layout: 'form'
-        },
-        items: [
-            {
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 150
-                },
-                items: [
-                    {
-                        name: 'timePeriodOfInterest',
-                        fieldLabel: Uni.I18n.translate('readingType.timePeriodOfInterest', 'UNI', 'Time-period of interest')
-                    },
-                    {
-                        name: 'dataQualifier',
-                        fieldLabel: Uni.I18n.translate('readingType.dataQualifier', 'UNI', 'Data qualifier')
-                    },
-                    {
-                        name: 'timeAttributeEnumerations',
-                        fieldLabel: Uni.I18n.translate('readingType.timeAttributeEnumerations', 'UNI', 'Time attribute enumerations')
-                    },
-                    {
-                        name: 'accumulationBehaviour',
-                        fieldLabel: Uni.I18n.translate('readingType.accumulationBehaviour', 'UNI', 'Accumulation behavior')
-                    },
-                    {
-                        name: 'directionOfFlow',
-                        fieldLabel: Uni.I18n.translate('readingType.directionOfFlow', 'UNI', 'Direction of flow')
-                    },
-                    {
-                        name: 'commodity',
-                        fieldLabel: Uni.I18n.translate('readingType.commodity', 'UNI', 'Commodity')
-                    },
-                    {
-                        name: 'measurementKind',
-                        fieldLabel: Uni.I18n.translate('readingType.measurementKind', 'UNI', 'Kind')
-                    },
-                    {
-                        name: 'interharmonics',
-                        fieldLabel: Uni.I18n.translate('readingType.interharmonics', 'UNI', '(Compound) Interharmonics')
-                    },
-                    {
-                        name: 'argumentReference',
-                        fieldLabel: Uni.I18n.translate('readingType.argumentReference', 'UNI', '(Compound) Numerator and Denominator Argument Reference')
-                    }
-                ]
-            },
-            {
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 150
-                },
-                items: [
-                    {
-                        name: 'timeOfUse',
-                        fieldLabel: Uni.I18n.translate('readingType.timeOfUse', 'UNI', 'Time of use')
-                    },
-                    {
-                        name: 'criticalPeakPeriod',
-                        fieldLabel: Uni.I18n.translate('readingType.criticalPeakPeriod', 'UNI', 'Critical peak period')
-                    },
-                    {
-                        name: 'consumptionTier',
-                        fieldLabel: Uni.I18n.translate('readingType.comsumptionTier', 'UNI', 'Consumption tier')
-                    },
-                    {
-                        name: 'phase',
-                        fieldLabel: Uni.I18n.translate('readingType.phase', 'UNI', 'Phase')
-                    },
-                    {
-                        name: 'powerOfTenMultiplier',
-                        fieldLabel: Uni.I18n.translate('readingType.powerOfTenMultiplier', 'UNI', 'Power of ten multiplier')
-                    },
-                    {
-                        name: 'unitOfMeasure',
-                        fieldLabel: Uni.I18n.translate('readingType.unitOfMeasure', 'UNI', 'Unit of measure')
-                    },
-                    {
-                        name: 'currency',
-                        fieldLabel: Uni.I18n.translate('readingType.currency', 'UNI', 'Currency')
-                    }
-                ]
-            }
-        ]
-    }
+    items: {}
 });
 
 /**
@@ -6350,6 +7701,7 @@ Ext.define('Uni.property.view.property.Base', {
     ],
 
     isEdit: true,
+    isReadOnly: false,
     property: null,
     key: null,
 
@@ -6668,7 +8020,8 @@ Ext.define('Uni.property.view.property.BaseCombo', {
             valueField: 'key',
             value: me.getProperty().get('value'),
             width: me.width,
-            forceSelection: me.getProperty().getExhaustive()
+            forceSelection: me.getProperty().getExhaustive(),
+            readOnly: me.isReadOnly
         }
     },
 
@@ -6710,7 +8063,9 @@ Ext.define('Uni.property.view.property.Text', {
             name: this.getName(),
             itemId: me.key + 'textfield',
             width: me.width,
-            msgTarget: 'under'
+            msgTarget: 'under',
+            readOnly: me.isReadOnly,
+            allowBlank: me.allowBlank
         }
     },
 
@@ -6734,7 +8089,8 @@ Ext.define('Uni.property.view.property.Combobox', {
             displayField: 'value',
             valueField: 'key',
             width: me.width,
-            forceSelection: me.getProperty().getExhaustive()
+            forceSelection: me.getProperty().getExhaustive(),
+            readOnly: me.isReadOnly
         }
     },
 
@@ -6754,7 +8110,8 @@ Ext.define('Uni.property.view.property.Textarea', {
             itemId: me.key + 'textareafield',
             width: me.width,
             grow: true,
-            msgTarget: 'under'
+            msgTarget: 'under',
+            readOnly: me.isReadOnly
         }
     },
 
@@ -6764,13 +8121,44 @@ Ext.define('Uni.property.view.property.Textarea', {
 });
 
 Ext.define('Uni.property.view.property.Password', {
-    extend: 'Uni.property.view.property.Text',
+    extend: 'Uni.property.view.property.Base',
+    requires: [
+        'Uni.form.field.Password'
+    ],
 
-    getNormalCmp: function () {
-        var result = this.callParent(arguments);
-        result.inputType = 'password';
+    getEditCmp: function () {
+        var me = this;
+        return {
+            xtype: 'password-field',
+            name: this.getName(),
+            itemId: me.key + 'passwordfield',
+            width: me.width,
+            msgTarget: 'under',
+            readOnly: me.isReadOnly,
+            fieldLabel: undefined
+        }
+    },
 
-        return result;
+    getField: function () {
+        return this.down('password-field');
+    },
+
+    getPasswordField: function () {
+        return this.down('textfield');
+    },
+
+
+    initListeners: function () {
+        var me = this;
+        this.callParent(arguments);
+        var field = me.getPasswordField();
+
+        if (field) {
+            field.on('change', function () {
+                me.getProperty().set('isInheritedOrDefaultValue', false);
+                me.updateResetButton();
+            });
+        }
     }
 });
 
@@ -6797,7 +8185,9 @@ Ext.define('Uni.property.view.property.Boolean', {
             itemId: me.key + 'checkbox',
             width: me.width,
             cls: 'check',
-            msgTarget: 'under'
+            msgTarget: 'under',
+            readOnly: me.isReadOnly,
+            boxLabel: me.boxLabel ? me.boxLabel : ''
         };
     },
 
@@ -6857,7 +8247,8 @@ Ext.define('Uni.property.view.property.Number', {
             minValue: minValue,
             maxValue: maxValue,
             allowDecimals: allowDecimals,
-            msgTarget: 'under'
+            msgTarget: 'under',
+            readOnly: me.isReadOnly
         };
     },
 
@@ -6886,6 +8277,7 @@ Ext.define('Uni.property.view.property.NullableBoolean', {
             allowBlank: false,
             vertical: true,
             columns: 1,
+            readOnly: me.isReadOnly,
             items: [
                 {
                     boxLabel: Uni.I18n.translate('true', me.translationKey, 'True'),
@@ -6952,7 +8344,8 @@ Ext.define('Uni.property.view.property.Date', {
             format: me.format,
             altFormats: me.formats.join('|'),
             width: me.width,
-            required: me.required
+            required: me.required,
+            readOnly: me.isReadOnly
         };
     },
 
@@ -7000,7 +8393,8 @@ Ext.define('Uni.property.view.property.DateTime', {
             itemId: me.key + 'timefield',
             format: me.timeFormat,
             width: me.width,
-            required: me.required
+            required: me.required,
+            readOnly: me.isReadOnly
         };
 
         return result;
@@ -7060,7 +8454,7 @@ Ext.define('Uni.property.store.TimeUnits', {
         'Uni.property.model.field.TimeUnit'
     ],
     model: 'Uni.property.model.field.TimeUnit',
-    autoLoad: true,
+  //  autoLoad: true,
 
     proxy: {
         type: 'rest',
@@ -7088,7 +8482,8 @@ Ext.define('Uni.property.view.property.Period', {
                 itemId: me.key + 'numberfield',
                 name: this.getName() + '.numberfield',
                 width: me.width,
-                required: me.required
+                required: me.required,
+                readOnly: me.isReadOnly
             },
             {
                 xtype: 'combobox',
@@ -7096,12 +8491,13 @@ Ext.define('Uni.property.view.property.Period', {
                 itemId: me.key + 'combobox',
                 name: this.getName() + '.combobox',
                 store: 'Uni.property.store.TimeUnits',
-                queryMode: 'local',
+              //  queryMode: 'local',
                 displayField: 'timeUnit',
                 valueField: 'timeUnit',
                 width: me.width,
                 forceSelection: false,
-                required: me.required
+                required: me.required,
+                readOnly: me.isReadOnly
             }
         ];
     },
@@ -7181,7 +8577,8 @@ Ext.define('Uni.property.view.property.Time', {
             itemId: me.key + 'timefield',
             format: me.timeFormat,
             width: me.width,
-            required: me.required
+            required: me.required,
+            readOnly: me.isReadOnly
         };
     },
 
@@ -7229,7 +8626,8 @@ Ext.define('Uni.property.view.property.CodeTable', {
                 xtype: 'button',
                 text: '...',
                 scale: 'small',
-                action: 'showCodeTable'
+                action: 'showCodeTable',
+                disabled: me.isReadOnly
             }
         ];
     },
@@ -7757,6 +9155,7 @@ Ext.define('Uni.property.view.property.Multiselect', {
                         valueField: 'id',
                         width: me.width,
                         height: 194,
+                    readOnly: me.isReadOnly,
                         msgTarget: 'multiselect-invalid-id-' + me.id,
                         validateOnChange: false,
                             listeners: {
@@ -8018,6 +9417,7 @@ Ext.define('Uni.property.form.Property', {
     },
     initialised: false,
     isEdit: true,
+    isReadOnly: false,
     inheritedValues: false,
 
     /**
@@ -8066,7 +9466,8 @@ Ext.define('Uni.property.form.Property', {
             if (fieldType) {
                 var field = Ext.create(fieldType, Ext.apply(me.defaults, {
                     property: property,
-                    isEdit: me.isEdit
+                    isEdit: me.isEdit,
+                    isReadOnly: me.isReadOnly
                 }));
 
                 me.add(field);
@@ -8696,7 +10097,9 @@ Ext.define('Uni.util.Hydrator', {
 
         _.map(data, function (id) {
             var callback = function(record) {
-                store.add(record);
+                if (record) {
+                    store.add(record);
+                }
                 promise.resolve(callback);
             };
 
@@ -9883,7 +11286,7 @@ Ext.define('Uni.view.form.CheckboxGroup', {
             if (checkbox.getValue()) {
                 me.store.each(function (group) {
                     if (group.get(me.valueField) === checkbox.inputValue) {
-                        groups.push(group.raw);
+                        groups.push(group.getId());
                     }
                 });
             }
@@ -10327,11 +11730,13 @@ Ext.define('Uni.view.grid.BulkSelection', {
     },
 
     onChangeSelectionGroupType: function (radiogroup, value) {
-        var me = this,
-            selection = me.view.getSelectionModel().getSelection();
+        var me = this;
+        if (me.view) {
+            var selection = me.view.getSelectionModel().getSelection();
 
-        me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
-        me.setGridVisible(!me.isAllSelected());
+            me.getAddButton().setDisabled(!me.isAllSelected() && selection.length === 0);
+            me.setGridVisible(!me.isAllSelected());
+        }
     },
 
     setGridVisible: function (visible) {

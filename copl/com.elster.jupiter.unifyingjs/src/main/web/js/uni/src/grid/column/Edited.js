@@ -1,8 +1,8 @@
 Ext.define('Uni.grid.column.Edited', {
     extend: 'Ext.grid.column.Column',
     xtype: 'edited-column',
-    header: Uni.I18n.translate('editedDate.header', 'UNI', 'Edited'),
-    minWidth: 100,
+    header: '',
+    width: 30,
     align: 'left',
 
     requires: [

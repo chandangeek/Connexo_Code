@@ -12,15 +12,30 @@ Ext.define('Uni.form.field.EditedDisplay', {
     },
 
     renderer: function (value, field) {
-        var icon;
+        var icon,
+            date,
+            tooltipText;
 
         if (value) {
-            value = Ext.isDate(value) ? value : new Date(value);
+            date = Ext.isDate(value.date) ? value.date : new Date(value.date);
             icon = document.createElement('span');
-            icon.className = 'icon-edit';
+            switch (value.flag) {
+                case 'ADDED':
+                    icon.className = 'icon-edit';
+                    tooltipText = Uni.I18n.formatDate('addedDate.format', date, 'MDC', '\\A\\d\\d\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    break;
+                case 'EDITED':
+                    icon.className = 'icon-edit';
+                    tooltipText = Uni.I18n.formatDate('editedDate.format', date, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    break;
+                case 'REMOVED':
+                    icon.className = 'icon-remove';
+                    tooltipText = Uni.I18n.formatDate('removedDate.format', date, 'MDC', '\\R\\e\\m\\o\\v\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    break;
+            }
             Ext.create('Ext.tip.ToolTip', {
                 target: icon,
-                html: Uni.I18n.formatDate('editedDate.format', value, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+                html: tooltipText
             });
             Ext.defer(this.deferredRenderer, 1, this, [field, icon]);
         }
