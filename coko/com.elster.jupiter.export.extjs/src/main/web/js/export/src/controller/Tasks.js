@@ -20,7 +20,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.model.FileFormatter',
         'Dxp.model.SchedulePeriod',
         'Dxp.model.ReadingType',
-        'Dxp.model.DataExportTask'
+        'Dxp.model.DataExportTask',
+        'Dxp.model.AddDataExportTaskForm'
     ],
     refs: [
         {
@@ -65,6 +66,12 @@ Ext.define('Dxp.controller.Tasks', {
             'data-export-tasks-add #file-formatter-combo': {
                 change: this.updateProperties
             },
+            'data-export-tasks-add #add-task-add-export-period': {
+                click: this.saveFormValues
+            },
+            'data-export-tasks-add #add-task-add-device-group': {
+                click: this.saveFormValues
+            },
             'data-export-tasks-setup tasks-grid': {
                 select: this.showPreview
             },
@@ -73,6 +80,32 @@ Ext.define('Dxp.controller.Tasks', {
             }
         });
     },
+
+    saveFormValues: function (button) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            form = me.getAddPage().down('#add-data-export-task-form'),
+            formValues = form.getValues();
+
+        localStorage.setItem('addDataExportTaskValues', JSON.stringify(formValues));
+        if (button.itemId === 'add-task-add-device-group') {
+            location.href = '#/devices/devicegroups/add';
+        } else {
+            router.getRoute('administration/relativeperiods/add').forward();
+        }
+    },
+
+    checkRoute: function (token) {
+        var relativeRegexp = /administration\/relativeperiods\/add/,
+            deviceRegexp = /devices\/devicegroups\/add/;
+
+        Ext.util.History.un('change', this.checkRoute, this);
+
+        if (token.search(relativeRegexp) == -1 && token.search(deviceRegexp) == -1) {
+            localStorage.removeItem('addDataExportTaskValues');
+        }
+    },
+
 
     showDataExportTasks: function () {
         var me = this,
@@ -203,6 +236,7 @@ Ext.define('Dxp.controller.Tasks', {
             view = Ext.create('Dxp.view.tasks.Add'),
             fileFormatterCombo = view.down('#file-formatter-combo'),
             deviceGroupCombo = view.down('#device-group-combo');
+        Ext.util.History.on('change', this.checkRoute, this);
 
         deviceGroupCombo.store.load(function () {
             if (this.getCount() === 0) {
@@ -211,8 +245,16 @@ Ext.define('Dxp.controller.Tasks', {
                 view.down('#no-device').show();
             }
             fileFormatterCombo.store.load(function () {
-                fileFormatterCombo.setValue(this.getAt(0));
-                me.getApplication().fireEvent('changecontentevent', view);
+                 if (localStorage.getItem('addDataExportTaskValues')) {
+                     var obj = JSON.parse(localStorage.getItem('addDataExportTaskValues'));
+                     var formModel = Ext.create('Dxp.model.AddDataExportTaskForm', obj);
+                     view.down('#add-data-export-task-form').loadRecord(formModel);
+                     view.down('#export-period-combo').setValue(formModel.get('exportPeriod'));
+                     view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});
+                 } else {
+                     fileFormatterCombo.setValue(this.getAt(0));
+                 }
+                 me.getApplication().fireEvent('changecontentevent', view);
             });
         });
     },

@@ -73,10 +73,10 @@ Ext.define('Dxp.view.tasks.Add', {
                             },
                             {
                                 xtype: 'button',
+                                itemId: 'add-task-add-device-group',
                                 margin: '0 0 0 20',
                                 text: Uni.I18n.translate('general.addDeviceGroup', 'DES', 'Add device group'),
-                                ui: 'link',
-                                href: '#/devices/devicegroups/add'
+                                ui: 'link'
                             }
                         ]
                     },
@@ -149,8 +149,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 vertical: true,
                                 width: 100,
                                 defaults: {
-                                    name: 'recurrence',
-                                    submitValue: false
+                                    name: 'recurrence'
                                 },
                                 items: [
                                     {
@@ -178,7 +177,6 @@ Ext.define('Dxp.view.tasks.Add', {
                                         xtype: 'numberfield',
                                         name: 'recurrence-number',
                                         allowDecimals: false,
-                                        submitValue: false,
                                         minValue: 1,
                                         width: 65,
                                         margin: '0 10 0 0',
@@ -267,8 +265,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 itemId: 'add-task-add-export-period',
                                 margin: '0 0 0 20',
                                 text: Uni.I18n.translate('general.addExportPeriod', 'DES', 'Add export period'),
-                                ui: 'link',
-                                href: '#/administration/relativeperiods/add'
+                                ui: 'link'
                             }
                         ]
                     },
