@@ -1223,13 +1223,12 @@ public class DeviceImpl implements Device, CanLock {
                         });
                 
                 //code below is the processing of removed readings use-case
-                
                 sortedLoadProfileReadingMap.values().stream()
                         .filter(r -> r.getChannelValues().isEmpty())
                         .forEach(r -> {
-                            Optional<ReadingQualityRecord> readingQuality = koreChannel.get().findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED), r.getInterval().toClosedOpenRange()).stream().findAny();
+                            Optional<ReadingQualityRecord> readingQuality = koreChannel.get().findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED), r.getInterval().toOpenClosedRange()).stream().findAny();
                             if (readingQuality.isPresent()) {
-                                r.setReadingTime(readingQuality.get().getReadingTimestamp());
+                                r.setReadingTime(readingQuality.get().getTimestamp());
                             }
                         });
             }
