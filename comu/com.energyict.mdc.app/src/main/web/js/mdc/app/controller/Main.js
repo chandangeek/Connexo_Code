@@ -5,7 +5,7 @@ Ext.define('MdcApp.controller.Main', {
     extend: 'Uni.controller.AppController',
 
     applicationTitle: 'Connexo MultiSense',
-    defaultToken: '#/workspace',
+    defaultToken: '#/dashboard',
     searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device']),
     privileges: ['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
         'privilege.view.creationRule','privilege.administrate.creationRule','privilege.view.assignmentRule','privilege.administrate.validationConfiguration',
@@ -21,5 +21,17 @@ Ext.define('MdcApp.controller.Main', {
         'Idc.controller.Main',
         'Dvi.controller.Main',
         'Dsh.controller.Main'
-    ]
+    ],
+
+    init: function () {
+        var router = this.getController('Uni.controller.history.Router');
+
+        // default route redirect
+        router.initRoute('default', {
+            redirect: this.defaultToken.slice(2, this.defaultToken.length),
+            route: ''
+        });
+
+        this.callParent(arguments);
+    }
 });
