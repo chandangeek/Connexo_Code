@@ -167,7 +167,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         store.clearFilter();
         store.filter([
             {filterFn: function (item) {
-                return item.get("name") === newName;
+                return item.get("name").toLowerCase() === newName.toLowerCase();
             }}
         ]);
         var length = store.data.length;
