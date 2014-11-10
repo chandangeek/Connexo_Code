@@ -15,6 +15,11 @@ Ext.define('Dxp.view.tasks.ActionMenu', {
             itemId: 'view-details',
             text: Uni.I18n.translate('general.viewDetails', 'DES', 'View details'),
             action: 'viewDetails'
+        },
+        {
+            itemId: 'remove-task',
+            text: Uni.I18n.translate('general.remove', 'DES', 'Remove'),
+            action: 'removeTask'
         }
     ]
 });
