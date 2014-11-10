@@ -193,6 +193,9 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public void delete() {
         dataModel.remove(this);
+        if (recurrentTask.isPresent()) {
+            recurrentTask.get().delete();
+        }
     }
 
     @Override
