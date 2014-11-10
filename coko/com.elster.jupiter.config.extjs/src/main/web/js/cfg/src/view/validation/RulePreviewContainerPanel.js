@@ -29,11 +29,11 @@ Ext.define('Cfg.view.validation.RulePreviewContainerPanel', {
                     title: Uni.I18n.translate('validation.empty.rules.title', 'CFG', 'No validation rules found'),
                     reasons: [
                         Uni.I18n.translate('validation.empty.rules.list.item1', 'CFG', 'No validation rules have been added yet.'),
-                        Uni.I18n.translate('validation.empty.list.item2', 'MDC', 'Validation rules exists, but you do not have permission to view them.')
                     ],
                     stepItems: [
                         {
                             text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
+                            privileges: ['privilege.administrate.validationConfiguration'],
                             ui: 'action',
                             href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/rules/add'
                         }
