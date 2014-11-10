@@ -146,8 +146,9 @@ public class DataExportTaskResource {
     }
 
     @PUT
+    @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateReadingTypeDataExportTask(DataExportTaskInfo info) {
+    public Response updateReadingTypeDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
 
         ReadingTypeDataExportTask task = findTaskOrThrowException(info);
 
