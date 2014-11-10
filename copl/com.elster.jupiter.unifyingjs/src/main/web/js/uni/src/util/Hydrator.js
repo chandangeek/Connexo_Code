@@ -75,7 +75,7 @@ Ext.define('Uni.util.Hydrator', {
                 this.callbacks.splice(i, 1);
 
                 if (!this.callbacks.length) {
-                    this.callback.call();
+                    this.callback && this.callback.call();
                 }
                 return this;
             }

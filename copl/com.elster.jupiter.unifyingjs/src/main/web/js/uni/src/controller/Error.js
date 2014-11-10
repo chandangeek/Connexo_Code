@@ -190,8 +190,6 @@ Ext.define('Uni.controller.Error', {
         box.show(config);
     },
     showOverview: function () {
-        //var widget = Ext.widget('errorNotFound');
-        //this.getApplication().fireEvent('changecontentevent', widget);
     },
     showPageNotFound: function () {
         var widget = Ext.widget('errorNotFound');
