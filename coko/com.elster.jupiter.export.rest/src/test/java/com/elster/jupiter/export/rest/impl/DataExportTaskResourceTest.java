@@ -105,7 +105,7 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
         when(readingTypeDataExportTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(dataExportService.newBuilder()).thenReturn(builder);
         when(readingTypeDataExportTask.getName()).thenReturn("Name");
-        when(readingTypeDataExportTask.getLastOccurence()).thenReturn(Optional.empty());
+        when(readingTypeDataExportTask.getLastOccurrence()).thenReturn(Optional.empty());
     }
 
     @After
