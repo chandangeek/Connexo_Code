@@ -54,11 +54,11 @@ Ext.define('Dsh.controller.history.Workspace', {
                 }
             }
         },
+
         dashboard: {
-            title: 'Operator dashboard',
+            title: Uni.I18n.translate('title.dashboard', 'DSH', 'Dashboard'),
             route: 'dashboard',
             controller: 'Dsh.controller.OperatorDashboard',
-//            privileges: ['privilege.view.communicationInfrastructure'],
             action: 'showOverview',
             filter: 'Dsh.model.OverviewFilter'
         }
