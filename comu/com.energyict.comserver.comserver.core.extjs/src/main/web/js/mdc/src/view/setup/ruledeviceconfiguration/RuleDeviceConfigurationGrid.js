@@ -50,6 +50,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('validation.deviceconfiguration.addMultiple', 'CFG', 'Add device configurations'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
                         action: 'addDeviceConfiguration',
                         listeners: {
                             click: {

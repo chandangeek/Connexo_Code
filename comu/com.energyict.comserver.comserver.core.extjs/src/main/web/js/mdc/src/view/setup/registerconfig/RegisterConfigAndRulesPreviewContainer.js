@@ -36,6 +36,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
             xtype: 'preview-container',
             grid: {
                 xtype: 'validation-rules-for-registerconfig-grid',
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration']),
                 deviceTypeId: this.deviceTypeId,
                 deviceConfigId: this.deviceConfigId,
                 registerId: this.registerId
@@ -45,7 +46,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
                 title: Uni.I18n.translate('validation.empty.rules.title', 'CFG', 'No validation rules found'),
                 reasons: [
                     Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the register configuration.'),
-                    Uni.I18n.translate('validation.empty.list.item2', 'MDC', 'Validation rules exist, but you do not have permission to view them.')
                 ]
             },
             previewComponent: {

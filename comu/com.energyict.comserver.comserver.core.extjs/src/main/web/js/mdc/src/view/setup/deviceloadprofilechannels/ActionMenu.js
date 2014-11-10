@@ -25,6 +25,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.ActionMenu', {
         {
             itemId: 'validateNowChannel',
             text: Uni.I18n.translate('deviceregisterconfiguration.menu.validate', 'MDC', 'Validate now'),
+            hidden: Uni.Auth.hasNoPrivilege('privilege.view.validateManual'),
             action: 'validateNow'
         }
     ]

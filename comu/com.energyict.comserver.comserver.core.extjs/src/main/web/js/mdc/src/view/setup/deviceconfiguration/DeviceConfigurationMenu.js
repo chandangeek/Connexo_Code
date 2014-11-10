@@ -70,6 +70,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: 'Validation rule sets',
                 pressed: false,
                 itemId: 'validationRuleSetsLink',
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration']),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/validationrulesets',
                 hrefTarget: '_self'
             },
