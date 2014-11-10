@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -132,7 +133,7 @@ public class DataExportTaskResource {
         try (TransactionContext context = transactionService.getContext()) {
             task.delete();
             context.commit();
-        } catch (CommitException ex) {
+        } catch (UnderlyingSQLFailedException | CommitException ex) {
             throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_SQL_EXCEPTION, "status", thesaurus.getStringBeyondComponent(task.getName(), task.getName()));
         }
         return Response.status(Response.Status.OK).build();
