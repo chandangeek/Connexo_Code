@@ -173,7 +173,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Override
     public Optional<EndDeviceGroup> findEndDeviceGroupByName(String name) {
-        return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUAL.compare("name", name)).stream().findFirst();
+        return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUALIGNORECASE.compare("name", name)).stream().findFirst();
     }
 
     @Reference
