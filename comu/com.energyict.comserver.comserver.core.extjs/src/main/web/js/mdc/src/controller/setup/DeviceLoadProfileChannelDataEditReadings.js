@@ -148,6 +148,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
                 url: Ext.String.format('/api/ddr/devices/{0}/loadprofiles/{1}/channels/{2}/data', router.arguments.mRID, router.arguments.loadProfileId, router.arguments.channelId),
                 method: 'PUT',
                 jsonData: Ext.encode(changedData),
+                timeout: 300000,
                 callback: function () {
                     page.setLoading(false);
                 },

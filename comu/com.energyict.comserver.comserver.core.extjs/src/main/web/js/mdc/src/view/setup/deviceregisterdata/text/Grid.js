@@ -34,7 +34,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
             {
                 xtype: 'edited-column',
                 header: '',
-                dataIndex: 'editedDateTime'
+                dataIndex: 'modificationState',
+                width: 30
             },
             {
                 xtype: 'uni-actioncolumn',

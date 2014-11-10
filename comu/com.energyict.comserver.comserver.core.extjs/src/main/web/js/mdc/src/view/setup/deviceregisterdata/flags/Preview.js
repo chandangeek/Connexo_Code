@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Preview', {
                             },
                             {
                                 xtype: 'edited-displayfield',
-                                name: 'editedDateTime'
+                                name: 'modificationState'
                             }
                         ]
                     }

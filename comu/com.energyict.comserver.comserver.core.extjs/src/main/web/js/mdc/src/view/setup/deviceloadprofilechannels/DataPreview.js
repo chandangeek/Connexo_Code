@@ -89,7 +89,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
                         },
                         {
                             xtype: 'edited-displayfield',
-                            name: 'editedTime',
+                            name: 'modificationState',
                             margin: '0 0 0 10'
                         }
                     ]

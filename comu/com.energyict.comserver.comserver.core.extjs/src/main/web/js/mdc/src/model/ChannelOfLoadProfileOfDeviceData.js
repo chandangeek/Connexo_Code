@@ -8,8 +8,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'rawValue', type: 'auto'},
         {name: 'delta', type: 'auto'},
         {name: 'multiplier', type: 'int', useNull: true},
-        {name: 'intervalFlags', type: 'auto'},
-        {name: 'editedTime', type: 'date', dateFormat: 'time'},
+//        {name: 'intervalFlags', type: 'auto'},
 
         {name: 'dataValidated', type:'auto'},
         {name: 'suspectReason', type:'auto'},
@@ -97,6 +96,22 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             persist: false,
             mapping: function (data) {
                 return data.readingTime ? Uni.I18n.formatDate('deviceloadprofiles.data.dateFormat', new Date(data.readingTime), 'MDC', 'M d, Y \\a\\t H:i') : '';
+            }
+        },
+        {
+            name: 'modificationState',
+            persist: false,
+            mapping: function (data) {
+                var result = null;
+
+                if (data.modificationFlag && data.reportedDateTime) {
+                    result = {
+                        flag: data.modificationFlag,
+                        date: data.reportedDateTime
+                    }
+                }
+
+                return result;
             }
         }
     ]
