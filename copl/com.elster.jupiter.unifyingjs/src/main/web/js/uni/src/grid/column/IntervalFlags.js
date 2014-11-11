@@ -5,34 +5,14 @@ Ext.define('Uni.grid.column.IntervalFlags', {
     extend: 'Ext.grid.column.Column',
     xtype: 'interval-flags-column',
     header: Uni.I18n.translate('intervalFlags.label', 'UNI', 'Interval flags'),
-    minWidth: 60,
+    dataIndex: 'intervalFlags',
     align: 'left',
-
+    emptyText: '',
     requires: [
         'Uni.form.field.IntervalFlagsDisplay'
     ],
 
-    deferredRenderer: function (value, record, view) {
-        var me = this,
-            cell;
-
-        try {
-            cell = view.getCell(record, me);
-        } catch (err) {
-            return false;
-        }
-
-        var cmp = cell.down('.x-grid-cell-inner');
-        var field = new Uni.form.field.IntervalFlagsDisplay({
-            fieldLabel: false
-        });
-        cmp.setHTML('');
-        field.setValue(value);
-        field.render(cmp);
-    },
-
-    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
-        var me = metaData.column;
-        Ext.defer(me.deferredRenderer, 1, me, [value, record, view]);
+    renderer: function (value, metaData, record, rowIndex, colIndex) {
+        return new Uni.form.field.IntervalFlagsDisplay().renderer.apply(this.columns[colIndex], arguments);
     }
 });

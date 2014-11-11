@@ -8,32 +8,19 @@ Ext.define('Uni.form.field.IntervalFlagsDisplay', {
     fieldLabel: Uni.I18n.translate('intervalFlags.label', 'UNI', 'Interval flags'),
     emptyText: '',
 
-    deferredRenderer: function (field, icon) {
-        field.getEl().down('.x-form-display-field').appendChild(icon);
-        field.updateLayout();
-    },
-
-    renderer: function (value, field) {
-        var icon,
+    renderer: function (value) {
+        var result,
             tooltip = '';
-        if (!Ext.isArray(value) || !value.length) {
-            return this.emptyText;
+
+        if (Ext.isArray(value) && value.length) {
+            result = '<span style="display: inline-block; width: 25px; float: left;">' + value.length + '</span>';
+            Ext.Array.each(value, function (value, index) {
+                index++;
+                tooltip += Uni.I18n.translate('intervalFlags.Flag', 'UNI', 'Flag') + ' ' + index + ': ' + value + '<br>';
+            });
+            result += '<span class="icon-info-small" style="display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
         }
 
-
-        icon = document.createElement('span');
-        icon.className = 'icon-info-small';
-        icon.setAttribute('style', 'width: 16px; height: 16px');
-        Ext.Array.each(value, function (value, index) {
-            index++;
-            tooltip += Uni.I18n.translate('intervalFlags.Flag', 'UNI', 'Flag') + ' ' + index + ': ' + value + '<br>';
-        });
-        Ext.create('Ext.tip.ToolTip', {
-            target: icon,
-            html: tooltip
-        });
-        Ext.defer(this.deferredRenderer, 1, this, [field, icon]);
-
-        return '<span style="display: inline-block; width: 20px; float: left;">' + value.length + '</span>';
+        return result || this.emptyText;
     }
 });

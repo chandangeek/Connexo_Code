@@ -4,28 +4,12 @@ Ext.define('Uni.grid.column.Edited', {
     header: '',
     width: 30,
     align: 'left',
-
+    emptyText: '',
     requires: [
         'Uni.form.field.EditedDisplay'
     ],
 
-    deferredRenderer: function (value, record, view) {
-        try {
-            var me = this,
-                cmp = view.getCell(record, me).down('.x-grid-cell-inner'),
-                field = new Uni.form.field.EditedDisplay({
-                    fieldLabel: false
-                });
-            cmp.setHTML('');
-            field.setValue(value);
-            field.render(cmp);
-        } catch (e) {
-        }
-    },
-
-    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
-        var me = metaData.column;
-
-        Ext.defer(me.deferredRenderer, 1, me, [value, record, view]);
+    renderer: function (value, metaData, record, rowIndex, colIndex) {
+        return new Uni.form.field.EditedDisplay().renderer.apply(this.columns[colIndex], arguments);
     }
 });
