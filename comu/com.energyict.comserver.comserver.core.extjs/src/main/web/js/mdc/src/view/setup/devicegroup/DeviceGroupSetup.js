@@ -33,6 +33,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupSetup', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('deviceGroup.addDeviceGroup', 'MDC', 'Add device group'),
+                                    privileges: ['privilege.administrate.deviceGroup'],
                                     action: 'createDeviceGroupButtonFromEmptyGrid',
                                     itemId: 'createDeviceGroupButtonFromEmptyGrid'
                                 }

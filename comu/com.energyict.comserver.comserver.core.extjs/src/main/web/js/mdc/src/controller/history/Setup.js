@@ -770,13 +770,14 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('deviceGroups.title', 'MDC', 'Device groups'),
                     route: 'devicegroups',
                     controller: 'Mdc.controller.setup.DeviceGroups',
-                    authorized: Uni.Auth.hasPrivilege('privilege.administrate.device') || Uni.Auth.hasPrivilege('privilege.view.device'),
+                    privileges: ['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail'],
                     action: 'showDeviceGroups',
                     items: {
                         add: {
                             title: 'Add device group',
                             route: 'add',
                             controller: 'Mdc.controller.setup.AddDeviceGroupAction',
+                            privileges: ['privilege.administrate.deviceGroup'],
                             action: 'showAddDeviceGroupAction',
                             filter: 'Mdc.model.DeviceFilter'
                         }
