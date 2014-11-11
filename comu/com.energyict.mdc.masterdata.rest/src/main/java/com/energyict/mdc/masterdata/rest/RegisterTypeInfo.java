@@ -1,11 +1,13 @@
 package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -27,7 +29,7 @@ public class RegisterTypeInfo {
     }
 
     public RegisterTypeInfo(MeasurementType measurementType, boolean isLinkedByDeviceType, boolean inLoadProfileType) {
-        if(inLoadProfileType){
+        if (inLoadProfileType) {
             measurementType = ((ChannelType) measurementType).getTemplateRegister();
         }
         this.id = measurementType.getId();
@@ -36,7 +38,7 @@ public class RegisterTypeInfo {
         this.isLinkedByDeviceType = isLinkedByDeviceType;
         this.timeOfUse = measurementType.getTimeOfUse();
         this.readingType = new ReadingTypeInfo(measurementType.getReadingType());
-        if (measurementType.getPhenomenon()!=null) {
+        if (measurementType.getPhenomenon() != null) {
             this.unitOfMeasure = PhenomenonInfo.from(measurementType.getPhenomenon());
         }
     }
