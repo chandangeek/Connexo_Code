@@ -8,8 +8,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'rawValue', type: 'auto'},
         {name: 'delta', type: 'auto'},
         {name: 'multiplier', type: 'int', useNull: true},
-//        {name: 'intervalFlags', type: 'auto'},
-
+        {name: 'intervalFlags', type: 'auto'},
         {name: 'dataValidated', type:'auto'},
         {name: 'suspectReason', type:'auto'},
         {name: 'validationResult', type:'auto'},
