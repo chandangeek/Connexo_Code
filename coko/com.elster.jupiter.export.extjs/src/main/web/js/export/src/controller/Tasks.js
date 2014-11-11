@@ -119,6 +119,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         Ext.util.History.on('change', this.checkRoute, this);
         me.taskModel = null;
+        me.fromEdit = false;
         exportPeriodCombo.store.load(function () {
             deviceGroupCombo.store.load(function () {
                 if (this.getCount() === 0) {
@@ -149,6 +150,8 @@ Ext.define('Dxp.controller.Tasks', {
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo');
 
+        me.fromEdit = true;
+        me.taskId = taskId;
         Ext.util.History.on('change', this.checkRoute, this);
         exportPeriodCombo.store.load(function () {
             deviceGroupCombo.store.load(function () {
@@ -388,7 +391,8 @@ Ext.define('Dxp.controller.Tasks', {
             form = page.down('#add-data-export-task-form'),
             formValues = form.getValues(),
             readingTypes = page.down('#readingValuesTextFieldsContainer').items,
-            arrReadingTypes = [];
+            arrReadingTypes = [],
+            additionalParams = {};
 
         for (var i = 0; i < readingTypes.items.length; i++) {
             var readingTypeMRID = readingTypes.items[i].items.items[0],
@@ -401,7 +405,9 @@ Ext.define('Dxp.controller.Tasks', {
         if (button.itemId === 'add-task-add-device-group') {
             location.href = '#/devices/devicegroups/add';
         } else {
-            router.getRoute('administration/relativeperiods/add').forward();
+            additionalParams.fromEdit = me.fromEdit;
+            additionalParams.taskId = me.taskId;
+            router.getRoute('administration/relativeperiods/add').forward(null, additionalParams);
         }
     },
 
