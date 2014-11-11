@@ -119,6 +119,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         Ext.util.History.on('change', this.checkRoute, this);
         me.taskModel = null;
+        me.taskId = null;
         me.fromEdit = false;
         exportPeriodCombo.store.load(function () {
             deviceGroupCombo.store.load(function () {
