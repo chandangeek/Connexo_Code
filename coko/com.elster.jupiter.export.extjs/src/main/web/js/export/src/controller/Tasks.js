@@ -347,7 +347,7 @@ Ext.define('Dxp.controller.Tasks', {
                 id: form.down('#device-group-combo').getValue(),
                 name: form.down('#device-group-combo').getRawValue()
             });
-            if (form.down('#recurrence-trigger').getValue().recurrence && moment(form.down('#date-time-field-date').getValue()).year()) {
+            if (form.down('#recurrence-trigger').getValue().recurrence) {
                 record.set('schedule', {
                     every: {
                         count: form.down('#recurrence-number').getValue(),
@@ -454,7 +454,7 @@ Ext.define('Dxp.controller.Tasks', {
             recurrenceNumberField.setValue(recurrenceNumberField.minValue);
             recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(0));
         }
-        if (newValue.recurrence && moment(dateValue).year() && exportPeriodValue) {
+        if (newValue.recurrence && exportPeriodValue) {
             me.fillGrid(0, scheduleRecords);
         }
         if (!newValue.recurrence && !gridPreview.isHidden()) {
@@ -465,12 +465,11 @@ Ext.define('Dxp.controller.Tasks', {
     fillScheduleGridOrNot: function () {
         var me = this,
             page = me.getAddPage(),
-            dateValue = page.down('#date-time-field-date').getValue(),
             exportPeriodValue = page.down('#export-period-combo').getValue(),
             recurrenceTriggerValue = page.down('#recurrence-trigger').getValue(),
             scheduleRecords = [];
 
-        if (recurrenceTriggerValue.recurrence && moment(dateValue).year() && exportPeriodValue) {
+        if (recurrenceTriggerValue.recurrence && exportPeriodValue) {
             me.fillGrid(0, scheduleRecords);
         }
     },
