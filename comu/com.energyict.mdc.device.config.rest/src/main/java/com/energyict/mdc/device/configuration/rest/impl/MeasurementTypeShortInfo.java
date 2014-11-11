@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.rest.PhenomenonInfo;
-import com.energyict.mdc.masterdata.rest.ReadingTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
