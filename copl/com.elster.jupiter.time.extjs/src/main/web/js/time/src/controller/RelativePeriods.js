@@ -75,7 +75,11 @@ Ext.define('Tme.controller.RelativePeriods', {
                     } else {
                         messageText = Uni.I18n.translate('relativeperiod.addSuccess.msg', 'TME', 'Relative period added');
                     }
-                    location.href = '#/administration/dataexporttasks/add';
+                    if (!me.fromEditTask) {
+                        location.href = '#/administration/dataexporttasks/add';
+                    } else {
+                        location.href = '#/administration/dataexporttasks/' + me.taskId + '/edit';
+                    }
 
                     me.getApplication().fireEvent('acknowledge', messageText);
                 },
@@ -123,7 +127,19 @@ Ext.define('Tme.controller.RelativePeriods', {
 
     showAddRelativePeriod: function () {
         var me = this,
-            view = Ext.create('Tme.view.relativeperiod.Edit');
+            router = me.getController('Uni.controller.history.Router'),
+            cancelLink,
+            view;
+        me.fromEditTask = router.queryParams.fromEdit === 'true';
+        if (!me.fromEditTask) {
+            cancelLink = '#/administration/dataexporttasks/add';
+        } else {
+            me.taskId = router.queryParams.taskId;
+            cancelLink = '#/administration/dataexporttasks/' + me.taskId + '/edit';
+        }
+        view = Ext.create('Tme.view.relativeperiod.Edit', {
+            returnLink: cancelLink
+        });
         me.getApplication().fireEvent('changecontentevent', view);
         var categoriesCombo = view.down('#categories-combo-box');
         categoriesCombo.store.load(function () {

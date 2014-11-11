@@ -12,25 +12,11 @@ Ext.define('Tme.view.relativeperiod.Edit', {
     ],
 
     edit: false,
-
-    isEdit: function () {
-        return this.edit;
-    },
-
+    returnLink: null,
     categoryStore: undefined,
 
-    setEdit: function (edit, returnLink) {
-        if (edit) {
-            this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'TME', 'Save'));
-            this.down('#createEditButton').action = 'editRelativePeriod';
-        } else {
-            this.edit = edit;
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'TME', 'Add'));
-            this.down('#createEditButton').action = 'addRelativePeriod';
-        }
-
-        this.down('#cancelLink').href = returnLink;
+    setEdit: function () {
+        this.down('#cancel-link').href = this.returnLink;
     },
 
     initComponent: function () {
@@ -183,7 +169,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
         ];
 
         me.callParent(arguments);
-
+        me.setEdit();
         me.on('afterrender', me.onAfterRender, me);
     },
 
