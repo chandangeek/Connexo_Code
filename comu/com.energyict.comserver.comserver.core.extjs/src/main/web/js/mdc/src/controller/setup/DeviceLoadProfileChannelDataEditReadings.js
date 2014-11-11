@@ -52,6 +52,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
             preloader = Ext.create('Ext.container.Container'),
             widget;
 
+        dataStore.removeAll(true);
+
         me.getApplication().fireEvent('changecontentevent', preloader);
         preloader.setLoading(true);
 

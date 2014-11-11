@@ -12,9 +12,11 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
     ],
     height: 395,
     plugins: [
-        'bufferedrenderer',
-        'showConditionalToolTip'
+        'bufferedrenderer'
     ],
+    viewConfig: {
+        loadMask: false
+    },
 
     //test
 

@@ -95,6 +95,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             router = me.getController('Uni.controller.history.Router'),
             widget;
 
+        dataStore.removeAll(true);
+
         viewport.setLoading();
         dataStore.getProxy().setUrl({
             mRID: mRID,
@@ -145,16 +147,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 widget.setLoading();
                 widget.down('#deviceLoadProfileChannelGraphViewBtn').setDisabled(!isTable);
                 widget.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(isTable);
-                if (!isTable) {
-                    widget.down('#deviceLoadProfileChannelTableView deviceLoadProfileChannelDataGrid').reconfigure(null, null);
-                }
+                widget.down('#deviceLoadProfileChannelTableView').setVisible(isTable);
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
                         if (!isTable) {
                             me.showGraphView(record);
                         }
                         widget.down('#deviceLoadProfileChannelGraphView').setVisible(!isTable);
-                        widget.down('#deviceLoadProfileChannelTableView').setVisible(isTable);
                         widget.setLoading(false);
                     }
                 }, me);

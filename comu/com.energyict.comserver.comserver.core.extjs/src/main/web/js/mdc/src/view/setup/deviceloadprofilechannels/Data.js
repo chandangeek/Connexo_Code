@@ -51,8 +51,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
                         {
                             xtype: 'deviceLoadProfileChannelTableView',
                             channel: me.channel,
-                            router: me.router,
-                            hidden: true
+                            router: me.router
                         },
                         {
                             xtype: 'deviceLoadProfileChannelGraphView'

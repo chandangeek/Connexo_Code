@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
         'Mdc.view.setup.deviceloadprofilechannels.ValidationPreview',
         'Uni.form.field.EditedDisplay'
     ],
-    title: '',
+    title: '&nbsp',
     frame: true,
 
     /* Commented because of JP-5861
@@ -118,7 +118,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
                     },
                     {
                         xtype: 'edited-displayfield',
-                        name: 'editedDate',
+                        name: 'modificationState',
                         margin: '0 0 0 10'
                     }
                 ]
@@ -131,8 +131,10 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
                 name: 'multiplier'
             },
             {
-                xtype: 'interval-flags-displayfield'
-            });
+                xtype: 'interval-flags-displayfield',
+                name: 'intervalFlags'
+            }
+        );
 
         me.callParent(arguments);
     }
