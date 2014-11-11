@@ -190,6 +190,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                         name: 'recurrence-number',
                                         allowDecimals: false,
                                         minValue: 1,
+                                        value: 1,
                                         width: 65,
                                         margin: '0 10 0 0',
                                         listeners: {
@@ -213,6 +214,11 @@ Ext.define('Dxp.view.tasks.Add', {
                                         editable: false,
                                         width: 100,
                                         listeners: {
+                                           /* beforerender: {
+                                                fn: function () {
+                                                    this.setValue(this.store.getAt(2));
+                                                }
+                                            },*/
                                             focus: {
                                                 fn: function () {
                                                     var radioButton = Ext.ComponentQuery.query('data-export-tasks-add #every')[0];

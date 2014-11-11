@@ -115,7 +115,8 @@ Ext.define('Dxp.controller.Tasks', {
             view = Ext.create('Dxp.view.tasks.Add'),
             fileFormatterCombo = view.down('#file-formatter-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
-            exportPeriodCombo = view.down('#export-period-combo');
+            exportPeriodCombo = view.down('#export-period-combo'),
+            recurrenceTypeCombo = view.down('#recurrence-type');
 
         Ext.util.History.on('change', this.checkRoute, this);
         me.taskModel = null;
@@ -133,6 +134,7 @@ Ext.define('Dxp.controller.Tasks', {
                         me.setFormValues(view);
                     } else {
                         fileFormatterCombo.setValue(this.getAt(0));
+                        recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                     }
                     me.getApplication().fireEvent('changecontentevent', view);
                 });
@@ -149,7 +151,8 @@ Ext.define('Dxp.controller.Tasks', {
             taskForm = view.down('#add-data-export-task-form'),
             fileFormatterCombo = view.down('#file-formatter-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
-            exportPeriodCombo = view.down('#export-period-combo');
+            exportPeriodCombo = view.down('#export-period-combo'),
+            recurrenceTypeCombo = view.down('#recurrence-type');
 
         me.fromEdit = true;
         me.taskId = taskId;
@@ -183,8 +186,10 @@ Ext.define('Dxp.controller.Tasks', {
                                 if (record.data.nextRun && (record.data.nextRun !== 0)) {
                                     view.down('#recurrence-trigger').setValue({recurrence: true});
                                     view.down('#recurrence-number').setValue(record.data.schedule.every.count);
-                                    view.down('#recurrence-type').setValue(record.data.schedule.timeUnit);
+                                    recurrenceTypeCombo.setValue(record.data.schedule.timeUnit);
                                     view.down('#start-on').setValue(record.data.nextRun);
+                                } else {
+                                    recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                                 }
                                 if (record.properties() && record.properties().count()) {
                                     taskForm.down('tasks-property-form').loadRecord(record);
@@ -404,7 +409,7 @@ Ext.define('Dxp.controller.Tasks', {
         localStorage.setItem('addDataExportTaskValues', JSON.stringify(formValues));
 
         if (button.itemId === 'add-task-add-device-group') {
-            location.href = '#/devices/devicegroups/add';
+            location.href = '/apps/multisense/index.html#/devices/devicegroups/add';
         } else {
             additionalParams.fromEdit = me.fromEdit;
             additionalParams.taskId = me.taskId;
@@ -445,7 +450,6 @@ Ext.define('Dxp.controller.Tasks', {
             page = me.getAddPage(),
             recurrenceNumberField = page.down('#recurrence-number'),
             recurrenceTypeCombo = page.down('#recurrence-type'),
-            dateValue = page.down('#date-time-field-date').getValue(),
             exportPeriodValue = page.down('#export-period-combo').getValue(),
             gridPreview = page.down('#schedule-preview'),
             scheduleRecords = [];
