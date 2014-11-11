@@ -8,6 +8,10 @@ public interface Privileges {
     String FINE_TUNE_VALIDATION_CONFIGURATION = "privilege.view.fineTuneValidationConfiguration";
     String SCHEDULE_DEVICE = "privilege.view.scheduleDevice";
 
+    String ADMINISTRATE_DEVICE_GROUP = "privilege.administrate.deviceGroup";
+    String ADMINISTRATE_DEVICE_ENUMERATED_GROUP = "privilege.administrate.deviceOfEnumeratedGroup";
+    String VIEW_DEVICE_GROUP_DETAIL = "privilege.view.deviceGroupDetail";
+
     String IMPORT_INVENTORY_MANAGEMENT = "privilege.import.inventoryManagement";
     String REVOKE_INVENTORY_MANAGEMENT = "privilege.revoke.inventoryManagement";
     String CREATE_INVENTORY_MANAGEMENT = "privilege.create.inventoryManagement";
