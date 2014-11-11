@@ -14,7 +14,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.SubMenuPanel', {
             xtype: 'navigationSubMenu',
             itemId: 'deviceLoadProfileChannelSubMenu',
             ui: 'side-menu',
-            width: 250,
             items: [
                 {
                     text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),

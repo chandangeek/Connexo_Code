@@ -75,10 +75,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
         me.side = {
             xtype: 'panel',
             ui: 'medium',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
             items: [
                 {
                     xtype: 'deviceLoadProfilesSubMenuPanel',

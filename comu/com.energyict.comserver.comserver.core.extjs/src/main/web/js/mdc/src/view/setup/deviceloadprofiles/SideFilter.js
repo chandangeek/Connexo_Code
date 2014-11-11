@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.SideFilter', {
     alias: 'widget.deviceLoadProfileDataSideFilter',
     itemId: 'deviceLoadProfileDataSideFilter',
     ui: 'medium',
-    width: 150,
+    width: 288,
     cls: 'filter-form',
     title: Uni.I18n.translate('connection.widget.sideFilter.title', 'DSH', 'Filter'),
     items: {
