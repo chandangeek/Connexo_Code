@@ -8,6 +8,18 @@ Ext.define('Dxp.view.tasks.Add', {
         'Dxp.view.tasks.PropertyForm',
         'Uni.util.FormErrorMessage'
     ],
+    edit: false,
+    setEdit: function (edit) {
+        if (edit) {
+            this.edit = edit;
+            this.down('#add-button').setText(Uni.I18n.translate('general.edit', 'DES', 'Edit'));
+            this.down('#add-button').action = 'editTask';
+        } else {
+            this.edit = edit;
+            this.down('#add-button').setText(Uni.I18n.translate('general.add', 'DES', 'Add'));
+            this.down('#add-button').action = 'addTask';
+        }
+    },
     initComponent: function () {
         var me = this;
         me.content = [
@@ -252,7 +264,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 itemId: 'export-period-combo',
                                 name: 'exportPeriod',
                                 width: 235,
-                                queryMode: 'remote',
+                                queryMode: 'local',
                                 store: 'Dxp.store.ExportPeriods',
                                 editable: false,
                                 allowBlank: false,
@@ -329,8 +341,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 xtype: 'button',
                                 itemId: 'add-button',
                                 text: Uni.I18n.translate('general.add', 'DES', 'Add'),
-                                ui: 'action',
-                                action: 'add'
+                                ui: 'action'
                             },
                             {
                                 xtype: 'button',
@@ -345,6 +356,7 @@ Ext.define('Dxp.view.tasks.Add', {
             }
         ];
         me.callParent(arguments);
+        me.setEdit(me.edit);
     },
     recurrenceNumberFieldValidation: function (field) {
         var value = field.getValue();

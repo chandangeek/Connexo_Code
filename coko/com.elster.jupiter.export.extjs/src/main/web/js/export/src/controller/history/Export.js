@@ -32,6 +32,14 @@ Ext.define('Dxp.controller.history.Export', {
                                     return true;
                                 }, {single: true});
                                 return this;
+                            },
+                            items: {
+                                edit: {
+                                    title: Uni.I18n.translate('general.editDataExportTask', 'DES', 'Edit data export task'),
+                                    route: 'edit',
+                                    controller: 'Dxp.controller.Tasks',
+                                    action: 'showEditExportTask'
+                                }
                             }
                         }
                     }

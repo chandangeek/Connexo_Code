@@ -26,7 +26,7 @@ Ext.define('Dxp.model.DataExportTask', {
                 if (data.nextRun && (data.nextRun !== 0)) {
                     result = moment(data.nextRun).format('ddd DD MMM YYYY') + ' ' + Uni.I18n.translate('general.at', 'DES', 'at') + ' ' + moment(data.nextRun).format('hh:mm A');
                 } else {
-                    result = Uni.I18n.translate('general.at', 'DES', 'Not scheduled')
+                    result = Uni.I18n.translate('general.notScheduled', 'DES', 'Not scheduled')
                 }
                 return result;
             }

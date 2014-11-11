@@ -81,38 +81,117 @@ Ext.define('Dxp.controller.Tasks', {
         });
     },
 
-    saveFormValues: function (button) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            form = me.getAddPage().down('#add-data-export-task-form'),
-            formValues = form.getValues();
-
-        localStorage.setItem('addDataExportTaskValues', JSON.stringify(formValues));
-        if (button.itemId === 'add-task-add-device-group') {
-            location.href = '#/devices/devicegroups/add';
-        } else {
-            router.getRoute('administration/relativeperiods/add').forward();
-        }
-    },
-
-    checkRoute: function (token) {
-        var relativeRegexp = /administration\/relativeperiods\/add/,
-            deviceRegexp = /devices\/devicegroups\/add/;
-
-        Ext.util.History.un('change', this.checkRoute, this);
-
-        if (token.search(relativeRegexp) == -1 && token.search(deviceRegexp) == -1) {
-            localStorage.removeItem('addDataExportTaskValues');
-        }
-    },
-
-
     showDataExportTasks: function () {
         var me = this,
             view = Ext.widget('data-export-tasks-setup', {
                 router: me.getController('Uni.controller.history.Router')
             });
+
         me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    showTaskDetailsView: function (taskId) {
+        var me = this,
+            view = Ext.create('Dxp.view.tasks.Details'),
+            taskModel = me.getModel('Dxp.model.DataExportTask');
+
+        me.getApplication().fireEvent('changecontentevent', view);
+        taskModel.load(taskId, {
+            success: function (record) {
+                var detailsForm = view.down('tasks-preview-form'),
+                    propertyForm = detailsForm.down('property-form');
+
+                me.getApplication().fireEvent('dataexporttaskload', record);
+                detailsForm.loadRecord(record);
+                if (record.properties() && record.properties().count()) {
+                    propertyForm.loadRecord(record);
+                }
+            }
+        });
+    },
+
+    showAddExportTask: function () {
+        var me = this,
+            view = Ext.create('Dxp.view.tasks.Add'),
+            fileFormatterCombo = view.down('#file-formatter-combo'),
+            deviceGroupCombo = view.down('#device-group-combo'),
+            exportPeriodCombo = view.down('#export-period-combo');
+
+        Ext.util.History.on('change', this.checkRoute, this);
+        me.taskModel = null;
+        exportPeriodCombo.store.load(function () {
+            deviceGroupCombo.store.load(function () {
+                if (this.getCount() === 0) {
+                    deviceGroupCombo.allowBlank = true;
+                    deviceGroupCombo.hide();
+                    view.down('#no-device').show();
+                }
+                fileFormatterCombo.store.load(function () {
+                    if (localStorage.getItem('addDataExportTaskValues')) {
+                        me.setFormValues(view);
+                    } else {
+                        fileFormatterCombo.setValue(this.getAt(0));
+                    }
+                    me.getApplication().fireEvent('changecontentevent', view);
+                });
+            });
+        });
+    },
+
+    showEditExportTask: function (taskId) {
+        var me = this,
+            view = Ext.create('Dxp.view.tasks.Add', {
+                edit: true
+            }),
+            taskModel = me.getModel('Dxp.model.DataExportTask'),
+            taskForm = view.down('#add-data-export-task-form'),
+            fileFormatterCombo = view.down('#file-formatter-combo'),
+            deviceGroupCombo = view.down('#device-group-combo'),
+            exportPeriodCombo = view.down('#export-period-combo');
+
+        Ext.util.History.on('change', this.checkRoute, this);
+        exportPeriodCombo.store.load(function () {
+            deviceGroupCombo.store.load(function () {
+                if (this.getCount() === 0) {
+                    deviceGroupCombo.allowBlank = true;
+                    deviceGroupCombo.hide();
+                    view.down('#no-device').show();
+                }
+                fileFormatterCombo.store.load(function () {
+                    taskModel.load(taskId, {
+                        success: function (record) {
+                            me.taskModel = record;
+                            me.getApplication().fireEvent('dataexporttaskload', record);
+                            taskForm.setTitle(Uni.I18n.translate('general.edit', 'DES', 'Edit') + ' ' + record.get('name'));
+                            if (localStorage.getItem('addDataExportTaskValues')) {
+                                me.setFormValues(view);
+                            } else {
+                                taskForm.loadRecord(record);
+                                view.down('#readingType1').setValue(record.get('readingTypes')[0].mRID);
+                                var taskReadingTypes = record.get('readingTypes');
+                                for (var i = 1; i < taskReadingTypes.length; i++) {
+                                    var readingType = taskReadingTypes[i],
+                                        field = me.addReadingType();
+                                    field.down('textfield').setValue(readingType.mRID);
+                                }
+                                exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.data.exportperiod.id));
+                                deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup.id));
+                                if (record.data.nextRun && (record.data.nextRun !== 0)) {
+                                    view.down('#recurrence-trigger').setValue({recurrence: true});
+                                    view.down('#recurrence-number').setValue(record.data.schedule.every.count);
+                                    view.down('#recurrence-type').setValue(record.data.schedule.timeUnit);
+                                    view.down('#start-on').setValue(record.data.nextRun);
+                                }
+                                if (record.properties() && record.properties().count()) {
+                                    taskForm.down('tasks-property-form').loadRecord(record);
+                                }
+                            }
+                        }
+                    });
+                    me.getApplication().fireEvent('changecontentevent', view);
+                });
+            });
+        });
     },
 
     showPreview: function (selectionModel, record) {
@@ -139,8 +218,12 @@ Ext.define('Dxp.controller.Tasks', {
             case 'viewDetails':
                 route = 'administration/dataexporttasks/dataexporttask';
                 break;
+            case 'editExportTask':
+                route = 'administration/dataexporttasks/dataexporttask/edit';
+                break;
             case 'removeTask':
-                this.removeTask(menu.record);
+                me.removeTask(menu.record);
+                break;
         }
 
         route && (route = router.getRoute(route));
@@ -181,81 +264,33 @@ Ext.define('Dxp.controller.Tasks', {
                 }
                 //me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'), errorText);
                 if(!Ext.ComponentQuery.query('#remove-error-messagebox')[0])  {
-                Ext.widget('messagebox', {
-                    itemId: 'remove-error-messagebox',
-                    buttons: [
-                        {
-                            text: 'Retry',
-                            ui: 'remove',
-                            handler: function (button, event) {
-                                me.removeOperation(record);
+                    Ext.widget('messagebox', {
+                        itemId: 'remove-error-messagebox',
+                        buttons: [
+                            {
+                                text: 'Retry',
+                                ui: 'remove',
+                                handler: function (button, event) {
+                                    me.removeOperation(record);
+                                }
+                            },
+                            {
+                                text: 'Cancel',
+                                action: 'cancel',
+                                ui: 'link',
+                                href: '#/administration/dataexporttasks/',
+                                handler: function (button, event) {
+                                    this.up('messagebox').destroy();
+                                }
                             }
-                        },
-                        {
-                            text: 'Cancel',
-                            action: 'cancel',
-                            ui: 'link',
-                            href: '#/administration/dataexporttasks/',
-                            handler: function (button, event) {
-                                this.up('messagebox').destroy();
-                            }
-                        }
-                    ]
-                }).show({
-                    ui: 'notification-error',
-                    title: Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'),
-                    msg: errorText,
-                    icon: Ext.MessageBox.ERROR
-                })
-            }}
-        });
-    },
-
-    showTaskDetailsView: function (taskId) {
-        var me = this,
-            view = Ext.create('Dxp.view.tasks.Details'),
-            taskModel = me.getModel('Dxp.model.DataExportTask');
-
-        me.getApplication().fireEvent('changecontentevent', view);
-        taskModel.load(taskId, {
-            success: function (record) {
-                var detailsForm = view.down('tasks-preview-form'),
-                    propertyForm = detailsForm.down('property-form');
-
-                me.getApplication().fireEvent('dataexporttaskload', record);
-                detailsForm.loadRecord(record);
-                if (record.properties() && record.properties().count()) {
-                    propertyForm.loadRecord(record);
-                }
-            }
-        });
-    },
-
-    showAddExportTask: function () {
-        var me = this,
-            view = Ext.create('Dxp.view.tasks.Add'),
-            fileFormatterCombo = view.down('#file-formatter-combo'),
-            deviceGroupCombo = view.down('#device-group-combo');
-        Ext.util.History.on('change', this.checkRoute, this);
-
-        deviceGroupCombo.store.load(function () {
-            if (this.getCount() === 0) {
-                deviceGroupCombo.allowBlank = true;
-                deviceGroupCombo.hide();
-                view.down('#no-device').show();
-            }
-            fileFormatterCombo.store.load(function () {
-                 if (localStorage.getItem('addDataExportTaskValues')) {
-                     var obj = JSON.parse(localStorage.getItem('addDataExportTaskValues'));
-                     var formModel = Ext.create('Dxp.model.AddDataExportTaskForm', obj);
-                     view.down('#add-data-export-task-form').loadRecord(formModel);
-                     view.down('#export-period-combo').setValue(formModel.get('exportPeriod'));
-                     view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});
-                 } else {
-                     fileFormatterCombo.setValue(this.getAt(0));
-                 }
-                 me.getApplication().fireEvent('changecontentevent', view);
-            });
+                        ]
+                    }).show({
+                        ui: 'notification-error',
+                        title: Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'),
+                        msg: errorText,
+                        icon: Ext.MessageBox.ERROR
+                    })
+                }}
         });
     },
 
@@ -273,7 +308,7 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
-    addTask: function () {
+    addTask: function (button) {
         var me = this,
             page = me.getAddPage(),
             form = page.down('#add-data-export-task-form'),
@@ -282,13 +317,14 @@ Ext.define('Dxp.controller.Tasks', {
             propertyForm = form.down('tasks-property-form');
 
         propertyForm.updateRecord();
-
         if (form.isValid()) {
-            var record = Ext.create('Dxp.model.DataExportTask'),
+            var record = me.taskModel || Ext.create('Dxp.model.DataExportTask'),
                 readingTypes = page.down('#readingValuesTextFieldsContainer').items;
-
             if (!formErrorsPanel.isHidden()) {
                 formErrorsPanel.hide();
+            }
+            if (button.action === 'editTask') {
+                record.readingTypes().removeAll();
             }
             for (var i = 0; i < readingTypes.items.length; i++) {
                 var readingTypeMRID = readingTypes.items[i].items.items[0],
@@ -299,7 +335,6 @@ Ext.define('Dxp.controller.Tasks', {
                 arrReadingTypes.push(readingTypeRecord);
             }
             record.readingTypes().add(arrReadingTypes);
-
             if (propertyForm.getRecord()) {
                 record.propertiesStore = propertyForm.getRecord().properties();
             }
@@ -308,7 +343,6 @@ Ext.define('Dxp.controller.Tasks', {
                 id: form.down('#device-group-combo').getValue(),
                 name: form.down('#device-group-combo').getRawValue()
             });
-
             if (form.down('#recurrence-trigger').getValue().recurrence && moment(form.down('#date-time-field-date').getValue()).year()) {
                 record.set('schedule', {
                     every: {
@@ -328,7 +362,11 @@ Ext.define('Dxp.controller.Tasks', {
             record.save({
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addDataExportTask.successMsg', 'DES', 'Data export task added'));
+                    if (button.action === 'editTask') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editDataExportTask.successMsg', 'DES', 'Data export task edited'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addDataExportTask.successMsg', 'DES', 'Data export task added'));
+                    }
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
@@ -340,6 +378,58 @@ Ext.define('Dxp.controller.Tasks', {
             })
         } else {
             formErrorsPanel.show();
+        }
+    },
+
+    saveFormValues: function (button) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            page = me.getAddPage(),
+            form = page.down('#add-data-export-task-form'),
+            formValues = form.getValues(),
+            readingTypes = page.down('#readingValuesTextFieldsContainer').items,
+            arrReadingTypes = [];
+
+        for (var i = 0; i < readingTypes.items.length; i++) {
+            var readingTypeMRID = readingTypes.items[i].items.items[0],
+                readingType = readingTypeMRID.value;
+            arrReadingTypes.push(readingType);
+        }
+        formValues.readingTypes = arrReadingTypes;
+        localStorage.setItem('addDataExportTaskValues', JSON.stringify(formValues));
+
+        if (button.itemId === 'add-task-add-device-group') {
+            location.href = '#/devices/devicegroups/add';
+        } else {
+            router.getRoute('administration/relativeperiods/add').forward();
+        }
+    },
+
+    setFormValues: function (view) {
+        var me = this,
+            obj = JSON.parse(localStorage.getItem('addDataExportTaskValues')),
+            readingTypesArray = obj.readingTypes;
+        if (!Ext.isEmpty(readingTypesArray)) {
+            view.down('#readingType1').setValue(readingTypesArray[0]);
+            for (var i = 1; i < readingTypesArray.length; i++) {
+                var readingType = readingTypesArray[i],
+                    field = me.addReadingType();
+                field.down('textfield').setValue(readingType);
+            }
+        }
+        var formModel = Ext.create('Dxp.model.AddDataExportTaskForm', obj);
+        view.down('#add-data-export-task-form').loadRecord(formModel);
+        view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});
+    },
+
+    checkRoute: function (token) {
+        var relativeRegexp = /administration\/relativeperiods\/add/,
+            deviceRegexp = /devices\/devicegroups\/add/;
+
+        Ext.util.History.un('change', this.checkRoute, this);
+
+        if (token.search(relativeRegexp) == -1 && token.search(deviceRegexp) == -1) {
+            localStorage.removeItem('addDataExportTaskValues');
         }
     },
 
@@ -388,10 +478,8 @@ Ext.define('Dxp.controller.Tasks', {
             gridPreview = page.down('#schedule-preview'),
             exportPeriodId = page.down('#export-period-combo').getValue(),
             sendingData = {};
-
         sendingData.zoneOffset = startOnDate.getTimezoneOffset();
         sendingData.date = moment(startOnDate).add(everyAmount * i, everyTimeKey).valueOf();
-
         Ext.Ajax.request({
             url: '/api/tmr/relativeperiods/' + exportPeriodId + '/preview',
             method: 'PUT',
@@ -415,11 +503,9 @@ Ext.define('Dxp.controller.Tasks', {
                     endZonedDate = endDateUtc - (60000 * zoneOffset);
                 }
                 scheduleRecord.set('schedule', moment(startOnDate).add(everyAmount * i, everyTimeKey).valueOf());
-
                 scheduleRecord.set('start', startZonedDate);
                 scheduleRecord.set('end', endZonedDate);
                 scheduleRecords.push(scheduleRecord);
-
                 if (i < 4) {
                     i++;
                     me.fillGrid(i, scheduleRecords);
