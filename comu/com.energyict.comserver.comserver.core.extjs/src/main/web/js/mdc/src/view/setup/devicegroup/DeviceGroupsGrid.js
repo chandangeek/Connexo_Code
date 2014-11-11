@@ -57,6 +57,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                     },
                     {
                         text: Uni.I18n.translate('deviceGroup.createDeviceGroup', 'MDC', 'Add device group'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup'),
                         itemId: 'createDeviceGroupButton',
                         xtype: 'button',
                         action: 'createDeviceGroupButton'

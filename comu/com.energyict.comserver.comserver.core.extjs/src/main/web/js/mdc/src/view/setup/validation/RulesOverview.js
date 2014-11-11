@@ -57,6 +57,7 @@ Ext.define('Mdc.view.setup.validation.RulesOverview', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('validation.addValidationRuleSets', 'MDC', 'Add validation rule sets'),
+                                    privileges: ['privilege.administrate.validationConfiguration'],
                                     ui: 'action',
                                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrulesets/add'
                                 }
