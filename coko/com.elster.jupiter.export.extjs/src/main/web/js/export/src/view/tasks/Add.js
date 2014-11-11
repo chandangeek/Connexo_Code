@@ -214,11 +214,6 @@ Ext.define('Dxp.view.tasks.Add', {
                                         editable: false,
                                         width: 100,
                                         listeners: {
-                                           /* beforerender: {
-                                                fn: function () {
-                                                    this.setValue(this.store.getAt(2));
-                                                }
-                                            },*/
                                             focus: {
                                                 fn: function () {
                                                     var radioButton = Ext.ComponentQuery.query('data-export-tasks-add #every')[0];
