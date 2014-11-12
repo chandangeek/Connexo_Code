@@ -21,6 +21,10 @@ Ext.define('Uni.controller.history.EventBus', {
     initHistory: function () {
         var me = this;
 
+        crossroads.bypassed.add(function(request){
+            crossroads.parse("/error/notfound");
+        });
+
         Ext.util.History.init(function () {
             Ext.util.History.addListener('change', function (token) {
                 me.onHistoryChange(token);
