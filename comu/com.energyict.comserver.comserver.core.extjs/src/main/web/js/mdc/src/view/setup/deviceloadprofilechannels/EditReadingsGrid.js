@@ -11,6 +11,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
     height: 395,
     plugins: [
         'bufferedrenderer',
+        'showConditionalToolTip',
         {
             ptype: 'cellediting',
             clicksToEdit: 1,
