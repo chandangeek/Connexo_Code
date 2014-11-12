@@ -469,7 +469,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
         comServerModel.load(id, {
             success: function (record) {
-                widget.down('comserversubmenu').setServer(record);
+                if (widget.down('comserversubmenu')) {
+                    widget.down('comserversubmenu').setServer(record);
+                }
                 me.getApplication().fireEvent('comServerOverviewLoad', record);
             }
         });
@@ -507,8 +509,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
     showAddComPortPool: function () {
         var me = this,
+            router = this.getController('Uni.controller.history.Router'),
             widget = Ext.widget('addComPortPool');
-
+        me.showAddOutbound(router.arguments.id);
         me.saveState();
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.updateCancelHref(me.comServerId);
