@@ -105,6 +105,7 @@ Ext.define('Usr.controller.GroupEdit', {
 
         var name = '',
             previousPermissions = '';
+        me.getStore('Usr.store.Resources').clearFilter();
         me.getStore('Usr.store.Resources').load(function () {
             widget.down('form').loadRecord(record);
             var allPrivileges, currentPrivileges = record.privileges(), index = 0;
