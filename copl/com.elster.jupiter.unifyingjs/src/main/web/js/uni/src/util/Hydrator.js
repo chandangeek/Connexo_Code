@@ -145,17 +145,22 @@ Ext.define('Uni.util.Hydrator', {
         var callbacks = [];
 
         _.map(data, function (id) {
-            var callback = function(record) {
-                if (record) {
-                    store.add(record);
-                }
-                promise.resolve(callback);
-            };
+            if(id instanceof Ext.data.Model){
+                store.add(id);
+            }
+            else {
+                var callback = function (record) {
+                    if (record) {
+                        store.add(record);
+                    }
+                    promise.resolve(callback);
+                };
 
-            callbacks.push(callback);
-            store.model.load(id, {
-                callback: callback
-            });
+                callbacks.push(callback);
+                store.model.load(id, {
+                    callback: callback
+                });
+            }
         });
 
         // promise replace here
