@@ -18,12 +18,6 @@ Ext.define('Uni.controller.Error', {
     },
 
     routeConfig:{
-        errorx: {
-            title: 'Error',
-            route: 'error/errorx',
-            controller: 'Uni.controller.Error',
-            action:'showErrorx'
-        },
         notfound: {
             title: Uni.I18n.translate('error.pageNotFound', 'UNI', 'Page not found'),
             route: 'error/notfound',
@@ -188,8 +182,6 @@ Ext.define('Uni.controller.Error', {
         });
 
         box.show(config);
-    },
-    showOverview: function () {
     },
     showPageNotFound: function () {
         var widget = Ext.widget('errorNotFound');
