@@ -5,6 +5,9 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
         'Uni.property.form.Property',
         'Dxp.view.tasks.PropertyForm'
     ],
+    myTooltip: Ext.create('Ext.tip.ToolTip', {
+        renderTo: Ext.getBody()
+    }),
     items: [
         {
             xtype: 'displayfield',
@@ -37,6 +40,22 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     renderer: function (value) {
                         if (value) {
                             return value.length + ' ' + Uni.I18n.translate('general.readingtypes', 'DES', 'reading type(s)');
+                        }
+                    },
+                    listeners: {
+                        boxready: function (field) {
+                            field.inputEl.on({
+                                mouseover: function (e) {
+                                    var str = '';
+                                    Ext.Array.each(field.value, function (item) {
+                                        str += item.aliasName + '<br>';
+                                    });
+                                    var tip = field.up('form').myTooltip;
+                                    tip.update(str);
+                                    tip.showAt(e.getXY());
+                                },
+                                mouseout: function () { field.up('form').myTooltip.hide(); }
+                            });
                         }
                     }
                 }

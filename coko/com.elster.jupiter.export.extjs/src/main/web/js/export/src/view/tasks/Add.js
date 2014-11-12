@@ -190,6 +190,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                         name: 'recurrence-number',
                                         allowDecimals: false,
                                         minValue: 1,
+                                        value: 1,
                                         width: 65,
                                         margin: '0 10 0 0',
                                         listeners: {
@@ -236,15 +237,18 @@ Ext.define('Dxp.view.tasks.Add', {
                                 layout: 'hbox',
                                 name: 'start-on',
                                 dateConfig: {
-                                    allowBlank: true
+                                    allowBlank: true,
+                                    value: new Date()
                                 },
                                 hoursConfig: {
                                     fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
                                     labelWidth: 10,
-                                    margin: '0 0 0 10'
+                                    margin: '0 0 0 10',
+                                    value: new Date().getHours()
                                 },
                                 minutesConfig: {
-                                    width: 55
+                                    width: 55,
+                                    value: new Date().getMinutes()
                                 }
                             }
                         ]
