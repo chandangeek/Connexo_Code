@@ -21,7 +21,7 @@ public class LogBookFinder implements CanFindByLongPrimaryKey<LogBook>{
 
     @Override
     public FactoryIds factoryId() {
-        return FactoryIds.LOADPROFILE;
+        return FactoryIds.LOGBOOK;
     }
 
     @Override
