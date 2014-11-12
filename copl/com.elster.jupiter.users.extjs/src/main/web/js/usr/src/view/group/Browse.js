@@ -30,7 +30,10 @@ Ext.define('Usr.view.group.Browse', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('group.Browse.NoItemsFoundPanel.title', 'USR', 'No groups found')
+                        title: Uni.I18n.translate('group.Browse.NoItemsFoundPanel.title', 'USR', 'No roles found'),
+                        reasons: [
+                            Uni.I18n.translate('group.Browse.NoItemsFoundPanel.item', 'USR', 'An error occurred while loading the roles.')
+                        ]
                     },
                     previewComponent: {
                         xtype: 'groupDetails'

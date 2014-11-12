@@ -30,7 +30,10 @@ Ext.define('Usr.view.user.Browse', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('user.Browse.NoItemsFoundPanel.title', 'USR', 'No users found')
+                        title: Uni.I18n.translate('user.Browse.NoItemsFoundPanel.title', 'USR', 'No users found'),
+                        reasons: [
+                            Uni.I18n.translate('user.Browse.NoItemsFoundPanel.item', 'USR', 'An error occurred while loading the users.')
+                        ]
                     },
                     previewComponent: {
                         xtype: 'userDetails'
