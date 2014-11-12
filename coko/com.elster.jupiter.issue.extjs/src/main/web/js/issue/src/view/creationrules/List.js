@@ -15,7 +15,6 @@ Ext.define('Isu.view.creationrules.List', {
                 itemId: 'Name',
                 header: Uni.I18n.translate('general.title.name', 'ISU', 'Name'),
                 dataIndex: 'name',
-                tdCls: 'isu-grid-description',
                 flex: 1
             },
             {
@@ -23,7 +22,6 @@ Ext.define('Isu.view.creationrules.List', {
                 header: Uni.I18n.translate('general.title.ruleTemplate', 'ISU', 'Rule template'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="template">{template.name}</tpl>',
-                tdCls: 'isu-grid-description',
                 flex: 1
             },
             {
@@ -31,7 +29,6 @@ Ext.define('Isu.view.creationrules.List', {
                 header: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue type'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="issueType">{issueType.name}</tpl>',
-                tdCls: 'isu-grid-description',
                 flex: 1
             },
             {   itemId: 'action',

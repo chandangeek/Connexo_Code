@@ -26,46 +26,8 @@ Ext.define('Isu.util.IsuGrid', {
             }
 
             if (text) {
-                icon.tooltip = Ext.create('Ext.tip.ToolTip', {
-                    target: icon,
-                    html: text
-                });
-
-                grid.on('destroy', function () {
-                    icon.tooltip.destroy();
-                });
-                grid.on('beforerefresh', function () {
-                    icon.tooltip.destroy();
-                });
+                icon.set({'data-qtip': text});
             }
-        });
-    },
-
-    /**
-     * Handle 'refresh' event.
-     * Set tooltip for description cell if inner text is shown with ellipsis.
-     * 'rtdCls' property of column must be equal 'isu-grid-description'.
-     */
-    setDescriptionTooltip: function (grid) {
-        var gridEl = grid.getEl(),
-            descriptionCells = gridEl.query('.isu-grid-description');
-
-        Ext.Array.each(descriptionCells, function (item) {
-            var cell = Ext.get(item),
-                cellInner = cell.down('.x-grid-cell-inner'),
-                text = cellInner.getHTML();
-
-            cell.tooltip = Ext.create('Ext.tip.ToolTip', {
-                target: cell,
-                html: text
-            });
-
-            grid.on('destroy', function () {
-                cell.tooltip && cell.tooltip.destroy();
-            });
-            grid.on('beforerefresh', function () {
-                cell.tooltip && cell.tooltip.destroy();
-            });
         });
     },
 

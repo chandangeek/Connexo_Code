@@ -12,7 +12,6 @@ Ext.define('Isu.view.assignmentrules.List', {
         {
             header: 'Description',
             dataIndex: 'description',
-            tdCls: 'isu-grid-description',
             flex: 1
         },
         {

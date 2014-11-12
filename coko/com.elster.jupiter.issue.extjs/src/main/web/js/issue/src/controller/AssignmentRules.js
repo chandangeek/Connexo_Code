@@ -18,7 +18,7 @@ Ext.define('Isu.controller.AssignmentRules', {
     init: function () {
         this.control({
             'issue-assignment-rules-overview issues-assignment-rules-list gridview': {
-                refresh: this.onGridRefresh
+                refresh: this.setAssigneeTypeIconTooltip
             }
         });
     },
@@ -27,10 +27,5 @@ Ext.define('Isu.controller.AssignmentRules', {
         var widget = Ext.widget('issue-assignment-rules-overview');
         this.getApplication().fireEvent('changecontentevent', widget);
         this.getStore('Isu.store.AssignmentRules').load();
-    },
-
-    onGridRefresh: function (grid) {
-        this.setAssigneeTypeIconTooltip(grid);
-        this.setDescriptionTooltip(grid);
     }
 });
