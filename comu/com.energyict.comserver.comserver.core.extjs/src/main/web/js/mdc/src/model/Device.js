@@ -15,7 +15,12 @@ Ext.define('Mdc.model.Device', {
         {name: 'batch', type: 'string', useNull: true},
         {name: 'masterDevicemRID', type: 'string', useNull: true},
         {name: 'masterDeviceId', type: 'number', useNull: true},
-        {name: 'nbrOfDataCollectionIssues', type: 'number', useNull: true}
+        {name: 'nbrOfDataCollectionIssues', type: 'number', useNull: true},
+        {name: 'gatewayType', type: 'string', useNull: true},
+        {name: 'creationTime', dateFormat: 'time', type: 'date', useNull: true},
+        {name: 'hasLoadProfiles', type: 'boolean'},
+        {name: 'hasLogBooks', type: 'boolean'},
+        {name: 'hasRegisters',  type: 'boolean'}
     ],
 
     associations: [
@@ -28,7 +33,7 @@ Ext.define('Mdc.model.Device', {
 
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices',
+        url: '/api/ddr/devices',
         reader: {
             type: 'json'
         }

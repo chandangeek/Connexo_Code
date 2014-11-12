@@ -1,15 +1,16 @@
-Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
+Ext.define('Mdc.view.setup.devicetopology.Setup', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.deviceLoadProfilesSetup',
-    itemId: 'deviceLoadProfilesSetup',
-
+    alias: 'widget.deviceTopologySetup',
+    itemId: 'deviceTopologySetup',
     router: null,
+    device: null,
 
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.view.setup.device.DeviceMenu',
-        'Mdc.view.setup.deviceloadprofiles.Grid',
-        'Mdc.view.setup.deviceloadprofiles.Preview'
+        'Mdc.view.setup.devicetopology.Grid'
+    ],
+
+    stores: [
+        'Mdc.store.TopologyOfDevice'
     ],
 
     initComponent: function () {
@@ -25,7 +26,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
                         device: me.device,
-                        toggleId: 'loadProfilesLink'
+                        toggleId: 'topologyLink'
                     }
                 ]
             }
@@ -34,31 +35,24 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('deviceloadprofiles.loadProfiles', 'MDC', 'Load profiles'),
+            title: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'),
             items: [
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'deviceLoadProfilesGrid',
-                        mRID: me.device.get('mRID'),
+                        xtype: 'deviceTopologyGrid',
                         router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('deviceloadprofiles.empty.title', 'MDC', 'No load profiles found'),
+                        title: Uni.I18n.translate('deviceCommunicationTopology.empty.title', 'MDC', 'No slave devices found'),
                         reasons: [
-                            Uni.I18n.translate('deviceloadprofiles.empty.list.item1', 'MDC', 'No load profiles have been defined yet.')
+                            Uni.I18n.translate('deviceCommunicationTopology.empty.list.item1', 'MDC', 'The gateway contains no slave devices.')
                         ]
-                    },
-                    previewComponent: {
-                        xtype: 'deviceLoadProfilesPreview',
-                        mRID: me.device.get('mRID'),
-                        router: me.router
                     }
                 }
             ]
         };
-
         me.callParent(arguments);
     }
 });

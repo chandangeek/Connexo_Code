@@ -50,6 +50,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DevicesAddGroupController',
         'Mdc.controller.setup.DevicesSearchController',
         'Mdc.controller.setup.DeviceSecuritySettings',
+        'Mdc.controller.setup.DeviceTopology',
         'Mdc.controller.setup.DeviceTypeLogbooks',
         'Mdc.controller.setup.DeviceTypes',
         'Mdc.controller.setup.EditLogbookConfiguration',

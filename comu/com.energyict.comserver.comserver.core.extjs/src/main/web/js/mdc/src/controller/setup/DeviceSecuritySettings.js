@@ -57,22 +57,31 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     },
 
     showDeviceSecuritySettings: function (mrid) {
-        var me = this;
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
         this.mrid = mrid;
+
+        viewport.setLoading();
+
         var securitySettingsOfDeviceStore = Ext.StoreManager.get('SecuritySettingsOfDevice');
         securitySettingsOfDeviceStore.getProxy().setExtraParam('mrid', mrid);
-        securitySettingsOfDeviceStore.load({
-            callback: function () {
-                Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
-                    success: function (device) {
-                        var widget = Ext.widget('deviceSecuritySettingSetup', {mrid: mrid});
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                        me.getApplication().fireEvent('loadDevice', device);
+        Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
+            success: function (device) {
+                var widget = Ext.widget('deviceSecuritySettingSetup', {device: device, mrid: mrid});
+                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getApplication().fireEvent('loadDevice', device);
+                viewport.setLoading(false);
+                securitySettingsOfDeviceStore.load({
+                    callback: function () {
                         me.getDeviceSecuritySettingGrid().getSelectionModel().doSelect(0);
+
                     }
                 });
+
             }
         });
+
 
     },
 

@@ -3,9 +3,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
     alias: 'widget.deviceConnectionMethodSetup',
     itemId: 'deviceConnectionMethodSetup',
 
-    deviceTypeId: null,
-    deviceConfigId: null,
-
     requires: [
         'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.device.DeviceMenu',
@@ -14,16 +11,19 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
     ],
 
     initComponent: function () {
+        var me = this;
+
         this.side = [
             {
                 xtype: 'panel',
+                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
-                        mRID: this.mrid,
-                        toggle: 4
+                        device: me.device,
+                        toggleId: 'connectionMethodsLink'
                     }
                 ]
             }
@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
                         itemId: 'previewContainer',
                         grid: {
                             xtype: 'deviceConnectionMethodsGrid',
-                            mrid: this.mrid
+                            mrid: me.device.get('mRID')
                         },
                         emptyComponent: this.getEmptyComponent(),
                         previewComponent: {

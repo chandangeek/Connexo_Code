@@ -2,8 +2,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceRegisterConfigurationSetup',
     itemId: 'deviceRegisterConfigurationSetup',
-
-    mRID: null,
+    device: null,
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
@@ -24,8 +23,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
                     {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
-                        mRID: me.mRID,
-                        toggle: 1
+                        device: me.device,
+                        toggleId: 'registersLink'
                     }
                 ]
             }
@@ -41,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'deviceRegisterConfigurationGrid',
-                            mRID: me.mRID
+                            mRID: me.device.get('mRID')
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',

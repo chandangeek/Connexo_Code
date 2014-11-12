@@ -60,13 +60,18 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
     },
 
     showProtocolDialectsView: function (mRID) {
-        var me = this;
+        var me = this,
+        viewport = Ext.ComponentQuery.query('viewport')[0];
         this.mRID = mRID;
-        var widget = Ext.widget('deviceProtocolDialectSetup', {mRID: mRID});
+
+        viewport.setLoading();
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
-                me.getApplication().fireEvent('loadDevice', device);
+                var widget = Ext.widget('deviceProtocolDialectSetup', {device: device});
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.getApplication().fireEvent('loadDevice', device);
+                viewport.setLoading(false);
                 me.getDeviceProtocolDialectsGrid().getSelectionModel().doSelect(0);
             }
 

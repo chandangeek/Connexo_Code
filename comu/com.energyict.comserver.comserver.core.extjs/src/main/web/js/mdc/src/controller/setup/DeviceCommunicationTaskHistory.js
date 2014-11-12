@@ -72,7 +72,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
             success: function (device) {
                 comTaskModel.load(comTaskId, {
                     success: function (comTask) {
-                        var widget = Ext.widget('deviceCommunicationTaskHistoryMain', {mrid: deviceMrId, comTaskId: comTaskId, comTaskName: comTask.get('name')});
+                        var widget = Ext.widget('deviceCommunicationTaskHistoryMain', {device: device, mrid: deviceMrId, comTaskId: comTaskId, comTaskName: comTask.get('name')});
                         me.getApplication().fireEvent('changecontentevent', widget);
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getApplication().fireEvent('loadCommunicationTask', comTask);
@@ -91,7 +91,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         me.getDeviceConnectionHistoryPreviewPanel().setTitle(Ext.String.format(Uni.I18n.translate('devicecommunicationtaskhistory.connectionPreviewTitle', 'MDC', '{0} on {1}'), communicationTaskHistory.getComSession().get('connectionMethod').name, communicationTaskHistory.getComSession().get('device').name));
     },
 
-    viewCommunicationLog: function(){
+    viewCommunicationLog: function () {
         var communicationTaskHistory = this.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
         location.href = '#/devices/' + communicationTaskHistory.get('device').id
             + '/communicationtasks/' + communicationTaskHistory.get('comTasks')[0].id
@@ -101,7 +101,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
 
     },
 
-    viewConnectionLog: function(){
+    viewConnectionLog: function () {
         var communicationTaskHistory = this.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
         location.href = '#/devices/' + communicationTaskHistory.getComSession().get('device').id
             + '/connectionmethods/' + communicationTaskHistory.getComSession().get('connectionMethod').id
@@ -110,61 +110,62 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22connections%22%2C%22communications%22%5D%7D'
     },
 
-    showDeviceCommunicationTaskHistoryLog: function(deviceMrId, comTaskId, comTaskHistoryId){
-        var me = this;
+    showDeviceCommunicationTaskHistoryLog: function (deviceMrId, comTaskId, comTaskHistoryId) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        viewport.setLoading();
 
         var comTaskModel = Ext.ModelManager.getModel('Mdc.model.CommunicationTask');
         var deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
+        var comTaskHistoryModel = Ext.ModelManager.getModel('Mdc.model.DeviceCommunicationTaskHistory');
+        comTaskHistoryModel.getProxy().setExtraParam('mRID', deviceMrId);
+        comTaskHistoryModel.getProxy().setExtraParam('comTaskId', comTaskId);
         deviceModel.load(deviceMrId, {
             success: function (device) {
+                var widget = Ext.widget('deviceCommunicationTaskHistoryLogMain', {device: device, mRID: deviceMrId});
+                me.getApplication().fireEvent('changecontentevent', widget);
+
                 comTaskModel.load(comTaskId, {
                     success: function (comTask) {
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getApplication().fireEvent('loadCommunicationTask', comTask);
                     }
                 });
-            }
-        });
 
+                comTaskHistoryModel.load(comTaskHistoryId, {
+                    success: function (comTaskHistory) {
+                        var comTaskModel = Ext.ModelManager.getModel('Mdc.model.CommunicationTask');
+                        comTaskModel.load(comTaskId, {
+                            success: function (comTask) {
+                                me.getDeviceCommunicationTaskLogOverviewForm().loadRecord(comTaskHistory);
+                                var store = me.getDeviceCommunicationTaskLogStore();
+                                store.getProxy().setExtraParam('mRID', deviceMrId);
+                                store.getProxy().setExtraParam('comTaskId', comTaskId);
+                                store.getProxy().setExtraParam('sessionId', comTaskHistoryId);
 
-        var comTaskHistoryModel = Ext.ModelManager.getModel('Mdc.model.DeviceCommunicationTaskHistory');
-        comTaskHistoryModel.getProxy().setExtraParam('mRID', deviceMrId);
-        comTaskHistoryModel.getProxy().setExtraParam('comTaskId', comTaskId);
-        comTaskHistoryModel.load(comTaskHistoryId, {
-            success: function (comTaskHistory) {
-                var comTaskModel = Ext.ModelManager.getModel('Mdc.model.CommunicationTask');
-                comTaskModel.load(comTaskId, {
-                    success: function (comTask) {
-                        var widget = Ext.widget('deviceCommunicationTaskHistoryLogMain',{mRID: deviceMrId});
-                        me.getApplication().fireEvent('changecontentevent', widget);
-
-                        me.getDeviceCommunicationTaskLogOverviewForm().loadRecord(comTaskHistory);
-
-
-                        var store = me.getDeviceCommunicationTaskLogStore();
-                        store.getProxy().setExtraParam('mRID', deviceMrId);
-                        store.getProxy().setExtraParam('comTaskId', comTaskId);
-                        store.getProxy().setExtraParam('sessionId', comTaskHistoryId);
-
-                        var router = me.getController('Uni.controller.history.Router');
-                        var filter = router.filter;
-                        me.getDevicecommunicationtaskhistorySideFilterForm().loadRecord(filter);
-                        store.setFilterModel(filter);
-                        for (prop in filter.data) {
-                            if (filter.data.hasOwnProperty(prop) && prop.toString() !== 'id' && filter.data[prop]) {
-                                if(prop.toString() === 'logLevels'){
-                                    me.getDeviceCommunicationTaskLogFilterTopPanel().setFilter(prop.toString(), me.getDevicecommunicationtaskhistorySideFilterForm().down('#logLevelField').getFieldLabel(), filter.data[prop]);
+                                var router = me.getController('Uni.controller.history.Router');
+                                var filter = router.filter;
+                                me.getDevicecommunicationtaskhistorySideFilterForm().loadRecord(filter);
+                                store.setFilterModel(filter);
+                                for (prop in filter.data) {
+                                    if (filter.data.hasOwnProperty(prop) && prop.toString() !== 'id' && filter.data[prop]) {
+                                        if (prop.toString() === 'logLevels') {
+                                            me.getDeviceCommunicationTaskLogFilterTopPanel().setFilter(prop.toString(), me.getDevicecommunicationtaskhistorySideFilterForm().down('#logLevelField').getFieldLabel(), filter.data[prop]);
+                                        }
+                                    }
                                 }
+                                viewport.setLoading(false);
+                                store.load();
                             }
-                        }
-                        store.load();
+                        });
                     }
                 });
             }
         });
     },
 
-    previewDeviceCommunicationTaskHistoryLog: function(){
+    previewDeviceCommunicationTaskHistoryLog: function () {
         var comTaskLog = this.getDeviceCommunicationTaskHistoryLogGrid().getSelectionModel().getSelection()[0];
         this.getDeviceCommunicationTaskHistoryLogPreviewForm().loadRecord(comTaskLog);
         var timeStamp = new Date(comTaskLog.get('timestamp')).toLocaleString();

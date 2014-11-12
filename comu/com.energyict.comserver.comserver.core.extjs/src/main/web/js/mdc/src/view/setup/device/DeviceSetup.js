@@ -1,10 +1,8 @@
 Ext.define('Mdc.view.setup.device.DeviceSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceSetup',
-    deviceTypeId: null,
-    mRID: null,
+    device: null,
     itemId: 'deviceSetup',
-    router: null,
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
@@ -27,75 +25,87 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             items: [
                 {
                     xtype: 'container',
-                    itemId: 'DeviceContainer',
-                    layout: {
-                        type: 'column'
-                    },
-                    width: '100%',
-                    defaults: {
-                        margin: '0 16 16 0',
-                        columnWidth: 0.5
-                    }
+                    itemId: 'DeviceContainer'
                 }
             ]
         }
     ],
 
     initComponent: function () {
-        this.side = [
+        var me = this;
+
+        me.side = [
             {
                 xtype: 'panel',
+                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
-                items: [{
-                    xtype: 'deviceMenu',
-                    itemId: 'stepsMenu',
-                    mRID: this.mRID,
-                    toggle: 0
-                }]
+                items: [
+                    {
+                        xtype: 'deviceMenu',
+                        itemId: 'stepsMenu',
+                        device: me.device,
+                        toggleId: 'deviceOverviewLink'
+                    }
+                ]
             }
         ];
-        this.callParent(arguments);
-        this.down('#DeviceContainer').add(
-            {
-                xtype: 'deviceGeneralInformationPanel',
-                deviceId: this.deviceId
-            }
-        );
-        this.down('#DeviceContainer').add(
-            {
-                xtype: 'deviceCommunicationTopologyPanel',
-                deviceId: this.deviceId
-            }
-        );
-        this.down('#DeviceContainer').add(
-            {
-                xtype: 'deviceOpenIssuesPanel',
-                deviceId: this.deviceId,
-                mRID: this.mRID,
-                router: this.router
-            }
-        );
-        this.down('#DeviceContainer').add(
-            {
-                xtype: 'device-data-validation-panel',
-                deviceId: this.deviceId,
-                mRID: this.mRID
-            }
-        );
-    },
+        me.callParent(arguments);
 
-    addSlaveDevice: function (mRID) {
-        var me = this;
-        var slaveDevices = me.down('#slaveDevicesContainer');
-        slaveDevices.add(
+        me.down('#DeviceContainer').add(
             {
-                xtype: 'component',
-                cls: 'x-form-display-field',
-                autoEl: {
-                    tag: 'a',
-                    href: '#/devices/' + mRID,
-                    html: mRID
-                }
-            });
+                xtype: 'panel',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+                defaults: {
+                    style: {
+                        marginRight: '20px',
+                        padding: '20px'
+                    },
+                    flex: 1
+                },
+                items: [
+                    {
+                        xtype: 'deviceGeneralInformationPanel',
+                    },
+                    {
+                        xtype: 'deviceCommunicationTopologyPanel',
+                        router: me.router
+                    }
+                ]
+            },
+            {
+                xtype: 'panel',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+                defaults: {
+                    flex: 1
+                },
+                items: [
+                    {
+                        xtype: 'deviceOpenIssuesPanel',
+                        router: me.router,
+                        style: {
+                            marginRight: '20px',
+                            padding: '20px'
+                        }
+                    },
+                    {
+                        xtype: 'container',
+                        style: {
+                            marginRight: '20px'
+                        },
+                        items: {
+                            xtype: 'device-data-validation-panel',
+                            mRID: me.device.get('mRID')
+                        }
+
+                    }
+                ]
+            }
+        );
     }
 });

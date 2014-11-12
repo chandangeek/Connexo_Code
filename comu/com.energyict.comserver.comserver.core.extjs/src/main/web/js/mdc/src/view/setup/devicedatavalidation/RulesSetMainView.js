@@ -2,7 +2,9 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceDataValidationRulesSetMainView',
     itemId: 'deviceDataValidationRulesSetMainView',
-    mRID: null,
+
+    device: null,
+
     requires: [
         'Mdc.view.setup.devicedatavalidation.RulesSetGrid',
         'Mdc.view.setup.devicedatavalidation.RulesSetPreview',
@@ -13,13 +15,14 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
         me.side = [
             {
                 xtype: 'panel',
+                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
-                        mRID: me.mRID,
-                        toggle: 8
+                        device: me.device,
+                        toggleId: 'dataValidationLink'
                     }
                 ]
             }
@@ -69,7 +72,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                                 xtype: 'preview-container',
                                 grid: {
                                     xtype: 'deviceDataValidationRulesSetGrid',
-                                    mRID: me.mRID
+                                    mRID: me.device.get('mRID')
                                 },
                                 emptyComponent: {
                                     xtype: 'no-items-found-panel',

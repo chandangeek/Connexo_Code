@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.devicelogbooks.Setup', {
     alias: 'widget.deviceLogbooksSetup',
     itemId: 'deviceLogbooksSetup',
 
-    mRID: null,
     router: null,
 
     requires: [
@@ -25,8 +24,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.Setup', {
                     {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
-                        mRID: me.mRID,
-                        toggle: 3
+                        device: me.device,
+                        toggleId: 'logbooksLink'
                     }
                 ]
             }

@@ -24,9 +24,8 @@ Ext.define('Mdc.controller.setup.Devices', {
 
     refs: [
         {ref: 'deviceGeneralInformationForm', selector: '#deviceGeneralInformationForm'},
-        {ref: 'deviceCommunicationTopologyForm', selector: '#deviceCommunicationTopologyForm'},
-        {ref: 'deviceCommunicationtopologyMasterLink', selector: '#deviceCommunicationtopologyMasterLink'},
-        {ref: 'deviceOpenIssuesForm', selector: '#deviceOpenIssuesForm'},
+        {ref: 'deviceCommunicationTopologyPanel', selector: '#devicecommicationtopologypanel'},
+        {ref: 'deviceOpenIssuesPanel', selector: '#deviceopenissuespanel'},
         {ref: 'deviceSetupPanel', selector: '#deviceSetupPanel'},
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
@@ -59,30 +58,33 @@ Ext.define('Mdc.controller.setup.Devices', {
     },
 
     showDeviceDetailsView: function (mRID) {
-        var me = this;
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            router = this.getController('Uni.controller.history.Router');
+
+        viewport.setLoading();
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
-                var widget = Ext.widget('deviceSetup', {mRID: device.get('mRID'), router: me.getController('Uni.controller.history.Router')});
+                var widget = Ext.widget('deviceSetup', {router: router, device: device});
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getDeviceSetupPanel().setTitle(device.get('mRID'));
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId')});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});
-                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName'));
-                me.getDeviceCommunicationtopologyMasterLink().getEl().set({href: '#/devices/' + device.get('masterDevicemRID')});
-                me.getDeviceCommunicationtopologyMasterLink().getEl().setHTML(device.get('masterDevicemRID'));
-                device.slaveDevices().data.items.forEach(function (slaveDevice) {
-                    widget.addSlaveDevice(slaveDevice.get('mRID'));
-                });
-                me.getDeviceOpenIssuesForm().getForm().setValues({
-                    issues: device.get('nbrOfDataCollectionIssues')
-                });
+                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName')),
+                me.getDeviceCommunicationTopologyPanel().setRecord(device);
+                me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device.get('nbrOfDataCollectionIssues'));
                 me.getDeviceGeneralInformationForm().loadRecord(device);
-                me.getDeviceCommunicationTopologyForm().loadRecord(device);
-                me.getDeviceOpenIssuesForm().loadRecord(device);
-                me.updateDataValidationStatusSection(mRID, widget);
+
+                if (device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters')) {
+                    me.updateDataValidationStatusSection(mRID, widget);
+                } else {
+                    widget.down('device-data-validation-panel').hide();
+                }
+                viewport.setLoading(false);
+
             }
         });
     },

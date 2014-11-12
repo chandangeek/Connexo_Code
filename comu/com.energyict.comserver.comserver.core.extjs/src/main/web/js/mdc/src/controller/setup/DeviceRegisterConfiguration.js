@@ -67,15 +67,19 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     },
 
     showDeviceRegisterConfigurationsView: function (mRID) {
-        var me = this;
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
         me.mRID = mRID;
-        var widget = Ext.widget('deviceRegisterConfigurationSetup', {mRID: mRID, router: me.getController('Uni.controller.history.Router')});
+
+        viewport.setLoading();
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
+                var widget = Ext.widget('deviceRegisterConfigurationSetup', {device: device, router: me.getController('Uni.controller.history.Router')});
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
+                viewport.setLoading(false);
                 me.getDeviceRegisterConfigurationGrid().getSelectionModel().select(0);
-                widget.down('#stepsMenu').setTitle(device.get('mRID'));
             }
         });
     },

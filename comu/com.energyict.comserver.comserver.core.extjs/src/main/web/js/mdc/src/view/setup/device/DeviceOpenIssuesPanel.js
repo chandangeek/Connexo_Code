@@ -4,52 +4,49 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
     overflowY: 'auto',
     itemId: 'deviceopenissuespanel',
     mRID: null,
-    router: null,
     ui: 'tile',
     title: Uni.I18n.translate('deviceOpenIssues.openIssuesTitle', 'MDC', 'Open issues'),
-    initComponent: function () {
-        var me = this;
-        this.items = [
+
+    items: [
         {
-            xtype: 'form',
-            itemId: 'deviceOpenIssuesForm',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            defaults: {
-                labelWidth: 150
-            },
-            items: [
-                {
-                    name: 'issues',
-                    xtype: 'displayfield',
-                    itemId: 'dataCollectionIssuesLink',
-                    fieldLabel: Uni.I18n.translate('deviceOpenIssues.dataCollectionIssuesTitle', 'MDC', 'Data collection issues'),
-                    renderer: function(value, field) {
-                        var url = me.router.getRoute('workspace/datacollection/issues').buildUrl({}, {
-                            filter: {
-                                status: 'status.open',
-                                meter: me.mRID,
-                                sorting: [
-                                    {
-                                        type: 'dueDate',
-                                        value: 'asc'
-                                    }
-                                ]
-                            }
-                        });
-                        if (value !== 0) {
-                        return '<a href="' + url + '" >' + Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssues',value, 'MDC', 'issues') + '</a>';
-                        } else {
-                            return Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssues',0, 'MDC', 'issues');
-                        }
-                    }
-                }
-            ]
+            xtype: 'container',
+            itemId: 'dataCollectionIssuesContainer'
+        },
+        {
+            xtype: 'container',
+            itemId: 'dataValidationIssuesContainer'
         }
-        ];
+    ],
+
+    initComponent: function () {
         this.callParent();
+    },
+
+    setDataCollectionIssues: function (value) {
+        var me = this,
+            mRID = me.router.arguments.mRID,
+            assignedFilter;
+
+        assignedFilter = {
+            filter: {
+                status: 'status.open',
+                meter: mRID,
+                sorting: [
+                    {
+                        type: 'dueDate',
+                        value: 'asc'
+                    }
+                ]
+            }
+        };
+
+        me.down('#dataCollectionIssuesContainer').add(
+            {
+                xtype: 'button',
+                text: Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssuesOnMeter', value, 'MDC', '{0} data collection issues'),
+                ui: 'link',
+                href: me.router.getRoute('workspace/datacollection/issues').buildUrl(null, assignedFilter)
+            });
     }
 })
 ;

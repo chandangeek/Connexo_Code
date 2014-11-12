@@ -3,9 +3,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskSetup'
     alias: 'widget.deviceCommunicationTaskSetup',
     itemId: 'deviceCommunicationTaskSetup',
 
-    deviceTypeId: null,
-    deviceConfigId: null,
-
     requires: [
         'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.device.DeviceMenu',
@@ -16,16 +13,19 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskSetup'
     ],
 
     initComponent: function () {
+        var me = this;
+
         this.side = [
             {
                 xtype: 'panel',
+                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
-                        mRID: this.mrid,
-                        toggle: 6
+                        device: me.device,
+                        toggleId: 'communicationTasksLink'
                     }
                 ]
             }

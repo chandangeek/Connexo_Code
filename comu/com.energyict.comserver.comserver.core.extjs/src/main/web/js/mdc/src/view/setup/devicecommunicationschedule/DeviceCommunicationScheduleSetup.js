@@ -11,16 +11,19 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationSchedu
     ],
 
     initComponent: function () {
+        var me = this;
+
         this.side = [
             {
                 xtype: 'panel',
+                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
-                        mRID: this.mrid,
-                        toggle: 7
+                        device: me.device,
+                        toggleId: 'communicationSchedulesLink'
                     }
                 ]
             }

@@ -76,17 +76,22 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     },
 
     showDeviceCommunicationTasksView: function (mrid) {
-        var me = this;
-        var communicationTasksOfDeviceStore = me.getCommunicationTasksOfDeviceStore();
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            communicationTasksOfDeviceStore = me.getCommunicationTasksOfDeviceStore();
+
         this.mrid = mrid;
-        var widget = Ext.widget('deviceCommunicationTaskSetup', {mrid: mrid});
-        me.getApplication().fireEvent('changecontentevent', widget);
+
+        viewport.setLoading();
         Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
             success: function (device) {
+                var widget = Ext.widget('deviceCommunicationTaskSetup', {device: device});
+                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getApplication().fireEvent('loadDevice', device);
+                viewport.setLoading(false);
                 communicationTasksOfDeviceStore.getProxy().setExtraParam('mrid', mrid);
                 communicationTasksOfDeviceStore.load({
                     callback: function () {
-                        me.getApplication().fireEvent('loadDevice', device);
                         me.getDeviceCommunicationTaskGrid().getSelectionModel().doSelect(0);
                     }
                 });

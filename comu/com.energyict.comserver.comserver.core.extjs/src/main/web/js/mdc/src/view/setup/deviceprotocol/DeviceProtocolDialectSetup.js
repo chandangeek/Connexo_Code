@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
     alias: 'widget.deviceProtocolDialectSetup',
     itemId: 'deviceProtocolDialectSetup',
 
-    mRID: null,
+    device: null,
 
     requires: [
         'Uni.view.navigation.SubMenu',
@@ -12,30 +12,19 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
-    side: [
-        {
-            xtype: 'panel',
-            ui: 'medium',
-            items: [
-                {
-                    xtype: 'navigationSubMenu',
-                    itemId: 'stepsMenu'
-                }
-            ]
-        }
-    ],
-
     initComponent: function () {
+        var me = this;
         this.side = [
             {
                 xtype: 'panel',
+                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
-                        mRID: this.mRID,
-                        toggle: 5
+                        device: me.device,
+                        toggleId: 'protocolLink'
                     }
                 ]
             }
@@ -53,7 +42,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
                         itemId: 'protocolDialectsGridContainer',
                         grid: {
                             xtype: 'deviceProtocolDialectsGrid',
-                            mRID: this.mRID
+                            mRID: me.device.get('mRID')
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -64,7 +53,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectSetup', {
                         },
                         previewComponent: {
                             xtype: 'deviceProtocolDialectPreview',
-                            mRID: this.mRID
+                            mRID: me.device.get('mRID')
                         }
                     }
                 ]

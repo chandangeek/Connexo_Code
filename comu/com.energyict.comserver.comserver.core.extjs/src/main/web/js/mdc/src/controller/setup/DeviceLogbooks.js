@@ -34,18 +34,22 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
     showView: function (mRID) {
         var me = this,
             model = me.getModel('Mdc.model.Device'),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
             widget;
 
+        viewport.setLoading();
+
         me.getStore('Mdc.store.LogbooksOfDevice').getProxy().setUrl(mRID);
-        widget = Ext.widget('deviceLogbooksSetup', {
-            mRID: mRID,
-            router: me.getController('Uni.controller.history.Router')
-        });
-        me.getApplication().fireEvent('changecontentevent', widget);
         model.load(mRID, {
             success: function (record) {
+                widget = Ext.widget('deviceLogbooksSetup', {
+                    device: record,
+                    router: me.getController('Uni.controller.history.Router')
+                });
+                me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('loadDevice', record);
-                widget.down('#stepsMenu').setTitle(record.get('mRID'));
+                viewport.setLoading(false);
+
             }
         });
     },

@@ -830,6 +830,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
+
+                        topology: {
+                            title: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'),
+                            route: 'topology',
+                            controller: 'Mdc.controller.setup.DeviceTopology',
+                            privileges: ['privilege.view.device', 'privilege.administrate.device'],
+                            action: 'showTopologyView'
+                        },
+
                         connectionmethods: {
                             title: 'Connection methods',
                             route: 'connectionmethods',

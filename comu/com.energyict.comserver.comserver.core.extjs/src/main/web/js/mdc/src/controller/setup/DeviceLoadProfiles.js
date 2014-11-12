@@ -48,23 +48,24 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         var me = this,
             model = me.getModel('Mdc.model.Device'),
             timeUnitsStore = me.getStore('TimeUnits'),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
             widget;
-            showPage = function () {
-                me.getStore('Mdc.store.LoadProfilesOfDevice').getProxy().setUrl(mRID);
-                widget = Ext.widget('deviceLoadProfilesSetup', {
-                    mRID: mRID,
-                    router: me.getController('Uni.controller.history.Router')
-                });
-                me.getApplication().fireEvent('changecontentevent', widget);
-                model.load(mRID, {
-                    success: function (record) {
-                        if (!widget.isDestroyed) {
-                            me.getApplication().fireEvent('loadDevice', record);
-                            widget.down('#stepsMenu').setTitle(record.get('mRID'));
-                        }
-                    }
-                });
-            };
+
+        viewport.setLoading();
+        showPage = function () {
+            me.getStore('Mdc.store.LoadProfilesOfDevice').getProxy().setUrl(mRID);
+            model.load(mRID, {
+                success: function (record) {
+                    widget = Ext.widget('deviceLoadProfilesSetup', {
+                        device: record,
+                        router: me.getController('Uni.controller.history.Router')
+                    });
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    me.getApplication().fireEvent('loadDevice', record);
+                    viewport.setLoading(false);
+                }
+            });
+        };
         me.mRID = mRID;
         timeUnitsStore.load({
             callback: function () {

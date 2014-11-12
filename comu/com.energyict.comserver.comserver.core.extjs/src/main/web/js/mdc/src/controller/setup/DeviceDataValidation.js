@@ -46,20 +46,26 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         this.callParent();
     },
     showDeviceDataValidationMainView: function (mRID) {
-        var me = this;
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
         me.mRID = mRID;
+
+        viewport.setLoading();
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
-            }
-        });
-        Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
-            method: 'GET',
-            success: function () {
-                var widget = Ext.widget('deviceDataValidationRulesSetMainView', { mRID: mRID });
-                me.updateDataValidationStatusSection(mRID, widget);
-                me.getApplication().fireEvent('changecontentevent', widget);
+                Ext.Ajax.request({
+                    url: '/api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+                    method: 'GET',
+                    success: function () {
+                        var widget = Ext.widget('deviceDataValidationRulesSetMainView', { device: device });
+                        me.updateDataValidationStatusSection(mRID, widget);
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        viewport.setLoading(false);
+                    }
+                });
             }
         });
     },

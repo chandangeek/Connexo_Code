@@ -3,8 +3,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
     alias: 'widget.deviceSecuritySettingSetup',
     itemId: 'deviceSecuritySettingSetup',
 
-    deviceTypeId: null,
-    deviceConfigId: null,
+    device: null,
 
     requires: [
         'Uni.view.navigation.SubMenu',
@@ -14,16 +13,19 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
     ],
 
     initComponent: function () {
+        var me = this;
+
         this.side = [
             {
                 xtype: 'panel',
+                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
-                        mRID: this.mrid,
-                        toggle: 9
+                        device: me.device,
+                        toggleId: 'securitySettingLink'
                     }
                 ]
             }
@@ -42,7 +44,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
                         itemId: 'previewContainer',
                         grid: {
                             xtype: 'deviceSecuritySettingGrid',
-                            mrid: this.mrid
+                            mrid: me.device.get('mRID')
                         },
                         emptyComponent: this.getEmptyComponent(),
                         previewComponent: {

@@ -93,7 +93,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                 connectionMethodModel.getProxy().setExtraParam('mrid', deviceMrId);
                 connectionMethodModel.load(connectionMethodId, {
                     success: function (connectionMethod) {
-                        var widget = Ext.widget('deviceConnectionHistoryMain', {mrid: deviceMrId, connectionMethodId: connectionMethodId, connectionMethodName: connectionMethod.get('name')});
+                        var widget = Ext.widget('deviceConnectionHistoryMain', {device: device, mrid: deviceMrId, connectionMethodId: connectionMethodId, connectionMethodName: connectionMethod.get('name')});
                         me.getApplication().fireEvent('changecontentevent', widget);
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
@@ -200,7 +200,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                         comSessionHistory.getProxy().setExtraParam('connectionId', deviceConnectionMethodId);
                         comSessionHistory.load(deviceConnectionHistoryId, {
                             success: function (deviceConnectionHistory) {
-                                var widget = Ext.widget('deviceConnectionLogMain', {mrid: deviceMrId});
+                                var widget = Ext.widget('deviceConnectionLogMain', {device: device, mrid: deviceMrId});
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 me.getDeviceConnectionLogOverviewForm().loadRecord(deviceConnectionHistory);
                                 me.getApplication().fireEvent('loadDevice', device);
