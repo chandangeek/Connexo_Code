@@ -88,6 +88,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
             router = me.getController('Uni.controller.history.Router'),
             widget;
+
+        dataStore.removeAll(true);
         dataStore.getProxy().setUrl({
             mRID: mRID,
             loadProfileId: loadProfileId
@@ -125,15 +127,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 widget.setLoading();
                 widget.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!isTable);
                 widget.down('#deviceLoadProfilesTableViewBtn').setDisabled(isTable);
-
+                widget.down('#deviceLoadProfilesTableView').setVisible(isTable);
+                widget.down('#deviceLoadProfilesGraphView').setVisible(!isTable);
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
                         me.showReadingsCount(dataStore);
                         if (!isTable) {
                             me.showGraphView(record);
                         }
-                        widget.down('#deviceLoadProfilesTableView').setVisible(isTable);
-                        widget.down('#deviceLoadProfilesGraphView').setVisible(!isTable);
                         widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
                         widget.setLoading(false);
                     }
@@ -273,9 +274,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             showTable = button.action === 'showTableView';
 
         if (showTable) {
-            router.getRoute('devices/device/loadprofiles/loadprofile/tableData').forward();
+            router.getRoute('devices/device/loadprofiles/loadprofile/tableData').forward(router.arguments, router.queryParams);
         } else {
-            router.getRoute('devices/device/loadprofiles/loadprofile/data').forward();
+            router.getRoute('devices/device/loadprofiles/loadprofile/data').forward(router.arguments, router.queryParams);
         }
     },
 

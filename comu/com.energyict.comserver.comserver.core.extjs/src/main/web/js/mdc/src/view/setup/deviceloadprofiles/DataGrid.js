@@ -15,6 +15,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
         'bufferedrenderer',
         'showConditionalToolTip'
     ],
+    viewConfig: {
+        loadMask: false
+    },
     channels: null,
 
     initComponent: function () {

@@ -61,7 +61,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
 
                         {
                             xtype: 'deviceLoadProfilesTableView',
-                            hidden: true,
                             channels: me.channels
                         },
                         {
