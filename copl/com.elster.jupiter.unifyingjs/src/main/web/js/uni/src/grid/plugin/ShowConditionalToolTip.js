@@ -33,8 +33,8 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                 header.set({'data-qtip': undefined});
             }
 
-            if (column.$className === 'Ext.grid.column.Column' || column.$className === 'Ext.grid.column.Date') {
-                Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + column.id), function (item) {
+            if (column.$className === 'Ext.grid.column.Column' || column.$className === 'Ext.grid.column.Date' || column.$className === 'Ext.grid.column.Template') {
+                Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + (column.itemId || column.id)), function (item) {
                     var cell = Ext.get(item),
                         inner = cell.down('.x-grid-cell-inner'),
                         text = inner ? Ext.util.Format.stripTags(inner.getHTML()) : false;
