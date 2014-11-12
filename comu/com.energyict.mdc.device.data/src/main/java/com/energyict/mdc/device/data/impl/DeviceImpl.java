@@ -80,6 +80,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -1219,16 +1220,11 @@ public class DeviceImpl implements Device, CanLock {
                             LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(s.getReadingTimestamp());
                             if (loadProfileReading != null) {
                                 loadProfileReading.setDataValidationStatus(mdcChannel, s);
-                            }
-                        });
-                
-                //code below is the processing of removed readings use-case
-                sortedLoadProfileReadingMap.values().stream()
-                        .filter(r -> r.getChannelValues().isEmpty())
-                        .forEach(r -> {
-                            Optional<ReadingQualityRecord> readingQuality = koreChannel.get().findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED), r.getInterval().toOpenClosedRange()).stream().findAny();
-                            if (readingQuality.isPresent()) {
-                                r.setReadingTime(readingQuality.get().getTimestamp());
+                                //code below is the processing of removed readings
+                                Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities().stream().filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED))).findAny();
+                                if (readingQuality.isPresent()) {
+                                    loadProfileReading.setReadingTime(((ReadingQualityRecord)readingQuality.get()).getTimestamp());
+                                }
                             }
                         });
             }
