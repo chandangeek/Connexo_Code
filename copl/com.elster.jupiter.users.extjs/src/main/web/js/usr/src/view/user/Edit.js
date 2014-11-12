@@ -50,9 +50,12 @@ Ext.define('Usr.view.user.Edit', {
                                 itemId: 'selectRoles',
                                 fieldLabel: Uni.I18n.translate('user.roles', 'USR', 'Roles'),
                                 store: 'Usr.store.Groups',
+                                hydratable:false,
                                 autoScroll: true,
                                 maxHeight: 500,
                                 columns: 1,
+                                valueField:'id',
+                                displayField:'name',
                                 vertical: true,
                                 name: 'groups'
                             },
