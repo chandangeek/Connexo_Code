@@ -12,7 +12,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.ExportPeriods',
         'Dxp.store.FileFormatters',
         'Dxp.store.ReadingTypes',
-        'Dxp.store.DataExportTasks'
+        'Dxp.store.DataExportTasks',
+        'Dxp.store.DataExportTasksHistory'
     ],
     models: [
         'Dxp.model.DeviceGroup',
@@ -22,6 +23,7 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.model.SchedulePeriod',
         'Dxp.model.ReadingType',
         'Dxp.model.DataExportTask',
+        'Dxp.model.DataExportTaskHistory',
         'Dxp.model.AddDataExportTaskForm'
     ],
     refs: [
@@ -117,24 +119,11 @@ Ext.define('Dxp.controller.Tasks', {
     showDataExportTaskHistory: function(taskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            taskModel = me.getModel('Dxp.model.DataExportTask'),
             view = Ext.widget('data-export-tasks-history', {
                 router: router
             });
 
         me.getApplication().fireEvent('changecontentevent', view);
-        taskModel.load(taskId, {
-            success: function (record) {
-                var detailsForm = view.down('tasks-preview-form'),
-                    propertyForm = detailsForm.down('property-form');
-
-                me.getApplication().fireEvent('dataexporttaskload', record);
-                detailsForm.loadRecord(record);
-                if (record.properties() && record.properties().count()) {
-                    propertyForm.loadRecord(record);
-                }
-            }
-        });
     },
 
     showAddExportTask: function () {
