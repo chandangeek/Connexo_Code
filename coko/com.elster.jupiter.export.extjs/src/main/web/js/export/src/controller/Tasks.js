@@ -3,7 +3,8 @@ Ext.define('Dxp.controller.Tasks', {
     views: [
         'Dxp.view.tasks.Add',
         'Dxp.view.tasks.Setup',
-        'Dxp.view.tasks.Details'
+        'Dxp.view.tasks.Details',
+        'Dxp.view.tasks.History'
     ],
     stores: [
         'Dxp.store.DeviceGroups',
@@ -92,8 +93,34 @@ Ext.define('Dxp.controller.Tasks', {
 
     showTaskDetailsView: function (taskId) {
         var me = this,
-            view = Ext.create('Dxp.view.tasks.Details'),
-            taskModel = me.getModel('Dxp.model.DataExportTask');
+            router = me.getController('Uni.controller.history.Router'),
+            taskModel = me.getModel('Dxp.model.DataExportTask'),
+            view = Ext.widget('data-export-tasks-details', {
+                router: router
+            });
+
+        me.getApplication().fireEvent('changecontentevent', view);
+        taskModel.load(taskId, {
+            success: function (record) {
+                var detailsForm = view.down('tasks-preview-form'),
+                    propertyForm = detailsForm.down('property-form');
+
+                me.getApplication().fireEvent('dataexporttaskload', record);
+                detailsForm.loadRecord(record);
+                if (record.properties() && record.properties().count()) {
+                    propertyForm.loadRecord(record);
+                }
+            }
+        });
+    },
+
+    showDataExportTaskHistory: function(taskId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            taskModel = me.getModel('Dxp.model.DataExportTask'),
+            view = Ext.widget('data-export-tasks-history', {
+                router: router
+            });
 
         me.getApplication().fireEvent('changecontentevent', view);
         taskModel.load(taskId, {

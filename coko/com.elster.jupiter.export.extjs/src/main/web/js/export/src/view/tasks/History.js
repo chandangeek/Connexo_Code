@@ -1,6 +1,6 @@
-Ext.define('Dxp.view.tasks.Details', {
+Ext.define('Dxp.view.tasks.History', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.data-export-tasks-details',
+    alias: 'widget.data-export-tasks-history',
     requires: [
         'Dxp.view.tasks.Menu',
         'Dxp.view.tasks.PreviewForm'
@@ -10,7 +10,7 @@ Ext.define('Dxp.view.tasks.Details', {
 
     content: {
         ui: 'large',
-        title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+        title: Uni.I18n.translate('general.history', 'MDC', 'history'),
         items: {
             xtype: 'tasks-preview-form',
             margin: '0 0 0 100'
@@ -30,7 +30,7 @@ Ext.define('Dxp.view.tasks.Details', {
                         xtype: 'tasks-menu',
                         itemId: 'tasks-view-menu',
                         router: me.router,
-                        toggle: 0
+                        toggle: 1
                     }
                 ]
             }

@@ -24,11 +24,13 @@ Ext.define('Dxp.view.tasks.Setup', {
                     {
                         xtype: 'tasks-menu',
                         itemId: 'tasks-view-menu',
+                        router: me.router,
                         toggle: 0
                     }
                 ]
             }
         ];
+
         me.content = {
             xtype: 'panel',
             ui: 'large',
