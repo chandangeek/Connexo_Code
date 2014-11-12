@@ -35,7 +35,9 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                     view.down('#deviceDataValidationStateChangeBtn').setDisabled(false);
                 } else {
                     var record = Ext.create('Mdc.model.DeviceValidation', res);
-                    view.down('#deviceDataValidationForm').loadRecord(record);
+                    if (!view.isDestroyed) {
+                        view.down('#deviceDataValidationForm').loadRecord(record);
+                    }
                 }
             }
         });
