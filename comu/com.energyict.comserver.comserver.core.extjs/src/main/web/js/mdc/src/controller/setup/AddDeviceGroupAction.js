@@ -135,12 +135,17 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             (this.getNameTextField().getValue() == '')) {
             this.getStep1FormErrorMessage().setVisible(true);
             this.getStep1FormNameErrorMessage().setVisible(false);
+            this.createWidget = true;
         } else if ((layout.getNext().name == 'deviceGroupWizardStep2') &&
             (this.getNameTextField().getValue() !== '') &&
             (this.nameExists())) {
             this.getStep1FormNameErrorMessage().setVisible(true);
             this.getStep1FormErrorMessage().setVisible(false);
+            this.createWidget = true;
         } else {
+            if (this.createWidget) {
+                this.createWidget = false;
+            }
             if (layout.getNext().name == 'deviceGroupWizardStep2') {
                 if (this.getDynamicRadioButton().checked) {
                     this.getStaticGridContainer().setVisible(false);
