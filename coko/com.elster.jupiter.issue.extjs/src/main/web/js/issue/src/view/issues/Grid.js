@@ -6,7 +6,8 @@ Ext.define('Isu.view.issues.Grid', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Isu.view.issues.ActionMenu'
+        'Isu.view.issues.ActionMenu',
+        'Isu.view.component.AssigneeColumn'
     ],
     alias: 'widget.issues-grid',
     router: null,
@@ -43,8 +44,8 @@ Ext.define('Isu.view.issues.Grid', {
             {
                 itemId: 'issues-grid-assignee',
                 header: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="assignee_type"><span class="isu-icon-{assignee_type} isu-assignee-type-icon"></span></tpl> {assignee_name}',
+                xtype: 'isu-assignee-column',
+                dataIndex: 'assignee',
                 flex: 1
             },
             {

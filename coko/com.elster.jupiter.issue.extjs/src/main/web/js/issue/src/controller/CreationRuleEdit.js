@@ -49,7 +49,6 @@ Ext.define('Isu.controller.CreationRuleEdit', {
     ],
 
     mixins: [
-        'Isu.util.IsuGrid',
         'Isu.util.CreatingControl'
     ],
 

@@ -2,7 +2,8 @@ Ext.define('Isu.view.assignmentrules.List', {
     extend: 'Ext.grid.Panel',
     requires: [
         'Ext.layout.container.Column',
-        'Ext.grid.column.Template'
+        'Ext.grid.column.Template',
+        'Isu.view.component.AssigneeColumn'
     ],
     alias: 'widget.issues-assignment-rules-list',
     store: 'Isu.store.AssignmentRules',
@@ -16,8 +17,8 @@ Ext.define('Isu.view.assignmentrules.List', {
         },
         {
             header: 'Assign to',
-            xtype: 'templatecolumn',
-            tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}',
+            xtype: 'isu-assignee-column',
+            dataIndex: 'assignee',
             flex: 1
         }
     ],

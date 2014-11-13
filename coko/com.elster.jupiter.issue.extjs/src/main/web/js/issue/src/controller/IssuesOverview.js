@@ -2,8 +2,7 @@ Ext.define('Isu.controller.IssuesOverview', {
     extend: 'Ext.app.Controller',
 
     mixins: [
-        'Isu.util.IsuComboTooltip',
-        'Isu.util.IsuGrid'
+        'Isu.util.IsuComboTooltip'
     ],
 
     showOverview: function (issueType, widgetXtype) {

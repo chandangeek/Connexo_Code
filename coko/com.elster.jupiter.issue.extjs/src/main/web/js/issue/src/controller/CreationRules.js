@@ -9,10 +9,6 @@ Ext.define('Isu.controller.CreationRules', {
         'Isu.view.creationrules.Overview'
     ],
 
-    mixins: {
-        isuGrid: 'Isu.util.IsuGrid'
-    },
-
     refs: [
         {
             ref: 'page',
@@ -31,10 +27,7 @@ Ext.define('Isu.controller.CreationRules', {
     init: function () {
         this.control({
             'issue-creation-rules-overview issues-creation-rules-list': {
-                select: this.loadGridItemDetail
-            },
-            'issue-creation-rules-overview issues-creation-rules-list gridview': {
-                refresh: this.setAssigneeTypeIconTooltip
+                select: this.showPreview
             },
             'issues-creation-rules-list uni-actioncolumn': {
                 menuclick: this.chooseAction
@@ -46,13 +39,30 @@ Ext.define('Isu.controller.CreationRules', {
                 click: this.createRule
             }
         });
-
-        this.gridItemModel = this.getModel('Isu.model.CreationRule');
     },
 
     showOverview: function () {
         var widget = Ext.widget('issue-creation-rules-overview');
         this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    showPreview: function (selectionModel, record) {
+        var itemPanel = this.getItemPanel(),
+            form = itemPanel.down('form');
+
+        itemPanel.setLoading(true);
+
+        this.getModel('Isu.model.CreationRule').load(record.getId(), {
+            success: function (record) {
+                if (!form.isDestroyed) {
+                    form.loadRecord(record);
+                    form.up('panel').down('menu').record = record;
+                    itemPanel.setLoading(false);
+                    itemPanel.fireEvent('afterChange',itemPanel);
+                    itemPanel.setTitle(record.data.title);
+                }
+            }
+        });
     },
 
     chooseAction: function (menu, item) {

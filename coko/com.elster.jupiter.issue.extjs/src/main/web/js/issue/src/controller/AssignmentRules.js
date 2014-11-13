@@ -11,18 +11,6 @@ Ext.define('Isu.controller.AssignmentRules', {
         'Isu.view.assignmentrules.Overview'
     ],
 
-    mixins: {
-        isuGrid: 'Isu.util.IsuGrid'
-    },
-
-    init: function () {
-        this.control({
-            'issue-assignment-rules-overview issues-assignment-rules-list gridview': {
-                refresh: this.setAssigneeTypeIconTooltip
-            }
-        });
-    },
-
     showOverview: function () {
         var widget = Ext.widget('issue-assignment-rules-overview');
         this.getApplication().fireEvent('changecontentevent', widget);
