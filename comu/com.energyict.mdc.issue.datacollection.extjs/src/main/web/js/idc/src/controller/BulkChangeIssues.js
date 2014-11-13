@@ -1,10 +1,6 @@
 Ext.define('Idc.controller.BulkChangeIssues', {
     extend: 'Ext.app.Controller',
 
-    requires: [
-        'Isu.util.IsuGrid'
-    ],
-
     stores: [
         'Idc.store.Issues',
         'Idc.store.BulkChangeIssues',
@@ -26,10 +22,6 @@ Ext.define('Idc.controller.BulkChangeIssues', {
             this.onWizardFinishedEvent(wizard);
         }
     },
-
-    mixins: [
-        'Isu.util.IsuGrid'
-    ],
 
     refs: [
         {
@@ -53,9 +45,6 @@ Ext.define('Idc.controller.BulkChangeIssues', {
 //            'bulk-browse bulk-wizard bulk-step1 issues-selection-grid': {
 //                afterrender: this.onIssuesListAfterRender
 //            },
-            'bulk-browse bulk-wizard bulk-step1 issues-list gridview': {
-                refresh: this.setAssigneeTypeIconTooltip
-            },
             'bulk-browse bulk-wizard bulk-step2 radiogroup': {
                 change: this.onStep2RadiogroupChangeEvent,
                 afterrender: this.getDefaultStep2Operation

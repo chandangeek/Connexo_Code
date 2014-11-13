@@ -50,8 +50,8 @@ Ext.define('Idc.view.workspace.issues.bulk.IssuesSelectionGrid', {
             {
                 itemId: 'issues-grid-assignee',
                 header: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="assignee_type"><span class="isu-icon-{assignee_type} isu-assignee-type-icon"></span></tpl> {assignee_name}',
+                xtype: 'isu-assignee-column',
+                dataIndex: 'assignee',
                 flex: 1
             }
         ]
