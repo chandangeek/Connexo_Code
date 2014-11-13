@@ -206,7 +206,9 @@ Ext.define('Isu.controller.CreationRuleEdit', {
             }, me, {single: true});
         });
         reasonField.getStore().load(function () {
-            reasonField.setValue(data.reason.id);
+            if (!reasonField.isDestroyed) {
+                reasonField.setValue(data.reason.id);
+            }
         });
         if (data.dueIn.number) {
             dueDateTrigger.setValue({dueDate: true});
