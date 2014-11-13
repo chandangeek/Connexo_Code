@@ -3,6 +3,7 @@ package com.elster.jupiter.issue.impl.database.groups;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.records.assignee.types.AssigneeType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -10,8 +11,8 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 @LiteralSql
 public class GroupByReasonImpl extends IssuesGroupOperation {
 
-    protected GroupByReasonImpl(DataModel dataModel) {
-        super(dataModel);
+    protected GroupByReasonImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel, thesaurus);
     }
 
     /**

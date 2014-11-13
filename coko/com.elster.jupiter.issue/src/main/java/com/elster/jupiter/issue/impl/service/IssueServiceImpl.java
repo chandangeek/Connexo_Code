@@ -209,8 +209,8 @@ public class IssueServiceImpl implements IssueService {
     }
 
     @Override
-    public List<IssueGroup> getIssueGroupList(IssueGroupFilter builder) {
-        return IssuesGroupOperation.init(builder, this.dataModel).execute();
+    public List<IssueGroup> getIssueGroupList(IssueGroupFilter filter) {
+        return IssuesGroupOperation.from(filter, this.dataModel, thesaurus).execute();
     }
 
     @Override
