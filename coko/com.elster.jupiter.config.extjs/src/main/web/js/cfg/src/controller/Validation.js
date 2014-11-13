@@ -595,7 +595,9 @@ Ext.define('Cfg.controller.Validation', {
     deactivateRule: function (record, active) {
         var me = this,
             view = me.getRulePreviewContainer() || me.getRuleOverview() || me.getRulePreviewContainerPanel(),
+            ruleSetWithRulesView = me.getRuleSetBrowsePanel(),
             grid = view.down('grid'),
+            rule = record,
             isActive = record.get('active');
         if (record) {
             record.readingTypes().removeAll();
@@ -606,15 +608,39 @@ Ext.define('Cfg.controller.Validation', {
             });
         }
         record.set('active', !isActive);
-        view.setLoading('Loading...');
+        if (!ruleSetWithRulesView) {
+            view.setLoading('Loading...');
+        } else {
+            ruleSetWithRulesView.setLoading();
+        }
         record.save({
             params: {
                 id: me.ruleSetId
             },
             success: function (record, operation) {
                 if (grid) {
-                    grid.getView().refresh();
-                    view.down('validation-rule-preview').loadRecord(record);
+                    if (ruleSetWithRulesView) {
+                        var gridRuleSet = ruleSetWithRulesView.down('#validationrulesetList'),
+                            ruleSetSelModel = gridRuleSet.getSelectionModel(),
+                            ruleSet = ruleSetSelModel.getLastSelected();
+                        ruleSetWithRulesView.down('#rulesTopPagingToolbar').totalCount = 0;
+                        gridRuleSet.getStore().load({
+                            callback: function () {
+                                Ext.Function.defer(function () {
+                                    ruleSetSelModel.select(ruleSet);
+                                    Ext.Function.defer(function () {
+                                        var gridRule = ruleSetWithRulesView.down('#validationruleList');
+                                        var ruleSelModel = gridRule.getSelectionModel();
+                                        ruleSelModel.select(rule);
+                                        ruleSetWithRulesView.setLoading(false);
+                                    }, 3000);
+                                }, 3000);
+                            }
+                        });
+                    } else {
+                        grid.getView().refresh();
+                        view.down('validation-rule-preview').loadRecord(record);
+                    }
                     if (isActive) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.deactivateRuleSuccess.msg', 'CFG', 'Validation rule deactivated'));
                     } else {
