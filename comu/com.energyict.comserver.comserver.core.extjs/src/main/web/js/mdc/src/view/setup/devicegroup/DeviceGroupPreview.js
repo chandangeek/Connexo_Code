@@ -5,23 +5,6 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
     requires: [
         'Mdc.view.setup.devicegroup.DeviceGroupActionMenu'
     ],
-    /*tools: [
-        {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
-            menu: {
-                xtype: 'device-group-action-menu'
-            }
-        }
-    ],  */
-    layout: {
-        type: 'vbox'
-    },/*,
-    defaults: {
-        xtype: 'displayfield',
-        labelWidth: 250
-    },*/
     items: {
         xtype: 'form',
         border: false,
@@ -33,20 +16,19 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
         items: [
             {
                 xtype: 'container',
-                width: 1000,
                 layout: {
                     type: 'column'
                 },
                 items: [
                     {
                         xtype: 'container',
-                        columnWidth: 0.4,
+                        columnWidth: 0.5,
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
                         },
                         defaults: {
-                            labelWidth: 200
+                            labelWidth: 250
                         },
                         items: [
                             {
@@ -72,13 +54,13 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
                     },
                     {
                         xtype: 'container',
-                        columnWidth: 0.6,
+                        columnWidth: 0.5,
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
                         },
                         defaults: {
-                            labelWidth: 300
+                            labelWidth: 250
                         },
                         items: [
                             {
