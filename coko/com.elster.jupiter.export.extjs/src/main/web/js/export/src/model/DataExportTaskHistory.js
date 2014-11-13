@@ -1,5 +1,5 @@
 Ext.define('Dxp.model.DataExportTaskHistory', {
-    extend: 'Ext.data.Model',
+    extend: 'Dxp.model.DataExportTask',
     requires: [
         'Uni.property.model.Property'
     ],

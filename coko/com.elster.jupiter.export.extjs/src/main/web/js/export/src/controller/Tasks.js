@@ -38,6 +38,10 @@ Ext.define('Dxp.controller.Tasks', {
         {
             ref: 'detailsPage',
             selector: 'data-export-tasks-details'
+        },
+        {
+            ref: 'history',
+            selector: 'data-export-tasks-history'
         }
     ],
 
@@ -77,6 +81,9 @@ Ext.define('Dxp.controller.Tasks', {
             },
             'data-export-tasks-setup tasks-grid': {
                 select: this.showPreview
+            },
+            'data-export-tasks-history tasks-history-grid': {
+                select: this.showHistoryPreview
             },
             'tasks-action-menu': {
                 click: this.chooseAction
@@ -119,11 +126,42 @@ Ext.define('Dxp.controller.Tasks', {
     showDataExportTaskHistory: function(taskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            taskModel = me.getModel('Dxp.model.DataExportTask'),
             view = Ext.widget('data-export-tasks-history', {
                 router: router
             });
 
         me.getApplication().fireEvent('changecontentevent', view);
+        store.getProxy().setUrl(router.arguments);
+        var grid = me.getHistory().down('tasks-history-grid');
+
+        taskModel.load(taskId, {
+            success: function (record) {
+                store.load(function(records, operation, success) {
+                    records.map(function(r){
+                        r.set(Ext.apply({}, r.raw, record.raw));
+                    });
+
+                    me.showHistoryPreview(grid.getSelectionModel(), records[0]);
+                });
+            }
+        });
+    },
+
+    showHistoryPreview: function (selectionModel, record) {
+        var me = this,
+            page = me.getHistory(),
+            preview = page.down('tasks-preview'),
+            previewForm = page.down('tasks-preview-form'),
+            propertyForm = previewForm.down('property-form');
+
+        preview.setTitle(record.get('name'));
+        previewForm.loadRecord(record);
+        preview.down('tasks-action-menu').record = record;
+        if (record.properties() && record.properties().count()) {
+            propertyForm.loadRecord(record);
+        }
     },
 
     showAddExportTask: function () {
