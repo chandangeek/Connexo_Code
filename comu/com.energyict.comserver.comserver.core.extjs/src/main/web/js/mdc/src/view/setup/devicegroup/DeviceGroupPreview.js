@@ -33,19 +33,20 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
         items: [
             {
                 xtype: 'container',
+                width: 1000,
                 layout: {
                     type: 'column'
                 },
                 items: [
                     {
                         xtype: 'container',
-                        columnWidth: 0.5,
+                        columnWidth: 0.4,
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
                         },
                         defaults: {
-                            labelWidth: 250
+                            labelWidth: 200
                         },
                         items: [
                             {
@@ -71,13 +72,13 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
                     },
                     {
                         xtype: 'container',
-                        columnWidth: 0.5,
+                        columnWidth: 0.6,
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
                         },
                         defaults: {
-                            labelWidth: 320
+                            labelWidth: 300
                         },
                         items: [
                             {
