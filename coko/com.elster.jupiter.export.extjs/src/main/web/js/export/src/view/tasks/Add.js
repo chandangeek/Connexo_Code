@@ -82,13 +82,6 @@ Ext.define('Dxp.view.tasks.Add', {
                                 hidden: true,
                                 value: '<div style="color: #FF0000">' + Uni.I18n.translate('general.noDeviceGroup', 'DES', 'No device group defined yet.') + '</div>',
                                 width: 235
-                            },
-                            {
-                                xtype: 'button',
-                                itemId: 'add-task-add-device-group',
-                                margin: '0 0 0 20',
-                                text: Uni.I18n.translate('general.addDeviceGroup', 'DES', 'Add device group'),
-                                ui: 'link'
                             }
                         ]
                     },

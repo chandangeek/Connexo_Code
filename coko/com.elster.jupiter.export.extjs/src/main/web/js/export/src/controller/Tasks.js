@@ -76,9 +76,6 @@ Ext.define('Dxp.controller.Tasks', {
             'data-export-tasks-add #add-task-add-export-period': {
                 click: this.saveFormValues
             },
-            'data-export-tasks-add #add-task-add-device-group': {
-                click: this.saveFormValues
-            },
             'data-export-tasks-setup tasks-grid': {
                 select: this.showPreview
             },
@@ -287,6 +284,9 @@ Ext.define('Dxp.controller.Tasks', {
             case 'removeTask':
                 me.removeTask(menu.record);
                 break;
+            case 'viewLog':
+                route = 'administration/dataexporttasks/dataexporttask/log';
+                break;
         }
 
         route && (route = router.getRoute(route));
@@ -444,7 +444,7 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
-    saveFormValues: function (button) {
+    saveFormValues: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             page = me.getAddPage(),
@@ -461,14 +461,9 @@ Ext.define('Dxp.controller.Tasks', {
         }
         formValues.readingTypes = arrReadingTypes;
         localStorage.setItem('addDataExportTaskValues', JSON.stringify(formValues));
-
-        if (button.itemId === 'add-task-add-device-group') {
-            location.href = '/apps/multisense/index.html#/devices/devicegroups/add';
-        } else {
-            additionalParams.fromEdit = me.fromEdit;
-            additionalParams.taskId = me.taskId;
-            router.getRoute('administration/relativeperiods/add').forward(null, additionalParams);
-        }
+        additionalParams.fromEdit = me.fromEdit;
+        additionalParams.taskId = me.taskId;
+        router.getRoute('administration/relativeperiods/add').forward(null, additionalParams);
     },
 
     setFormValues: function (view) {
@@ -489,12 +484,11 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     checkRoute: function (token) {
-        var relativeRegexp = /administration\/relativeperiods\/add/,
-            deviceRegexp = /devices\/devicegroups\/add/;
+        var relativeRegexp = /administration\/relativeperiods\/add/;
 
         Ext.util.History.un('change', this.checkRoute, this);
 
-        if (token.search(relativeRegexp) == -1 && token.search(deviceRegexp) == -1) {
+        if (token.search(relativeRegexp) == -1) {
             localStorage.removeItem('addDataExportTaskValues');
         }
     },

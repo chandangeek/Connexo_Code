@@ -23,9 +23,17 @@ Ext.define('Dxp.view.tasks.Menu', {
                 itemId: 'tasks-history-link',
                 href: me.router.getRoute('administration/dataexporttasks/dataexporttask/history').buildUrl(),
                 hrefTarget: '_self'
-            });
+            });           
         }
 
+        me.add(
+            {
+                text: Uni.I18n.translate('general.log', 'DES', 'Log'),
+                itemId: 'tasks-log-link',
+                hidden: true
+            }
+        );
+        
         me.toggleMenuItem(me.toggle);
     }
 });
