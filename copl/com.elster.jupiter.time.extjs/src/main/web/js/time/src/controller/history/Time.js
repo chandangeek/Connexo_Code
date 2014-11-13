@@ -13,6 +13,7 @@ Ext.define('Tme.controller.history.Time', {
                     title: Uni.I18n.translate('general.relativeperiods', 'TME', 'Relative periods'),
                     route: 'relativeperiods',
                     controller: 'Tme.controller.RelativePeriods',
+                    privileges: ['privilege.administrate.period','privilege.view.period'],
                     action: 'showOverview',
                     disabled: true, // TODO Enable when there is an actual overview page.
                     items: {
@@ -20,6 +21,7 @@ Ext.define('Tme.controller.history.Time', {
                             title: Uni.I18n.translate('relativeperiod.add', 'TME', 'Add relative period'),
                             route: 'add',
                             controller: 'Tme.controller.RelativePeriods',
+                            privileges: ['privilege.administrate.period'],
                             action: 'showAddRelativePeriod'
                         }
                     }
