@@ -22,7 +22,8 @@ public class AppResource {
     @Inject
     private WhiteBoard whiteBoard;
 
-    private static final String[] SYSTEM_ADMIN_PRIVILEGES = {"privilege.administrate.userAndRole","privilege.view.userAndRole","privilege.view.license","privilege.upload.license"};
+    private static final String[] SYSTEM_ADMIN_PRIVILEGES = {"privilege.administrate.userAndRole","privilege.view.userAndRole","privilege.view.license","privilege.upload.license","privilege.administrate.period","privilege.view.period",
+                                        "privilege.administrate.dataExportTask","privilege.view.dataExportTask","privilege.update.dataExportTask","privilege.update.schedule.dataExportTask","privilege.run.dataExportTask"};
     private static final String[] MULTI_SENSE_PRIVILEGES = {"privilege.view.issue","privilege.comment.issue","privilege.close.issue","privilege.assign.issue","privilege.action.issue",
                                         "privilege.view.creationRule","privilege.administrate.creationRule","privilege.view.assignmentRule","privilege.administrate.validationConfiguration",
                                         "privilege.view.validationConfiguration","privilege.administrate.schedule","privilege.view.schedule","privilege.administrate.communicationInfrastructure",
