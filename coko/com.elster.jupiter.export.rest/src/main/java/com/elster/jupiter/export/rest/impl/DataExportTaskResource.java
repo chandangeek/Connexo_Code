@@ -121,6 +121,7 @@ public class DataExportTaskResource {
                 .forEach(builder::addReadingType);
 
         ReadingTypeDataExportTask dataExportTask = builder.build();
+        dataExportTask.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
         try (TransactionContext context = transactionService.getContext()) {
             dataExportTask.save();
             context.commit();
@@ -225,13 +226,13 @@ public class DataExportTaskResource {
     }
 
     private void updateReadingTypes(DataExportTaskInfo info, ReadingTypeDataExportTask task) {
+        task.getReadingTypes().stream()
+                .filter(t -> info.readingTypes.stream().map(r -> r.mRID).anyMatch(m -> t.getMRID().equals(m)))
+                .forEach(task::removeReadingType);
         info.readingTypes.stream()
                 .map(r -> r.mRID)
                 .filter(m -> task.getReadingTypes().stream().map(ReadingType::getMRID).noneMatch(s -> s.equals(m)))
                 .forEach(task::addReadingType);
-        task.getReadingTypes().stream()
-                .filter(t -> info.readingTypes.stream().map(r -> r.mRID).anyMatch(m -> t.getMRID().equals(m)))
-                .forEach(task::removeReadingType);
     }
 
     private void updateProperties(DataExportTaskInfo info, ReadingTypeDataExportTask task) {
