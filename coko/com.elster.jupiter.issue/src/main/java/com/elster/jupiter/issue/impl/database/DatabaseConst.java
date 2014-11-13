@@ -142,6 +142,7 @@ public final class DatabaseConst {
     public static final String RULE_ACTION_TYPE_PK_NAME = "ISU_PK_ACT_TYPE";
     public static final String RULE_ACTION_TYPE_FK_TO_ISSUE_TYPE = "ISU_ACT_TYPE_FK_TO_ISSUE_TYPE";
     public static final String RULE_ACTION_TYPE_FK_TO_REASON = "ISU_ACT_TYPE_FK_TO_REASON";
+    public static final String RULE_ACTION_TYPE_UNIQUE_CONSTRAINT = "ISU_ACT_TYPE_UNIQ_CONSTR";
 
 // Issue Creation Rule Action
     public static final String RULE_ACTION_PHASE = "PHASE";

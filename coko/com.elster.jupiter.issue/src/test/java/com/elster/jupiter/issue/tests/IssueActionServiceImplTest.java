@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.impl.service.IssueActionServiceImpl;
 import com.elster.jupiter.issue.share.cep.IssueAction;
 import com.elster.jupiter.issue.share.cep.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
@@ -25,7 +26,7 @@ public class IssueActionServiceImplTest extends BaseTest {
         assertThat(actionTypeList).isNotEmpty();
 
         IssueActionType type = new IssueActionTypeImpl(getDataModel(), getIssueActionService());
-        Optional<IssueType> issueTypeRef = getIssueService().findIssueType("datacollection");
+        Optional<IssueType> issueTypeRef = getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID);
         assertThat(issueTypeRef).isNotEqualTo(Optional.empty());
         try (TransactionContext context = getContext()) {
             IssueActionType actionType = getIssueActionService().createActionType("fakefactoryId", "classname", issueTypeRef.get());
@@ -50,5 +51,29 @@ public class IssueActionServiceImplTest extends BaseTest {
         assertThat(action).isNotNull();
         impl.removeIssueActionFactory(factory);
         assertThat(getIssueActionService().getRegisteredFactories()).isEmpty();
+    }
+
+    @Test
+    public void testCreateIssueActionDublicate() {
+        deactivateEnvironment();
+        setEnvironment();
+        try (TransactionContext context = getContext()) {
+            Optional<IssueType> issueTypeRef = getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID);
+            IssueActionType actionType = getIssueActionService().createActionType("factoryId1", "classname1", issueTypeRef.get());
+            long id = actionType.getId();
+            actionType = getIssueActionService().createActionType("factoryId1", "classname1", issueTypeRef.get());
+            assertThat(id).isEqualTo(actionType.getId());
+            // 2 default action types {@see InstallServiceImpl#createActionTypes} + 1 factoryId1 - classname1
+            assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(3);
+        }
+        try (TransactionContext context = getContext()) {
+            Optional<IssueReason> reasonRef = getIssueService().findReason(ISSUE_DEFAULT_REASON);
+            IssueActionType actionType = getIssueActionService().createActionType("factoryId1", "classname1", reasonRef.get());
+            long id = actionType.getId();
+            actionType = getIssueActionService().createActionType("factoryId1", "classname1", reasonRef.get());
+            assertThat(id).isEqualTo(actionType.getId());
+            // 2 default action types {@see InstallServiceImpl#createActionTypes} + 1 factoryId1 - classname1
+            assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(3);
+        }
     }
 }

@@ -237,13 +237,14 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column typeRefIdColumn = table.column(RULE_ACTION_TYPE_ISSUE_TYPE).varChar(NAME_LENGTH).add();
             Column reasonRefIdColumn = table.column(RULE_ACTION_TYPE_REASON).varChar(NAME_LENGTH).add();
-            table.column(RULE_ACTION_TYPE_CLASS_NAME).map("className").varChar(1024).notNull().add();
-            table.column(RULE_ACTION_TYPE_FACTORY_ID).map("factoryId").varChar(NAME_LENGTH).notNull().add();
+            Column className = table.column(RULE_ACTION_TYPE_CLASS_NAME).map("className").varChar(1024).notNull().add();
+            Column factoryId = table.column(RULE_ACTION_TYPE_FACTORY_ID).map("factoryId").varChar(NAME_LENGTH).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(RULE_ACTION_TYPE_PK_NAME).on(idColumn).add();
             table.foreignKey(RULE_ACTION_TYPE_FK_TO_ISSUE_TYPE).map("issueType").on(typeRefIdColumn).references(ISU_TYPE.name()).add();
             table.foreignKey(RULE_ACTION_TYPE_FK_TO_REASON).map("issueReason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
+            table.unique(RULE_ACTION_TYPE_UNIQUE_CONSTRAINT).on(className, factoryId).add();
         }
     },
     ISU_RULEACTION {

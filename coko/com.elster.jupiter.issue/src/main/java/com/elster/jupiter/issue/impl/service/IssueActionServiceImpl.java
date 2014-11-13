@@ -25,9 +25,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue.action", service = {IssueActionService.class}, immediate = true)
 public class IssueActionServiceImpl implements IssueActionService {
+    private static final Logger LOG = Logger.getLogger(IssueActionService.class.getName());
     private volatile QueryService queryService;
     private volatile TransactionService transactionService;
     private volatile DataModel dataModel;
@@ -85,7 +89,7 @@ public class IssueActionServiceImpl implements IssueActionService {
 
     @Override
     public IssueActionType createActionType(String factoryId, String className, IssueType issueType) {
-        IssueActionTypeImpl type = dataModel.getInstance(IssueActionTypeImpl.class);
+        IssueActionTypeImpl type = findOrCreateActionType(factoryId, className);
         type.init(factoryId, className, issueType);
         type.save();
         return type;
@@ -94,10 +98,22 @@ public class IssueActionServiceImpl implements IssueActionService {
 
     @Override
     public IssueActionType createActionType(String factoryId, String className, IssueReason issueReason) {
-        IssueActionTypeImpl type = dataModel.getInstance(IssueActionTypeImpl.class);
+        IssueActionTypeImpl type = findOrCreateActionType(factoryId, className);
         type.init(factoryId, className, issueReason);
         type.save();
         return type;
+    }
+
+    private IssueActionTypeImpl findOrCreateActionType(String factoryId, String className){
+        List<IssueActionType> actionTypes = query(IssueActionType.class).select(where("factoryId").isEqualTo(factoryId).and(where("className").isEqualTo(className)));
+        IssueActionTypeImpl actionType = null;
+        if (actionTypes.size() > 0){
+            LOG.info("You are trying to create action type which is already presented in system");
+            actionType = (IssueActionTypeImpl) actionTypes.get(0);
+        } else {
+            actionType = dataModel.getInstance(IssueActionTypeImpl.class);
+        }
+        return actionType;
     }
 
     @Override
