@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -146,7 +147,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 SchedulingService.COMPONENT_NAME,
                 com.energyict.mdc.tasks.TaskService.COMPONENT_NAME,
                 KpiService.COMPONENT_NAME,
-                TaskService.COMPONENTNAME);
+                TaskService.COMPONENTNAME,
+                MeteringGroupsService.COMPONENTNAME);
     }
 
     @Override
