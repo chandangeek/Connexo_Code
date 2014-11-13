@@ -39,6 +39,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
                     required: true,
                     allowBlank: false,
                     maxLength: 80,
+                    enforceMaxLength: true,
                     width: 400
                 },
                 {
