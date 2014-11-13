@@ -120,7 +120,7 @@ public class DataExportTaskResource {
                 .forEach(builder::addReadingType);
 
         ReadingTypeDataExportTask dataExportTask = builder.build();
-        //dataExportTask.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
+        dataExportTask.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
         try (TransactionContext context = transactionService.getContext()) {
             dataExportTask.save();
             context.commit();
