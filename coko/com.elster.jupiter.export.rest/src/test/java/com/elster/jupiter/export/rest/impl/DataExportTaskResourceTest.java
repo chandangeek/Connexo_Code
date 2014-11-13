@@ -2,16 +2,14 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportStrategy;
-import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.*;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
 import com.elster.jupiter.export.rest.DataExportTaskInfos;
 import com.elster.jupiter.export.rest.MeterGroupInfo;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.RelativeDate;
@@ -51,6 +49,7 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataExportService dataExportService;
     private DataExportTaskBuilder builder = initBuilderStub();
+    private DataExportOccurrenceFinder finder;
     @Mock
     private MeteringService meteringService;
     @Mock
@@ -69,6 +68,8 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
     private RelativePeriod exportPeriod;
     @Mock
     private DataExportStrategy strategy;
+    @Mock
+    private QueryExecutor<DataExportOccurrence> queryExecutor;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -104,6 +105,7 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
         when(meteringGroupsService.findEndDeviceGroup(5)).thenReturn(Optional.of(endDeviceGroup));
         when(readingTypeDataExportTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(dataExportService.newBuilder()).thenReturn(builder);
+        when(readingTypeDataExportTask.getOccurrencesFinder()).thenReturn(finder);
         when(readingTypeDataExportTask.getName()).thenReturn("Name");
         when(readingTypeDataExportTask.getLastOccurrence()).thenReturn(Optional.empty());
     }

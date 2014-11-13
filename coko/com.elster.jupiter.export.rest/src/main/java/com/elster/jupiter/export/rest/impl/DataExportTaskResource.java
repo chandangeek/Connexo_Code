@@ -1,10 +1,8 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportStatus;
-import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.rest.DataExportTaskHistoryInfos;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
 import com.elster.jupiter.export.rest.DataExportTaskInfos;
 import com.elster.jupiter.metering.MeteringService;
@@ -24,26 +22,28 @@ import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/dataexporttask")
 public class DataExportTaskResource {
@@ -55,6 +55,7 @@ public class DataExportTaskResource {
     private final MeteringGroupsService meteringGroupsService;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
+    private Condition condition;
 
     @Inject
     public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService) {
@@ -167,6 +168,56 @@ public class DataExportTaskResource {
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus)).build();
+    }
+
+    @GET
+    @Path("/{id}/history")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DataExportTaskHistoryInfos getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
+                                                               @QueryParam("filter") JSONArray filterArray, @Context UriInfo uriInfo) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        Map<String, Long> filter = getFilterMap(filterArray);
+        ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
+        DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
+            .setStart(queryParameters.getStart())
+            .setLimit(queryParameters.getLimit())
+            .with(getOccurrenceCondition(filter));
+
+        List<? extends DataExportOccurrence> occurrences = occurrencesFinder.find();
+
+        DataExportTaskHistoryInfos infos = new DataExportTaskHistoryInfos(queryParameters.clipToLimit(occurrences), thesaurus);
+        infos.total = queryParameters.determineTotal(occurrences.size());
+        return infos;
+    }
+
+    private Condition getOccurrenceCondition(Map<String, Long> filter) {
+        Condition condition = Condition.TRUE;
+
+        if(filter.get("startedOnFrom") != null && filter.get("startedOnTo")!= null) {
+            condition = condition.and(where("startDate").inClosed(Interval.of(Instant.ofEpochMilli(filter.get("startedOnFrom")), Instant.ofEpochMilli(filter.get("startedOnTo")))));
+        }
+        if(filter.get("finishedOnFrom") != null && filter.get("finishedOnTo")!= null) {
+            condition = condition.and(where("endDate").inClosed(Interval.of(Instant.ofEpochMilli(filter.get("finishedOnFrom")), Instant.ofEpochMilli(filter.get("finishedOnTo")))));
+        }
+        if(filter.get("exportPeriodContains") != null) {
+            condition = condition.and(where("exportedDataInterval").isEffective(Instant.ofEpochMilli(filter.get("exportPeriodContains"))));
+        }
+        return condition;
+    }
+
+    public Map<String, Long> getFilterMap(JSONArray filterArray) {
+        Map<String, Long> filterMap = new HashMap<>();
+        if (filterArray!=null) {
+            for(int i = 0; i < filterArray.length(); i++) {
+                try {
+                    JSONObject object = filterArray.getJSONObject(i);
+                    filterMap.put(object.getString("property"), Long.valueOf(object.get("value").toString()));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return filterMap;
     }
 
     private ReadingTypeDataExportTask findTaskOrThrowException(DataExportTaskInfo info) {
