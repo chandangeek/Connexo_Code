@@ -346,8 +346,10 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public void setNextExecution(Instant instant) {
-        this.recurrentTask.get().setNextExecution(instant);
-        recurrentTaskDirty = true;
+        if (this.recurrentTask.isPresent()) {
+            this.recurrentTask.get().setNextExecution(instant);
+            recurrentTaskDirty = true;
+        }
     }
 
     @Override
