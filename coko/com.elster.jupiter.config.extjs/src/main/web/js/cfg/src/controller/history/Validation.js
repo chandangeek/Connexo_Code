@@ -15,7 +15,7 @@ Ext.define('Cfg.controller.history.Validation', {
                     privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
                     items: {
                         add: {
-                            title: 'Add',
+                            title: Uni.I18n.translate('validation.addRuleSet', 'CFG', 'Add validation rule set'),
                             route: 'add',
                             controller: 'Cfg.controller.Validation',
                             privileges: ['privilege.administrate.validationConfiguration'],
@@ -50,7 +50,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                     action: 'showRules',
                                     items: {
                                         add: {
-                                            title: 'Add',
+                                            title: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
                                             route: 'add',
                                             controller: 'Cfg.controller.Validation',
                                             privileges: ['privilege.administrate.validationConfiguration'],
