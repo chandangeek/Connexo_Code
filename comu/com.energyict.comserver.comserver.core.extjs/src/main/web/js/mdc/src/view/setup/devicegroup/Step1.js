@@ -37,7 +37,8 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
                     fieldLabel: 'Name',
                     itemId: 'deviceGroupNameTextField',
                     required: true,
-                    allowBlank : false,
+                    allowBlank: false,
+                    maxLength: 80,
                     width: 400
                 },
                 {
