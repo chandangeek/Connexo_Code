@@ -4,7 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.EventType;
-import com.elster.jupiter.time.Privileges;
+import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
 
@@ -43,12 +43,12 @@ public class Installer {
     }
 
     private void createPrivileges(UserService userService) {
-        userService.createResourceWithPrivileges("TME", "period.periods", "period.periods.description", new String[]
-                {Privileges.VIEW_RELATIVE_PERIOD, Privileges.CREATE_RELATIVE_PERIOD, Privileges.UPDATE_RELATIVE_PERIOD, Privileges.DELETE_RELATIVE_PERIOD});
+        userService.createResourceWithPrivileges("SYS", "period.periods", "period.periods.description", new String[]
+                {Privileges.VIEW_RELATIVE_PERIOD, Privileges.ADMINISTRATE_RELATIVE_PERIOD});
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.CREATE_RELATIVE_PERIOD, Privileges.UPDATE_RELATIVE_PERIOD, Privileges.DELETE_RELATIVE_PERIOD});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD});
         this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_RELATIVE_PERIOD});
     }
 
