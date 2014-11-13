@@ -354,8 +354,10 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public void setScheduleExpression(ScheduleExpression scheduleExpression) {
-        this.recurrentTask.get().setScheduleExpression(scheduleExpression);
-        recurrentTaskDirty = true;
+        if (this.recurrentTask.isPresent()) {
+            this.recurrentTask.get().setScheduleExpression(scheduleExpression);
+            recurrentTaskDirty = true;
+        }
     }
 
     @Override
