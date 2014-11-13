@@ -88,7 +88,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("NLS", "ISU", "MSG");
+        return Arrays.asList("NLS", "ISU", "MSG", "ORM", "DDC");
     }
 
     @Reference
