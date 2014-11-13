@@ -78,7 +78,7 @@ public enum TableSpecs {
             table.map(AbstractEndDeviceGroup.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
-            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
+            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH + 4).map("mRID").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
