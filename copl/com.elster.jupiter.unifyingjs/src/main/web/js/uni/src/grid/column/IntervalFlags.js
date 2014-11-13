@@ -13,6 +13,10 @@ Ext.define('Uni.grid.column.IntervalFlags', {
     ],
 
     renderer: function (value, metaData, record, rowIndex, colIndex) {
-        return new Uni.form.field.IntervalFlagsDisplay().renderer.apply(this.columns[colIndex], arguments);
+        var me = Ext.Array.findBy(this.columns, function (item) {
+            return item.$className === 'Uni.grid.column.IntervalFlags';
+        });
+
+        return new Uni.form.field.IntervalFlagsDisplay().renderer.apply(me, arguments);
     }
 });
