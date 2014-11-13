@@ -13,4 +13,6 @@ public interface DataProcessorFactory extends HasName {
 
     String getName();
 
+    // TODO check with Tom why we need this ? Why is getProperties() on this interface not enough ?
+    // DataProcessor createTemplateDataFormatter();
 }
