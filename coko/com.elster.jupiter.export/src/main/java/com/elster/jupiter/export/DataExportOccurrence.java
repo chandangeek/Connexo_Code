@@ -15,9 +15,13 @@ public interface DataExportOccurrence {
 
     DataExportStatus getStatus();
 
+    String getFailureReason();
+
     Range<Instant> getExportedDataInterval();
 
     Instant getTriggerTime();
+
+    Long getTaskOccurenceId();
 
     List<? extends LogEntry> getLogs();
 }

@@ -26,6 +26,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     private Interval exportedDataInterval;
     private Interval.EndpointBehavior exportedDataBoundaryType;
     private DataExportStatus status = DataExportStatus.BUSY;
+    private String failureReason;
 
     private final DataModel dataModel;
     private final Clock clock;
@@ -75,6 +76,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
         return exportedDataRange;
     }
 
+    @Override
+    public String getFailureReason() {
+        return this.failureReason;
+    }
+
     public void persist() {
         dataModel.persist(this);
     }
@@ -101,6 +107,13 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     }
 
     @Override
+    public void end(DataExportStatus status, String message) {
+        this.status = status;
+        this.endDate = clock.instant();
+        this.failureReason = message;
+    }
+
+    @Override
     public Instant getTriggerTime() {
         return taskOccurrence.get().getTriggerTime();
     }
@@ -108,5 +121,10 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     @Override
     public List<? extends LogEntry> getLogs() {
         return taskOccurrence.get().getLogs();
+    }
+
+    @Override
+    public Long getTaskOccurenceId() {
+        return taskOccurrence.get().getId();
     }
 }

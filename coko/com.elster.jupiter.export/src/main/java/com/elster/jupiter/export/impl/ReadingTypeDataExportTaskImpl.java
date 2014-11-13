@@ -1,11 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.DataExportProperty;
-import com.elster.jupiter.export.DataExportStrategy;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.export.*;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -20,6 +16,8 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.util.conditions.Condition;
+import static com.elster.jupiter.util.conditions.Where.where;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -88,6 +86,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private transient ScheduleExpression scheduleExpression;
     private transient boolean recurrentTaskDirty;
     private transient boolean propertiesDirty;
+    private transient DataExportOccurrenceFinder dataExportOccurrenceFinder;
 
     @Inject
     ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService, MeteringService meteringService) {
@@ -152,6 +151,14 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public List<? extends DataExportOccurrence> getOccurrences(Range<Instant> interval) {
         return dataModel.mapper(DataExportOccurrenceImpl.class).find("readingTask", this);
+    }
+
+    @Override
+    public DataExportOccurrenceFinder getOccurrencesFinder() {
+        Condition condition = where("readingTask").isEqualTo(this);
+        Order order = Order.descending("startDate");
+        DataExportOccurrenceFinder finder = new DataExportOccurrenceFinder(dataModel.query(DataExportOccurrence.class), condition, order);
+        return finder;
     }
 
     RecurrentTask getRecurrentTask() {

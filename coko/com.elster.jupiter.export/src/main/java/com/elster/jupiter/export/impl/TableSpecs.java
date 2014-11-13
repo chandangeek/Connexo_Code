@@ -94,6 +94,7 @@ enum TableSpecs {
             table.addIntervalColumns("exportedDataInterval");
             table.column("INTERVALENDPTBEHAVIOUR").number().conversion(ColumnConversion.NUMBER2ENUM).map("exportedDataBoundaryType").add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
+            table.column("MESSAGE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("failureReason").add();
 
             table.primaryKey("DES_PK_EXPOCC").on(taskOccurrence).add();
             table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE").onDelete(DeleteRule.CASCADE)
