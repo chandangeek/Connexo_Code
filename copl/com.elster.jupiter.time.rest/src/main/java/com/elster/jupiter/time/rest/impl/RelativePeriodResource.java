@@ -6,7 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.time.Privileges;
+import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeOperation;
 import com.elster.jupiter.time.RelativePeriod;
@@ -83,7 +83,7 @@ public class RelativePeriodResource {
     }
 
     @POST
-    @RolesAllowed(Privileges.CREATE_RELATIVE_PERIOD)
+    @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
@@ -100,7 +100,7 @@ public class RelativePeriodResource {
     }
 
     @PUT
-    @RolesAllowed(Privileges.UPDATE_RELATIVE_PERIOD)
+    @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RelativePeriodInfo setRelativePeriod(@PathParam("id") long id, RelativePeriodInfo relativePeriodInfo) {
@@ -119,7 +119,7 @@ public class RelativePeriodResource {
 
     @Path("/{id}")
     @DELETE
-    @RolesAllowed(Privileges.DELETE_RELATIVE_PERIOD)
+    @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeRelativePeriod(@PathParam("id") long id) {
         RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
