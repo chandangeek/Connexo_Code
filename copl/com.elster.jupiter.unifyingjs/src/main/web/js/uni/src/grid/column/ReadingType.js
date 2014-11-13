@@ -16,24 +16,13 @@ Ext.define('Uni.grid.column.ReadingType', {
         'Uni.form.field.ReadingTypeDisplay'
     ],
 
-    deferredRenderer: function (value, record, view) {
-        var me = this;
-        var cmp = view.getCell(record, me).down('.x-grid-cell-inner');
-        var field = new Uni.form.field.ReadingTypeDisplay({
-            fieldLabel: false,
-            showTimeAttribute: me.showTimeAttribute,
-            link: me.makeLink(record)
-        });
-        cmp.setHTML('');
-        field.setValue(value);
-        field.render(cmp);
-
-        Ext.defer(view.updateLayout, 10, view);
-    },
-
     renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
-        var me = metaData.column;
-        Ext.defer(me.deferredRenderer, 1, me, [value, record, view]);
+        var me = Ext.Array.findBy(this.columns, function (item) {
+                return item.$className === 'Uni.grid.column.ReadingType';
+            }),
+            field = new Uni.form.field.ReadingTypeDisplay();
+
+        return field.renderer.apply(me, [value, field, view, record]);
     },
 
     // If need to make a link from reading type display field override this method and provide url inside

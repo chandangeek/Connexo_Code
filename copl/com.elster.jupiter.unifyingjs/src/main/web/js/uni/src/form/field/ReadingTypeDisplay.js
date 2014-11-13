@@ -14,26 +14,6 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         'Ext.button.Button'
     ],
 
-    deferredRenderer: function (value, field, name) {
-        var me = this;
-
-        new Ext.button.Button({
-            renderTo: field.getEl().down('.x-form-display-field'),
-            tooltip: Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info'),
-            iconCls: 'icon-info-small',
-            cls: 'uni-btn-transparent',
-            style: {
-                display: 'inline-block',
-                textDecoration: 'none !important'
-            },
-            handler: function () {
-                me.handler(value, name);
-            }
-        });
-
-        field.updateLayout();
-    },
-
     handler: function (value, name) {
         var widget = Ext.widget('readingTypeDetails');
         widget.setTitle('<span style="margin: 10px 0 0 10px">' + name + '</span>');
@@ -148,19 +128,30 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         widget.show();
     },
 
-    renderer: function (value, field) {
+    renderer: function (value, field, view, record) {
         if (!value) return this.emptyText;
 
-        var assembledName = value.aliasName ? (' ' + value.aliasName) : '';
+        var me = this,
+            assembledName = value.aliasName ? (' ' + value.aliasName) : '',
+            icon = '<span class="icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>';
+
         if (value.names && Ext.isObject(value.names)) {
             assembledName += (value.names.timeOfUse ? (' ' + value.names.timeOfUse) : '')
                 + (value.names.unitOfMeasure ? (' (' + value.names.unitOfMeasure + ')') : '')
-                + ((value.names.timeAttribute && this.showTimeAttribute) ? (' [' + value.names.timeAttribute + ']') : '');
+                + ((value.names.timeAttribute && me.showTimeAttribute) ? (' [' + value.names.timeAttribute + ']') : '');
         }
 
-        Ext.defer(this.deferredRenderer, 1, this, [value, field, (assembledName || value.mRID)]);
+        setTimeout(function () {
+            var icon = (view && record) ? view.getCell(record, me).down('.icon-info-small') : field.getEl().down('.icon-info-small');
+
+            icon.clearListeners();
+            icon.on('click', function () {
+                field.handler(value, assembledName || value.mRID);
+            });
+        }, 1);
+
         return '<span style="display: inline-block; float: left; width: 400px">' +
-            (this.link ? ('<a href="' + this.link + '">' + (assembledName || value.mRID) + '</a>') :
-                (assembledName || value.mRID)) + '</span>';
+            (me.link ? ('<a href="' + me.link + '">' + (assembledName || value.mRID) + '</a>') :
+                (assembledName || value.mRID)) + '</span>' + icon;
     }
 });
