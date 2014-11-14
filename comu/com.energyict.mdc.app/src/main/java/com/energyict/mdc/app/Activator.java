@@ -13,6 +13,7 @@ public class Activator implements BundleActivator {
     public static final String HTTP_RESOURCE_ALIAS = "/multisense";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/mdc";
 
+    public static final String APP_KEY = "MDC";
     public static final String APP_NAME = "Connexo Multi Sense";
     public static final String APP_ICON = "connexo";
 
@@ -24,7 +25,7 @@ public class Activator implements BundleActivator {
     @Override
     public void start(BundleContext context) throws Exception {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
-        App app = new App(APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource);
+        App app = new App(APP_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource);
 
         registration = context.registerService(App.class, app, null);
     }
