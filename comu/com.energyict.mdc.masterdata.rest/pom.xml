@@ -51,6 +51,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>

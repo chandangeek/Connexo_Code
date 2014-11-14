@@ -2,21 +2,19 @@ package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.rest.ReadingTypeComparator;
+import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.masterdata.rest.ReadingTypeInfo;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import java.util.Optional;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -25,6 +23,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Path("/readingtypes")
 public class ReadingTypeResource {
@@ -51,7 +52,7 @@ public class ReadingTypeResource {
             String mrid = readingTypeUtilService.getReadingTypeMridFrom(obisCode, unit);
             Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
             if (!readingType.isPresent()) {
-                throw new WebApplicationException("No such reading type", Response.status(Response.Status.NOT_FOUND).entity("No reading type for ObisCode "+obisCode+" and unit "+unitString).build());
+                throw new WebApplicationException("No such reading type", Response.status(Response.Status.NOT_FOUND).entity("No reading type for ObisCode " + obisCode + " and unit " + unitString).build());
             }
             readingTypeInfos.add(new ReadingTypeInfo(readingType.get()));
         } else {
