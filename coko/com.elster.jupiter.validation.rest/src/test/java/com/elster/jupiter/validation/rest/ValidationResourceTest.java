@@ -1,37 +1,26 @@
 package com.elster.jupiter.validation.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.runners.MockitoJUnitRunner;
-
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo.ReadingTypeNames;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.ListValue;
+import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.ListValuePropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
@@ -48,7 +37,30 @@ import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
-import com.google.common.base.Optional;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.util.measurement.Measurement;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Currency;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationResourceTest extends BaseValidationRestTest {
@@ -84,8 +96,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
     @Test
     public void testGetValidationRuleSetNotFound() {
-        Optional<ValidationRuleSet> opt = Optional.absent();
-        when(validationService.getValidationRuleSet(13)).thenReturn(opt);
+        when(validationService.getValidationRuleSet(13)).thenReturn(Optional.empty());
 
         Response response = target("/validation/13").request().get();
 
@@ -310,7 +321,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     
     @Test
     public void testDeleteValidationRuleNoRuleSet() {
-        when(validationService.getValidationRuleSet(13)).thenReturn(Optional.<ValidationRuleSet>absent());
+        when(validationService.getValidationRuleSet(13)).thenReturn(Optional.empty());
         
         Response response = target("/validation/rules/13").queryParam("id", "1").request().delete();
 
@@ -320,7 +331,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     @Test
     public void testDeleteValidationRuleNoRule() {
         mockValidationRuleSet(13, false);
-        when(validationService.getValidationRule(1)).thenReturn(Optional.<ValidationRule>absent());
+        when(validationService.getValidationRule(1)).thenReturn(Optional.empty());
         
         Response response = target("/validation/rules/13").queryParam("id", "1").request().delete();
 
@@ -346,8 +357,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
             when(ruleSet.getRules()).thenReturn(rules);
         }
 
-        Optional<ValidationRuleSet> opt = Optional.of(ruleSet);
-        when(validationService.getValidationRuleSet(id)).thenReturn(opt);
+        doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(id);
 
         return ruleSet;
     }
@@ -361,8 +371,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         when(rule.isActive()).thenReturn(true);
         when(rule.getRuleSet()).thenReturn(ruleSet);
 
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        ReadingType readingType = mockReadingType();
         Set<ReadingType> readingTypes = new HashSet<>();
         readingTypes.add(readingType);
         when(rule.getReadingTypes()).thenReturn(readingTypes);
@@ -388,6 +397,25 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
         when(validationService.getValidationRule(1)).thenReturn(Optional.of(rule));
         return rule;
+    }
+    
+    private ReadingType mockReadingType() {
+    	ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+    	when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+    	when(readingType.getAggregate()).thenReturn(Aggregate.NOTAPPLICABLE);
+    	when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+    	when(readingType.getAccumulation()).thenReturn(Accumulation.NOTAPPLICABLE);
+    	when(readingType.getFlowDirection()).thenReturn(FlowDirection.NOTAPPLICABLE);
+    	when(readingType.getCommodity()).thenReturn(Commodity.NOTAPPLICABLE);
+    	when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.NOTAPPLICABLE);
+    	when(readingType.getInterharmonic()).thenReturn(RationalNumber.NOTAPPLICABLE);
+    	when(readingType.getArgument()).thenReturn(RationalNumber.NOTAPPLICABLE);    	    	    	
+    	when(readingType.getPhases()).thenReturn(Phase.NOTAPPLICABLE);
+    	when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+    	when(readingType.getUnit()).thenReturn(ReadingTypeUnit.NOTAPPLICABLE);
+    	when(readingType.getCurrency()).thenReturn(Currency.getInstance("XXX"));
+    	return readingType;
     }
     
     private List<PropertyInfo> createPropertyInfos() {
@@ -476,7 +504,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
             case "2":
                 return Optional.of(bean2);
             default:
-                return Optional.absent();
+                return Optional.empty();
             }
         }
     }
