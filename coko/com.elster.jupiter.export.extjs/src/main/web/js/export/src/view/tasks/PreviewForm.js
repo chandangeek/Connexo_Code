@@ -137,7 +137,12 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             items: [
                 {
                     fieldLabel: Uni.I18n.translate('general.formatter', 'DES', 'Formatter'),
-                    name: 'dataProcessor'
+                    name: 'dataProcessor',
+                    renderer: function (value) {
+                        if (value) {
+                            return value.displayName;
+                        }
+                    }
                 }
             ]
         },

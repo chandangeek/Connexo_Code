@@ -234,6 +234,7 @@ Ext.define('Dxp.controller.Tasks', {
                                 }
                                 exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.data.exportperiod.id));
                                 deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup.id));
+                                fileFormatterCombo.setValue(fileFormatterCombo.store.getById(record.data.dataProcessor.name));
                                 if (record.data.nextRun && (record.data.nextRun !== 0)) {
                                     view.down('#recurrence-trigger').setValue({recurrence: true});
                                     view.down('#recurrence-number').setValue(record.data.schedule.every.count);
@@ -421,7 +422,9 @@ Ext.define('Dxp.controller.Tasks', {
                 id: form.down('#export-period-combo').getValue(),
                 name: form.down('#export-period-combo').getRawValue()
             });
-            record.set('dataProcessor', form.down('#file-formatter-combo').getValue());
+            record.set('dataProcessor', {
+                name: form.down('#file-formatter-combo').getValue()
+            });
             record.save({
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
