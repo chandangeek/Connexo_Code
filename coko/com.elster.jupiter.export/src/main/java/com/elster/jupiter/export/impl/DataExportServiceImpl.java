@@ -21,6 +21,7 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -50,6 +51,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile MessageService messageService;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
+    private volatile UserService userService;
 
     private List<DataProcessorFactory> dataProcessorFactories = new CopyOnWriteArrayList<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
@@ -59,7 +61,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -69,6 +71,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setMeteringService(meteringService);
         setQueryService(queryService);
         setClock(clock);
+        setUserService(userService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -126,7 +129,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public void install() {
-        Installer installer = new Installer(dataModel, messageService, timeService, thesaurus);
+        Installer installer = new Installer(dataModel, messageService, timeService, thesaurus, userService);
         installer.install();
     }
 
@@ -158,6 +161,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         this.clock = clock;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     public void removeResource(DataProcessorFactory dataProcessorFactory) {
         dataProcessorFactories.remove(dataProcessorFactory);
     }
@@ -172,6 +180,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
+                bind(UserService.class).toInstance(userService);
             }
         });
     }
