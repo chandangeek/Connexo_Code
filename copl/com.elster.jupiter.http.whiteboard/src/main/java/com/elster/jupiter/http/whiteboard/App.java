@@ -7,12 +7,14 @@ package com.elster.jupiter.http.whiteboard;
  */
 public class App {
     private final String context;
+    private final String key;
     private final String name;
     private final String icon;
     private final HttpResource mainResource;
     private final String externalUrl;
 
-    public App(String name, String icon, String context, HttpResource mainResource) {
+    public App(String key, String name, String icon, String context, HttpResource mainResource) {
+        this.key = key;
         this.name = name;
         this.icon = icon;
         this.context = context;
@@ -20,7 +22,8 @@ public class App {
         this.externalUrl = null;
     }
 
-    public App(String name, String icon, String externalUrl) {
+    public App(String key, String name, String icon, String externalUrl) {
+        this.key = key;
         this.name = name;
         this.icon = icon;
         this.externalUrl = externalUrl;
@@ -50,5 +53,9 @@ public class App {
 
     public boolean isInternalApp() {
         return externalUrl == null;
+    }
+
+    public String getKey() {
+        return key;
     }
 }

@@ -1,19 +1,28 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
+import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.Resolver;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+
+import java.rmi.RemoteException;
 import java.util.Optional;
 import com.google.common.collect.ImmutableMap;
+import com.hof.mi.web.service.*;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.rpc.ServiceException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicReference;
@@ -79,6 +88,8 @@ public class HttpContextImpl implements HttpContext {
             return true;
         }
 
+        whiteboard.checkLicense();
+
         String authentication = request.getHeader("Authorization");
         if (authentication == null) {
             // Not logged in or session expired, so authentication is required
@@ -103,6 +114,36 @@ public class HttpContextImpl implements HttpContext {
         return user.isPresent() ? allow(request, response, user.get()) : deny(response);
     }
 
+    private void loginYellowfin(HttpServletResponse response) throws RemoteException {
+        AdministrationServiceResponse rs = null;
+        AdministrationServiceRequest rsr = new AdministrationServiceRequest();
+        AdministrationServiceService ts = new AdministrationServiceServiceLocator("localhost", 8181, "/services/AdministrationService", false);
+        AdministrationServiceSoapBindingStub rssbs = null;
+        try {
+            rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
+
+        rsr.setLoginId("admin@yellowfin.com.au");
+        rsr.setPassword("test");
+        rsr.setOrgId(new Integer(1));
+        rsr.setFunction("LOGINUSER");
+        AdministrationPerson ap = new AdministrationPerson();
+        ap.setUserId("admin@yellowfin.com.au");
+        ap.setPassword("test");
+        rsr.setPerson(ap);
+
+        if (rssbs != null) {
+            rs = rssbs.remoteAdministrationCall(rsr);
+            if (rs != null && "SUCCESS".equals(rs.getStatusCode()) ) {
+                Cookie cookie = new Cookie("JSESSIONID_YELLOWFIN", rs.getLoginSessionId());
+                cookie.setPath("/");
+                response.addCookie(cookie);
+            }
+        }
+    }
+
     private boolean login(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
 
@@ -111,18 +152,21 @@ public class HttpContextImpl implements HttpContext {
             return false;
         } else {
             response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
-            response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURI());
+            response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURL());
             return true;
         }
     }
 
-    private boolean allow(HttpServletRequest request, HttpServletResponse response, User user) {
+    private boolean allow(HttpServletRequest request, HttpServletResponse response, User user) throws RemoteException {
+        loginYellowfin(response);
+
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
         request.setAttribute(USERPRINCIPAL, user);
         request.setAttribute(HttpContext.REMOTE_USER, user.getName());
         request.getSession(true).setMaxInactiveInterval(whiteboard.getSessionTimeout());
-        request.getSession(true).setAttribute("user", user);
+        request.getSession(false).setAttribute("user", user);
         response.setHeader("Cache-Control", "max-age=86400");
+        response.addCookie(new Cookie("JSESSIONID_YELLOWFIN", "test"));
         return true;
     }
 

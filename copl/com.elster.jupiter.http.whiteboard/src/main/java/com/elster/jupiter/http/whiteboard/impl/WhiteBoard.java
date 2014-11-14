@@ -3,13 +3,18 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -21,10 +26,7 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import javax.ws.rs.core.Application;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -34,15 +36,17 @@ import java.util.logging.Logger;
 public class WhiteBoard extends Application implements BinderProvider {
     private volatile HttpService httpService;
     private volatile UserService userService;
+    private volatile LicenseService licenseService;
     private volatile TransactionService transactionService;
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
     private boolean generateEvents;
 
     private final static String SESSION_TIMEOUT = "com.elster.jupiter.session.timeout";
-
     private int sessionTimeout = 600; // default value 10 min
     private List<HttpResource> resources = new CopyOnWriteArrayList<>();
     private List<App> apps = new CopyOnWriteArrayList<>();
+
+    private BundleContext context;
 
     private static final Logger LOGGER = Logger.getLogger(WhiteBoard.class.getName());
 
@@ -57,6 +61,11 @@ public class WhiteBoard extends Application implements BinderProvider {
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
     }
 
     @Reference
@@ -111,6 +120,8 @@ public class WhiteBoard extends Application implements BinderProvider {
             if (timeout > 0) {
                 sessionTimeout = timeout;
             }
+
+            this.context = context;
         }
     }
 
@@ -126,6 +137,34 @@ public class WhiteBoard extends Application implements BinderProvider {
     public void removeApplication(App app) {
         removeResource(app.getMainResource());
         apps.remove(app);
+    }
+
+    void checkLicense(){
+        Optional<License> license;
+        List<String> applications = licenseService.getLicensedApplicationKeys();
+
+        for(App application : apps){
+            if(!application.getKey().equals("SYS")){
+                license = licenseService.getLicenseForApplication(application.getKey());
+                if( !license.isPresent() ||
+                    (license.isPresent() && license.get().getGracePeriodInDays() == 0)){
+                    unregisterRestApplication(application.getKey());
+                }
+            }
+        }
+    }
+
+    private void unregisterRestApplication(String application){
+        try {
+            ServiceReference<?>[] restApps = context.getAllServiceReferences(Application.class.getName(), "(app=" + application + ")");
+            for(ServiceReference<?> restApp : restApps){
+                if(restApp.getProperty("alias") != null){
+                    httpService.unregister("/api" + restApp.getProperty("alias").toString());
+                }
+            }
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     String getAlias(String name) {
