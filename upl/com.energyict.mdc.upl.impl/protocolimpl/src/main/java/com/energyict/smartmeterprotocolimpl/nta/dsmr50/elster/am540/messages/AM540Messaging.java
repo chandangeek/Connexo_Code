@@ -39,13 +39,8 @@ public class AM540Messaging extends G3Messaging {
 
             // Misc. messages
             WritePlcG3TimeoutMessage.class,
-            WritePlcPskMessage.class,
-
-            // PLC Counters messages
-            PlcOfdmMacSetupMessages.ResetPlcOfdmMacCountersMessage.class,
 
             // PLC OFDM MAC setup messages
-            PlcOfdmMacSetupMessages.SetToneMaskMessage.class,
             PlcOfdmMacSetupMessages.SetTMRTTL.class,
             PlcOfdmMacSetupMessages.SetMaxFrameRetries.class,
             PlcOfdmMacSetupMessages.SetNeighbourTableEntryTTL.class,
