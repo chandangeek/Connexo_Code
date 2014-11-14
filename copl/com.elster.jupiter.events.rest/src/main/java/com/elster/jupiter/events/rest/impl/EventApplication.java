@@ -15,9 +15,11 @@ import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.event.rest" , service=Application.class , immediate = true , property = {"alias=/evt"} )
+@Component(name = "com.elster.jupiter.event.rest" , service=Application.class , immediate = true , property = {"alias=/evt", "app=SYS", "name=" + EventApplication.COMPONENT_NAME} )
 public class EventApplication extends Application implements BinderProvider {
-	
+
+    public static final String COMPONENT_NAME = "EVT";
+
 	private final Set<Class<?>> classes = new HashSet<>();
 	private volatile EventService eventService;
 	private volatile TransactionService transactionService;
