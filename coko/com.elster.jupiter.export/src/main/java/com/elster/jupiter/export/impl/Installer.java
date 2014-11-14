@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -13,6 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import java.util.ArrayList;
@@ -28,14 +30,16 @@ class Installer {
     private final MessageService messageService;
     private final TimeService timeService;
     private final Thesaurus thesaurus;
+    private final UserService userService;
 
     private DestinationSpec destinationSpec;
 
-    Installer(DataModel dataModel, MessageService messageService, TimeService timeService, Thesaurus thesaurus) {
+    Installer(DataModel dataModel, MessageService messageService, TimeService timeService, Thesaurus thesaurus, UserService userService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.timeService = timeService;
         this.thesaurus = thesaurus;
+        this.userService = userService;
     }
 
     public DestinationSpec getDestinationSpec() {
@@ -47,7 +51,9 @@ class Installer {
                 this::installDataModel,
                 this::createDestination,
                 this::createRelativePeriodcategory,
-                this::createTranslations
+                this::createTranslations,
+                this::createPrivileges,
+                this::assignPrivilegesToDefaultRoles
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
     }
@@ -84,5 +90,14 @@ class Installer {
         dataModel.install(true, true);
     }
 
+    private void createPrivileges() {
+        userService.createResourceWithPrivileges("SYS", "dataExportTask.dataExportTasks", "dataExportTask.dataExportTasks.description", new String[]
+                {Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.VIEW_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK});
+    }
+
+
+    private void assignPrivilegesToDefaultRoles() {
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, new String[] {Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.VIEW_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK});
+    }
 
 }
