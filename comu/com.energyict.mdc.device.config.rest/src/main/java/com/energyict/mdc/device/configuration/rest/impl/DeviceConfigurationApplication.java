@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
-@Component(name = "com.energyict.dtc.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dtc", "name=" + DeviceConfigurationApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.dtc.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dtc", "app=MDC", "name=" + DeviceConfigurationApplication.COMPONENT_NAME})
 public class DeviceConfigurationApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "DCR";
