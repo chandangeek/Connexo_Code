@@ -7,6 +7,7 @@ import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
 import com.elster.jupiter.export.rest.DataExportTaskInfos;
+import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -24,10 +25,12 @@ import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -69,6 +72,7 @@ public class DataExportTaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfos getDataExportTasks(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ReadingTypeDataExportTask> list = queryTasks(params);
@@ -88,12 +92,14 @@ public class DataExportTaskResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return new DataExportTaskInfo(fetchDataExportTask(id, securityContext), thesaurus);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response addReadingTypeDataExportTask(DataExportTaskInfo info) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
@@ -131,6 +137,7 @@ public class DataExportTaskResource {
     @DELETE
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response removeDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
 
@@ -149,6 +156,7 @@ public class DataExportTaskResource {
     @PUT
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK})
     public Response updateReadingTypeDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
 
         ReadingTypeDataExportTask task = findTaskOrThrowException(info);
