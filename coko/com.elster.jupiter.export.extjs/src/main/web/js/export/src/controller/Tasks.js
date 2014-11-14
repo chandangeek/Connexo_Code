@@ -166,7 +166,10 @@ Ext.define('Dxp.controller.Tasks', {
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
             recurrenceTypeCombo = view.down('#recurrence-type');
-
+        if (Uni.Auth.hasNoPrivilege('privilege.update.dataExportTask')) {
+            deviceGroupCombo.disabled = true;
+            exportPeriodCombo.disabled = true;
+        }
         me.fromEdit = true;
         me.taskId = taskId;
         Ext.util.History.on('change', this.checkRoute, this);

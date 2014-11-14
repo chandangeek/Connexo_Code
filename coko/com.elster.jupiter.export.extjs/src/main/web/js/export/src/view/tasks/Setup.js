@@ -53,6 +53,7 @@ Ext.define('Dxp.view.tasks.Setup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
+                                privileges:['privilege.administrate.dataExportTask'],
                                 ui: 'action',
                                 href: '#/administration/dataexporttasks/add'
                             }

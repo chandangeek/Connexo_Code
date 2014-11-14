@@ -71,6 +71,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 width: 235,
                                 store: 'Dxp.store.DeviceGroups',
                                 editable: false,
+                                disabled: false,
                                 allowBlank: false,
                                 queryMode: 'local',
                                 displayField: 'name',
@@ -264,6 +265,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 queryMode: 'local',
                                 store: 'Dxp.store.ExportPeriods',
                                 editable: false,
+                                disabled: false,
                                 allowBlank: false,
                                 emptyText: Uni.I18n.translate('general.emptyTextExportPeriod', 'DES', 'Select an extra period'),
                                 displayField: 'name',
@@ -272,6 +274,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'button',
                                 itemId: 'add-task-add-export-period',
+                                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.period'),
                                 margin: '0 0 0 20',
                                 text: Uni.I18n.translate('general.addExportPeriod', 'DES', 'Add export period'),
                                 ui: 'link'

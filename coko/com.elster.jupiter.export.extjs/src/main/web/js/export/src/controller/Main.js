@@ -30,29 +30,31 @@ Ext.define('Dxp.controller.Main', {
     },
 
     initMenu: function () {
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
-            portal: 'administration',
-            glyph: 'settings',
-            index: 10
-        });
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.dataExportTask','privilege.view.dataExportTask','privilege.update.dataExportTask','privilege.update.schedule.dataExportTask','privilege.run.dataExportTask'])) {
+            var menuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
+                portal: 'administration',
+                glyph: 'settings',
+                index: 10
+            });
 
-        Uni.store.MenuItems.add(menuItem);
+            Uni.store.MenuItems.add(menuItem);
 
-        var exportItem = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.dataexport', 'DES', 'Data export'),
-            portal: 'administration',
-            items: [
-                {
-                    text: Uni.I18n.translate('general.dataexporttasks', 'DES', 'Data export tasks'),
-                    href: '#/administration/dataexporttasks',
-                    route: 'dataexporttasks'
-                }
-            ]
-        });
+            var exportItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.dataexport', 'DES', 'Data export'),
+                portal: 'administration',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.dataexporttasks', 'DES', 'Data export tasks'),
+                        href: '#/administration/dataexporttasks',
+                        route: 'dataexporttasks'
+                    }
+                ]
+            });
 
-        Uni.store.PortalItems.add(
-            exportItem
-        );
+            Uni.store.PortalItems.add(
+                exportItem
+            );
+        }
     }
 });
