@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.issue.rest", service = {Application.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/isu", "name=" + IssueApplication.ISSUE_REST_COMPONENT})
+@Component(name = "com.elster.jupiter.issue.rest", service = {Application.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/isu", "app=SYS", "name=" + IssueApplication.ISSUE_REST_COMPONENT})
 public class IssueApplication extends Application implements BinderProvider, InstallService, TranslationKeyProvider {
     public static final String ISSUE_REST_COMPONENT = "ISR";
 
