@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/mdc", "name=" + MdcApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/mdc", "app=MDC", "name=" + MdcApplication.COMPONENT_NAME})
 public class MdcApplication extends Application implements InstallService {
     public static final String COMPONENT_NAME = "CCR";
 
