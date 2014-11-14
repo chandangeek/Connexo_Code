@@ -13,12 +13,14 @@ Ext.define('Dxp.controller.history.Export', {
                     title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
                     route: 'dataexporttasks',
                     controller: 'Dxp.controller.Tasks',
+                    privileges: ['privilege.administrate.dataExportTask','privilege.view.dataExportTask','privilege.update.dataExportTask','privilege.update.schedule.dataExportTask','privilege.run.dataExportTask'],
                     action: 'showDataExportTasks',
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
                             route: 'add',
                             controller: 'Dxp.controller.Tasks',
+                            privileges: ['privilege.administrate.dataExportTask'],
                             action: 'showAddExportTask'
                         },
                         dataexporttask: {
@@ -38,6 +40,7 @@ Ext.define('Dxp.controller.history.Export', {
                                     title: Uni.I18n.translate('general.editDataExportTask', 'DES', 'Edit data export task'),
                                     route: 'edit',
                                     controller: 'Dxp.controller.Tasks',
+                                    privileges: ['privilege.update.dataExportTask','privilege.update.schedule.dataExportTask'],
                                     action: 'showEditExportTask'
                                 },
                                 history: {
