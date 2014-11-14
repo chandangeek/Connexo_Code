@@ -1,6 +1,10 @@
 package com.elster.jupiter.export.rest.impl;
 
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.Translation;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -15,6 +15,7 @@ import com.elster.jupiter.util.time.Never;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,7 +26,7 @@ public class DataExportTaskInfo {
     public long id = 0;
     public boolean active = true;
     public String name = "name";
-    public String dataProcessor = "dataProcessor"; //dataprocessor name
+    public ProcessorInfo dataProcessor;
     public TemporalExpressionInfo schedule;
     public RelativePeriodInfo exportperiod;
     public RelativePeriodInfo updatePeriod;
@@ -65,10 +66,11 @@ public class DataExportTaskInfo {
         }
         validatedDataOption = dataExportTask.getStrategy().getValidatedDataOption();
 
-        dataProcessor = dataExportTask.getDataFormatter();
+        String dataFormatter = dataExportTask.getDataFormatter();
+        dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getString(dataFormatter, dataFormatter), Collections.<PropertyInfo>emptyList()) ;
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
 
-        lastExportOccurence = dataExportTask.getLastOccurence().map(oc -> new LastExportOccurenceInfo(oc, thesaurus)).orElse(null);
+        lastExportOccurence = dataExportTask.getLastOccurrence().map(oc -> new LastExportOccurenceInfo(oc, thesaurus)).orElse(null);
 
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {

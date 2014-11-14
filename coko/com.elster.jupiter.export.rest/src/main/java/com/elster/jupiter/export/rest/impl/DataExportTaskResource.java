@@ -1,18 +1,18 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportStatus;
-import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.rest.DataExportTaskHistoryInfos;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
 import com.elster.jupiter.export.rest.DataExportTaskInfos;
+import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -23,26 +23,29 @@ import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/dataexporttask")
 public class DataExportTaskResource {
@@ -54,6 +57,7 @@ public class DataExportTaskResource {
     private final MeteringGroupsService meteringGroupsService;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
+    private Condition condition;
 
     @Inject
     public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService) {
@@ -68,6 +72,7 @@ public class DataExportTaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfos getDataExportTasks(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ReadingTypeDataExportTask> list = queryTasks(params);
@@ -87,16 +92,18 @@ public class DataExportTaskResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return new DataExportTaskInfo(fetchDataExportTask(id, securityContext), thesaurus);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response addReadingTypeDataExportTask(DataExportTaskInfo info) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
-                .setDataProcessorName(info.dataProcessor)
+                .setDataProcessorName(info.dataProcessor.name)
                 .setScheduleExpression(getScheduleExpression(info))
                 .setExportPeriod(getRelativePeriod(info.exportperiod))
                 .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
@@ -105,7 +112,7 @@ public class DataExportTaskResource {
                 .exportContinuousData(info.exportContinuousData)
                 .exportUpdate(info.exportUpdate);
 
-        List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor);
+        List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
         PropertyUtils propertyUtils = new PropertyUtils();
 
         propertiesSpecs.stream()
@@ -119,6 +126,7 @@ public class DataExportTaskResource {
                 .forEach(builder::addReadingType);
 
         ReadingTypeDataExportTask dataExportTask = builder.build();
+        dataExportTask.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
         try (TransactionContext context = transactionService.getContext()) {
             dataExportTask.save();
             context.commit();
@@ -129,24 +137,27 @@ public class DataExportTaskResource {
     @DELETE
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response removeDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
 
-        if (task.getLastOccurence().isPresent() && task.getLastOccurence().get().getStatus().equals(DataExportStatus.BUSY)) {
-           throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
+        if (task.getLastOccurrence().isPresent() && DataExportStatus.BUSY.equals(task.getLastOccurrence().get().getStatus())) {
+            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
         }
         try (TransactionContext context = transactionService.getContext()) {
             task.delete();
             context.commit();
-        } catch (CommitException ex) {
+        } catch (UnderlyingSQLFailedException | CommitException ex) {
             throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_SQL_EXCEPTION, "status", thesaurus.getStringBeyondComponent(task.getName(), task.getName()));
         }
         return Response.status(Response.Status.OK).build();
     }
 
     @PUT
+    @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateReadingTypeDataExportTask(DataExportTaskInfo info) {
+    @RolesAllowed({Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK})
+    public Response updateReadingTypeDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
 
         ReadingTypeDataExportTask task = findTaskOrThrowException(info);
 
@@ -167,22 +178,72 @@ public class DataExportTaskResource {
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus)).build();
     }
 
+    @GET
+    @Path("/{id}/history")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DataExportTaskHistoryInfos getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
+                                                               @QueryParam("filter") JSONArray filterArray, @Context UriInfo uriInfo) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        Map<String, Long> filter = getFilterMap(filterArray);
+        ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
+        DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
+            .setStart(queryParameters.getStart())
+            .setLimit(queryParameters.getLimit())
+            .with(getOccurrenceCondition(filter));
+
+        List<? extends DataExportOccurrence> occurrences = occurrencesFinder.find();
+
+        DataExportTaskHistoryInfos infos = new DataExportTaskHistoryInfos(queryParameters.clipToLimit(occurrences), thesaurus);
+        infos.total = queryParameters.determineTotal(occurrences.size());
+        return infos;
+    }
+
+    private Condition getOccurrenceCondition(Map<String, Long> filter) {
+        Condition condition = Condition.TRUE;
+
+        if(filter.get("startedOnFrom") != null && filter.get("startedOnTo")!= null) {
+            condition = condition.and(where("startDate").inClosed(Interval.of(Instant.ofEpochMilli(filter.get("startedOnFrom")), Instant.ofEpochMilli(filter.get("startedOnTo")))));
+        }
+        if(filter.get("finishedOnFrom") != null && filter.get("finishedOnTo")!= null) {
+            condition = condition.and(where("endDate").inClosed(Interval.of(Instant.ofEpochMilli(filter.get("finishedOnFrom")), Instant.ofEpochMilli(filter.get("finishedOnTo")))));
+        }
+        if(filter.get("exportPeriodContains") != null) {
+            condition = condition.and(where("exportedDataInterval").isEffective(Instant.ofEpochMilli(filter.get("exportPeriodContains"))));
+        }
+        return condition;
+    }
+
+    public Map<String, Long> getFilterMap(JSONArray filterArray) {
+        Map<String, Long> filterMap = new HashMap<>();
+        if (filterArray!=null) {
+            for(int i = 0; i < filterArray.length(); i++) {
+                try {
+                    JSONObject object = filterArray.getJSONObject(i);
+                    filterMap.put(object.getString("property"), Long.valueOf(object.get("value").toString()));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return filterMap;
+    }
+
     private ReadingTypeDataExportTask findTaskOrThrowException(DataExportTaskInfo info) {
         return dataExportService.findExportTask(info.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private void updateReadingTypes(DataExportTaskInfo info, ReadingTypeDataExportTask task) {
+        task.getReadingTypes().stream()
+                .filter(t -> info.readingTypes.stream().map(r -> r.mRID).anyMatch(m -> t.getMRID().equals(m)))
+                .forEach(task::removeReadingType);
         info.readingTypes.stream()
                 .map(r -> r.mRID)
                 .filter(m -> task.getReadingTypes().stream().map(ReadingType::getMRID).noneMatch(s -> s.equals(m)))
                 .forEach(task::addReadingType);
-        task.getReadingTypes().stream()
-                .filter(t -> info.readingTypes.stream().map(r -> r.mRID).anyMatch(m -> t.getMRID().equals(m)))
-                .forEach(task::removeReadingType);
     }
 
     private void updateProperties(DataExportTaskInfo info, ReadingTypeDataExportTask task) {
-        List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor);
+        List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
         PropertyUtils propertyUtils = new PropertyUtils();
         propertiesSpecs.stream()
                 .forEach(spec -> {
