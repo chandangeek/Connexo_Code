@@ -3,18 +3,35 @@ Ext.define('Dxp.view.tasks.Details', {
     alias: 'widget.data-export-tasks-details',
     requires: [
         'Dxp.view.tasks.Menu',
-        'Dxp.view.tasks.PreviewForm'
+        'Dxp.view.tasks.PreviewForm',
+        'Dxp.view.tasks.ActionMenu'
     ],
 
     router: null,
 
     content: {
-        ui: 'large',
-        title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
-        items: {
-            xtype: 'tasks-preview-form',
-            margin: '0 0 0 100'
-        }
+        xtype: 'container',
+        layout: 'hbox',
+        items: [
+            {
+                ui: 'large',
+                title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                flex: 1,
+                items: {
+                    xtype: 'tasks-preview-form',
+                    margin: '0 0 0 100'
+                }
+            },
+            {
+                xtype: 'button',
+                text: Uni.I18n.translate('general.actions', 'DES', 'Actions'),
+                iconCls: 'x-uni-action-iconD',
+                margin: '20 0 0 0',
+                menu: {
+                    xtype: 'tasks-action-menu'
+                }
+            }
+        ]
     },
 
     initComponent: function () {

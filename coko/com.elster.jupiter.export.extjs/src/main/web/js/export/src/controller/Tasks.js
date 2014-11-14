@@ -44,7 +44,10 @@ Ext.define('Dxp.controller.Tasks', {
             selector: 'data-export-tasks-history'
         }
     ],
-
+    fromDetails: false,
+    fromEdit: false,
+    taskModel: null,
+    taskId: null,
     readingTypeIndex: 2,
 
     init: function () {
@@ -93,7 +96,7 @@ Ext.define('Dxp.controller.Tasks', {
             view = Ext.widget('data-export-tasks-setup', {
                 router: me.getController('Uni.controller.history.Router')
             });
-
+        me.fromDetails = false;
         me.getApplication().fireEvent('changecontentevent', view);
     },
 
@@ -103,14 +106,17 @@ Ext.define('Dxp.controller.Tasks', {
             taskModel = me.getModel('Dxp.model.DataExportTask'),
             view = Ext.widget('data-export-tasks-details', {
                 router: router
-            });
-
+            }),
+            actionsMenu = view.down('tasks-action-menu');
+        me.fromDetails = true;
         me.getApplication().fireEvent('changecontentevent', view);
         taskModel.load(taskId, {
             success: function (record) {
                 var detailsForm = view.down('tasks-preview-form'),
                     propertyForm = detailsForm.down('property-form');
 
+                actionsMenu.record = record;
+                actionsMenu.down('#view-details').hide();
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 detailsForm.loadRecord(record);
                 if (record.properties() && record.properties().count()) {
@@ -195,10 +201,20 @@ Ext.define('Dxp.controller.Tasks', {
 
     showEditExportTask: function (taskId) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            view;
+        if (me.fromDetails) {
             view = Ext.create('Dxp.view.tasks.Add', {
-                edit: true
-            }),
-            taskModel = me.getModel('Dxp.model.DataExportTask'),
+                edit: true,
+                returnLink: router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl({taskId: taskId})
+            })
+        } else {
+            view = Ext.create('Dxp.view.tasks.Add', {
+                edit: true,
+                returnLink: router.getRoute('administration/dataexporttasks').buildUrl()
+            })
+        }
+        var taskModel = me.getModel('Dxp.model.DataExportTask'),
             taskForm = view.down('#add-data-export-task-form'),
             fileFormatterCombo = view.down('#file-formatter-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
@@ -317,6 +333,13 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this;
         record.destroy({
             success: function () {
+                if (me.getPage()) {
+                    var grid = me.getPage().down('tasks-grid');
+                    grid.down('pagingtoolbartop').totalCount = 0;
+                    grid.getStore().load();
+                } else {
+                    me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
+                }
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.confirm.msg', 'DXP', 'Data export task removed'));
             },
             failure: function (object, operation) {
@@ -424,7 +447,11 @@ Ext.define('Dxp.controller.Tasks', {
             record.set('dataProcessor', form.down('#file-formatter-combo').getValue());
             record.save({
                 success: function () {
-                    me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
+                    if (button.action === 'editTask' && me.fromDetails) {
+                        me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks/dataexporttask').forward({taskId: record.getId()});
+                    } else {
+                        me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
+                    }
                     if (button.action === 'editTask') {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editDataExportTask.successMsg', 'DES', 'Data export task edited'));
                     } else {

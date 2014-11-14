@@ -11,19 +11,20 @@ Ext.define('Dxp.view.tasks.ActionMenu', {
             action: 'editExportTask'
         },
         {
-            itemId: 'view-details',
-            text: Uni.I18n.translate('general.viewDetails', 'DES', 'View details'),
-            action: 'viewDetails'
-        },
-        {
             itemId: 'remove-task',
             text: Uni.I18n.translate('general.remove', 'DES', 'Remove'),
             action: 'removeTask'
         },
         {
+            itemId: 'view-details',
+            text: Uni.I18n.translate('general.viewDetails', 'DES', 'View details'),
+            action: 'viewDetails'
+        },
+        {
             itemId: 'view-log',
-            text: Uni.I18n.translate('general.log', 'DES', 'Log'),
-            action: 'viewLog'
+            text: Uni.I18n.translate('general.viewLog', 'DES', 'View log'),
+            action: 'viewLog',
+            hidden: true
         }
     ]
 });

@@ -9,6 +9,7 @@ Ext.define('Dxp.view.tasks.Add', {
         'Uni.util.FormErrorMessage'
     ],
     edit: false,
+    returnLink: null,
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
@@ -18,6 +19,9 @@ Ext.define('Dxp.view.tasks.Add', {
             this.edit = edit;
             this.down('#add-button').setText(Uni.I18n.translate('general.add', 'DES', 'Add'));
             this.down('#add-button').action = 'addTask';
+        }
+        if (this.returnLink) {
+            this.down('#cancel-link').href = this.returnLink;
         }
     },
     initComponent: function () {
@@ -52,7 +56,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         fieldLabel: Uni.I18n.translate('general.name', 'DES', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 255
+                        maxLength: 80
                     },
                     {
                         title: Uni.I18n.translate('general.dataSources', 'DES', 'Data sources'),
@@ -320,7 +324,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 ui: 'blank',
                                 itemId: 'file-formatter-info',
                                 shadow: false,
-                                margin: '0 0 0 10',
+                                margin: '5 0 0 10',
                                 width: 16
                             }
                         ]
