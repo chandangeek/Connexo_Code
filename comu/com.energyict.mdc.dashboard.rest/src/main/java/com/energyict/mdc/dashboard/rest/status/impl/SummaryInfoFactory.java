@@ -32,15 +32,16 @@ public class SummaryInfoFactory {
 
         info.total = summaryData.getTotal();
 
-        successfulConnections=new TaskSummaryCounterInfo();
-        successfulConnections.count= summaryData.getSuccess();
-        successfulConnections.id= asJsonStringList(EnumSet.of(TaskStatus.Waiting));
-        successfulConnections.displayName=thesaurus.getString(MessageSeeds.ALL_TASKS_SUCCESSFUL.getKey(),"Success, all tasks successful");
-        successfulConnections.name=KpiId.Success.name();
+        successfulConnections = new TaskSummaryCounterInfo();
+        successfulConnections.count = summaryData.getSuccess();
+        Long atLeastOneTaskFailed = summaryData.getSuccessWithFailedTasks();
+        successfulConnections.id = asJsonStringList(EnumSet.of(TaskStatus.Waiting));
+        successfulConnections.displayName = atLeastOneTaskFailed == null ?
+                thesaurus.getString(MessageSeeds.SUCCESS.getKey(), "Success") : thesaurus.getString(MessageSeeds.ALL_TASKS_SUCCESSFUL.getKey(), "Success, all tasks successful");
+        successfulConnections.name = KpiId.Success.name();
         info.counters.add(successfulConnections);
 
-        Long atLeastOneTaskFailed = summaryData.getSuccessWithFailedTasks();
-        if (atLeastOneTaskFailed!=null) {
+        if (atLeastOneTaskFailed != null) {
             connectionsWithFailingTasks = new TaskSummaryCounterInfo();
             connectionsWithFailingTasks.count = atLeastOneTaskFailed;
             connectionsWithFailingTasks.id = null; // not navigable
@@ -49,18 +50,18 @@ public class SummaryInfoFactory {
             info.counters.add(connectionsWithFailingTasks);
         }
 
-        pendingConnections=new TaskSummaryCounterInfo();
-        pendingConnections.count= summaryData.getPending();
-        pendingConnections.id= asJsonStringList(EnumSet.of(TaskStatus.Pending, TaskStatus.Busy, TaskStatus.Retrying));
-        pendingConnections.displayName=thesaurus.getString(MessageSeeds.ONGOING.getKey(), "Ongoing");
-        pendingConnections.name=KpiId.Ongoing.name();
+        pendingConnections = new TaskSummaryCounterInfo();
+        pendingConnections.count = summaryData.getPending();
+        pendingConnections.id = asJsonStringList(EnumSet.of(TaskStatus.Pending, TaskStatus.Busy, TaskStatus.Retrying));
+        pendingConnections.displayName = thesaurus.getString(MessageSeeds.ONGOING.getKey(), "Ongoing");
+        pendingConnections.name = KpiId.Ongoing.name();
         info.counters.add(pendingConnections);
 
-        failedConnections=new TaskSummaryCounterInfo();
-        failedConnections.count= summaryData.getFailed();
-        failedConnections.id=asJsonStringList(EnumSet.of(TaskStatus.Failed,TaskStatus.NeverCompleted));
-        failedConnections.displayName=thesaurus.getString(MessageSeeds.FAILED.getKey(), "Failed");
-        failedConnections.name=KpiId.Failed.name();
+        failedConnections = new TaskSummaryCounterInfo();
+        failedConnections.count = summaryData.getFailed();
+        failedConnections.id = asJsonStringList(EnumSet.of(TaskStatus.Failed, TaskStatus.NeverCompleted));
+        failedConnections.displayName = thesaurus.getString(MessageSeeds.FAILED.getKey(), "Failed");
+        failedConnections.name = KpiId.Failed.name();
         info.counters.add(failedConnections);
         return info;
     }
