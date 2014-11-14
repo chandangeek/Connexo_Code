@@ -305,7 +305,7 @@ Ext.define('Mdc.controller.setup.Messages', {
                 title: !setAlreadyChecked ?
                     Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of commands of '{0}'") :
                     Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for command '{0}'"),
-                msg: (!setAlreadyChecked && action == 'changePrivilegesForAll') ? (Uni.I18n.translate('messages.selectPrivilegesPanelChange.msg', 'MDC', 'The selected privileges will only apply to the commands that are active now.'))
+                msg: (!setAlreadyChecked && action == 'changePrivilegesForAll') ? (Uni.I18n.translate('messages.selectPrivilegesPanelChange.msg', 'MDC', 'The selected privileges will only apply to the active commands.'))
                     : (setAlreadyChecked ? '' : Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that are not active yet.'))
             });
         if (setAlreadyChecked) {
