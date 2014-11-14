@@ -122,6 +122,7 @@ Ext.define('Isu.controller.CreationRules', {
             callback: function (model, operation) {
                 page.setLoading(false);
                 if (operation.response.status == 204) {
+                    page.down('#creation-rules-list pagingtoolbartop').totalCount = 0;
                     store.loadPage(1);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('administration.issueCreationRules.deleteSuccess.msg', 'ISU', 'Issue creation rule deleted'));
                 }
