@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.jupiter.time.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/tmr", "name=" + TimeApplication.COMPONENT_NAME})
+@Component(name = "com.jupiter.time.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/tmr", "app=SYS", "name=" + TimeApplication.COMPONENT_NAME})
 public class TimeApplication extends Application implements InstallService {
     public static final String COMPONENT_NAME = "TMR";
 
