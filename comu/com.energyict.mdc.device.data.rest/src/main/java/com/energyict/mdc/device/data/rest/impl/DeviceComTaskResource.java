@@ -71,7 +71,7 @@ public class DeviceComTaskResource {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
         List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
-        List<DeviceComTaskInfo> deviceSchedulesInfos = deviceComTaskInfoFactory.from(comTaskExecutions,comTaskEnablements);
+        List<DeviceComTaskInfo> deviceSchedulesInfos = deviceComTaskInfoFactory.from(comTaskExecutions,comTaskEnablements,device,deviceConfiguration);
         return Response.ok(PagedInfoList.asJson("comTasks", deviceSchedulesInfos, queryParameters)).build();
     }
 
@@ -181,7 +181,7 @@ public class DeviceComTaskResource {
         }
         ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device);
         List<ComTaskExecutionSessionInfo> infos = new ArrayList<>();
-        List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findByComTaskExecution(comTaskExecution).find();
+        List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findByComTaskExecution(comTaskExecution).from(queryParameters).find();
         for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
             ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionFactory.from(comTaskExecutionSession);
             comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession());

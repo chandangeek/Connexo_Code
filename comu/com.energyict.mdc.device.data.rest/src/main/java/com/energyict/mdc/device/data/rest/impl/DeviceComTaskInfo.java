@@ -36,4 +36,6 @@ public class DeviceComTaskInfo {
     public String status;
     @JsonProperty("scheduleTypeKey")
     public String scheduleTypeKey;
+    @JsonProperty("connectionDefinedOnDevice")
+    public boolean connectionDefinedOnDevice;
 }

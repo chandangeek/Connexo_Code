@@ -10,8 +10,11 @@ import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.TextReading;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ReadingInfoFactory {
     public static ReadingInfo asInfo(Reading reading, RegisterSpec registerSpec) {
@@ -34,11 +37,10 @@ public class ReadingInfoFactory {
 
     public static List<ReadingInfo> asInfoList(List<? extends Reading> readings, RegisterSpec registerSpec, boolean isValidationStatusActive, List<DataValidationStatus> dataValidationStatuses) {
         List<ReadingInfo> readingInfos = new ArrayList<>(readings.size());
-        DataValidationStatus[] dataValidationStatusesArray = new DataValidationStatus[readings.size()];
-        dataValidationStatusesArray = dataValidationStatuses.toArray(dataValidationStatusesArray);
-        int count = 0;
+        Map<Instant, DataValidationStatus> statuses = new HashMap<>(dataValidationStatuses.size());
+        dataValidationStatuses.stream().forEach(s -> statuses.put(s.getReadingTimestamp(), s));
         for(Reading reading : readings) {
-            DataValidationStatus dataValidationStatus = dataValidationStatusesArray[count++];
+            DataValidationStatus dataValidationStatus = statuses.get(reading.getActualReading().getTimeStamp());
             readingInfos.add(ReadingInfoFactory.asInfo(reading, registerSpec, isValidationStatusActive, dataValidationStatus));
         }
 

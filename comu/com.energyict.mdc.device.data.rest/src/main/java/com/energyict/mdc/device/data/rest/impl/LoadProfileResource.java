@@ -163,7 +163,7 @@ public class LoadProfileResource {
     @Path("{lpid}/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.VALIDATE_DEVICE)
+    @RolesAllowed(Privileges.VALIDATE_MANUAL)
     public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
 
         Instant start = validationInfo.lastChecked == null ? null : Instant.ofEpochMilli(validationInfo.lastChecked);
@@ -173,12 +173,10 @@ public class LoadProfileResource {
     }
 
     private void validateLoadProfile(LoadProfile loadProfile, Instant start) {
-        if (loadProfile.getLastReading().isPresent() && (start == null || loadProfile.getLastReading().get().isAfter(start))) {
-            loadProfile.getDevice().forValidation().validateLoadProfile(loadProfile, start, loadProfile.getLastReading().get());
-        } else if (start != null) {
-            loadProfile.getChannels().stream()
-                    .forEach(c -> loadProfile.getDevice().forValidation().setLastChecked(c, start));
-        }
+    	if (start != null) {
+    		loadProfile.getChannels().forEach(c -> loadProfile.getDevice().forValidation().setLastChecked(c, start));
+    	}
+        loadProfile.getDevice().forValidation().validateLoadProfile(loadProfile);        
     }
 
     private boolean hasSuspects(LoadProfileDataInfo info) {

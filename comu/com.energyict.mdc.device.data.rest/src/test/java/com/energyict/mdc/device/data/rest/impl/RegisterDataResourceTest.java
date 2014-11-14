@@ -82,6 +82,8 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(billingReading.getInterval()).thenReturn(Optional.of(interval));
         when(register.getReadings(Interval.sinceEpoch())).thenReturn(Arrays.asList(billingReading, numericalReading));
         when(billingReading.getActualReading()).thenReturn(actualReading1);
+        when(actualReading1.edited()).thenReturn(true);
+        when(actualReading2.wasAdded()).thenReturn(true);
         when(numericalReading.getActualReading()).thenReturn(actualReading2);
         doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
         when(registerType.getReadingType()).thenReturn(readingType);
@@ -108,7 +110,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(2);
         assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("billing");
+        assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isEqualTo("EDITED");
         assertThat(jsonModel.<String>get("$.data[1].type")).isEqualTo("numerical");
+        assertThat(jsonModel.<String>get("$.data[1].modificationFlag")).isEqualTo("ADDED");
     }
 
     @Test

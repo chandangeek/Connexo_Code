@@ -1,9 +1,20 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -12,9 +23,9 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -52,16 +63,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 6/19/14.
@@ -69,6 +87,126 @@ import static org.mockito.Mockito.*;
 public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     public static final Instant NOW = Instant.ofEpochMilli(1409738114);
+    public static final ReadingType READING_TYPE = new ReadingType() {
+        @Override
+        public MacroPeriod getMacroPeriod() {
+            return MacroPeriod.DAILY;
+        }
+
+        @Override
+        public Aggregate getAggregate() {
+            return Aggregate.AVERAGE;
+        }
+
+        @Override
+        public TimeAttribute getMeasuringPeriod() {
+            return TimeAttribute.MINUTE15;
+        }
+
+        @Override
+        public Accumulation getAccumulation() {
+            return Accumulation.BULKQUANTITY;
+        }
+
+        @Override
+        public FlowDirection getFlowDirection() {
+            return FlowDirection.FORWARD;
+        }
+
+        @Override
+        public Commodity getCommodity() {
+            return Commodity.AIR;
+        }
+
+        @Override
+        public MeasurementKind getMeasurementKind() {
+            return MeasurementKind.ALARM;
+        }
+
+        @Override
+        public RationalNumber getInterharmonic() {
+            return RationalNumber.NOTAPPLICABLE;
+        }
+
+        @Override
+        public RationalNumber getArgument() {
+            return RationalNumber.NOTAPPLICABLE;
+        }
+
+        @Override
+        public int getTou() {
+            return 1;
+        }
+
+        @Override
+        public int getCpp() {
+            return 1;
+        }
+
+        @Override
+        public int getConsumptionTier() {
+            return 1;
+        }
+
+        @Override
+        public Phase getPhases() {
+            return Phase.PHASES1;
+        }
+
+        @Override
+        public MetricMultiplier getMultiplier() {
+            return MetricMultiplier.ATTO;
+        }
+
+        @Override
+        public ReadingTypeUnit getUnit() {
+            return ReadingTypeUnit.AMPERE;
+        }
+
+        @Override
+        public Currency getCurrency() {
+            return java.util.Currency.getAvailableCurrencies().iterator().next();
+        }
+
+        @Override
+        public boolean isBulkQuantityReadingType(ReadingType readingType) {
+            return false;
+        }
+
+        @Override
+        public boolean isRegular() {
+            return false;
+        }
+
+        @Override
+        public long getVersion() {
+            return 1;
+        }
+
+        @Override
+        public void setDescription(String description) {
+        }
+
+        @Override
+        public String getAliasName() {
+            return "Alias name";
+        }
+
+        @Override
+        public String getDescription() {
+            return "Description";
+        }
+
+        @Override
+        public String getMRID() {
+            return "0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8";
+        }
+
+        @Override
+        public String getName() {
+            return "Name";
+        }
+    };
 
     @Test
     public void testGetConnectionMethodsJsonBindings() throws Exception {
@@ -376,6 +514,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
         when(deviceService.findByUniqueMrid("mrid1")).thenReturn(device1);
         when(thesaurus.getString(anyString(), anyString())).thenReturn("translated");
+        when(channel1.getReadingType()).thenReturn(READING_TYPE);
 
         Map response = target("/devices/mrid1/loadprofiles").request().get(Map.class);
         assertThat(response).containsKey("total").containsKey("loadProfiles");
@@ -416,6 +555,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(device1.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.getValidationStatus(any(Channel.class), any())).thenReturn(Collections.emptyList());
+        when(channel1.getReadingType()).thenReturn(READING_TYPE);
+        when(channel2.getReadingType()).thenReturn(READING_TYPE);
 
         Map<String, Object> response = target("/devices/mrid1/loadprofiles/1").request().get(Map.class);
         assertThat(response)
