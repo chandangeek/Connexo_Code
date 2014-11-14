@@ -38,7 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.issue.datacollection.rest", service = {Application.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/idc", "name=" + IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT})
+@Component(name = "com.energyict.mdc.issue.datacollection.rest", service = {Application.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/idc", "app=MDC", "name=" + IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT})
 public class IssueDataCollectionApplication extends Application implements InstallService, TranslationKeyProvider {
     public static final String ISSUE_DATACOLLECTION_REST_COMPONENT = "IDR";
 
