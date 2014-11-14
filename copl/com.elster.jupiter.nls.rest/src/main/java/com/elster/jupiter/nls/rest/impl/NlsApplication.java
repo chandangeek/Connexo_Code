@@ -15,8 +15,10 @@ import org.osgi.service.component.annotations.Reference;
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.nls.rest", service = Application.class, immediate = true, property = {"alias=/nls"})
+@Component(name = "com.elster.jupiter.nls.rest", service = Application.class, immediate = true, property = {"alias=/nls", "app=SYS", "name=" + NlsApplication.COMPONENT_NAME})
 public class NlsApplication extends Application implements BinderProvider {
+
+    public static final String COMPONENT_NAME = "NLS";
 
     private final Set<Class<?>> classes = ImmutableSet.<Class<?>>of(ThesaurusResource.class);
     private volatile NlsService nlsService;
