@@ -157,8 +157,14 @@ public class HttpContextImpl implements HttpContext {
         }
     }
 
-    private boolean allow(HttpServletRequest request, HttpServletResponse response, User user) throws RemoteException {
-        loginYellowfin(response);
+    private boolean allow(HttpServletRequest request, HttpServletResponse response, User user) {
+        //if(whiteboard.getApps().stream().filter(application -> application.getKey().equals("YFN")).findFirst().isPresent()){
+            try {
+                loginYellowfin(response);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        //}
 
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
         request.setAttribute(USERPRINCIPAL, user);

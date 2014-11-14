@@ -94,10 +94,14 @@ public class WhiteBoard extends Application implements BinderProvider {
 
     @Reference(name = "ZApplication", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addApplication(App resource) {
-        if (resource.isInternalApp()) {
-            addResource(resource.getMainResource());
+        List<String> applications = licenseService.getLicensedApplicationKeys();
+        if(resource.getKey().equals("SYS") ||
+                applications.stream().filter(application -> application.equals(resource.getKey())).findFirst().isPresent()){
+            if (resource.isInternalApp()) {
+                addResource(resource.getMainResource());
+            }
+            apps.add(resource);
         }
-        apps.add(resource);
     }
 
     @Activate
