@@ -16,8 +16,9 @@ import org.osgi.service.component.annotations.Reference;
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.users.rest" , service=Application.class , immediate = true , property = {"alias=/usr"} )
+@Component(name = "com.elster.jupiter.users.rest" , service=Application.class , immediate = true , property = {"alias=/usr", "app=SYS", "name=" + UsersApplication.COMPONENT_NAME} )
 public class UsersApplication extends Application implements BinderProvider {
+    public static final String COMPONENT_NAME = "USR";
 
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
