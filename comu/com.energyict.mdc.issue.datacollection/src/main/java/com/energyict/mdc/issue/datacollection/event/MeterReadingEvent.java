@@ -80,7 +80,7 @@ public class MeterReadingEvent implements IssueEvent {
                         readingType);
         if (!isValidReadings(readings, trendPeriodInMillis)) {
             //Nothing to do because at least two measurement points needed
-            LOG.log(Level.INFO, () -> "Device '" + getEndDevice().getMRID() + "' hasn't enought readings (only " + readings.size() + ")");
+            LOG.log(Level.INFO, "Device '" + getEndDevice().getMRID() + "' hasn't enought readings (only " + readings.size() + ")");
             return 0d;
         }
 
@@ -99,10 +99,10 @@ public class MeterReadingEvent implements IssueEvent {
             t0 = t0.add(reading.getValue());
             t1 = t1.add(time.multiply(reading.getValue()));
         }
-        LOG.log(Level.INFO, () -> "Processed readings:" + sb.toString());
+        LOG.log(Level.INFO, "Processed readings:" + sb.toString());
         BigDecimal s0 = new BigDecimal(s0d);
         double result = Math.abs(s0.multiply(t1).subtract(s1.multiply(t0)).divide(s0.multiply(s2).subtract(s1.multiply(s1)), RoundingMode.HALF_UP).doubleValue());
-        LOG.log(Level.INFO, () -> "Slope for device '" + getEndDevice().getMRID() + "' with " + readings.size() + " readings is: " + result);
+        LOG.log(Level.INFO, "Slope for device '" + getEndDevice().getMRID() + "' with " + readings.size() + " readings is: " + result);
         return result;
     }
 
@@ -117,7 +117,7 @@ public class MeterReadingEvent implements IssueEvent {
             }
             long readingInterval = ((long) readingType.getMeasuringPeriod().getMinutes()) * DateTimeConstants.MILLIS_PER_MINUTE;
             long expectedReadingsCount = (trendPeriodInMillis / readingInterval) / 4; // At least quarter of all expected readings
-            LOG.log(Level.INFO, () -> "Expected readings count: " + expectedReadingsCount);
+            LOG.log(Level.INFO, "Expected readings count: " + expectedReadingsCount);
             return readings.size() >= 2 && readings.size() >= expectedReadingsCount;
         }
         return false;
