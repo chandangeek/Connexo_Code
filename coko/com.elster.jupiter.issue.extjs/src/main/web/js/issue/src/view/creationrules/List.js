@@ -45,6 +45,7 @@ Ext.define('Isu.view.creationrules.List', {
             {
                 itemId: 'pagingtoolbartop',
                 xtype: 'pagingtoolbartop',
+                usesExactCount: true,
                 store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('administration.issueCreationRules.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} issue creation rules'),
