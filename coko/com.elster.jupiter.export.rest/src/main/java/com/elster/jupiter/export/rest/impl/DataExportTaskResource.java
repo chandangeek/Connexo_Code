@@ -98,7 +98,7 @@ public class DataExportTaskResource {
     public Response addReadingTypeDataExportTask(DataExportTaskInfo info) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
-                .setDataProcessorName(info.dataProcessor)
+                .setDataProcessorName(info.dataProcessor.name)
                 .setScheduleExpression(getScheduleExpression(info))
                 .setExportPeriod(getRelativePeriod(info.exportperiod))
                 .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
@@ -107,7 +107,7 @@ public class DataExportTaskResource {
                 .exportContinuousData(info.exportContinuousData)
                 .exportUpdate(info.exportUpdate);
 
-        List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor);
+        List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
         PropertyUtils propertyUtils = new PropertyUtils();
 
         propertiesSpecs.stream()
@@ -236,7 +236,7 @@ public class DataExportTaskResource {
     }
 
     private void updateProperties(DataExportTaskInfo info, ReadingTypeDataExportTask task) {
-        List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor);
+        List<PropertySpec<?>> propertiesSpecs = dataExportService.getPropertiesSpecsForProcessor(info.dataProcessor.name);
         PropertyUtils propertyUtils = new PropertyUtils();
         propertiesSpecs.stream()
                 .forEach(spec -> {
