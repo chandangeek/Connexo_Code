@@ -222,9 +222,11 @@ public enum Categories {
             protocolTaskParameters.add(createMeterEventsFromFlags);
 
             ParameterInfo minClockDiffBeforeBadTime = new ParameterInfo(ComTaskInfo.MIN_CLOCK_DIFF_BEFORE_BAD_TIME);
-            ParameterInfo minClockDiffBeforeBadTimeValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(loadProfilesTask.getMinClockDiffBeforeBadTime().getTimeUnitCode()));
-            minClockDiffBeforeBadTimeValue.value = loadProfilesTask.getMinClockDiffBeforeBadTime().getCount();
-            minClockDiffBeforeBadTime.value = minClockDiffBeforeBadTimeValue;
+            if (loadProfilesTask.getMinClockDiffBeforeBadTime().isPresent()) {
+                ParameterInfo minClockDiffBeforeBadTimeValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(loadProfilesTask.getMinClockDiffBeforeBadTime().get().getTimeUnitCode()));
+                minClockDiffBeforeBadTimeValue.value = loadProfilesTask.getMinClockDiffBeforeBadTime().get().getCount();
+                minClockDiffBeforeBadTime.value = minClockDiffBeforeBadTimeValue;
+            }
             protocolTaskParameters.add(minClockDiffBeforeBadTime);
 
             return protocolTaskParameters;
@@ -324,22 +326,28 @@ public enum Categories {
 
             if (!this.getActionAsStr(clockTask.getClockTaskType().getType()).equals(ComTaskInfo.CLOCK_FORCE_TYPE)) {
                 ParameterInfo minClockDifference = new ParameterInfo(ComTaskInfo.MIN_CLOCK_DIFFERENCE);
-                ParameterInfo minClockDifferenceValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(clockTask.getMinimumClockDifference().getTimeUnitCode()));
-                minClockDifferenceValue.value = clockTask.getMinimumClockDifference().getCount();
-                minClockDifference.value = minClockDifferenceValue;
+                if (clockTask.getMaximumClockDifference().isPresent()) {
+                    ParameterInfo minClockDifferenceValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(clockTask.getMinimumClockDifference().get().getTimeUnitCode()));
+                    minClockDifferenceValue.value = clockTask.getMinimumClockDifference().get().getCount();
+                    minClockDifference.value = minClockDifferenceValue;
+                }
                 protocolTaskParameters.add(minClockDifference);
 
                 ParameterInfo maxClockDifference = new ParameterInfo(ComTaskInfo.MAX_CLOCK_DIFFERENCE);
-                ParameterInfo maxClockDifferenceValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(clockTask.getMaximumClockDifference().getTimeUnitCode()));
-                maxClockDifferenceValue.value = clockTask.getMaximumClockDifference().getCount();
-                maxClockDifference.value = maxClockDifferenceValue;
+                if (clockTask.getMaximumClockDifference().isPresent()) {
+                    ParameterInfo maxClockDifferenceValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(clockTask.getMaximumClockDifference().get().getTimeUnitCode()));
+                    maxClockDifferenceValue.value = clockTask.getMaximumClockDifference().get().getCount();
+                    maxClockDifference.value = maxClockDifferenceValue;
+                }
                 protocolTaskParameters.add(maxClockDifference);
 
                 if (this.getActionAsStr(clockTask.getClockTaskType().getType()).equals(ComTaskInfo.CLOCK_SYNCHRONIZE_TYPE)) {
                     ParameterInfo maxClockShift = new ParameterInfo(ComTaskInfo.MAX_CLOCK_SHIFT);
-                    ParameterInfo maxClockShiftValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(clockTask.getMaximumClockShift().getTimeUnitCode()));
-                    maxClockShiftValue.value = clockTask.getMaximumClockShift().getCount();
-                    maxClockShift.value = maxClockShiftValue;
+                    if (clockTask.getMaximumClockShift().isPresent()) {
+                        ParameterInfo maxClockShiftValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(clockTask.getMaximumClockShift().get().getTimeUnitCode()));
+                        maxClockShiftValue.value = clockTask.getMaximumClockShift().get().getCount();
+                        maxClockShift.value = maxClockShiftValue;
+                    }
                     protocolTaskParameters.add(maxClockShift);
                 }
             }
