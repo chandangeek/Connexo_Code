@@ -10,7 +10,6 @@ Ext.define('Mdc.view.setup.messages.PrivilegesInfoPanel', {
     floating: true,
     layout: 'fit',
     closeAction: 'destroy',
-    title: Uni.I18n.translate('messages.privileges.infoPanel.title', 'MDC', 'Privileges'),
     items: {
         xtype: 'dataview',
         store: 'MessagesPrivileges',

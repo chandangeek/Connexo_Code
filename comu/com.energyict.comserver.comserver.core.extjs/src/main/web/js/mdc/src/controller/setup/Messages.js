@@ -198,10 +198,11 @@ Ext.define('Mdc.controller.setup.Messages', {
         }
     },
 
-    onMessagesGridInfoIconClick: function () {
+    onMessagesGridInfoIconClick: function (button) {
         var widget = Ext.widget('privileges-info-panel'),
             dataView = widget.down('dataview');
 
+        widget.setTitle(Uni.I18n.translate('messages.privileges.infoPanel.title', 'MDC', 'Privileges of') + ' ' + button.record.get('name'));
         dataView.store.load();
     },
 

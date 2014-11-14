@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
             header: Uni.I18n.translate('messages.grid.privileges', 'MDC', 'Privileges'),
             dataIndex: 'privileges',
             flex: 3,
-            renderer: function (value) {
+            renderer: function (value, metaData, record) {
                 var result = '',
                     id = Ext.id();
 
@@ -48,6 +48,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
                         name: 'messageInfoIcon',
                         iconCls: 'icon-info-small',
                         cls: 'uni-btn-transparent',
+                        record: record,
                         style: {
                             width: '16px',
                             display: 'inline-block',
