@@ -18,9 +18,10 @@ import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.metering.rest" , service=Application.class , immediate = true , property = {"alias=/mtr"} )
+@Component(name = "com.elster.jupiter.metering.rest" , service=Application.class , immediate = true , property = {"alias=/mtr", "app=SYS", "name=" + MeteringApplication.COMPONENT_NAME} )
 public class MeteringApplication extends Application implements BinderProvider {
-	
+    public static final String COMPONENT_NAME = "MTR";
+
 	private volatile MeteringService meteringService;
 	private volatile TransactionService transactionService;
 	private volatile RestQueryService restQueryService;
