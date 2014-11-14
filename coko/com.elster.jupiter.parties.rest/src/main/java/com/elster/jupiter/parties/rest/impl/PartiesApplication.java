@@ -16,8 +16,10 @@ import org.osgi.service.component.annotations.Reference;
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.parties.rest" , service=Application.class , immediate = true , property = {"alias=/prt"} )
+@Component(name = "com.elster.jupiter.parties.rest" , service=Application.class , immediate = true , property = {"alias=/prt", "app=SYS", "name=" + PartiesApplication.COMPONENT_NAME} )
 public class PartiesApplication extends Application implements BinderProvider {
+
+    public static final String COMPONENT_NAME = "PRT";
 
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
