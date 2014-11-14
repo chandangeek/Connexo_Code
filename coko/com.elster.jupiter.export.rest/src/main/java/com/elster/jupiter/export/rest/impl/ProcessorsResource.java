@@ -3,8 +3,10 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.rest.ProcessorInfos;
+import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +35,7 @@ public class ProcessorsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public ProcessorInfos getAvailableProcessors(@Context UriInfo uriInfo) {
         ProcessorInfos infos = new ProcessorInfos();
         List<DataProcessorFactory> processors = dataExportService.getAvailableProcessors();
