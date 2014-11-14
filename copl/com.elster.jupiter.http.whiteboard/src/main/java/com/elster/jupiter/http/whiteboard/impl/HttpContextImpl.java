@@ -9,6 +9,8 @@ import com.elster.jupiter.users.UserService;
 
 import java.rmi.RemoteException;
 import java.util.Optional;
+
+import com.elster.jupiter.yellowfin.YellowfinService;
 import com.google.common.collect.ImmutableMap;
 import com.hof.mi.web.service.*;
 import org.osgi.framework.BundleContext;
@@ -50,15 +52,17 @@ public class HttpContextImpl implements HttpContext {
     private final WhiteBoard whiteboard;
     private final Resolver resolver;
     private final UserService userService;
+    private final YellowfinService yellowfinService;
     private final TransactionService transactionService;
     private final AtomicReference<EventAdmin> eventAdminHolder;
 
-    HttpContextImpl(WhiteBoard whiteboard, Resolver resolver, UserService userService, TransactionService transactionService, AtomicReference<EventAdmin> eventAdminHolder) {
+    HttpContextImpl(WhiteBoard whiteboard, Resolver resolver, UserService userService, TransactionService transactionService, YellowfinService yellowfinService, AtomicReference<EventAdmin> eventAdminHolder) {
         this.resolver = resolver;
         this.userService = userService;
         this.transactionService = transactionService;
         this.eventAdminHolder = eventAdminHolder;
         this.whiteboard = whiteboard;
+        this.yellowfinService = yellowfinService;
     }
 
     @Override
@@ -111,37 +115,24 @@ public class HttpContextImpl implements HttpContext {
             user = userService.authenticateBase64(authentication.split(" ")[1]);
             context.commit();
         }
-        return user.isPresent() ? allow(request, response, user.get()) : deny(response);
-    }
 
-    private void loginYellowfin(HttpServletResponse response) throws RemoteException {
-        AdministrationServiceResponse rs = null;
-        AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-        AdministrationServiceService ts = new AdministrationServiceServiceLocator("localhost", 8181, "/services/AdministrationService", false);
-        AdministrationServiceSoapBindingStub rssbs = null;
-        try {
-            rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
-        } catch (ServiceException e) {
-            e.printStackTrace();
+        if(user.isPresent()){
+            loginYellowfin(response);
+            return allow(request, response, user.get());
         }
 
-        rsr.setLoginId("admin@yellowfin.com.au");
-        rsr.setPassword("test");
-        rsr.setOrgId(new Integer(1));
-        rsr.setFunction("LOGINUSER");
-        AdministrationPerson ap = new AdministrationPerson();
-        ap.setUserId("admin@yellowfin.com.au");
-        ap.setPassword("test");
-        rsr.setPerson(ap);
+        return deny(response);
+    }
 
-        if (rssbs != null) {
-            rs = rssbs.remoteAdministrationCall(rsr);
-            if (rs != null && "SUCCESS".equals(rs.getStatusCode()) ) {
-                Cookie cookie = new Cookie("JSESSIONID_YELLOWFIN", rs.getLoginSessionId());
+    private void loginYellowfin(HttpServletResponse response) {
+        //if(whiteboard.getApps().stream().filter(application -> application.getKey().equals("YFN")).findFirst().isPresent()){
+            String yellowfinSession = yellowfinService.login("");
+            if(yellowfinSession != null){
+                Cookie cookie = new Cookie("JSESSIONID_YELLOWFIN", yellowfinSession);
                 cookie.setPath("/");
                 response.addCookie(cookie);
             }
-        }
+        //}
     }
 
     private boolean login(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -158,14 +149,6 @@ public class HttpContextImpl implements HttpContext {
     }
 
     private boolean allow(HttpServletRequest request, HttpServletResponse response, User user) {
-        //if(whiteboard.getApps().stream().filter(application -> application.getKey().equals("YFN")).findFirst().isPresent()){
-            try {
-                loginYellowfin(response);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        //}
-
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
         request.setAttribute(USERPRINCIPAL, user);
         request.setAttribute(HttpContext.REMOTE_USER, user.getName());

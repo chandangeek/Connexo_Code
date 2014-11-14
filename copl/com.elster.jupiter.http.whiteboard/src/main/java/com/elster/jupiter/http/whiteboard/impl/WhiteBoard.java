@@ -8,6 +8,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.yellowfin.YellowfinService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
@@ -38,6 +39,7 @@ public class WhiteBoard extends Application implements BinderProvider {
     private volatile UserService userService;
     private volatile LicenseService licenseService;
     private volatile TransactionService transactionService;
+    private volatile YellowfinService yellowfinService;
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
     private boolean generateEvents;
 
@@ -74,6 +76,11 @@ public class WhiteBoard extends Application implements BinderProvider {
     }
 
     @Reference
+    public void setYellowfinService(YellowfinService yellowfinService) {
+        this.yellowfinService = yellowfinService;
+    }
+
+    @Reference
     public void setEventAdminService(EventAdmin eventAdminService) {
         this.eventAdminHolder.set(eventAdminService);
     }
@@ -81,7 +88,7 @@ public class WhiteBoard extends Application implements BinderProvider {
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(HttpResource resource) {
         String alias = getAlias(resource.getAlias());
-        HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, eventAdminHolder);
+        HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, yellowfinService, eventAdminHolder);
         try {
             httpService.registerResources(alias, resource.getLocalName(), httpContext);
             resources.add(resource);
