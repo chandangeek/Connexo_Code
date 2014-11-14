@@ -432,10 +432,6 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private TimeZone getSystemTimeZone() {
-        List<DefaultSystemTimeZoneFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DefaultSystemTimeZoneFactory.class);
-        if (!modulesImplementing.isEmpty()) {
-            return modulesImplementing.get(0).getDefaultTimeZone();
-        }
         return TimeZone.getDefault();
     }
 

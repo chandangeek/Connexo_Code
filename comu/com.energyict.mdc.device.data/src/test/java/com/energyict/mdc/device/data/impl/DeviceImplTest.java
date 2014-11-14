@@ -80,7 +80,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     private final TimeZone testDefaultTimeZone = TimeZone.getTimeZone("Canada/East-Saskatchewan");
     private final TimeDuration interval = TimeDuration.minutes(15);
 
-    private TimeZone actualDefaultTimeZone;
     private ReadingType forwardEnergyReadingType;
     private ReadingType reverseEnergyReadingType;
     private String averageForwardEnergyReadingTypeMRID;
@@ -97,24 +96,9 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Before
-    public void saveTheDefaultTimeZone() {
-        this.actualDefaultTimeZone = TimeZone.getDefault();
-    }
-
-    @Before
     public void setupMasterData() {
         this.setupReadingTypes();
         this.setupPhenomena();
-    }
-
-    @After
-    public void restoreTheDefaultTimeZone() {
-        TimeZone.setDefault(this.actualDefaultTimeZone);
-    }
-
-    @After
-    public void cleanupDefaultSystemTimeZoneInUseFactoryOnEnvironment() {
-        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DefaultSystemTimeZoneFactory.class)).thenReturn(Collections.<DefaultSystemTimeZoneFactory>emptyList());
     }
 
     private Device createSimpleDevice() {
@@ -333,19 +317,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Device simpleDevice = createSimpleDevice();
 
         assertThat(simpleDevice.getTimeZone()).isEqualTo(this.testDefaultTimeZone);
-    }
-
-    @Test
-    @Transactional
-    public void defaultTimeZoneFromTimeZoneInUseTest() {
-        createTestDefaultTimeZone();
-        TimeZone timeZoneInUseFromApplicationContext = TimeZone.getTimeZone("Indian/Christmas");
-        DefaultSystemTimeZoneFactory moduleWithSystemTimeZone = mock(DefaultSystemTimeZoneFactory.class);
-        when(moduleWithSystemTimeZone.getDefaultTimeZone()).thenReturn(timeZoneInUseFromApplicationContext);
-        when(Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DefaultSystemTimeZoneFactory.class)).thenReturn(Arrays.asList(moduleWithSystemTimeZone));
-        Device simpleDevice = createSimpleDevice();
-
-        assertThat(timeZoneInUseFromApplicationContext).isEqualTo(simpleDevice.getTimeZone());
     }
 
     @Test
