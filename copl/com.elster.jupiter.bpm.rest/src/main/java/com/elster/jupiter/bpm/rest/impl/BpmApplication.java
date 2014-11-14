@@ -14,8 +14,10 @@ import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.bpm.rest" , service=Application.class , immediate = true , property = {"alias=/bpm"} )
+@Component(name = "com.elster.jupiter.bpm.rest" , service=Application.class , immediate = true , property = {"alias=/bpm", "app=BPM", "name=" + BpmApplication.COMPONENT_NAME} )
 public class BpmApplication extends Application implements BinderProvider{
+
+    public static final String COMPONENT_NAME = "BPM";
 
     private final Set<Class<?>> classes = new HashSet<>();
 
