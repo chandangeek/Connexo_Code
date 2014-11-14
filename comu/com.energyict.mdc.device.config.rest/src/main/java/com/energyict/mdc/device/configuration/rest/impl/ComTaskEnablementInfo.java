@@ -96,7 +96,6 @@ public class ComTaskEnablementInfo {
 
     public static class PartialConnectionTaskInfo {
         public static final Long DEFAULT_PARTIAL_CONNECTION_TASK_ID = -1L;
-        public static final String DEFAULT_PARTIAL_CONNECTION_TASK_NAME_KEY = "default.partial.connection.task.name";
         public Long id;
         public String name;
 
@@ -104,9 +103,9 @@ public class ComTaskEnablementInfo {
 
         public static PartialConnectionTaskInfo from(PartialConnectionTask partialConnectionTask, Thesaurus thesaurus) {
             PartialConnectionTaskInfo partialConnectionTaskInfo = new PartialConnectionTaskInfo();
-            if(partialConnectionTask ==  null) {
-                partialConnectionTaskInfo.id = DEFAULT_PARTIAL_CONNECTION_TASK_ID;
-                partialConnectionTaskInfo.name = thesaurus.getString(DEFAULT_PARTIAL_CONNECTION_TASK_NAME_KEY, DEFAULT_PARTIAL_CONNECTION_TASK_NAME_KEY);
+            if(partialConnectionTask.isDefault()) {
+                partialConnectionTaskInfo.id = partialConnectionTask.getId();
+                partialConnectionTaskInfo.name = thesaurus.getString(MessageSeeds.DEFAULT.getKey(), MessageSeeds.DEFAULT.getKey()) + " (" + partialConnectionTask.getName() + ")";
             } else {
                 partialConnectionTaskInfo.id = partialConnectionTask.getId();
                 partialConnectionTaskInfo.name = partialConnectionTask.getName();
