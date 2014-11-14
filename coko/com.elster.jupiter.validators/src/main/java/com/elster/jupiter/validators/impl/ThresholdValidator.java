@@ -74,7 +74,7 @@ class ThresholdValidator extends AbstractValidator {
     }
 
     private ValidationResult validateBaseReadingRecord(BaseReadingRecord baseReadingRecord) {
-        return validateQuantity(baseReadingRecord.getQuantity(0));
+        return validateQuantity(baseReadingRecord.getQuantity(readingType));
     }
 
     @Override

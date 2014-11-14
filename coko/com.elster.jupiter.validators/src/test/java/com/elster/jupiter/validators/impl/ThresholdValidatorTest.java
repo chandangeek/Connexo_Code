@@ -72,7 +72,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationOk() {
-        when(intervalReadingRecord.getQuantity(0)).thenReturn(IN_THE_MIDDLE);
+        when(intervalReadingRecord.getQuantity(readingType)).thenReturn(IN_THE_MIDDLE);
 
         ValidationResult validationResult = thresholdValidator.validate(intervalReadingRecord);
 
@@ -90,7 +90,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationOnMinimumPasses() {
-        when(intervalReadingRecord.getQuantity(0)).thenReturn(Quantity.create(MINIMUM, 3, "Wh"));
+        when(intervalReadingRecord.getQuantity(readingType)).thenReturn(Quantity.create(MINIMUM, 3, "Wh"));
 
         ValidationResult validationResult = thresholdValidator.validate(intervalReadingRecord);
 
@@ -99,7 +99,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationOnMaximumPasses() {
-        when(intervalReadingRecord.getQuantity(0)).thenReturn(Quantity.create(MAXIMUM, 3, "Wh"));
+        when(intervalReadingRecord.getQuantity(readingType)).thenReturn(Quantity.create(MAXIMUM, 3, "Wh"));
 
         ValidationResult validationResult = thresholdValidator.validate(intervalReadingRecord);
 
@@ -108,7 +108,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationBelowMinimumIsSuspect() {
-        when(intervalReadingRecord.getQuantity(0)).thenReturn(BELOW_MINIMUM);
+        when(intervalReadingRecord.getQuantity(readingType)).thenReturn(BELOW_MINIMUM);
 
         ValidationResult validationResult = thresholdValidator.validate(intervalReadingRecord);
 
@@ -117,7 +117,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationAboveMaximumIsSuspect() {
-        when(intervalReadingRecord.getQuantity(0)).thenReturn(ABOVE_MAXIMUM);
+        when(intervalReadingRecord.getQuantity(readingType)).thenReturn(ABOVE_MAXIMUM);
 
         ValidationResult validationResult = thresholdValidator.validate(intervalReadingRecord);
 
@@ -132,7 +132,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationOkForReadingRecord() {
-        when(readingRecord.getQuantity(0)).thenReturn(IN_THE_MIDDLE);
+        when(readingRecord.getQuantity(readingType)).thenReturn(IN_THE_MIDDLE);
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 
@@ -141,7 +141,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationOnMissingDataYieldsSkippedForReadingRecord() {
-        when(readingRecord.getQuantity(0)).thenReturn(null);
+        when(readingRecord.getQuantity(readingType)).thenReturn(null);
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 
@@ -150,7 +150,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationOnMinimumPassesForReadingRecord() {
-        when(readingRecord.getQuantity(0)).thenReturn(Quantity.create(MINIMUM, 3, "Wh"));
+        when(readingRecord.getQuantity(readingType)).thenReturn(Quantity.create(MINIMUM, 3, "Wh"));
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 
@@ -159,7 +159,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationOnMaximumPassesForReadingRecord() {
-        when(readingRecord.getQuantity(0)).thenReturn(Quantity.create(MAXIMUM, 3, "Wh"));
+        when(readingRecord.getQuantity(readingType)).thenReturn(Quantity.create(MAXIMUM, 3, "Wh"));
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 
@@ -168,7 +168,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationBelowMinimumIsSuspectForReadingRecord() {
-        when(readingRecord.getQuantity(0)).thenReturn(BELOW_MINIMUM);
+        when(readingRecord.getQuantity(readingType)).thenReturn(BELOW_MINIMUM);
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 
@@ -177,7 +177,7 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testValidationAboveMaximumIsSuspectForReadingRecord() {
-        when(readingRecord.getQuantity(0)).thenReturn(ABOVE_MAXIMUM);
+        when(readingRecord.getQuantity(readingType)).thenReturn(ABOVE_MAXIMUM);
 
         ValidationResult validationResult = thresholdValidator.validate(readingRecord);
 
