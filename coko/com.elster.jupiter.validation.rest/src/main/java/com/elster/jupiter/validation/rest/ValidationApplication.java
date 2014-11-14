@@ -24,8 +24,9 @@ import org.osgi.service.component.annotations.Reference;
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.validation.rest" , service=Application.class , immediate = true , property = {"alias=/val"} )
+@Component(name = "com.elster.jupiter.validation.rest" , service=Application.class , immediate = true , property = {"alias=/val", "app=SYS", "name=" + ValidationApplication.COMPONENT_NAME} )
 public class ValidationApplication extends Application implements ServiceLocator, BinderProvider {
+    public static final String COMPONENT_NAME = "VAL";
 
 	private volatile ValidationService validationService;
 	private volatile TransactionService transactionService;
