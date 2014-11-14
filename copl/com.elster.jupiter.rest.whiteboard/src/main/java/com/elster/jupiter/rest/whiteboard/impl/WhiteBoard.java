@@ -1,11 +1,15 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
+
+import java.util.List;
 import java.util.Optional;
 import com.google.common.base.Strings;
 
@@ -15,6 +19,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
@@ -40,11 +46,13 @@ public class WhiteBoard {
 	private volatile HttpContext httpContext;
 	private volatile HttpService httpService;
 	private volatile UserService userService;
+    private volatile LicenseService licenseService;
 	private volatile ThreadPrincipalService threadPrincipalService;
 	private volatile Publisher publisher;
 	private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
 	private volatile WhiteBoardConfiguration configuration;
 
+    private BundleContext context;
     private final static String SESSION_TIMEOUT = "com.elster.jupiter.session.timeout";
 
     private int sessionTimeout = 600; // default value 10 min
@@ -88,6 +96,11 @@ public class WhiteBoard {
 	public void setPublisher(Publisher publisher) {
 		this.publisher = publisher;
 	}
+
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
+    }
 	
 	Publisher getPublisher() {
 		return publisher;
@@ -127,25 +140,29 @@ public class WhiteBoard {
     	if (!alias.isPresent()) {
     		return;
     	}
-        ResourceConfig secureConfig = ResourceConfig.forApplication(Objects.requireNonNull(application));
-        secureConfig.register(ObjectMapperProvider.class);
-        secureConfig.register(JacksonFeature.class);
-        secureConfig.register(new RoleFilter(threadPrincipalService));
-        secureConfig.register(RolesAllowedDynamicFeature.class);
-        if (application instanceof BinderProvider) {
-        	secureConfig.register(((BinderProvider) application).getBinder());
+        List<String> applications = licenseService.getLicensedApplicationKeys();
+        if( !properties.containsKey("app") || properties.get("app").equals("SYS") ||
+                applications.stream().filter(webapp -> webapp.equals(properties.get("app"))).findFirst().isPresent()){
+            ResourceConfig secureConfig = ResourceConfig.forApplication(Objects.requireNonNull(application));
+            secureConfig.register(ObjectMapperProvider.class);
+            secureConfig.register(JacksonFeature.class);
+            secureConfig.register(new RoleFilter(threadPrincipalService));
+            secureConfig.register(RolesAllowedDynamicFeature.class);
+            if (application instanceof BinderProvider) {
+                secureConfig.register(((BinderProvider) application).getBinder());
+            }
+            if (configuration.debug()) {
+                secureConfig.register(LoggingFilter.class);
+            }
+            try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
+                ServletContainer container = new ServletContainer(secureConfig);
+                HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container,threadPrincipalService),this);
+                httpService.registerServlet(alias.get(), wrapper, null, httpContext);
+            } catch (ServletException | NamespaceException e) {
+                LOGGER.log(Level.SEVERE, "Error while registering " + alias.get() + ": " + e.getMessage() , e);
+                throw new RuntimeException(e);
+            }
         }
-        if (configuration.debug()) {        	       
-        	secureConfig.register(LoggingFilter.class);
-        }
-        try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
-            ServletContainer container = new ServletContainer(secureConfig);
-        	HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container,threadPrincipalService),this);
-        	httpService.registerServlet(alias.get(), wrapper, null, httpContext);
-        } catch (ServletException | NamespaceException e) {
-        	LOGGER.log(Level.SEVERE, "Error while registering " + alias.get() + ": " + e.getMessage() , e);
-            throw new RuntimeException(e);
-        } 
     }
 
 
@@ -158,6 +175,34 @@ public class WhiteBoard {
     
     private Optional<String> getAlias(Map<String,Object> properties) {
     	return Optional.ofNullable(properties.get("alias")).map(alias ->  "/api" + alias);
+    }
+
+    void checkLicense(){
+        Optional<License> license;
+        List<String> applications = licenseService.getLicensedApplicationKeys();
+
+        for(String application : applications){
+            if(!application.equals("SYS")){
+                license = licenseService.getLicenseForApplication(application);
+                if( !license.isPresent() ||
+                        (license.isPresent() && license.get().getGracePeriodInDays() == 0)){
+                    unregisterRestApplication(application);
+                }
+            }
+        }
+    }
+
+    private void unregisterRestApplication(String application){
+        try {
+            ServiceReference<?>[] restApps = context.getAllServiceReferences(Application.class.getName(), "(app=" + application + ")");
+            for(ServiceReference<?> restApp : restApps){
+                if(restApp.getProperty("alias") != null){
+                    httpService.unregister("/api" + restApp.getProperty("alias").toString());
+                }
+            }
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     @Activate
@@ -174,6 +219,8 @@ public class WhiteBoard {
             if(timeout > 0){
                 sessionTimeout = timeout;
             }
+
+            this.context = context;
         }
     }
 
