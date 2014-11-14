@@ -23,8 +23,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
 
-@Component(name = "com.elster.jupiter.systemadmin.rest", service = Application.class, immediate = true, property = {"alias=/lic"})
+@Component(name = "com.elster.jupiter.systemadmin.rest", service = Application.class, immediate = true, property = {"alias=/lic", "app=SYS", "name=" + LicensingApplication.COMPONENT_NAME})
 public class LicensingApplication extends Application implements BinderProvider {
+    public static final String COMPONENT_NAME = "LIC";
+
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile UserService userService;
