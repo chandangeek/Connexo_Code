@@ -2,66 +2,70 @@ package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.common.rest.IntegerAdapter;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
-import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.rest.ReadingTypeComparator;
-import com.energyict.mdc.common.rest.UnitAdapter;
-import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.common.rest.LongAdapter;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterType;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Path("/readingtypes")
 public class ReadingTypeResource {
 
-    private final MdcReadingTypeUtilService readingTypeUtilService;
     private final MeteringService meteringService;
+    private final MasterDataService masterDataService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public ReadingTypeResource(MdcReadingTypeUtilService readingTypeUtilService, MeteringService meteringService, Thesaurus thesaurus) {
-        this.readingTypeUtilService = readingTypeUtilService;
+    public ReadingTypeResource(MeteringService meteringService, MasterDataService masterDataService, Thesaurus thesaurus) {
         this.meteringService = meteringService;
+        this.masterDataService = masterDataService;
         this.thesaurus = thesaurus;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getReadingType(@BeanParam JsonQueryFilter queryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
-        List<ReadingTypeInfo> readingTypeInfos = new ArrayList<>();
-        if (!queryFilter.getFilterProperties().isEmpty()) {
-            String unitString = queryFilter.getProperty("unit");
-            ObisCode obisCode = queryFilter.getProperty("obisCode", new ObisCodeAdapter());
-            Unit unit = queryFilter.getProperty("unit", new UnitAdapter());
-            String mrid = readingTypeUtilService.getReadingTypeMridFrom(obisCode, unit);
-            Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
-            if (!readingType.isPresent()) {
-                throw new WebApplicationException("No such reading type", Response.status(Response.Status.NOT_FOUND).entity("No reading type for ObisCode " + obisCode + " and unit " + unitString).build());
-            }
-            readingTypeInfos.add(new ReadingTypeInfo(readingType.get()));
-        } else {
-            List<ReadingType> readingTypes = ListPager.of(meteringService.getAvailableReadingTypes(), new ReadingTypeComparator()).from(queryParameters).find();
-            for (ReadingType readingType : readingTypes) {
-                readingTypeInfos.add(new ReadingTypeInfo(readingType));
-            }
+    public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryFilter queryFilter) {
+        List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
+        Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
+        List<RegisterType> registerTypes = masterDataService.findAllRegisterTypes().find();
+        List<String> readingTypesInUseIds = new ArrayList<>();
+        for (RegisterType registerType : registerTypes) {
+            readingTypesInUseIds.add(registerType.getReadingType().getMRID());
         }
-        return PagedInfoList.asJson("readingTypes", readingTypeInfos, queryParameters);
+        readingTypes = readingTypes.stream().filter(rt -> filter.test(rt) && !readingTypesInUseIds.contains(rt.getMRID()))
+                .collect(Collectors.<ReadingType>toList());
+        return new ReadingTypeInfos(readingTypes);
     }
 
+    private Predicate<ReadingType> getReadingTypeFilterPredicate(JsonQueryFilter queryFilter) {
+        if (!queryFilter.getFilterProperties().isEmpty()) {
+            if (queryFilter.getProperty("unitOfMeasureId") != null && queryFilter.getProperty("tou") != null) {
+                long unitOfMeasureId = queryFilter.getProperty("unitOfMeasureId", new LongAdapter());
+                int timeOfUse = queryFilter.getProperty("tou", new IntegerAdapter());
+                Optional<Phenomenon> phenomenon = masterDataService.findPhenomenon(unitOfMeasureId);
+                if (phenomenon.isPresent()) {
+                    String measurementCode = phenomenon.get().getUnit().getBaseUnit().toString();
+                    return rt -> rt.getTou() == timeOfUse && rt.getUnit().getSymbol().equals(measurementCode) &&
+                            phenomenon.get().getUnit().getScale() == rt.getMultiplier().getMultiplier();
+                }
+            }
+
+        }
+        return e -> true;
+    }
 }

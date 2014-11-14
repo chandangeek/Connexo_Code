@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -36,6 +37,7 @@ public class MasterDataApplication extends Application implements InstallService
 
     public static final String COMPONENT_NAME = "MDR";
 
+    private volatile MeteringService meteringService;
     private volatile MasterDataService masterDataService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile TransactionService transactionService;
@@ -46,6 +48,7 @@ public class MasterDataApplication extends Application implements InstallService
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
+                ReadingTypeResource.class,
                 LogBookTypeResource.class,
                 LoadProfileResource.class,
                 PhenomenonResource.class,
@@ -64,6 +67,11 @@ public class MasterDataApplication extends Application implements InstallService
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Reference
@@ -107,6 +115,7 @@ public class MasterDataApplication extends Application implements InstallService
 
         @Override
         protected void configure() {
+            bind(meteringService).to(MeteringService.class);
             bind(masterDataService).to(MasterDataService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(transactionService).to(TransactionService.class);
