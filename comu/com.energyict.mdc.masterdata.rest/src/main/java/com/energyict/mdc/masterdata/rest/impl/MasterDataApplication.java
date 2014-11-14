@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-@Component(name = "com.energyict.mds.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/mds", "name=" + MasterDataApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mds.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/mds", "app=MDC", "name=" + MasterDataApplication.COMPONENT_NAME})
 public class MasterDataApplication extends Application implements InstallService {
 
     private final Logger logger = Logger.getLogger(MasterDataApplication.class.getName());
