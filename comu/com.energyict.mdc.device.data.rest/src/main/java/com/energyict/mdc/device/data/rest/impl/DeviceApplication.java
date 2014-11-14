@@ -55,7 +55,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-@Component(name = "com.energyict.ddr.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/ddr", "name=" + DeviceApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.ddr.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/ddr", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME})
 public class DeviceApplication extends Application implements InstallService {
 
     private final Logger logger = Logger.getLogger(DeviceApplication.class.getName());
