@@ -112,7 +112,7 @@ Ext.define('Mdc.controller.setup.Messages', {
 
                 grid.down('pagingtoolbartop').store = store;
                 grid.down('pagingtoolbartop').store.totalCount = store.getCount();
-                grid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('commands.commands', store.getCount(), 'MDC', '{2} commands'),
+                grid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('commands.commands', store.getCount(), 'MDC', '{2} commands');
                 grid.down('pagingtoolbartop').updateInfo();
 
                 Ext.defer(function () {
@@ -168,7 +168,6 @@ Ext.define('Mdc.controller.setup.Messages', {
     },
 
     onMessageChange: function (sm, selection) {
-        var me = this;
         var record = selection[0],
             menu = this.getMessagesActionMenu();
 
@@ -250,7 +249,7 @@ Ext.define('Mdc.controller.setup.Messages', {
                     if (action == 'changePrivilegesForAll' || action == 'activateAll' || action == 'activate' || action == 'changePrivileges') {
                         Ext.each(privileges, function (privilege) {
                             privIds.push({privilege: privilege.inputValue})
-                        })
+                        });
                         me[action](record, privIds);
                     } else {
                         Ext.each(privileges, function (privilege) {
@@ -260,7 +259,7 @@ Ext.define('Mdc.controller.setup.Messages', {
 
                                     if (privilege.boxLabel === privilegeItem.get('name'))
                                         privIds.push({privilege: privilegeItem.get('privilege')});
-                                })
+                                });
                                 me[action](record, privIds);
                             })
 
@@ -276,30 +275,23 @@ Ext.define('Mdc.controller.setup.Messages', {
                 }
             });
 
-        selectPrivilegesPanel.add(
-
-            Ext.create('Ext.container.Container', {
-                width: 400,
-                items: [
-                    {
-                        xtype: 'checkboxgroup',
-                        fieldLabel: Uni.I18n.translate('messages.selectPrivilegesPanel.label', 'MDC', 'Privileges'),
-                        labelAlign: 'left',
-                        labelStyle: 'padding-left: 53px',
-                        labelPad: 50,
-                        store: 'MessagesPrivileges',
-                        columns: 1,
-                        vertical: true,
-                        items: [
-                            { boxLabel: 'Level 1', name: 'cbgroup', inputValue: 'execute.device.message.level1', checked: true},
-                            { boxLabel: 'Level 2', name: 'cbgroup', inputValue: 'execute.device.message.level2', checked: true},
-                            { boxLabel: 'Level 3', name: 'cbgroup', inputValue: 'execute.device.message.level3', checked: true},
-                            { boxLabel: 'Level 4', name: 'cbgroup', inputValue: 'execute.device.message.level4'}
-                        ]
-                    }
-                ]
-            })
-        );
+        selectPrivilegesPanel.add({
+            xtype: 'checkboxgroup',
+            width: 400,
+            fieldLabel: Uni.I18n.translate('messages.selectPrivilegesPanel.label', 'MDC', 'Privileges'),
+            labelAlign: 'left',
+            labelStyle: 'padding-left: 53px',
+            labelPad: 50,
+            store: 'MessagesPrivileges',
+            columns: 1,
+            vertical: true,
+            items: [
+                { boxLabel: 'Level 1', name: 'cbgroup', inputValue: 'execute.device.message.level1', checked: true},
+                { boxLabel: 'Level 2', name: 'cbgroup', inputValue: 'execute.device.message.level2', checked: true},
+                { boxLabel: 'Level 3', name: 'cbgroup', inputValue: 'execute.device.message.level3', checked: true},
+                { boxLabel: 'Level 4', name: 'cbgroup', inputValue: 'execute.device.message.level4'}
+            ]
+        });
 
         selectPrivilegesPanel.show(
             {
@@ -309,23 +301,12 @@ Ext.define('Mdc.controller.setup.Messages', {
                 msg: (!setAlreadyChecked && action == 'changePrivilegesForAll') ? (Uni.I18n.translate('messages.selectPrivilegesPanelChange.msg', 'MDC', 'The selected privileges will only apply to the commands that aren\'t active yet.'))
                     : (setAlreadyChecked ? '' : Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that are not active yet.'))
             });
-        if (setAlreadyChecked) {
-            var checked = record.get('privileges');
-            var checkboxgroup = selectPrivilegesPanel.down('checkboxgroup');
-            if (checked == '') {
-                Ext.each(checkboxgroup.items.items, function (checkbox) {
-                    checkbox.setValue(false);
-                })
-            }
-
-            Ext.each(checkboxgroup.items.items, function (checkbox) {
-                for (var i = 0, l = checked.length; i < l; i++) {
-                    if (checkbox.inputValue == checked[i].privilege) {
-                        checkbox.setValue(true);
-                    } else {
-                        checkbox.setValue(false);
-                    }
-                }
+        if (action === 'changePrivileges') {
+            Ext.Array.each(selectPrivilegesPanel.down('checkboxgroup').query('checkbox'), function (checkbox) {
+                var privilege = Ext.Array.findBy(record.get('privileges'), function (item) {
+                    return item.privilege === checkbox.inputValue;
+                });
+                checkbox.setValue(privilege ? true : false);
             });
         }
     },
