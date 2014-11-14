@@ -310,7 +310,7 @@ public class InMemoryIntegrationPersistence {
         return this.deviceDataModelService.communicationTaskService();
     }
 
-    public ServerDeviceService getDeviceDataService() {
+    public ServerDeviceService getDeviceService() {
         return this.deviceDataModelService.deviceService();
     }
 

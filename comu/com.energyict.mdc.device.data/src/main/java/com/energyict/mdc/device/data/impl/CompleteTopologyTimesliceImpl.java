@@ -1,8 +1,11 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.data.CommunicationTopologyEntry;
+import com.energyict.mdc.device.data.TopologyTimeslice;
 import com.energyict.mdc.device.data.Device;
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,28 +14,33 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Provides an implementation for the {@link CommunicationTopologyEntry} interface
+ * Provides an implementation for the {@link com.energyict.mdc.device.data.TopologyTimeslice} interface
  * that holds the complete set of {@link Device}s that are using the same
  * communication gateway in the same {@link Interval}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-06-03 (13:42)
  */
-public final class CompleteCommunicationTopologyEntryImpl implements CommunicationTopologyEntry {
+public final class CompleteTopologyTimesliceImpl implements ServerTopologyTimeslice {
 
-    private final Interval interval;
+    private final Range<Instant> range;
     private final List<Device> devices;
     private final Set<Long> deviceIds = new HashSet<>();
 
-    public CompleteCommunicationTopologyEntryImpl(Interval interval, Device... devices) {
-        this(interval, Arrays.asList(devices));
+    public CompleteTopologyTimesliceImpl(Range<Instant> range, Device... devices) {
+        this(range, Arrays.asList(devices));
     }
 
-    public CompleteCommunicationTopologyEntryImpl(Interval interval, List<Device> devices) {
+    public CompleteTopologyTimesliceImpl(Range<Instant> range, List<Device> devices) {
         super();
-        this.interval = interval;
+        this.range = range;
         this.devices = new ArrayList<>();
         this.addAll(devices);
+    }
+
+    @Override
+    public CompleteTopologyTimesliceImpl asCompleteTimeslice() {
+        return this;
     }
 
     public void add (Device... devices) {
@@ -54,21 +62,21 @@ public final class CompleteCommunicationTopologyEntryImpl implements Communicati
     }
 
     @Override
-    public Interval getInterval() {
-        return this.interval;
+    public Range<Instant> getPeriod() {
+        return this.range;
     }
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof CompleteCommunicationTopologyEntryImpl) {
-            return this.equals((CompleteCommunicationTopologyEntryImpl) other);
+        if (other instanceof CompleteTopologyTimesliceImpl) {
+            return this.equals((CompleteTopologyTimesliceImpl) other);
         }
         else {
             return false;
         }
     }
 
-    public boolean equals(CompleteCommunicationTopologyEntryImpl other) {
+    public boolean equals(CompleteTopologyTimesliceImpl other) {
         if (this == other) {
             return true;
         }
@@ -76,14 +84,14 @@ public final class CompleteCommunicationTopologyEntryImpl implements Communicati
             return false;
         }
         else {
-            return this.interval.equals(other.interval);
+            return this.range.equals(other.range);
         }
 
     }
 
     @Override
     public int hashCode() {
-        return this.interval.hashCode();
+        return this.range.hashCode();
     }
 
 }
