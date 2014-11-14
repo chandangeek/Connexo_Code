@@ -31,7 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.sch.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/scr", "name=" + MasterSchedulingApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.sch.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/scr", "app=MDC", "name=" + MasterSchedulingApplication.COMPONENT_NAME})
 public class MasterSchedulingApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "SCR";
