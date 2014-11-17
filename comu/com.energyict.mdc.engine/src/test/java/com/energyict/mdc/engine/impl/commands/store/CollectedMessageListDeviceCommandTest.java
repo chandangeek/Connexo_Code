@@ -33,8 +33,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedMessageListDeviceCommandTest {
 
-    private static final int MESSAGE_ID1 = 12;
-    private static final int MESSAGE_ID2 = 32;
+    private static final long MESSAGE_ID1 = 12;
+    private static final long MESSAGE_ID2 = 32;
 
     @Mock
     private DeviceMessage deviceMessage1;

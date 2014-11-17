@@ -18,20 +18,19 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageServiceImpl;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecificationServiceImpl;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -95,7 +94,7 @@ public class OfflineDeviceImplTest {
     @Mock
     private Thesaurus thesaurus;
 
-    private DeviceMessageService deviceMessageService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private TypedProperties getDeviceProtocolProperties() {
         TypedProperties properties = TypedProperties.empty();
@@ -162,7 +161,7 @@ public class OfflineDeviceImplTest {
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl());
-        this.deviceMessageService = new DeviceMessageServiceImpl(propertySpecService, this.nlsService);
+        this.deviceMessageSpecificationService = new DeviceMessageSpecificationServiceImpl(propertySpecService, this.nlsService);
     }
 
     @Test
@@ -467,7 +466,7 @@ public class OfflineDeviceImplTest {
     }
 
     private DeviceMessageSpec getDeviceMessageSpec(DeviceMessageId deviceMessageId) {
-        return this.deviceMessageService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> new RuntimeException("Setup failure: could not find DeviceMessageSpec with id " + deviceMessageId));
+        return this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> new RuntimeException("Setup failure: could not find DeviceMessageSpec with id " + deviceMessageId));
     }
 
 }
