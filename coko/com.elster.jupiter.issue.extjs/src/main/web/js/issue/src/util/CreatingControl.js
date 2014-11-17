@@ -215,12 +215,18 @@ Ext.define('Isu.util.CreatingControl', {
                     listeners: {
                         focus: {
                             fn: function () {
-                                this.nextSibling().focus();
+                                var combo = this.nextSibling();
+                                Ext.Array.each(this.up('issues-assignee-control').query('radiofield'), function (radiofield) {
+                                    radiofield.nextSibling().allowBlank = true;
+                                });
+                                combo.allowBlank = false;
+                                combo.focus();
                             }
                         }
                     }
                 };
             control.fieldLabel = '';
+            control.allowBlank = index !== 0 ? true : false;
             control.listeners = {
                 focus: {
                     fn: function () {
