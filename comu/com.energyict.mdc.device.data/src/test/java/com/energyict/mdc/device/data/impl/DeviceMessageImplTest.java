@@ -96,7 +96,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithName(String name, String mRID) {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, name, mRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID);
         device.save();
         return device;
     }
@@ -636,7 +636,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(config2, "Name", "mrid");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(config2, "Name", "mrid");
         device.save();
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
