@@ -5,9 +5,13 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import java.time.Instant;
+
 public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder setScheduleExpression(ScheduleExpression scheduleExpression);
+
+    DataExportTaskBuilder setNextExecution(Instant nextExecution);
 
     DataExportTaskBuilder scheduleImmediately();
 
