@@ -503,7 +503,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     @Test
     public void testRegisterTypesInfoJavaScriptMappings() throws Exception {
-
         DeviceType deviceType = mock(DeviceType.class);
         RegisterType registerType = mock(RegisterType.class);
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType));
