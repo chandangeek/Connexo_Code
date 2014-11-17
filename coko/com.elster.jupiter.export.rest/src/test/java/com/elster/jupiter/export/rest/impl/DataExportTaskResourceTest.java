@@ -154,9 +154,6 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
         Response response = target("/dataexporttask").request().post(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-
-        verify(readingTypeDataExportTask).setName("newName");
-        verify(readingTypeDataExportTask).setNextExecution(Instant.ofEpochMilli(250L));
     }
 
     @Test
@@ -165,10 +162,12 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
         info.id = TASK_ID;
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 5;
+        info.dataProcessor = new ProcessorInfo();
+        info.dataProcessor.name = "dataProcessor";
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
-        Response response = target("/dataexporttask").request().put(json);
+        Response response = target("/dataexporttask/" + TASK_ID).request().put(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
