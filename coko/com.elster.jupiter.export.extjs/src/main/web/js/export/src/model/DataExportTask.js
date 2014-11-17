@@ -14,7 +14,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if (data.lastExportOccurence && data.lastExportOccurence.lastRun) {
-                    return moment(data.lastExportOccurence.lastRun).format('ddd, DD MMM YYYY') + ' ' + moment(data.lastExportOccurence.lastRun).format('HH:mm:ss');
+                    return moment(data.lastExportOccurence.lastRun).format('ddd, DD MMM YYYY HH:mm:ss');
                 }
             }
         },
@@ -24,7 +24,7 @@ Ext.define('Dxp.model.DataExportTask', {
             mapping: function (data) {
                 var result;
                 if (data.nextRun && (data.nextRun !== 0)) {
-                    result = moment(data.nextRun).format('ddd, DD MMM YYYY') + ' ' + moment(data.nextRun).format('HH:mm:ss');
+                    result = moment(data.nextRun).format('ddd, DD MMM YYYY HH:mm:ss');
                 } else {
                     result = Uni.I18n.translate('general.notScheduled', 'DES', 'Not scheduled')
                 }
@@ -58,7 +58,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if (data.lastExportOccurence && data.lastExportOccurence.startedOn) {
-                    return moment(data.lastExportOccurence.startedOn).format('ddd, DD MMM YYYY') + ' ' + moment(data.lastExportOccurence.startedOn).format('HH:mm:ss');
+                    return moment(data.lastExportOccurence.startedOn).format('ddd, DD MMM YYYY HH:mm:ss');
                 } else {
                     return '-';
                 }
@@ -69,7 +69,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if (data.lastExportOccurence && data.lastExportOccurence.finishedOn) {
-                    return moment(data.lastExportOccurence.finishedOn).format('ddd, DD MMM YYYY') + ' ' + moment(data.lastExportOccurence.finishedOn).format('HH:mm:ss');
+                    return moment(data.lastExportOccurence.finishedOn).format('ddd, DD MMM YYYY HH:mm:ss');
                 } else {
                     return '-';
                 }

@@ -27,7 +27,7 @@ Ext.define('Dxp.view.tasks.AddScheduleGrid', {
                 dataIndex: 'schedule',
                 flex: 1,
                 renderer: function (value) {
-                    return moment(value).format('ddd, DD MMM YYYY') + ' ' + moment(value).format('HH:mm:ss')
+                    return moment(value).format('ddd, DD MMM YYYY HH:mm:ss')
                 }
             },
             {
@@ -36,7 +36,7 @@ Ext.define('Dxp.view.tasks.AddScheduleGrid', {
                 dataIndex: 'start',
                 flex: 1,
                 renderer: function (value) {
-                    return moment(value).format('ddd, DD MMM YYYY') + ' ' + moment(value).format('HH:mm:ss')
+                    return moment(value).format('ddd, DD MMM YYYY HH:mm:ss')
                 }
             },
             {
@@ -45,7 +45,7 @@ Ext.define('Dxp.view.tasks.AddScheduleGrid', {
                 dataIndex: 'end',
                 flex: 1,
                 renderer: function (value) {
-                    return moment(value).format('ddd, DD MMM YYYY') + ' ' + moment(value).format('HH:mm:ss')
+                    return moment(value).format('ddd, DD MMM YYYY HH:mm:ss')
                 }
             }
         ]

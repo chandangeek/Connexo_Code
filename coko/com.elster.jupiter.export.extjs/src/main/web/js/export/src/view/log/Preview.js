@@ -18,17 +18,17 @@ Ext.define('Dxp.view.log.Preview', {
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.name', 'DES', 'Name'),
                     name: 'name',
                     renderer: function (value) {
-                        var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl({taskId: me.down('#log-preview-form').getRecord().get('id')});
+                        var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl();
                         return '<a href="' + url + '">' + value + '</a>';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('log.runStartedOn', 'DES', 'Run started on'),
-                    value: 'Tue 01 Oct 2013 at 09:00 AM'
+                    name: 'startedOn'
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.status', 'DES', 'Status'),
-                    value: 'Failed'
+                    name: 'status'
                 }
             ]
         };

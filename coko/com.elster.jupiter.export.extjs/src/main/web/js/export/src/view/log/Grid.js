@@ -2,7 +2,6 @@ Ext.define('Dxp.view.log.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.log-grid',
     store: 'Dxp.store.Logs',
-    minHeight: 600,
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
@@ -17,7 +16,7 @@ Ext.define('Dxp.view.log.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.logLevel', 'DES', 'Log level'),
-                dataIndex: 'logLevel',
+                dataIndex: 'loglevel',
                 flex: 1
             },
             {
@@ -27,7 +26,7 @@ Ext.define('Dxp.view.log.Grid', {
             }
         ];
 
-     /*   me.dockedItems = [
+        me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
@@ -42,7 +41,7 @@ Ext.define('Dxp.view.log.Grid', {
                 itemsPerPageMsg: Uni.I18n.translate('log.pagingtoolbarbottom.itemsPerPage', 'DES', 'Log lines per page'),
                 dock: 'bottom'
             }
-        ];*/
+        ];
 
         me.callParent(arguments);
     }

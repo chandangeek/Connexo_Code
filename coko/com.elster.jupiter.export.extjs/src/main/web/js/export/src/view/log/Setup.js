@@ -46,7 +46,7 @@ Ext.define('Dxp.view.log.Setup', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('log.empty.title', 'DES', 'No logging has been found.'),
                         reasons: [
-                            Uni.I18n.translate('log.empty.list.item1', 'DES', 'No logging has been found for the') + ' ' + me.task.get('name') + ' ' + Uni.I18n.translate('general.startedon', 'DES', 'started on') + ' ' + me.task.get('name')
+                            Uni.I18n.translate('log.empty.list.item1', 'DES', 'No logging has been found for the') + ' ' + me.task.get('name') + ' ' + Uni.I18n.translate('general.startedon', 'DES', 'started on') + ' ' + me.task.get('startedOn')
                         ]
                     }
                 }

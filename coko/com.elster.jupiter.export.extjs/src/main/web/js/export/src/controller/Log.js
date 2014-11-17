@@ -4,11 +4,13 @@ Ext.define('Dxp.controller.Log', {
         'Dxp.view.log.Setup'
     ],
     stores: [
-        'Dxp.store.Logs'
+        'Dxp.store.Logs',
+        'Dxp.store.DataExportTasksHistory'
     ],
     models: [
         'Dxp.model.Log',
-        'Dxp.model.DataExportTask'
+        'Dxp.model.DataExportTask',
+        'Dxp.model.DataExportTaskHistory'
     ],
     refs: [
         {
@@ -17,32 +19,37 @@ Ext.define('Dxp.controller.Log', {
         }
     ],
 
-    init: function () {
-        this.control({
-
-        });
-    },
-
-    showLog: function (taskId) {
+    showLog: function (taskId, occurrenceId) {
         var me = this,
             taskModel = me.getModel('Dxp.model.DataExportTask'),
+            logsStore = me.getStore('Dxp.store.Logs'),
+            historyStore = me.getStore('Dxp.store.DataExportTasksHistory'),
+            router = me.getController('Uni.controller.history.Router'),
             view,
-            tasksSideMenu;
+            tasksSideMenu,
+            occurrenceTask;
 
+        historyStore.getProxy().setUrl(router.arguments);
+        logsStore.getProxy().setUrl(router.arguments);
         taskModel.load(taskId, {
             success: function (record) {
-                view = Ext.widget('log-setup', {
-                    router: me.getController('Uni.controller.history.Router'),
-                    task: record
+                historyStore.load(function(records) {
+                    records.map(function(r){
+                        r.set(Ext.apply({}, r.raw, record.raw));
+                    });
+                    occurrenceTask = this.getById(parseInt(occurrenceId));
+                    view = Ext.widget('log-setup', {
+                        router: router,
+                        task: record
+                    });
+                    tasksSideMenu = view.down('#tasks-view-menu');
+                    me.getApplication().fireEvent('dataexporttaskload', record);
+                    tasksSideMenu.setTitle(record.get('name'));
+                    tasksSideMenu.down('#tasks-log-link').show();
+                    view.down('#log-preview-form').loadRecord(occurrenceTask);
+                    me.getApplication().fireEvent('changecontentevent', view);
                 });
-                tasksSideMenu = view.down('#tasks-view-menu');
-                me.getApplication().fireEvent('dataexporttaskload', record);
-                tasksSideMenu.setTitle(record.get('name'));
-                tasksSideMenu.down('#tasks-log-link').show();
-                view.down('#log-preview-form').loadRecord(record);
-                me.getApplication().fireEvent('changecontentevent', view);
             }
         });
-
     }
 });

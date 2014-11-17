@@ -47,13 +47,15 @@ Ext.define('Dxp.controller.history.Export', {
                                     title: Uni.I18n.translate('general.dataExportTaskHistory', 'DES', 'Data export task history'),
                                     route: 'history',
                                     controller: 'Dxp.controller.Tasks',
-                                    action: 'showDataExportTaskHistory'
-                                },
-                                log: {
-                                    title: Uni.I18n.translate('general.dataExportTaskLog', 'DES', 'Data export task log'),
-                                    route: 'log',
-                                    controller: 'Dxp.controller.Log',
-                                    action: 'showLog'
+                                    action: 'showDataExportTaskHistory',
+                                    items: {
+                                        occurrence: {
+                                            title: Uni.I18n.translate('general.dataExportTaskLog', 'DES', 'Data export task log'),
+                                            route: '{occurrenceId}',
+                                            controller: 'Dxp.controller.Log',
+                                            action: 'showLog'
+                                        }
+                                    }
                                 }
                             }
                         }
