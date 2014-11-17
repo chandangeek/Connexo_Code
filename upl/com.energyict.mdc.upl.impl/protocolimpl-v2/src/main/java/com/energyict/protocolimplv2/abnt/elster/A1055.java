@@ -69,7 +69,7 @@ public class A1055 extends AbstractAbntProtocol {
     }
 
     /**
-     * The protocol version
+     * The protocol version date
      */
     @Override
     public String getVersion() {

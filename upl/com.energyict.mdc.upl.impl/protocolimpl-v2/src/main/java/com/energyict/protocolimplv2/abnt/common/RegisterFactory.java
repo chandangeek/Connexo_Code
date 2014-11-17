@@ -51,15 +51,14 @@ import java.util.Map;
 public class RegisterFactory implements DeviceRegisterSupport {
 
     private static final ObisCode PARAMETER_READ_BASE_OBIS = ObisCode.fromString("0.0.96.0.0.255");
-    private static final ObisCode REGISTER_READ_NO_GROUP_BASE_OBIS = ObisCode.fromString("1.0.0.8.0.255");
-    private static final ObisCode REGISTER_READ_GROUP_1_BASE_OBIS = ObisCode.fromString("1.0.1.8.0.255");
-    private static final ObisCode REGISTER_READ_GROUP_2_BASE_OBIS = ObisCode.fromString("1.0.2.8.0.255");
+    private static final ObisCode REGISTER_READ_GROUP_1_BASE_OBIS = ObisCode.fromString("1.0.0.8.0.255");
+    private static final ObisCode REGISTER_READ_GROUP_2_BASE_OBIS = ObisCode.fromString("1.0.1.8.0.255");
     private static final ObisCode INSTRUMENTATION_PAGE_BASE_OBIS = ObisCode.fromString("1.0.4.8.0.255");
     private static final ObisCode SERIAL_NUMBER_OBIS = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode INSTALLATION_CODE_OBIS = ObisCode.fromString("0.0.96.2.0.255");
     private static final ObisCode INSTALLATION_CODE_HEX_OBIS = ObisCode.fromString("0.1.96.2.0.255");
-    private static final ObisCode HISTORY_LOG_OBIS = ObisCode.fromString("0.0.99.98.0.255");
-    private static final ObisCode POWER_FAILURE_LOG_OBIS = ObisCode.fromString("1.0.99.97.0.255");
+    private static final ObisCode HISTORY_LOG_OBIS = ObisCode.fromString("0.0.99.98.128.255");
+    private static final ObisCode POWER_FAILURE_LOG_OBIS = ObisCode.fromString("1.0.99.97.128.255");
 
     private Map<Integer, ReadParametersResponse> actualParametersMap;
     private Map<Integer, ReadParametersResponse> previousParametersMap;
@@ -96,9 +95,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 readParameterReadRegisters(register, collectedRegister);
             } else if (registerIsOfType(register, REGISTER_READ_GROUP_1_BASE_OBIS)) { // B. Registers of Register read (channel group 1)
                 readRegisterReadRegisters(register, collectedRegister);
-            } else if (registerIsOfType(register, REGISTER_READ_GROUP_2_BASE_OBIS)) { // B. Registers of Register read (channel group 2)
-                readRegisterReadRegisters(register, collectedRegister);
-            } else if (registerIsOfType(register, REGISTER_READ_NO_GROUP_BASE_OBIS)) { // C. Registers of Register read (no channel group)
+            } else if (registerIsOfType(register, REGISTER_READ_GROUP_2_BASE_OBIS)) { // C. Registers of Register read (channel group 2)
                 readRegisterReadRegisters(register, collectedRegister);
             } else if (registerIsOfType(register, INSTRUMENTATION_PAGE_BASE_OBIS)) {    // D. Registers of Instrumentation page
                 readInstrumentationPageRegister(register, collectedRegister);
@@ -124,7 +121,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private void readParameterReadRegisters(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
         int channelGroup = register.getObisCode().getB();
         boolean billingRegisters = register.getObisCode().getF() != 255;
-        if (register.getObisCode().getE() == 0) {
+        if (register.getObisCode().getE() == 0x80) {
             setCollectedData(collectedRegister, getParameters(channelGroup, billingRegisters).getBytes());
             return;
         }
@@ -140,7 +137,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private void readRegisterReadRegisters(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
         int channelGroup = register.getObisCode().getC();
         boolean billingRegisters = register.getObisCode().getF() != 255;
-        if (register.getObisCode().getE() == 0) {
+        if (register.getObisCode().getE() == 0x80) {
             getParameters(channelGroup, billingRegisters);
             setCollectedData(collectedRegister, getRegisters(channelGroup, billingRegisters).getBytes());
             return;
@@ -215,7 +212,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private void readInstrumentationPageRegister(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
-        if (register.getObisCode().getE() == 0) {
+        if (register.getObisCode().getE() == 0x80) {
             setCollectedData(collectedRegister, getInstrumentationPage().getBytes());
             return;
         }
