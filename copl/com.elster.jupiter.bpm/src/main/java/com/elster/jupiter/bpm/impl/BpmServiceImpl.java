@@ -78,7 +78,7 @@ public class BpmServiceImpl implements BpmService, InstallService {
         });
         if (context != null) {
             bpmServer = new BpmServerImpl(context);
-            App app = new App("BPM", "BPM console", "jBPM", bpmServer.getUrl());
+            App app = new App("BPM", "BPM console", "connexo", bpmServer.getUrl());
             appServiceRegistration = context.registerService(App.class, app, null);
 
         }
