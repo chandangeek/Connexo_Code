@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.impl;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecificationServiceImpl;
+import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.elster.jupiter.nls.NlsService;
 import com.google.inject.AbstractModule;
@@ -21,6 +22,7 @@ public class ProtocolApiModule extends AbstractModule {
         requireBinding(NlsService.class);
 
         bind(DeviceMessageSpecificationService.class).to(DeviceMessageSpecificationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(HexService.class).to(HexServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }
