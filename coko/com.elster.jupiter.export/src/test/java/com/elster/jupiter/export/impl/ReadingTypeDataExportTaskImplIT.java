@@ -64,6 +64,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -85,6 +86,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeDataExportTaskImplIT {
 
+    public static final String NAME = "NAME";
     private EnumeratedEndDeviceGroup anotherEndDeviceGroup;
 
     private class MockModule extends AbstractModule {
@@ -194,6 +196,15 @@ public class ReadingTypeDataExportTaskImplIT {
         when(dataProcessorFactory.getProperties()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
         when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
+        try (TransactionContext context = transactionService.getContext()) {
+            lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
+            oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
+            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
+            endDeviceGroup.save();
+            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("also none");
+            anotherEndDeviceGroup.save();
+            context.commit();
+        }
     }
 
     @After
@@ -226,6 +237,26 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getStrategy().isExportUpdate()).isTrue();
         assertThat(readingTypeDataExportTask.getReadingTypes()).containsExactly(readingType);
         assertThat(readingTypeDataExportTask.getProperties()).hasSize(1).contains(entry("propy", BigDecimal.valueOf(100, 0)));
+    }
+
+    @Test
+    public void testNameUniqueness() {
+        createAndSaveTask();
+        try {
+            createAndSaveTask();
+        } catch (ConstraintViolationException ex) {
+            assertThat(ex.getConstraintViolations()).hasSize(1);
+            assertThat(ex.getConstraintViolations().iterator().next().getPropertyPath().iterator().next().getName()).isEqualTo("name");
+        }
+        ReadingTypeDataExportTask task = createAndSaveTask("NAME2");
+        task.setName(NAME);
+        try (TransactionContext context = transactionService.getContext()) {
+            task.save();
+            context.commit();
+        } catch (ConstraintViolationException ex) {
+            assertThat(ex.getConstraintViolations()).hasSize(1);
+            assertThat(ex.getConstraintViolations().iterator().next().getPropertyPath().iterator().next().getName()).isEqualTo("name");
+        }
     }
 
     @Test
@@ -269,24 +300,13 @@ public class ReadingTypeDataExportTaskImplIT {
     }
 
     private ReadingTypeDataExportTask createAndSaveTask() {
-        lastYear = null;
-        oneYearBeforeLastYear = null;
-        endDeviceGroup = null;
+        return createAndSaveTask(NAME);
+    }
 
-        try (TransactionContext context = transactionService.getContext()) {
-            lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
-            oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
-
-            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
-            endDeviceGroup.save();
-            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("also none");
-            anotherEndDeviceGroup.save();
-
-            context.commit();
-        }
+    private ReadingTypeDataExportTask createAndSaveTask(String name) {
         ReadingTypeDataExportTask exportTask = null;
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
+            exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
 
             exportTask.save();
             context.commit();
@@ -296,11 +316,15 @@ public class ReadingTypeDataExportTaskImplIT {
 
 
     private ReadingTypeDataExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup) {
+        return createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, NAME);
+    }
+
+    private ReadingTypeDataExportTask createExportTask(RelativePeriod lastYear, RelativePeriod oneYearBeforeLastYear, EndDeviceGroup endDeviceGroup, String name) {
         return dataExportService.newBuilder()
                 .setExportPeriod(lastYear)
                 .scheduleImmediately()
                 .setDataProcessorName(FORMATTER)
-                .setName("NAME")
+                .setName(name)
                 .setEndDeviceGroup(endDeviceGroup)
                 .addReadingType(readingType)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
@@ -314,18 +338,7 @@ public class ReadingTypeDataExportTaskImplIT {
 
     @Test
     public void testCreateOccurrence() throws Exception {
-        ReadingTypeDataExportTask exportTask = null;
-        try (TransactionContext context = transactionService.getContext()) {
-            RelativePeriod lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
-            RelativePeriod oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
-
-            EndDeviceGroup endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
-            endDeviceGroup.save();
-
-            exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
-            exportTask.save();
-            context.commit();
-        }
+        ReadingTypeDataExportTask exportTask = createAndSaveTask();
 
         Optional<? extends ReadingTypeDataExportTask> found = dataExportService.findExportTask(exportTask.getId());
         ReadingTypeDataExportTaskImpl task = (ReadingTypeDataExportTaskImpl) found.get();
@@ -370,12 +383,6 @@ public class ReadingTypeDataExportTaskImplIT {
     private ReadingTypeDataExportTaskImpl createDataExportTask() {
         ReadingTypeDataExportTaskImpl exportTask;
         try (TransactionContext context = transactionService.getContext()) {
-            RelativePeriod lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
-            RelativePeriod oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
-
-            EnumeratedEndDeviceGroup endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
-            endDeviceGroup.save();
-
             exportTask = (ReadingTypeDataExportTaskImpl) createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup);
             context.commit();
         }
