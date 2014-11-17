@@ -10,6 +10,7 @@ Ext.define('Uni.form.field.Password', {
         type: 'vbox',
         align: 'stretch'
     },
+    passwordAsTextComponent: false,
 
     handler: function (checkbox, checked) {
         var field = this.down('textfield');
@@ -26,17 +27,22 @@ Ext.define('Uni.form.field.Password', {
             inputType: 'password',
             name: this.name,
             readOnly: this.readOnly
-        },
-        {
-            xtype: 'checkbox',
-            boxLabel: Uni.I18n.translate('comServerComPorts.form.showChar', 'MDC', 'Show characters')
         }
     ],
 
     initComponent: function() {
         this.items[0].name = this.name;
-        this.items[1].handler = this.handler;
-        this.items[1].scope = this;
+        if (!this.passwordAsTextComponent) {
+            this.items.add(
+                {
+                    xtype: 'checkbox',
+                    boxLabel: Uni.I18n.translate('comServerComPorts.form.showChar', 'MDC', 'Show characters')
+                }
+            )
+            this.items[1].handler = this.handler;
+            this.items[1].scope = this;
+        }
+
 
         this.callParent(arguments);
     },
