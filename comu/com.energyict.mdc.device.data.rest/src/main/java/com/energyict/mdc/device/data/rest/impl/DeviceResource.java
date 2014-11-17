@@ -12,6 +12,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.TopologyTimeline;
@@ -22,9 +23,13 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -156,7 +161,7 @@ public class DeviceResource {
     }
 
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device){
-        List<DeviceTopologyInfo> slaves = null;
+        List<DeviceTopologyInfo> slaves;
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())){
             slaves = DeviceTopologyInfo.from(deviceService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
         } else {
