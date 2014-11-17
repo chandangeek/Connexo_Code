@@ -105,6 +105,7 @@ public class DataExportTaskResource {
                 .setName(info.name)
                 .setDataProcessorName(info.dataProcessor.name)
                 .setScheduleExpression(getScheduleExpression(info))
+                .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
                 .setExportPeriod(getRelativePeriod(info.exportperiod))
                 .setUpdatePeriod(getRelativePeriod(info.updatePeriod))
                 .setValidatedDataOption(info.validatedDataOption)
@@ -126,7 +127,6 @@ public class DataExportTaskResource {
                 .forEach(builder::addReadingType);
 
         ReadingTypeDataExportTask dataExportTask = builder.build();
-        dataExportTask.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
         try (TransactionContext context = transactionService.getContext()) {
             dataExportTask.save();
             context.commit();
