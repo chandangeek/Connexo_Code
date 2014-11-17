@@ -1,7 +1,12 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportOccurrenceFinder;
+import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -17,7 +22,6 @@ import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.conditions.Condition;
-import static com.elster.jupiter.util.conditions.Where.where;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -37,6 +41,9 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
+@UniqueName(groups = {Save.Create.class, Save.Update.class})
 class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     private class DataExportStrategyImpl implements DataExportStrategy {
@@ -327,26 +334,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ReadingTypeDataExportTaskImpl that = (ReadingTypeDataExportTaskImpl) o;
-
-        if (id != that.id) return false;
-        if (!name.equals(that.name)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + name.hashCode();
-        return result;
-    }
-
-    @Override
     public String getName() {
         return name;
     }
@@ -369,7 +356,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        this.name = (name != null ? name.trim() : "");
     }
 
     @Override
@@ -388,7 +375,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     private ReadingTypeDataExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup) {
-        this.name = name;
+        setName(name);
         this.exportPeriod.set(exportPeriod);
         this.dataProcessor = dataProcessor;
         this.scheduleExpression = scheduleExpression;
