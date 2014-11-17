@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.configuration.rest.MultiplierModeAdapter;
-import com.energyict.mdc.device.configuration.rest.ReadingTypeInfo;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;

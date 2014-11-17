@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
@@ -14,11 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
 public class DeviceInfo {
-    private static final int RECENTLY_ADDED_COUNT = 5;
+
     public long id;
     public String mRID;
     public String serialNumber;
@@ -30,10 +27,8 @@ public class DeviceInfo {
     public String batch;
     public String masterDevicemRID;
     public Long masterDeviceId;
-    public List<DeviceTopologyInfo> slaveDevices;
+    public List<DeviceInfo> slaveDevices;
     public long nbrOfDataCollectionIssues;
-    @XmlJavaTypeAdapter(GatewayTypeAdapter.class)
-    public GatewayType gatewayType;
 
     public DeviceInfo() {
     }
@@ -59,14 +54,14 @@ public class DeviceInfo {
             deviceInfo.masterDeviceId = device.getPhysicalGateway().getId();
             deviceInfo.masterDevicemRID = device.getPhysicalGateway().getmRID();
         }
-
-        deviceInfo.gatewayType = device.getConfigurationGatewayType();
-        if (GatewayType.LOCAL_AREA_NETWORK.equals(deviceInfo.gatewayType)){
-            deviceInfo.slaveDevices = DeviceTopologyInfo.from(device.getRecentlyAddedPhysicalConnectedDevices(RECENTLY_ADDED_COUNT));
-        } else {
-            deviceInfo.slaveDevices = DeviceTopologyInfo.fromDevices(device.getPhysicalConnectedDevices());
+        List<Device> slaves = device.getPhysicalConnectedDevices();
+        deviceInfo.slaveDevices = new ArrayList<>();
+        for (BaseDevice dev : slaves) {
+            DeviceInfo slaveInfo = new DeviceInfo();
+            slaveInfo.id  = dev.getId();
+            slaveInfo.mRID = ((Device)dev).getmRID();
+            deviceInfo.slaveDevices.add(slaveInfo);
         }
-
         deviceInfo.nbrOfDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID());
         return deviceInfo;
     }

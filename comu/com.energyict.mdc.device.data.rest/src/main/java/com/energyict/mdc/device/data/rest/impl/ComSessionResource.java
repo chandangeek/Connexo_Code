@@ -55,7 +55,7 @@ public class ComSessionResource {
     public ComSessionsInfo getConnectionMethodHistory(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
-        List<ComSession> comSessions = connectionTaskService.findAllSessionsFor(connectionTask).stream().sorted((c1, c2) -> c1.getStartDate().compareTo(c2.getStartDate())).collect(toList());
+        List<ComSession> comSessions = connectionTaskService.findAllSessionsFor(connectionTask).stream().sorted((c1, c2) -> c2.getStartDate().compareTo(c1.getStartDate())).collect(toList());
         List<ComSessionInfo> comSessionsInPage = ListPager.of(comSessions).from(queryParameters).find().stream()
                 .sorted((cs1, cs2)->cs2.getStartDate().compareTo(cs1.getStartDate()))
                 .map(comSessionInfoFactory::from).collect(toList());

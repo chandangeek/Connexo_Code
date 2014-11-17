@@ -80,7 +80,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COM_TASK(91, "NoSucComTaskOnDevice", "No such communication task exists for device ''{0}''"),
     COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE(92, "NoEnablementForDevice", "Communication task ''{0}'' is not enabled for device ''{1}''"),
     NO_SUCH_COM_TASK_EXEC_SESSION(93, "NoSuchComTaskExecSession", "The communication task logging could not be found"),
-    DEVICEGROUPNAME_ALREADY_EXISTS(94, "deviceGroupNameAlreadyExists", "A devicegroup with name {0} already exists"),    
+    DEVICEGROUPNAME_ALREADY_EXISTS(94, "deviceGroupNameAlreadyExists", "A devicegroup with name {0} already exists"),
     COMPLETE(95, "Complete", "Complete"),
     INCOMPLETE(96, "Incomplete", "Incomplete"),
     NO_SUCH_SECURITY_PROPERTY_SET_ON_DEVICE(97, "NoSuchSecurityPropertySetOnDevice", "No security settings with id {0} exist for device ''{1}''"),
@@ -183,6 +183,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_MESSAGE_SPEC(212, "NoSuchMessageSpec", "No such device message specification"),
     NO_SUCH_MESSAGE(213, "NoSuchMessage", "No such device message exists on the device" ),
     NOT_DEFINED_YET(214, "NotDefinedYet", "(not defined yet)"),
+    AS_SOON_AS_POSSIBLE(215, "asSoonAsPossible", "As soon as possible"),
+    MINIMIZE_CONNECTIONS(216, "minimizeConnections", "Minimize connections")
     ;
 
 

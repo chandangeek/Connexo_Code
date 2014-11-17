@@ -180,7 +180,7 @@ public class DeviceComTaskResource {
         }
         ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device);
         List<ComTaskExecutionSessionInfo> infos = new ArrayList<>();
-        List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findByComTaskExecution(comTaskExecution).find();
+        List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findByComTaskExecution(comTaskExecution).from(queryParameters).find();
         for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
             ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionFactory.from(comTaskExecutionSession);
             comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession());
