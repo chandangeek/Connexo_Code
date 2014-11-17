@@ -14,7 +14,7 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -45,13 +45,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link DeviceMessageServiceImpl} component.
+ * Tests the {@link DeviceMessageSpecificationServiceImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-12 (14:45)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceMessageServiceImplTest {
+public class DeviceMessageSpecificationServiceImplTest {
 
     @Mock
     private NlsService nlsService;
@@ -77,7 +77,7 @@ public class DeviceMessageServiceImplTest {
 
     @Before
     public void setupNslService () {
-        when(this.nlsService.getThesaurus(DeviceMessageService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
+        when(this.nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
     }
 
     @Test
@@ -201,14 +201,14 @@ public class DeviceMessageServiceImplTest {
         });
     }
 
-    private DeviceMessageService newService () {
-        return new DeviceMessageServiceImpl(this.propertySpecService, this.nlsService);
+    private DeviceMessageSpecificationService newService () {
+        return new DeviceMessageSpecificationServiceImpl(propertySpecService, nlsService);
     }
 
-    private DeviceMessageService newServiceWithRealPropertSpecService () {
+    private DeviceMessageSpecificationService newServiceWithRealPropertSpecService () {
         PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl());
         propertySpecService.addFactoryProvider(new FinderProvider());
-        return new DeviceMessageServiceImpl(propertySpecService, this.nlsService);
+        return new DeviceMessageSpecificationServiceImpl(propertySpecService, nlsService);
     }
 
     private class LoadProfile implements BaseLoadProfile<BaseChannel>, HasId {

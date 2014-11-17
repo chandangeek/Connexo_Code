@@ -399,7 +399,7 @@ public enum DeviceMessageCategories {
         }
 
         @Override
-        public PropertySpec getPropertySpec(String name) {
+        public <T> PropertySpec<T> getPropertySpec(String name) {
             return this.baseSpec.getPropertySpec(name, this.propertySpecService);
         }
 

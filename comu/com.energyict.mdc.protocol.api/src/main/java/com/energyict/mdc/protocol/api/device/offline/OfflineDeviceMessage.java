@@ -32,7 +32,7 @@ public interface OfflineDeviceMessage extends Offline {
     /**
      * @return the ID of the DeviceMessage
      */
-    public int getDeviceMessageId();
+    public long getDeviceMessageId();
 
     /**
      * The ID of the Device owning this DeviceMessage

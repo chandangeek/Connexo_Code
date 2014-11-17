@@ -1,13 +1,15 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.CanGoOffline;
-import com.energyict.mdc.common.IdBusinessObject;
-import com.energyict.mdc.dynamic.ReadOnlyDynamicAttributeOwner;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models a message that is sent to a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
@@ -27,7 +29,11 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (16:13)
  */
-public interface DeviceMessage<D extends BaseDevice> extends IdBusinessObject, ReadOnlyDynamicAttributeOwner, CanGoOffline<OfflineDeviceMessage> {
+public interface DeviceMessage<D extends BaseDevice> extends HasId, CanGoOffline<OfflineDeviceMessage> {
+
+    public void save();
+
+    public void delete();
 
     /**
      * Gets the {@link DeviceMessageSpec specification} of this DeviceMessage.
@@ -35,6 +41,11 @@ public interface DeviceMessage<D extends BaseDevice> extends IdBusinessObject, R
      * @return The specification
      */
     public DeviceMessageSpec getSpecification();
+
+    /**
+     * @return the DeviceMessageId of the spec of this DeviceMessage
+     */
+    public DeviceMessageId getDeviceMessageId();
 
     /**
      * Gets the {@link DeviceMessageAttribute}s of this DeviceMessage.
@@ -80,22 +91,14 @@ public interface DeviceMessage<D extends BaseDevice> extends IdBusinessObject, R
      *
      * @return The release Date
      */
-    public Date getReleaseDate();
-
-    /**
-     * Gets the Date on which the last modification to
-     * this DeviceMessage was effected.
-     *
-     * @return The last modification date
-     */
-    public Date getModificationDate();
+    public Instant getReleaseDate();
 
     /**
      * Provides the date when this object was created
      *
      * @return the creationDate of this DeviceMessage
      */
-    public Date getCreationDate();
+    public Instant getCreationDate();
 
     /**
      * Returns the receiver's tracking id
@@ -104,4 +107,25 @@ public interface DeviceMessage<D extends BaseDevice> extends IdBusinessObject, R
      */
     public String getTrackingId();
 
+    /**
+     * This is the date & time when a message was actually transmitted to the device. Will be empty if the message was not sent yet.
+     * @return The sent-date or empty if unsent
+     */
+    public Optional<Instant> getSentDate();
+
+    /**
+     * User who created the command
+     * @return User
+     */
+    public User getUser();
+
+    /**
+     * Updates the release date of this device message. Will only be allowed for messages in state WAITING. Will be persisted by save()
+     */
+    public void setReleaseDate(Instant releaseDate);
+
+    /**
+     * Cancels/revokes this DeviceMessage
+     */
+    public void revoke();
 }

@@ -1,8 +1,8 @@
 package com.energyict.mdc.protocol.api.impl;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageServiceImpl;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecificationServiceImpl;
 
 import com.elster.jupiter.nls.NlsService;
 import com.google.inject.AbstractModule;
@@ -20,7 +20,7 @@ public class ProtocolApiModule extends AbstractModule {
         requireBinding(PropertySpecService.class);
         requireBinding(NlsService.class);
 
-        bind(DeviceMessageService.class).to(DeviceMessageServiceImpl.class).in(Scopes.SINGLETON);
+        bind(DeviceMessageSpecificationService.class).to(DeviceMessageSpecificationServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }
