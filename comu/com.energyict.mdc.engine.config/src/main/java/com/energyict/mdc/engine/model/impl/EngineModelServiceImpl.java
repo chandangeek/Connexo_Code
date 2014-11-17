@@ -334,12 +334,14 @@ public class EngineModelServiceImpl implements EngineModelService, InstallServic
 
     @Override
     public List<OutboundComPortPool> findOutboundComPortPoolByType(ComPortType comPortType) {
-        return convertComportPoolListToOutBoundComPortPools(getComPortPoolDataMapper().find("comPortType", comPortType));
+        return convertComportPoolListToOutBoundComPortPools(getComPortPoolDataMapper().
+                select(Where.where("comPortType").isEqualTo(comPortType).and(Where.where(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).isNull())));
     }
 
     @Override
     public List<InboundComPortPool> findInboundComPortPoolByType(ComPortType comPortType) {
-        return convertComportPoolListToInBoundComPortPools(getComPortPoolDataMapper().find("comPortType", comPortType));
+        return convertComportPoolListToInBoundComPortPools(getComPortPoolDataMapper().
+                select(Where.where("comPortType").isEqualTo(comPortType).and(Where.where(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).isNull())));
     }
 
     @Override
