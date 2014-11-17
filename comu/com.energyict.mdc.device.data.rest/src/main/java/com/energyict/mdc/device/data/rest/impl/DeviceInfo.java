@@ -1,21 +1,23 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import java.text.SimpleDateFormat;
+
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
 public class DeviceInfo {
-
     public long id;
     public String mRID;
     public String serialNumber;
@@ -27,13 +29,18 @@ public class DeviceInfo {
     public String batch;
     public String masterDevicemRID;
     public Long masterDeviceId;
-    public List<DeviceInfo> slaveDevices;
+    public List<DeviceTopologyInfo> slaveDevices;
     public long nbrOfDataCollectionIssues;
+    @XmlJavaTypeAdapter(GatewayTypeAdapter.class)
+    public GatewayType gatewayType;
+    public Boolean hasRegisters;
+    public Boolean hasLogBooks;
+    public Boolean hasLoadProfiles;
 
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, DeviceImportService deviceImportService, IssueService issueService) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, DeviceService deviceService, IssueService issueService) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
@@ -54,15 +61,13 @@ public class DeviceInfo {
             deviceInfo.masterDeviceId = device.getPhysicalGateway().getId();
             deviceInfo.masterDevicemRID = device.getPhysicalGateway().getmRID();
         }
-        List<Device> slaves = device.getPhysicalConnectedDevices();
-        deviceInfo.slaveDevices = new ArrayList<>();
-        for (BaseDevice dev : slaves) {
-            DeviceInfo slaveInfo = new DeviceInfo();
-            slaveInfo.id  = dev.getId();
-            slaveInfo.mRID = ((Device)dev).getmRID();
-            deviceInfo.slaveDevices.add(slaveInfo);
-        }
+
+        deviceInfo.gatewayType = device.getConfigurationGatewayType();
+        deviceInfo.slaveDevices = slaveDevices;
         deviceInfo.nbrOfDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID());
+        deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
+        deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
+        deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
         return deviceInfo;
     }
 
@@ -85,5 +90,4 @@ public class DeviceInfo {
         }
         return deviceInfos;
     }
-
 }
