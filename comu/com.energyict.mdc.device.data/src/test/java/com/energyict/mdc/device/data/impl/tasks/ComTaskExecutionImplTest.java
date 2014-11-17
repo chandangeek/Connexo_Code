@@ -48,7 +48,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void createAdHocWithoutViolationsTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
 
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -82,7 +82,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void createScheduledWithoutViolations() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask());
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule");
         ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
         ScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
 
@@ -104,7 +104,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComSchedule comSchedule1 = createComSchedule("ComSchedule1", comTaskEnablement.getComTask());
         ComSchedule comSchedule2 = createComSchedule("ComSchedule2", comTaskEnablement.getComTask());
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithComSchedule", "createWithComSchedule");
         ComTaskExecutionBuilder<ScheduledComTaskExecution> builder1 = device.newScheduledComTaskExecution(comSchedule1);
         builder1.add();
         ComTaskExecutionBuilder<ScheduledComTaskExecution> builder2 = device.newScheduledComTaskExecution(comSchedule2);
@@ -120,7 +120,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void comTaskExecutionDeletedWhenDeviceDeletedTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeletionTest", "DeletionTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeletionTest", "DeletionTest");
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
@@ -142,7 +142,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         ComTaskEnablement comTaskEnablement1 = enableComTask(true);
         ComTaskEnablement comTaskEnablement2 = enableComTask(true, this.protocolDialectConfigurationProperties, COM_TASK_NAME + "2");
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement1.getComTask());
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         ComTaskExecutionBuilder<ScheduledComTaskExecution> scheduledComTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
         ScheduledComTaskExecution scheduledComTaskExecution = scheduledComTaskExecutionBuilder.add();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> manuallyScheduledComTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement2, protocolDialectConfigurationProperties, myTemporalExpression);
@@ -163,8 +163,8 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void removeComTaskWhichIsNotFromDeviceXTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device deviceWithoutComTaskExecutions = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithoutComTaskExecutions", "DeviceWithoutComTaskExecutions");
-        Device deviceWithComTaskExecutions = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "DeviceWithComTaskExecutions", "DeviceWithComTaskExecutions");
+        Device deviceWithoutComTaskExecutions = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithoutComTaskExecutions", "DeviceWithoutComTaskExecutions");
+        Device deviceWithComTaskExecutions = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithComTaskExecutions", "DeviceWithComTaskExecutions");
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = deviceWithComTaskExecutions.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         deviceWithComTaskExecutions.save();
@@ -181,7 +181,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         boolean originalDefaultValue = false;
         boolean testUseDefault = !originalDefaultValue;
         ComTaskEnablement comTaskEnablement = enableComTask(originalDefaultValue);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
 
         // Business method
@@ -199,7 +199,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         boolean originalDefaultValue = false;
         boolean testUseDefault = !originalDefaultValue;
         ComTaskEnablement comTaskEnablement = enableComTask(originalDefaultValue);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         comTaskExecutionBuilder.connectionTask(createASAPConnectionStandardTask(device));
@@ -227,7 +227,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask());
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         device.save();
 
         ScheduledConnectionTaskImpl connectionTask = createMinimizeOneDayConnectionStandardTask(device);
@@ -249,7 +249,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Test
     @Transactional
     public void setConnectionTaskOnBuilderTest() {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
@@ -267,7 +267,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Test
     @Transactional
     public void setConnectionTaskOnBuilderSetsUseDefaultToFalseTest() {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
@@ -286,7 +286,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void setUseDefaultConnectionTaskClearsConnectionTaskTest() {
         boolean useDefaultTrue = true;
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
@@ -306,7 +306,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Test
     @Transactional
     public void setConnectionTaskOnUpdaterTest() {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
@@ -326,7 +326,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Test
     @Transactional
     public void setConnectionTaskOnUpdaterSetsUseDefaultToFalseTest() {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
@@ -347,7 +347,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void setUseDefaultOnUpdaterClearsConnectionTaskTest() {
         boolean useDefaultTrue = true;
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
@@ -371,7 +371,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void clearingDefaultFlagOnConnectionTaskClearsTheConnectionTaskOnTheComTaskExecutionTest() {
         boolean useDefaultTrue = true;
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "dcf", "dcf");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "dcf", "dcf");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
@@ -397,7 +397,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT + "}")
     public void setNotToUseDefaultAndNoConnectionTaskSetTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         comTaskExecutionBuilder.useDefaultConnectionTask(false);
@@ -410,7 +410,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void setPriorityOnBuilderTest() {
         int myPriority = 514;
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "PriorityTester", "PriorityTester");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "PriorityTester", "PriorityTester");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         comTaskExecutionBuilder.priority(myPriority);
@@ -427,7 +427,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void negativePriorityOnBuilderTest() {
         int myPriority = -123;
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         comTaskExecutionBuilder.priority(myPriority);
@@ -441,7 +441,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void setPriorityOutOfRangeTest() {
         int myPriority = TaskPriorityConstants.LOWEST_PRIORITY + 1;
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         comTaskExecutionBuilder.priority(myPriority);
@@ -458,7 +458,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void setPriorityOnUpdaterTest() {
         int myPriority = 231;
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "PriorityUpdater", "PriorityUpdater");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "PriorityUpdater", "PriorityUpdater");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -478,7 +478,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void negativePriorityOnUpdaterTest() {
         int myPriority = -7859;
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -495,7 +495,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void updatePriorityOutOfRangeTest() {
         int myPriority = TaskPriorityConstants.LOWEST_PRIORITY + 1;
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -511,7 +511,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void ignoreNextForInboundOnBuilderTest() {
         boolean ignoreOnInbound = true;
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         comTaskExecutionBuilder.ignoreNextExecutionSpecForInbound(ignoreOnInbound);
@@ -527,7 +527,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void ignoreNextForInboundOnUpdaterTest() {
         boolean ignoreOnInbound = true;
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithValidationError", "WithValidationError");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -547,7 +547,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void setNullProtocolDialectTest() {
         deviceConfiguration.save();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Dialect", "Dialect");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Dialect", "Dialect");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, null);
         comTaskExecutionBuilder.add();
@@ -564,7 +564,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         ProtocolDialectConfigurationProperties otherDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new OtherComTaskExecutionDialect());
         deviceConfiguration.save();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Dialect", "Dialect");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Dialect", "Dialect");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -585,7 +585,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void makeSuccessfulObsoleteTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithMyNextExecSpec", "WithMyNextExecSpec");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithMyNextExecSpec", "WithMyNextExecSpec");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -603,7 +603,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void makeObsoleteTwiceTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -622,7 +622,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void makeObsoleteWhenInUseTest() {
         OutboundComPort outboundComPort = createOutboundComPort();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -640,7 +640,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void makeObsoleteWhenConnectionTaskHasComServerFilledInTest() {
         OutboundComPort outboundComPort = createOutboundComPort();
         ComServer comServer = outboundComPort.getComServer();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
@@ -661,7 +661,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void makeObsoleteWhenDefaultConnectionTaskHasComServerFilledInTest() {
         OutboundComPort outboundComPort = createOutboundComPort();
         ComServer comServer = outboundComPort.getComServer();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest");
         device.save();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
@@ -683,7 +683,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void isScheduledTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComSchedule comSchedule = createComSchedule(comTaskEnablement.getComTask());
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         device.save();
         ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
         ScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -703,7 +703,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void isExecutingByComPortTest() {
         OutboundComPort outboundComPort = createOutboundComPort();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -727,7 +727,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         OutboundComPort outboundComPort = createOutboundComPort();
         ComServer comServer = outboundComPort.getComServer();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
@@ -752,7 +752,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         OutboundComPort outboundComPort = createOutboundComPort();
         ComServer comServer = outboundComPort.getComServer();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
@@ -776,7 +776,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void notifyConnectionTaskRemovedTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
@@ -798,7 +798,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}", strict = false)
     public void duplicateComTaskOnDeviceTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Duplicate", "Duplicate");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Duplicate", "Duplicate");
         device.save();
         ComTaskExecutionBuilder comTaskExecutionBuilder1 = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         comTaskExecutionBuilder1.add();
@@ -816,7 +816,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void duplicateComTaskOnDeviceAfterRemoveTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Duplicate", "Duplicate");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Duplicate", "Duplicate");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder1 = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution1 = comTaskExecutionBuilder1.add();
@@ -839,7 +839,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void isObsoleteTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "IsObsolete", "IsObsolete");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "IsObsolete", "IsObsolete");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder1 = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution1 = comTaskExecutionBuilder1.add();
@@ -867,7 +867,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void updateNextExecutionTimeStampOnAdHocTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "UpdateNextExecSpec", "UpdateNextExecSpec");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "UpdateNextExecSpec", "UpdateNextExecSpec");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -887,7 +887,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         Date fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 0, 0, 0, 0);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "TimeChecks", "TimeChecks");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "TimeChecks", "TimeChecks");
         device.save();
         ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
         ScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -912,7 +912,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         Date nextFromConnectionTask = createFixedTimeStamp(2014, 4, 5, 0, 0, 0, 0, TimeZone.getTimeZone("UTC"));
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask(), new TemporalExpression(TimeDuration.hours(1)));
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "TimeChecks", "TimeChecks");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "TimeChecks", "TimeChecks");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createMinimizeOneDayConnectionStandardTask(device);
         ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
@@ -936,7 +936,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     public void putScheduledOnHoldTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "PutOnHold", "PutOnHold");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "PutOnHold", "PutOnHold");
         device.save();
         ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
         ScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -961,7 +961,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         Date fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 3, 0, 0, 0, TimeZone.getTimeZone("UTC"));
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask(), temporalExpression);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "TimeChecks", "TimeChecks");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "TimeChecks", "TimeChecks");
         device.save();
         ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
 
@@ -982,7 +982,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void lockComTaskExecutionTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "LockTest", "LockTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "LockTest", "LockTest");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -1003,7 +1003,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void cantLockTwiceTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "LockTest", "LockTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "LockTest", "LockTest");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -1023,7 +1023,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void unlockComTaskExecutionTest() {
         ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "UnlockTest", "UnlockTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "UnlockTest", "UnlockTest");
         device.save();
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();

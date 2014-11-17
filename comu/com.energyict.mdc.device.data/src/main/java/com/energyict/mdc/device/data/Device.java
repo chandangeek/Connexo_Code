@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
@@ -145,13 +146,13 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     List<Device> getAllCommunicationReferencingDevices(Instant timestamp);
 
     /**
-     * Gets the {@link CommunicationTopologyEntry CommunicationTopologies} for this Device
+     * Gets the {@link DeviceTopology communication topology} for this Device
      * during the specified Interval, organized (or sorted) along the timeline.
      *
-     * @param interval The Interval during which the devices were linked for communication to this Device
+     * @param period The period in time during which the devices were linked for communication to this Device
      * @return The CommunicationTopologies
      */
-    List<CommunicationTopologyEntry> getAllCommunicationTopologies(Interval interval);
+    public DeviceTopology getCommunicationTopology(Range<Instant> period);
 
     List<DeviceMessage> getMessages();
 

@@ -152,6 +152,6 @@ public abstract class PersistenceIntegrationTest {
     }
 
     protected Device getReloadedDevice(Device device) {
-        return inMemoryPersistence.getDeviceDataService().findDeviceById(device.getId());
+        return inMemoryPersistence.getDeviceService().findDeviceById(device.getId());
     }
 }

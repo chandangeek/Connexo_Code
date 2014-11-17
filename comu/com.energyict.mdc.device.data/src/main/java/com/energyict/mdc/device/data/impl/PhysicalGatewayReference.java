@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.Device;
-
 /**
  * Defines the link object between a {@link com.energyict.mdc.device.data.Device}
  * and his <i>physical</i> gateway {@link com.energyict.mdc.device.data.Device}.
@@ -12,11 +10,4 @@ import com.energyict.mdc.device.data.Device;
  * Time: 09:40
  */
 public interface PhysicalGatewayReference extends GatewayReference {
-
-    /**
-     * @return the current physical gateway device
-     */
-    public Device getPhysicalGateway();
-
-    Device getOrigin();
 }

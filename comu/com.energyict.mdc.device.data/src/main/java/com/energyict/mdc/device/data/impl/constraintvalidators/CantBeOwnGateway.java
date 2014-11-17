@@ -18,7 +18,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({java.lang.annotation.ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {PhysicalGatewayNotSameAsOriginValidator.class, CommunicationGatewayNotSameAsOriginValidator.class})
+@Constraint(validatedBy = {GatewayNotSameAsOriginValidator.class})
 public @interface CantBeOwnGateway {
     String message() default "";
 

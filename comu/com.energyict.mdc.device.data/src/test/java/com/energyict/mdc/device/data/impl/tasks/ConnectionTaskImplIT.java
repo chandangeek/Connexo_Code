@@ -298,7 +298,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ServerDeviceService getDeviceDataService() {
-        return inMemoryPersistence.getDeviceDataService();
+        return inMemoryPersistence.getDeviceService();
     }
 
     @Before
@@ -379,7 +379,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDevice(String mRID) {
-        Device simpleDevice = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "SimpleDevice", mRID);
+        Device simpleDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "SimpleDevice", mRID);
         simpleDevice.save();
         return simpleDevice;
     }

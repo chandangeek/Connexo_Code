@@ -1,33 +1,40 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
-import org.joda.time.DateMidnight;
-import org.junit.Test;
+
+import com.google.common.collect.Range;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link CommunicationTopologyImpl} component.
+ * Tests the {@link DeviceTopologyImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-06-03 (11:00)
  */
-public class CommunicationTopologyImplTest {
+public class DeviceTopologyImplTest {
 
-    private static final Interval JAN_2014 = new Interval(new DateMidnight(2014, 1, 1).toDate(), new DateMidnight(2014, 2, 1).toDate());
+    private static final LocalDateTime JAN_1ST = LocalDateTime.of(2014, Month.JANUARY, 1, 0, 0, 0);
+    private static final Range<Instant> JAN_2014 = Range.closed(JAN_1ST.toInstant(ZoneOffset.UTC), JAN_1ST.plusMonths(1).toInstant(ZoneOffset.UTC));
 
     @Test
     public void testConstructor () {
         Device device = mock(Device.class);
 
         // Business method
-        CommunicationTopologyImpl communicationTopology = new CommunicationTopologyImpl(device, JAN_2014);
+        DeviceTopologyImpl communicationTopology = new DeviceTopologyImpl(device, JAN_2014);
 
         // Asserts
-        assertThat(communicationTopology.getInterval()).isEqualTo(JAN_2014);
+        assertThat(communicationTopology.getPeriod()).isEqualTo(JAN_2014);
         assertThat(communicationTopology.getRoot()).isEqualTo(device);
         assertThat(communicationTopology.getChildren()).isEmpty();
         assertThat(communicationTopology.getDevices()).isEmpty();
@@ -38,9 +45,8 @@ public class CommunicationTopologyImplTest {
     public void testAddOneChild () {
         Device device1 = mock(Device.class);
         Device device2 = mock(Device.class);
-        CommunicationTopologyImpl communicationTopology = new CommunicationTopologyImpl(device1, JAN_2014);
-        CommunicationTopology childTopology = mock(CommunicationTopology.class);
-        when(childTopology.getRoot()).thenReturn(device2);
+        DeviceTopologyImpl communicationTopology = new DeviceTopologyImpl(device1, JAN_2014);
+        DeviceTopologyImpl childTopology = new DeviceTopologyImpl(device2, JAN_2014);
 
         // Business method
         boolean result = communicationTopology.addChild(childTopology);
@@ -57,11 +63,9 @@ public class CommunicationTopologyImplTest {
         Device device1 = mock(Device.class);
         Device device2 = mock(Device.class);
         Device device3 = mock(Device.class);
-        CommunicationTopologyImpl communicationTopology = new CommunicationTopologyImpl(device1, JAN_2014);
-        CommunicationTopology childTopology1 = mock(CommunicationTopology.class);
-        when(childTopology1.getRoot()).thenReturn(device2);
-        CommunicationTopology childTopology2 = mock(CommunicationTopology.class);
-        when(childTopology2.getRoot()).thenReturn(device3);
+        DeviceTopologyImpl communicationTopology = new DeviceTopologyImpl(device1, JAN_2014);
+        DeviceTopologyImpl childTopology1 = new DeviceTopologyImpl(device2, JAN_2014);
+        DeviceTopologyImpl childTopology2 = new DeviceTopologyImpl(device3, JAN_2014);
 
         // Business method
         communicationTopology.addChild(childTopology1);

@@ -1,16 +1,26 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.data.CommunicationTopologyEntry;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceTopology;
+import com.energyict.mdc.device.data.TopologyTimeline;
+import com.energyict.mdc.device.data.TopologyTimeslice;
+
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.google.common.collect.Range;
 import org.joda.time.DateMidnight;
-import org.junit.Test;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -23,20 +33,20 @@ import static org.mockito.Mockito.when;
  * <li>{@link DeviceImpl#getAllCommunicationReferencingDevices()}</li>
  * <li>{@link DeviceImpl#getCommunicationReferencingDevices(Instant)}</li>
  * <li>{@link DeviceImpl#getAllCommunicationReferencingDevices(Instant)}</li>
- * <li>{@link DeviceImpl#getAllCommunicationTopologies(Interval)}</li>
+ * <li>{@link DeviceImpl#getCommunicationTopology(Range)}</li>
  * </ul>
  */
 public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
 
     private static final String DEVICENAME = "DeviceImplTopologyTest";
     private static final String MRID = "DeviceImplTopologyTest";
-    private static final DateMidnight MIDNIGHT_MAY_31ST_2014 = new DateMidnight(2014, 5, 31);
-    private static final DateMidnight MIDNIGHT_MAY_2ND_2014 = new DateMidnight(2014, 5, 2);
-    private static final DateMidnight MIDNIGHT_JAN_1ST_2013 = new DateMidnight(2013, 1, 1);
-    private static final DateMidnight MIDNIGHT_JAN_1ST_2014 = new DateMidnight(2014, 1, 1);
-    private static final DateMidnight MIDNIGHT_JAN_10TH_2014 = new DateMidnight(2014, 1, 10);
-    private static final DateMidnight MIDNIGHT_JAN_20TH_2014 = new DateMidnight(2014, 1, 20);
-    private static final DateMidnight MIDNIGHT_FEB_1ST_2014 = new DateMidnight(2014, 2, 1);
+    private static final LocalDateTime MIDNIGHT_MAY_31ST_2014 = LocalDateTime.of(2014, Month.MAY, 31, 0, 0, 0);
+    private static final Instant MIDNIGHT_MAY_2ND_2014 = LocalDateTime.of(2014, Month.MAY, 2, 0, 0, 0).toInstant(ZoneOffset.UTC);
+    private static final Instant MIDNIGHT_JAN_1ST_2013 = LocalDateTime.of(2013, Month.JANUARY, 1, 0, 0, 0).toInstant(ZoneOffset.UTC);
+    private static final Instant MIDNIGHT_JAN_1ST_2014 = LocalDateTime.of(2014, Month.JANUARY, 1, 0, 0, 0).toInstant(ZoneOffset.UTC);
+    private static final Instant MIDNIGHT_JAN_10TH_2014 = LocalDateTime.of(2014, Month.JANUARY, 10, 0, 0, 0).toInstant(ZoneOffset.UTC);
+    private static final Instant MIDNIGHT_JAN_20TH_2014 = LocalDateTime.of(2014, Month.JANUARY, 20, 0, 0, 0).toInstant(ZoneOffset.UTC);
+    private static final Instant MIDNIGHT_FEB_1ST_2014 = LocalDateTime.of(2014, Month.FEBRUARY, 1, 0, 0, 0).toInstant(ZoneOffset.UTC);
 
     @Test
     @Transactional
@@ -85,13 +95,13 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCommunicationReferencingDevicesOnDateWithoutReferencingDevicesOnThatDate () {
-        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toInstant(ZoneOffset.UTC));
         Device master = this.createSimpleDevice();
         this.createSlaveDevice("Slave1", master);
         this.createSlaveDevice("Slave2", master);
 
         // Business method
-        List<Device> slaves = master.getCommunicationReferencingDevices(MIDNIGHT_MAY_2ND_2014.toDate().toInstant());
+        List<Device> slaves = master.getCommunicationReferencingDevices(MIDNIGHT_MAY_2ND_2014);
 
         // Asserts
         assertThat(slaves).isEmpty();
@@ -100,7 +110,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCommunicationReferencingDevicesOnDateWithReferencingDevices () {
-        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toInstant(ZoneOffset.UTC));
         Device master = this.createSimpleDevice();
         Device slave1 = this.createSlaveDevice("Slave1", master);
         Device slave2 = this.createSlaveDevice("Slave2", master);
@@ -108,7 +118,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         long slave2Id = slave2.getId();
 
         // Business method
-        List<Device> slaves = master.getCommunicationReferencingDevices(MIDNIGHT_MAY_31ST_2014.plusDays(1).toDate().toInstant());
+        List<Device> slaves = master.getCommunicationReferencingDevices(MIDNIGHT_MAY_31ST_2014.plusDays(1).toInstant(ZoneOffset.UTC));
         Set<Long> actualSlaveIds = new HashSet<>();
         for (Device slave : slaves) {
             actualSlaveIds.add(slave.getId());
@@ -156,7 +166,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         Device master = this.createSimpleDevice();
 
         // Business method
-        List<Device> slaves = master.getAllCommunicationReferencingDevices(new DateMidnight(2014, 5, 2).toDate().toInstant());
+        List<Device> slaves = master.getAllCommunicationReferencingDevices(LocalDateTime.of(2014, Month.MAY, 2, 0, 0, 0, 0).toInstant(ZoneOffset.UTC));
 
         // Asserts
         assertThat(slaves).isEmpty();
@@ -165,13 +175,13 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testAllCommunicationReferencingDevicesOnDateWithoutReferencingDevicesOnThatDate () {
-        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toInstant(ZoneOffset.UTC));
         Device master = this.createSimpleDevice();
         Device slave1 = this.createSlaveDevice("Slave1", master);
         this.createSlaveDevice("Slave2", slave1);
 
         // Business method
-        List<Device> slaves = master.getAllCommunicationReferencingDevices(MIDNIGHT_MAY_2ND_2014.toDate().toInstant());
+        List<Device> slaves = master.getAllCommunicationReferencingDevices(MIDNIGHT_MAY_2ND_2014);
 
         // Asserts
         assertThat(slaves).isEmpty();
@@ -180,7 +190,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testAllCommunicationReferencingDevicesOnDateWithReferencingDevices () {
-        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toInstant(ZoneOffset.UTC));
         Device master = this.createSimpleDevice();
         Device slave1 = this.createSlaveDevice("Slave1", master);
         Device slave2 = this.createSlaveDevice("Slave2", slave1);
@@ -188,7 +198,7 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         long slave2Id = slave2.getId();
 
         // Business method
-        List<Device> slaves = master.getAllCommunicationReferencingDevices(MIDNIGHT_MAY_31ST_2014.plusDays(1).toDate().toInstant());
+        List<Device> slaves = master.getAllCommunicationReferencingDevices(MIDNIGHT_MAY_31ST_2014.plusDays(1).toInstant(ZoneOffset.UTC));
         Set<Long> actualSlaveIds = new HashSet<>();
         for (Device slave : slaves) {
             actualSlaveIds.add(slave.getId());
@@ -204,31 +214,32 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         Device master = this.createSimpleDevice();
 
         // Business method
-        List<CommunicationTopologyEntry> topologyEntries = master.getAllCommunicationTopologies(Interval.sinceEpoch());
+        DeviceTopology topology = master.getCommunicationTopology(Range.atMost(Instant.now()));
 
         // Asserts
-        assertThat(topologyEntries).isEmpty();
+        assertThat(topology.getAllDevices()).isEmpty();
     }
 
     @Test
     @Transactional
     public void testAllCommunicationTopologiesWithoutReferencingDevicesOnThatDate () {
-        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toInstant(ZoneOffset.UTC));
         Device master = this.createSimpleDevice();
         Device slave1 = this.createSlaveDevice("Slave1", master);
         Device slave2 = this.createSlaveDevice("Slave2", slave1);
 
         // Business method
-        List<CommunicationTopologyEntry> topologyEntries = master.getAllCommunicationTopologies(new Interval(null, MIDNIGHT_MAY_2ND_2014.toDate()));
+        DeviceTopology topology = master.getCommunicationTopology(Range.atMost(Instant.from(MIDNIGHT_MAY_2ND_2014)));
 
         // Asserts
-        assertThat(topologyEntries).isEmpty();
+        assertThat(topology.getDevices()).isEmpty();
+        assertThat(topology.getAllDevices()).isEmpty();
     }
 
     @Test
     @Transactional
     public void testAllCommunicationTopologiesWithReferencingDevices () {
-        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toDate().toInstant());
+        when(clock.instant()).thenReturn(MIDNIGHT_MAY_31ST_2014.toInstant(ZoneOffset.UTC));
         Device master = this.createSimpleDevice();
         Device slave1 = this.createSlaveDevice("Slave1", master);
         Device slave2 = this.createSlaveDevice("Slave2", slave1);
@@ -236,13 +247,14 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         long slave2Id = slave2.getId();
 
         // Business method
-        DateMidnight midnight_june_1st_2014 = MIDNIGHT_MAY_31ST_2014.plusDays(1);
-        List<CommunicationTopologyEntry> topologyEntries = master.getAllCommunicationTopologies(new Interval(null, midnight_june_1st_2014.toDate()));
+        LocalDateTime midnight_june_1st_2014 = MIDNIGHT_MAY_31ST_2014.plusDays(1);
+        DeviceTopology topology = master.getCommunicationTopology(Range.atMost(midnight_june_1st_2014.toInstant(ZoneOffset.UTC)));
+        TopologyTimeline timeline = topology.timelined();
 
         // Asserts
-        assertThat(topologyEntries).hasSize(1);
-        CommunicationTopologyEntry topologyEntry = topologyEntries.get(0);
-        assertThat(topologyEntry.getInterval()).isEqualTo(new Interval(MIDNIGHT_MAY_31ST_2014.toDate(), midnight_june_1st_2014.toDate()));
+        assertThat(timeline.getSlices()).hasSize(1);
+        TopologyTimeslice topologyEntry = timeline.getSlices().get(0);
+        assertThat(topologyEntry.getPeriod()).isEqualTo(Range.<Instant>closed(MIDNIGHT_MAY_31ST_2014.toInstant(ZoneOffset.UTC), midnight_june_1st_2014.toInstant(ZoneOffset.UTC)));
         List<Device> slaves = topologyEntry.getDevices();
         Set<Long> actualSlaveIds = new HashSet<>();
         for (Device slave : slaves) {
@@ -252,34 +264,34 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     }
 
     /**
-     * Test the {@link DeviceImpl#getAllCommunicationTopologies(Interval)} method for the following case:
+     * Test the {@link DeviceImpl#getCommunicationTopology(Range)} method for the following case:
      * D1- jan 2013 - D8
      *   - jan 2014 - D2 - (2014-01-01, 2014-01-20] - D4
-     *                      (2014-01-20, 2014-02-01] - D5
-     *               - D3 - (2014-01-01, 2014-01-10] - D6
-     *                      (2014-01-10, 2014-01-20] - D7
-     *                      (2014-01-20, 2014-02-01] - D4, D6
+     *                     (2014-01-20, 2014-02-01] - D5
+     *              - D3 - (2014-01-01, 2014-01-10] - D6
+     *                     (2014-01-10, 2014-01-20] - D7
+     *                     (2014-01-20, 2014-02-01] - D4, D6
      */
     @Test
     @Transactional
     public void testAllCommunicationTopologiesForComplexCase () {
         Device D1 = this.createSimpleDevice();
-        when(clock.instant()).thenReturn(MIDNIGHT_JAN_1ST_2013.toDate().toInstant());
+        when(clock.instant()).thenReturn(MIDNIGHT_JAN_1ST_2013);
         Device D8 = this.createSlaveDevice("D8", D1);
-        when(clock.instant()).thenReturn(MIDNIGHT_JAN_1ST_2014.toDate().toInstant());
+        when(clock.instant()).thenReturn(MIDNIGHT_JAN_1ST_2014);
         Device D2 = this.createSlaveDevice("D2", D1);
         Device D3 = this.createSlaveDevice("D3", D1);
         Device D4 = this.createSlaveDevice("D4", D2);
         Device D6 = this.createSlaveDevice("D6", D3);
-        when(clock.instant()).thenReturn(MIDNIGHT_JAN_20TH_2014.toDate().toInstant());
+        when(clock.instant()).thenReturn(MIDNIGHT_JAN_20TH_2014);
         D4.setCommunicationGateway(D3);
         D4.save();
         Device D5 = this.createSlaveDevice("D5", D2);
-        when(clock.instant()).thenReturn(MIDNIGHT_JAN_10TH_2014.toDate().toInstant());
+        when(clock.instant()).thenReturn(MIDNIGHT_JAN_10TH_2014);
         Device D7 = this.createSlaveDevice("D7", D3);
         D6.clearCommunicationGateway();
         D6.save();
-        when(clock.instant()).thenReturn(MIDNIGHT_JAN_20TH_2014.toDate().toInstant());
+        when(clock.instant()).thenReturn(MIDNIGHT_JAN_20TH_2014);
         D6.setCommunicationGateway(D3);
         D6.save();
         D7.clearCommunicationGateway();
@@ -293,22 +305,24 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
         long D8_ID = D8.getId();
 
         // Business method
-        List<CommunicationTopologyEntry> topologyEntries = D1.getAllCommunicationTopologies(new Interval(null, MIDNIGHT_MAY_31ST_2014.toDate()));
+        DeviceTopology topology = D1.getCommunicationTopology(Range.atMost(MIDNIGHT_MAY_31ST_2014.toInstant(ZoneOffset.UTC)));
 
         // Asserts
-        assertThat(topologyEntries).hasSize(4);
-        CommunicationTopologyEntry firstTopologyEntry = topologyEntries.get(0);
-        assertThat(firstTopologyEntry.getInterval()).isEqualTo(new Interval(MIDNIGHT_JAN_1ST_2013.toDate(), MIDNIGHT_JAN_1ST_2014.toDate()));
-        this.assertDeviceIds(firstTopologyEntry.getDevices(), D8_ID);
-        CommunicationTopologyEntry secondTopologyEntry = topologyEntries.get(1);
-        assertThat(secondTopologyEntry.getInterval()).isEqualTo(new Interval(MIDNIGHT_JAN_1ST_2014.toDate(), MIDNIGHT_JAN_10TH_2014.toDate()));
-        this.assertDeviceIds(secondTopologyEntry.getDevices(), D2_ID, D3_ID, D4_ID, D6_ID, D8_ID);
-        CommunicationTopologyEntry thirdTopologyEntry = topologyEntries.get(2);
-        assertThat(thirdTopologyEntry.getInterval()).isEqualTo(new Interval(MIDNIGHT_JAN_10TH_2014.toDate(), MIDNIGHT_JAN_20TH_2014.toDate()));
-        this.assertDeviceIds(thirdTopologyEntry.getDevices(), D2_ID, D3_ID, D4_ID, D7_ID, D8_ID);
-        CommunicationTopologyEntry fourthTopologyEntry = topologyEntries.get(3);
-        assertThat(fourthTopologyEntry.getInterval()).isEqualTo(new Interval(MIDNIGHT_JAN_20TH_2014.toDate(), MIDNIGHT_MAY_31ST_2014.toDate()));
-        this.assertDeviceIds(fourthTopologyEntry.getDevices(), D2_ID, D3_ID, D4_ID, D5_ID, D6_ID, D8_ID);
+        assertThat(topology.getAllDevices()).hasSize(7);
+        List<TopologyTimeslice> topologyTimeslices = topology.timelined().getSlices();
+        assertThat(topologyTimeslices).hasSize(4);
+        TopologyTimeslice firstSlaveTopology = topologyTimeslices.get(0);
+        assertThat(firstSlaveTopology.getPeriod()).isEqualTo(Range.closed(Instant.from(MIDNIGHT_JAN_1ST_2013), Instant.from(MIDNIGHT_JAN_1ST_2014)));
+        this.assertDeviceIds(firstSlaveTopology.getDevices(), D8_ID);
+        TopologyTimeslice secondSlaveTopology = topologyTimeslices.get(1);
+        assertThat(secondSlaveTopology.getPeriod()).isEqualTo(Range.closed(Instant.from(MIDNIGHT_JAN_1ST_2014), Instant.from(MIDNIGHT_JAN_10TH_2014)));
+        this.assertDeviceIds(secondSlaveTopology.getDevices(), D2_ID, D3_ID, D4_ID, D6_ID, D8_ID);
+        TopologyTimeslice thirdSlaveTopolog = topologyTimeslices.get(2);
+        assertThat(thirdSlaveTopolog.getPeriod()).isEqualTo(Range.closed(Instant.from(MIDNIGHT_JAN_10TH_2014), Instant.from(MIDNIGHT_JAN_20TH_2014)));
+        this.assertDeviceIds(thirdSlaveTopolog.getDevices(), D2_ID, D3_ID, D4_ID, D7_ID, D8_ID);
+        TopologyTimeslice fourthSlaveTopology = topologyTimeslices.get(3);
+        assertThat(fourthSlaveTopology.getPeriod()).isEqualTo(Range.closed(Instant.from(MIDNIGHT_JAN_20TH_2014), MIDNIGHT_MAY_31ST_2014.toInstant(ZoneOffset.UTC)));
+        this.assertDeviceIds(fourthSlaveTopology.getDevices(), D2_ID, D3_ID, D4_ID, D5_ID, D6_ID, D8_ID);
     }
 
     private void assertDeviceIds (List<Device> devices, Long... expectedDeviceIds) {
@@ -328,13 +342,13 @@ public class DeviceImplTopologyTest extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithName(String name, String mRID){
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, name, mRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID);
         device.save();
         return device;
     }
 
     private Device createSlaveDevice(String name, Device master){
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, name, MRID + name);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, MRID + name);
         device.setCommunicationGateway(master);
         device.save();
         return device;

@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.device.data.Device;
+
 import com.elster.jupiter.orm.associations.Effectivity;
 
 import java.time.Instant;
@@ -12,8 +14,22 @@ import java.time.Instant;
 public interface GatewayReference extends Effectivity {
 
     /**
+     * Gets the origin of the reference, i.e. the {@link Device} that effectively references the gateway.
+     *
+     * @return The Device that references the gateway
+     */
+    public Device getOrigin();
+
+    /**
+     * Gets the {@link Device gateway} that is referenced through this GatewayReference.
+     *
+     * @return The gateway device
+     */
+    public Device getGateway();
+
+    /**
+     * @param existenceDate The instant in time
      * @return true if for this moment, a communication gateway exists
-     * @param existenceDate
      */
     boolean existsFor(Instant existenceDate);
 
