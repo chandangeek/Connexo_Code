@@ -38,7 +38,7 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
     @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
-        builder.addProperty("minimumClockDifference").append(loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime());
+        builder.addProperty("minimumClockDifference").append(loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime().map(TimeDuration::toString).orElse(""));
         if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
             this.appendBadTimeLoadProfiles(builder);
         }
@@ -74,8 +74,8 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
 
     private boolean hasLargerOrEqualDuration() {
         return TimeDurations.hasLargerOrEqualDurationThen(
-                loadProfileCommand.getTimeDifferenceCommand().getTimeDifference().orElse(new TimeDuration(0, TimeDuration.TimeUnit.SECONDS)).abs(),
-                loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime(), true);
+                loadProfileCommand.getTimeDifferenceCommand().getTimeDifference().orElse(TimeDuration.seconds(0)).abs(),
+                loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime().orElse(TimeDuration.seconds(0)), true);
     }
 
     @Override

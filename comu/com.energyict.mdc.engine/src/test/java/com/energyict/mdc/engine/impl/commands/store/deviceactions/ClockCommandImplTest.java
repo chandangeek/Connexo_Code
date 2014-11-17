@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Date;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -63,9 +64,9 @@ public class ClockCommandImplTest extends CommonCommandImplTests {
      */
     private ClockTask getMockedClockTask() {
         ClockTask clockTask = mock(ClockTask.class);
-        when(clockTask.getMinimumClockDifference()).thenReturn(new TimeDuration(MINIMUM_CLOCK_DIFFERENCE));    // minimum 2 second clockDifference
-        when(clockTask.getMaximumClockDifference()).thenReturn(new TimeDuration(MAXIMUM_CLOCK_DIFFERENCE));   // maximum 10 seconds clockDifference
-        when(clockTask.getMaximumClockShift()).thenReturn(new TimeDuration(MAXIMUM_CLOCK_SHIFT));         // maximum 8 seconds clockShift
+        when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(new TimeDuration(MINIMUM_CLOCK_DIFFERENCE)));    // minimum 2 second clockDifference
+        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(new TimeDuration(MAXIMUM_CLOCK_DIFFERENCE)));   // maximum 10 seconds clockDifference
+        when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(new TimeDuration(MAXIMUM_CLOCK_SHIFT)));         // maximum 8 seconds clockShift
         return clockTask;
     }
 

@@ -32,7 +32,7 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
         BasicCheckCommand basicCheckCommand = mock(BasicCheckCommand.class);
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
         when(basicCheckCommand.getBasicCheckTask()).thenReturn(basicCheckTask);
-        when(basicCheckTask.getMaximumClockDifference()).thenReturn(new TimeDuration(100));
+        when(basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.of(new TimeDuration(100)));
         VerifyTimeDifferenceCommandImpl command = new VerifyTimeDifferenceCommandImpl(basicCheckCommand, createCommandRoot());
         assertEquals("VerifyTimeDifferenceCommandImpl {maximumDifference: 100 seconds}", command.toJournalMessageDescription(LogLevel.ERROR));
     }
@@ -48,7 +48,8 @@ public class VerifyTimeDifferenceCommandImplTest extends CommonCommandImplTests 
         BasicCheckCommand basicCheckCommand = mock(BasicCheckCommand.class);
         BasicCheckTask basicCheckTask = mock(BasicCheckTask.class);
         when(basicCheckCommand.getTimeDifference()).thenReturn(Optional.of(new TimeDuration(1, TimeDuration.TimeUnit.HOURS)));
-        when(basicCheckCommand.getBasicCheckTask()).thenReturn(basicCheckTask);        when(basicCheckTask.getMaximumClockDifference()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
+        when(basicCheckCommand.getBasicCheckTask()).thenReturn(basicCheckTask);
+        when(basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.of(TimeDuration.seconds(1)));
         VerifyTimeDifferenceCommandImpl verifyTimeDifferenceCommand = new VerifyTimeDifferenceCommandImpl(basicCheckCommand, createCommandRoot());
         verifyTimeDifferenceCommand.execute(deviceProtocol, AbstractComCommandExecuteTest.newTestExecutionContext());
     }

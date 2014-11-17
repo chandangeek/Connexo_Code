@@ -59,7 +59,7 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
         // it is unnatural to NOT set the markIntervalsAsBadTime flag, but otherwise we can't spy the LoadProfileCommand ...
 //        when(loadProfilesTask.doMarkIntervalsAsBadTime()).thenReturn(true);
 
-        when(loadProfilesTask.getMinClockDiffBeforeBadTime()).thenReturn(minClockDiffBeforeBadTime);
+        when(loadProfilesTask.getMinClockDiffBeforeBadTime()).thenReturn(Optional.of(minClockDiffBeforeBadTime));
         CommandRoot commandRoot = createCommandRoot();
         LoadProfileCommand loadProfileCommand = spy(commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution));
         TimeDifferenceCommand timeDifferenceCommand = mock(TimeDifferenceCommand.class);
@@ -91,7 +91,7 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
         // it is unnatural to NOT set the markIntervalsAsBadTime flag, but otherwise we can't spy the LoadProfileCommand ...
 //        when(loadProfilesTask.doMarkIntervalsAsBadTime()).thenReturn(true);
 
-        when(loadProfilesTask.getMinClockDiffBeforeBadTime()).thenReturn(minClockDiffBeforeBadTime);
+        when(loadProfilesTask.getMinClockDiffBeforeBadTime()).thenReturn(Optional.of(minClockDiffBeforeBadTime));
         CommandRoot commandRoot = createCommandRoot();
         LoadProfileCommand loadProfileCommand = spy(commandRoot.getLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution));
         TimeDifferenceCommand timeDifferenceCommand = mock(TimeDifferenceCommand.class);

@@ -77,11 +77,11 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
         builder.addProperty("clockTaskType").append(this.getClockTask().getClockTaskType().name());
         if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
             if (SETCLOCK.equals(this.getClockTask().getClockTaskType())) {
-                builder.addProperty("minimumDifference").append(this.getClockTask().getMinimumClockDifference());
-                builder.addProperty("maximumDifference").append(this.getClockTask().getMaximumClockDifference());
+                builder.addProperty("minimumDifference").append(this.getClockTask().getMinimumClockDifference().get());
+                builder.addProperty("maximumDifference").append(this.getClockTask().getMaximumClockDifference().get());
             }
             else if (SYNCHRONIZECLOCK.equals(this.getClockTask().getClockTaskType())) {
-                builder.addProperty("maximumClockShift").append(this.getClockTask().getMaximumClockShift());
+                builder.addProperty("maximumClockShift").append(this.getClockTask().getMaximumClockShift().get());
             }
             if (this.getTimeDifferenceCommand() != null) {
                 builder.addProperty("getTimeDifference").append(this.getTimeDifferenceCommand().getTimeDifference().map(TimeDuration::toString).orElse(""));

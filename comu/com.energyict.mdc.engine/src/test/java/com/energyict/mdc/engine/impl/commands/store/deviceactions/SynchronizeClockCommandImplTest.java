@@ -50,7 +50,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
     public void testToJournalMessageDescription () {
         ClockCommand clockCommand = mock(ClockCommand.class);
         ClockTask clockTask = mock(ClockTask.class);
-        when(clockTask.getMaximumClockShift()).thenReturn(new TimeDuration(111));
+        when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(new TimeDuration(111)));
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         CommandRoot commandRoot = mock(CommandRoot.class);
         CommandRoot.ServiceProvider commandRootServiceProvider = mock(CommandRoot.ServiceProvider.class);
@@ -69,7 +69,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         ClockCommand clockCommand = mock(ClockCommand.class);
         ClockTask clockTask = mock(ClockTask.class);
-        when(clockTask.getMaximumClockDifference()).thenReturn(maxClockDifference);
+        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(maxClockDifference));
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
         CommandRoot commandRoot = mock(CommandRoot.class);
@@ -100,9 +100,9 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         ClockCommand clockCommand = mock(ClockCommand.class);
         ClockTask clockTask = mock(ClockTask.class);
-        when(clockTask.getMaximumClockDifference()).thenReturn(maxClockDifference);
-        when(clockTask.getMaximumClockShift()).thenReturn(maxClockShift);
-        when(clockTask.getMinimumClockDifference()).thenReturn(minClockDifference);
+        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(maxClockDifference));
+        when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(maxClockShift));
+        when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(minClockDifference));
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
@@ -134,9 +134,9 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         ClockCommand clockCommand = mock(ClockCommand.class);
         ClockTask clockTask = mock(ClockTask.class);
-        when(clockTask.getMaximumClockDifference()).thenReturn(maxClockDifference);
-        when(clockTask.getMaximumClockShift()).thenReturn(maxClockShift);
-        when(clockTask.getMinimumClockDifference()).thenReturn(minClockDifference);
+        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(maxClockDifference));
+        when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(maxClockShift));
+        when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(minClockDifference));
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
@@ -168,9 +168,9 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         ClockCommand clockCommand = mock(ClockCommand.class);
         ClockTask clockTask = mock(ClockTask.class);
-        when(clockTask.getMaximumClockDifference()).thenReturn(maxClockDifference);
-        when(clockTask.getMaximumClockShift()).thenReturn(maxClockShift);
-        when(clockTask.getMinimumClockDifference()).thenReturn(minClockDifference);
+        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(maxClockDifference));
+        when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(maxClockShift));
+        when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(minClockDifference));
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
@@ -202,9 +202,9 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         ClockCommand clockCommand = mock(ClockCommand.class);
         ClockTask clockTask = mock(ClockTask.class);
-        when(clockTask.getMaximumClockDifference()).thenReturn(maxClockDifference);
-        when(clockTask.getMaximumClockShift()).thenReturn(maxClockShift);
-        when(clockTask.getMinimumClockDifference()).thenReturn(minClockDifference);
+        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(maxClockDifference));
+        when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(maxClockShift));
+        when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(minClockDifference));
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));
@@ -235,9 +235,9 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         ClockCommand clockCommand = mock(ClockCommand.class);
         ClockTask clockTask = mock(ClockTask.class);
-        when(clockTask.getMaximumClockDifference()).thenReturn(maxClockDifference);
-        when(clockTask.getMaximumClockShift()).thenReturn(maxClockShift);
-        when(clockTask.getMinimumClockDifference()).thenReturn(minClockDifference);
+        when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(maxClockDifference));
+        when(clockTask.getMaximumClockShift()).thenReturn(Optional.of(maxClockShift));
+        when(clockTask.getMinimumClockDifference()).thenReturn(Optional.of(minClockDifference));
 
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));

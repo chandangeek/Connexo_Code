@@ -12,7 +12,6 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import org.joda.time.DateTimeConstants;
 
 import java.text.MessageFormat;
 import java.util.Date;
@@ -45,7 +44,7 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
     @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
-        builder.addProperty("maximumClockShift").append(this.clockCommand.getClockTask().getMaximumClockShift());
+        builder.addProperty("maximumClockShift").append(this.clockCommand.getClockTask().getMaximumClockShift().map(TimeDuration::toString).orElse(""));
         if (this.timeSet != null && this.isJournalingLevelEnabled(serverLogLevel, LogLevel.INFO)) {
             builder.addLabel(MessageFormat.format("Time was forcefully set to {0}", this.timeSet));
         }
@@ -56,7 +55,7 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
      */
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         long timeDifference = clockCommand.getTimeDifference().orElse(TimeDuration.TimeUnit.MILLISECONDS.during(0)).getMilliSeconds();
-        if (Math.abs(timeDifference) <= clockCommand.getClockTask().getMaximumClockDifference().getMilliSeconds()){
+        if (Math.abs(timeDifference) <= clockCommand.getClockTask().getMaximumClockDifference().map(TimeDuration::getMilliSeconds).orElse(0L)){
             long timeShift = getTimeShift(timeDifference);
             if (timeShift != 0) {
                 long currentDeviceTime = getCommandRoot().getServiceProvider().clock().millis() - timeDifference;
@@ -79,9 +78,10 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
      * @return the calculated clockShift in MilliSeconds
      */
     private long getTimeShift(final long timeDifference) {
-        if (clockCommand.getClockTask().getMaximumClockShift().getSeconds() * DateTimeConstants.MILLIS_PER_SECOND <= Math.abs(timeDifference)) {
-            return (long) ((clockCommand.getClockTask().getMaximumClockShift().getSeconds() * DateTimeConstants.MILLIS_PER_SECOND) * Math.signum(timeDifference));
-        } else if (clockCommand.getClockTask().getMinimumClockDifference().getSeconds() * DateTimeConstants.MILLIS_PER_SECOND <= Math.abs(timeDifference)) {
+        Long maxClockShiftMillis = clockCommand.getClockTask().getMaximumClockShift().map(TimeDuration::getMilliSeconds).orElse(0L);
+        if (maxClockShiftMillis <= Math.abs(timeDifference)) {
+            return (long) (maxClockShiftMillis * Math.signum(timeDifference));
+        } else if (clockCommand.getClockTask().getMinimumClockDifference().map(TimeDuration::getMilliSeconds).orElse(0L) <= Math.abs(timeDifference)) {
             return timeDifference;
         } else {
             return 0L;
