@@ -21,7 +21,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.inject.Inject;
@@ -191,11 +190,6 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     @Override
     public User getUser() {
         return user.orNull();
-    }
-
-    @Override
-    public OfflineDeviceMessage goOffline() {
-        return null;
     }
 
     @Override
