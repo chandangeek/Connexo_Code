@@ -20,9 +20,9 @@ import java.util.List;
  */
 public class DeviceMessageIdentifierById implements MessageIdentifier {
 
-    private final int messageId;
+    private final long messageId;
 
-    public DeviceMessageIdentifierById(int messageId) {
+    public DeviceMessageIdentifierById(long messageId) {
         this.messageId = messageId;
     }
 
@@ -50,7 +50,7 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
 
     @Override
     public int hashCode () {
-        return messageId;
+        return (int) messageId;
     }
 
     private BaseDeviceMessageFactory getDeviceMessageFactory () {
