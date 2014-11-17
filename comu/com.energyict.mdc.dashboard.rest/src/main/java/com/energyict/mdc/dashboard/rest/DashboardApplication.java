@@ -68,7 +68,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (10:32)
  */
-@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dsr", "name=" + DashboardApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dsr", "app=MDC", "name=" + DashboardApplication.COMPONENT_NAME})
 public class DashboardApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "DSR";
