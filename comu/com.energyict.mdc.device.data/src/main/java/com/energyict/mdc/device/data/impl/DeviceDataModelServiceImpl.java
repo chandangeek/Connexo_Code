@@ -39,10 +39,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import java.time.Clock;import com.elster.jupiter.validation.ValidationService;
+import java.time.Clock;
+import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Module;
@@ -85,7 +86,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile UserService userService;
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
-    private volatile TaskService taskService;
+    private volatile com.elster.jupiter.tasks.TaskService taskService;
     private volatile Clock clock;
     private volatile KpiService kpiService;
 
@@ -109,7 +110,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Inject
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
-                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, TaskService taskService,
+                                      OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService,
                                       RelationService relationService, ProtocolPluggableService protocolPluggableService,
                                       EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService,
@@ -139,21 +140,20 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList(
-                OrmService.COMPONENTNAME,
-                EventService.COMPONENTNAME,
-                NlsService.COMPONENTNAME,
-                MessageService.COMPONENTNAME,
-                UserService.COMPONENTNAME,
-                DeviceMessageSpecificationService.COMPONENT_NAME,
                 DeviceConfigurationService.COMPONENTNAME,
                 PluggableService.COMPONENTNAME,
                 EngineModelService.COMPONENT_NAME,
                 SchedulingService.COMPONENT_NAME,
-                com.energyict.mdc.tasks.TaskService.COMPONENT_NAME,
+                TaskService.COMPONENT_NAME,
+                MeteringGroupsService.COMPONENTNAME,
                 KpiService.COMPONENT_NAME,
-                TaskService.COMPONENTNAME,
-                DeviceMessageSpecificationService.COMPONENT_NAME,
-                MeteringGroupsService.COMPONENTNAME);
+                com.elster.jupiter.tasks.TaskService.COMPONENTNAME,
+                UserService.COMPONENTNAME,
+                OrmService.COMPONENTNAME,
+                EventService.COMPONENTNAME,
+                NlsService.COMPONENTNAME,
+                MessageService.COMPONENTNAME
+        );
     }
 
     @Override
@@ -307,12 +307,12 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Override
-    public TaskService taskService() {
+    public com.elster.jupiter.tasks.TaskService taskService() {
         return taskService;
     }
 
     @Reference
-    public void setTaskService(TaskService taskService) {
+    public void setTaskService(com.elster.jupiter.tasks.TaskService taskService) {
         this.taskService = taskService;
     }
 
@@ -337,7 +337,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(UserService.class).toInstance(userService);
                 bind(EngineModelService.class).toInstance(engineModelService);
                 bind(KpiService.class).toInstance(kpiService);
-                bind(TaskService.class).toInstance(taskService);
+                bind(com.elster.jupiter.tasks.TaskService.class).toInstance(taskService);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(ServerConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
