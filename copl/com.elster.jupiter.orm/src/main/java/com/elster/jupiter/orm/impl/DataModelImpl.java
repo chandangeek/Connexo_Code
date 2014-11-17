@@ -254,7 +254,7 @@ public class DataModelImpl implements DataModel {
             if (connection.isWrapperFor(OracleConnection.class)) {
                 return SqlDialect.ORACLE;
             }
-            return SqlDialect.ANSI;
+            return SqlDialect.H2;
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
