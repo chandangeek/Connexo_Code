@@ -19,8 +19,10 @@ import org.osgi.service.component.annotations.Reference;
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.tasks.rest", service = Application.class, immediate = true, property = {"alias=/cts"})
+@Component(name = "com.energyict.mdc.tasks.rest", service = Application.class, immediate = true, property = {"alias=/cts", "app=MDC", "name=" + ComTasksApplication.COMPONENT_NAME})
 public class ComTasksApplication extends Application implements BinderProvider {
+    public static final String COMPONENT_NAME = "CTS";
+
     private volatile TransactionService transactionService;
     private volatile TaskService taskService;
     private volatile MasterDataService masterDataService;
