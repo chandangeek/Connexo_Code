@@ -101,7 +101,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile SchedulingService schedulingService;
     private volatile UserService userService;
     private volatile TaskService taskService;
-    private volatile PluggableService pluggableService;
     private volatile ValidationService validationService;
     private volatile QueryService queryService;
 
@@ -485,7 +484,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setPluggableService(PluggableService pluggableService) {
         // Not actively used but required for foreign keys in TableSpecs
-        this.pluggableService = pluggableService;
     }
 
     @Reference
