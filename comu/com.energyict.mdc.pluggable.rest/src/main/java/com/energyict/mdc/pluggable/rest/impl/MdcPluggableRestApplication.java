@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.pluggable.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/plr", "name=" + MdcPluggableRestApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.mdc.pluggable.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/plr", "app=MDC", "name=" + MdcPluggableRestApplication.COMPONENT_NAME})
 public class MdcPluggableRestApplication extends Application implements InstallService {
 
     public static final String COMPONENT_NAME = "PLR";
