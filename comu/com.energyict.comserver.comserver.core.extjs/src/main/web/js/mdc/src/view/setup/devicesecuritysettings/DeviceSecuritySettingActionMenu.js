@@ -10,6 +10,18 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingActionMen
             text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             itemId: 'editDeviceSecuritySetting',
             action: 'editDeviceSecuritySetting'
+        },
+        {
+            text: Uni.I18n.translate('general.showEncryptedValue', 'MDC', 'Show values'),
+            itemId: 'showValueDeviceSecuritySetting',
+            action: 'showValueDeviceSecuritySetting',
+            hidden: true
+        },
+        {
+            text: Uni.I18n.translate('general.hideEncryptedValue', 'MDC', 'Hide values'),
+            itemId: 'hideValueDeviceSecuritySetting',
+            action: 'hideValueDeviceSecuritySetting',
+            hidden: true
         }
     ]
 });

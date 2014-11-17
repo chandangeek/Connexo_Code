@@ -32,15 +32,58 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
             {
                 xtype: 'container',
                 layout: {
-                    type: 'vbox'
-                    //align: 'stretch'
+                    type: 'vbox',
+                    align: 'stretch'
                 },
 
                 items: [
                     {
-                        xtype: 'component',
-                        html: '',
-                        itemId: 'deviceSecuritySettingEditAddTitle'
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            align: 'stretch'
+                        },
+                        defaults: {
+                            xtype: 'container'
+                        },
+                        items: [
+                            {
+                                xtype: 'component',
+                                html: '',
+                                itemId: 'deviceSecuritySettingEditAddTitle'
+                            },
+                            {
+                                flex: 1
+                            },
+                            {
+                                layout: {
+                                    type: 'vbox',
+                                    align: 'center',
+                                    pack: 'center'
+                                },
+
+                                items: [
+                                    {
+                                        xtype: 'container',
+                                        flex: 1
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                                        iconCls: 'x-uni-action-iconD',
+                                        menu: {
+                                            xtype: 'device-security-setting-action-menu'
+                                        },
+                                        hidden: true,
+                                        itemId: 'device-security-setting-action-menu-in-title'
+                                    },
+                                    {
+                                        xtype: 'container',
+                                        flex: 1
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     {
                         xtype: 'form',
@@ -56,12 +99,12 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.name','MDC','Name'),
+                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.name', 'MDC', 'Name'),
                                 name: 'name'
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.status','MDC','Status'),
+                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.status', 'MDC', 'Status'),
                                 name: 'status',
                                 renderer: function (value) {
                                     return value.name;
@@ -69,7 +112,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.authenticationLevel','MDC','Authentication level'),
+                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.authenticationLevel', 'MDC', 'Authentication level'),
                                 name: 'authenticationLevel',
                                 renderer: function (value) {
                                     return value.name;
@@ -77,7 +120,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.encryptionLevel','MDC','Encryption level'),
+                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.encryptionLevel', 'MDC', 'Encryption level'),
                                 name: 'encryptionLevel',
                                 renderer: function (value) {
                                     return value.name;
