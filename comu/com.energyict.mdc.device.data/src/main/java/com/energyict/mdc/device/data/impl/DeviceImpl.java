@@ -1,8 +1,72 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.common.*;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.*;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.DatabaseException;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.CommunicationGatewayReference;
+import com.energyict.mdc.device.data.CommunicationTopologyEntry;
+import com.energyict.mdc.device.data.DefaultSystemTimeZoneFactory;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.GatewayReference;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.PhysicalGatewayReference;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
@@ -45,54 +109,16 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import com.google.common.collect.Range;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -103,9 +129,29 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import static com.elster.jupiter.util.Checks.is;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
@@ -161,6 +207,8 @@ public class DeviceImpl implements Device, CanLock {
     private List<ConnectionTaskImpl<?, ?>> connectionTasks;
     @Valid
     private List<ComTaskExecutionImpl> comTaskExecutions;
+    @Valid
+    private List<DeviceMessageImpl> deviceMessages = new ArrayList<>();
 
     private List<ProtocolDialectProperties> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectProperties> newDialectProperties = new ArrayList<>();
@@ -189,8 +237,8 @@ public class DeviceImpl implements Device, CanLock {
             Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
             Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
             Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider,
-            Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider,
-            ProtocolPluggableService protocolPluggableService) {
+            ProtocolPluggableService protocolPluggableService,
+            Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.thesaurus = thesaurus;
@@ -773,12 +821,12 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public List<DeviceMessage> getMessages() {
-        return Collections.emptyList();
+    public List<DeviceMessage<Device>> getMessages() {
+        return Collections.unmodifiableList(this.deviceMessages);
     }
 
     @Override
-    public List<DeviceMessage> getMessagesByState(DeviceMessageStatus status) {
+    public List<DeviceMessage<Device>> getMessagesByState(DeviceMessageStatus status) {
         return Collections.emptyList();
     }
 
@@ -1780,6 +1828,45 @@ public class DeviceImpl implements Device, CanLock {
             references = references.subList(0, count);
         }
         return references;
+    }
+
+    @Override
+    public DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId) {
+        return new InternalDeviceMessageBuilder(deviceMessageId);
+    }
+
+    private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{
+
+        private final DeviceMessageImpl deviceMessage;
+
+        public InternalDeviceMessageBuilder(DeviceMessageId deviceMessageId) {
+            deviceMessage = DeviceImpl.this.dataModel.getInstance(DeviceMessageImpl.class).initialize(DeviceImpl.this, deviceMessageId);
+        }
+
+        @Override
+        public DeviceMessageBuilder addProperty(String key, Object value) {
+            this.deviceMessage.addProperty(key, value);
+            return this;
+        }
+
+        @Override
+        public DeviceMessageBuilder setReleaseDate(Instant releaseDate) {
+            this.deviceMessage.setReleaseDate(releaseDate);
+            return this;
+        }
+
+        @Override
+        public DeviceMessageBuilder setTrackingId(String trackingId) {
+            this.deviceMessage.setTrackingId(trackingId);
+            return this;
+        }
+
+        @Override
+        public DeviceMessage<Device> add() {
+            this.deviceMessage.save();
+            DeviceImpl.this.deviceMessages.add(this.deviceMessage);
+            return this.deviceMessage;
+        }
     }
 
     private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {

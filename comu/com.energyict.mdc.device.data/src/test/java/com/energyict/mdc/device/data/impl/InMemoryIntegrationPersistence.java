@@ -58,11 +58,14 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
@@ -71,15 +74,45 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.common.ApplicationContext;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.common.Translator;
+import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
+import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.Principal;
@@ -91,12 +124,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -132,6 +166,9 @@ public class InMemoryIntegrationPersistence {
     private LicenseService licenseService;
     private LicensedProtocolService licensedProtocolService;
     private ValidationService validationService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private UserService userService;
+    private ThreadPrincipalService threadPrincipalService;
 
     public InMemoryIntegrationPersistence() {
         this(Clock.systemDefaultZone());
@@ -182,7 +219,6 @@ public class InMemoryIntegrationPersistence {
                 new MdcCommonModule(),
                 new MdcIOModule(),
                 new BasicPropertiesModule(),
-                new MdcDynamicModule(),
                 new ProtocolApiModule(),
                 new TaskModule(),
                 new KpiModule(),
@@ -211,7 +247,10 @@ public class InMemoryIntegrationPersistence {
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.deviceDataModelService = injector.getInstance(DeviceDataModelService.class);
+            this.deviceMessageSpecificationService = injector.getInstance(DeviceMessageSpecificationService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
+            this.userService = injector.getInstance(UserService.class);
+            this.threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
             this.dataModel = this.deviceDataModelService.dataModel();
             initializeFactoryProviders();
             createOracleAliases(dataModel.getConnection(true));
@@ -249,7 +288,7 @@ public class InMemoryIntegrationPersistence {
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class);
+        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
         when(this.principal.getName()).thenReturn(testName);
         this.applicationContext = mock(ApplicationContext.class);
         Translator translator = mock(Translator.class);
@@ -384,7 +423,17 @@ public class InMemoryIntegrationPersistence {
                 }
             });
         }
-
     }
 
+    public User getMockedUser(){
+        return (User) this.principal;
+    }
+
+    public UserService getUserService() {
+        return userService;
+    }
+
+    public ThreadPrincipalService getThreadPrincipalService() {
+        return threadPrincipalService;
+    }
 }

@@ -78,7 +78,21 @@ public enum MessageSeeds implements MessageSeed {
     COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION(2047, Keys.COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION, "A mismatch between device configuration and the communication schedule (one or more communication tasks defined in the communication schedule is not available on the device configuration of the device)", SEVERE),
     COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2048, Keys.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove communication schedule {0} because it is not owned by device", Level.SEVERE),
     DEVICE_GROUP_IS_REQUIRED(2049, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection device group", Level.SEVERE),
-    EMPTY_DATA_COLLECTION_KPI(2050, Keys.EMPTY_DATA_COLLECTION_KPI, "You must specify either connection setup or communication task execution", Level.SEVERE),;
+    EMPTY_DATA_COLLECTION_KPI(2050, Keys.EMPTY_DATA_COLLECTION_KPI, "You must specify either connection setup or communication task execution", Level.SEVERE),
+    UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE(2051, Keys.UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE, "The deviceMessageId {1} is not known for a device like {0}", Level.SEVERE),
+    CREATE_DATE_IS_REQUIRED(2052, Keys.CREATE_DATE_IS_REQUIRED, "The create date is required for a command", Level.SEVERE),
+    DEVICE_MESSAGE_ID_NOT_SUPPORTED(2054, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device", Level.SEVERE),
+    DEVICE_MESSAGE_IS_REQUIRED(2055, Keys.DEVICE_MESSAGE_IS_REQUIRED, "The command is required for a device message attribute", Level.SEVERE),
+    DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC(2056, Keys.DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC, "The command attribute is not defined in the specification", Level.SEVERE),
+    DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED(2057, Keys.DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED, "The command attribute is required", Level.SEVERE),
+    DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE(2058, Keys.DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE, "This is an invalid value", Level.SEVERE),
+    DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG(2059, Keys.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG, "This command is not defined on the device configuration level", Level.SEVERE),
+    DEVICE_MESSAGE_USER_NOT_ALLOWED(2060, Keys.DEVICE_MESSAGE_USER_NOT_ALLOWED, "You are not allowed to create or update this command", Level.SEVERE),
+    DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT(2061, Keys.DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT, "You can not update the release date after the command has been sent", Level.SEVERE),
+    DEVICE_MESSAGE_STATUS_INVALID_MOVE(2062, Keys.DEVICE_MESSAGE_STATUS_INVALID_MOVE, "You can not move a device message from status {0} to {1}", Level.SEVERE),
+    DEVICE_MESSAGE_INVALID_REVOKE(2063, Keys.DEVICE_MESSAGE_INVALID_REVOKE, "You can not revoke this command anymore", Level.SEVERE),
+    ;
+
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -159,6 +173,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY = "deviceProtocolDialectProperty.value.invalid";
         public static final String DEVICE_PROTOCOL_DIALECT_REQUIRED_PROPERTY_MISSING_KEY = "deviceProtocolDialectProperty.required";
         public static final String DEVICE_IS_REQUIRED = "deviceIsRequired";
+        public static final String USER_IS_REQUIRED = "userIsRequired";
         public static final String COMTASK_IS_REQUIRED = "comTaskIsRequired";
         public static final String COMSCHEDULE_IS_REQUIRED = "comScheduleIsRequired";
         public static final String NEXTEXECUTIONSPEC_IS_REQUIRED = "nextExecutionSpecIsRequired";
@@ -186,6 +201,18 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "comScheduleCannotDeleteNotFromDevice";
         public static final String DEVICE_GROUP_IS_REQUIRED = "endDeviceGroupIsRequired";
         public static final String EMPTY_DATA_COLLECTION_KPI = "dataCollectionKpi.cannotBeEmpty";
+        public static final String UNKNOWN_DEVICE_MESSAGE_ID_FOR_DEVICE = "unknown.deviceMessageId.device";
+        public static final String CREATE_DATE_IS_REQUIRED = "createDateIsRequired.deviceMessage";
+        public static final String DEVICE_MESSAGE_ID_NOT_SUPPORTED = "deviceMessageId.deviceMessage.device.notSupported";
+        public static final String DEVICE_MESSAGE_IS_REQUIRED = "deviceMessage.required.deviceMessageAttribute";
+        public static final String DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC = "deviceMessageAttribute.not.defined";
+        public static final String DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED = "deviceMessageAttribute.required";
+        public static final String DEVICE_MESSAGE_ATTRIBUTE_INVALID_VALUE = "deviceMessageAttribute.invalid.value";
+        public static final String DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG = "deviceMessage.not.allowed.config";
+        public static final String DEVICE_MESSAGE_USER_NOT_ALLOWED = "deviceMessage.user.not.allowed";
+        public static final String DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT = "deviceMessage.releaseDate.update.sent";
+        public static final String DEVICE_MESSAGE_STATUS_INVALID_MOVE = "deviceMessage.status.invalid.move";
+        public static final String DEVICE_MESSAGE_INVALID_REVOKE = "deviceMessage.revoke.invalid.status";
     }
 
 }

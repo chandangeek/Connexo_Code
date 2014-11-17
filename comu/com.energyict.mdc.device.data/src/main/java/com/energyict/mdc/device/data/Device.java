@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -153,14 +154,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     List<CommunicationTopologyEntry> getAllCommunicationTopologies(Interval interval);
 
-    List<DeviceMessage> getMessages();
+    List<DeviceMessage<Device>> getMessages();
 
     /**
      * returns The released pending messages for this device
      *
      * @return a List of all messages of this device
      */
-    List<DeviceMessage> getMessagesByState(DeviceMessageStatus status);
+    List<DeviceMessage<Device>> getMessagesByState(DeviceMessageStatus status);
 
 
     /**
@@ -376,6 +377,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     List<CommunicationGatewayReference> getRecentlyAddedCommunicationReferencingDevices(int count);
     List<PhysicalGatewayReference> getRecentlyAddedPhysicalConnectedDevices(int count);
 
+    DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId);
+
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask
      */
@@ -439,5 +442,43 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
          * @return the newly created ConnectionInitiationTask
          */
         ConnectionInitiationTask add();
+    }
+
+    interface DeviceMessageBuilder {
+
+        /**
+         * Add a key/value-Pair which will result in a DeviceMessageAttribute.
+         * If you try to add the same key twice, then the first one will be overwritten.
+         *
+         * @param key   the key of the attribute
+         * @param value the value of the attribute
+         * @return this builder
+         */
+        DeviceMessageBuilder addProperty(String key, Object value);
+
+        /**
+         * Set the release date of the currently building DeviceMessage
+         *
+         * @param releaseDate the date when this message <i>may</i> be executed
+         * @return this builder
+         */
+        DeviceMessageBuilder setReleaseDate(Instant releaseDate);
+
+        /**
+         * Set a trackingId for the currently building DeviceMessage.
+         * <br/>
+         * (a TrackingID should be a business process 'item', most probably it will not be set by the User)
+         *
+         * @param trackingId the trackingId
+         * @return this builder
+         */
+        DeviceMessageBuilder setTrackingId(String trackingId);
+
+        /**
+         * Create the actual DeviceMessage based on the info in the builder
+         *
+         * @return the newly created DeviceMessage
+         */
+        DeviceMessage<Device> add();
     }
 }
