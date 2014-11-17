@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
 
     private List<PropertyBuilderImpl> properties = new ArrayList<>();
     private ScheduleExpression scheduleExpression;
+    private Instant nextExecution;
     private boolean scheduleImmediately;
     private String name;
     private String dataProcessor;
@@ -72,6 +74,12 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
+    public DataExportTaskBuilder setNextExecution(Instant nextExecution) {
+        this.nextExecution = nextExecution;
+        return this;
+    }
+
+    @Override
     public DataExportTaskBuilder scheduleImmediately() {
         this.scheduleImmediately = true;
         return this;
@@ -91,7 +99,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
 
     @Override
     public ReadingTypeDataExportTask build() {
-        ReadingTypeDataExportTaskImpl exportTask = ReadingTypeDataExportTaskImpl.from(dataModel, name, exportPeriod, dataProcessor, scheduleExpression, endDeviceGroup);
+        ReadingTypeDataExportTaskImpl exportTask = ReadingTypeDataExportTaskImpl.from(dataModel, name, exportPeriod, dataProcessor, scheduleExpression, endDeviceGroup, nextExecution);
         exportTask.setScheduleImmediately(scheduleImmediately);
         exportTask.setUpdatePeriod(updatePeriod);
         exportTask.setValidatedDataOption(validatedDataOption);

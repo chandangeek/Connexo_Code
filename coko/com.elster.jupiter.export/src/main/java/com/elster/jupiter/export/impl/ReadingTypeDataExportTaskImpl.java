@@ -87,6 +87,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private transient boolean recurrentTaskDirty;
     private transient boolean propertiesDirty;
     private transient DataExportOccurrenceFinder dataExportOccurrenceFinder;
+    private transient Instant nextExecution;
 
     @Inject
     ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService, MeteringService meteringService) {
@@ -96,8 +97,8 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         this.meteringService = meteringService;
     }
 
-    static ReadingTypeDataExportTaskImpl from(DataModel dataModel, String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup) {
-        return dataModel.getInstance(ReadingTypeDataExportTaskImpl.class).init(name, exportPeriod, dataProcessor, scheduleExpression, endDeviceGroup);
+    static ReadingTypeDataExportTaskImpl from(DataModel dataModel, String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup, Instant nextExecution) {
+        return dataModel.getInstance(ReadingTypeDataExportTaskImpl.class).init(name, exportPeriod, dataProcessor, scheduleExpression, endDeviceGroup, nextExecution);
     }
 
     @Override
@@ -195,6 +196,9 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
                 builder.scheduleImmediately();
             }
             RecurrentTask task = builder.build();
+            if (nextExecution != null) {
+                task.setNextExecution(nextExecution);
+            }
             task.save();
             recurrentTask.set(task);
             Save.CREATE.save(dataModel, this);
@@ -353,18 +357,14 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public void setNextExecution(Instant instant) {
-        if (this.recurrentTask.isPresent()) {
             this.recurrentTask.get().setNextExecution(instant);
             recurrentTaskDirty = true;
-        }
     }
 
     @Override
     public void setScheduleExpression(ScheduleExpression scheduleExpression) {
-        if (this.recurrentTask.isPresent()) {
             this.recurrentTask.get().setScheduleExpression(scheduleExpression);
             recurrentTaskDirty = true;
-        }
     }
 
     @Override
@@ -387,13 +387,13 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         this.readingTypes.removeIf(r -> r.getReadingType().equals(readingType));
     }
 
-    private ReadingTypeDataExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup) {
+    private ReadingTypeDataExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup, Instant nextExecution) {
         this.name = name;
         this.exportPeriod.set(exportPeriod);
         this.dataProcessor = dataProcessor;
         this.scheduleExpression = scheduleExpression;
         this.endDeviceGroup.set(endDeviceGroup);
-
+        this.nextExecution = nextExecution;
         return this;
     }
 
