@@ -49,9 +49,9 @@
       <version>${jupiter.version}</version>
     </dependency>
     <dependency>
-    <groupId>com.energyict</groupId>
-    <artifactId>mdc.protocol.pluggable</artifactId>
-    <version>${project.version}</version>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.protocol.pluggable</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
@@ -65,62 +65,68 @@
     </dependency>
 
 
-      <!--INTEGRATION TESTS-->
-      <dependency>
-          <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-          <artifactId>jersey-test-framework-provider-inmemory</artifactId>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.glassfish.jersey.media</groupId>
-          <artifactId>jersey-media-json-jackson</artifactId>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.mockito</groupId>
-          <artifactId>mockito-all</artifactId>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.easytesting</groupId>
-          <artifactId>fest-reflect</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.easytesting</groupId>
-          <artifactId>fest-util</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>com.elster.jupiter</groupId>
-          <artifactId>devtools</artifactId>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>com.elster.jupiter</groupId>
-          <artifactId>devtools.rest</artifactId>
-          <version>1.0.0-SNAPSHOT</version>
-          <scope>test</scope>
-      </dependency>
+    <!--INTEGRATION TESTS-->
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.protocols</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+      <artifactId>jersey-test-framework-provider-inmemory</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-json-jackson</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-reflect</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>devtools</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>devtools.rest</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.qmino</groupId>
-                <artifactId>miredot-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>restdoc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.qmino</groupId>
+        <artifactId>miredot-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>restdoc</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

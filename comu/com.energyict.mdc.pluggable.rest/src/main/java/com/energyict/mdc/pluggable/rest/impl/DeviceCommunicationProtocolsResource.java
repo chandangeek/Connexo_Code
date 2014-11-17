@@ -4,17 +4,15 @@ import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.security.Privileges;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.energyict.mdc.protocol.pluggable.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -43,16 +41,12 @@ import java.util.List;
 @Path("/devicecommunicationprotocols")
 public class DeviceCommunicationProtocolsResource {
 
-    private final PropertySpecService propertySpecService;
     private final ProtocolPluggableService protocolPluggableService;
-    private final LicensedProtocolService licensedProtocolService;
     private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public DeviceCommunicationProtocolsResource(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, LicensedProtocolService licensedProtocolService, MdcPropertyUtils mdcPropertyUtils) {
-        this.propertySpecService = propertySpecService;
+    public DeviceCommunicationProtocolsResource(ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils) {
         this.protocolPluggableService = protocolPluggableService;
-        this.licensedProtocolService = licensedProtocolService;
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
