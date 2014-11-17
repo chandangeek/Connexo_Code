@@ -168,9 +168,5 @@ public abstract class AbstractMessageConverterTest {
             return deviceMessageAttributeValue;
         }
 
-        @Override
-        public OfflineDeviceMessage getDeviceMessage () {
-            return deviceMessage;
-        }
     }
 }

@@ -30,7 +30,7 @@ public class ABBA230UserFileMessageEntry implements MessageEntryCreator {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         String userFileAttributeName;
-        if (offlineDeviceMessage.getSpecification().getId().equals(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_METER_SCHEME)) {
+        if (offlineDeviceMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_METER_SCHEME)) {
             userFileAttributeName = DeviceMessageConstants.MeterScheme;
         }
         else {
