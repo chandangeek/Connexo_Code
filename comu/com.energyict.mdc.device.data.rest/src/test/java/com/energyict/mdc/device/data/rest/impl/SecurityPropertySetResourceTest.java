@@ -44,7 +44,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = getEncryptionDeviceAccessLevel(2, "Mtu155SecuritySupport.encryptionlevel.2");
         SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", CAN_VIEW, CAN_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
-        when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
+        when(device.getAllSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
 
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
         String response = target("/devices/AX1/securityproperties").request().get(String.class);
@@ -83,12 +83,18 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecurityPropertySet sps1 = mockSecurityPropertySet(sps1Id, "Set 1", CAN_VIEW, CAN_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.of(sps1));
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
-        when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
+        when(device.getAllSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
         when(sps1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
         String response = target("/devices/"+devicemRID+"/securityproperties/"+sps1Id).request().get(String.class);
+
+
         JsonModel jsonModel = JsonModel.model(response);
+
+        System.out.println("testje");
+        System.out.println(jsonModel.toJson(true));
+
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("Set 1");
         assertThat(jsonModel.<Integer>get("$.authenticationLevel.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.authenticationLevel.name")).isEqualTo(MessageSeeds.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1.getDefaultFormat());
@@ -122,7 +128,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecurityPropertySet sps1 = mockSecurityPropertySet(sps1Id, "Set 1", CAN_VIEW, CAN_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(deviceConfigurationService.findSecurityPropertySet(sps1Id)).thenReturn(Optional.of(sps1));
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
-        when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
+        when(device.getAllSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
         DeviceConfiguration otherDeviceConfiguration = mock(DeviceConfiguration.class);
         when(otherDeviceConfiguration.getId()).thenReturn(deviceConfigId+1);
         when(sps1.getDeviceConfiguration()).thenReturn(otherDeviceConfiguration);
@@ -157,7 +163,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "field1", null, OPTIONAL, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         SecurityProperty securityProperty2 = mockSecurityPropertyWithSpec(sps1, "field2", "blabla", REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         SecurityProperty securityProperty3 = mockSecurityPropertyWithSpec(sps1, "field3", "blabla", OPTIONAL, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
-        when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1, securityProperty2, securityProperty3));
+        when(device.getAllSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1, securityProperty2, securityProperty3));
 
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
         String response = target("/devices/AX1/securityproperties").request().get(String.class);
@@ -179,7 +185,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "field1", null, REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         SecurityProperty securityProperty2 = mockSecurityPropertyWithSpec(sps1, "field2", "blabla", REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         SecurityProperty securityProperty3 = mockSecurityPropertyWithSpec(sps1, "field3", "blabla", OPTIONAL, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
-        when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1, securityProperty2, securityProperty3));
+        when(device.getAllSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1, securityProperty2, securityProperty3));
 
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
         String response = target("/devices/AX1/securityproperties").request().get(String.class);
@@ -200,7 +206,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "field1", "xxxxx", REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         SecurityProperty securityProperty2 = mockSecurityPropertyWithSpec(sps1, "field2", "blabla", REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         SecurityProperty securityProperty3 = mockSecurityPropertyWithSpec(sps1, "field3", "blabla", OPTIONAL, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
-        when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1, securityProperty2, securityProperty3));
+        when(device.getAllSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1, securityProperty2, securityProperty3));
 
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
         String response = target("/devices/AX1/securityproperties").request().get(String.class);
@@ -221,7 +227,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", CAN_NOT_VIEW, CAN_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
-        when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
+        when(device.getAllSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
         String response = target("/devices/AX1/securityproperties").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
@@ -252,7 +258,7 @@ public class SecurityPropertySetResourceTest extends DeviceDataRestApplicationJe
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = getEncryptionDeviceAccessLevel(2, "Mtu155SecuritySupport.encryptionlevel.2");
         SecurityPropertySet sps1 = mockSecurityPropertySet(1001L, "Set 1", CAN_NOT_VIEW, CAN_NOT_EDIT, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         SecurityProperty securityProperty1 = mockSecurityPropertyWithSpec(sps1, "password", "secret", REQUIRED, new StringFactory(), authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
-        when(device.getSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
+        when(device.getAllSecurityProperties(sps1)).thenReturn(Arrays.asList(securityProperty1));
 
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(sps1));
         String response = target("/devices/AX1/securityproperties").request().get(String.class);

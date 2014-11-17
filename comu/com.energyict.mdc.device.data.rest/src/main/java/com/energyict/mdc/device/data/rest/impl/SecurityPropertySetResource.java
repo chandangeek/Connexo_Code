@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -12,7 +13,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -76,26 +79,29 @@ public class SecurityPropertySetResource {
     public Response updateSecurityPropertySet(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, @PathParam("securityPropertySetId") long securityPropertySetId, SecurityPropertySetInfo securityPropertySetInfo) throws InvalidValueException {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
-        TypedProperties typedProperties = TypedProperties.empty();
+        //TypedProperties typedProperties = TypedProperties.empty();
         boolean status = true;
+        TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
         for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
             Object newPropertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, securityPropertySetInfo.properties);
             if (newPropertyValue != null) {
                 // propertySpec.validateValue(newPropertyValue);
                 typedProperties.setProperty(propertySpec.getName(), newPropertyValue);
             } else {
-                status = false;
-                typedProperties.removeProperty(propertySpec.getName());
+                if (!propertyHasValue(propertySpec, securityPropertySetInfo.properties)) {
+                    typedProperties.removeProperty(propertySpec.getName());
+                    status = false;
+                }
+
             }
         }
 
-        if (status){
+        if (status) {
             device.setSecurityProperties(securityPropertySet, typedProperties);
         } else {
-            if (securityPropertySetInfo.saveAsIncomplete){
+            if (securityPropertySetInfo.saveAsIncomplete) {
                 device.setSecurityProperties(securityPropertySet, typedProperties);
-            }
-            else {
+            } else {
                 throw new LocalizedFieldValidationException(MessageSeeds.INCOMPLETE, "status");
             }
         }
@@ -117,5 +123,33 @@ public class SecurityPropertySetResource {
         }
         return securityPropertySetOptional.get();
     }
+
+    private boolean propertyHasValue(PropertySpec<?> propertySpec, Collection<PropertyInfo> propertyInfos) {
+        return propertyHasValue(propertySpec, propertyInfos.toArray(new PropertyInfo[propertyInfos.size()]));
+    }
+
+    //find propertyValue in info
+    public boolean propertyHasValue(PropertySpec<?> propertySpec, PropertyInfo[] propertyInfos) {
+        for (PropertyInfo propertyInfo : propertyInfos) {
+            if (propertyInfo.key.equals(propertySpec.getName())) {
+                if (propertyInfo.getPropertyValueInfo() != null) {
+                    return propertyInfo.getPropertyValueInfo().propertyHasValue;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
+        TypedProperties typedProperties = TypedProperties.empty();
+        for (SecurityProperty securityProperty : device.getAllSecurityProperties(securityPropertySet)) {
+            typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
+        }
+        return typedProperties;
+    }
+
+
 
 }
