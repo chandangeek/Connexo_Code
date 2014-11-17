@@ -73,14 +73,14 @@ public class SecurityPropertySetInfoFactory {
     }
 
     private boolean getStatus(Device device, SecurityPropertySet securityPropertySet,TypedProperties typedProperties) {
-        if (device.getSecurityPropertiesStatus(securityPropertySet).isEmpty()) {
+        if (device.getAllSecurityProperties(securityPropertySet).isEmpty()) {
             if (typedProperties == TypedProperties.empty()) {
                 return true;
             } else {
                 return false;
             }
         } else {
-            for (SecurityProperty securityProperty : device.getSecurityPropertiesStatus(securityPropertySet)) {
+            for (SecurityProperty securityProperty : device.getAllSecurityProperties(securityPropertySet)) {
                 if (!securityProperty.isComplete()) {
                     return false;
                 }
