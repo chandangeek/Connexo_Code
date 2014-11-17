@@ -9,6 +9,8 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.users.User;
+
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -16,20 +18,41 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategories;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty;
 import com.jayway.jsonpath.JsonModel;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -42,6 +65,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -210,7 +234,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(pluggableClass.getDeviceProtocol()).thenReturn(new SDKDeviceProtocolTestWithMandatoryProperty());
+        when(pluggableClass.getDeviceProtocol()).thenReturn(new MessageTestDeviceProtocol());
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
@@ -505,6 +529,201 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
             return this.category.getMessageSpecifications(this, propertySpecService, thesaurus);
         }
 
+    }
+
+    public static class MessageTestDeviceProtocol implements DeviceProtocol {
+
+        private EnumSet<DeviceMessageId> deviceMessageIds =
+                EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
+
+        @Override
+        public void setPropertySpecService(PropertySpecService propertySpecService) {
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public String getSecurityRelationTypeName() {
+            return null;
+        }
+
+        @Override
+        public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public PropertySpec getSecurityPropertySpec(String name) {
+            return null;
+        }
+
+        @Override
+        public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+
+        }
+
+        @Override
+        public void terminate() {
+
+        }
+
+        @Override
+        public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
+            return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
+        }
+
+        @Override
+        public String getProtocolDescription() {
+            return "Test protocol for messages";
+        }
+
+        @Override
+        public DeviceFunction getDeviceFunction() {
+            return null;
+        }
+
+        @Override
+        public ManufacturerInformation getManufacturerInformation() {
+            return null;
+        }
+
+        @Override
+        public List<ConnectionType> getSupportedConnectionTypes() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void logOn() {
+
+        }
+
+        @Override
+        public void daisyChainedLogOn() {
+
+        }
+
+        @Override
+        public void logOff() {
+
+        }
+
+        @Override
+        public void daisyChainedLogOff() {
+
+        }
+
+        @Override
+        public String getSerialNumber() {
+            return null;
+        }
+
+        @Override
+        public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+
+        }
+
+        @Override
+        public DeviceProtocolCache getDeviceCache() {
+            return null;
+        }
+
+        @Override
+        public void setTime(Date timeToSet) {
+
+        }
+
+        @Override
+        public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+            return null;
+        }
+
+        @Override
+        public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
+            return null;
+        }
+
+        @Override
+        public Date getTime() {
+            return null;
+        }
+
+        @Override
+        public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
+            return null;
+        }
+
+        @Override
+        public Set<DeviceMessageId> getSupportedMessages() {
+            return deviceMessageIds;
+        }
+
+        @Override
+        public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+            return null;
+        }
+
+        @Override
+        public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+            return null;
+        }
+
+        @Override
+        public String format(PropertySpec propertySpec, Object messageAttribute) {
+            return null;
+        }
+
+        @Override
+        public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+
+        }
+
+        @Override
+        public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
+            return null;
+        }
+
+        @Override
+        public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+
+        }
+
+        @Override
+        public CollectedTopology getDeviceTopology() {
+            return null;
+        }
+
+        @Override
+        public String getVersion() {
+            return "Pré-Alpha";
+        }
+
+        @Override
+        public void copyProperties(TypedProperties properties) {
+
+        }
+
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public PropertySpec getPropertySpec(String name) {
+            return null;
+        }
     }
 
 }
