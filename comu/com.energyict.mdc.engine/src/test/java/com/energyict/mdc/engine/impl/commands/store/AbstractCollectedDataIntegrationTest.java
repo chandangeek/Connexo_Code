@@ -139,6 +139,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new EngineModule(),
+                new ProtocolApiModule(),
                 new ProtocolsModule(),
                 new PluggableModule(),
                 new ValidationModule(),
