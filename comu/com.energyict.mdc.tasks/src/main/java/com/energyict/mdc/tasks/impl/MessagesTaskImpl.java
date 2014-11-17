@@ -61,7 +61,7 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
             MessagesTaskTypeUsageImpl messagesTaskTypeUsage = this.getDataModel().getInstance(MessagesTaskTypeUsageImpl.class).initialize(this, category);
             this.deviceMessageUsages.add(messagesTaskTypeUsage);
         }
-        if(deviceMessageUsages.size()> 0){
+        if (!deviceMessageUsages.isEmpty()) {
             this.messageTaskType = MessageTaskType.SELECTED;
         }
     }

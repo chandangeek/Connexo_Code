@@ -5,7 +5,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 /**
- * Validates the ClockTask fields all at once
+ * Validates all the ClockTask fields at once.
  */
 public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, ClockTask> {
 
@@ -27,21 +27,21 @@ public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, C
         switch (value.getClockTaskType()) {
             case SETCLOCK:
                 // both should be filled in
-                if (value.getMinimumClockDifference()==null) {
+                if (!value.getMinimumClockDifference().isPresent()) {
                     fail(context, MessageSeeds.Keys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
                     valid=false;
                 }
-                if (value.getMaximumClockDifference()==null) {
+                if (!value.getMaximumClockDifference().isPresent()) {
                     fail(context, MessageSeeds.Keys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
                     valid=false;
                 } else {
-                    if (value.getMaximumClockDifference().getCount()<=0) {
+                    if (value.getMaximumClockDifference().get().getCount()<=0) {
                         fail(context, MessageSeeds.Keys.TIMEDURATION_MUST_BE_POSITIVE, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
                         valid=false;
                     }
                 }
-                if (value.getMinimumClockDifference()!=null && value.getMaximumClockDifference()!=null) {
-                    switch (value.getMinimumClockDifference().compareTo(value.getMaximumClockDifference())) {
+                if (value.getMinimumClockDifference().isPresent() && value.getMaximumClockDifference().isPresent()) {
+                    switch (value.getMinimumClockDifference().get().compareTo(value.getMaximumClockDifference().get())) {
                         case 0:   // both can not be the same
                             fail(context, MessageSeeds.Keys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
                             fail(context, MessageSeeds.Keys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
@@ -57,18 +57,18 @@ public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, C
                 break;
             case SYNCHRONIZECLOCK:
                 // max. clock shift should be filled in
-                if (value.getMaximumClockShift()==null) {
+                if (!value.getMaximumClockShift().isPresent()) {
                     fail(context, MessageSeeds.Keys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT.fieldName());
                     valid=false;
                 } else {
                      // max. clock shift should be greater then zero
-                    if (value.getMaximumClockShift().getCount()<=0) {
+                    if (value.getMaximumClockShift().get().getCount()<=0) {
                         fail(context, MessageSeeds.Keys.TIMEDURATION_MUST_BE_POSITIVE, ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT.fieldName());
                         valid=false;
                     }
                 }
                 // there should be a minimum defined before synchronizing the clock (this may be zero)
-                if (value.getMinimumClockDifference()==null) {
+                if (!value.getMinimumClockDifference().isPresent()) {
                     fail(context, MessageSeeds.Keys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
                     valid=false;
                 }
@@ -82,4 +82,5 @@ public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, C
         context.disableDefaultConstraintViolation();
         context.buildConstraintViolationWithTemplate("{"+ msg +"}").addPropertyNode(fieldName).addConstraintViolation();
     }
+
 }

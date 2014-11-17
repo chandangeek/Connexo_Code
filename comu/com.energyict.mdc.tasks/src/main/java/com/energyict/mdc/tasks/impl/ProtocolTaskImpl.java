@@ -4,6 +4,8 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
+
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
@@ -64,6 +66,18 @@ abstract class ProtocolTaskImpl implements ProtocolTask, OfflineDeviceContext {
     @Inject
     ProtocolTaskImpl(DataModel dataModel) {
         this.dataModel = dataModel;
+    }
+
+    protected TimeDuration postLoad(TimeDuration timeDuration) {
+        if (timeDuration != null && timeDuration.getTimeUnitCode() <= 0) {
+            /* The TimeDuration was injected by ORM but then the latter
+             * realized to late that the database values were actually
+             * null so it has not injected a value nor a unit. */
+            return null;
+        }
+        else {
+            return timeDuration;
+        }
     }
 
     protected DataModel getDataModel() {

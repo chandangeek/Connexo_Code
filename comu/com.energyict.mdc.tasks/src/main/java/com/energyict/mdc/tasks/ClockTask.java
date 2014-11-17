@@ -2,6 +2,8 @@ package com.energyict.mdc.tasks;
 
 import com.elster.jupiter.time.TimeDuration;
 
+import java.util.Optional;
+
 /**
  * Models the {@link com.energyict.mdc.tasks.ProtocolTask} which can manipulate the Clock of a Device.
  *
@@ -23,7 +25,7 @@ public interface ClockTask extends ProtocolTask {
      *
      * @return the minimum clock difference
      */
-    public TimeDuration getMinimumClockDifference();
+    public Optional<TimeDuration> getMinimumClockDifference();
     public void setMinimumClockDifference(TimeDuration minimumClockDiff);
 
     /**
@@ -31,7 +33,7 @@ public interface ClockTask extends ProtocolTask {
      *
      * @return the maximum clock difference
      */
-    public TimeDuration getMaximumClockDifference();
+    public Optional<TimeDuration> getMaximumClockDifference();
     public void setMaximumClockDifference(TimeDuration maximumClockDiff);
 
     /**
@@ -39,7 +41,7 @@ public interface ClockTask extends ProtocolTask {
      *
      * @return the maximum clock shift
      */
-    public TimeDuration getMaximumClockShift();
+    public Optional<TimeDuration> getMaximumClockShift();
     public void setMaximumClockShift(TimeDuration maximumClockShift);
 
     interface ClockTaskBuilder {

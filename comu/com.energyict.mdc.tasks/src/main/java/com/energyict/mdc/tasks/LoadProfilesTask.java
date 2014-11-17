@@ -3,6 +3,7 @@ package com.energyict.mdc.tasks;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models the {@link com.energyict.mdc.tasks.ProtocolTask} which can read one or multiple LoadProfile
@@ -54,11 +55,11 @@ public interface LoadProfilesTask extends ProtocolTask {
     public void setMarkIntervalsAsBadTime(boolean markIntervalsAsBadTime);
 
     /**
-     * Returns the minimum clock difference before intervals can be marked as BadTime
+     * Returns the minimum clock difference before intervals can be marked as BadTime.
      *
      * @return the minimum clock difference
      */
-    public TimeDuration getMinClockDiffBeforeBadTime();
+    public Optional<TimeDuration> getMinClockDiffBeforeBadTime();
     public void setMinClockDiffBeforeBadTime(TimeDuration minClockDiffBeforeBadTime);
 
     /**
