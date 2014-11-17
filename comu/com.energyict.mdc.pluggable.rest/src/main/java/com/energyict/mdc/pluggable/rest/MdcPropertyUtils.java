@@ -18,6 +18,7 @@ import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.pluggable.rest.impl.MessageSeeds;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
+
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collection;
@@ -33,8 +34,12 @@ import javax.ws.rs.core.UriInfo;
 public class MdcPropertyUtils {
 
     public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
+        convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList, true);
+    }
+
+    public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList, boolean showValue) {
         for (PropertySpec<?> propertySpec : propertySpecs) {
-            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec);
+            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, showValue);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType);
             PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
@@ -42,14 +47,20 @@ public class MdcPropertyUtils {
         }
     }
 
-    private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec<?> propertySpec) {
+    private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec<?> propertySpec, boolean showValue) {
         Object propertyValue = getPropertyValue(properties, propertySpec);
+        boolean propertyHasValue = true;
         Object inheritedProperty = getInheritedProperty(properties, propertySpec);
         Object defaultValue = getDefaultValue(propertySpec);
-        if (propertyValue == null && inheritedProperty == null && defaultValue == null) {
-            return null;
+        if ((propertyValue == null || propertyValue.equals("")) && (inheritedProperty == null || inheritedProperty.equals("")) && (defaultValue == null || defaultValue.equals(""))) {
+            propertyHasValue = false;
         }
-        return new PropertyValueInfo<>(propertyValue, inheritedProperty, defaultValue);
+        if (!showValue) {
+            propertyValue = null;
+            inheritedProperty = null;
+            defaultValue = null;
+        }
+        return new PropertyValueInfo<>(propertyValue, inheritedProperty, defaultValue, propertyHasValue);
     }
 
     private SimplePropertyType getSimplePropertyType(PropertySpec<?> propertySpec) {
