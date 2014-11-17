@@ -45,10 +45,10 @@ public final class SqlEvent {
         String base =
                 "SQL statement " + getStatementId() + " executed in " + (stopWatch.getElapsed() / NANOS_PER_MICRO) + " \u00b5s";
         if (fetchCount >= 0) {
-            base += ", fetched " + fetchCount + (fetchCount == 1 ? " tuple" : "tuples");
+            base += ", fetched " + fetchCount + (fetchCount == 1 ? " tuple" : " tuples");
         } else  {
         	if (batchCount == 0) {
-        		base += " inserted/updated " + rowCount + (rowCount == 1  ? " row" : "rows");
+        		base += " inserted/updated " + rowCount + (rowCount == 1  ? " row" : " rows");
         	} else {
         		base += " executed " + batchCount + " statements in " + batchCount + (batchCount == 1 ? " batch" : " batches"); 
         	}
