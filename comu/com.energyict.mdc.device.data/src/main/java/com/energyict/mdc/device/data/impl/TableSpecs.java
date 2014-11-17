@@ -568,7 +568,7 @@ public enum TableSpecs {
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
             table.column("DEVICEMESSAGEID").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).notNull().add();
             table.column("STATUS").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).notNull().add();
-            Column user = table.column("USER").number().conversion(NUMBER2LONG).notNull().add();
+            Column user = table.column("USR").number().conversion(NUMBER2LONG).notNull().add();
             table.column("TRACKINGID").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.TRACKINGID.fieldName()).add();
             table.column("PROTOCOLINFO").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).add();
             table.column("CREATEDATE").number().map(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
