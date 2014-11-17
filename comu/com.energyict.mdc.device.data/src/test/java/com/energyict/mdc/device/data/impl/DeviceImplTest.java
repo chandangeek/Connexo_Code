@@ -61,7 +61,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -111,7 +113,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithName(String name, String mRID){
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, name, mRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID);
         device.save();
         return device;
     }
@@ -190,7 +192,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED_KEY + "}")
     public void createWithoutNameTest() {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, null, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, null, MRID);
         device.save();
     }
 
@@ -199,7 +201,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED_KEY + "}")
     public void createWithEmptyNameTest() {
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "", MRID);
         device.save();
     }
 
@@ -208,7 +210,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void createWithSerialNumberTest() {
         String serialNumber = "MyTestSerialNumber";
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.setSerialNumber(serialNumber);
         device.save();
 
@@ -246,11 +248,11 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void successfulCreationOfTwoDevicesWithSameSerialNumberTest() {
         String serialNumber = "SerialNumber";
-        Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "MRIDFirst", MRID + "First");
+        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "MRIDFirst", MRID + "First");
         device1.setSerialNumber(serialNumber);
         device1.save();
 
-        Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "MRIDSecond", MRID + "Second");
+        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "MRIDSecond", MRID + "Second");
         device2.setSerialNumber(serialNumber);
         device2.save();
 
@@ -264,9 +266,9 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
     public void uniquenessOfExternalNameTest() {
         String mRID = "MyPublicExternalName";
-        Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "First", mRID);
+        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "First", mRID);
         device1.save();
-        Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME + "Second", mRID);
+        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME + "Second", mRID);
         device2.save();
     }
 
@@ -274,7 +276,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MRID_REQUIRED_KEY + "}")
     public void noMRIDTest() {
-        Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, null);
+        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, null);
         device1.save();
     }
 
@@ -282,7 +284,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MRID_REQUIRED_KEY + "}")
     public void emptyMRIDTest() {
-        Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, "");
+        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, "");
         device1.save();
     }
 
@@ -342,7 +344,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void userDefinedTimeZoneTest() {
         createTestDefaultTimeZone();
         TimeZone userDefinedTimeZone = TimeZone.getTimeZone("Asia/Novokuznetsk");
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.setTimeZone(userDefinedTimeZone);
         device.save();
 
@@ -367,7 +369,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void updateUserDefinedTimeZoneWithNullTimeZoneResultsInDefaultTest() {
         createTestDefaultTimeZone();
         TimeZone userDefinedTimeZone = TimeZone.getTimeZone("Asia/Novokuznetsk");
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.setTimeZone(userDefinedTimeZone);
         device.save();
 
@@ -400,7 +402,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void getRegistersForConfigWithRegistersTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -412,7 +414,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void getRegisterReadingsShouldReturnEmptyListTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -427,7 +429,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         com.elster.jupiter.metering.readings.Reading reading = com.elster.jupiter.metering.readings.beans.ReadingImpl.of(forwardEnergyReadingType.getMRID(), readingValue, readingTimeStamp.toInstant());
         MeterReadingImpl meterReading = MeterReadingImpl.of(reading);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         device.store(meterReading);
 
@@ -457,7 +459,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addReading(reading);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         device.store(meterReading);
 
@@ -478,7 +480,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void getRegisterWithDeviceObisCodeForConfigWithRegistersTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoRegisterSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -500,7 +502,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void createWithPhysicalGatewayTest() {
         Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Slave", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave", MRID);
         device.setPhysicalGateway(masterDevice);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
@@ -514,7 +516,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void updateWithPhysicalGatewayTest() {
         Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Slave", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave", MRID);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
         reloadedDevice.setPhysicalGateway(masterDevice);
@@ -603,7 +605,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
     public void updatePhysicalGatewayWithSameAsOriginDeviceTest() {
         Device physicalGateway = createSimpleDeviceWithName("PhysicalGateway");
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Slave", "SlaveMrid");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave", "SlaveMrid");
         device.setPhysicalGateway(physicalGateway);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
@@ -625,7 +627,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void createWithCommunicationGatewayTest() {
         Device communicationMaster = createSimpleDevice();
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Slave", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave", MRID);
         device.setCommunicationGateway(communicationMaster);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
@@ -727,7 +729,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void updateCommunicationGatewayWithSameAsOriginDeviceTest() {
         Device communicationMaster = createSimpleDevice();
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Slave", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave", MRID);
         device.setCommunicationGateway(communicationMaster);
         device.save();
 
@@ -739,7 +741,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void createWithSamePhysicalAndCommunicationGatewayTest() {
         Device gatewayForBoth = createSimpleDeviceWithName("GatewayForBoth");
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin", MRID);
         device.setPhysicalGateway(gatewayForBoth);
         device.setCommunicationGateway(gatewayForBoth);
         device.save();
@@ -761,10 +763,10 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void findPhysicalConnectedDevicesTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        final Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1", MRID);
+        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
         device1.setPhysicalGateway(physicalMaster);
         device1.save();
-        final Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin2", MRID+"2");
+        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2", MRID+"2");
         device2.setPhysicalGateway(physicalMaster);
         device2.save();
 
@@ -787,10 +789,10 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void findDownstreamDevicesAfterRemovingGatewayReferenceTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        final Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1", "1");
+        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
         device1.setPhysicalGateway(physicalMaster);
         device1.save();
-        final Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin2", "2");
+        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
         device2.setPhysicalGateway(physicalMaster);
         device2.save();
 
@@ -808,10 +810,10 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void findDownstreamDevicesAfterRemovalOfOneTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        final Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1", "1");
+        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
         device1.setPhysicalGateway(physicalMaster);
         device1.save();
-        final Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin2", "2");
+        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
         device2.setPhysicalGateway(physicalMaster);
         device2.save();
 
@@ -829,10 +831,10 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void findDownstreamDevicesAfterSettingToOtherPhysicalGatewayTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster","pm");
         Device otherPhysicalMaster = createSimpleDeviceWithName("OtherPhysicalMaster", "opm");
-        final Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1", "1");
+        final Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
         device1.setPhysicalGateway(physicalMaster);
         device1.save();
-        final Device device2 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin2", "2");
+        final Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
         device2.setPhysicalGateway(physicalMaster);
         device2.save();
 
@@ -851,7 +853,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void cannotDeleteBecauseStillUsedAsPhysicalGatewayTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        Device device1 = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1", MRID);
+        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
         device1.setPhysicalGateway(physicalMaster);
         device1.save();
 
@@ -871,7 +873,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void deletePhysicalMasterAfterDeletingSlaveTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin", MRID);
         device.setPhysicalGateway(physicalMaster);
         device.save();
 
@@ -882,14 +884,14 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         long masterId = reloadedMaster.getId();
         reloadedMaster.delete();
 
-        assertThat(inMemoryPersistence.getDeviceDataService().findDeviceById(masterId)).isNull();
+        assertThat(inMemoryPersistence.getDeviceService().findDeviceById(masterId)).isNull();
     }
 
     @Test(expected = StillGatewayException.class)
     @Transactional
     public void cannotDeleteBecauseStillUsedAsCommunicationGatewayTest() {
         Device communicationMaster = createSimpleDeviceWithName("CommunicationMaster");
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
         device.setCommunicationGateway(communicationMaster);
         device.save();
 
@@ -909,7 +911,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void deleteCommunicationMasterAfterDeletingSlaveTest() {
         Device communicationMaster = createSimpleDeviceWithName("CommunicationMaster");
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "Origin1", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
         device.setCommunicationGateway(communicationMaster);
         device.save();
 
@@ -920,7 +922,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         long masterId = reloadedCommunicationMaster.getId();
         reloadedCommunicationMaster.delete();
 
-        assertThat(inMemoryPersistence.getDeviceDataService().findDeviceById(masterId)).isNull();
+        assertThat(inMemoryPersistence.getDeviceService().findDeviceById(masterId)).isNull();
     }
 
     @Test
@@ -936,7 +938,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void createDeviceWithTwoChannelsTest() {
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -956,7 +958,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
             }
         }
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -970,7 +972,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     public void getChannelWithNonExistingNameTest() {
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs();
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
         device.save();
         Device reloadedDevice = getReloadedDevice(device);
 
@@ -998,7 +1000,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = inactiveConfig.add();
         deviceType.save();
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "MySimpleName", "BlaBla");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "MySimpleName", "BlaBla");
         device.save();
     }
 
@@ -1011,7 +1013,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
         deviceType.save();
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "name", "description");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "name", "description");
         device.save();
 
         assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.HOME_AREA_NETWORK);
@@ -1026,7 +1028,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
         deviceType.save();
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "name", "description");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "name", "description");
         device.save();
 
         assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.LOCAL_AREA_NETWORK);
@@ -1041,7 +1043,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
         deviceType.save();
 
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, "name", "description");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "name", "description");
         device.save();
 
         assertThat(device.getConfigurationGatewayType()).isEqualTo(GatewayType.NONE);
@@ -1067,7 +1069,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         String code = getForwardEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
@@ -1107,7 +1109,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Instant requestIntervalStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant requestIntervalEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         String code = getForwardEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
@@ -1148,7 +1150,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         String code = getForwardEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
@@ -1187,7 +1189,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         String code = getForwardEnergyReadingTypeCodeBuilder()
                 .period(TimeAttribute.MINUTE15)
@@ -1227,7 +1229,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Date dayStart = new Date(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Date dayEnd = new Date(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -1248,13 +1250,95 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(readingTimeStamp.toInstant(), readingValue));
         meterReading.addIntervalBlock(intervalBlock);
         DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs();
-        Device device = inMemoryPersistence.getDeviceDataService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
         device.save();
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
         assertThat(readings).hasSize(4 * 6);  // 4 per hour, during 6 hours
+    }
+
+    @Test
+    @Transactional
+    public void testGetSortedPhysicalGatewayReferences() {
+        Device gateway = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "gateway", "physGateway");
+        gateway.save();
+
+        Device slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave1", "slave1");
+        slave.save();
+        slave.setPhysicalGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave2", "slave2");
+        slave.save();
+        slave.setPhysicalGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave3", "slave3");
+        slave.save();
+        slave.setPhysicalGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave4", "slave4");
+        slave.save();
+        slave.setPhysicalGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave5", "slave5");
+        slave.save();
+        slave.setPhysicalGateway(gateway);
+
+        TopologyTimeline timeline = inMemoryPersistence.getDeviceService().getPhysicalTopologyTimelineAdditions(gateway, 3);
+        List<TopologyTimeslice> timeslices = timeline.getSlices();
+        assertThat(timeslices).hasSize(1);
+        TopologyTimeslice topologyTimeslice = timeslices.get(0);
+        List<Device> devicesInTimeslice = topologyTimeslice.getDevices();
+        assertThat(devicesInTimeslice).hasSize(3);
+        Set<String> deviceNames = devicesInTimeslice.stream().map(Device::getName).collect(Collectors.toSet());
+        assertThat(deviceNames).containsOnly("slave5", "slave4", "slave3");
+
+        timeslices = inMemoryPersistence.getDeviceService().getPhysicalTopologyTimelineAdditions(gateway, 20).getSlices();
+        assertThat(timeslices).hasSize(1);
+        topologyTimeslice = timeslices.get(0);
+        assertThat(topologyTimeslice.getDevices()).hasSize(5);
+    }
+
+    @Test
+    @Transactional
+    public void testGetSortedCommunicationGatewayReference() {
+        Device gateway = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "gateway", "commGateway");
+        gateway.save();
+
+        Device slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave1", "slave1");
+        slave.save();
+        slave.setCommunicationGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave2", "slave2");
+        slave.save();
+        slave.setCommunicationGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave3", "slave3");
+        slave.save();
+        slave.setCommunicationGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave4", "slave4");
+        slave.save();
+        slave.setCommunicationGateway(gateway);
+
+        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave5", "slave5");
+        slave.save();
+        slave.setCommunicationGateway(gateway);
+
+        List<TopologyTimeslice> timeslices = inMemoryPersistence.getDeviceService().getCommunicationTopologyTimelineAdditions(gateway, 3).getSlices();
+        assertThat(timeslices).hasSize(1);
+        TopologyTimeslice topologyTimeslice = timeslices.get(0);
+        List<Device> devicesInTimeslice = topologyTimeslice.getDevices();
+        assertThat(devicesInTimeslice).hasSize(3);
+        Set<String> deviceNames = devicesInTimeslice.stream().map(Device::getName).collect(Collectors.toSet());
+        assertThat(deviceNames).containsOnly("slave5", "slave4", "slave3");
+
+        timeslices = inMemoryPersistence.getDeviceService().getCommunicationTopologyTimelineAdditions(gateway, 20).getSlices();
+        assertThat(timeslices).hasSize(1);
+        topologyTimeslice = timeslices.get(0);
+        devicesInTimeslice = topologyTimeslice.getDevices();
+        assertThat(devicesInTimeslice).hasSize(5);
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {

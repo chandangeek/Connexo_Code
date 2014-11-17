@@ -45,7 +45,7 @@ import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import org.assertj.core.api.Condition;
-import org.fest.assertions.Assertions;
+
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
 import org.junit.After;
@@ -1969,7 +1969,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         String myNotDefaultConnectionTaskName = "ThisShouldNotBeDefault";
         ScheduledConnectionTaskImpl thisShouldNotBeDefault = this.createAsapWithNoPropertiesWithoutViolations(myNotDefaultConnectionTaskName, this.partialScheduledConnectionTask);
-        Device device = inMemoryPersistence.getDeviceDataService().findDeviceById(myDefaultConnectionTask.getDevice().getId());
+        Device device = inMemoryPersistence.getDeviceService().findDeviceById(myDefaultConnectionTask.getDevice().getId());
 
         assertThat(device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getName().equals(myDefaultConnectionTaskName)).findFirst().get().isDefault()).isTrue();
         assertThat(device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getName().equals(myNotDefaultConnectionTaskName)).findFirst().get().isDefault()).isFalse();

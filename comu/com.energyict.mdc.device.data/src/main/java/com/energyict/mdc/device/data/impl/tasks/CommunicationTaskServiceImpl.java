@@ -18,12 +18,8 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.CommunicationTopologyEntry;
-import com.energyict.mdc.device.data.ConnectionTaskFields;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ServerComTaskExecution;
+import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.TopologyTimeslice;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
@@ -49,6 +45,7 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.google.common.collect.Range;
 import com.google.inject.Inject;
 import org.joda.time.DateTimeConstants;
 
@@ -1013,23 +1010,23 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             return 0;
         } else {
             int numberOfDevices = 0;
-            List<CommunicationTopologyEntry> communicationTopologies = device.getAllCommunicationTopologies(interval);
-            for (CommunicationTopologyEntry communicationTopologyEntry : communicationTopologies) {
-                List<Device> devices = new ArrayList<>(communicationTopologyEntry.getDevices());
+            List<TopologyTimeslice> communicationTopologies = device.getCommunicationTopology(interval.toClosedRange()).timelined().getSlices();
+            for (TopologyTimeslice topologyTimeslice : communicationTopologies) {
+                List<Device> devices = new ArrayList<>(topologyTimeslice.getDevices());
                 devices.add(device);
-                numberOfDevices = numberOfDevices + this.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(errorType, devices, communicationTopologyEntry.getInterval());
+                numberOfDevices = numberOfDevices + this.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(errorType, devices, topologyTimeslice.getPeriod());
             }
             return numberOfDevices;
         }
     }
 
-    private int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, List<Device> devices, Interval interval) {
+    private int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, List<Device> devices, Range<Instant> range) {
         switch (errorType) {
             case CONNECTION_FAILURE: {
-                return this.countNumberOfDevicesWithConnectionFailures(interval, devices);
+                return this.countNumberOfDevicesWithConnectionFailures(range, devices);
             }
             case COMMUNICATION_FAILURE: {
-                return this.countNumberOfDevicesWithCommunicationFailuresInGatewayTopology(devices, interval);
+                return this.countNumberOfDevicesWithCommunicationFailuresInGatewayTopology(devices, range);
             }
             case CONNECTION_SETUP_FAILURE: {
                 // Intended fall-through
@@ -1040,17 +1037,17 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         }
     }
 
-    private int countNumberOfDevicesWithConnectionFailures(Interval interval, List<Device> devices) {
+    private int countNumberOfDevicesWithConnectionFailures(Range<Instant> range, List<Device> devices) {
         return this.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(
                 devices,
-                interval,
+                range,
                 where(this.comSessionSuccessIndicatorFieldName()).isEqualTo(ComSession.SuccessIndicator.Broken));
     }
 
-    private int countNumberOfDevicesWithCommunicationFailuresInGatewayTopology(List<Device> devices, Interval interval) {
+    private int countNumberOfDevicesWithCommunicationFailuresInGatewayTopology(List<Device> devices, Range<Instant> range) {
         return this.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(
                 devices,
-                interval,
+                range,
                 where(this.comSessionSuccessIndicatorFieldName()).isNotEqual(ComSession.SuccessIndicator.Success));
     }
 
@@ -1058,15 +1055,15 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         return ComTaskExecutionSessionImpl.Fields.SESSION.fieldName() + "." + ComSessionImpl.Fields.SUCCESS_INDICATOR.fieldName();
     }
 
-    private int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(List<Device> devices, Interval interval, Condition successIndicatorCondition) {
+    private int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(List<Device> devices, Range<Instant> range, Condition successIndicatorCondition) {
         List<Condition> conditions = new ArrayList<>();
         conditions.add(successIndicatorCondition);
         conditions.add(where(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).in(devices));
-        if (interval.getStart() != null) {
-            conditions.add(where(ComTaskExecutionSessionImpl.Fields.SESSION.fieldName() + "." + ComSessionImpl.Fields.START_DATE.fieldName()).isGreaterThanOrEqual(interval.getStart()));
+        if (range.hasLowerBound()) {
+            conditions.add(where(ComTaskExecutionSessionImpl.Fields.SESSION.fieldName() + "." + ComSessionImpl.Fields.START_DATE.fieldName()).isGreaterThanOrEqual(range.lowerEndpoint()));
         }
-        if (interval.getEnd() != null) {
-            conditions.add(where(ComTaskExecutionSessionImpl.Fields.SESSION.fieldName() + "." + ComSessionImpl.Fields.STOP_DATE.fieldName()).isLessThanOrEqual(interval.getEnd()));
+        if (range.hasUpperBound()) {
+            conditions.add(where(ComTaskExecutionSessionImpl.Fields.SESSION.fieldName() + "." + ComSessionImpl.Fields.STOP_DATE.fieldName()).isLessThanOrEqual(range.upperEndpoint()));
         }
         Condition execSessionCondition = this.andAll(conditions);
         List<ComTaskExecutionSession> comTaskExecutionSessions = this.deviceDataModelService.dataModel().query(ComTaskExecutionSession.class, ComSession.class, Device.class).select(execSessionCondition);
