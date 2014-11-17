@@ -11,9 +11,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -21,15 +23,16 @@ import static org.mockito.Mockito.verify;
 
 /**
  * Tests for the {@link AddPropertiesCommand} component
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/08/12
  * Time: 14:43
  */
+@RunWith(MockitoJUnitRunner.class)
 public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
 
     @Test
-    public void commandTypeTest(){
+    public void commandTypeTest() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         CommandRoot commandRoot = new CommandRootImpl(offlineDevice, AbstractComCommandExecuteTest.newTestExecutionContext(), serviceProvider);
         TypedProperties typedProperties = mock(TypedProperties.class);
@@ -39,7 +42,7 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
     }
 
     @Test
-    public void verifyAddPropertiesTest(){
+    public void verifyAddPropertiesTest() {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
@@ -55,7 +58,7 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
     }
 
     @Test
-    public void verifyAddDeviceProtocolDialectPropertiesTest(){
+    public void verifyAddDeviceProtocolDialectPropertiesTest() {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
@@ -72,7 +75,7 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
     }
 
     @Test
-    public void verifyOrderOfPropertySetCalls(){
+    public void verifyOrderOfPropertySetCalls() {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
@@ -92,7 +95,7 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
     }
 
     @Test
-    public void verifyAddSecurityPropertySetTest(){
+    public void verifyAddSecurityPropertySetTest() {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         ExecutionContext executionContext = AbstractComCommandExecuteTest.newTestExecutionContext();
@@ -107,4 +110,5 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
 
         // verify that the setSecurityPropertySet is called on the deviceProtocol
         verify(deviceProtocol).setSecurityPropertySet(securityPropertySet);
-    }}
+    }
+}

@@ -1,10 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
@@ -26,12 +24,14 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import java.util.Optional;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 /**
  * An offline implementation version of an {@link com.energyict.mdc.protocol.api.device.BaseDevice}
@@ -359,20 +359,16 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     private List<OfflineDeviceMessage> createPendingMessagesList() {
-//        return createOfflineMessageList(getDeviceMessageFactory().findByDeviceAndState(device, DeviceMessageStatus.PENDING));
-        return Collections.emptyList();
+        return createOfflineMessageList(this.device.getMessagesByState(DeviceMessageStatus.PENDING));
     }
 
     private List<OfflineDeviceMessage> createSentMessagesList() {
-//        return createOfflineMessageList(getDeviceMessageFactory().findByDeviceAndState(device, DeviceMessageStatus.SENT));
-        return Collections.emptyList();
+        return createOfflineMessageList(this.device.getMessagesByState(DeviceMessageStatus.SENT));
     }
 
-    private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage> deviceMessages) {
+    private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage<Device>> deviceMessages) {
         List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>(deviceMessages.size());
-        for (DeviceMessage deviceMessage : deviceMessages) {
-            offlineDeviceMessages.add((OfflineDeviceMessage) deviceMessage.goOffline());
-        }
+        offlineDeviceMessages.addAll(deviceMessages.stream().map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceProtocolPluggableClass.getDeviceProtocol())).collect(Collectors.toList()));
         return offlineDeviceMessages;
     }
 
@@ -410,14 +406,6 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     private void setAllSentMessages(final List<OfflineDeviceMessage> allSentMessages) {
         this.sentDeviceMessages = allSentMessages;
-    }
-
-    private DeviceMessageFactory getDeviceMessageFactory() {
-        List<DeviceMessageFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceMessageFactory.class);
-        if(!modulesImplementing.isEmpty()){
-            return modulesImplementing.get(0);
-        }
-        return null;
     }
 
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {

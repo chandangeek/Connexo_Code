@@ -1,26 +1,26 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessage;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
 import com.energyict.mdc.engine.impl.meterdata.identifiers.DeviceMessageIdentifierById;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link CollectedMessageListDeviceCommand} component
@@ -29,7 +29,6 @@ import static org.mockito.Mockito.when;
  * Date: 25/03/13
  * Time: 9:37
  */
-@Ignore // TODO - JP-357 - Messages are not in scope yet
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedMessageListDeviceCommandTest {
 
@@ -46,22 +45,22 @@ public class CollectedMessageListDeviceCommandTest {
     private IssueService issueService;
     @Mock
     private MeterDataStoreCommand meterDataStoreCommand;
+    @Mock
+    private ServiceProvider serviceProvider;
 
     @Before
     public void initialize(){
-//        ManagerFactory.setCurrent(manager);
         when(deviceMessage1.getId()).thenReturn(MESSAGE_ID1);
         when(deviceMessage2.getId()).thenReturn(MESSAGE_ID2);
-//        when(manager.getDeviceMessageFactory()).thenReturn(deviceMessageFactory);
-//        when(deviceMessageFactory.find(MESSAGE_ID1)).thenReturn(deviceMessage1);
-//        when(deviceMessageFactory.find(MESSAGE_ID2)).thenReturn(deviceMessage2);
+        ServiceProvider.instance.set(serviceProvider);
+        when(serviceProvider.issueService()).thenReturn(issueService);
     }
 
     @Test
     public void testExecute() {
         final DeviceMessageIdentifierById deviceMessageIdentifier = new DeviceMessageIdentifierById(MESSAGE_ID1);
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage.getDeviceMessageId()).thenReturn(MESSAGE_ID1);
+        when(offlineDeviceMessage.getIdentifier()).thenReturn(deviceMessageIdentifier);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier);
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
@@ -89,9 +88,7 @@ public class CollectedMessageListDeviceCommandTest {
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage1.getDeviceMessageId()).thenReturn(MESSAGE_ID1);
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage2.getDeviceMessageId()).thenReturn(MESSAGE_ID2);
 
         DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2));
         deviceProtocolMessageList.addCollectedMessages(collectedMessage1);
@@ -118,9 +115,7 @@ public class CollectedMessageListDeviceCommandTest {
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage1.getDeviceMessageId()).thenReturn(MESSAGE_ID1);
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage2.getDeviceMessageId()).thenReturn(MESSAGE_ID2);
 
         DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2));
         deviceProtocolMessageList.addCollectedMessages(collectedMessage1);
@@ -147,9 +142,9 @@ public class CollectedMessageListDeviceCommandTest {
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage1.getDeviceMessageId()).thenReturn(MESSAGE_ID1);
+        when(offlineDeviceMessage1.getIdentifier()).thenReturn(deviceMessageIdentifier1);
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage2.getDeviceMessageId()).thenReturn(MESSAGE_ID2);
+        when(offlineDeviceMessage2.getIdentifier()).thenReturn(deviceMessageIdentifier2);
         when(offlineDeviceMessage2.getDeviceMessageStatus()).thenReturn(DeviceMessageStatus.SENT);
 
         DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2));
