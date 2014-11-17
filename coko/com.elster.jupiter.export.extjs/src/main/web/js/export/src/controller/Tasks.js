@@ -340,6 +340,7 @@ Ext.define('Dxp.controller.Tasks', {
                 if (me.getPage()) {
                     var grid = me.getPage().down('tasks-grid');
                     grid.down('pagingtoolbartop').totalCount = 0;
+                    grid.down('pagingtoolbarbottom').resetPaging();
                     grid.getStore().load();
                 } else {
                     me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
