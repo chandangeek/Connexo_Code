@@ -193,22 +193,23 @@ Ext.define('Isu.controller.CreationRuleEdit', {
                         formField && formField.setValue(value);
                     }
                 }
-
-                page.setLoading(false);
             }, me, {single: true});
         }
 
         nameField.setValue(data.name);
         issueTypeField.getStore().load(function () {
             issueTypeField.setValue(data.issueType.uid || issueTypeField.getStore().getAt(0).get('uid'));
+            reasonField.getStore().getProxy().setExtraParam('issueType', issueTypeField.getValue());
+            page.setLoading(true);
+            reasonField.getStore().load(function () {
+                page.setLoading(false);
+                if (!reasonField.isDestroyed) {
+                    reasonField.setValue(data.reason.id);
+                }
+            });
             templateField.getStore().on('load', function () {
                 templateField.setValue(data.template.uid);
             }, me, {single: true});
-        });
-        reasonField.getStore().load(function () {
-            if (!reasonField.isDestroyed) {
-                reasonField.setValue(data.reason.id);
-            }
         });
         if (data.dueIn.number) {
             dueDateTrigger.setValue({dueDate: true});
