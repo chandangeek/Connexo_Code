@@ -21,7 +21,7 @@ public interface DataExportOccurrence {
 
     Instant getTriggerTime();
 
-    Long getTaskOccurenceId();
+    Long getId();
 
     List<? extends LogEntry> getLogs();
 }
