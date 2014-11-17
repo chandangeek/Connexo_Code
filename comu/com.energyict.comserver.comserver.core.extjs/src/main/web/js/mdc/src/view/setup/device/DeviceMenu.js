@@ -15,30 +15,30 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             href: '#/devices/' + mRID,
             hrefTarget: '_self'
         });
-//        if (this.device.get('hasRegisters')) {
+        if (this.device.get('hasRegisters')) {
             this.add({
                 text: Uni.I18n.translate('devicemenu.registerTypes', 'MDC', 'Registers'),
                 itemId: 'registersLink',
                 href: '#/devices/' + mRID + '/registers',
                 hrefTarget: '_self'
             });
-//        }
-//        if (this.device.get('hasLoadProfiles')) {
+        }
+        if (this.device.get('hasLoadProfiles')) {
             this.add({
                 text: Uni.I18n.translate('devicemenu.loadProfiles', 'MDC', 'Load profiles'),
                 itemId: 'loadProfilesLink',
                 href: '#/devices/' + mRID + '/loadprofiles',
                 hrefTarget: '_self'
             });
-//        }
-//        if (this.device.get('hasLogBooks')) {
+        }
+        if (this.device.get('hasLogBooks')) {
             this.add({
                 text: Uni.I18n.translate('devicemenu.logbooks', 'MDC', 'Logbooks'),
                 itemId: 'logbooksLink',
                 href: '#/devices/' + mRID + '/logbooks',
                 hrefTarget: '_self'
             });
-//        }
+        }
         this.add({
             text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),
             itemId: 'connectionMethodsLink',
