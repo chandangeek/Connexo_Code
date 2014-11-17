@@ -66,6 +66,126 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJerseyTest {
+    public static final ReadingType READING_TYPE = new ReadingType() {
+        @Override
+        public MacroPeriod getMacroPeriod() {
+            return MacroPeriod.DAILY;
+        }
+
+        @Override
+        public Aggregate getAggregate() {
+            return Aggregate.AVERAGE;
+        }
+
+        @Override
+        public TimeAttribute getMeasuringPeriod() {
+            return TimeAttribute.MINUTE15;
+        }
+
+        @Override
+        public Accumulation getAccumulation() {
+            return Accumulation.BULKQUANTITY;
+        }
+
+        @Override
+        public FlowDirection getFlowDirection() {
+            return FlowDirection.FORWARD;
+        }
+
+        @Override
+        public Commodity getCommodity() {
+            return Commodity.AIR;
+        }
+
+        @Override
+        public MeasurementKind getMeasurementKind() {
+            return MeasurementKind.ALARM;
+        }
+
+        @Override
+        public RationalNumber getInterharmonic() {
+            return RationalNumber.NOTAPPLICABLE;
+        }
+
+        @Override
+        public RationalNumber getArgument() {
+            return RationalNumber.NOTAPPLICABLE;
+        }
+
+        @Override
+        public int getTou() {
+            return 1;
+        }
+
+        @Override
+        public int getCpp() {
+            return 1;
+        }
+
+        @Override
+        public int getConsumptionTier() {
+            return 1;
+        }
+
+        @Override
+        public Phase getPhases() {
+            return Phase.PHASES1;
+        }
+
+        @Override
+        public MetricMultiplier getMultiplier() {
+            return MetricMultiplier.ATTO;
+        }
+
+        @Override
+        public ReadingTypeUnit getUnit() {
+            return ReadingTypeUnit.AMPERE;
+        }
+
+        @Override
+        public Currency getCurrency() {
+            return java.util.Currency.getAvailableCurrencies().iterator().next();
+        }
+
+        @Override
+        public boolean isBulkQuantityReadingType(ReadingType readingType) {
+            return false;
+        }
+
+        @Override
+        public boolean isRegular() {
+            return false;
+        }
+
+        @Override
+        public long getVersion() {
+            return 1;
+        }
+
+        @Override
+        public void setDescription(String description) {
+        }
+
+        @Override
+        public String getAliasName() {
+            return "Alias name";
+        }
+
+        @Override
+        public String getDescription() {
+            return "Description";
+        }
+
+        @Override
+        public String getMRID() {
+            return "0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8";
+        }
+
+        @Override
+        public String getName() {
+            return "Name";
+        }
+    };
 
     @Test
     public void testGetEmptyDeviceTypeList() throws Exception {
@@ -394,7 +514,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
-        ReadingType readingType = mock(ReadingType.class);
+        ReadingType readingType = READING_TYPE;
         when(registerType.getReadingType()).thenReturn(readingType);
 
         List<RegisterSpec> registerSpecs = mock(List.class);
@@ -716,7 +836,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
         RegisterType registerType101 = mock(RegisterType.class);
-        ReadingType readingType = mock(ReadingType.class);
+        ReadingType readingType = READING_TYPE;
         when(registerType101.getId()).thenReturn(RM_ID_1);
         when(registerType101.getReadingType()).thenReturn(readingType);
         when(registerType101.getName()).thenReturn("zzz");
@@ -746,7 +866,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
         RegisterType registerType101 = mock(RegisterType.class);
         when(registerType101.getId()).thenReturn(RM_ID_1);
-        ReadingType readingType = mock(ReadingType.class);
+        ReadingType readingType = READING_TYPE;
         when(registerType101.getReadingType()).thenReturn(readingType);
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);
@@ -777,7 +897,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", (int) deviceConfiguration_id);
         RegisterType registerType101 = mock(RegisterType.class);
         when(registerType101.getId()).thenReturn(RM_ID_1);
-        ReadingType readingType = mock(ReadingType.class);
+        ReadingType readingType = READING_TYPE;
         when(registerType101.getReadingType()).thenReturn(readingType);
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);

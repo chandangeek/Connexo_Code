@@ -19,12 +19,13 @@ import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.RegisterType;
-import java.util.Optional;
+import org.junit.Test;
+
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -89,25 +90,30 @@ public class RegisterTypeResourceTest extends DeviceConfigurationApplicationJers
         .containsKey("timeOfUse")
         .containsKey("unitOfMeasure")
         .containsKey("readingType");
-        assertThat((Map)map.get("readingType")).hasSize(18)
-        .containsKey("mrid")
-        .containsKey("description")
-        .containsKey("timePeriodOfInterest")
-        .containsKey("dataQualifier")
-        .containsKey("timeAttributeEnumerations")
-        .containsKey("accumulationBehaviour")
-        .containsKey("directionOfFlow")
+        assertThat((Map)map.get("readingType")).hasSize(23)
+        .containsKey("mRID")
+        .containsKey("aliasName")
+        .containsKey("name")
+        .containsKey("macroPeriod")
+        .containsKey("aggregate")
+        .containsKey("measuringPeriod")
+        .containsKey("accumulation")
+        .containsKey("flowDirection")
         .containsKey("commodity")
         .containsKey("measurementKind")
-        .containsKey("interharmonics")
-        .containsKey("argumentReference")
-        .containsKey("timeOfUse")
-        .containsKey("criticalPeakPeriod")
+        .containsKey("interHarmonicNumerator")
+        .containsKey("interHarmonicDenominator")
+        .containsKey("argumentNumerator")
+        .containsKey("argumentDenominator")
+        .containsKey("tou")
+        .containsKey("cpp")
         .containsKey("consumptionTier")
-        .containsKey("phase")
-        .containsKey("powerOfTenMultiplier")
-        .containsKey("unitOfMeasure")
-        .containsKey("currency");
+        .containsKey("phases")
+        .containsKey("metricMultiplier")
+        .containsKey("unit")
+        .containsKey("currency")
+        .containsKey("version")
+        .containsKey("names");
 
     }
 
