@@ -1,7 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.JsonQueryFilter;
+import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -11,6 +14,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.TopologyTimeline;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -38,9 +42,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Optional;
 
 @Path("/devices")
 public class DeviceResource {
+    private static final int RECENTLY_ADDED_COUNT = 5;
+
     private final DeviceImportService deviceImportService;
     private final DeviceService deviceService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -140,7 +152,17 @@ public class DeviceResource {
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
 
         this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
-        return DeviceInfo.from(newDevice, deviceImportService, issueService);
+        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, deviceService, issueService);
+    }
+
+    private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device){
+        List<DeviceTopologyInfo> slaves = null;
+        if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())){
+            slaves = DeviceTopologyInfo.from(deviceService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
+        } else {
+            slaves = DeviceTopologyInfo.from(device.getPhysicalConnectedDevices());
+        }
+        return slaves;
     }
 
     @DELETE
@@ -158,7 +180,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        return DeviceInfo.from(device, deviceImportService, issueService);
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService);
     }
 
     /**
@@ -247,11 +269,79 @@ public class DeviceResource {
     public DeviceMessageResource getCommandResource() {
         return deviceCommandResourceProvider.get();
     }
-       
+
     @Path("/{mRID}/securityproperties")
     public SecurityPropertySetResource getSecurityPropertySetResource() {
         return securityPropertySetResourceProvider.get();
     }
-        
 
+
+    @GET
+    @Path("/{mRID}/topology/communication")
+    @RolesAllowed(Privileges.VIEW_DEVICE)
+    public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        TopologyTimeline timeline = deviceService.getPysicalTopologyTimeline(device);
+        Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
+        List<DeviceTopologyInfo> topologyList = timeline.getAllDevices().stream()
+                .filter(filterPredicate)
+                .sorted(Comparator.comparing(Device::getmRID))
+                .skip(queryParameters.getStart()) //NPE if no start parameter
+                .limit(queryParameters.getLimit())
+                .map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d)))
+                .collect(Collectors.toList());
+
+        return PagedInfoList.asJson("slaveDevices", topologyList, queryParameters);
+    }
+
+    private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter){
+        Predicate<Device> predicate = d -> true;
+        predicate = addPropertyStringFilterIfAvailabale(filter, "mrid", predicate, Device::getmRID);
+        predicate = addPropertyStringFilterIfAvailabale(filter, "serialNumber", predicate, Device::getSerialNumber);
+        predicate = addPropertyListFilterIfAvailabale(filter, "deviceTypeId", predicate, d -> d.getDeviceType().getId());
+        predicate = addPropertyListFilterIfAvailabale(filter, "deviceConfigurationId", predicate, d -> d.getDeviceConfiguration().getId());
+        return predicate;
+    }
+
+    private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, String> extractor){
+        Pattern filterPattern = getFilterPattern(filter.getProperty(name));
+        if (filterPattern != null){
+            return predicate.and(d -> filterPattern.matcher(extractor.apply(d)).matches());
+        }
+        return predicate;
+    }
+
+    private Predicate<Device> addPropertyListFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, Long> extractor){
+        if (filter.getFilterProperties().get(name) != null){
+            List<Long> list = filter.getPropertyList(name, new LongAdapter());
+            if (list != null){
+                return predicate.and(d -> list.contains(extractor.apply(d)));
+            }
+        }
+        return predicate;
+    }
+
+    /**
+     * <ul>
+     * <li>Filter a device on the full MRID (e.g. 123456789)</li>
+     * <li>Filter a device ending with a certain set of characters (e.g. *6789)</li>
+     * <li>Filter a device beginning with a certain set of characters (e.g. 1234*)</li>
+     * <li>Filter a device containing a certain set of characters (e.g. *456*) - Not needed, but we implemented it</li>
+     * </ul>
+     * Any of he following characters can be used as a wildcard: '*', '?', '%'<br />
+     * How do they behave:
+     * <ul>
+     * <li>A '?' in the pattern matches exactly one character in the value.</li>
+     * <li>A percent sign (%) or asterix sign ( * ) in the pattern can match zero or more characters. The pattern '%' or '*' cannot match a null.</li>
+     * </ul>
+     * See <a href='http://confluence.eict.vpdc/display/JUP/Filter+communication+topology+on+MRID'>Filter communication topology on MRID</a>
+     * @param filter the filter expression
+     * @return search pattern
+     */
+    private Pattern getFilterPattern(String filter){
+        if (filter != null){
+            return Pattern.compile(filter.replace('%', '*').replaceAll("([*?])", "\\.$1"));
+        }
+        return null;
+    }
 }

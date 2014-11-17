@@ -35,7 +35,7 @@ public class SecurityPropertySetInfoFactory {
 
     public List<SecurityPropertySetInfo> asInfo(Device device, UriInfo uriInfo) {
         return device.getDeviceConfiguration().getSecurityPropertySets().stream().map(s -> asInfo(device, uriInfo, s))
-                .sorted((p1, p2) -> p1.name.compareTo(p2.name))
+                .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
                 .collect(toList());
     }
 
@@ -52,8 +52,9 @@ public class SecurityPropertySetInfoFactory {
         TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
 
         securityPropertySetInfo.properties = new ArrayList<>();
-        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties);
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties, securityPropertySetInfo.userHasViewPrivilege && securityPropertySetInfo.userHasEditPrivilege);
         changeToRequiredProperties(securityPropertySetInfo.properties);
+
         securityPropertySetInfo.status = new IdWithNameInfo();
         if (!getStatus(device, securityPropertySet, typedProperties)) {
             securityPropertySetInfo.status.id = CompletionState.INCOMPLETE;
@@ -63,7 +64,7 @@ public class SecurityPropertySetInfoFactory {
             securityPropertySetInfo.status.name = thesaurus.getString(MessageSeeds.COMPLETE.getKey(), MessageSeeds.COMPLETE.getDefaultFormat());
         }
         if (!securityPropertySetInfo.userHasViewPrivilege) {
-            securityPropertySetInfo.properties.stream().forEach(p -> p.propertyValueInfo = new PropertyValueInfo<>());
+            securityPropertySetInfo.properties.stream().forEach(p -> p.propertyValueInfo = new PropertyValueInfo<>(p.propertyValueInfo.propertyHasValue));
             if (!securityPropertySetInfo.userHasEditPrivilege) {
                 securityPropertySetInfo.properties.stream().forEach(p -> p.propertyTypeInfo = new PropertyTypeInfo());
             }
@@ -90,7 +91,7 @@ public class SecurityPropertySetInfoFactory {
 
     private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
         TypedProperties typedProperties = TypedProperties.empty();
-        for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
+        for (SecurityProperty securityProperty : device.getAllSecurityProperties(securityPropertySet)) {
             typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
         }
         return typedProperties;

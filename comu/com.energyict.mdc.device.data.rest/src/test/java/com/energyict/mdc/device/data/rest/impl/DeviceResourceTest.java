@@ -40,6 +40,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.TopologyTimeline;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -58,6 +59,7 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,10 +68,11 @@ import java.util.Comparator;
 import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -911,6 +914,158 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         Map<?, ?> eventOrActionMap = (Map<?, ?>) eventType.get("eventOrAction");
         assertThat(eventOrActionMap).contains(MapEntry.entry("id", eventorAction.getValue())).contains(MapEntry.entry("name", eventorAction.getMnemonic()));
+    }
+
+    @Test
+    public void testGetCommunicationTopology(){
+        Device gateway = mockDeviceForTopologyTest("gateway");
+        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave2 = mockDeviceForTopologyTest("slave2");
+        Device slave3 = mockDeviceForTopologyTest("slave3");
+        Device slave4 = mockDeviceForTopologyTest("slave4");
+        Device slave5 = mockDeviceForTopologyTest("slave5");
+        Device slave6 = mockDeviceForTopologyTest("slave6");
+        Device slave7 = mockDeviceForTopologyTest("slave7");
+        Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave5, slave2, slave7, slave4, slave1, slave6, slave3));
+
+        TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
+        when(topologyTimeline.getAllDevices()).thenReturn(slaves);
+        when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave3)).thenReturn(Optional.of(Instant.ofEpochMilli(30L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave4)).thenReturn(Optional.of(Instant.ofEpochMilli(40L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave5)).thenReturn(Optional.of(Instant.ofEpochMilli(50L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave6)).thenReturn(Optional.of(Instant.ofEpochMilli(60L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave7)).thenReturn(Optional.of(Instant.ofEpochMilli(70L)));
+
+        when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
+        when(deviceService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+
+        Map<?, ?> response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(7);
+        List<Map> topologyList = (List<Map>) response.get("slaveDevices");
+        assertThat(topologyList.get(0).get("mRID")).isEqualTo("slave1");
+        assertThat(topologyList.get(6).get("mRID")).isEqualTo("slave7");
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 3).queryParam("limit", 2)
+                .request().get(Map.class);
+        topologyList = (List<Map>) response.get("slaveDevices");
+        assertThat(topologyList.size()).isEqualTo(2);
+        assertThat(topologyList.get(0).get("mRID")).isEqualTo("slave4");
+        assertThat(topologyList.get(1).get("mRID")).isEqualTo("slave5");
+
+    }
+
+    @Test
+    public void testGetCommunicationTopologyFilter() throws Exception{
+        Device gateway = mockDeviceForTopologyTest("gateway");
+        Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid");
+        Device slave2 = mockDeviceForTopologyTest("123456789");
+        Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
+
+        TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
+        when(topologyTimeline.getAllDevices()).thenReturn(slaves);
+        when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
+
+        when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
+        when(deviceService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+
+
+        Map<?, ?> response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'*'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(2);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'%'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(2);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'Simple%Mrid'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'Simple?Mrid'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(0);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'1234*'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'*789'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'%34*7?9'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+    }
+
+    @Test
+    public void testDeviceTopologyInfo() {
+        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave2 = mockDeviceForTopologyTest("slave2");
+        Device slave3 = mockDeviceForTopologyTest("slave3");
+        Device slave4 = mockDeviceForTopologyTest("slave4");
+        Device slave5 = mockDeviceForTopologyTest("slave5");
+        Device slave6 = mockDeviceForTopologyTest("slave6");
+        Device slave7 = mockDeviceForTopologyTest("slave7");
+        Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave3, slave4, slave5, slave6, slave7));
+
+        TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
+        when(topologyTimeline.getAllDevices()).thenReturn(slaves);
+        when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave3)).thenReturn(Optional.of(Instant.ofEpochMilli(30L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave4)).thenReturn(Optional.of(Instant.ofEpochMilli(40L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave5)).thenReturn(Optional.of(Instant.ofEpochMilli(50L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave6)).thenReturn(Optional.of(Instant.ofEpochMilli(60L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave7)).thenReturn(Optional.of(Instant.ofEpochMilli(70L)));
+
+        List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline);
+
+        assertThat(infos.size()).isEqualTo(5);
+        assertThat(infos.get(0).mRID).isEqualTo("slave7");
+        assertThat(infos.get(1).mRID).isEqualTo("slave6");
+        assertThat(infos.get(2).mRID).isEqualTo("slave5");
+        assertThat(infos.get(3).mRID).isEqualTo("slave4");
+        assertThat(infos.get(4).mRID).isEqualTo("slave3");
+
+        slaves = new HashSet<>(Arrays.<Device>asList(slave1));
+        when(topologyTimeline.getAllDevices()).thenReturn(slaves);
+        infos = DeviceTopologyInfo.from(topologyTimeline);
+        assertThat(infos.size()).isEqualTo(1);
+    }
+
+    private Device mockDeviceForTopologyTest(String name){
+        Device device = mock(Device.class);
+        when(device.getId()).thenReturn(1L);
+        when(device.getmRID()).thenReturn(name);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getName()).thenReturn(name + "DeviceType");
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getName()).thenReturn(name + "DeviceConfig");
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(device.getSerialNumber()).thenReturn("123456789");
+        return device;
     }
 
     private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Interval interval) {
