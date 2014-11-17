@@ -350,6 +350,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
 
+    List<SecurityProperty> getAllSecurityProperties(SecurityPropertySet securityPropertySet);
+
     List<SecurityProperty> getSecurityPropertiesStatus(SecurityPropertySet securityPropertySet);
 
     List<ProtocolDialectConfigurationProperties> getProtocolDialects();

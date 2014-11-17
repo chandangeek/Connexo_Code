@@ -1753,6 +1753,11 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
+    public List<SecurityProperty> getAllSecurityProperties(SecurityPropertySet securityPropertySet) {
+        return this.getAllSecurityProperties(clock.instant(), securityPropertySet);
+    }
+
+    @Override
     public List<SecurityProperty> getSecurityPropertiesStatus(SecurityPropertySet securityPropertySet) {
         return this.getSecurityPropertiesStatus(clock.instant(), securityPropertySet);
     }
@@ -1764,6 +1769,10 @@ public class DeviceImpl implements Device, CanLock {
 
     private List<SecurityProperty> getSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
         return this.securityPropertyService.getSecurityProperties(this, when, securityPropertySet);
+    }
+
+    private List<SecurityProperty> getAllSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
+        return this.securityPropertyService.getAllSecurityProperties(this, when, securityPropertySet);
     }
 
     private List<SecurityProperty> getSecurityPropertiesStatus(Instant when, SecurityPropertySet securityPropertySet) {
