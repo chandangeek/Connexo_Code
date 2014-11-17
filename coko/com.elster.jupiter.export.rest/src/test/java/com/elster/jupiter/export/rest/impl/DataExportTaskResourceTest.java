@@ -36,6 +36,7 @@ import javax.ws.rs.core.Response;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -45,11 +46,13 @@ import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
 
     public static final ZonedDateTime NEXT_EXECUTION = ZonedDateTime.of(2015, 1, 13, 0, 0, 0, 0, ZoneId.systemDefault());
+    public static final int TASK_ID = 750;
     @Mock
     private RestQueryService restQueryService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -114,6 +117,8 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
         when(readingTypeDataExportTask.getOccurrencesFinder()).thenReturn(finder);
         when(readingTypeDataExportTask.getName()).thenReturn("Name");
         when(readingTypeDataExportTask.getLastOccurrence()).thenReturn(Optional.empty());
+
+        doReturn(Optional.of(readingTypeDataExportTask)).when(dataExportService).findExportTask(TASK_ID);
     }
 
     @After
@@ -128,27 +133,17 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
         Response response1 = target("/dataexporttask").request().get();
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-
-
         DataExportTaskInfos infos = response1.readEntity(DataExportTaskInfos.class);
         assertThat(infos.total).isEqualTo(1);
         assertThat(infos.dataExportTasks).hasSize(1);
-
-//        Response response = target("/export/dataexporttask").request().post(json);
-
-
-//        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-//        verify(myTestOutboundPool1).removeOutboundComPort(any(OutboundComPort.class));
-//        verify(myTestOutboundPool3).addOutboundComPort(any(OutboundComPort.class));
-//        verify(myTestOutboundPool2, never()).addOutboundComPort(any(OutboundComPort.class));
-//        verify(myTestOutboundPool2, never()).removeOutboundComPort(any(OutboundComPort.class));
     }
 
 
     @Test
     public void getCreateTasksTest() {
         DataExportTaskInfo info = new DataExportTaskInfo();
+        info.name = "newName";
+        info.nextRun = 250L;
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 5;
         info.dataProcessor = new ProcessorInfo();
@@ -156,15 +151,26 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
-
         Response response = target("/dataexporttask").request().post(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
-//        verify(myTestOutboundPool1).removeOutboundComPort(any(OutboundComPort.class));
-//        verify(myTestOutboundPool3).addOutboundComPort(any(OutboundComPort.class));
-//        verify(myTestOutboundPool2, never()).addOutboundComPort(any(OutboundComPort.class));
-//        verify(myTestOutboundPool2, never()).removeOutboundComPort(any(OutboundComPort.class));
+        verify(readingTypeDataExportTask).setName("newName");
+        verify(readingTypeDataExportTask).setNextExecution(Instant.ofEpochMilli(250L));
+    }
+
+    @Test
+    public void updateTasksTest() {
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.id = TASK_ID;
+        info.deviceGroup = new MeterGroupInfo();
+        info.deviceGroup.id = 5;
+
+        Entity<DataExportTaskInfo> json = Entity.json(info);
+
+        Response response = target("/dataexporttask").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
     private DataExportTaskBuilder initBuilderStub() {
