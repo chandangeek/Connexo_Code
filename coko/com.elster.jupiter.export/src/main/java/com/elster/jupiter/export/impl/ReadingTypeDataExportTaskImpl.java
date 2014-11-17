@@ -374,8 +374,8 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         this.readingTypes.removeIf(r -> r.getReadingType().equals(readingType));
     }
 
-    private ReadingTypeDataExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup, Instant nextExecution) {) {
-        setName(name);     
+    private ReadingTypeDataExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup, Instant nextExecution) {
+        setName(name);
         this.name = name;
         this.exportPeriod.set(exportPeriod);
         this.dataProcessor = dataProcessor;

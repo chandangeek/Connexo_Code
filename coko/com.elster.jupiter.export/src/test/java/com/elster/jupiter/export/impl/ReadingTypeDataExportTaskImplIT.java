@@ -361,7 +361,7 @@ public class ReadingTypeDataExportTaskImplIT {
         ReadingTypeDataExportItem exportItem = readingTypeDataExportItems.get(0);
         assertThat(exportItem.getReadingContainer()).isNotNull();
         assertThat(exportItem.getReadingContainer()).isEqualTo(meter);
-        assertThat(exportItem.getTask()).isEqualTo(task);
+        assertThat(exportItem.getTask().getId()).isEqualTo(task.getId());
         assertThat(exportItem.getReadingTypeMRId()).isEqualTo("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         assertThat(exportItem.getLastRun()).isAbsent();
         assertThat(exportItem.getLastExportedDate()).isAbsent();
