@@ -1,24 +1,23 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.orm.OrmService;
-import java.time.Clock;
-
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.OrmService;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
-import com.energyict.mdc.io.SocketService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+
+import java.time.Clock;
 
 /**
  * Insert your comments here.
