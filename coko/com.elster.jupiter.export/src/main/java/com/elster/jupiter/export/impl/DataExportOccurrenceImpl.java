@@ -124,7 +124,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     }
 
     @Override
-    public Long getTaskOccurenceId() {
+    public Long getId() {
         return taskOccurrence.get().getId();
     }
 }
