@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.common.ImplField;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.PhysicalGatewayReference;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.CantBeOwnGateway;
 
@@ -22,23 +20,6 @@ import java.time.Instant;
  */
 @CantBeOwnGateway(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY +"}")
 public class PhysicalGatewayReferenceImpl implements PhysicalGatewayReference {
-
-    public enum Field implements ImplField {
-        CREATION_TIME("interval.start"),
-        GATEWAY("gateway"),
-        ;
-
-        private final String javaFieldName;
-
-        private Field(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        @Override
-        public String fieldName() {
-            return javaFieldName;
-        }
-    }
 
     private Reference<Device> origin = ValueReference.absent();
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")

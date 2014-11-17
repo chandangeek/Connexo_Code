@@ -374,8 +374,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     DeviceValidation forValidation();
     GatewayType getConfigurationGatewayType();
-    List<CommunicationGatewayReference> getRecentlyAddedCommunicationReferencingDevices(int count);
-    List<PhysicalGatewayReference> getRecentlyAddedPhysicalConnectedDevices(int count);
 
     DeviceMessageBuilder newDeviceMessage(DeviceMessageId deviceMessageId);
 

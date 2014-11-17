@@ -123,38 +123,10 @@ public interface DeviceService {
     public List<Device> findDevicesByTimeZone(TimeZone timeZone);
 
     /**
-     * Creates a new InfoType object based on the given name
-     *
-     * @param name the name for the InfoType object
-     * @return the newly created infoType object
-     */
-    public InfoType newInfoType(String name);
-
-    /**
-     * Finds the infoType which has the given name
-     *
-     * @param name the name of the InfoType to find
-     * @return the requested InfoType or null if none exists with that name
-     */
-    public InfoType findInfoType(String name);
-
-    /**
-     * Finds the infoType with the given unique ID
-     *
-     * @param infoTypeId the unique ID of the InfoType
-     * @return the requested InfoType or null if none exists with that ID
-     */
-    public InfoType findInfoTypeById(long infoTypeId);
-
-    /**
      * Returns true if the ComSchedule has been linked to a device.
      */
     public boolean isLinkedToDevices(ComSchedule comSchedule);
 
     public Finder<Device> findDevicesByDeviceConfiguration(DeviceConfiguration deviceConfiguration);
-
-    Finder<CommunicationGatewayReference> getCommunicationReferencingDevices(Device device);
-
-    Finder<PhysicalGatewayReference> getPhysicalConnectedDevices(Device device);
 
 }
