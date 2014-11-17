@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.elster.jupiter.orm.SqlDialect;
-import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -65,11 +64,10 @@ final class JoinExecutor<T> {
 	}
 	
 	private void appendCountSql(Condition condition) {
-		boolean isOracle = root.getTable().getDataModel().getSqlDialect().equals(SqlDialect.ORACLE);
 		builder.append("select count(distinct ");
 		builder.append(root.alias());
 		builder.append(".");
-		builder.append(isOracle ? "ROWID" : "_ROWID_");
+		builder.append(root.getTable().getDataModel().getSqlDialect().rowId());
 		builder.append(") from ");
 		root.appendFromClause(builder,null,false);
 		appendWhereClause(builder, condition , " where ");		
