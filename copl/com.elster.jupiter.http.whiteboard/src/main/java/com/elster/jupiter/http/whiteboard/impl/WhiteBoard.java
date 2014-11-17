@@ -102,13 +102,14 @@ public class WhiteBoard extends Application implements BinderProvider {
     @Reference(name = "ZApplication", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addApplication(App resource) {
         List<String> applications = licenseService.getLicensedApplicationKeys();
-        if(resource.getKey().equals("SYS") ||
-                applications.stream().filter(application -> application.equals(resource.getKey())).findFirst().isPresent()){
+        // TODO: remove comment to activate license check
+        //if(resource.getKey().equals("SYS") ||
+        //        applications.stream().filter(application -> application.equals(resource.getKey())).findFirst().isPresent()){
             if (resource.isInternalApp()) {
                 addResource(resource.getMainResource());
             }
             apps.add(resource);
-        }
+        //}
     }
 
     @Activate
@@ -154,7 +155,8 @@ public class WhiteBoard extends Application implements BinderProvider {
         Optional<License> license;
         List<String> applications = licenseService.getLicensedApplicationKeys();
 
-        for(App application : apps){
+        // TODO: remove comment to activate license check
+        /*for(App application : apps){
             if(!application.getKey().equals("SYS")){
                 license = licenseService.getLicenseForApplication(application.getKey());
                 if( !license.isPresent() ||
@@ -162,7 +164,7 @@ public class WhiteBoard extends Application implements BinderProvider {
                     unregisterRestApplication(application.getKey());
                 }
             }
-        }
+        }*/
     }
 
     private void unregisterRestApplication(String application){
