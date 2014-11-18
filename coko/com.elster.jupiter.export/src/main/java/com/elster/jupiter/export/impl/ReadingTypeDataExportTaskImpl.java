@@ -5,20 +5,11 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStrategy;
-import com.elster.jupiter.export.DataProcessor;
-import com.elster.jupiter.export.DataProcessorFactory;
-import com.elster.jupiter.export.NoSuchDataProcessorException;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
-import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -46,11 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.elster.jupiter.util.Ranges.copy;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class})
@@ -141,6 +129,11 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     public Map<String, Object> getProperties() {
         return properties.stream()
                 .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
+    }
+
+    @Override
+    public List<DataExportProperty> getDataExportProperties() {
+        return Collections.unmodifiableList(properties);
     }
 
     @Override
@@ -288,86 +281,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         this.updatePeriod.set(updatePeriod);
     }
 
-    @Override
-    public void execute(DataExportOccurrence occurrence, Logger logger) {
-        Set<IReadingTypeDataExportItem> activeItems = getActiveItems(occurrence);
-
-        getExportItems().stream()
-                .filter(item -> !activeItems.contains(item))
-                .peek(IReadingTypeDataExportItem::deactivate)
-                .forEach(IReadingTypeDataExportItem::update);
-
-        DataProcessor dataFormatter = getDataProcessor();
-
-        dataFormatter.startExport(occurrence, logger);
-
-        activeItems.forEach(item -> doProcess(dataFormatter, occurrence, item));
-
-        dataFormatter.endExport();
-
-        activeItems.forEach(IReadingTypeDataExportItem::update);
-    }
-
-    private void doProcess(DataProcessor dataFormatter, DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
-        item.activate();
-        item.setLastRun(occurrence.getTriggerTime());
-        dataFormatter.startItem(item);
-        Range<Instant> exportInterval = determineExportInterval(occurrence, item);
-        List<? extends BaseReadingRecord> readings = item.getReadingContainer().getReadings(exportInterval, item.getReadingType());
-        if (!readings.isEmpty()) {
-            Optional<Instant> lastExported = dataFormatter.processData(asMeterReading(item, readings));
-            lastExported.ifPresent(item::setLastExportedDate);
-        }
-        dataFormatter.endItem();
-    }
-
-    private Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
-        return getEndDeviceGroup().getMembers(occurrence.getExportedDataInterval()).stream()
-                    .filter(d -> d instanceof Meter)
-                    .map(Meter.class::cast)
-                    .flatMap(this::readingTypeDataExportItems)
-                    .collect(Collectors.toSet());
-    }
-
-    private MeterReadingImpl asMeterReading(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
-        if (item.getReadingType().isRegular()) {
-            return getMeterReadingWithIntervalBlock(item, readings);
-        }
-        return getMeterReadingWithReadings(readings);
-    }
-
-    private MeterReadingImpl getMeterReadingWithReadings(List<? extends BaseReadingRecord> readings) {
-        return readings.stream()
-                .map(Reading.class::cast)
-                .collect(
-                        MeterReadingImpl::newInstance,
-                        (mr, reading) -> mr.addReading(reading),
-                        (mr1, mr2) -> mr1.addAllReadings(mr2.getReadings())
-                );
-    }
-
-    private MeterReadingImpl getMeterReadingWithIntervalBlock(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
-        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        meterReading.addIntervalBlock(buildIntervalBlock(item, readings));
-        return meterReading;
-    }
-
-    private IntervalBlockImpl buildIntervalBlock(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
-        return readings.stream()
-                .map(IntervalReading.class::cast)
-                .collect(
-                        () -> IntervalBlockImpl.of(item.getReadingType().getMRID()),
-                        (block, reading) -> block.addIntervalReading(reading),
-                        (b1, b2) -> b1.addAllIntervalReadings(b2.getIntervals())
-                );
-    }
-
-    private DataProcessor getDataProcessor() {
-        DataProcessorFactory dataProcessorFactory = dataExportService.getDataProcessorFactory(getDataFormatter()).orElseThrow(NoSuchDataProcessorException::new);
-
-        return dataProcessorFactory.createDataFormatter(properties);
-    }
-
     public PropertySpec<?> getPropertySpec(String name) {
         return getPropertySpecs().stream()
                 .filter(p -> name.equals(p.getName()))
@@ -415,10 +328,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         return name;
     }
 
-    RecurrentTask getRecurrentTask() {
-        return recurrentTask.get();
-    }
-
     private void update() {
         if (recurrentTaskDirty) {
             recurrentTask.get().save();
@@ -445,23 +354,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         task.save();
         recurrentTask.set(task);
         Save.CREATE.save(dataModel, this);
-    }
-
-    private Range<Instant> determineExportInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-        return item.getLastExportedDate()
-                .map(last -> occurrence.getTask().getStrategy().isExportContinuousData() ? copy(occurrence.getExportedDataInterval()).withOpenLowerBound(last) : occurrence.getExportedDataInterval())
-                .orElse(occurrence.getExportedDataInterval());
-    }
-
-    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(Meter meter) {
-        Map<ReadingType, List<IReadingTypeDataExportItem>> items = getExportItems().stream()
-                .collect(Collectors.groupingBy(ReadingTypeDataExportItem::getReadingType, Collectors.toCollection(ArrayList::new)));
-
-        return getReadingTypes().stream()
-                .map(r -> Optional.ofNullable(items.get(r)).orElse(Collections.emptyList()).stream()
-                        .filter(i -> meter.equals(i.getReadingContainer()))
-                        .findAny()
-                        .orElseGet(() -> addExportItem(meter, r)));
     }
 
     private ReadingTypeDataExportTaskImpl init(String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup, Instant nextExecution) {

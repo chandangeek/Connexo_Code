@@ -1,16 +1,15 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 
-import java.util.logging.Logger;
+import java.util.List;
 
 interface IReadingTypeDataExportTask extends ReadingTypeDataExportTask {
-    void execute(DataExportOccurrence occurrence, Logger logger);
 
     PropertySpec<?> getPropertySpec(String name);
 
@@ -25,4 +24,8 @@ interface IReadingTypeDataExportTask extends ReadingTypeDataExportTask {
     void setExportUpdate(boolean exportUpdate);
 
     IReadingTypeDataExportItem addExportItem(Meter meter, ReadingType readingType);
+
+    List<? extends IReadingTypeDataExportItem> getExportItems();
+
+    List<DataExportProperty> getDataExportProperties();
 }
