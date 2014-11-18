@@ -204,8 +204,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     },
 
     cancelClick: function () {
+        var me = this;
         var router = this.getController('Uni.controller.history.Router');
-        delete this.portModel;
+        delete me.portModel;
         router.getRoute('administration/comservers/detail/comports').forward();
     },
 
@@ -511,7 +512,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             widget = Ext.widget('addComPortPool');
-        me.showAddOutbound(router.arguments.id);
+       // me.showAddOutbound(router.arguments.id);
         me.saveState();
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.updateCancelHref(me.comServerId);
@@ -567,16 +568,18 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     },
 
     saveState: function () {
+        var me = this;
         var form = this.getAddComPortForm();
-        delete this.portModel;
-        this.portModel = Ext.create(Mdc.model.OutboundComPort);
-        form.updateRecord(this.portModel);
+        delete me.portModel;
+        me.portModel = Ext.create(Mdc.model.OutboundComPort);
+        //form.updateRecord(me.portModel);
+        me.portModel.set(form.getValues());
     },
 
     restoreState: function () {
         var me = this;
         var form = this.getAddComPortForm();
-        this.portModel ? form.loadRecord(me.portModel) :
-            this.portModel = Ext.create(Mdc.model.OutboundComPort);
+        me.portModel ? form.loadRecord(me.portModel) :
+            me.portModel = Ext.create(Mdc.model.OutboundComPort);
     }
 });
