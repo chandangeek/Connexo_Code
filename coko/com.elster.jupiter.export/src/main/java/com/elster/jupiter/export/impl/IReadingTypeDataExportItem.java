@@ -9,7 +9,7 @@ import java.time.Instant;
  * Date: 6/11/2014
  * Time: 19:04
  */
-public interface IReadingTypeDataExportItem extends ReadingTypeDataExportItem {
+interface IReadingTypeDataExportItem extends ReadingTypeDataExportItem {
 
     void setLastRun(Instant lastRun);
 

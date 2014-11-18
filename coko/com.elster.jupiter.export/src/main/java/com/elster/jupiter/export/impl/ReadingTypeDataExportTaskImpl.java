@@ -333,7 +333,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         if (item.getReadingType().isRegular()) {
             return getMeterReadingWithIntervalBlock(item, readings);
         }
-        // add readings as Readings
         return getMeterReadingWithReadings(readings);
     }
 

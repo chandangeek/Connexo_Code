@@ -11,7 +11,7 @@ import java.util.logging.Logger;
  * Date: 3/11/2014
  * Time: 9:35
  */
-public class DataExportTaskExecutor implements TaskExecutor {
+class DataExportTaskExecutor implements TaskExecutor {
 
     private final IDataExportService dataExportService;
     private final TaskService taskService;
