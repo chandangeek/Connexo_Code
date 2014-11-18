@@ -1174,7 +1174,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(partialConnectionTask.getId()).thenReturn(connectionMethodId);
         when(deviceConfigurationService.getPartialConnectionTask(connectionMethodId)).thenReturn(Optional.<PartialConnectionTask>of(partialConnectionTask));
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
-        when(protocolPluggableService.findConnectionTypePluggableClassByName("ConnType")).thenReturn(connectionTypePluggableClass);
+        when(protocolPluggableService.findConnectionTypePluggableClassByName("ConnType")).thenReturn(Optional.of(connectionTypePluggableClass));
         when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass); // it will not be set in the PUT!
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());

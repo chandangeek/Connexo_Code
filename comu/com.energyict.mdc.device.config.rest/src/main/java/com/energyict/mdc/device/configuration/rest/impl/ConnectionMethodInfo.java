@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -85,11 +86,8 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
         if (Checks.is(pluggableClassName).emptyOrOnlyWhiteSpace()) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "connectionTypePluggableClass");
         }
-        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(pluggableClassName);
-        if (pluggableClass==null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.CONNECTION_TYPE_UNKNOWN, "connectionTypePluggableClass", pluggableClassName);
-        }
-        return pluggableClass;
+        Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(pluggableClassName);
+        return pluggableClass.orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.CONNECTION_TYPE_UNKNOWN, "connectionTypePluggableClass", pluggableClassName));
     }
 
     protected void writeTo(T partialConnectionTask, EngineModelService engineModelService, ProtocolPluggableService protocolPluggableService) {
