@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.TopologyTimeline;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.time.Instant;
 import java.util.Comparator;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceTopologyInfo {
     public long id;
     public String mRID;
