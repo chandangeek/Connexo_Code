@@ -13,6 +13,7 @@ import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksC
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
+import com.energyict.mdc.engine.impl.commands.collect.MessagesCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBooksDataCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLoadProfileDataCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadLogBooksCommand;
@@ -34,6 +35,7 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.LegacyLoadProf
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LogBooksCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.MarkIntervalsAsBadTimeCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.MessagesCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadLegacyLoadProfileLogBooksDataCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadLoadProfileDataCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadLogBooksCommandImpl;
@@ -58,6 +60,7 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -293,21 +296,20 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
         return clockCommand;
     }
 
-    //TODO we don't do messages for the moment
-//    @Override
-//    public MessagesCommand getMessagesCommand(MessagesTask messagesTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
-//        if(checkCommandTypeExistence(ComCommandTypes.MESSAGES_COMMAND, getCommands())){
-//            return (MessagesCommand) getComCommand(ComCommandTypes.MESSAGES_COMMAND);
-//        } else {
-//            return createMessagesCommand(messagesTask, possibleCommandOwner, comTaskExecution);
-//        }
-//    }
-//
-//    public MessagesCommand createMessagesCommand(MessagesTask messagesTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
-//        MessagesCommand messagesCommand = new MessagesCommandImpl(messagesTask, this.offlineDevice, this);
-//        possibleCommandOwner.addCommand(messagesCommand, comTaskExecution);
-//        return messagesCommand;
-//    }
+    @Override
+    public MessagesCommand getMessagesCommand(MessagesTask messagesTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
+        if(checkCommandTypeExistence(ComCommandTypes.MESSAGES_COMMAND, getCommands())){
+            return (MessagesCommand) getComCommand(ComCommandTypes.MESSAGES_COMMAND);
+        } else {
+            return createMessagesCommand(messagesTask, possibleCommandOwner, comTaskExecution);
+        }
+    }
+
+    public MessagesCommand createMessagesCommand(MessagesTask messagesTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
+        MessagesCommand messagesCommand = new MessagesCommandImpl(messagesTask, this.offlineDevice, this, comTaskExecution);
+        possibleCommandOwner.addCommand(messagesCommand, comTaskExecution);
+        return messagesCommand;
+    }
 
     @Override
     public TimeDifferenceCommand getTimeDifferenceCommand(final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {

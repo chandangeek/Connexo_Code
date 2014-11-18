@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.engine.impl.meterdata.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.engine.impl.meterdata.identifiers.DeviceMessageIdentifier;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -84,7 +84,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
 
     @Override
     public MessageIdentifier getIdentifier() {
-        return new DeviceMessageIdentifierById(this.deviceMessage.getId());
+        return new DeviceMessageIdentifier(deviceMessage);
     }
 
     @Override

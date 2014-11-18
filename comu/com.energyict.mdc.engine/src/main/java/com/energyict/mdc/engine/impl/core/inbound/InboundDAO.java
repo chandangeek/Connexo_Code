@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -38,7 +39,7 @@ public interface InboundDAO {
      *                          by the device as correctly received (and executed)
      * @return The pending RtuMessages that are waiting to be sent
      */
-    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(DeviceIdentifier deviceIdentifier, int confirmationCount);
+    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(DeviceIdentifier<Device> deviceIdentifier, int confirmationCount);
 
     /**
      * Gets the {@link SecurityProperty security properties} that have been

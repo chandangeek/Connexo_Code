@@ -14,6 +14,7 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
@@ -143,15 +144,14 @@ public interface CommandRoot extends CompositeComCommand {
      */
     public ClockCommand getClockCommand(final ClockTask clockTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
-    //TODO we don't do messages for the moment
-//    /**
-//     *
-//     * @param messagesTask         the task for which this command is created for
-//     * @param possibleCommandOwner the possible owner of this command if it does not exist yet
-//     * @param comTaskExecution  the ComTaskExecution that drives this ComCommand
-//     * @return the {@link MessagesCommand} in this {@link CommandRoot}
-//     */
-//    public MessagesCommand getMessagesCommand(final MessagesTask messagesTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    /**
+     *
+     * @param messagesTask         the task for which this command is created for
+     * @param possibleCommandOwner the possible owner of this command if it does not exist yet
+     * @param comTaskExecution  the ComTaskExecution that drives this ComCommand
+     * @return the {@link MessagesCommand} in this {@link CommandRoot}
+     */
+    public MessagesCommand getMessagesCommand(final MessagesTask messagesTask, final CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * @param possibleCommandOwner the possible owner of this command if it does not exist yet

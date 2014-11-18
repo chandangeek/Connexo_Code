@@ -26,6 +26,7 @@ import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceMessageImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
@@ -50,6 +51,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -68,10 +70,12 @@ import com.elster.jupiter.util.sql.Fetcher;
 
 import java.text.DateFormat;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides a default implementation for the {@link ComServerDAO} interface
@@ -383,9 +387,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void executionCompleted(final List<? extends ComTaskExecution> comTaskExecutions) {
         comTaskExecutions
-            .stream()
-            .map(this::toServerComTaskExecution)
-            .forEach(ServerComTaskExecution::executionCompleted);
+                .stream()
+                .map(this::toServerComTaskExecution)
+                .forEach(ServerComTaskExecution::executionCompleted);
     }
 
     @Override
@@ -396,9 +400,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void executionFailed(final List<? extends ComTaskExecution> comTaskExecutions) {
         comTaskExecutions
-            .stream()
-            .map(this::toServerComTaskExecution)
-            .forEach(ServerComTaskExecution::executionFailed);
+                .stream()
+                .map(this::toServerComTaskExecution)
+                .forEach(ServerComTaskExecution::executionFailed);
     }
 
     @Override
@@ -437,18 +441,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final String protocolInformation) {
-        this.executeTransaction(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                // TODO complete once Messages are ported
-//                EndDeviceMessage deviceMessage = (EndDeviceMessage) messageIdentifier.getDeviceMessage();
-//                if (newDeviceMessageStatus.ordinal() != deviceMessage.getStatus().ordinal()) {  // When the status doesn't change, no update is needed
-//                    deviceMessage.moveTo(newDeviceMessageStatus);
-//                }
-//                deviceMessage.updateProtocolInfo(protocolInformation);
-                return null;
-            }
-        });
+        DeviceMessage deviceMessage = messageIdentifier.getDeviceMessage();
+        deviceMessage.setProtocolInformation(protocolInformation);
+        deviceMessage.updateDeviceMessageStatus(newDeviceMessageStatus);
     }
 
     @Override
@@ -462,69 +457,49 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(final DeviceIdentifier deviceIdentifier, final int confirmationCount) {
-        return this.executeTransaction(new Transaction<List<OfflineDeviceMessage>>() {
-            @Override
-            public List<OfflineDeviceMessage> perform() {
-                // TODO complete once Messages are ported
-//                return convertToOfflineDeviceMessages(doConfirmSentMessagesAndGetPending(deviceIdentifier, confirmationCount));
-                return null;
-            }
-        });
+    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(final DeviceIdentifier<Device> deviceIdentifier, final int confirmationCount) {
+        return convertToOfflineDeviceMessages(doConfirmSentMessagesAndGetPending(deviceIdentifier, confirmationCount));
     }
 
-    /*
+    private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<DeviceMessage<Device>> deviceMessages) {
+        return deviceMessages.stream().map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice().getDeviceProtocolPluggableClass().getDeviceProtocol())).collect(Collectors.toList());
+    }
 
-        // TODO complete once Messages are ported
+    private List<DeviceMessage<Device>> doConfirmSentMessagesAndGetPending(DeviceIdentifier<Device> deviceIdentifier, int confirmationCount) {
+        return this.doConfirmSentMessagesAndGetPending(deviceIdentifier.findDevice(), confirmationCount);
+    }
 
+    private List<DeviceMessage<Device>> doConfirmSentMessagesAndGetPending(Device device, int confirmationCount) {
+        this.updateSentMessageStates(device, confirmationCount);
+        return this.findPendingMessageAndMarkAsSent(device);
+    }
 
-        private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<EndDeviceMessage> deviceMessages) {
-            List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>();
-            for (EndDeviceMessage deviceMessage : deviceMessages) {
-                offlineDeviceMessages.add(deviceMessage.goOffline());
-            }
-            return offlineDeviceMessages;
+    private void updateSentMessageStates(Device device, int confirmationCount) {
+        List<DeviceMessage<Device>> sentMessages = device.getMessagesByState(DeviceMessageStatus.SENT);
+        FutureMessageState newState = this.getFutureMessageState(sentMessages, confirmationCount);
+        sentMessages.forEach(newState::applyTo);
+    }
+
+    private FutureMessageState getFutureMessageState(List<DeviceMessage<Device>> sentMessages, int confirmationCount) {
+        if (confirmationCount == 0) {
+            return FutureMessageState.FAILED;
+        } else if (confirmationCount == sentMessages.size()) {
+            return FutureMessageState.CONFIRMED;
+        } else {
+            return FutureMessageState.INDOUBT;
         }
+    }
 
-        private List<EndDeviceMessage> doConfirmSentMessagesAndGetPending(DeviceIdentifier deviceIdentifier, int confirmationCount) throws BusinessException, SQLException {
-            return this.doConfirmSentMessagesAndGetPending(((Device) deviceIdentifier.findDevice()), confirmationCount);
+    private List<DeviceMessage<Device>> findPendingMessageAndMarkAsSent(Device device) {
+        List<DeviceMessage<Device>> pendingMessages = device.getMessagesByState(DeviceMessageStatus.PENDING);
+        List<DeviceMessage<Device>> sentMessages = new ArrayList<>(pendingMessages.size());
+        for (DeviceMessage<Device> pendingMessage : pendingMessages) {
+            pendingMessage.updateDeviceMessageStatus(DeviceMessageStatus.SENT);
+            sentMessages.add(pendingMessage);
         }
+        return sentMessages;
+    }
 
-        private List<EndDeviceMessage> doConfirmSentMessagesAndGetPending(Device device, int confirmationCount) throws BusinessException, SQLException {
-            this.updateSentMessageStates(device, confirmationCount);
-            return this.findPendingMessageAndMarkAsSent(device);
-        }
-
-        private void updateSentMessageStates(Device device, int confirmationCount) throws BusinessException, SQLException {
-            List<DeviceMessage> sentMessages = device.getMessagesByState(DeviceMessageStatus.SENT);
-            FutureMessageState newState = this.getFutureMessageState(sentMessages, confirmationCount);
-            for (DeviceMessage sentMessage : sentMessages) {
-                newState.applyTo(sentMessage);
-            }
-        }
-
-        private FutureMessageState getFutureMessageState(List<DeviceMessage> sentMessages, int confirmationCount) {
-            if (confirmationCount == 0) {
-                return FutureMessageState.FAILED;
-            } else if (confirmationCount == sentMessages.size()) {
-                return FutureMessageState.CONFIRMED;
-            } else {
-                return FutureMessageState.INDOUBT;
-            }
-        }
-
-        private List<EndDeviceMessage> findPendingMessageAndMarkAsSent(Device device) {
-            List<DeviceMessage> pendingMessages = device.getMessagesByState(DeviceMessageStatus.PENDING);
-            List<EndDeviceMessage> sentMessages = new ArrayList<>(pendingMessages.size());
-            for (DeviceMessage pendingMessage : pendingMessages) {
-                EndDeviceMessage readyToSend = (EndDeviceMessage) pendingMessage;
-                readyToSend.moveTo(DeviceMessageStatus.SENT);
-                sentMessages.add(readyToSend);
-            }
-            return sentMessages;
-        }
-
-    */
     @Override
     public <T> T executeTransaction(Transaction<T> transaction) {
         return getTransactionService().execute(transaction);
@@ -668,30 +643,28 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private enum FutureMessageState {
-        //TODO enable once messages are properly ported
-//        INDOUBT {
-//            @Override
-//            public void applyTo(DeviceMessage message) {
-//                ((EndDeviceMessage) message).moveTo(DeviceMessageStatus.INDOUBT);
-//            }
-//        },
-//
-//        FAILED {
-//            @Override
-//            public void applyTo(DeviceMessage message) {
-//                ((EndDeviceMessage) message).moveTo(DeviceMessageStatus.FAILED);
-//            }
-//        },
-//
-//        CONFIRMED {
-//            @Override
-//            public void applyTo(DeviceMessage message) {
-//                ((EndDeviceMessage) message).moveTo(DeviceMessageStatus.CONFIRMED);
-//            }
-//        };
-//        ;
+        INDOUBT {
+            @Override
+            public void applyTo(DeviceMessage message) {
+                message.updateDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
+            }
+        },
 
-        //public abstract void applyTo(DeviceMessage message) throws BusinessException, SQLException;
+        FAILED {
+            @Override
+            public void applyTo(DeviceMessage message) {
+                message.updateDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            }
+        },
+
+        CONFIRMED {
+            @Override
+            public void applyTo(DeviceMessage message) {
+                message.updateDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+            }
+        };
+
+        public abstract void applyTo(DeviceMessage message);
 
     }
 
