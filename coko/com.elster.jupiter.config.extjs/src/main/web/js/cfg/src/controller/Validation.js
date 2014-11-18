@@ -4,7 +4,13 @@ Ext.define('Cfg.controller.Validation', {
     stores: [
         'ValidationRuleSets',
         'ValidationRules',
-        'Validators'
+        'Validators',
+        'UnitsOfMeasure',
+        'ReadingTypesToAddForRule',
+        'Intervals',
+        'TimeOfUse',
+        'AdaptedReadingTypes',
+        'ReadingTypesForRule'
     ],
 
     requires: [
@@ -34,7 +40,8 @@ Ext.define('Cfg.controller.Validation', {
         'validation.RuleSetSubMenu',
         'validation.RuleOverview',
         'validation.RuleSubMenu',
-        'validation.RulePreviewContainerPanel'
+        'validation.RulePreviewContainerPanel',
+        'validation.AddReadingTypesToRuleSetup'
     ],
 
     refs: [
@@ -58,6 +65,8 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'newRuleSetForm', selector: 'createRuleSet > #newRuleSetForm'},
         {ref: 'createRuleSet', selector: 'createRuleSet'},
         {ref: 'addRule', selector: 'addRule'},
+        {ref: 'addReadingTypesGrid', selector: '#addRule #addReadingTypesGrid'},
+        {ref: 'addRuleTitle', selector: '#addRule #addRuleTitle'},
         {ref: 'readingValuesTextFieldsContainer', selector: 'addRule #readingValuesTextFieldsContainer'},
         {ref: 'propertiesContainer', selector: 'addRule #propertiesContainer'},
         {ref: 'propertyForm', selector: 'addRule #propertyForm'},
@@ -68,7 +77,9 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'rulePreviewContainer', selector: 'rulePreviewContainer'},
         {ref: 'ruleOverview', selector: 'ruleOverview'},
         {ref: 'ruleSetBrowsePreviewCt', selector: '#ruleSetBrowsePreviewCt'},
-        {ref: 'rulePreviewContainerPanel', selector: 'rule-preview-container-panel'}
+        {ref: 'rulePreviewContainerPanel', selector: 'rule-preview-container-panel'},
+        {ref: 'addReadingTypesSetup', selector: '#addReadingTypesToRuleSetup'}
+
     ],
 
     readingTypeIndex: 2,
@@ -115,8 +126,68 @@ Ext.define('Cfg.controller.Validation', {
             },
             '#validationrulesetList uni-actioncolumn': {
                 menuclick: this.chooseRuleSetAction
+            },
+            '#addRuleForm #addReadingTypeButton': {
+                click: this.showAddReadingGrid
+            },
+            '#addReadingTypesToRuleSetup #buttonsContainer button[name=cancel]': {
+                click: this.forwardToPreviousPage
+            },
+            '#addReadingTypesToRuleSetup cfg-side-filter button[action=applyfilter]': {
+                click: this.loadReadingTypes
+            },
+            '#addReadingTypesToRuleSetup #filterReadingTypes': {
+                removeFilter: this.removeFilter,
+                clearAllFilters: this.clearAllFilters
+            },
+            '#addReadingTypesToRuleSetup cfg-side-filter button[action=clearfilter]': {
+                click: this.clearAllCombos
+            },
+
+            '#addReadingTypesToRuleSetup #buttonsContainer button[name=add]': {
+                click: this.addReadingTypesToGrid
+            },
+            '#addRule #readingTypesGridPanel actioncolumn': {
+                click: this.removeReadingType
             }
         });
+    },
+
+    removeReadingType: function (grid, index, id, row, event, record) {
+        grid.getStore().remove(record);
+    },
+
+    showAddReadingGrid: function () {
+        var router = this.getController('Uni.controller.history.Router'),
+            addReadingTypesRoute = router.currentRoute + '/readingtypes';
+
+        this.validationRuleRecord = this.formToModel();
+        router.getRoute(addReadingTypesRoute).forward();
+    },
+
+    formToModel: function () {
+        var form = this.getAddRule().down('#addRuleForm'),
+            propertyForm = this.getAddRule().down('property-form'),
+            grid = this.getAddRule().down('#readingTypesGridPanel'),
+            record = form.getForm().getRecord(),
+            readingTypes = [];
+
+        propertyForm.updateRecord();
+
+        if (propertyForm.getRecord()) {
+            record.propertiesStore = propertyForm.getRecord().properties();
+        }
+
+        record.set('implementation', form.down('#validatorCombo').getValue());
+        record.set('name', form.down('#addRuleName').getValue());
+
+        grid.getStore().each(function (rec) {
+            readingTypes.push(rec.get('readingType'));
+        });
+
+        record.set('readingTypes', readingTypes);
+
+        return record;
     },
 
     onMenuShow: function (menu) {
@@ -139,27 +210,17 @@ Ext.define('Cfg.controller.Validation', {
     createEditRule: function (button) {
         var me = this,
             form = button.up('panel'),
-            arrReadingTypes = [],
-            formErrorsPanel = form.down('[name=form-errors]');
+            formErrorsPanel = form.down('[name=form-errors]'),
+            arrReadingTypes = [];
 
         var propertyForm = this.getAddRule().down('property-form');
         propertyForm.updateRecord();
         if (form.isValid()) {
             var ruleSetId = this.getRuleSetIdFromHref() || me.ruleSetId,
-                record = me.ruleModel || Ext.create(Cfg.model.ValidationRule),
-                values = form.getValues(),
-                readingTypes = this.getReadingValuesTextFieldsContainer().items,
-                rule = values.implementation,
-                name = values.name;
+                record = me.formToModel();
 
             formErrorsPanel.hide();
 
-            if (form.down('#validatorCombo').isDisabled()) {
-                rule = form.down('#validatorCombo').value;
-            }
-
-            record.set('implementation', rule);
-            record.set('name', name);
             record.set('ruleSet', {
                 id: me.ruleSetId
             });
@@ -168,17 +229,14 @@ Ext.define('Cfg.controller.Validation', {
                 record.readingTypes().removeAll();
             }
 
+            Ext.each(record.get('readingTypes'), function (record) {
+                var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
+                readingTypeRecord.set('mRID', record.mRID);
+                arrReadingTypes.push(readingTypeRecord);
+            });
+
             if (propertyForm.getRecord()) {
                 record.propertiesStore = propertyForm.getRecord().properties();
-            }
-
-            for (var i = 0; i < readingTypes.items.length; i++) {
-                var readingTypeMRID = readingTypes.items[i].items.items[0],
-                    readingType = readingTypeMRID.value,
-                    readingTypeRecord = Ext.create(Cfg.model.ReadingType);
-                readingTypeMRID.name = 'readingTypesInRule[' + i + '].readingTypeMRID';
-                readingTypeRecord.set('mRID', readingType);
-                arrReadingTypes.push(readingTypeRecord);
             }
 
             record.readingTypes().add(arrReadingTypes);
@@ -276,6 +334,181 @@ Ext.define('Cfg.controller.Validation', {
         return widget;
     },
 
+    addReadingTypes: function () {
+        if (!this.validationRuleRecord) {
+            this.forwardToPreviousPage();
+        } else {
+            var me = this,
+                widget = Ext.widget('AddReadingTypesToRuleSetup'),
+                unitsOfMeasureStore = Ext.create('Cfg.store.UnitsOfMeasure'),
+                timeOfUseStore = Ext.create('Cfg.store.TimeOfUse'),
+                intervalsStore = Ext.create('Cfg.store.Intervals');
+
+            me.getApplication().fireEvent('changecontentevent', widget);
+            widget.down('#unitsOfMeasureCombo').bindStore(unitsOfMeasureStore);
+            widget.down('#intervalsCombo').bindStore(intervalsStore);
+            widget.down('#timeOfUseCombo').bindStore(timeOfUseStore);
+            me.loadReadingTypes();
+        }
+
+    },
+
+
+    clearAllCombos: function() {
+        var widget = this.getAddReadingTypesSetup(),
+            unitOfMeasureCombo = widget.down('#unitsOfMeasureCombo'),
+            intervalsCombo = widget.down('#intervalsCombo'),
+            timeOfUseCombo = widget.down('#timeOfUseCombo'),
+            readingTypeNameText = widget.down('#readingTypeNameTextField');
+
+        unitOfMeasureCombo.setValue(null);
+        intervalsCombo.setValue(null);
+        timeOfUseCombo.setValue(null);
+        readingTypeNameText.setValue(null);
+    },
+
+    clearAllFilters: function () {
+        this.clearAllCombos();
+        this.loadReadingTypes();
+    },
+
+    removeFilter: function (key) {
+        var widget = this.getAddReadingTypesSetup(),
+            field;
+
+        if (key === 'name') {
+            field = widget.down('textfield[name=' + key + ']');
+        } else {
+            field = widget.down('combobox[name=' + key + ']');
+        }
+
+        field.setValue(null);
+        this.loadReadingTypes();
+    },
+
+    addReadingTypesToGrid: function () {
+        var me = this,
+            widget = this.getAddReadingTypesSetup(),
+            grid = widget.down('#addReadingTypesGrid'),
+            selection = grid.getView().getSelectionModel().getSelection(),
+            existedReadingTypes = me.validationRuleRecord.get('readingTypes');
+
+        if (grid.isAllSelected()) {
+            grid.getStore().each(function (record) {
+                existedReadingTypes.push(record.get('readingType'));
+            })
+        } else if (selection.length > 0) {
+            Ext.each(selection, function (record) {
+                existedReadingTypes.push(record.get('readingType'));
+            });
+        }
+
+        me.validationRuleRecord.set('readingTypes', existedReadingTypes);
+
+        me.forwardToPreviousPage();
+    },
+
+    forwardToPreviousPage: function () {
+        var router = this.getController('Uni.controller.history.Router'),
+            splittedPath = router.currentRoute.split('/');
+
+        splittedPath.pop();
+
+        router.getRoute(splittedPath.join('/')).forward();
+    },
+
+    loadReadingTypes: function () {
+        var me = this,
+            widget = this.getAddReadingTypesSetup(),
+            readingTypeStore = Ext.create('Cfg.store.ReadingTypesToAddForRule'),
+            unitOfMeasureCombo = widget.down('#unitsOfMeasureCombo'),
+            intervalsCombo = widget.down('#intervalsCombo'),
+            timeOfUseCombo = widget.down('#timeOfUseCombo'),
+            readingTypeNameText = widget.down('#readingTypeNameTextField'),
+            adaptedReadingTypeStore = widget.down('#addReadingTypesGrid').getStore(),
+            unitOfMeasureComboValue = unitOfMeasureCombo.getValue(),
+            filter = widget.down('#filterReadingTypes'),
+            filterBtns = Ext.ComponentQuery.query('#filterReadingTypes tag-button'),
+            grid = widget.down('#addReadingTypesGrid'),
+            properties = [],
+            unitOfMeasureRecord,
+            intervalsRecord;
+
+        widget.setLoading();
+
+        grid.getSelectionGroupType().down('radiofield[inputValue=allItems]').setValue(true);
+
+        Ext.each(filterBtns, function (btn) {
+            btn.destroy();
+        });
+
+        if (unitOfMeasureComboValue) {
+            unitOfMeasureRecord = unitOfMeasureCombo.findRecord(unitOfMeasureCombo.valueField, unitOfMeasureComboValue);
+            properties.push({
+                property: 'unitOfMeasure',
+                value: unitOfMeasureRecord.get('unit')
+            });
+            properties.push({
+                property: 'multiplier',
+                value: unitOfMeasureRecord.get('multiplier')
+            });
+            filter.setFilter('unitOfMeasure', 'Unit of measure', unitOfMeasureRecord.get('name'), false);
+        }
+        if (intervalsCombo.getValue()) {
+            intervalsRecord = intervalsCombo.findRecord(intervalsCombo.valueField, intervalsCombo.getValue());
+            properties.push({
+                property: 'time',
+                value: intervalsCombo.getValue()
+            });
+            filter.setFilter('time', 'Interval', intervalsRecord.get('name'), false);
+        }
+        if (readingTypeNameText.getValue()) {
+            properties.push({
+                property: 'name',
+                value: readingTypeNameText.getValue()
+            });
+            filter.setFilter('name', 'Name', readingTypeNameText.getValue(), false);
+        }
+        if (timeOfUseCombo.getValue()) {
+            properties.push({
+                property: 'tou',
+                value: timeOfUseCombo.getValue()
+            });
+            filter.setFilter('tou', 'Time of use', timeOfUseCombo.getValue(), false);
+        }
+
+        readingTypeStore.getProxy().setExtraParam('filter', Ext.encode(properties));
+
+        readingTypeStore.load({
+            callback: function () {
+                adaptedReadingTypeStore.removeAll();
+                this.each(function (record) {
+                    if (!me.checkMridAlreadyAdded(me.validationRuleRecord.get('readingTypes'), record)) {
+                        adaptedReadingTypeStore.add({readingType: record.getData()});
+                    }
+                });
+                adaptedReadingTypeStore.fireEvent('load');
+                grid.fireEvent('selectionchange');
+                widget.setLoading(false);
+                if (adaptedReadingTypeStore.getCount() < 1) {
+                    widget.down('#buttonsContainer button[name=add]').setDisabled(true);
+                }
+
+            }
+        });
+    },
+
+    checkMridAlreadyAdded: function (array, record) {
+        var isExist = false;
+        Ext.each(array, function (addedRecord) {
+            if (record.get('mRID') === addedRecord.mRID) {
+                isExist = true;
+            }
+        });
+        return isExist;
+    },
+
+
     addRule: function (ruleSetId) {
         var me = this,
             widget = Ext.widget('addRule', {
@@ -283,20 +516,39 @@ Ext.define('Cfg.controller.Validation', {
                 returnLink: '#/administration/validation/rulesets/' + ruleSetId + '/rules'
             }),
             editRulePanel = me.getAddRule(),
-            ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
+            ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets'),
+            readingTypesStore = me.getStore('ReadingTypesForRule'),
+            model = Ext.create(Cfg.model.ValidationRule),
+            propertyForm,
+            form;
 
-        me.getValidatorsStore().load();
+        me.getValidatorsStore().load({
+            callback: function () {
+                me.ruleSetId = ruleSetId;
+                me.getApplication().fireEvent('changecontentevent', widget);
+                readingTypesStore.removeAll();
 
-        me.ruleSetId = ruleSetId;
-        me.getApplication().fireEvent('changecontentevent', widget);
-        editRulePanel.down('#addRuleTitle').setTitle(Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'));
-        me.ruleModel = null;
 
-        ruleSetsStore.load({
-            params: {
-                id: ruleSetId
+                if (me.validationRuleRecord) {
+                    me.modelToForm(editRulePanel, null, me.validationRuleRecord, false);
+                } else {
+                    form = editRulePanel.down('#addRuleForm').getForm();
+                    propertyForm = widget.down('property-form');
+                    form.loadRecord(model);
+                    propertyForm.loadRecord(model);
+                }
+
+                editRulePanel.down('#addRuleTitle').setTitle(Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'));
+                me.ruleModel = null;
+
+                ruleSetsStore.load({
+                    params: {
+                        id: ruleSetId
+                    }
+                });
             }
         });
+
     },
 
     createEditNewRuleSet: function (button) {
@@ -398,11 +650,14 @@ Ext.define('Cfg.controller.Validation', {
     showRuleSets: function () {
         var widget = Ext.widget('validationrulesetBrowse');
         this.getApplication().getController('Cfg.controller.Main').showContent(widget);
+        this.validationRuleRecord = null;
     },
 
     showRules: function (id) {
         var me = this,
             ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets');
+
+        me.validationRuleRecord = null;
         me.ruleSetId = id;
         me.fromRulePreview = false;
         ruleSetsStore.load({
@@ -488,83 +743,98 @@ Ext.define('Cfg.controller.Validation', {
             cancelLink,
             editRulePanel;
 
-        me.getValidatorsStore().load();
-
-        if (me.fromRuleSet) {
-            cancelLink = '#/administration/validation/rulesets';
-        } else if (me.fromRulePreview) {
-            cancelLink = '#/administration/validation/rulesets/' + id + '/rules/' + me.ruleId;
-        } else {
-            cancelLink = '#/administration/validation/rulesets/' + id + '/rules';
-        }
-
-        me.ruleSetId = parseInt(id);
-        me.ruleId = parseInt(ruleId);
-
-        widget = Ext.widget('addRule', {
-            edit: true,
-            returnLink: cancelLink
-        });
-        editRulePanel = me.getAddRule();
-        me.getApplication().fireEvent('changecontentevent', widget);
-        ruleSetsStore.load({
+        me.getValidatorsStore().load({
             callback: function () {
-                ruleSet = this.getById(parseInt(id));
-                me.getApplication().fireEvent('loadRuleSet', ruleSet);
+                if (me.fromRuleSet) {
+                    cancelLink = '#/administration/validation/rulesets';
+                } else if (me.fromRulePreview) {
+                    cancelLink = '#/administration/validation/rulesets/' + id + '/rules/' + me.ruleId;
+                } else {
+                    cancelLink = '#/administration/validation/rulesets/' + id + '/rules';
+                }
+
+                me.ruleSetId = parseInt(id);
+                me.ruleId = parseInt(ruleId);
+
+                widget = Ext.widget('addRule', {
+                    edit: true,
+                    returnLink: cancelLink
+                });
+
+                editRulePanel = me.getAddRule();
+                me.getApplication().fireEvent('changecontentevent', widget);
+
+                if (me.validationRuleRecord) {
+                    me.modelToForm(editRulePanel, null, me.validationRuleRecord, true);
+                } else {
+                    me.modelToForm(editRulePanel, id, null, true);
+                }
+
+                ruleSetsStore.load({
+                    callback: function () {
+                        ruleSet = this.getById(parseInt(id));
+                        me.getApplication().fireEvent('loadRuleSet', ruleSet);
+                    }
+                });
             }
         });
-        me.modelToForm(editRulePanel, id);
     },
 
-    modelToForm: function (editRulePanel, id) {
+    modelToForm: function (editRulePanel, id, record, isEdit) {
         var me = this,
             rulesStore = me.getStore('Cfg.store.ValidationRules'),
             form = editRulePanel.down('#addRuleForm').getForm(),
-            readingTypeField = editRulePanel.down('#readingType1'),
+            grid = editRulePanel.down('#readingTypesGridPanel'),
             validatorField = editRulePanel.down('#validatorCombo'),
-            nameField = editRulePanel.down('#addRuleName'),
-            propField,
+            widget = me.getAddRule(),
+            propertyForm = widget.down('property-form'),
+            loadRecordToForm,
             rule;
 
-        editRulePanel.setLoading();
-        rulesStore.load({
-            params: {
-                id: id
-            },
-            callback: function () {
-                editRulePanel.setLoading(false);
-                rule = this.getById(me.ruleId);
-                me.ruleModel = rule;
 
-                me.getApplication().fireEvent('loadRule', rule);
-                editRulePanel.down('#addRuleTitle').setTitle("Edit '" + rule.get('name') + "'");
-
-                validatorField.setValue(rule.get('implementation'));
+        loadRecordToForm = function (rule) {
+            if (isEdit) {
+                editRulePanel.down('#addRuleTitle').setTitle(me.ruleTitle);
                 validatorField.disable();
-
-                readingTypeField.setValue(rule.get('readingTypes')[0].mRID);
-                nameField.setValue(rule.get('name'));
-
-                var ruleReadingTypes = rule.get('readingTypes');
-                for (var i = 1; i < ruleReadingTypes.length; i++) {
-                    var readingType = ruleReadingTypes[i],
-                        field = me.addReadingType();
-                    field.down('textfield').setValue(readingType.mRID);
-                }
-
-                widget = me.getAddRule();
-                var propertyForm = widget.down('property-form');
-                var j = rule.properties().count();
-                if (rule.properties().count()) {
-                    propertyForm.loadRecord(rule);
-                    propertyForm.show();
-                } else {
-                    propertyForm.hide();
-                }
-
-                widget.setLoading(false);
             }
-        });
+
+            form.loadRecord(rule);
+
+            grid.getStore().removeAll();
+
+            Ext.each(rule.get('readingTypes'), function (readingType) {
+                grid.getStore().add({readingType: readingType})
+            });
+
+            if (rule.properties().count() && rule.get('implementation') !== 'com.elster.jupiter.validators.impl.MissingValuesValidator') {
+                propertyForm.loadRecord(rule);
+                propertyForm.show();
+            } else {
+                propertyForm.hide();
+            }
+        };
+
+        if (record) {
+            loadRecordToForm(record);
+        } else {
+            editRulePanel.setLoading();
+            rulesStore.load({
+                params: {
+                    id: id
+                },
+                callback: function () {
+                    editRulePanel.setLoading(false);
+                    rule = this.getById(me.ruleId);
+                    me.ruleModel = rule;
+                    me.ruleTitle = "Edit '" + rule.get('name') + "'"
+
+                    me.getApplication().fireEvent('loadRule', rule);
+
+                    loadRecordToForm(rule);
+                }
+            });
+        }
+
     },
 
     chooseRuleAction: function (menu, item) {

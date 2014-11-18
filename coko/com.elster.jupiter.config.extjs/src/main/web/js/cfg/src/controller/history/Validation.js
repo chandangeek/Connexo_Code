@@ -54,7 +54,16 @@ Ext.define('Cfg.controller.history.Validation', {
                                             route: 'add',
                                             controller: 'Cfg.controller.Validation',
                                             privileges: ['privilege.administrate.validationConfiguration'],
-                                            action: 'addRule'
+                                            action: 'addRule',
+                                            items: {
+                                                readingtypes: {
+                                                    title: 'Add reading types',
+                                                    route: 'readingtypes',
+                                                    controller: 'Cfg.controller.Validation',
+                                                    privileges: ['privilege.administrate.validationConfiguration'],
+                                                    action: 'addReadingTypes'
+                                                }
+                                            }
                                         },
                                         overview: {
                                             title: 'Overview',
@@ -75,7 +84,16 @@ Ext.define('Cfg.controller.history.Validation', {
                                                     route: 'edit',
                                                     controller: 'Cfg.controller.Validation',
                                                     privileges: ['privilege.administrate.validationConfiguration'],
-                                                    action: 'showEditRuleOverview'
+                                                    action: 'showEditRuleOverview',
+                                                    items: {
+                                                        readingtypes: {
+                                                            title: 'Add reading types',
+                                                            route: 'readingtypes',
+                                                            controller: 'Cfg.controller.Validation',
+                                                            privileges: ['privilege.administrate.validationConfiguration'],
+                                                            action: 'addReadingTypes'
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
