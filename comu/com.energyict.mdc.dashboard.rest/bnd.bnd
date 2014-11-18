@@ -1,2 +1,7 @@
 -classpath: target/classes
 -dsannotations: * 
+Private-Package:  \
+	com.energyict.mdc.dashboard.rest.status.impl
+Export-Package:  \
+	com.energyict.mdc.dashboard.rest.status,\
+	com.energyict.mdc.dashboard.rest
