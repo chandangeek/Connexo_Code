@@ -82,7 +82,6 @@ public class UpdateLicenseEventHandler implements TopicHandler {
     @Reference(name = "ZInboundDeviceProtocolService", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
         this.inboundDeviceProtocolServices.add(inboundDeviceProtocolService);
-        this.registerInboundDeviceProtocolPluggableClasses();
     }
 
     @SuppressWarnings("unused")
@@ -93,7 +92,6 @@ public class UpdateLicenseEventHandler implements TopicHandler {
     @Reference(name = "ZConnectionTypeService", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addConnectionTypeService(ConnectionTypeService connectionTypeService) {
         this.connectionTypeServices.add(connectionTypeService);
-        this.registerConnectionTypePluggableClasses();
     }
 
     @SuppressWarnings("unused")

@@ -69,25 +69,25 @@ public class UpdateLicenseEventHandlerTest {
     }
 
     @Test
-    public void addConnectionTypeServiceTriggersRegistration() {
+    public void addConnectionTypeServiceDoesNotTriggerRegistration() {
         UpdateLicenseEventHandler eventHandler = this.testEventHandler();
 
         // Business method
         eventHandler.addConnectionTypeService(this.connectionTypeService);
 
         // Asserts
-        verify(this.connectionTypeService).getExistingConnectionTypePluggableClasses();
+        verify(this.connectionTypeService, never()).getExistingConnectionTypePluggableClasses();
     }
 
     @Test
-    public void addInboundDeviceProtocolServiceTriggersRegistration() {
+    public void addInboundDeviceProtocolServiceDoesNotTriggerRegistration() {
         UpdateLicenseEventHandler eventHandler = this.testEventHandler();
 
         // Business method
         eventHandler.addInboundDeviceProtocolService(this.inboundDeviceProtocolService);
 
         // Asserts
-        verify(this.inboundDeviceProtocolService).getExistingInboundDeviceProtocolPluggableClasses();
+        verify(this.inboundDeviceProtocolService, never()).getExistingInboundDeviceProtocolPluggableClasses();
     }
 
     private UpdateLicenseEventHandler testEventHandler() {
