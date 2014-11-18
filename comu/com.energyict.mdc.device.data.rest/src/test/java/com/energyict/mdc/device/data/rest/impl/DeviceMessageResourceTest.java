@@ -265,7 +265,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceMessageSpecificationService.allCategories()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList()));
 
         doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], (ValueFactory)invocationOnMock.getArguments()[2])).
-                when(propertySpecService).basicPropertySpec(any(String.class), any(Boolean.class), any(ValueFactory.class));
+                when(propertySpecService).basicPropertySpec(any(String.class), any(Boolean.class), any());
         doAnswer(invocationOnMock->new BasicPropertySpec((String)invocationOnMock.getArguments()[0], (Boolean)invocationOnMock.getArguments()[1], new BigDecimalFactory())).
                 when(propertySpecService).bigDecimalPropertySpecWithValues(any(String.class), any(Boolean.class), any(BigDecimal.class), any(BigDecimal.class));
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
