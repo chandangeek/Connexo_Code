@@ -2,14 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.ConnectionTaskFields;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -133,7 +126,8 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_PHYSGATEWAYREF_ORIGIN").
                     on(originId).
                     references(DDC_DEVICE.name()).
-                    onDelete(CASCADE).map("origin").
+                    onDelete(CASCADE).
+                    map(GatewayReferenceImpl.Field.ORIGIN.fieldName()).
                     reverseMap("physicalGatewayReferenceDevice").
                     composition().
                     add();
@@ -141,7 +135,7 @@ public enum TableSpecs {
                     on(physicalGatewayId).
                     references(DDC_DEVICE.name()).
                     onDelete(CASCADE).
-                    map("gateway").
+                    map(GatewayReferenceImpl.Field.GATEWAY.fieldName()).
                     add();
         }
     },
@@ -158,7 +152,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_COMGATEWAYREF_ORIGIN").
                     on(originId).references(DDC_DEVICE.name()).
                     onDelete(CASCADE).
-                    map("origin").
+                    map(GatewayReferenceImpl.Field.ORIGIN.fieldName()).
                     reverseMap("communicationGatewayReferenceDevice").
                     composition().
                     add();
@@ -166,7 +160,7 @@ public enum TableSpecs {
                     on(communicationGatewayId).
                     references(DDC_DEVICE.name()).
                     onDelete(CASCADE).
-                    map("gateway").
+                    map(GatewayReferenceImpl.Field.GATEWAY.fieldName()).
                     add();
         }
     },

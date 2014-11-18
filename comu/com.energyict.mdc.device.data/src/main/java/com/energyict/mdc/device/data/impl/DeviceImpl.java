@@ -50,6 +50,7 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -92,13 +93,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import com.google.common.collect.Range;
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -109,26 +110,10 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.Checks.is;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME;
@@ -552,7 +537,7 @@ public class DeviceImpl implements Device, CanLock {
     @Override
     public Device getPhysicalGateway(Instant timestamp) {
         return this.physicalGatewayReferenceDevice.effective(timestamp)
-                .map(PhysicalGatewayReference::getPhysicalGateway)
+                .map(PhysicalGatewayReference::getGateway)
                 .orElse(null);
     }
 
@@ -686,94 +671,8 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public List<CommunicationTopologyEntry> getAllCommunicationTopologies(Interval interval) {
-        CommunicationTopology communicationTopology = this.buildCommunicationTopology(this, interval);
-        return this.toSortedCommunicationTopologyEntries(communicationTopology);
-    }
-
-    /**
-     * Collects the {@link CommunicationTopologyEntry CommunicationTopologies} for the specified Interval
-     * for the target {@link Device} that is part of the communication topology governed by the root device.
-     *
-     * @param root     The root of the CommunicationTopology
-     * @param interval The Interval
-     * @return The CommunicationTopology
-     */
-    private CommunicationTopology buildCommunicationTopology(Device root, Interval interval) {
-        List<CommunicationTopologyEntry> firstLevelTopologyEntries = this.deviceService.findCommunicationReferencingDevicesFor(root, interval);
-        Interval spanningInterval = this.intervalSpanOf(firstLevelTopologyEntries);
-        CommunicationTopology topology = new CommunicationTopologyImpl(root, interval.intersection(spanningInterval));
-        for (CommunicationTopologyEntry firstLevelTopologyEntry : firstLevelTopologyEntries) {
-            for (Device device : firstLevelTopologyEntry.getDevices()) {
-                topology.addChild(this.buildCommunicationTopology(device, interval.intersection(firstLevelTopologyEntry.getInterval())));
-            }
-        }
-        return topology;
-    }
-
-    private Interval intervalSpanOf(List<CommunicationTopologyEntry> topologyEntries) {
-        Instant earliestStartDate = this.earliestStartDate(topologyEntries);
-        Instant latestEndDate = this.latestEndDate(topologyEntries);
-        return Interval.of(earliestStartDate, latestEndDate);
-    }
-
-    private Instant earliestStartDate(List<CommunicationTopologyEntry> topologyEntries) {
-        if (!topologyEntries.isEmpty()) {
-            return Collections.min(this.startDatesOfAll(topologyEntries), new MinInstantComparator());
-        } else {
-            return null;
-        }
-    }
-
-    private Collection<Instant> startDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
-        Collection<Instant> startDates = new ArrayList<>(topologyEntries.size());
-        for (CommunicationTopologyEntry topologyEntry : topologyEntries) {
-            startDates.add(topologyEntry.getInterval().getStart());
-        }
-        return startDates;
-    }
-
-    private Instant latestEndDate(List<CommunicationTopologyEntry> topologyEntries) {
-        if (!topologyEntries.isEmpty()) {
-            return Collections.max(this.endDatesOfAll(topologyEntries), new MaxInstantComparator());
-        } else {
-            return null;
-        }
-    }
-
-    private Collection<Instant> endDatesOfAll(List<CommunicationTopologyEntry> topologyEntries) {
-        return topologyEntries
-                .stream()
-                .map(topologyEntry -> topologyEntry.getInterval().getEnd())
-                .collect(Collectors.toList());
-    }
-
-    private List<CommunicationTopologyEntry> toSortedCommunicationTopologyEntries(CommunicationTopology communicationTopology) {
-        CommunicationTopologyEntryMerger merger = new CommunicationTopologyEntryMerger();
-        for (CommunicationTopology firstLevelTopology : communicationTopology.getChildren()) {
-            this.addCommunicationTopologyEntries(firstLevelTopology, merger);
-        }
-        List<CommunicationTopologyEntry> entries = new ArrayList<>();
-        for (CompleteCommunicationTopologyEntryImpl entry : merger.getEntries()) {
-            entries.add(entry);
-        }
-        Collections.sort(entries, new CommunicationTopologyEntryComparator());
-        return entries;
-    }
-
-    private void addCommunicationTopologyEntries(CommunicationTopology topology, CommunicationTopologyEntryMerger merger) {
-        if (topology.isLeaf()) {
-            merger.add(new CompleteCommunicationTopologyEntryImpl(topology.getInterval(), topology.getRoot()));
-        } else {
-            CommunicationTopologyEntryMerger nestedMerger = new CommunicationTopologyEntryMerger();
-            for (CommunicationTopology childTopology : topology.getChildren()) {
-                this.addCommunicationTopologyEntries(childTopology, nestedMerger);
-            }
-            for (CompleteCommunicationTopologyEntryImpl childEntry : nestedMerger.getEntries()) {
-                childEntry.add(topology.getRoot());
-                merger.add(childEntry);
-            }
-        }
+    public DeviceTopology getCommunicationTopology(Range<Instant> period) {
+        return this.deviceService.buildCommunicationTopology(this, period);
     }
 
     @Override
@@ -785,7 +684,7 @@ public class DeviceImpl implements Device, CanLock {
     public Device getCommunicationGateway(Instant timestamp) {
         Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(timestamp);
         if (communicationGatewayReferenceOptional.isPresent()) {
-            return communicationGatewayReferenceOptional.get().getCommunicationGateway();
+            return communicationGatewayReferenceOptional.get().getGateway();
         }
         return null;
     }
@@ -1754,6 +1653,11 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
+    public List<SecurityProperty> getAllSecurityProperties(SecurityPropertySet securityPropertySet) {
+        return this.getAllSecurityProperties(clock.instant(), securityPropertySet);
+    }
+
+    @Override
     public List<SecurityProperty> getSecurityPropertiesStatus(SecurityPropertySet securityPropertySet) {
         return this.getSecurityPropertiesStatus(clock.instant(), securityPropertySet);
     }
@@ -1765,6 +1669,10 @@ public class DeviceImpl implements Device, CanLock {
 
     private List<SecurityProperty> getSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
         return this.securityPropertyService.getSecurityProperties(this, when, securityPropertySet);
+    }
+
+    private List<SecurityProperty> getAllSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
+        return this.securityPropertyService.getAllSecurityProperties(this, when, securityPropertySet);
     }
 
     private List<SecurityProperty> getSecurityPropertiesStatus(Instant when, SecurityPropertySet securityPropertySet) {
@@ -2029,70 +1937,6 @@ public class DeviceImpl implements Device, CanLock {
         }
     }
 
-    /**
-     * Compares {@link CommunicationTopologyEntry} in the context of the {@link #getAllCommunicationTopologies(Interval)} method.
-     */
-    public static class CommunicationTopologyEntryComparator implements Comparator<CommunicationTopologyEntry> {
-
-        @Override
-        public int compare(CommunicationTopologyEntry topology1, CommunicationTopologyEntry topology2) {
-            if (is(topology1.getInterval().getStart()).equalTo(topology2.getInterval().getStart())) {
-                // Both Intervals start at the same timestamp, which could be the early big bang, i.e. null
-                if (is(topology1.getInterval().getEnd()).equalTo(topology2.getInterval().getEnd())) {
-                    return 0;   // Equals start and end
-                } else if (topology1.getInterval().endsBefore(topology2.getInterval().getEnd())) {
-                    return -1;
-                } else {
-                    // Remember that end of other interval is not equal
-                    return 1;
-                }
-            } else if (topology1.getInterval().startsBefore(topology2.getInterval().getStart())) {
-                return -1;
-            } else {
-                // Remember that start of other interval is not equal
-                return 1;
-            }
-        }
-    }
-
-    /**
-     * Compares Dates where <code>null</code> is considered infinity in the past (aka the early big bang)
-     * and is always smaller than anything else (except another <code>null</code> of course).
-     */
-    private class MinInstantComparator implements Comparator<Instant> {
-        @Override
-        public int compare(Instant instant1, Instant instant2) {
-            if (instant1 == null && instant2 == null) {
-                return 0;
-            } else if (instant1 == null) {
-                return -1;
-            } else if (instant2 == null) {
-                return 1;
-            } else {
-                return instant1.compareTo(instant2);
-            }
-        }
-    }
-
-    /**
-     * Compares Dates where <code>null</code> is considered infinity in the future
-     * and is always bigger than anything else (except another <code>null</code> of course).
-     */
-    private class MaxInstantComparator implements Comparator<Instant> {
-        @Override
-        public int compare(Instant instant1, Instant instant2) {
-            if (instant1 == null && instant2 == null) {
-                return 0;
-            } else if (instant1 == null) {
-                return 1;
-            } else if (instant2 == null) {
-                return -1;
-            } else {
-                return instant1.compareTo(instant2);
-            }
-        }
-    }
-
     private enum RegisterFactory {
         Text {
             @Override
@@ -2152,4 +1996,5 @@ public class DeviceImpl implements Device, CanLock {
 
         abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
     }
+
 }

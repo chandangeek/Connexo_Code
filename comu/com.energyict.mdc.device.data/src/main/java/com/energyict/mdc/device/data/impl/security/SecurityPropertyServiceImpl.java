@@ -62,6 +62,16 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     }
 
     @Override
+    public List<SecurityProperty> getAllSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet) {
+        List<SecurityProperty> defaultResult = new ArrayList<>(0);
+        Optional<Relation> relation = this.findActiveProperties(device, securityPropertySet, when);
+        if (relation.isPresent()) {
+            return this.toSecurityProperties(relation.get(), device, securityPropertySet);
+        }
+        return defaultResult;
+    }
+
+    @Override
     public List<SecurityProperty> getSecurityPropertiesStatus(Device device, Instant when, SecurityPropertySet securityPropertySet) {
         List<SecurityProperty> defaultResult = new ArrayList<>(0);
         Optional<Relation> relation = this.findActiveProperties(device, securityPropertySet, when);
