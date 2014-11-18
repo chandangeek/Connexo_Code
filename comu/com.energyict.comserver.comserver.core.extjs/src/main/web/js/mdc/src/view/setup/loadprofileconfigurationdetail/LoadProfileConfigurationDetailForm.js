@@ -34,6 +34,14 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     xtype: 'reading-type-displayfield',
                     hidden: true
                 },
+//                {
+//                    xtype: 'displayfield',
+//                    required: true,
+//                    fieldLabel: 'Measurement type',
+//                    name: 'measurementtype',
+//                    value: 'measurementType',
+//                    hidden: true
+//                },
                 {
                     xtype: 'reading-type-combo',
                     required: true,

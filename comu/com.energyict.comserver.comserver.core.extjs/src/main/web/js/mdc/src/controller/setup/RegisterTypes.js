@@ -18,7 +18,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         'RegisterTypes',
         'TimeOfUses',
         'UnitOfMeasures',
-        'ReadingTypes'
+        'ReadingTypes',
+        'AvailableReadingTypesForRegisterType'
     ],
 
     refs: [
@@ -31,8 +32,53 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
         {ref: 'registerTypeDetailForm', selector: '#registerTypeDetailForm'},
         {ref: 'registerTypeEditForm', selector: '#registerTypeEditForm'},
-        {ref: 'detailMrId', selector: '#detail_mrid'}
+        {ref: 'unitOfMeasureCombo', selector: '#registerTypeEditForm #measurementUnitComboBox'},
+        {ref: 'timeOfUseCombo', selector: '#registerTypeEditForm #timeOfUseComboBox'},
+        {ref: 'readingTypeCombo', selector: '#registerTypeEditForm #readingTypeCombo'}
     ],
+
+    loadReadingTypes: function (combo) {
+        var me = this,
+            editView = me.getRegisterTypeEditView(),
+            unitOfMeasureCombo = me.getUnitOfMeasureCombo(),
+            timeOfUseCombo = me.getTimeOfUseCombo(),
+            readingTypeCombo = me.getReadingTypeCombo(),
+            readingTypeStore = Ext.create('Mdc.store.AvailableReadingTypesForRegisterType'),
+            readingHiddenDisplayField = editView.down('#noReadingAvailable');
+
+        readingTypeCombo.setValue(null);
+        readingTypeCombo.disable();
+
+
+        if (unitOfMeasureCombo.getValue() !== null && timeOfUseCombo.getValue() !== null) {
+            editView.setLoading();
+            readingTypeCombo.bindStore(readingTypeStore);
+            readingTypeStore.getProxy().setExtraParam('filter', Ext.encode([
+                {
+                    property: 'unitOfMeasureId',
+                    value: unitOfMeasureCombo.getValue()
+                },
+                {
+                    property: 'tou',
+                    value: timeOfUseCombo.getValue()
+                }
+            ]));
+            readingTypeStore.load({
+                callback: function () {
+                    if (this.getCount()) {
+                        readingTypeCombo.show();
+                        readingHiddenDisplayField.hide();
+                    } else {
+                        readingTypeCombo.hide();
+                        readingHiddenDisplayField.show();
+                    }
+                    editView.setLoading(false);
+                    readingTypeCombo.enable();
+                }
+            });
+        }
+    },
+
 
     init: function () {
         this.getReadingTypesStore().on('load', this.onReadingTypesStoreLoad, this);
@@ -58,17 +104,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             '#registerTypePreview menuitem[action=deleteRegisterType]': {
                 click: this.deleteRegisterTypeFromPreview
             },
-            '#createEditButton[action=createRegisterType]': {
-                click: this.createRegisterType
-            },
-            '#createEditButton[action=editRegisterType]': {
-                click: this.editRegisterType
+            '#registerTypeEditForm #createEditButton': {
+                click: this.createEditRegisterType
             },
             '#registerTypeDetail menuitem[action=editRegisterType]': {
                 click: this.editRegisterTypeFromDetails
-            },
-            '#registerTypeEditForm textfield[cls=obisCode]': {
-                blur: this.getReadingType
             }
         });
     },
@@ -190,15 +230,16 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     showRegisterTypeEditView: function (registerMapping) {
-        var me = this;
-        var timeOfUseStore = Ext.create('Mdc.store.TimeOfUses');
-        var unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures');
-        var widget = Ext.widget('registerTypeEdit', {
-            edit: true,
-            unitOfMeasure: unitOfMeasureStore,
-            timeOfUse: timeOfUseStore,
-            returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
-        });
+        var me = this,
+            timeOfUseStore = Ext.create('Mdc.store.TimeOfUses'),
+            unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures'),
+            readingTypeStore = Ext.create('Mdc.store.AvailableReadingTypesForRegisterType'),
+            widget = Ext.widget('registerTypeEdit', {
+                edit: true,
+                unitOfMeasure: unitOfMeasureStore,
+                timeOfUse: timeOfUseStore,
+                returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
+            });
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerMapping, {
@@ -210,21 +251,36 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                             callback: function (store) {
                                 widget.down('form').loadRecord(registerType);
                                 widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + registerType.get('name') + '</h1>');
-                                widget.down('#editMrIdField').setValue(registerType.getReadingType().get('mrid'));
+                                widget.down('#readingTypeCombo').bindStore(readingTypeStore);
+                                readingTypeStore.getProxy().setExtraParam('filter', Ext.encode([
+                                    {
+                                        property: 'unitOfMeasureId',
+                                        value: registerType.get('unitOfMeasure').id
+                                    },
+                                    {
+                                        property: 'tou',
+                                        value: registerType.get('timeOfUse')
+                                    }
+                                ]));
+                                readingTypeStore.load({
+                                    callback: function () {
+                                        widget.down('#readingTypeCombo').setValue(registerType.getReadingType().get('id'));
+                                        widget.setLoading(false);
+                                    }
+                                });
                                 widget.down('#measurementUnitComboBox').setValue(registerType.getUnitOfMeasure().get('id'));
                                 if (registerType.get('isLinkedByDeviceType') === true) {
                                     widget.down('obis-field').disable();
                                     widget.down('#measurementUnitComboBox').disable();
                                     widget.down('#timeOfUseComboBox').disable();
-                                    widget.down('#editMrIdField').disable();
-                                    // widget.down('#editRegisterTypeNameField').disable();
                                     widget.down('#registerTypeEditCreateInformation').update(Uni.I18n.translate('registertype.warningLinkedTodeviceType', 'MDC', 'The register type has been added to a device type.  Only the name is editable.'));
                                     widget.down('#registerTypeEditCreateInformation').show();
                                 } else {
-                                    widget.down('#editMrIdField').enable();
-
+                                    widget.down('#measurementUnitComboBox').on('change', me.loadReadingTypes, me);
+                                    widget.down('#timeOfUseComboBox').on('change', me.loadReadingTypes, me);
+                                    widget.down('#readingTypeCombo').enable();
                                 }
-                                widget.setLoading(false);
+
                             }
                         })
                     }
@@ -239,13 +295,15 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     showRegisterTypeCreateView: function () {
-        var timeOfUseStore = Ext.create('Mdc.store.TimeOfUses');
-        var unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures');
+        var timeOfUseStore = Ext.create('Mdc.store.TimeOfUses'),
+            unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures'),
+            availableReadingTypesStore = Ext.create('Mdc.store.AvailableReadingTypesForRegisterType');
         var widget = Ext.widget('registerTypeEdit', {
             edit: false,
             returnLink: '#/administration/registertypes/',
             unitOfMeasure: unitOfMeasureStore,
-            timeOfUse: timeOfUseStore
+            timeOfUse: timeOfUseStore,
+            availableReadingTypes: availableReadingTypesStore
         });
         var me = this;
         this.getApplication().fireEvent('changecontentevent', widget);
@@ -256,6 +314,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 unitOfMeasureStore.load({
                     callback: function (store) {
                         widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Add register type') + '</h1>');
+                        widget.down('#measurementUnitComboBox').on('change', me.loadReadingTypes, me);
+                        widget.down('#timeOfUseComboBox').on('change', me.loadReadingTypes, me);
                         widget.setLoading(false);
                     }
                 });
@@ -263,63 +323,40 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         });
     },
 
-    createRegisterType: function () {
-        var record = Ext.create(Mdc.model.RegisterType),
-            values = this.getRegisterTypeEditForm().getValues();
-        var widget = this.getRegisterTypeEditForm();
-        var mrId = widget.down('#editMrIdField').getValue();
-        var unitOfMeasure = widget.down('#measurementUnitComboBox').findRecordByDisplay(widget.down('#measurementUnitComboBox').getRawValue());
-        var me = this;
-        //delete values.mrid;
-        var readingType = Ext.create(Mdc.model.ReadingType);
-
-        readingType.data.mrid = mrId;
-        if (record) {
-            record.set(values);
-            record.setReadingType(readingType);
-            record.setUnitOfMeasure(unitOfMeasure);
-            record.save({
-                success: function (record) {
-                    location.href = '#/administration/registertypes/';
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
-                    }
-                }
-
-            });
-
-        }
-    },
-
-    editRegisterType: function () {
-        var record = this.getRegisterTypeEditForm().getRecord(),
+    createEditRegisterType: function (btn) {
+        var me = this,
+            editView = me.getRegisterTypeEditView(),
             values = this.getRegisterTypeEditForm().getValues(),
-            me = this;
+            unitOfMeasureCombo = me.getUnitOfMeasureCombo(),
+            readingTypeCombo = me.getReadingTypeCombo(),
+            record;
 
-        var widget = this.getRegisterTypeEditForm();
-        var mrId = widget.down('#editMrIdField').getValue();
-        var unitOfMeasure = widget.down('#measurementUnitComboBox').findRecordByDisplay(widget.down('#measurementUnitComboBox').getRawValue());
-        var readingType = Ext.create(Mdc.model.ReadingType);
-
-        readingType.data.mrid = mrId;
+        if (btn.action === 'editRegisterType') {
+            record = this.getRegisterTypeEditForm().getRecord();
+        } else {
+            record = Ext.create(Mdc.model.RegisterType);
+        }
 
         if (record) {
+            editView.setLoading();
             record.set(values);
-            record.setReadingType(readingType);
-            record.setUnitOfMeasure(unitOfMeasure);
+            if (readingTypeCombo.valueModels[0]) {
+                record.setReadingType(Ext.create(Mdc.model.ReadingType, readingTypeCombo.valueModels[0].getData()));
+            }
+            record.setUnitOfMeasure(unitOfMeasureCombo.findRecordByDisplay(unitOfMeasureCombo.getRawValue()));
             record.save({
-                success: function (record) {
+                success: function () {
+                    editView.setLoading(false);
                     location.href = '#/administration/registertypes/';
                 },
-                failure: function (record, operation) {
+                failure: function (rec, operation) {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
                     }
+                    editView.setLoading(false);
                 }
+
             });
         }
     },
@@ -328,22 +365,5 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var record = this.getRegisterTypeDetailForm().getRecord();
         location.href = '#/administration/registertypes/' + record.get('id') + '/edit';
     },
-
-    getReadingType: function (field, newValue, oldValue) {
-        var widget = this.getRegisterTypeEditForm();
-        var obisCode = widget.down('obis-field').getValue();
-        var measurementUnit = widget.down('#measurementUnitComboBox').getValue();
-        //var mrId = widget.down('#editMrIdField').getValue();
-
-        if (obisCode !== '' && measurementUnit !== null && obisCode != null && measurementUnit != '') {
-            this.getReadingTypesStore().clearFilter();
-            this.getReadingTypesStore().filter([
-                {property: 'obisCode', value: obisCode},
-                {property: 'unit', value: measurementUnit}
-            ]);
-        }
-    }
-
-
 })
 ;
