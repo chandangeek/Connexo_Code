@@ -4,7 +4,6 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.InboundComPortPool;
-import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -52,7 +51,7 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
 
     @Override
     public InboundDeviceProtocolPluggableClass getDiscoveryProtocolPluggableClass() {
-        return pluggableService.findInboundDeviceProtocolPluggableClass(discoveryProtocolPluggableClassId);
+        return pluggableService.findInboundDeviceProtocolPluggableClass(discoveryProtocolPluggableClassId).get();
     }
 
     @Override
@@ -73,10 +72,9 @@ public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundCo
         if (discoveryProtocolPluggableClassId == 0) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.MUST_HAVE_DISCOVERY_PROTOCOL);
         } else {
-            PluggableClass pluggableClass = pluggableService.findDeviceProtocolPluggableClass(discoveryProtocolPluggableClassId);
-            if (pluggableClass == null) {
-                throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_SUCH_PLUGGABLE_CLASS);
-            }
+            pluggableService
+                    .findDeviceProtocolPluggableClass(discoveryProtocolPluggableClassId)
+                    .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_SUCH_PLUGGABLE_CLASS));
         }
     }
 

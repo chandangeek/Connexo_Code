@@ -26,6 +26,8 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.sql.SQLException;
+import java.util.Optional;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -80,7 +82,7 @@ public class PersistenceTest {
     }
 
     @AfterClass
-    public static void staticTearDown() throws SQLException {
+    public static void staticTearDown() {
     	inMemoryBootstrapModule.deactivate();
     }
 
@@ -88,7 +90,9 @@ public class PersistenceTest {
     public void setUp() {
         inboundDeviceProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
         when(inboundDeviceProtocolPluggableClass.getId()).thenReturn(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID);
-        when(getProtocolPluggableService().findInboundDeviceProtocolPluggableClass(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID)).thenReturn(inboundDeviceProtocolPluggableClass);
+        when(getProtocolPluggableService()
+                .findInboundDeviceProtocolPluggableClass(DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_ID))
+                .thenReturn(Optional.of(inboundDeviceProtocolPluggableClass));
     }
 
     public static TransactionService getTransactionService() {
