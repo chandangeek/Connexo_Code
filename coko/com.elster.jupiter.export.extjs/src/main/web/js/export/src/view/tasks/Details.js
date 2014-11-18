@@ -8,6 +8,7 @@ Ext.define('Dxp.view.tasks.Details', {
     ],
 
     router: null,
+    taskId: null,
 
     content: {
         xtype: 'container',
@@ -47,6 +48,7 @@ Ext.define('Dxp.view.tasks.Details', {
                         xtype: 'tasks-menu',
                         itemId: 'tasks-view-menu',
                         router: me.router,
+                        taskId: me.taskId,
                         toggle: 0
                     }
                 ]

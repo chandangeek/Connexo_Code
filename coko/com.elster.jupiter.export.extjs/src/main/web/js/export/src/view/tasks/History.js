@@ -8,6 +8,7 @@ Ext.define('Dxp.view.tasks.History', {
     ],
 
     router: null,
+    taskId: null,
 
     initComponent: function () {
         var me = this;
@@ -21,6 +22,7 @@ Ext.define('Dxp.view.tasks.History', {
                     {
                         xtype: 'tasks-menu',
                         itemId: 'tasks-view-menu',
+                        taskId: me.taskId,
                         router: me.router,
                         toggle: 1
                     }

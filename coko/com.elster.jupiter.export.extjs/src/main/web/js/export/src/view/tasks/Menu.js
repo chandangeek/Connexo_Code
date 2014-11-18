@@ -4,6 +4,8 @@ Ext.define('Dxp.view.tasks.Menu', {
     toggle: null,
     router: null,
 
+    taskId: null,
+
     initComponent: function () {
         var me = this;
         me.callParent(me);
@@ -12,7 +14,7 @@ Ext.define('Dxp.view.tasks.Menu', {
             {
                 text: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
                 itemId: 'tasks-view-link',
-                href: me.router.getRoute('administration/dataexporttasks').buildUrl(),
+                href:  '#/administration/dataexporttasks/' + this.taskId,
                 hrefTarget: '_self'
             }
         );

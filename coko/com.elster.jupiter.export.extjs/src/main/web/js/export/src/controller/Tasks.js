@@ -100,17 +100,18 @@ Ext.define('Dxp.controller.Tasks', {
         me.getApplication().fireEvent('changecontentevent', view);
     },
 
-    showTaskDetailsView: function (taskId) {
+    showTaskDetailsView: function (currentTaskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             taskModel = me.getModel('Dxp.model.DataExportTask'),
             view = Ext.widget('data-export-tasks-details', {
-                router: router
+                router: router,
+                taskId: currentTaskId
             }),
             actionsMenu = view.down('tasks-action-menu');
         me.fromDetails = true;
         me.getApplication().fireEvent('changecontentevent', view);
-        taskModel.load(taskId, {
+        taskModel.load(currentTaskId, {
             success: function (record) {
                 var detailsForm = view.down('tasks-preview-form'),
                     propertyForm = detailsForm.down('property-form');
@@ -126,13 +127,14 @@ Ext.define('Dxp.controller.Tasks', {
         });
     },
 
-    showDataExportTaskHistory: function(taskId) {
+    showDataExportTaskHistory: function(currentTaskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Dxp.store.DataExportTasksHistory'),
             taskModel = me.getModel('Dxp.model.DataExportTask'),
             view = Ext.widget('data-export-tasks-history', {
-                router: router
+                router: router,
+                taskId: currentTaskId
             });
 
         me.getApplication().fireEvent('changecontentevent', view);
@@ -143,7 +145,7 @@ Ext.define('Dxp.controller.Tasks', {
             item.show();
         });
 
-        taskModel.load(taskId, {
+        taskModel.load(currentTaskId, {
             success: function (record) {
                 store.load(function(records, operation, success) {
                     records.map(function(r){
