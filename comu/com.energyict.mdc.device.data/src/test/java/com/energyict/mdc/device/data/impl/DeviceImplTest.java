@@ -15,6 +15,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
+import com.energyict.mdc.device.data.TopologyTimeline;
+import com.energyict.mdc.device.data.TopologyTimeslice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.StillGatewayException;
@@ -568,7 +570,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void removePhysicalGatewayTest() {
-        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER","m");
+        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER", "m");
         Device slaveDevice1 = createSimpleDeviceWithName("SLAVE_1","s");
         slaveDevice1.setPhysicalGateway(masterDevice);
         slaveDevice1.save();
@@ -673,7 +675,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
     @Transactional
     public void removeCommunicationGatewayTest() {
         Device communicationMaster = createSimpleDeviceWithName("CommunicationMaster","1");
-        Device origin = createSimpleDeviceWithName("Origin","2");
+        Device origin = createSimpleDeviceWithName("Origin", "2");
         origin.setCommunicationGateway(communicationMaster);
         origin.save();
 
