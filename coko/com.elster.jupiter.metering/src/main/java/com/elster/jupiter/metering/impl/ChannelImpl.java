@@ -99,7 +99,7 @@ public final class ChannelImpl implements ChannelContract {
         for (; index < readingTypes.size(); index++) {
             this.readingTypeInChannels.add(new ReadingTypeInChannel().init(this, readingTypes.get(index)));
         }
-        this.timeSeries.set(createTimeSeries());
+        this.timeSeries.set(createTimeSeries(meterActivation.getZoneId()));
         return this;
     }
 
@@ -138,10 +138,10 @@ public final class ChannelImpl implements ChannelContract {
         return result;
     }
 
-    private TimeSeries createTimeSeries() {
+    private TimeSeries createTimeSeries(ZoneId zoneId) {
         Vault vault = getVault();
         RecordSpec recordSpec = getRecordSpec();
-        TimeZone timeZone = TimeZone.getTimeZone(clock.getZone());
+        TimeZone timeZone = TimeZone.getTimeZone(zoneId);
         return isRegular() ?
                 vault.createRegularTimeSeries(recordSpec, timeZone, getIntervalLength().get(), 0) :
                 vault.createIrregularTimeSeries(recordSpec, timeZone);
