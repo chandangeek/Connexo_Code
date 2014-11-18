@@ -29,6 +29,7 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     private String readingTypeMRId;
     private RefAny readingContainer;
     private Reference<IReadingTypeDataExportTask> task = ValueReference.absent();
+    private boolean active = true;
 
     private transient DataModel dataModel;
     private transient ReadingType readingType;
@@ -89,5 +90,20 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     @Override
     public void update() {
         Save.UPDATE.save(dataModel, this);
+    }
+
+    @Override
+    public void activate() {
+        active = true;
+    }
+
+    @Override
+    public void deactivate() {
+        active = false;
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
     }
 }

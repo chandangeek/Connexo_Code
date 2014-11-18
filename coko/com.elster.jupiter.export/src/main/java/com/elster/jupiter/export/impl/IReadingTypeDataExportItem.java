@@ -13,4 +13,8 @@ public interface IReadingTypeDataExportItem extends ReadingTypeDataExportItem {
     void updateLastRunAndLastExported(Instant lastRun, Instant lastExported);
 
     void update();
+
+    void activate();
+
+    void deactivate();
 }

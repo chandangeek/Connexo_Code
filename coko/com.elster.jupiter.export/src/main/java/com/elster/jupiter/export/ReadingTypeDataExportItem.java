@@ -21,4 +21,6 @@ public interface ReadingTypeDataExportItem {
     Optional<Instant> getLastRun();
 
     Optional<Instant> getLastExportedDate();
+
+    boolean isActive();
 }

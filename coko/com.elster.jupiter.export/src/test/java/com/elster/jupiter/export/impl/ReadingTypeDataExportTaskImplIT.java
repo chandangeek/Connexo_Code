@@ -363,7 +363,7 @@ public class ReadingTypeDataExportTaskImplIT {
         ReadingTypeDataExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter.save();
-            task.addExportItem(meter, "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+            task.addExportItem(meter, readingType);
             task.save();
             context.commit();
         }
@@ -375,9 +375,30 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(exportItem.getReadingContainer()).isNotNull();
         assertThat(exportItem.getReadingContainer()).isEqualTo(meter);
         assertThat(exportItem.getTask().getId()).isEqualTo(task.getId());
-        assertThat(exportItem.getReadingType()).isEqualTo("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        assertThat(exportItem.getReadingType()).isEqualTo(readingType);
         assertThat(exportItem.getLastRun()).isAbsent();
         assertThat(exportItem.getLastExportedDate()).isAbsent();
+        assertThat(exportItem.isActive()).isTrue();
+    }
+
+    @Test
+    public void testReadingTypeDataExportItemInactivePersistence() throws Exception {
+        Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
+
+        ReadingTypeDataExportTaskImpl task = createDataExportTask();
+        try (TransactionContext context = transactionService.getContext()) {
+            meter.save();
+            IReadingTypeDataExportItem item = task.addExportItem(meter, readingType);
+            item.deactivate();
+            task.save();
+            context.commit();
+        }
+
+        ReadingTypeDataExportTask retrievedTask = dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
+        List<ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getExportItems();
+        assertThat(readingTypeDataExportItems).hasSize(1);
+        ReadingTypeDataExportItem exportItem = readingTypeDataExportItems.get(0);
+        assertThat(exportItem.isActive()).isFalse();
     }
 
     private ReadingTypeDataExportTaskImpl createDataExportTask() {

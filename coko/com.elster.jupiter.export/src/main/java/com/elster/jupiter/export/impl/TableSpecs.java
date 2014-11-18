@@ -115,6 +115,7 @@ enum TableSpecs {
             table.column("LASTRUN").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastRun").add();
             table.column("LASTEXPORTED").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastExportedDate").add();
             table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRId").add();
+            table.column("ACTIVE").bool().notNull().map("active").add();
 
             table.primaryKey("DES_PK_RTEXPITEM").on(idColumn).add();
             table.foreignKey("DES_FK_RTEXPITEM_TASK").on(task).references(DES_RTDATAEXPORTTASK.name()).onDelete(DeleteRule.CASCADE)
