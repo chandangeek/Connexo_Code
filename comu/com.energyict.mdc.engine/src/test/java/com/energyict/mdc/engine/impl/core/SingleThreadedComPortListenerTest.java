@@ -141,36 +141,6 @@ public class SingleThreadedComPortListenerTest {
     }
 
     @Test(timeout = 5000)
-    public void testSimulatedVoidComChannelWithNoHandOver() throws BusinessException, InterruptedException {
-        InboundCapableComServer comServer = mock(InboundCapableComServer.class);
-        when(comServer.getName()).thenReturn("testSimulatedVoidComChannelWithNoHandOver");
-        ThreadFactory threadFactory = new ComServerThreadFactory(comServer);
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch progressLatch = new CountDownLatch(1);
-        InboundComPort inboundComPort = this.mockComPort("simTimeout");
-        InboundComPortConnector connector = spy(new LatchDrivenTimeOutInboundComPortConnector(inboundComPort, startLatch, progressLatch));
-
-        InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
-        when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(connector);
-        SingleThreadedComPortListener singleThreadedComPortListener =
-                spy(new SingleThreadedComPortListener(
-                        inboundComPort,
-                        mock(ComServerDAO.class),
-                        threadFactory,
-                        this.deviceCommandExecutor,
-                        new InboundComPortExecutorFactoryImpl(this.serviceProvider),
-                        inboundComPortConnectorFactory
-                ));
-        // business method
-        singleThreadedComPortListener.start();
-        startLatch.await(); // wait until the accept has occurred
-
-        //Asserts
-        verify(connector, atLeast(1)).accept(); // accept should have been called twice (one time it should have returned a VoidComChannel
-        verify(singleThreadedComPortListener, never()).handleInboundDeviceProtocol(any(ComPortRelatedComChannel.class));
-    }
-
-    @Test(timeout = 5000)
     public void testAcceptedInboundCall() throws InterruptedException, BusinessException {
         InboundCapableComServer comServer = mock(InboundCapableComServer.class);
         when(comServer.getName()).thenReturn("testAcceptedInboundCall");
@@ -234,7 +204,6 @@ public class SingleThreadedComPortListenerTest {
 
         protected ComPortRelatedComChannel doAccept() {
             // Unit testing commands typically don't do anything useful
-            System.out.println(this.toString() + " is now executing, creating Mock ComChannel ...");
             return new ComPortRelatedComChannelImpl(new VoidComChannel(), this.comPort, hexService);
         }
     }
