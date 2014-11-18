@@ -126,12 +126,14 @@ public class ConnectionResource {
             }
         }
 
-        filter.connectionTypes = new HashSet<>();
         if (filterProperties.containsKey(HeatMapBreakdownOption.connectionTypes.name())) {
             List<Long> connectionTypeIds = jsonQueryFilter.getPropertyList(FilterOption.connectionTypes.name(), LONG_ADAPTER);
-            for (Long connectionTypeId : connectionTypeIds) {
-                filter.connectionTypes.add(protocolPluggableService.findConnectionTypePluggableClass(connectionTypeId));
-            }
+            filter.connectionTypes = connectionTypeIds
+                    .stream()
+                    .map(protocolPluggableService::findConnectionTypePluggableClass)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toSet());
         }
 
         filter.latestResults = new HashSet<>();

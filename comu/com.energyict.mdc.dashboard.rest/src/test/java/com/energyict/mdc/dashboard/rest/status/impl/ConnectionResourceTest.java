@@ -135,9 +135,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
     @Test
     public void testConnectionTypesAddedToFilter() throws Exception {
         ConnectionTypePluggableClass connectionType1 = mock(ConnectionTypePluggableClass.class);
-        when(protocolPluggableService.findConnectionTypePluggableClass(2001)).thenReturn(connectionType1);
+        when(protocolPluggableService.findConnectionTypePluggableClass(2001)).thenReturn(Optional.of(connectionType1));
         ConnectionTypePluggableClass connectionType2 = mock(ConnectionTypePluggableClass.class);
-        when(protocolPluggableService.findConnectionTypePluggableClass(2002)).thenReturn(connectionType2);
+        when(protocolPluggableService.findConnectionTypePluggableClass(2002)).thenReturn(Optional.of(connectionType2));
 
         Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("connectionTypes", Arrays.asList("2001", "2002"))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
