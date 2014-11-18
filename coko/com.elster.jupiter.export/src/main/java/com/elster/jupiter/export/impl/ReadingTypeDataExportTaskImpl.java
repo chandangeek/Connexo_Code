@@ -15,6 +15,9 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -302,8 +305,31 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
             Range<Instant> exportInterval = determineExportInterval(occurrence, item);
             List<? extends BaseReadingRecord> readings = item.getReadingContainer().getReadings(exportInterval, item.getReadingType());
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-            meterReading.addAllReadings(readings);
+            if (item.getReadingType().isRegular()) {
+                meterReading.addIntervalBlock(buildIntervalBlock(item, readings));
+            } else {
+                // add readings as Readings
+                readings.stream()
+                        .map(Reading.class::cast)
+                        .forEach(meterReading::addReading);
+            }
+            if (!readings.isEmpty()) {
+                dataFormatter.processData(meterReading);
+            }
+            dataFormatter.endItem(item);
         });
+
+        dataFormatter.endExport();
+    }
+
+    private IntervalBlockImpl buildIntervalBlock(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
+        return readings.stream()
+                            .map(IntervalReading.class::cast)
+                            .collect(
+                                    () -> IntervalBlockImpl.of(item.getReadingType().getMRID()),
+                                    (block, reading) -> block.addIntervalReading(reading),
+                                    (b1, b2) -> b1.addAllIntervalReadings(b2.getIntervals())
+                            );
     }
 
     private DataProcessor getDataProcessor() {
