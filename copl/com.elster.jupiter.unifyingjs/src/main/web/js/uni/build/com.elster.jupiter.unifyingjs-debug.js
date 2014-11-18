@@ -1180,9 +1180,6 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
 
         gridView.on('refresh', this.setTooltip);
         gridView.on('resize', this.setTooltip);
-        gridView.on('beforerefresh', this.destroyTooltips);
-        gridView.on('beforedestroy', this.destroyTooltips, this, {single: true});
-        grid.on('beforedestroy', this.destroyHeaderTooltips, this, {single: true});
     },
 
     /**
@@ -1193,52 +1190,25 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
         Ext.Array.each(gridPanel.columns, function (column) {
             var header = Ext.get(gridPanel.getEl().query('#' + column.id + '-titleEl')[0]);
 
-            header.tooltip && header.tooltip.destroy();
-
             if (column.text && (header.getWidth(true) < header.getTextWidth())) {
-                header.tooltip = Ext.create('Ext.tip.ToolTip', {
-                    target: header,
-                    html: column.text
-                });
+                header.set({'data-qtip': column.text});
+            } else {
+                header.set({'data-qtip': undefined});
             }
 
-            if (column.$className === 'Ext.grid.column.Column' || column.$className === 'Ext.grid.column.Date') {
-                Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + column.id), function (item) {
+            if (column.$className === 'Ext.grid.column.Column' || column.$className === 'Ext.grid.column.Date' || column.$className === 'Ext.grid.column.Template') {
+                Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + (column.itemId || column.id)), function (item) {
                     var cell = Ext.get(item),
                         inner = cell.down('.x-grid-cell-inner'),
                         text = inner ? Ext.util.Format.stripTags(inner.getHTML()) : false;
 
-                    cell.tooltip && cell.tooltip.destroy();
-
                     if (text && (cell.getWidth(true) < cell.getTextWidth())) {
-                        cell.tooltip = Ext.create('Ext.tip.ToolTip', {
-                            target: cell,
-                            html: text
-                        });
+                        cell.set({'data-qtip': text});
+                    } else {
+                        cell.set({'data-qtip': undefined});
                     }
                 });
             }
-        });
-    },
-
-    /**
-     * @private
-     */
-    destroyHeaderTooltips: function(grid) {
-        Ext.Array.each(grid.columns, function (column) {
-            var header = Ext.get(grid.getEl().query('#' + column.id + '-titleEl')[0]);
-            header.tooltip && header.tooltip.destroy();
-        });
-    },
-
-    /**
-     * @private
-     */
-    destroyTooltips: function (grid) {
-        Ext.Array.each(grid.getEl().query('.x-grid-cell'), function (item) {
-            var cell = Ext.get(item);
-
-            cell.tooltip && cell.tooltip.destroy();
         });
     }
 });
@@ -2086,6 +2056,391 @@ Ext.define('Ext.ux.window.Notification', {
 });
 
 /**
+ * @class Uni.view.container.ContentContainer
+ *
+ * Common content container that supports to set breadcrumbs, content in the center, and a
+ * component beside the content.
+ *
+ * Styling will also be applied automatically to anything that is in the component.
+ *
+ * # Example usage
+ *
+ *     @example
+ *     Ext.create('Uni.view.container.ContentContainer', {
+ *         // Other container properties.
+ *
+ *         side: [
+ *             // Placed beside the content, used as if it was a 'items' configuration.
+ *         ],
+ *
+ *         content: [
+ *             // What you would normally place in the 'items' property.
+ *         ]
+ *     }
+ *
+ * # Visual guide
+ *
+ * {@img view/container/ContentContainer.png Visual guide to the container component}
+ *
+ * # Breadcrumbs
+ *
+ * You can use the built-in breadcrumbs component by either fetching it via query selector with
+ * the id '#breadcrumbTrail' or call the method #getBreadcrumbTrail.
+ *
+ * # Changing the side or content dynamically
+ *
+ * If your screen has already been rendered and you want to change the visible side or content
+ * component you will have to refer to it as you would with any component. There are methods to request
+ * each separate wrapper:
+ *
+ *     * North container #getNorthContainer
+ *     * Center container #getCenterContainer
+ *     * West container #getWestContainer
+ *
+ * Try to get as much done before rendering in the {#side} and {#content} properties. Otherwise future changes
+ * to the content container might impact your application.
+ */
+Ext.define('Uni.view.container.ContentContainer', {
+    extend: 'Ext.container.Container',
+    alias: 'widget.contentcontainer',
+    ui: 'contentcontainer',
+    overflowY: 'auto',
+
+    requires: [
+    ],
+
+    layout: {
+        type: 'hbox'
+    },
+
+    /**
+     * @cfg {Object/Ext.Component}
+     *
+     * Configuration of the side panel. Used just as if you would use the items configuration.
+     */
+    side: null,
+
+    /**
+     * @cfg {Object/Ext.Component}
+     *
+     * Configuration of the content panel. Used just as if you would use the items configuration.
+     */
+    content: null,
+
+    items: [
+        {
+            xtype: 'container',
+            itemId: 'westContainer',
+            overflowY: 'auto',
+            cls: 'west'
+        },
+        {
+            xtype: 'container',
+            itemId: 'centerContainer',
+            overflowY: 'auto',
+            cls: 'center',
+            flex: 1,
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            items: []
+        }
+    ],
+
+    initComponent: function () {
+        var side = this.side,
+            content = this.content;
+
+        if (!(side instanceof Ext.Component)) {
+            // Never modify a passed config object, that could break the expectations of the using code.
+            side = Ext.clone(side);
+        }
+
+        this.items[0].items = side;
+
+        if (!(content instanceof Ext.Component)) {
+            // Never modify a passed config object, that could break the expectations of the using code.
+            content = Ext.clone(content);
+        }
+
+        this.items[1].items = content;
+
+        // Else use the default config already in place.
+
+        this.callParent(arguments);
+    },
+
+    /**
+     *
+     * @returns {Ext.container.Container}
+     */
+    getNorthContainer: function () {
+        return this.down('#northContainer');
+    },
+
+    /**
+     *
+     * @returns {Ext.container.Container}
+     */
+    getWestContainer: function () {
+        return this.down('#westContainer');
+    },
+
+    /**
+     *
+     * @returns {Ext.container.Container}
+     */
+    getCenterContainer: function () {
+        return this.down('#centerContainer');
+    }
+
+});
+
+/**
+ * @class Uni.view.notifications.NoItemsFoundPanel
+ *
+ * The no items found panel is primarily meant to be shown as a configuration for
+ * {@link Uni.view.container.PreviewContainer#emptyComponent empty components} in a
+ * {@link Uni.view.container.PreviewContainer}. It can also be used independently for whichever
+ * use-case needs it.
+ *
+ *     @example
+ *     xtype: 'preview-container',
+ *     grid: {
+ *         xtype: 'my-favorite-grid',
+ *     },
+ *     emptyComponent: {
+ *         xtype: 'no-items-found-panel',
+ *         title: 'No favorite items found',
+ *         reasons: [
+ *             'No favorite items have been defined yet.',
+ *             'No favorite items comply to the filter.'
+ *         ],
+ *         stepItems: [
+ *             {
+ *                 text: 'Add item',
+ *                 action: 'addItem'
+ *             }
+ *         ]
+ *     },
+ *     previewComponent: {
+ *         xtype: 'my-favorite-preview'
+ *     }
+ */
+Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
+    extend: 'Ext.container.Container',
+    xtype: 'no-items-found-panel',
+
+    /**
+     * @cfg {String}
+     *
+     * Title to be shown on the panel.
+     */
+    title: Uni.I18n.translate('notifications.NoItemsFoundPanel.title', 'UNI', 'No items found'),
+
+    /**
+     * @cfg {String}
+     *
+     * Text shown above the reasons.
+     */
+    reasonsText: Uni.I18n.translate('notifications.NoItemsFoundPanel.reasonsText', 'UNI', 'This could be because:'),
+
+    /**
+     * @cfg {String[]/String}
+     *
+     * An array of reasons formatted as string. A single string value is also
+     * supported. If no reasons are given, the reasons section of the panel is
+     * not shown to the user.
+     *
+     *     @example
+     *     reasons = [
+     *         'No items have been defined yet.',
+     *         'No items comply to the filter.'
+     *     ]
+     */
+    reasons: [],
+
+    /**
+     * @cfg {String}
+     *
+     * Text shown above the step components.
+     */
+    stepsText: Uni.I18n.translate('notifications.NoItemsFoundPanel.stepsText', 'UNI', 'Possible steps:'),
+
+    /**
+     * @cfg {Object[]/Object}
+     *
+     * Configuration objects for the items that need to be added for possible
+     * steps to take if there are no items found. By default an item configuration
+     * is assumed to be a button, but any component configuration is possible.
+     *
+     * If no steps can or should be taken, the steps section is not shown.
+     *
+     *     @example
+     *     stepItems = [
+     *         {
+     *             text: 'Add item',
+     *             action: 'addItem'
+     *         },
+     *         {
+     *             text: 'Import item',
+     *             action: 'importItem'
+     *         }
+     *     ]
+     */
+    stepItems: [],
+
+    layout: {
+        type: 'vbox'
+    },
+
+    items: [
+        {
+            xtype: 'panel',
+            itemId: 'wrapper',
+            cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
+            ui: 'medium',
+            framed: true,
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            }
+        }
+    ],
+
+    initComponent: function () {
+        var me = this;
+
+        me.callParent(arguments);
+        var wrapper = me.down('#wrapper');
+
+        wrapper.setTitle(me.title);
+
+        if (Ext.isArray(me.reasons) || Ext.isString(me.reasons)) {
+            var formattedReasons = me.formatReasons(me.reasons);
+
+            wrapper.add({
+                xtype: 'component',
+                html: formattedReasons
+            });
+        }
+
+        if (!Ext.isEmpty(me.stepItems)){
+            var stepItems = me.stepItems;
+            if(!Ext.isArray(stepItems)) {
+                stepItems = [stepItems];
+            }
+            if (typeof stepItems[0].privileges === 'undefined' || Uni.Auth.hasAnyPrivilege(stepItems[0].privileges)) {
+                wrapper.add({
+                    xtype: 'component',
+                    html: '<span class="steps-text">' + me.stepsText + '</span>'
+                });
+
+                wrapper.add(me.createSteps(me.stepItems));
+            }
+        }
+    },
+
+    formatReasons: function (reasons) {
+        var me = this,
+            result = '<span class="reasons-text">' + me.reasonsText + '</span>',
+            formattedReasons = '';
+
+        if (Ext.isArray(reasons)) {
+            Ext.Array.each(reasons, function (reason) {
+                formattedReasons += me.formatReason(reason);
+            });
+        } else if (Ext.isString(reasons)) {
+            formattedReasons += me.formatReason(reasons);
+        }
+
+        return result + '<ul>' + formattedReasons + '</ul>';
+    },
+
+    formatReason: function (reason) {
+        return '<li>' + reason + '</li>';
+    },
+
+    createSteps: function (stepItems) {
+        var container = Ext.create('Ext.container.Container', {
+            cls: 'steps',
+            layout: {
+                type: 'hbox'
+            },
+            defaults: {
+                xtype: 'button',
+                hrefTarget: '_self',
+                margin: '0 8px 0 0'
+            }
+        });
+
+        if (Ext.isArray(stepItems)) {
+            Ext.Array.each(stepItems, function (stepItem) {
+                container.add(Ext.clone(stepItem));
+            });
+        } else if (Ext.isString(stepItems)) {
+            container.add(Ext.clone(stepItems));
+        }
+
+        return container;
+    }
+});
+
+Ext.define('Uni.view.error.NotFound', {
+    extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.errorNotFound',
+    itemId: 'errorNotFound',
+    overflowY: 'auto',
+    requires: [
+        'Ext.panel.Panel'
+    ],
+
+    content: [
+        {
+            xtype: 'panel',
+            ui: 'large',
+            title: Uni.I18n.translate(
+                'error.pageNotFoundTitle',
+                'UNI',
+                "Sorry! We couldn't find it."
+            ),
+            layout: {
+                type: 'fit',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    xtype: 'no-items-found-panel',
+                    title: Uni.I18n.translate(
+                        'error.pageNotFound',
+                        'UNI',
+                        'Page not found'
+                    ),
+                    reasons: [
+                        Uni.I18n.translate(
+                            'error.pageNotFoundPageMisspelled',
+                            'UNI',
+                            "The URL is misspelled."
+                        ),
+                        Uni.I18n.translate(
+                            'error.pageNotFoundPageNotAvailable',
+                            'UNI',"The page you are looking for is not available."
+                        ),
+                        Uni.I18n.translate(
+                            'error.pageNotFoundNotAuthorized',
+                            'UNI',
+                            "You are not authorized to access this page."
+                        )
+                    ],
+                    stepItems: []
+                }
+            ]
+        }
+    ]
+});
+
+/**
  * @class Uni.controller.Error
  *
  * General error controller that is responsible to log and show uncaught errors
@@ -2096,11 +2451,21 @@ Ext.define('Uni.controller.Error', {
 
     requires: [
         'Uni.view.error.Window',
-        'Ext.ux.window.Notification'
+        'Ext.ux.window.Notification',
+        'Uni.view.error.NotFound'
     ],
 
     config: {
         window: null
+    },
+
+    routeConfig:{
+        notfound: {
+            title: Uni.I18n.translate('error.pageNotFound', 'UNI', 'Page not found'),
+            route: 'error/notfound',
+            controller: 'Uni.controller.Error',
+            action:'showPageNotFound'
+        }
     },
 
     refs: [
@@ -2115,6 +2480,9 @@ Ext.define('Uni.controller.Error', {
 
         Ext.Error.handle = me.handleGenericError;
         Ext.Ajax.on('requestexception', me.handleRequestError, me);
+
+        var router = this.getController('Uni.controller.history.Router');
+        router.addConfig(this.routeConfig);
     },
 
     handleGenericError: function (error) {
@@ -2252,6 +2620,10 @@ Ext.define('Uni.controller.Error', {
         });
 
         box.show(config);
+    },
+    showPageNotFound: function () {
+        var widget = Ext.widget('errorNotFound');
+        this.getApplication().fireEvent('changecontentevent', widget);
     }
 });
 
@@ -2277,6 +2649,10 @@ Ext.define('Uni.controller.history.EventBus', {
 
     initHistory: function () {
         var me = this;
+
+        crossroads.bypassed.add(function(request){
+            crossroads.parse("/error/notfound");
+        });
 
         Ext.util.History.init(function () {
             Ext.util.History.addListener('change', function (token) {
@@ -2456,148 +2832,6 @@ Ext.define('Uni.store.Apps', {
             root: ''
         }
     }
-});
-
-/**
- * @class Uni.view.container.ContentContainer
- *
- * Common content container that supports to set breadcrumbs, content in the center, and a
- * component beside the content.
- *
- * Styling will also be applied automatically to anything that is in the component.
- *
- * # Example usage
- *
- *     @example
- *     Ext.create('Uni.view.container.ContentContainer', {
- *         // Other container properties.
- *
- *         side: [
- *             // Placed beside the content, used as if it was a 'items' configuration.
- *         ],
- *
- *         content: [
- *             // What you would normally place in the 'items' property.
- *         ]
- *     }
- *
- * # Visual guide
- *
- * {@img view/container/ContentContainer.png Visual guide to the container component}
- *
- * # Breadcrumbs
- *
- * You can use the built-in breadcrumbs component by either fetching it via query selector with
- * the id '#breadcrumbTrail' or call the method #getBreadcrumbTrail.
- *
- * # Changing the side or content dynamically
- *
- * If your screen has already been rendered and you want to change the visible side or content
- * component you will have to refer to it as you would with any component. There are methods to request
- * each separate wrapper:
- *
- *     * North container #getNorthContainer
- *     * Center container #getCenterContainer
- *     * West container #getWestContainer
- *
- * Try to get as much done before rendering in the {#side} and {#content} properties. Otherwise future changes
- * to the content container might impact your application.
- */
-Ext.define('Uni.view.container.ContentContainer', {
-    extend: 'Ext.container.Container',
-    alias: 'widget.contentcontainer',
-    ui: 'contentcontainer',
-    overflowY: 'auto',
-
-    requires: [
-    ],
-
-    layout: {
-        type: 'hbox'
-    },
-
-    /**
-     * @cfg {Object/Ext.Component}
-     *
-     * Configuration of the side panel. Used just as if you would use the items configuration.
-     */
-    side: null,
-
-    /**
-     * @cfg {Object/Ext.Component}
-     *
-     * Configuration of the content panel. Used just as if you would use the items configuration.
-     */
-    content: null,
-
-    items: [
-        {
-            xtype: 'container',
-            itemId: 'westContainer',
-            overflowY: 'auto',
-            cls: 'west'
-        },
-        {
-            xtype: 'container',
-            itemId: 'centerContainer',
-            overflowY: 'auto',
-            cls: 'center',
-            flex: 1,
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            items: []
-        }
-    ],
-
-    initComponent: function () {
-        var side = this.side,
-            content = this.content;
-
-        if (!(side instanceof Ext.Component)) {
-            // Never modify a passed config object, that could break the expectations of the using code.
-            side = Ext.clone(side);
-        }
-
-        this.items[0].items = side;
-
-        if (!(content instanceof Ext.Component)) {
-            // Never modify a passed config object, that could break the expectations of the using code.
-            content = Ext.clone(content);
-        }
-
-        this.items[1].items = content;
-
-        // Else use the default config already in place.
-
-        this.callParent(arguments);
-    },
-
-    /**
-     *
-     * @returns {Ext.container.Container}
-     */
-    getNorthContainer: function () {
-        return this.down('#northContainer');
-    },
-
-    /**
-     *
-     * @returns {Ext.container.Container}
-     */
-    getWestContainer: function () {
-        return this.down('#westContainer');
-    },
-
-    /**
-     *
-     * @returns {Ext.container.Container}
-     */
-    getCenterContainer: function () {
-        return this.down('#centerContainer');
-    }
-
 });
 
 /**
@@ -4055,6 +4289,220 @@ Ext.define('Uni.override.ux.window.Notification', {
 });
 
 /**
+ * @class Uni.form.field.ReadingTypeCombo
+ */
+Ext.define('Uni.form.field.ReadingTypeCombo', {
+    extend: 'Ext.form.field.ComboBox',
+    alias: 'widget.reading-type-combo',
+    requires: ['Ext.button.Button'],
+    fieldLabel: Uni.I18n.translate('readingType.label', 'UNI', 'Reading type'),
+    emptyText: Uni.I18n.translate('readingType.emptyText', 'UNI', 'Select reading type'),
+    displayField: 'aliasName',
+    valueField: 'mRID',
+    triggerAction: 'all',
+    queryMode: 'local',
+    editable: false,
+    showTimeAttribute: true,
+    tpl: Ext.create('Ext.XTemplate',
+        '<tpl for=".">',
+            '<div class="x-boundlist-item">',
+                '<tpl if="aliasName.length &gt; 0">',
+                    '{aliasName}',
+                    '<tpl if="names">',
+                        '<tpl if="names.timeOfUse.length &gt; 0">',
+                            ' {names.timeOfUse}',
+                        '</tpl>',
+                        '<tpl if="names.unitOfMeasure.length &gt; 0">',
+                            ' ({names.unitOfMeasure})',
+                        '</tpl>',
+                        '<tpl if="names.timeAttribute.length &gt; 0">',
+                            ' [{names.timeAttribute}]',
+                        '</tpl>',
+                    '</tpl>',
+                '<tpl else>',
+                    '{mRID}',
+                '</tpl>',
+            '</div>',
+        '</tpl>'
+    ),
+    displayTpl: Ext.create('Ext.XTemplate',
+        '<tpl for=".">',
+            '<tpl if="aliasName.length &gt; 0">',
+                '{aliasName}',
+                '<tpl if="names">',
+                    '<tpl if="names.timeOfUse.length &gt; 0">',
+                        ' {names.timeOfUse}',
+                    '</tpl>',
+                    '<tpl if="names.unitOfMeasure.length &gt; 0">',
+                        ' ({names.unitOfMeasure})',
+                    '</tpl>',
+                    '<tpl if="names.timeAttribute.length &gt; 0">',
+                        ' [{names.timeAttribute}]',
+                    '</tpl>',
+                '</tpl>',
+            '<tpl else>',
+                '{mRID}',
+            '</tpl>',
+        '</tpl>'
+    ),
+    listeners: {
+        change: function (field, newValue) {
+            field.el.down('a').setVisible(newValue && newValue.length > 0);
+        }
+    },
+    initComponent: function () {
+        this.callParent();
+        var me = this;
+        Ext.defer(function () {
+            new Ext.button.Button({
+                renderTo: me.el.down('.x-form-item-body'),
+                tooltip: Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info'),
+                hidden: true,
+                iconCls: 'icon-info-small',
+                cls: 'uni-btn-transparent',
+                style: {
+                    display: 'inline-block',
+                    textDecoration: 'none !important',
+                    position: 'absolute',
+                    top: '5px',
+                    right: '-65px'
+                },
+                handler: function () {
+                    me.handler();
+                }
+            });
+            me.updateLayout();
+        }, 10);
+    },
+    getReadingTypeName: function (readingType) {
+        if (!readingType) return this.emptyText;
+        var assembledName = readingType.aliasName ? (' ' + readingType.aliasName) : '';
+        if (readingType.names && Ext.isObject(readingType.names)) {
+            assembledName += (readingType.names.timeOfUse ? (' ' + readingType.names.timeOfUse) : '')
+                + (readingType.names.unitOfMeasure ? (' (' + readingType.names.unitOfMeasure + ')') : '')
+                + ((readingType.names.timeAttribute && this.showTimeAttribute) ? (' [' + readingType.names.timeAttribute + ']') : '');
+        }
+        return assembledName || readingType.mRID;
+    },
+    handler: function () {
+        if (this.valueModels[0]) {
+            var selectedReadingType = this.valueModels[0].getData(),
+                widget = Ext.widget('readingTypeDetails');
+            widget.setTitle('<span style="margin: 10px 0 0 10px">' + this.getReadingTypeName(selectedReadingType) + '</span>');
+            var tpl = new Ext.XTemplate(
+                '<table style="width: 100%; margin: 30px 10px">',
+                    '<tr>',
+                        '<td colspan="2">',
+                            '<table style="width: 100%; margin-bottom: 30px">',
+                                '<tr>',
+                                    '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.name', 'UNI', 'Reading type name') + '</td>',
+                                    '<td style="width: 70%; text-align: left; padding-bottom: 10px">' + this.getReadingTypeName(selectedReadingType) + '</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.cimCode', 'UNI', 'CIM code') + '</td>',
+                                    '<td style="width: 70%; text-align: left; padding-bottom: 10px">{mRID}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 30%; text-align: right; font-weight: bold; padding-right: 20px">' + Uni.I18n.translate('readingType.description', 'UNI', 'Description') + '</td>',
+                                    '<td style="width: 70%; text-align: left">{name}</td>',
+                                '</tr>',
+                            '</table>',
+                        '</td>',
+                    '</tr>',
+                    '<tr>',
+                        '<td colspan="2" style="padding-bottom: 20px; font-weight: bold; font-size: 1.5em; color: grey">' + Uni.I18n.translate('readingType.cimCodeDetails', 'UNI', 'CIM code details') + '</td>',
+                    '</tr>',
+                    '<tr>',
+                        '<td style="width: 50%; vertical-align: top">',
+                            '<table style="width: 100%">',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timePeriodOfInterest', 'UNI', 'Time-period of interest') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{macroPeriod}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.dataQualifier', 'UNI', 'Data qualifier') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{aggregate}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.time', 'UNI', 'Time') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{measuringPeriod}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.accumulation', 'UNI', 'Accumulation') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{accumulation}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.directionOfFlow', 'UNI', 'Direction of flow') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{flowDirection}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.commodity', 'UNI', 'Commodity') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{commodity}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.measurementKind', 'UNI', 'Kind') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{measurementKind}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.interharmonicNumerator', 'UNI', 'Interharmonic numerator') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{interHarmonicNumerator}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.interharmonicDenominator', 'UNI', 'Interharmonic denominator') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{interHarmonicDenominator}</td>',
+                                '</tr>',
+                            '</table>',
+                        '</td>',
+                        '<td style="width: 50%; vertical-align: top">',
+                            '<table style="width: 100%">',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.argumentNumerator', 'UNI', 'Argument numerator') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{argumentNumerator}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.argumentDenominator', 'UNI', 'Argument denominator') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{argumentDenominator}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timeOfUse', 'UNI', 'Time of use') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{tou}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.criticalPeakPeriod', 'UNI', 'Critical peak period') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{cpp}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.comsumptionTier', 'UNI', 'Consumption tier') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{consumptionTier}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.phase', 'UNI', 'Phase') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{phases}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.multiplier', 'UNI', 'Multiplier') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{metricMultiplier}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.unitOfMeasure', 'UNI', 'Unit of measure') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{unit}</td>',
+                                '</tr>',
+                                '<tr>',
+                                    '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.currency', 'UNI', 'Currency') + '</td>',
+                                    '<td style="width: 50%; text-align: left; padding-bottom: 10px">{currency}</td>',
+                                '</tr>',
+                            '</table>',
+                        '</td>',
+                    '</tr>',
+                '</table>'
+            );
+            tpl.overwrite(widget.down('panel').body, selectedReadingType);
+            widget.show();
+        }
+    }
+});
+
+/**
  * @class Uni.Loader
  *
  * Loader class for the Unifying JS project, it makes sure every dependency is
@@ -4114,7 +4562,8 @@ Ext.define('Uni.Loader', {
         'Uni.override.panel.Panel',
         'Uni.override.ux.window.Notification',
         'Uni.override.view.Table',
-        'Uni.override.window.MessageBox'
+        'Uni.override.window.MessageBox',
+        'Uni.form.field.ReadingTypeCombo'
     ],
 
     /**
@@ -5301,18 +5750,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                     value: 'months',
                     width: 200,
                     margin: '0 6 0 0',
-                    store: new Ext.data.Store({
-                        fields: ['name', 'value'],
-                        data: (function () {
-                            return [
-                                {name: Uni.I18n.translate('period.months', 'UNI', 'Month(s)'), value: 'months'},
-                                {name: Uni.I18n.translate('period.weeks', 'UNI', 'Week(s)'), value: 'weeks'},
-                                {name: Uni.I18n.translate('period.days', 'UNI', 'Day(s)'), value: 'days'},
-                                {name: Uni.I18n.translate('period.hours', 'UNI', 'Hour(s)'), value: 'hours'},
-                                {name: Uni.I18n.translate('period.minutes', 'UNI', 'Minute(s)'), value: 'minutes'}
-                            ];
-                        })()
-                    }),
+                    store: Ext.create('Uni.store.Periods'),
                     allowBlank: false,
                     forceSelection: true
                 },
@@ -6435,6 +6873,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                     {
                         xtype: 'datefield',
                         allowBlank: false,
+                        editable: false,
                         value: new Date(),
                         width: 128,
                         margin: '0 6 0 6'
@@ -6717,41 +7156,36 @@ Ext.define('Uni.form.field.EditedDisplay', {
     extend: 'Ext.form.field.Display',
     xtype: 'edited-displayfield',
     name: 'editedDate',
+    emptyText: '',
 
-    deferredRenderer: function (field, icon) {
-        field.getEl().down('.x-form-display-field').appendChild(icon);
-        field.updateLayout();
-    },
-
-    renderer: function (value, field) {
-        var icon,
+    renderer: function (value) {
+        var result,
             date,
+            iconClass,
             tooltipText;
 
         if (value) {
             date = Ext.isDate(value.date) ? value.date : new Date(value.date);
-            icon = document.createElement('span');
             switch (value.flag) {
                 case 'ADDED':
-                    icon.className = 'icon-edit';
-                    tooltipText = Uni.I18n.formatDate('editedDate.format', value, 'MDC', '\\A\\d\\d\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    iconClass = 'icon-edit';
+                    tooltipText = Uni.I18n.formatDate('addedDate.format', date, 'MDC', '\\A\\d\\d\\e\\d \\o\\n F d, Y \\a\\t H:i');
                     break;
                 case 'EDITED':
-                    icon.className = 'icon-edit';
-                    tooltipText = Uni.I18n.formatDate('addedDate.format', value, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    iconClass = 'icon-edit';
+                    tooltipText = Uni.I18n.formatDate('editedDate.format', date, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i');
                     break;
                 case 'REMOVED':
-                    icon.className = 'icon-remove';
-                    tooltipText = Uni.I18n.formatDate('removedDate.format', value, 'MDC', '\\R\\e\\m\\o\\v\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    iconClass = 'icon-remove';
+                    tooltipText = Uni.I18n.formatDate('removedDate.format', date, 'MDC', '\\R\\e\\m\\o\\v\\e\\d \\o\\n F d, Y \\a\\t H:i');
                     break;
             }
-            Ext.create('Ext.tip.ToolTip', {
-                target: icon,
-                html: tooltipText
-            });
-            Ext.defer(this.deferredRenderer, 1, this, [field, icon]);
+            if (iconClass && tooltipText) {
+                result = '<span class="' + iconClass + '" data-qtip="' + tooltipText + '"></span>';
+            }
         }
-        return '';
+
+        return result || this.emptyText;
     }
 });
 
@@ -6818,33 +7252,20 @@ Ext.define('Uni.form.field.IntervalFlagsDisplay', {
     fieldLabel: Uni.I18n.translate('intervalFlags.label', 'UNI', 'Interval flags'),
     emptyText: '',
 
-    deferredRenderer: function (field, icon) {
-        field.getEl().down('.x-form-display-field').appendChild(icon);
-        field.updateLayout();
-    },
-
-    renderer: function (value, field) {
-        var icon,
+    renderer: function (value) {
+        var result,
             tooltip = '';
-        if (!Ext.isArray(value) || !value.length) {
-            return this.emptyText;
+
+        if (Ext.isArray(value) && value.length) {
+            result = '<span style="display: inline-block; width: 25px; float: left;">' + value.length + '</span>';
+            Ext.Array.each(value, function (value, index) {
+                index++;
+                tooltip += Uni.I18n.translate('intervalFlags.Flag', 'UNI', 'Flag') + ' ' + index + ': ' + value + '<br>';
+            });
+            result += '<span class="icon-info-small" style="display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
         }
 
-
-        icon = document.createElement('span');
-        icon.className = 'icon-info-small';
-        icon.setAttribute('style', 'width: 16px; height: 16px');
-        Ext.Array.each(value, function (value, index) {
-            index++;
-            tooltip += Uni.I18n.translate('intervalFlags.Flag', 'UNI', 'Flag') + ' ' + index + ': ' + value + '<br>';
-        });
-        Ext.create('Ext.tip.ToolTip', {
-            target: icon,
-            html: tooltip
-        });
-        Ext.defer(this.deferredRenderer, 1, this, [field, icon]);
-
-        return '<span style="display: inline-block; width: 20px; float: left;">' + value.length + '</span>';
+        return result || this.emptyText;
     }
 });
 
@@ -7094,157 +7515,160 @@ Ext.define('Uni.form.field.Password', {
 });
 
 /**
- * @class Uni.form.field.ObisDisplay
+ * @class Uni.form.field.ReadingTypeDisplay
  */
 Ext.define('Uni.form.field.ReadingTypeDisplay', {
     extend: 'Ext.form.field.Display',
-    xtype: 'reading-type-displayfield',
+    alias: 'widget.reading-type-displayfield',
     name: 'readingType',
     fieldLabel: Uni.I18n.translate('readingType.label', 'UNI', 'Reading type'),
     emptyText: '',
+    showTimeAttribute: true,
+    link: null,
 
     requires: [
         'Ext.button.Button'
     ],
-
-    deferredRenderer: function (value, field, name) {
-        var me = this;
-
-        new Ext.button.Button({
-            renderTo: field.getEl().down('.x-form-display-field'),
-            tooltip: Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info'),
-            iconCls: 'icon-info-small',
-            cls: 'uni-btn-transparent',
-            style: {
-                display: 'inline-block',
-                "text-decoration": 'none !important'
-            },
-            handler: function () {
-                me.handler(value, name);
-            }
-        });
-
-        field.updateLayout();
-    },
 
     handler: function (value, name) {
         var widget = Ext.widget('readingTypeDetails');
         widget.setTitle('<span style="margin: 10px 0 0 10px">' + name + '</span>');
         var tpl = new Ext.XTemplate(
             '<table style="width: 100%; margin: 30px 10px">',
-            '<tr>',
-            '<td colspan="2">',
-            '<table style="width: 100%; margin-bottom: 30px">',
-            '<tr>',
-            '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.name', 'UNI', 'Reading type name') + '</td>',
-            '<td style="width: 70%; text-align: left; padding-bottom: 10px">' + name + '</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.cimCode', 'UNI', 'CIM code') + '</td>',
-            '<td style="width: 70%; text-align: left; padding-bottom: 10px">{mrid}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 30%; text-align: right; font-weight: bold; padding-right: 20px">' + Uni.I18n.translate('readingType.description', 'UNI', 'Description') + '</td>',
-            '<td style="width: 70%; text-align: left">{description}</td>',
-            '</tr>',
-            '</table>',
-            '</td>',
-            '</tr>',
-            '<tr>',
-            '<td colspan="2" style="padding-bottom: 20px; font-weight: bold; font-size: 1.5em; color: grey">' + Uni.I18n.translate('readingType.cimCodeDetails', 'UNI', 'CIM code details') + '</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; vertical-align: top">',
-            '<table style="width: 100%">',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timePeriodOfInterest', 'UNI', 'Time-period of interest') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{timePeriodOfInterest}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.dataQualifier', 'UNI', 'Data qualifier') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{dataQualifier}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timeAttributeEnumerations', 'UNI', 'Time attribute enumerations') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{timeAttributeEnumerations}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.accumulationBehaviour', 'UNI', 'Accumulation behavior') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{accumulationBehaviour}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.directionOfFlow', 'UNI', 'Direction of flow') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{directionOfFlow}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.commodity', 'UNI', 'Commodity') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{commodity}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.measurementKind', 'UNI', 'Kind') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{measurementKind}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.interharmonics', 'UNI', '(Compound) Interharmonics') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{interharmonics}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.argumentReference', 'UNI', '(Compound) Numerator and Denominator Argument Reference') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{argumentReference}</td>',
-            '</tr>',
-            '</table>',
-            '</td>',
-            '<td style="width: 50%; vertical-align: top">',
-            '<table style="width: 100%">',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timeOfUse', 'UNI', 'Time of use') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{timeOfUse}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.criticalPeakPeriod', 'UNI', 'Critical peak period') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{criticalPeakPeriod}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.comsumptionTier', 'UNI', 'Consumption tier') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{consumptionTier}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.phase', 'UNI', 'Phase') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{phase}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.powerOfTenMultiplier', 'UNI', 'Power of ten multiplier') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{powerOfTenMultiplier}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.unitOfMeasure', 'UNI', 'Unit of measure') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{unitOfMeasure}</td>',
-            '</tr>',
-            '<tr>',
-            '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.currency', 'UNI', 'Currency') + '</td>',
-            '<td style="width: 50%; text-align: left; padding-bottom: 10px">{currency}</td>',
-            '</tr>',
-            '</table>',
-            '</td>',
-            '</tr>',
+                '<tr>',
+                    '<td colspan="2">',
+                        '<table style="width: 100%; margin-bottom: 30px">',
+                            '<tr>',
+                                '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.name', 'UNI', 'Reading type name') + '</td>',
+                                '<td style="width: 70%; text-align: left; padding-bottom: 10px">' + name + '</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 30%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.cimCode', 'UNI', 'CIM code') + '</td>',
+                                '<td style="width: 70%; text-align: left; padding-bottom: 10px">{mRID}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 30%; text-align: right; font-weight: bold; padding-right: 20px">' + Uni.I18n.translate('readingType.description', 'UNI', 'Description') + '</td>',
+                                '<td style="width: 70%; text-align: left">{name}</td>',
+                            '</tr>',
+                        '</table>',
+                    '</td>',
+                '</tr>',
+                '<tr>',
+                    '<td colspan="2" style="padding-bottom: 20px; font-weight: bold; font-size: 1.5em; color: grey">' + Uni.I18n.translate('readingType.cimCodeDetails', 'UNI', 'CIM code details') + '</td>',
+                '</tr>',
+                '<tr>',
+                    '<td style="width: 50%; vertical-align: top">',
+                        '<table style="width: 100%">',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timePeriodOfInterest', 'UNI', 'Time-period of interest') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{macroPeriod}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.dataQualifier', 'UNI', 'Data qualifier') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{aggregate}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.time', 'UNI', 'Time') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{measuringPeriod}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.accumulation', 'UNI', 'Accumulation') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{accumulation}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.directionOfFlow', 'UNI', 'Direction of flow') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{flowDirection}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.commodity', 'UNI', 'Commodity') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{commodity}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.measurementKind', 'UNI', 'Kind') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{measurementKind}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.interharmonicNumerator', 'UNI', 'Interharmonic numerator') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{interHarmonicNumerator}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.interharmonicDenominator', 'UNI', 'Interharmonic denominator') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{interHarmonicDenominator}</td>',
+                            '</tr>',
+                        '</table>',
+                    '</td>',
+                    '<td style="width: 50%; vertical-align: top">',
+                        '<table style="width: 100%">',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.argumentNumerator', 'UNI', 'Argument numerator') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{argumentNumerator}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.argumentDenominator', 'UNI', 'Argument denominator') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{argumentDenominator}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.timeOfUse', 'UNI', 'Time of use') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{tou}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.criticalPeakPeriod', 'UNI', 'Critical peak period') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{cpp}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.comsumptionTier', 'UNI', 'Consumption tier') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{consumptionTier}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.phase', 'UNI', 'Phase') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{phases}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.multiplier', 'UNI', 'Multiplier') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{metricMultiplier}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.unitOfMeasure', 'UNI', 'Unit of measure') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{unit}</td>',
+                            '</tr>',
+                            '<tr>',
+                                '<td style="width: 50%; text-align: right; font-weight: bold; padding: 0 20px 10px 0">' + Uni.I18n.translate('readingType.currency', 'UNI', 'Currency') + '</td>',
+                                '<td style="width: 50%; text-align: left; padding-bottom: 10px">{currency}</td>',
+                            '</tr>',
+                        '</table>',
+                    '</td>',
+                '</tr>',
             '</table>'
         );
         tpl.overwrite(widget.down('panel').body, value);
         widget.show();
     },
 
-    renderer: function (value, field) {
-        if (!value) {
-            return this.emptyText;
+    renderer: function (value, field, view, record) {
+        if (!value) return this.emptyText;
+
+        var me = this,
+            assembledName = value.aliasName ? (' ' + value.aliasName) : '',
+            icon = '<span class="icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>';
+
+        if (value.names && Ext.isObject(value.names)) {
+            assembledName += (value.names.timeOfUse ? (' ' + value.names.timeOfUse) : '')
+                + (value.names.unitOfMeasure ? (' (' + value.names.unitOfMeasure + ')') : '')
+                + ((value.names.timeAttribute && me.showTimeAttribute) ? (' [' + value.names.timeAttribute + ']') : '');
         }
 
-        var assembledName = '';
-        if (value.name && Ext.isObject(value.name)) {
-            assembledName = value.name.alias + ' ' + value.name.timeOfUse + '(' + value.name.unitOfMeasure + ') [' + value.name.timeAttribute + ']';
-        }
+        setTimeout(function () {
+            var icon = (view && record) ? view.getCell(record, me).down('.icon-info-small') : field.getEl().down('.icon-info-small');
 
-        Ext.defer(this.deferredRenderer, 1, this, [value, field, (assembledName || value.mrid)]);
-        return '<span style="display: inline-block; width: 230px; float: left;">' + (assembledName || value.mrid) + '</span>';
+            icon.clearListeners();
+            icon.on('click', function () {
+                field.handler(value, assembledName || value.mRID);
+            });
+        }, 1);
+
+        return '<span style="display: inline-block; float: left; width: 400px">' +
+            (me.link ? ('<a href="' + me.link + '">' + (assembledName || value.mRID) + '</a>') :
+                (assembledName || value.mRID)) + '</span>' + icon;
     }
 });
 
@@ -7395,32 +7819,20 @@ Ext.define('Uni.grid.column.Default', {
 Ext.define('Uni.grid.column.Edited', {
     extend: 'Ext.grid.column.Column',
     xtype: 'edited-column',
-    header: Uni.I18n.translate('editedDate.header', 'UNI', 'Edited'),
-    minWidth: 100,
+    header: '',
+    width: 30,
     align: 'left',
-
+    emptyText: '',
     requires: [
         'Uni.form.field.EditedDisplay'
     ],
 
-    deferredRenderer: function (value, record, view) {
-        try {
-            var me = this,
-                cmp = view.getCell(record, me).down('.x-grid-cell-inner'),
-                field = new Uni.form.field.EditedDisplay({
-                    fieldLabel: false
-                });
-            cmp.setHTML('');
-            field.setValue(value);
-            field.render(cmp);
-        } catch (e) {
-        }
-    },
+    renderer: function (value, metaData, record, rowIndex, colIndex) {
+        var me = Ext.Array.findBy(this.columns, function (item) {
+            return item.$className === 'Uni.grid.column.Edited';
+        });
 
-    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
-        var me = metaData.column;
-
-        Ext.defer(me.deferredRenderer, 1, me, [value, record, view]);
+        return new Uni.form.field.EditedDisplay().renderer.apply(me, arguments);
     }
 });
 
@@ -7431,35 +7843,19 @@ Ext.define('Uni.grid.column.IntervalFlags', {
     extend: 'Ext.grid.column.Column',
     xtype: 'interval-flags-column',
     header: Uni.I18n.translate('intervalFlags.label', 'UNI', 'Interval flags'),
-    minWidth: 60,
+    dataIndex: 'intervalFlags',
     align: 'left',
-
+    emptyText: '',
     requires: [
         'Uni.form.field.IntervalFlagsDisplay'
     ],
 
-    deferredRenderer: function (value, record, view) {
-        var me = this,
-            cell;
-
-        try {
-            cell = view.getCell(record, me);
-        } catch (err) {
-            return false;
-        }
-
-        var cmp = cell.down('.x-grid-cell-inner');
-        var field = new Uni.form.field.IntervalFlagsDisplay({
-            fieldLabel: false
+    renderer: function (value, metaData, record, rowIndex, colIndex) {
+        var me = Ext.Array.findBy(this.columns, function (item) {
+            return item.$className === 'Uni.grid.column.IntervalFlags';
         });
-        cmp.setHTML('');
-        field.setValue(value);
-        field.render(cmp);
-    },
 
-    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
-        var me = metaData.column;
-        Ext.defer(me.deferredRenderer, 1, me, [value, record, view]);
+        return new Uni.form.field.IntervalFlagsDisplay().renderer.apply(me, arguments);
     }
 });
 
@@ -7528,6 +7924,7 @@ Ext.define('Uni.grid.column.ReadingType', {
     header: Uni.I18n.translate('readingType.label', 'UNI', 'Reading type'),
     minWidth: 280,
     align: 'left',
+    showTimeAttribute: true,
 
     requires: [
         'Ext.panel.Tool',
@@ -7536,22 +7933,19 @@ Ext.define('Uni.grid.column.ReadingType', {
         'Uni.form.field.ReadingTypeDisplay'
     ],
 
-    deferredRenderer: function (value, record, view) {
-        var me = this;
-        var cmp = view.getCell(record, me).down('.x-grid-cell-inner');
-        var field = new Uni.form.field.ReadingTypeDisplay({
-            fieldLabel: false
-        });
-        cmp.setHTML('');
-        field.setValue(value);
-        field.render(cmp);
+    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
+        var me = Ext.Array.findBy(this.columns, function (item) {
+                return item.$className === 'Uni.grid.column.ReadingType';
+            }),
+            field = new Uni.form.field.ReadingTypeDisplay();
 
-        Ext.defer(view.updateLayout, 10, view);
+        return field.renderer.apply(me, [value, field, view, record]);
     },
 
-    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
-        var me = metaData.column;
-        Ext.defer(me.deferredRenderer, 1, me, [value, record, view]);
+    // If need to make a link from reading type display field override this method and provide url inside
+    // See example in Mdc.view.setup.deviceloadprofilechannels.Grid 26:17
+    makeLink: function (record) {
+        return null; // Link url
     }
 });
 
@@ -9785,6 +10179,23 @@ Ext.define('Uni.property.model.Property', {
 });
 
 /**
+ * @class Uni.store.Periods
+ */
+Ext.define('Uni.store.Periods', {
+    extend: 'Ext.data.ArrayStore',
+
+    data: [
+        [Uni.I18n.translate('period.months', 'UNI', 'month(s)'), 'months'],
+        [Uni.I18n.translate('period.weeks', 'UNI', 'week(s)'), 'weeks'],
+        [Uni.I18n.translate('period.days', 'UNI', 'day(s)'), 'days'],
+        [Uni.I18n.translate('period.hours', 'UNI', 'hour(s)'), 'hours'],
+        [Uni.I18n.translate('period.minutes', 'UNI', 'minute(s)'), 'minutes']
+    ],
+
+    fields: ['name', 'value']
+});
+
+/**
  * @class Uni.util.Common
  *
  * This class contains the commonly used functions.
@@ -10026,7 +10437,7 @@ Ext.define('Uni.util.Hydrator', {
                 this.callbacks.splice(i, 1);
 
                 if (!this.callbacks.length) {
-                    this.callback.call();
+                    this.callback && this.callback.call();
                 }
                 return this;
             }
@@ -10096,17 +10507,22 @@ Ext.define('Uni.util.Hydrator', {
         var callbacks = [];
 
         _.map(data, function (id) {
-            var callback = function(record) {
-                if (record) {
-                    store.add(record);
-                }
-                promise.resolve(callback);
-            };
+            if(id instanceof Ext.data.Model){
+                store.add(id);
+            }
+            else {
+                var callback = function (record) {
+                    if (record) {
+                        store.add(record);
+                    }
+                    promise.resolve(callback);
+                };
 
-            callbacks.push(callback);
-            store.model.load(id, {
-                callback: callback
-            });
+                callbacks.push(callback);
+                store.model.load(id, {
+                    callback: callback
+                });
+            }
         });
 
         // promise replace here
@@ -11251,6 +11667,14 @@ Ext.define('Uni.view.form.CheckboxGroup', {
      */
     valueField: 'id',
 
+    /**
+     * This field will define how the values will be returned by getModelData
+     * if true the getModelData will return a list of ids that will be used by hydrator to fill the store by loading records.
+     * otherwise the hydrator will fill the store using provided records.
+     * Default is 'true' for backward compatibility.
+     */
+    hydratable: true,
+
     initComponent: function () {
         var me = this;
         me.bindStore(me.store || 'ext-empty-store', true);
@@ -11286,7 +11710,12 @@ Ext.define('Uni.view.form.CheckboxGroup', {
             if (checkbox.getValue()) {
                 me.store.each(function (group) {
                     if (group.get(me.valueField) === checkbox.inputValue) {
-                        groups.push(group.getId());
+                        if(me.hydratable){
+                            groups.push(group.getId());
+                        }
+                        else{
+                            groups.push(group);
+                        }
                     }
                 });
             }
@@ -12286,190 +12715,6 @@ Ext.define('Uni.view.navigation.SubMenu', {
                 me.toggleMenuItem(index);
             }
         });
-    }
-});
-
-/**
- * @class Uni.view.notifications.NoItemsFoundPanel
- *
- * The no items found panel is primarily meant to be shown as a configuration for
- * {@link Uni.view.container.PreviewContainer#emptyComponent empty components} in a
- * {@link Uni.view.container.PreviewContainer}. It can also be used independently for whichever
- * use-case needs it.
- *
- *     @example
- *     xtype: 'preview-container',
- *     grid: {
- *         xtype: 'my-favorite-grid',
- *     },
- *     emptyComponent: {
- *         xtype: 'no-items-found-panel',
- *         title: 'No favorite items found',
- *         reasons: [
- *             'No favorite items have been defined yet.',
- *             'No favorite items comply to the filter.'
- *         ],
- *         stepItems: [
- *             {
- *                 text: 'Add item',
- *                 action: 'addItem'
- *             }
- *         ]
- *     },
- *     previewComponent: {
- *         xtype: 'my-favorite-preview'
- *     }
- */
-Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
-    extend: 'Ext.container.Container',
-    xtype: 'no-items-found-panel',
-
-    /**
-     * @cfg {String}
-     *
-     * Title to be shown on the panel.
-     */
-    title: Uni.I18n.translate('notifications.NoItemsFoundPanel.title', 'UNI', 'No items found'),
-
-    /**
-     * @cfg {String}
-     *
-     * Text shown above the reasons.
-     */
-    reasonsText: Uni.I18n.translate('notifications.NoItemsFoundPanel.reasonsText', 'UNI', 'This could be because:'),
-
-    /**
-     * @cfg {String[]/String}
-     *
-     * An array of reasons formatted as string. A single string value is also
-     * supported. If no reasons are given, the reasons section of the panel is
-     * not shown to the user.
-     *
-     *     @example
-     *     reasons = [
-     *         'No items have been defined yet.',
-     *         'No items comply to the filter.'
-     *     ]
-     */
-    reasons: [],
-
-    /**
-     * @cfg {String}
-     *
-     * Text shown above the step components.
-     */
-    stepsText: Uni.I18n.translate('notifications.NoItemsFoundPanel.stepsText', 'UNI', 'Possible steps:'),
-
-    /**
-     * @cfg {Object[]/Object}
-     *
-     * Configuration objects for the items that need to be added for possible
-     * steps to take if there are no items found. By default an item configuration
-     * is assumed to be a button, but any component configuration is possible.
-     *
-     * If no steps can or should be taken, the steps section is not shown.
-     *
-     *     @example
-     *     stepItems = [
-     *         {
-     *             text: 'Add item',
-     *             action: 'addItem'
-     *         },
-     *         {
-     *             text: 'Import item',
-     *             action: 'importItem'
-     *         }
-     *     ]
-     */
-    stepItems: [],
-
-    layout: {
-        type: 'vbox'
-    },
-
-    items: [
-        {
-            xtype: 'panel',
-            itemId: 'wrapper',
-            cls: Uni.About.baseCssPrefix + 'panel-no-items-found',
-            ui: 'medium',
-            framed: true,
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            }
-        }
-    ],
-
-    initComponent: function () {
-        var me = this;
-
-        me.callParent(arguments);
-        var wrapper = me.down('#wrapper');
-
-        wrapper.setTitle(me.title);
-
-        if (Ext.isArray(me.reasons) || Ext.isString(me.reasons)) {
-            var formattedReasons = me.formatReasons(me.reasons);
-
-            wrapper.add({
-                xtype: 'component',
-                html: formattedReasons
-            });
-        }
-
-        if (!Ext.isEmpty(me.stepItems) && Ext.isArray(me.stepItems) || Ext.isObject(me.stepItems)) {
-            wrapper.add({
-                xtype: 'component',
-                html: '<span class="steps-text">' + me.stepsText + '</span>'
-            });
-
-            wrapper.add(me.createSteps(me.stepItems));
-        }
-    },
-
-    formatReasons: function (reasons) {
-        var me = this,
-            result = '<span class="reasons-text">' + me.reasonsText + '</span>',
-            formattedReasons = '';
-
-        if (Ext.isArray(reasons)) {
-            Ext.Array.each(reasons, function (reason) {
-                formattedReasons += me.formatReason(reason);
-            });
-        } else if (Ext.isString(reasons)) {
-            formattedReasons += me.formatReason(reasons);
-        }
-
-        return result + '<ul>' + formattedReasons + '</ul>';
-    },
-
-    formatReason: function (reason) {
-        return '<li>' + reason + '</li>';
-    },
-
-    createSteps: function (stepItems) {
-        var container = Ext.create('Ext.container.Container', {
-            cls: 'steps',
-            layout: {
-                type: 'hbox'
-            },
-            defaults: {
-                xtype: 'button',
-                hrefTarget: '_self',
-                margin: '0 8px 0 0'
-            }
-        });
-
-        if (Ext.isArray(stepItems)) {
-            Ext.Array.each(stepItems, function (stepItem) {
-                container.add(Ext.clone(stepItem));
-            });
-        } else if (Ext.isString(stepItems)) {
-            container.add(Ext.clone(stepItems));
-        }
-
-        return container;
     }
 });
 

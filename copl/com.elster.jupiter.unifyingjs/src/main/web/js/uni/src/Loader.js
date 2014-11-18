@@ -104,6 +104,7 @@ Ext.define('Uni.Loader', {
     onReady: function (callback) {
         var me = this;
 
+        me.loadExt();
         me.loadFont();
         me.loadTooltips();
         me.loadStateManager();
@@ -111,6 +112,10 @@ Ext.define('Uni.Loader', {
         me.loadVtypes();
 
         callback();
+    },
+
+    loadExt: function () {
+        Ext.History.init();
     },
 
     loadFont: function () {
