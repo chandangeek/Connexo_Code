@@ -427,14 +427,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private void loadPluggableClass() {
-        this.pluggableClass = this.findConnectionTypePluggableClass(this.pluggableClassId);
+        this.pluggableClass = this.findConnectionTypePluggableClass(this.pluggableClassId).get();
     }
 
     private RelationType findRelationType() {
         return this.getPluggableClass().findRelationType();
     }
 
-    private ConnectionTypePluggableClass findConnectionTypePluggableClass(long connectionTypePluggableClassId) {
+    private Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClass(long connectionTypePluggableClassId) {
         return this.protocolPluggableService.findConnectionTypePluggableClass(connectionTypePluggableClassId);
     }
 
