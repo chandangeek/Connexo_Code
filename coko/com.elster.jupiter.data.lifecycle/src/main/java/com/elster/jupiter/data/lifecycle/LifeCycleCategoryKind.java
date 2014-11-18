@@ -1,10 +1,10 @@
 package com.elster.jupiter.data.lifecycle;
 
-public enum LifeCycleCategoryName {
-	JOURNAL,
-	LOGGING,
+public enum LifeCycleCategoryKind {
 	INTERVAL,
 	DAILY,
 	REGISTER,
-	ENDDEVICEEVENT;
+	ENDDEVICEEVENT,
+	LOGGING,
+	JOURNAL;
 }

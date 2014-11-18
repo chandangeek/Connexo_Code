@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -71,7 +72,11 @@ public class LifeCycleServiceTest {
 
 	@Test
     public void testInstall()  {
-		assertThat(lifeCycleService.getCategories()).hasSize(LifeCycleCategoryName.values().length);
+		List<LifeCycleCategory> categories = lifeCycleService.getCategories();		
+		assertThat(categories).hasSize(LifeCycleCategoryKind.values().length);
+		for (LifeCycleCategory category : categories) {
+			assertThat(categories.indexOf(category)).isEqualTo(	category.getKind().ordinal());		
+		}
 	}
 
 }

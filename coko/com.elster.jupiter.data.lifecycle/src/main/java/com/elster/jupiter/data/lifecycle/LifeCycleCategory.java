@@ -4,8 +4,9 @@ import java.time.Period;
 
 public interface LifeCycleCategory {
 	
-	LifeCycleCategoryName getName();
+	LifeCycleCategoryKind getKind();
 	Period getPartitionSize();
 	Period getRetention();
 	int getRetainedPartitionCount();
+	void setRetentionDays(int days);
 }

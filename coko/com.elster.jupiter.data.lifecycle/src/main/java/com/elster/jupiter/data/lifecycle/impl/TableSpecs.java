@@ -13,7 +13,7 @@ public enum TableSpecs {
 			Table<LifeCycleCategory> table = dataModel.addTable(name(), LifeCycleCategory.class);
 			table.map(LifeCycleCategoryImpl.class);
 			table.setJournalTableName("LFC_CATEGORIESJRNL");
-			Column nameColumn = table.column("NAME").varChar(20).notNull().map("category").conversion(ColumnConversion.CHAR2ENUM).add();
+			Column nameColumn = table.column("KIND").varChar(20).notNull().map("kind").conversion(ColumnConversion.CHAR2ENUM).add();
 			table.column("PARTITIONSIZE").number().notNull().map("partitionSize").conversion(ColumnConversion.NUMBER2INT).add();
 			table.column("RETENTION").number().notNull().map("retention").conversion(ColumnConversion.NUMBER2INT).add();
 			table.addAuditColumns();

@@ -3,12 +3,15 @@ package com.elster.jupiter.data.lifecycle.impl;
 import java.time.Instant;
 import java.time.Period;
 
-import com.elster.jupiter.data.lifecycle.LifeCycleCategoryName;
+import javax.inject.Inject;
+
+import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
+import com.elster.jupiter.orm.DataModel;
 
 public class LifeCycleCategoryImpl implements LifeCycleCategory {
 	
-	private LifeCycleCategoryName category;
+	private LifeCycleCategoryKind kind;
 	private int partitionSize;
 	private int retention;
 	@SuppressWarnings("unused")
@@ -19,17 +22,24 @@ public class LifeCycleCategoryImpl implements LifeCycleCategory {
 	private String userName;
 	@SuppressWarnings("unused")
 	private long version;
+	
+	private DataModel dataModel;
+	
+	@Inject
+	LifeCycleCategoryImpl(DataModel dataModel) {
+		this.dataModel = dataModel;
+	}
 
-	LifeCycleCategory init(LifeCycleCategoryName category) {
-		this.category = category;
+	LifeCycleCategoryImpl init(LifeCycleCategoryKind kind) {
+		this.kind = kind;
 		this.partitionSize = 30;
 		this.retention = 999 * 30;
 		return this;
 	}
 	
 	@Override
-	public LifeCycleCategoryName getName() {
-		return category;
+	public LifeCycleCategoryKind getKind() {
+		return kind;
 	}
 
 	@Override
@@ -45,5 +55,11 @@ public class LifeCycleCategoryImpl implements LifeCycleCategory {
 	@Override
 	public Period getRetention() {
 		return Period.ofDays(retention);
+	}
+	
+	@Override
+	public void setRetentionDays(int days) {
+		this.retention = days;
+		dataModel.update(this);
 	}
 }
