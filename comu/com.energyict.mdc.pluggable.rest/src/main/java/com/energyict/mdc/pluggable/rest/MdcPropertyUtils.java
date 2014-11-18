@@ -72,6 +72,8 @@ public class MdcPropertyUtils {
             propertyValue = null;
             inheritedProperty = null;
             defaultValue = null;
+        } else {
+            propertyHasValue = false;
         }
         return new PropertyValueInfo<>(propertyValue, inheritedProperty, defaultValue, propertyHasValue);
     }
