@@ -175,8 +175,6 @@ public interface DeviceConfigurationService {
 
     public Optional<SecurityPropertySet> findSecurityPropertySet(long id);
 
-    public List<SecurityPropertySet> findAllSecurityPropertySets();
-
     public boolean isPhenomenonInUse(Phenomenon phenomenon);
 
     public Optional<ComTaskEnablement> findComTaskEnablement (long id);

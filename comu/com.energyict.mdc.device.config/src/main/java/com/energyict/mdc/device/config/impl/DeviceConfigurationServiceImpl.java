@@ -497,11 +497,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public List<SecurityPropertySet> findAllSecurityPropertySets() {
-        return dataModel.mapper(SecurityPropertySet.class).find();
-    }
-
-    @Override
     public List<ComTask> findAvailableComTasks(ComSchedule comSchedule) {
         try (Connection connection = dataModel.getConnection(false)) {
             List<DeviceConfiguration> deviceConfigurations = getDeviceConfigurationsFromComSchedule(comSchedule, connection);
