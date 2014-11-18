@@ -2,7 +2,9 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
@@ -19,6 +21,8 @@ import java.util.Optional;
  */
 public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem {
 
+    private final MeteringService meteringService;
+
     private long id;
     private Instant lastRun;
     private Instant lastExportedDate;
@@ -27,20 +31,23 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     private Reference<IReadingTypeDataExportTask> task = ValueReference.absent();
 
     private transient DataModel dataModel;
+    private transient ReadingType readingType;
 
 
     @Inject
-    public ReadingTypeDataExportItemImpl(DataModel model) {
+    public ReadingTypeDataExportItemImpl(MeteringService meteringService, DataModel model) {
+        this.meteringService = meteringService;
         dataModel = model;
     }
 
-    static ReadingTypeDataExportItemImpl from(DataModel model, IReadingTypeDataExportTask readingTypeExportTask, ReadingContainer readingContainer, String readingTypeMRId) {
-        return model.getInstance(ReadingTypeDataExportItemImpl.class).init(readingTypeExportTask, readingContainer, readingTypeMRId);
+    static ReadingTypeDataExportItemImpl from(DataModel model, IReadingTypeDataExportTask readingTypeExportTask, ReadingContainer readingContainer, ReadingType readingType) {
+        return model.getInstance(ReadingTypeDataExportItemImpl.class).init(readingTypeExportTask, readingContainer, readingType);
     }
 
-    private ReadingTypeDataExportItemImpl init(IReadingTypeDataExportTask readingTypeDataExportTask, ReadingContainer readingContainer, String readingTypeMRId) {
+    private ReadingTypeDataExportItemImpl init(IReadingTypeDataExportTask readingTypeDataExportTask, ReadingContainer readingContainer, ReadingType readingType) {
         this.task.set(readingTypeDataExportTask);
-        this.readingTypeMRId = readingTypeMRId;
+        this.readingTypeMRId = readingType.getMRID();
+        this.readingType = readingType;
         this.readingContainer = dataModel.asRefAny(readingContainer);
         return this;
     }
@@ -56,8 +63,11 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     }
 
     @Override
-    public String getReadingTypeMRId() {
-        return readingTypeMRId;
+    public ReadingType getReadingType() {
+        if (readingType == null) {
+            readingType = meteringService.getReadingType(readingTypeMRId).orElseThrow(IllegalArgumentException::new);
+        }
+        return readingType;
     }
 
     @Override

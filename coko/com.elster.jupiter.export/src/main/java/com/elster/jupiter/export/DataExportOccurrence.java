@@ -9,6 +9,8 @@ import java.util.Optional;
 
 public interface DataExportOccurrence {
 
+    ReadingTypeDataExportTask getTask();
+
     Instant getStartDate();
 
     Optional<Instant> getEndDate();

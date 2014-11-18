@@ -15,7 +15,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.time.Instant;
 import java.util.Set;
-import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -54,7 +53,7 @@ public class ExportRunCommand {
                 for (EndDeviceMembership endDeviceMembership : endDeviceGroup.getMembers(exportedDataInterval)) {
                     Meter endDevice = (Meter) endDeviceMembership.getEndDevice();
                     for (ReadingType readingType : readingTypes) {
-                        IReadingTypeDataExportItem exportItem = task.addExportItem(endDevice, readingType.getMRID());
+                        IReadingTypeDataExportItem exportItem = task.addExportItem(endDevice, readingType);
                         doExport(taskOccurrence, exportedDataInterval, exportItem, millisBetweenItems);
                     }
                 }
@@ -72,13 +71,14 @@ public class ExportRunCommand {
     }
 
     private void doExport(TaskOccurrence taskOccurrence, Range<Instant> exportedDataInterval, IReadingTypeDataExportItem exportItem, int millisToWait) {
-        String meterAndReadingType = ((Meter) exportItem.getReadingContainer()).getMRID() + " and reading type " + exportItem.getReadingTypeMRId();
-        taskOccurrence.log(Level.INFO, Instant.now(), "Exported data for meter " + meterAndReadingType + " for period " + exportedDataInterval);
+        String meterAndReadingType = ((Meter) exportItem.getReadingContainer()).getMRID() + " and reading type " + exportItem.getReadingType();
+        //taskOccurrence.log(Level.INFO, Instant.now(), "Exported data for meter " + meterAndReadingType + " for period " + exportedDataInterval);
         exportItem.updateLastRunAndLastExported(Instant.now(), exportedDataInterval.upperEndpoint());
         exportItem.update();
         try {
             Thread.sleep(millisToWait);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }
