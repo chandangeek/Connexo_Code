@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
+import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioSerialConnectionType;
 
 import javax.inject.Inject;
@@ -26,7 +27,7 @@ public class SioPaknetModemConnectionType extends SioSerialConnectionType {
     private ModemComponent paknetModemComponent;
 
     @Inject
-    public SioPaknetModemConnectionType(@Named("serialio-paknet") SerialComponentService serialComponentService) {
+    public SioPaknetModemConnectionType(@Named(ConnectionTypeServiceImpl.SERIAL_PAKNET_GUICE_INJECTION_NAME) SerialComponentService serialComponentService) {
         super(serialComponentService);
     }
 
