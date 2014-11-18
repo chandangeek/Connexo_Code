@@ -118,6 +118,11 @@ public class TaskServiceImpl implements TaskService, InstallService {
     }
 
     @Override
+    public Optional<TaskOccurrence> getOccurrence(Long id) {
+        return dataModel.mapper(TaskOccurrence.class).getOptional(id);
+    }
+
+    @Override
     public Optional<RecurrentTask> getRecurrentTask(long id) {
         return dataModel.mapper(RecurrentTask.class).getOptional(id);
     }

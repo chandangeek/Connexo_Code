@@ -17,6 +17,8 @@ public interface TaskService {
 
     Optional<RecurrentTask> getRecurrentTask(long id);
 
+    Optional<TaskOccurrence> getOccurrence(Long id);
+
     List<TaskOccurrence> getOccurrences(RecurrentTask recurrentTask, Range<Instant> period);
 
     void launch();

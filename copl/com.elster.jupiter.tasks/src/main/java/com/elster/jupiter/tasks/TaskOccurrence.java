@@ -18,5 +18,7 @@ public interface TaskOccurrence {
 
     List<TaskLogEntry> getLogs();
 
+    TaskLogEntryFinder getLogsFinder();
+
     void log(Level level, Instant timestamp, String message);
 }

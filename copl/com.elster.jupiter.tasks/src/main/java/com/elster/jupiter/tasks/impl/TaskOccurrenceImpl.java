@@ -3,7 +3,10 @@ package com.elster.jupiter.tasks.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogEntry;
+import com.elster.jupiter.tasks.TaskLogEntryFinder;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -11,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 class TaskOccurrenceImpl implements TaskOccurrence {
 
@@ -22,6 +27,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     private List<TaskLogEntry> logEntries = new ArrayList<>();
 
     private final DataModel dataModel;
+    private transient TaskLogEntryFinder taskLogEntryFinder;
 
     @Inject
 	TaskOccurrenceImpl(DataModel dataModel) {
@@ -84,5 +90,31 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     @Override
     public List<TaskLogEntry> getLogs() {
         return Collections.unmodifiableList(logEntries);
+    }
+
+    @Override
+    public TaskLogEntryFinder getLogsFinder() {
+        Condition condition = where("taskOccurrence").isEqualTo(this)/*.and((where("level").isEqualTo(Level.WARNING.intValue()).or(where("level").isEqualTo(Level.SEVERE.intValue()))))*/;
+        Order order = Order.descending("timeStamp");
+        TaskLogEntryFinder finder = new TaskLogEntryFinder(dataModel.query(TaskLogEntry.class), condition, order);
+        return finder;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TaskOccurrenceImpl that = (TaskOccurrenceImpl) o;
+
+        if (id != that.id) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        return result;
     }
 }
