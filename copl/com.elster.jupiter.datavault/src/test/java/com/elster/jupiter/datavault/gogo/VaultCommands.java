@@ -1,6 +1,6 @@
 package com.elster.jupiter.datavault.gogo;
 
-import com.elster.jupiter.datavault.SecretService;
+import com.elster.jupiter.datavault.DataVaultService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -17,23 +17,23 @@ import org.osgi.service.component.annotations.Reference;
         immediate = true)
 public class VaultCommands {
 
-    private volatile SecretService secretService;
+    private volatile DataVaultService dataVaultService;
 
     @Activate
     public void activate(BundleContext context) {
     }
 
     @Reference
-    public void setSecretService(SecretService secretService) {
-        this.secretService = secretService;
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
     }
 
     public String encrypt(String string) {
-        return secretService.encrypt(string.getBytes());
+        return dataVaultService.encrypt(string.getBytes());
     }
 
     public String decrypt(String string) {
-        return new String(secretService.decrypt(string));
+        return new String(dataVaultService.decrypt(string));
     }
 
 

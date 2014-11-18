@@ -1,7 +1,7 @@
 package com.elster.jupiter.datavault.impl;
 
 import com.elster.jupiter.datavault.DataVault;
-import com.elster.jupiter.datavault.SecretService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,14 +20,14 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * Created by bvn on 11/6/14.
  */
-@Component(name = "com.elster.kore.datavault", service = {SecretService.class, InstallService.class}, property = "name=" + SecretService.COMPONENT_NAME, immediate = true)
-public class SecretServiceImpl implements SecretService, InstallService {
+@Component(name = "com.elster.kore.datavault", service = {DataVaultService.class, InstallService.class}, property = "name=" + DataVaultService.COMPONENT_NAME, immediate = true)
+public class DataVaultServiceImpl implements DataVaultService, InstallService {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
 
-    public SecretServiceImpl() {
+    public DataVaultServiceImpl() {
     }
 
     @Reference

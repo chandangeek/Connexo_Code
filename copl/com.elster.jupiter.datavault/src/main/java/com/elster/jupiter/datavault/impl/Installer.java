@@ -1,7 +1,7 @@
 package com.elster.jupiter.datavault.impl;
 
 import com.elster.jupiter.datavault.DataVault;
-import com.elster.jupiter.datavault.SecretService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
@@ -60,7 +60,7 @@ class Installer {
     private void createTranslations() {
         List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(SecretService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
+            SimpleNlsKey nlsKey = SimpleNlsKey.key(DataVaultService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
             translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
         }
         thesaurus.addTranslations(translations);

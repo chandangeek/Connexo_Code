@@ -3,7 +3,7 @@ package com.elster.jupiter.datavault;
 /**
  * Created by bvn on 11/6/14.
  */
-public interface SecretService {
+public interface DataVaultService {
     public static final String COMPONENT_NAME = "DVA";
 
     public String encrypt(byte[] decrypted);

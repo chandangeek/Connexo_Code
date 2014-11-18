@@ -1,6 +1,6 @@
 package com.elster.jupiter.datavault.impl;
 
-import com.elster.jupiter.datavault.SecretService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
@@ -26,7 +26,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return SecretService.COMPONENT_NAME;
+        return DataVaultService.COMPONENT_NAME;
     }
 
     @Override

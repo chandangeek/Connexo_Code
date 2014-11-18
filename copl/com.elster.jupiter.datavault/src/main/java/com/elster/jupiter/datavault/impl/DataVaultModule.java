@@ -1,6 +1,6 @@
 package com.elster.jupiter.datavault.impl;
 
-import com.elster.jupiter.datavault.SecretService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.google.inject.AbstractModule;
@@ -19,7 +19,7 @@ public class DataVaultModule extends AbstractModule {
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
 
-        bind(SecretService.class).to(SecretServiceImpl.class).in(Scopes.SINGLETON);
+        bind(DataVaultService.class).to(DataVaultServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }
