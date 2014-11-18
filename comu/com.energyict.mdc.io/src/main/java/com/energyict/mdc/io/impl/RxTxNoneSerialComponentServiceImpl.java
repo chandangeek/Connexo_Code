@@ -1,6 +1,7 @@
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.LibraryType;
 import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.ModemType;
@@ -11,7 +12,9 @@ import com.energyict.mdc.io.ServerSerialPort;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +29,24 @@ import java.util.List;
 @Component(name = "com.energyict.mdc.io.rxtx.none", service = SerialComponentService.class, property = {"library=" + LibraryType.Target.RXTX, "modem-type=" + ModemType.Target.NONE})
 @SuppressWarnings("unused")
 public class RxTxNoneSerialComponentServiceImpl extends RxTxSerialComponentServiceImpl {
+
+    // For OSGi framework only
+    public RxTxNoneSerialComponentServiceImpl() {
+        super();
+    }
+
+    // For guice injection purposes
+    @Inject
+    public RxTxNoneSerialComponentServiceImpl(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
+    @Reference
+    @Override
+    @SuppressWarnings("unused")
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        super.setPropertySpecService(propertySpecService);
+    }
 
     @Override
     public ServerSerialPort newSerialPort(SerialPortConfiguration configuration) {

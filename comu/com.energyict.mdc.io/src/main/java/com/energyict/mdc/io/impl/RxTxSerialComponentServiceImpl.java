@@ -1,5 +1,6 @@
 package com.energyict.mdc.io.impl;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
@@ -14,6 +15,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.StringFactory;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 
 /**
@@ -24,6 +26,16 @@ import java.math.BigDecimal;
  * @since 2014-11-03 (09:15)
  */
 public abstract class RxTxSerialComponentServiceImpl extends AbstractSerialComponentServiceImpl {
+
+    // For OSGi framework only
+    protected RxTxSerialComponentServiceImpl() {
+        super();
+    }
+
+    // For guice injection purposes
+    protected RxTxSerialComponentServiceImpl(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ServerSerialPort newSerialPort(SerialPortConfiguration configuration) {

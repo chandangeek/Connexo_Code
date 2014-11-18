@@ -13,6 +13,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +28,17 @@ import java.util.List;
 public abstract class AbstractSerialComponentServiceImpl implements SerialComponentService {
 
     private volatile PropertySpecService propertySpecService;
+
+    // For OSGi framework only
+    protected AbstractSerialComponentServiceImpl() {
+        super();
+    }
+
+    // For guice injection purposes
+    protected AbstractSerialComponentServiceImpl(PropertySpecService propertySpecService) {
+        this();
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public SerialComChannel newSerialComChannel(ServerSerialPort serialPort) {
@@ -169,9 +181,7 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
         }
     }
 
-    @Reference
-    @SuppressWarnings("unused")
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    protected void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

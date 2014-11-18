@@ -1,5 +1,6 @@
 package com.energyict.mdc.io.impl;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
@@ -14,6 +15,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.StringFactory;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -27,6 +29,16 @@ import java.util.List;
  * @since 2014-11-03 (09:10)
  */
 public abstract class SerialIOComponentServiceImpl extends AbstractSerialComponentServiceImpl {
+
+    // For OSGi framework only
+    protected SerialIOComponentServiceImpl() {
+        super();
+    }
+
+    // For guice injection purposes
+    protected SerialIOComponentServiceImpl(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ServerSerialPort newSerialPort(SerialPortConfiguration configuration) {
