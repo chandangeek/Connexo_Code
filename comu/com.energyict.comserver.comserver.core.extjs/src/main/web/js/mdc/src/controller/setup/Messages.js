@@ -283,14 +283,31 @@ Ext.define('Mdc.controller.setup.Messages', {
                     var initPrivStore = me.get('MessagesPrivileges');
                     initPrivStore.load();
                 }
+            }),
+            warningText;
+
+
+
+        if (!setAlreadyChecked) {
+            switch (action) {
+                case 'activateAll':
+                    selectPrivilegesPanel.setTitle(Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of '{0}' commands"));
+                    warningText = Uni.I18n.translate('messages.selectPrivilegesPanelChange.msg', 'MDC', 'The selected privileges will only apply to the commands that aren\'t active yet.');
+                    break;
+                case 'changePrivilegesForAll':
+                    selectPrivilegesPanel.setTitle(Uni.I18n.translatePlural('messages.category.changePrivilegesPanel.title', recordName, 'MDC', "Change privileges of '{0}' commands"));
+                    warningText = Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that are active.');
+                    break;
+            }
+            selectPrivilegesPanel.add({
+                xtype: 'component',
+                html: warningText
             });
+        } else {
+            selectPrivilegesPanel.setTitle(Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for command '{0}'"));
+        }
 
         selectPrivilegesPanel.add(
-            {
-                xtype: 'component',
-                html: (!setAlreadyChecked && action == 'changePrivilegesForAll') ? (Uni.I18n.translate('messages.selectPrivilegesPanelChange.msg', 'MDC', 'The selected privileges will only apply to the commands that aren\'t active yet.'))
-                    : (setAlreadyChecked ? '' : Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that are not active yet.'))
-            },
             {
                 xtype: 'checkboxgroup',
                 width: 400,
