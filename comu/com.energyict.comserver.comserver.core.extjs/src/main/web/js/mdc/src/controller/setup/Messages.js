@@ -200,8 +200,6 @@ Ext.define('Mdc.controller.setup.Messages', {
     onMessagesGridInfoIconClick: function (button) {
         var widget = Ext.widget('privileges-info-panel'),
             dataView = widget.down('dataview');
-
-        widget.setTitle(Uni.I18n.translate('messages.privileges.infoPanel.title', 'MDC', 'Privileges of') + ' ' + button.record.get('name'));
         dataView.store.load();
     },
 
@@ -235,72 +233,84 @@ Ext.define('Mdc.controller.setup.Messages', {
         var me = this,
             isMessageCategory = !Ext.isEmpty(record.get('DeviceMessageCategory')),
             recordName = isMessageCategory ? record.get('DeviceMessageCategory') : record.get('name'),
-            selectPrivilegesPanel = Ext.create('Uni.view.window.Confirmation', {
-                confirmText: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+            selectPrivilegesPanel = Ext.create('Ext.window.Window', {
+                title: !setAlreadyChecked ?
+                    Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of '{0}' commands") :
+                    Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for command '{0}'"),
+                modal: true,
+                closeAction: 'destroy',
+                buttons: [
+                    {
+                        text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                        ui: 'action',
+                        handler: function () {
+                            var privileges = this.up('window').down('checkboxgroup').getChecked();
+                            var privIds = [];
+                            if (action == 'changePrivilegesForAll' || action == 'activateAll' || action == 'activate' || action == 'changePrivileges') {
+                                Ext.each(privileges, function (privilege) {
+                                    privIds.push({privilege: privilege.inputValue})
+                                });
+                                me[action](record, privIds);
+                            } else {
+                                Ext.each(privileges, function (privilege) {
+                                    var privilegesStore = me.getMessagesPrivilegesStore();
+                                    privilegesStore.load(function () {
+                                        privilegesStore.each(function (privilegeItem) {
+
+                                            if (privilege.boxLabel === privilegeItem.get('name'))
+                                                privIds.push({privilege: privilegeItem.get('privilege')});
+                                        });
+                                        me[action](record, privIds);
+                                    })
+
+                                });
+                            }
+
+                            this.up('window').close();
+                        }
+                    },
+                    {
+                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                        ui: 'link',
+                        handler: function () {
+                            this.up('window').close();
+                        }
+                    }
+                ],
                 init: function () {
                     var initStore = me.get('deviceMessageEnablements');
                     initStore.load();
                     var initPrivStore = me.get('MessagesPrivileges');
                     initPrivStore.load();
-                },
-                confirmation: function () {
-                    var privileges = this.down('checkboxgroup').getChecked();
-                    var privIds = [];
-                    if (action == 'changePrivilegesForAll' || action == 'activateAll' || action == 'activate' || action == 'changePrivileges') {
-                        Ext.each(privileges, function (privilege) {
-                            privIds.push({privilege: privilege.inputValue})
-                        });
-                        me[action](record, privIds);
-                    } else {
-                        Ext.each(privileges, function (privilege) {
-                            var privilegesStore = me.getMessagesPrivilegesStore();
-                            privilegesStore.load(function () {
-                                privilegesStore.each(function (privilegeItem) {
-
-                                    if (privilege.boxLabel === privilegeItem.get('name'))
-                                        privIds.push({privilege: privilegeItem.get('privilege')});
-                                });
-                                me[action](record, privIds);
-                            })
-
-                        });
-                    }
-
-                    this.close();
-                },
-                listeners: {
-                    close: function () {
-                        this.destroy()
-                    }
                 }
             });
 
-        selectPrivilegesPanel.add({
-            xtype: 'checkboxgroup',
-            width: 400,
-            fieldLabel: Uni.I18n.translate('messages.selectPrivilegesPanel.label', 'MDC', 'Privileges'),
-            labelAlign: 'left',
-            labelStyle: 'padding-left: 53px',
-            labelPad: 50,
-            store: 'MessagesPrivileges',
-            columns: 1,
-            vertical: true,
-            items: [
-                { boxLabel: 'Level 1', name: 'cbgroup', inputValue: 'execute.device.message.level1', checked: true},
-                { boxLabel: 'Level 2', name: 'cbgroup', inputValue: 'execute.device.message.level2', checked: true},
-                { boxLabel: 'Level 3', name: 'cbgroup', inputValue: 'execute.device.message.level3', checked: true},
-                { boxLabel: 'Level 4', name: 'cbgroup', inputValue: 'execute.device.message.level4'}
-            ]
-        });
-
-        selectPrivilegesPanel.show(
+        selectPrivilegesPanel.add(
             {
-                title: !setAlreadyChecked ?
-                    Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of '{0}' commands") :
-                    Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for command '{0}'"),
-                msg: (!setAlreadyChecked && action == 'changePrivilegesForAll') ? (Uni.I18n.translate('messages.selectPrivilegesPanelChange.msg', 'MDC', 'The selected privileges will only apply to the commands that aren\'t active yet.'))
+                xtype: 'component',
+                html: (!setAlreadyChecked && action == 'changePrivilegesForAll') ? (Uni.I18n.translate('messages.selectPrivilegesPanelChange.msg', 'MDC', 'The selected privileges will only apply to the commands that aren\'t active yet.'))
                     : (setAlreadyChecked ? '' : Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that are not active yet.'))
-            });
+            },
+            {
+                xtype: 'checkboxgroup',
+                width: 400,
+                fieldLabel: Uni.I18n.translate('messages.selectPrivilegesPanel.label', 'MDC', 'Privileges'),
+                labelAlign: 'left',
+                labelStyle: 'padding-left: 53px',
+                labelPad: 50,
+                store: 'MessagesPrivileges',
+                columns: 1,
+                vertical: true,
+                items: [
+                    { boxLabel: 'Level 1', name: 'cbgroup', inputValue: 'execute.device.message.level1', checked: true},
+                    { boxLabel: 'Level 2', name: 'cbgroup', inputValue: 'execute.device.message.level2', checked: true},
+                    { boxLabel: 'Level 3', name: 'cbgroup', inputValue: 'execute.device.message.level3', checked: true},
+                    { boxLabel: 'Level 4', name: 'cbgroup', inputValue: 'execute.device.message.level4'}
+                ]
+            }
+        );
+
+        selectPrivilegesPanel.show();
         if (action === 'changePrivileges') {
             Ext.Array.each(selectPrivilegesPanel.down('checkboxgroup').query('checkbox'), function (checkbox) {
                 var privilege = Ext.Array.findBy(record.get('privileges'), function (item) {
