@@ -34,7 +34,7 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     Instant getNextExecution();
 
-    List<? extends DataExportOccurrence> getOccurrences(Range<Instant> interval);
+    List<? extends DataExportOccurrence> getOccurrences();
 
     DataExportOccurrenceFinder getOccurrencesFinder();
 
@@ -55,6 +55,8 @@ public interface ReadingTypeDataExportTask extends HasName {
     ScheduleExpression getScheduleExpression();
 
     Optional<? extends DataExportOccurrence> getLastOccurrence();
+
+    Optional<? extends DataExportOccurrence> getOccurrence(Long id);
 
     List<ReadingTypeDataExportItem> getExportItems();
 

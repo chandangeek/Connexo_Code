@@ -4,6 +4,7 @@ import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.tasks.TaskLogEntryFinder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.time.Interval;
@@ -121,6 +122,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     @Override
     public List<? extends LogEntry> getLogs() {
         return taskOccurrence.get().getLogs();
+    }
+
+    @Override
+    public TaskLogEntryFinder getLogsFinder() {
+        return taskOccurrence.get().getLogsFinder();
     }
 
     @Override

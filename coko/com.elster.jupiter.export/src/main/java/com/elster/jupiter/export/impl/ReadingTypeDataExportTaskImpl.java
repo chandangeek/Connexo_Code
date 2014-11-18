@@ -86,7 +86,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private transient ScheduleExpression scheduleExpression;
     private transient boolean recurrentTaskDirty;
     private transient boolean propertiesDirty;
-    private transient DataExportOccurrenceFinder dataExportOccurrenceFinder;
 
     @Inject
     ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService, MeteringService meteringService) {
@@ -149,7 +148,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public List<? extends DataExportOccurrence> getOccurrences(Range<Instant> interval) {
+    public List<? extends DataExportOccurrence> getOccurrences() {
         return dataModel.mapper(DataExportOccurrenceImpl.class).find("readingTask", this);
     }
 
@@ -169,6 +168,11 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     public Optional<? extends DataExportOccurrence> getLastOccurrence() {
         return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("readingTask", this), new Order[]{Order.descending("startDate")},
                 false, new String[]{}, 1, 1).stream().findAny();
+    }
+
+    @Override
+    public Optional<? extends DataExportOccurrence> getOccurrence(Long id) {
+        return getOccurrences().stream().filter(occurrence -> occurrence.getTaskOccurenceId().equals(id)).findFirst();
     }
 
     @Override

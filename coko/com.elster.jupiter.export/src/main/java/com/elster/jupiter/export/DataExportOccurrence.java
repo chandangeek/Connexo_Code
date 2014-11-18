@@ -1,5 +1,6 @@
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.tasks.TaskLogEntryFinder;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.google.common.collect.Range;
 
@@ -24,4 +25,6 @@ public interface DataExportOccurrence {
     Long getTaskOccurenceId();
 
     List<? extends LogEntry> getLogs();
+
+    TaskLogEntryFinder getLogsFinder();
 }
