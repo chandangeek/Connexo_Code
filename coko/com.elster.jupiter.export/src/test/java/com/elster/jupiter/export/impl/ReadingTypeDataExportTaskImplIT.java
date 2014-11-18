@@ -369,7 +369,7 @@ public class ReadingTypeDataExportTaskImplIT {
         }
 
         ReadingTypeDataExportTask retrievedTask = dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
-        List<ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getExportItems();
+        List<? extends ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getExportItems();
         assertThat(readingTypeDataExportItems).hasSize(1);
         ReadingTypeDataExportItem exportItem = readingTypeDataExportItems.get(0);
         assertThat(exportItem.getReadingContainer()).isNotNull();
@@ -395,7 +395,7 @@ public class ReadingTypeDataExportTaskImplIT {
         }
 
         ReadingTypeDataExportTask retrievedTask = dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
-        List<ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getExportItems();
+        List<? extends ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getExportItems();
         assertThat(readingTypeDataExportItems).hasSize(1);
         ReadingTypeDataExportItem exportItem = readingTypeDataExportItems.get(0);
         assertThat(exportItem.isActive()).isFalse();

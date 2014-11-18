@@ -3,7 +3,9 @@ package com.elster.jupiter.export;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.properties.PropertySpec;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public interface DataProcessor {
@@ -12,11 +14,11 @@ public interface DataProcessor {
 
     void startItem(ReadingTypeDataExportItem item);
 
-    void processData(MeterReading data);
+    Optional<Instant> processData(MeterReading data);
 
     void processUpdatedData(MeterReading data);
 
-    void endItem(ReadingTypeDataExportItem item);
+    void endItem();
 
     void endExport();
 

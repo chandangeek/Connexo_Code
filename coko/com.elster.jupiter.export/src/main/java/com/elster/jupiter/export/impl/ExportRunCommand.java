@@ -15,6 +15,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.time.Instant;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -72,8 +74,11 @@ public class ExportRunCommand {
 
     private void doExport(TaskOccurrence taskOccurrence, Range<Instant> exportedDataInterval, IReadingTypeDataExportItem exportItem, int millisToWait) {
         String meterAndReadingType = ((Meter) exportItem.getReadingContainer()).getMRID() + " and reading type " + exportItem.getReadingType();
-        //taskOccurrence.log(Level.INFO, Instant.now(), "Exported data for meter " + meterAndReadingType + " for period " + exportedDataInterval);
-        exportItem.updateLastRunAndLastExported(Instant.now(), exportedDataInterval.upperEndpoint());
+        Logger logger = Logger.getAnonymousLogger();
+        logger.addHandler(taskOccurrence.createTaskLogHandler().asHandler());
+        logger.log(Level.INFO, "Exported data for meter " + meterAndReadingType + " for period " + exportedDataInterval);
+        exportItem.setLastRun(Instant.now());
+        exportItem.setLastExportedDate(exportedDataInterval.upperEndpoint());
         exportItem.update();
         try {
             Thread.sleep(millisToWait);

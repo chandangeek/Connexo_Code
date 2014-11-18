@@ -82,9 +82,13 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     }
 
     @Override
-    public void updateLastRunAndLastExported(Instant lastRun, Instant lastExported) {
+    public void setLastRun(Instant lastRun) {
         this.lastRun = lastRun;
-        this.lastExportedDate = lastExported;
+    }
+
+    @Override
+    public void setLastExportedDate(Instant lastExportedDate) {
+        this.lastExportedDate = lastExportedDate;
     }
 
     @Override

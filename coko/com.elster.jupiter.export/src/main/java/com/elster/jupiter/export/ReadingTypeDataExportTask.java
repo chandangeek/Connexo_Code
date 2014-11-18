@@ -56,7 +56,7 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     Optional<? extends DataExportOccurrence> getLastOccurrence();
 
-    List<ReadingTypeDataExportItem> getExportItems();
+    List<? extends ReadingTypeDataExportItem> getExportItems();
 
     void setNextExecution(Instant instant);
 

@@ -10,7 +10,10 @@ import java.time.Instant;
  * Time: 19:04
  */
 public interface IReadingTypeDataExportItem extends ReadingTypeDataExportItem {
-    void updateLastRunAndLastExported(Instant lastRun, Instant lastExported);
+
+    void setLastRun(Instant lastRun);
+
+    void setLastExportedDate(Instant lastExportedDate);
 
     void update();
 
