@@ -10,10 +10,12 @@ import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.NoSuchDataProcessorException;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -298,7 +300,9 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         activeItems.forEach(item -> {
             dataFormatter.startItem(item);
             Range<Instant> exportInterval = determineExportInterval(occurrence, item);
-            item.getReadingContainer().getReadings(exportInterval, item.getReadingType());
+            List<? extends BaseReadingRecord> readings = item.getReadingContainer().getReadings(exportInterval, item.getReadingType());
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            meterReading.addAllReadings(readings);
         });
     }
 
