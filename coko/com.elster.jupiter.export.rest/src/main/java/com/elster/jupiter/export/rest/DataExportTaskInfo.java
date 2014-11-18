@@ -36,7 +36,7 @@ public class DataExportTaskInfo {
     public boolean exportContinuousData;
     public ValidatedDataOption validatedDataOption;
     public MeterGroupInfo deviceGroup;
-    public LastExportOccurenceInfo lastExportOccurence;
+    public DataExportTaskHistoryInfo lastExportOccurence;
     public Long nextRun;
 
 
@@ -70,7 +70,7 @@ public class DataExportTaskInfo {
         dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getString(dataFormatter, dataFormatter), Collections.<PropertyInfo>emptyList()) ;
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
 
-        lastExportOccurence = dataExportTask.getLastOccurrence().map(oc -> new LastExportOccurenceInfo(oc, thesaurus)).orElse(null);
+        lastExportOccurence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus)).orElse(null);
 
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {

@@ -18,8 +18,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.tasks.TaskLogEntry;
-import com.elster.jupiter.tasks.TaskLogEntryFinder;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
@@ -28,6 +26,8 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.logging.LogEntry;
+import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -208,11 +208,11 @@ public class DataExportTaskResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
         DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task, securityContext);
-        TaskLogEntryFinder finder = occurrence.getLogsFinder()
+        LogEntryFinder finder = occurrence.getLogsFinder()
                 .setStart(queryParameters.getStart())
                 .setLimit(queryParameters.getLimit());
 
-        List<? extends TaskLogEntry> occurrences = finder.find();
+        List<? extends LogEntry> occurrences = finder.find();
 
         DataExportOccurrenceLogInfos infos = new DataExportOccurrenceLogInfos(queryParameters.clipToLimit(occurrences), thesaurus);
         infos.total = queryParameters.determineTotal(occurrences.size());
