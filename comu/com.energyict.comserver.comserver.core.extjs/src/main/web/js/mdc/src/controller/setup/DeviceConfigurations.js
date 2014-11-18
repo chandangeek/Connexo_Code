@@ -333,7 +333,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             gatewayMessage.removeAll();
             gatewayMessage.add({
                 xtype: 'container',
-                html: '<span style="color: grey;padding: 0 0 0 23px;">' + Uni.I18n.translate('deviceconfiguration.gatewayMessage', 'MDC', 'The device can not act as a gateway') + '</span>'
+                html: '<span style="color: grey;padding: 0 0 0 23px;">' + Uni.I18n.translate('deviceconfiguration.gatewayMessage.cannotActAsGateway', 'MDC', 'The device cannot act as a gateway') + '</span>'
             });
             gatewayCombo.setValue({canBeGateway: false});
             gatewayCombo.disable();
