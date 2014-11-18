@@ -42,11 +42,11 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
 
     public static final String RXTX_PLAIN_GUICE_INJECTION_NAME = "rxtx-none";
     public static final String RXTX_AT_GUICE_INJECTION_NAME = "rxtx-at";
-    public static final String SERIAL_PLAIN_GUICE_INJECTION_NAME = "serial-none";
-    public static final String SERIAL_AT_GUICE_INJECTION_NAME = "serial-at";
-    public static final String SERIAL_CASE_GUICE_INJECTION_NAME = "serial-case";
-    public static final String SERIAL_PAKNET_GUICE_INJECTION_NAME = "serial-paknet";
-    public static final String SERIAL_PEMP_GUICE_INJECTION_NAME = "serial-pemp";
+    public static final String SERIAL_PLAIN_GUICE_INJECTION_NAME = "serialio-none";
+    public static final String SERIAL_AT_GUICE_INJECTION_NAME = "serialio-at";
+    public static final String SERIAL_CASE_GUICE_INJECTION_NAME = "serialio-case";
+    public static final String SERIAL_PAKNET_GUICE_INJECTION_NAME = "serialio-paknet";
+    public static final String SERIAL_PEMP_GUICE_INJECTION_NAME = "serialio-pemp";
 
     private volatile PropertySpecService propertySpecService;
     private volatile SocketService socketService;
