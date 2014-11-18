@@ -99,8 +99,8 @@ public class ChannelImplTest extends EqualsContractTest {
                 return new ReadingTypeImpl(dataModel, thesaurus);
             }
         });
-        when(meterActivation.getId()).thenReturn(METER_ACTIVATION_ID);
-        when(clock.getZone()).thenReturn(TIME_ZONE.toZoneId());
+        when(meterActivation.getId()).thenReturn(METER_ACTIVATION_ID);        
+        when(meterActivation.getZoneId()).thenReturn(TIME_ZONE.toZoneId());       
         when(idsService.getVault(MeteringService.COMPONENTNAME, 1)).thenReturn(Optional.of(vault));
         when(idsService.getVault(MeteringService.COMPONENTNAME, 2)).thenReturn(Optional.of(vault));
         when(idsService.getVault(MeteringService.COMPONENTNAME, 3)).thenReturn(Optional.of(vault));
