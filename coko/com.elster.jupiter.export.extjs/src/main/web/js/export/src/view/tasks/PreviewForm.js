@@ -147,21 +147,14 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             ]
         },
         {
-            xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('general.formatterProperties', 'DES', 'Formatter properties'),
-            labelAlign: 'top',
-            items: [
-                {
-                    xtype: 'tasks-property-form',
-                    isEdit: false,
-                    frame: false,
-                    defaults: {
-                        xtype: 'container',
-                        resetButtonHidden: true,
-                        labelWidth: 250
-                    }
-                }
-            ]
+            xtype: 'tasks-property-form',
+            isEdit: false,
+            frame: false,
+            defaults: {
+                xtype: 'container',
+                resetButtonHidden: true,
+                labelWidth: 250
+            }
         }
     ]
 });

@@ -1,6 +1,7 @@
 Ext.define('Dxp.view.tasks.PropertyForm', {
     extend: 'Uni.property.form.Property',
     alias: 'widget.tasks-property-form',
+    addEditPage: false,
 
     initProperties: function (properties) {
         var me = this;
@@ -61,10 +62,19 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
                     groupItem.labelAlign = 'left';
                 })
             } else {
-                me.add({
-                    title: Uni.I18n.translate(namesArray[0], 'DES', namesArray[0]),
-                    ui: 'medium'
-                });
+                if (!me.addEditPage) {
+                    me.add({
+                        xtype: 'displayfield',
+                        renderer: function () {
+                            return '<b>' + Uni.I18n.translate(namesArray[0], 'DES', namesArray[0]) + '</b>'
+                        }
+                    });
+                } else {
+                    me.add({
+                        title: Uni.I18n.translate(namesArray[0], 'DES', namesArray[0]),
+                        ui: 'medium'
+                    });
+                }
             }
             me.add(fieldContainer.items ? fieldContainer : groupItems);
         });

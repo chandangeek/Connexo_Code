@@ -400,6 +400,7 @@ Ext.define('Dxp.controller.Tasks', {
             propertyForm = page.down('tasks-property-form');
 
         if (record && record.properties() && record.properties().count()) {
+            propertyForm.addEditPage = true;
             propertyForm.loadRecord(record);
             propertyForm.show();
         } else {
