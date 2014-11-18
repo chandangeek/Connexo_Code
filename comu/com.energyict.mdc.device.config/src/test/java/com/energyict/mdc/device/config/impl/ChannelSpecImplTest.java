@@ -22,9 +22,14 @@ import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredExc
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
+
+import java.util.Arrays;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,6 +45,9 @@ import static com.elster.jupiter.cbo.MeasurementKind.ENERGY;
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ChannelSpecImpl} component
@@ -68,7 +76,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private Phenomenon phenomenon;
     private Unit phenomenonUnit = Unit.get("kWh");
     private ChannelType channelType;
-
 
     @Before
     public void initializeDatabaseAndMocks() {

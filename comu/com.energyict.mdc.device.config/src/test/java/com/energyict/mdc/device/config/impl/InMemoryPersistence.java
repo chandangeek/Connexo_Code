@@ -77,6 +77,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
@@ -234,6 +235,7 @@ public class InMemoryPersistence {
         when(this.principal.getName()).thenReturn(testName);
         if (this.mockProtocolPluggableService) {
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
+            when(this.protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.empty());
         }
         this.applicationContext = mock(ApplicationContext.class);
         Translator translator = mock(Translator.class);

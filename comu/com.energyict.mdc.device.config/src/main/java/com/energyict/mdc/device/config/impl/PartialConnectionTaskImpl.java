@@ -186,7 +186,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     @Override
     public ConnectionTypePluggableClass getPluggableClass () {
         if (pluggableClass == null && pluggableClassId != 0) {
-            pluggableClass = protocolPluggableService.findConnectionTypePluggableClass(pluggableClassId);
+            pluggableClass = protocolPluggableService.findConnectionTypePluggableClass(pluggableClassId).get();
         }
         return pluggableClass;
     }

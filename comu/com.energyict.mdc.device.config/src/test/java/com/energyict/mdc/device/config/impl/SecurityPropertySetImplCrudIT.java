@@ -83,6 +83,7 @@ import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVIC
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -184,7 +185,7 @@ public class SecurityPropertySetImplCrudIT {
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
         when(applicationContext.getTranslator()).thenReturn(translator);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(protocolPluggableService.findDeviceProtocolPluggableClass(anyInt())).thenReturn(deviceProtocolPluggableClass);
+        when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authLevel, authLevel2));
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encLevel));
         when(authLevel.getId()).thenReturn(1);

@@ -32,6 +32,7 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements DeviceType {
@@ -200,12 +201,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
         if (this.deviceProtocolPluggableClass == null) {
-            this.deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(this.deviceProtocolPluggableClassId);
+            this.deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(this.deviceProtocolPluggableClassId).get();
         }
         return this.deviceProtocolPluggableClass;
     }
 
-    private DeviceProtocolPluggableClass findDeviceProtocolPluggableClass(long deviceProtocolPluggableClassId) {
+    private Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long deviceProtocolPluggableClassId) {
         return this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId);
     }
 
