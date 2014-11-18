@@ -28,7 +28,7 @@ import java.util.Properties;
  * <li><code>com.elster.jupiter.datasource.pool.maxstatements</code> : max statements, will default to 50.</li>
  * </ul>
  */
-@Component(name = "com.elster.jupiter.bootstrap.oracle")
+@Component(name = "com.elster.jupiter.bootstrap.oracle", property = {"osgi.command.scope=orm", "osgi.command.function=dbConnection"})
 public final class BootstrapServiceImpl implements BootstrapService {
 
     private static final String JDBC_DRIVER_URL = "com.elster.jupiter.datasource.jdbcurl";
@@ -106,5 +106,12 @@ public final class BootstrapServiceImpl implements BootstrapService {
     private String getOptionalProperty(BundleContext context, String property, String defaultValue) {
         String value = context.getProperty(property);
         return value == null ? defaultValue : value;
+    }
+
+    public void dbConnection() {
+        StringBuilder sb = new StringBuilder("Connection settings :").append("\n");
+        sb.append(" jdbcUrl = ").append(jdbcUrl).append("\n");
+        sb.append(" dbUser = ").append(jdbcUser).append("\n");
+        System.out.println(sb.toString());
     }
 }
