@@ -33,8 +33,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,12 +84,7 @@ public class ComPortPoolResource {
             comPortPools.addAll(engineModelService.findAllComPortPools());
         }
 
-        comPortPools = ListPager.of(comPortPools, new Comparator<ComPortPool>() {
-            @Override
-            public int compare(ComPortPool cpp1, ComPortPool cpp2) {
-                return cpp1.getName().compareToIgnoreCase(cpp2.getName());
-            }
-        }).from(queryParameters).find();
+        comPortPools = ListPager.of(comPortPools, (cpp1, cpp2) -> cpp1.getName().compareToIgnoreCase(cpp2.getName())).from(queryParameters).find();
 
         for (ComPortPool comPortPool : comPortPools) {
             comPortPoolInfos.add(ComPortPoolInfoFactory.asInfo(comPortPool, engineModelService));
@@ -100,7 +93,7 @@ public class ComPortPoolResource {
     }
 
     private void getComPortPoolsByConnectionType(List<ComPortPool> comPortPools, String compatibleWithConnectionType) {
-        ConnectionTypePluggableClass connectionTypePluggableClass = this.protocolPluggableService.findConnectionTypePluggableClass(Integer.parseInt(compatibleWithConnectionType));
+        ConnectionTypePluggableClass connectionTypePluggableClass = this.findConnectionTypePluggableClassOrThrowException(Long.parseLong(compatibleWithConnectionType));
         Set<ComPortType> supportedComPortTypes = connectionTypePluggableClass.getConnectionType().getSupportedComPortTypes();
         for (ComPortType supportedComPortType : supportedComPortTypes) {
             if(connectionTypePluggableClass.getConnectionType().getDirection().equals(ConnectionType.Direction.OUTBOUND)){
@@ -109,6 +102,14 @@ public class ComPortPoolResource {
                 comPortPools.addAll(engineModelService.findInboundComPortPoolByType(supportedComPortType));
             }
         }
+    }
+
+    private ConnectionTypePluggableClass findConnectionTypePluggableClassOrThrowException(long id) {
+        return this.protocolPluggableService
+                .findConnectionTypePluggableClass(id)
+                .orElseThrow(() -> new WebApplicationException(
+                        "No connection type with id " + id + " found",
+                        Response.status(Response.Status.NOT_FOUND).entity("No connection type with id " + id + " found").build()));
     }
 
     private void getComPortPoolsByConnectionTask(List<ComPortPool> comPortPools, String compatibleWithConnectionTask) {
