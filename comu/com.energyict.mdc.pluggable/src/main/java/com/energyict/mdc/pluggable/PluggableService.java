@@ -1,6 +1,9 @@
 package com.energyict.mdc.pluggable;
 
 import com.energyict.mdc.common.services.Finder;
+
+import com.elster.jupiter.properties.PropertySpec;
+
 import java.util.Optional;
 import java.util.List;
 
@@ -33,7 +36,7 @@ public interface PluggableService {
 
     public Optional<PluggableClass> findByTypeAndName (PluggableClassType type, String name);
 
-    public PluggableClass findByTypeAndId (PluggableClassType type, long id);
+    public Optional<PluggableClass> findByTypeAndId (PluggableClassType type, long id);
 
     public Finder<PluggableClass> findAllByType(PluggableClassType type);
 
