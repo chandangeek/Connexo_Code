@@ -180,7 +180,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public Optional<? extends DataExportOccurrence> getOccurrence(Long id) {
-        return getOccurrences().stream().filter(occurrence -> occurrence.getTaskOccurenceId().equals(id)).findFirst();
+        return getOccurrences().stream().filter(occurrence -> occurrence.getId().equals(id)).findFirst();
     }
 
     @Override

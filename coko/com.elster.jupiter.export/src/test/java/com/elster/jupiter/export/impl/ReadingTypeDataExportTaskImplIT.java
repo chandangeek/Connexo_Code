@@ -350,7 +350,7 @@ public class ReadingTypeDataExportTaskImplIT {
             dataExportService.createExportOccurrence(test).persist();
             context.commit();
         }
-        List<? extends DataExportOccurrence> occurrences = task.getOccurrences(Range.atLeast(Instant.EPOCH));
+        List<? extends DataExportOccurrence> occurrences = task.getOccurrences(/*Range.atLeast(Instant.EPOCH)*/);
         assertThat(occurrences).hasSize(1);
         DataExportOccurrence occ = occurrences.get(0);
         assertThat(occ.getExportedDataInterval()).isNotNull();
