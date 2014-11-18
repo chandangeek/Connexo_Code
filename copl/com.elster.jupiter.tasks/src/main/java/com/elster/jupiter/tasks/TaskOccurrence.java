@@ -1,5 +1,7 @@
 package com.elster.jupiter.tasks;
 
+import com.elster.jupiter.util.logging.LogEntryFinder;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,7 +20,7 @@ public interface TaskOccurrence {
 
     List<TaskLogEntry> getLogs();
 
-    TaskLogEntryFinder getLogsFinder();
+    LogEntryFinder getLogsFinder();
 
     void log(Level level, Instant timestamp, String message);
 }

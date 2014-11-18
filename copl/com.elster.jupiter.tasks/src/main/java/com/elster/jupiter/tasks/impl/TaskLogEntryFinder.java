@@ -1,12 +1,14 @@
-package com.elster.jupiter.tasks;
+package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.tasks.TaskLogEntry;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.logging.LogEntryFinder;
 
 import java.util.List;
 
-public class TaskLogEntryFinder {
+public class TaskLogEntryFinder implements LogEntryFinder {
     private QueryExecutor<TaskLogEntry> queryExecutor;
     private Condition condition;
     private Order[] order;
