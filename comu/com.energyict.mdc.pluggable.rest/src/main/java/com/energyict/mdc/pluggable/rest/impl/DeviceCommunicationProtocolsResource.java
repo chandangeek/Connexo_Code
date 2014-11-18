@@ -70,7 +70,7 @@ public class DeviceCommunicationProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_PROTOCOL)
     public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@Context UriInfo uriInfo, @PathParam("id") long id) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(id);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = findDeviceProtocolPluggableClassOrThrowException(id);
         LicensedProtocol licensedProtocol = this.protocolPluggableService.findLicensedProtocolFor(deviceProtocolPluggableClass);
         return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true, mdcPropertyUtils);
     }
@@ -90,7 +90,7 @@ public class DeviceCommunicationProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_PROTOCOL)
     public List<ConnectionTypeInfo> getSupportedConnectionTypes(@PathParam("deviceProtocolId") long deviceProtocolId, @Context UriInfo uriInfo, @BeanParam JsonQueryFilter queryFilter){
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolId);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = findDeviceProtocolPluggableClassOrThrowException(deviceProtocolId);
         List<ConnectionType> supportedConnectionTypes = deviceProtocolPluggableClass.getDeviceProtocol().getSupportedConnectionTypes();
         List<ConnectionTypePluggableClass> allConnectionTypePluggableClassesToCheck = this.protocolPluggableService.findAllConnectionTypePluggableClasses();
         List<ConnectionTypeInfo> infos = new ArrayList<>();
@@ -147,16 +147,23 @@ public class DeviceCommunicationProtocolsResource {
     @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
     public DeviceCommunicationProtocolInfo updateDeviceCommunicationProtocol(@Context final UriInfo uriInfo, @PathParam("id") final long id, final DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) {
         try {
-            DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(id);
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = findDeviceProtocolPluggableClassOrThrowException(id);
             deviceProtocolPluggableClass.setName(deviceCommunicationProtocolInfo.name);
             deviceCommunicationProtocolInfo.copyProperties(deviceProtocolPluggableClass, mdcPropertyUtils);
             deviceProtocolPluggableClass.save();
             LicensedProtocol licensedProtocol = protocolPluggableService.findLicensedProtocolFor(deviceProtocolPluggableClass);
-            return new DeviceCommunicationProtocolInfo(uriInfo, protocolPluggableService.findDeviceProtocolPluggableClass(id), licensedProtocol, true, mdcPropertyUtils);
+            return new DeviceCommunicationProtocolInfo(uriInfo, findDeviceProtocolPluggableClassOrThrowException(id), licensedProtocol, true, mdcPropertyUtils);
         } catch (FieldValidationException fieldValidationException) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "properties."+fieldValidationException.getFieldName());
         }
     }
 
+    private DeviceProtocolPluggableClass findDeviceProtocolPluggableClassOrThrowException(long id) {
+        return this.protocolPluggableService
+                .findDeviceProtocolPluggableClass(id)
+                .orElseThrow(() -> new WebApplicationException(
+                        "No device protocol with id " + id + " found",
+                        Response.status(Response.Status.NOT_FOUND).entity("No device protocol with id " + id + " found").build()));
+    }
 
 }
