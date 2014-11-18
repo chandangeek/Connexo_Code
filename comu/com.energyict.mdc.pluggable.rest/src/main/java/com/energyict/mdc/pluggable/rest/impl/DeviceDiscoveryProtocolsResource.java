@@ -17,6 +17,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -38,9 +39,12 @@ public class DeviceDiscoveryProtocolsResource {
     @RolesAllowed(Privileges.VIEW_PROTOCOL)
     public DeviceDiscoveryProtocolsInfo getDeviceDiscoveryProtocols() {
         DeviceDiscoveryProtocolsInfo deviceDiscoveryProtocolsInfo = new DeviceDiscoveryProtocolsInfo();
-        for (InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass : this.protocolPluggableService.findAllInboundDeviceProtocolPluggableClass()) {
-            deviceDiscoveryProtocolsInfo.deviceDiscoveryProtocolInfos.add(new DeviceDiscoveryProtocolInfo(inboundDeviceProtocolPluggableClass));
-        }
+        deviceDiscoveryProtocolsInfo.deviceDiscoveryProtocolInfos =
+                this.protocolPluggableService
+                        .findAllInboundDeviceProtocolPluggableClass()
+                        .stream()
+                        .map(DeviceDiscoveryProtocolInfo::new)
+                        .collect(Collectors.toSet());
         return deviceDiscoveryProtocolsInfo;
     }
 
@@ -49,7 +53,7 @@ public class DeviceDiscoveryProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_PROTOCOL)
     public DeviceDiscoveryProtocolInfo getDeviceDiscoveryProtocol(@PathParam("id") long id) {
-        return new DeviceDiscoveryProtocolInfo(this.protocolPluggableService.findInboundDeviceProtocolPluggableClass(id));
+        return new DeviceDiscoveryProtocolInfo(this.findDeviceProtocolPluggableClassOrThrowException(id));
     }
 
     @DELETE
@@ -87,7 +91,7 @@ public class DeviceDiscoveryProtocolsResource {
     @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
     public DeviceDiscoveryProtocolInfo updateDeviceDiscoveryProtocol(@PathParam("id") long id, DeviceDiscoveryProtocolInfo deviceDiscoveryProtocolInfo) throws WebApplicationException {
         try {
-            InboundDeviceProtocolPluggableClass pluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClass(id);
+            InboundDeviceProtocolPluggableClass pluggableClass = this.findDeviceProtocolPluggableClassOrThrowException(id);
             pluggableClass.setName(deviceDiscoveryProtocolInfo.name);
             pluggableClass.save();
             return new DeviceDiscoveryProtocolInfo(pluggableClass);
@@ -95,6 +99,14 @@ public class DeviceDiscoveryProtocolsResource {
         catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private InboundDeviceProtocolPluggableClass findDeviceProtocolPluggableClassOrThrowException(long id) {
+        return this.protocolPluggableService
+                .findInboundDeviceProtocolPluggableClass(id)
+                .orElseThrow(() -> new WebApplicationException(
+                        "No inbound device protocol with id " + id + " found",
+                        Response.status(Response.Status.NOT_FOUND).entity("No inbound device protocol with id " + id + " found").build()));
     }
 
 }
