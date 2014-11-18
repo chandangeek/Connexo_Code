@@ -126,4 +126,18 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
      * Cancels/revokes this DeviceMessage
      */
     public void revoke();
+
+    /**
+     * Sets information regarding this message which was provided by the DeviceProtocol during
+     * the execution of the message.
+     *
+     * @param protocolInformation the information from the Protocol
+     */
+    void setProtocolInformation(String protocolInformation);
+
+    /**
+     * Updates this messages to the new DeviceMessageStatus
+     * @param newDeviceMessageStatus the new DeviceMessageStatus
+     */
+    void updateDeviceMessageStatus(DeviceMessageStatus newDeviceMessageStatus);
 }
