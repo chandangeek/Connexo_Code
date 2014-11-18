@@ -35,12 +35,12 @@ import javax.ws.rs.core.UriInfo;
 public class MdcPropertyUtils {
 
     public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
-        convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList, true);
+        convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList, true, false);
     }
 
-    public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList, boolean showValue) {
+    public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList, boolean showValue, boolean withPrivileges) {
         for (PropertySpec<?> propertySpec : propertySpecs) {
-            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, showValue);
+            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, showValue, withPrivileges);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType);
             PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
@@ -51,7 +51,7 @@ public class MdcPropertyUtils {
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties) {
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
         for (PropertySpec<?> propertySpec : propertySpecs) {
-            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, true);
+            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, true, false);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType);
             PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
@@ -60,7 +60,7 @@ public class MdcPropertyUtils {
         return propertyInfoList;
     }
 
-    private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec<?> propertySpec, boolean showValue) {
+    private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec<?> propertySpec, boolean showValue, boolean withPrivileges) {
         Object propertyValue = getPropertyValue(properties, propertySpec);
         boolean propertyHasValue = true;
         Object inheritedProperty = getInheritedProperty(properties, propertySpec);
@@ -72,7 +72,8 @@ public class MdcPropertyUtils {
             propertyValue = null;
             inheritedProperty = null;
             defaultValue = null;
-        } else {
+        }
+        if (!withPrivileges) {
             propertyHasValue = false;
         }
         return new PropertyValueInfo<>(propertyValue, inheritedProperty, defaultValue, propertyHasValue);
