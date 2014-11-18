@@ -141,10 +141,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-           <groupId>com.jayway.jsonpath</groupId>
-           <artifactId>json-path</artifactId>
-           <version>0.9.1</version>
-           <scope>test</scope>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
