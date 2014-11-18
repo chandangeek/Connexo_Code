@@ -26,7 +26,8 @@ Ext.define('Uni.property.view.property.Number', {
             maxValue: maxValue,
             allowDecimals: allowDecimals,
             msgTarget: 'under',
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            inputType: me.inputType
         };
     },
 

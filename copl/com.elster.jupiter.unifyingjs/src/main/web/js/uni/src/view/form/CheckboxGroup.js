@@ -30,6 +30,14 @@ Ext.define('Uni.view.form.CheckboxGroup', {
      */
     valueField: 'id',
 
+    /**
+     * This field will define how the values will be returned by getModelData
+     * if true the getModelData will return a list of ids that will be used by hydrator to fill the store by loading records.
+     * otherwise the hydrator will fill the store using provided records.
+     * Default is 'true' for backward compatibility.
+     */
+    hydratable: true,
+
     initComponent: function () {
         var me = this;
         me.bindStore(me.store || 'ext-empty-store', true);
@@ -65,7 +73,12 @@ Ext.define('Uni.view.form.CheckboxGroup', {
             if (checkbox.getValue()) {
                 me.store.each(function (group) {
                     if (group.get(me.valueField) === checkbox.inputValue) {
-                        groups.push(group.getId());
+                        if(me.hydratable){
+                            groups.push(group.getId());
+                        }
+                        else{
+                            groups.push(group);
+                        }
                     }
                 });
             }

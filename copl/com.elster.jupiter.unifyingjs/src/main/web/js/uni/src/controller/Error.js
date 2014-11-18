@@ -9,11 +9,21 @@ Ext.define('Uni.controller.Error', {
 
     requires: [
         'Uni.view.error.Window',
-        'Ext.ux.window.Notification'
+        'Ext.ux.window.Notification',
+        'Uni.view.error.NotFound'
     ],
 
     config: {
         window: null
+    },
+
+    routeConfig:{
+        notfound: {
+            title: Uni.I18n.translate('error.pageNotFound', 'UNI', 'Page not found'),
+            route: 'error/notfound',
+            controller: 'Uni.controller.Error',
+            action:'showPageNotFound'
+        }
     },
 
     refs: [
@@ -28,6 +38,9 @@ Ext.define('Uni.controller.Error', {
 
         Ext.Error.handle = me.handleGenericError;
         Ext.Ajax.on('requestexception', me.handleRequestError, me);
+
+        var router = this.getController('Uni.controller.history.Router');
+        router.addConfig(this.routeConfig);
     },
 
     handleGenericError: function (error) {
@@ -169,5 +182,9 @@ Ext.define('Uni.controller.Error', {
         });
 
         box.show(config);
+    },
+    showPageNotFound: function () {
+        var widget = Ext.widget('errorNotFound');
+        this.getApplication().fireEvent('changecontentevent', widget);
     }
 });

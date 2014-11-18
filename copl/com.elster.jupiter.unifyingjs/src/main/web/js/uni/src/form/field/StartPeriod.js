@@ -76,6 +76,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                         xtype: 'datefield',
                         name: 'start-date',
                         allowBlank: false,
+                        editable: false,
                         value: new Date(),
                         maxValue: new Date(),
                         width: 128,
@@ -116,22 +117,12 @@ Ext.define('Uni.form.field.StartPeriod', {
                     displayField: 'name',
                     valueField: 'value',
                     queryMode: 'local',
+                    editable: false,
                     hideLabel: true,
                     value: 'months',
                     width: 200,
                     margin: '0 6 0 0',
-                    store: new Ext.data.Store({
-                        fields: ['name', 'value'],
-                        data: (function () {
-                            return [
-                                {name: Uni.I18n.translate('period.months', 'UNI', 'Month(s)'), value: 'months'},
-                                {name: Uni.I18n.translate('period.weeks', 'UNI', 'Week(s)'), value: 'weeks'},
-                                {name: Uni.I18n.translate('period.days', 'UNI', 'Day(s)'), value: 'days'},
-                                {name: Uni.I18n.translate('period.hours', 'UNI', 'Hour(s)'), value: 'hours'},
-                                {name: Uni.I18n.translate('period.minutes', 'UNI', 'Minute(s)'), value: 'minutes'}
-                            ];
-                        })()
-                    }),
+                    store: Ext.create('Uni.store.Periods'),
                     allowBlank: false,
                     forceSelection: true
                 },

@@ -7,6 +7,7 @@ Ext.define('Uni.grid.column.ReadingType', {
     header: Uni.I18n.translate('readingType.label', 'UNI', 'Reading type'),
     minWidth: 280,
     align: 'left',
+    showTimeAttribute: true,
 
     requires: [
         'Ext.panel.Tool',
@@ -15,21 +16,18 @@ Ext.define('Uni.grid.column.ReadingType', {
         'Uni.form.field.ReadingTypeDisplay'
     ],
 
-    deferredRenderer: function (value, record, view) {
-        var me = this;
-        var cmp = view.getCell(record, me).down('.x-grid-cell-inner');
-        var field = new Uni.form.field.ReadingTypeDisplay({
-            fieldLabel: false
-        });
-        cmp.setHTML('');
-        field.setValue(value);
-        field.render(cmp);
+    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
+        var me = Ext.Array.findBy(this.columns, function (item) {
+                return item.$className === 'Uni.grid.column.ReadingType';
+            }),
+            field = new Uni.form.field.ReadingTypeDisplay();
 
-        Ext.defer(view.updateLayout, 10, view);
+        return field.renderer.apply(me, [value, field, view, record]);
     },
 
-    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
-        var me = metaData.column;
-        Ext.defer(me.deferredRenderer, 1, me, [value, record, view]);
+    // If need to make a link from reading type display field override this method and provide url inside
+    // See example in Mdc.view.setup.deviceloadprofilechannels.Grid 26:17
+    makeLink: function (record) {
+        return null; // Link url
     }
 });

@@ -10,7 +10,8 @@ Ext.define('Uni.property.view.property.Textarea', {
             width: me.width,
             grow: true,
             msgTarget: 'under',
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            inputType: me.inputType
         }
     },
 

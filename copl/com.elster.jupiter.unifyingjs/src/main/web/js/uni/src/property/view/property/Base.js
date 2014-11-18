@@ -34,8 +34,11 @@ Ext.define('Uni.property.view.property.Base', {
 
     isEdit: true,
     isReadOnly: false,
+    inputType: 'text',
     property: null,
     key: null,
+    passwordAsTextComponent: false,
+    emptyText: '',
 
     /**
      * @param {string|null} key
@@ -200,9 +203,20 @@ Ext.define('Uni.property.view.property.Base', {
      * @param value
      */
     setValue: function (value) {
-        this.isEdit
-            ? this.getField().setValue(value)
-            : this.getDisplayField().setValue(value);
+        if (this.isEdit) {
+            if (this.getProperty().get('hasValue')) {
+                this.getField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
+            } else {
+                this.getField().emptyText = '';
+            }
+            this.getField().setValue(value);
+        } else {
+            if (this.getProperty().get('hasValue')) {
+                this.getDisplayField().setValue('********');
+            } else {
+                this.getDisplayField().setValue(value);
+            }
+        }
     },
 
     getValue: function (value) {
@@ -274,7 +288,7 @@ Ext.define('Uni.property.view.property.Base', {
                 }
             })
         }
-        this.on('afterrender', function(){
+        this.on('afterrender', function () {
             me.fireEvent('enableRestoreAll', this);
         });
         this.getResetButton().setHandler(this.restoreDefault, this);
@@ -286,8 +300,12 @@ Ext.define('Uni.property.view.property.Base', {
     restoreDefault: function () {
         var property = this.getProperty();
         var restoreValue = property.get('default');
+        property.set('hasValue', false);
+        property.set('propertyHasValue', false);
         this.setValue(restoreValue);
         property.set('isInheritedOrDefaultValue', true);
+
+
 
         this.updateResetButton();
     },
@@ -298,5 +316,32 @@ Ext.define('Uni.property.view.property.Base', {
     useInheritedValue: function () {
         this.getProperty().initInheritedValues();
         this.updateResetButton();
+    },
+
+    /**
+     * show value
+     */
+    showValue: function () {
+        if (this.isEdit) {
+            this.getField().getEl().down('input').dom.type = 'text';
+        } else {
+            this.getDisplayField().setValue(this.getProperty().get('value'));
+        }
+    },
+
+    /**
+     * hide value
+     */
+    hideValue: function () {
+        if (this.isEdit) {
+            this.getField().getEl().down('input').dom.type = 'password';
+        } else {
+            if (this.getProperty().get('hasValue')) {
+                this.getDisplayField().setValue('********');
+            } else {
+                this.getDisplayField().setValue('');
+            }
+        }
     }
+
 });

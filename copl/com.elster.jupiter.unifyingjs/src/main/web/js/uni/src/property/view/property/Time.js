@@ -13,7 +13,8 @@ Ext.define('Uni.property.view.property.Time', {
             format: me.timeFormat,
             width: me.width,
             required: me.required,
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            inputType: me.inputType
         };
     },
 

@@ -9,6 +9,7 @@ Ext.define('Uni.property.model.Property', {
         {name: 'value', persist: false},
         {name: 'default', persist: false},
         {name: 'hasDefault', persist: false},
+        {name: 'hasValue', persist:false},
         {name: 'isInheritedOrDefaultValue', type: 'boolean', defaultValue: true, persist: false}
     ],
     requires: [
@@ -45,6 +46,7 @@ Ext.define('Uni.property.model.Property', {
         var restoreValue = '';
         var isInheritedValue = true;
         var hasDefaultValue = false;
+        var hasValue = false;
 
         // was on try-catch
         if (me.raw['propertyValueInfo']) {
@@ -53,23 +55,26 @@ Ext.define('Uni.property.model.Property', {
             if (null !== propertyValue) {
                 value = propertyValue.get('value');
                 isInheritedValue = false;
-                if (value === propertyValue.get('defaultValue')) {
-                    isInheritedValue = true;
-                }
+                if (!propertyValue.get('propertyHasValue')) {
+                    if (value === propertyValue.get('defaultValue')) {
+                        isInheritedValue = true;
+                    }
 
-                if (propertyValue.get('inheritedValue') !== '') {
-                    restoreValue = propertyValue.get('inheritedValue');
-                } else {
-                    restoreValue = propertyValue.get('defaultValue');
-                    if (typeof propertyValue.get('defaultValue') !== 'undefined' && typeof propertyValue.get('defaultValue') !== '') {
-                        hasDefaultValue = true;
+                    if (propertyValue.get('inheritedValue') !== '') {
+                        restoreValue = propertyValue.get('inheritedValue');
+                    } else {
+                        restoreValue = propertyValue.get('defaultValue');
+                        if (typeof propertyValue.get('defaultValue') !== 'undefined' && typeof propertyValue.get('defaultValue') !== '') {
+                            hasDefaultValue = true;
+                        }
+                    }
+
+                    if (value === '') {
+                        value = restoreValue;
+                        isInheritedValue = true;
                     }
                 }
-
-                if (value === '') {
-                    value = restoreValue;
-                    isInheritedValue = true;
-                }
+                hasValue = propertyValue.get('propertyHasValue');
             }
         }
 
@@ -77,6 +82,7 @@ Ext.define('Uni.property.model.Property', {
         me.set('value', value);
         me.set('default', restoreValue);
         me.set('hasDefaultValue', hasDefaultValue);
+        me.set('hasValue', hasValue);
     },
 
     initInheritedValues: function() {
@@ -84,23 +90,28 @@ Ext.define('Uni.property.model.Property', {
         var value = null;
         var hasDefaultValue = false;
         var isDefaultValue = false;
+        var hasValue = false;
 
         // was on try-catch
         if (me.raw['propertyValueInfo']) {
             var propertyValue = me.getPropertyValue() || null;
             if (null !== propertyValue) {
                 value = propertyValue.get('value');
-                if (value === propertyValue.get('defaultValue')){
-                      isDefaultValue = true;
-                }
+                if (!propertyValue.get('propertyHasValue')) {
+                    if (value === propertyValue.get('defaultValue')) {
+                        isDefaultValue = true;
+                    }
 
-                if (!value) {
-                    value = propertyValue.get('defaultValue');
-                    hasDefaultValue = true;
+                    if (!value) {
+                        value = propertyValue.get('defaultValue');
+                        hasDefaultValue = true;
+                    }
                 }
                 propertyValue.set('inheritedValue', value);
                 propertyValue.set('value', '');
+                hasValue = propertyValue.get('propertyHasValue');
             }
+
         }
         if (isDefaultValue || (typeof me.raw['propertyValueInfo'] === 'undefined')) {
             me.set('isInheritedOrDefaultValue', true);
@@ -110,6 +121,7 @@ Ext.define('Uni.property.model.Property', {
         me.set('value', value);
         me.set('default', value);
         me.set('hasDefaultValue', hasDefaultValue);
+        me.set('hasValue', hasValue);
     },
 
     getType: function () {

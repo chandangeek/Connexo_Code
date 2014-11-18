@@ -5,25 +5,35 @@ Ext.define('Uni.form.field.EditedDisplay', {
     extend: 'Ext.form.field.Display',
     xtype: 'edited-displayfield',
     name: 'editedDate',
+    emptyText: '',
 
-    deferredRenderer: function (field, icon) {
-        field.getEl().down('.x-form-display-field').appendChild(icon);
-        field.updateLayout();
-    },
-
-    renderer: function (value, field) {
-        var icon;
+    renderer: function (value) {
+        var result,
+            date,
+            iconClass,
+            tooltipText;
 
         if (value) {
-            value = Ext.isDate(value) ? value : new Date(value);
-            icon = document.createElement('span');
-            icon.className = 'icon-edit';
-            Ext.create('Ext.tip.ToolTip', {
-                target: icon,
-                html: Uni.I18n.formatDate('editedDate.format', value, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
-            });
-            Ext.defer(this.deferredRenderer, 1, this, [field, icon]);
+            date = Ext.isDate(value.date) ? value.date : new Date(value.date);
+            switch (value.flag) {
+                case 'ADDED':
+                    iconClass = 'icon-edit';
+                    tooltipText = Uni.I18n.formatDate('addedDate.format', date, 'MDC', '\\A\\d\\d\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    break;
+                case 'EDITED':
+                    iconClass = 'icon-edit';
+                    tooltipText = Uni.I18n.formatDate('editedDate.format', date, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    break;
+                case 'REMOVED':
+                    iconClass = 'icon-remove';
+                    tooltipText = Uni.I18n.formatDate('removedDate.format', date, 'MDC', '\\R\\e\\m\\o\\v\\e\\d \\o\\n F d, Y \\a\\t H:i');
+                    break;
+            }
+            if (iconClass && tooltipText) {
+                result = '<span class="' + iconClass + '" data-qtip="' + tooltipText + '"></span>';
+            }
         }
-        return '';
+
+        return result || this.emptyText;
     }
 });

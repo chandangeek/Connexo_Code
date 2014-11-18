@@ -11,16 +11,20 @@ Ext.define('Uni.data.store.Filterable', {
      * Initialises filters from filter model
      * @param config
      */
-    constructor: function(config) {
+    constructor: function (config) {
         var me = this;
 
-        this.callParent(arguments);
-        var router = this.router = config.router || Uni.util.History.getRouterController();
+        config = config || {};
+
+        me.callParent(arguments);
+
+        var router = me.router = config.router || Uni.util.History.getRouterController();
+
         if (me.hydrator && Ext.isString(me.hydrator)) {
             me.hydrator = Ext.create(me.hydrator);
         }
 
-        router.on('routematch', function() {
+        router.on('routematch', function () {
             if (router.filter) {
                 me.setFilterModel(router.filter);
             }
@@ -31,7 +35,7 @@ Ext.define('Uni.data.store.Filterable', {
      * returns data in a format of filter:
      * [{property: key, value: item}]
      */
-    setFilterModel: function(model) {
+    setFilterModel: function (model) {
         var me = this,
             data = me.hydrator ? me.hydrator.extract(model) : model.getData(),
             filters = [];
