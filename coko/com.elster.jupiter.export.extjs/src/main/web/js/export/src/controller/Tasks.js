@@ -263,7 +263,7 @@ Ext.define('Dxp.controller.Tasks', {
                                 if (record.data.nextRun && (record.data.nextRun !== 0)) {
                                     view.down('#recurrence-trigger').setValue({recurrence: true});
                                     view.down('#recurrence-number').setValue(record.data.schedule.every.count);
-                                    recurrenceTypeCombo.setValue(record.data.schedule.timeUnit);
+                                    recurrenceTypeCombo.setValue(record.data.schedule.every.timeUnit);
                                     view.down('#start-on').setValue(record.data.nextRun);
                                 } else {
                                     recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
