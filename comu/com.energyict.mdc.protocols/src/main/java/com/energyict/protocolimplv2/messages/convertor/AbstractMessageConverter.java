@@ -49,7 +49,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
     public MessageEntry toMessageEntry(OfflineDeviceMessage offlineDeviceMessage) {
         final DeviceMessageSpec deviceMessageSpec = offlineDeviceMessage.getSpecification();
 
-        final MessageEntryCreator messageEntryCreator = getRegistry().get(deviceMessageSpec);
+        final MessageEntryCreator messageEntryCreator = getRegistry().get(deviceMessageSpec.getId());
         if (messageEntryCreator != null) {
             return messageEntryCreator.createMessageEntry(getMessagingProtocol(), offlineDeviceMessage);
         } else {
