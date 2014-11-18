@@ -19,4 +19,5 @@ public interface ServerDeviceMessage extends DeviceMessage<Device> {
      * @param status the new DeviceMessageStatus
      */
     public void moveTo(DeviceMessageStatus status);
+
 }

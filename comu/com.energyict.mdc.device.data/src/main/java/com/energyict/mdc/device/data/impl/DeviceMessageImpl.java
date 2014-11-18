@@ -235,6 +235,17 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         this.deviceMessageStatus = status;
     }
 
+    @Override
+    public void setProtocolInformation(String protocolInformation) {
+        this.protocolInfo = protocolInformation;
+    }
+
+    @Override
+    public void updateDeviceMessageStatus(DeviceMessageStatus newDeviceMessageStatus) {
+        this.moveTo(newDeviceMessageStatus);
+        this.save();
+    }
+
     private ReleaseDateUpdater getReleaseDateUpdater() {
         if (this.releaseDateUpdater == null) {
             this.releaseDateUpdater = new ReleaseDateUpdater(getStatus(), this.releaseDate);
