@@ -11,6 +11,7 @@ import java.util.List;
 
 public class DataExportTaskHistoryInfo {
     public Long id;
+    public String trigger;
     public Long startedOn;
     public Long finishedOn;
     public Long duration;
@@ -24,6 +25,7 @@ public class DataExportTaskHistoryInfo {
 
     public DataExportTaskHistoryInfo (DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
         this.id = dataExportOccurrence.getTaskOccurenceId();
+        this.trigger = "Scheduled";   // TODO replace with the actual value
         this.startedOn = dataExportOccurrence.getStartDate().toEpochMilli();
         this.finishedOn = dataExportOccurrence.getEndDate().isPresent() ? dataExportOccurrence.getEndDate().get().toEpochMilli() : null;
         this.duration = calculateDuration(startedOn, finishedOn);

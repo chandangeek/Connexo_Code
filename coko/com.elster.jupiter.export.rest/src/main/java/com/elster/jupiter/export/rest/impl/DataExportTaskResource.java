@@ -2,6 +2,7 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.rest.DataExportOccurrenceLogInfos;
 import com.elster.jupiter.export.rest.DataExportTaskHistoryInfos;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
 import com.elster.jupiter.export.rest.DataExportTaskInfos;
@@ -16,6 +17,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.tasks.TaskLogEntry;
+import com.elster.jupiter.tasks.TaskLogEntryFinder;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
@@ -55,7 +58,6 @@ public class DataExportTaskResource {
     private final MeteringGroupsService meteringGroupsService;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
-    private Condition condition;
 
     @Inject
     public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService) {
@@ -191,6 +193,25 @@ public class DataExportTaskResource {
         return infos;
     }
 
+    @GET
+    @Path("/{id}/history/{occurrenceId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DataExportOccurrenceLogInfos getDataExportTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
+                                                               @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
+        DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task, securityContext);
+        TaskLogEntryFinder finder = occurrence.getLogsFinder()
+                .setStart(queryParameters.getStart())
+                .setLimit(queryParameters.getLimit());
+
+        List<? extends TaskLogEntry> occurrences = finder.find();
+
+        DataExportOccurrenceLogInfos infos = new DataExportOccurrenceLogInfos(queryParameters.clipToLimit(occurrences), thesaurus);
+        infos.total = queryParameters.determineTotal(occurrences.size());
+        return infos;
+    }
+
     private Condition getOccurrenceCondition(Map<String, Long> filter) {
         Condition condition = Condition.TRUE;
 
@@ -206,7 +227,7 @@ public class DataExportTaskResource {
         return condition;
     }
 
-    public Map<String, Long> getFilterMap(JSONArray filterArray) {
+    private Map<String, Long> getFilterMap(JSONArray filterArray) {
         Map<String, Long> filterMap = new HashMap<>();
         if (filterArray!=null) {
             for(int i = 0; i < filterArray.length(); i++) {
@@ -263,6 +284,10 @@ public class DataExportTaskResource {
 
     private ReadingTypeDataExportTask fetchDataExportTask(long id, SecurityContext securityContext) {
         return dataExportService.findExportTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private DataExportOccurrence fetchDataExportOccurrence(long id, ReadingTypeDataExportTask task, SecurityContext securityContext) {
+        return task.getOccurrence(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
 }
