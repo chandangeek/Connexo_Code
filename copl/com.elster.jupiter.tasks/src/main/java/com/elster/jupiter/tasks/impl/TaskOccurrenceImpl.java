@@ -3,6 +3,7 @@ package com.elster.jupiter.tasks.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogEntry;
+import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
 import javax.inject.Inject;
@@ -29,20 +30,8 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         this.dataModel = dataModel;
     }
 
-    TaskOccurrenceImpl init(RecurrentTask recurrentTask, Instant triggerTime) {
-        this.recurrentTask = recurrentTask;
-        this.recurrentTaskId = recurrentTask.getId();
-        this.triggerTime = triggerTime;
-        return this;
-    }
-
     static TaskOccurrenceImpl from(DataModel dataModel, RecurrentTask recurrentTask, Instant triggerTime) {
         return dataModel.getInstance(TaskOccurrenceImpl.class).init(recurrentTask, triggerTime);
-    }
-
-    @Override
-    public long getId() {
-        return id;
     }
 
     @Override
@@ -72,17 +61,33 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         }
     }
 
-    public void hasRun() {
-        ((RecurrentTaskImpl) recurrentTask).updateLastRun(getTriggerTime());
-    }
-
     @Override
-    public void log(Level level, Instant timestamp, String message) {
-        logEntries.add(dataModel.getInstance(TaskLogEntryImpl.class).init(this, timestamp, level, message));
+    public long getId() {
+        return id;
     }
 
     @Override
     public List<TaskLogEntry> getLogs() {
         return Collections.unmodifiableList(logEntries);
+    }
+
+    @Override
+    public TaskLogHandler createTaskLogHandler() {
+        return new TaskLogHandlerImpl(this);
+    }
+
+    TaskOccurrenceImpl init(RecurrentTask recurrentTask, Instant triggerTime) {
+        this.recurrentTask = recurrentTask;
+        this.recurrentTaskId = recurrentTask.getId();
+        this.triggerTime = triggerTime;
+        return this;
+    }
+
+    void hasRun() {
+        ((RecurrentTaskImpl) recurrentTask).updateLastRun(getTriggerTime());
+    }
+
+    void log(Level level, Instant timestamp, String message) {
+        logEntries.add(dataModel.getInstance(TaskLogEntryImpl.class).init(this, timestamp, level, message));
     }
 }
