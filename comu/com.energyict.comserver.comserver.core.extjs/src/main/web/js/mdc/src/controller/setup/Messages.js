@@ -283,14 +283,25 @@ Ext.define('Mdc.controller.setup.Messages', {
                     var initPrivStore = me.get('MessagesPrivileges');
                     initPrivStore.load();
                 }
+            }),
+            warningText;
+
+        if (!setAlreadyChecked) {
+            switch (action) {
+                case 'activateAll':
+                    warningText = Uni.I18n.translate('messages.selectPrivilegesPanelChange.msg', 'MDC', 'The selected privileges will only apply to the commands that aren\'t active yet.');
+                    break;
+                case 'changePrivilegesForAll':
+                    warningText = Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that are active.');
+                    break;
+            }
+            selectPrivilegesPanel.add({
+                xtype: 'component',
+                html: warningText
             });
+        }
 
         selectPrivilegesPanel.add(
-            {
-                xtype: 'component',
-                html: (!setAlreadyChecked && action == 'changePrivilegesForAll') ? (Uni.I18n.translate('messages.selectPrivilegesPanelChange.msg', 'MDC', 'The selected privileges will only apply to the commands that aren\'t active yet.'))
-                    : (setAlreadyChecked ? '' : Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that are not active yet.'))
-            },
             {
                 xtype: 'checkboxgroup',
                 width: 400,
