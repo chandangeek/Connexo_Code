@@ -130,7 +130,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private SchedulingService schedulingService;
     private ValidationService validationService;
 
-
     public InMemoryPersistenceWithMockedDeviceProtocol() {
         this(Clock.systemDefaultZone());
     }
@@ -355,7 +354,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public DeviceProtocolPluggableClass findDeviceProtocolPluggableClass(long id) {
+        public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long id) {
             return protocolPluggableService.findDeviceProtocolPluggableClass(id);
         }
 
@@ -390,7 +389,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public InboundDeviceProtocolPluggableClass findInboundDeviceProtocolPluggableClass(long id) {
+        public Optional<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClass(long id) {
             return protocolPluggableService.findInboundDeviceProtocolPluggableClass(id);
         }
 
@@ -420,12 +419,12 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public ConnectionTypePluggableClass findConnectionTypePluggableClassByName(String name) {
+        public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByName(String name) {
             return protocolPluggableService.findConnectionTypePluggableClassByName(name);
         }
 
         @Override
-        public ConnectionTypePluggableClass findConnectionTypePluggableClass(long id) {
+        public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClass(long id) {
             return protocolPluggableService.findConnectionTypePluggableClass(id);
         }
 

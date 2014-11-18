@@ -329,7 +329,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         DeviceProtocolPluggableClass slaveDeviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(slaveDeviceProtocolPluggableClass.getId()).thenReturn(slavePluggableClassId);
         when(slaveDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(slaveDeviceProtocol);
-        when(inMemoryPersistence.getProtocolPluggableService().findDeviceProtocolPluggableClass(slavePluggableClassId)).thenReturn(slaveDeviceProtocolPluggableClass);
+        when(inMemoryPersistence.getProtocolPluggableService().findDeviceProtocolPluggableClass(slavePluggableClassId)).thenReturn(Optional.of(slaveDeviceProtocolPluggableClass));
         return slaveDeviceProtocolPluggableClass;
     }
 

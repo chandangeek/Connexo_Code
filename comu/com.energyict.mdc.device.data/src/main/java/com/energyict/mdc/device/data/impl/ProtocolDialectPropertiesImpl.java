@@ -35,6 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME;
 
@@ -230,13 +231,13 @@ public class ProtocolDialectPropertiesImpl
         return getDeviceProtocolDialectUsagePluggableClass();
     }
 
-    private DeviceProtocolPluggableClass findDeviceProtocolPluggableClass(long pluggableClassId) {
+    private Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long pluggableClassId) {
         return this.protocolPluggableService.findDeviceProtocolPluggableClass(pluggableClassId);
     }
 
     private DeviceProtocolDialectUsagePluggableClass getDeviceProtocolDialectUsagePluggableClass() {
         if (this.deviceProtocolDialectUsagePluggableClass == null) {
-            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(getPluggableClassId());
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(getPluggableClassId()).get();
             this.deviceProtocolDialectUsagePluggableClass = this.protocolPluggableService.getDeviceProtocolDialectUsagePluggableClass(deviceProtocolPluggableClass, this.getDeviceProtocolDialectName());
         }
         return this.deviceProtocolDialectUsagePluggableClass;
