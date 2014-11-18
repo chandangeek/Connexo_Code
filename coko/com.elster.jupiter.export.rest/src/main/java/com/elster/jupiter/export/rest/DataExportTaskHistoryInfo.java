@@ -6,8 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DataExportTaskHistoryInfo {
     public Long id;
@@ -24,7 +22,7 @@ public class DataExportTaskHistoryInfo {
     }
 
     public DataExportTaskHistoryInfo (DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
-        this.id = dataExportOccurrence.getTaskOccurenceId();
+        this.id = dataExportOccurrence.getId();
         this.trigger = "Scheduled";   // TODO replace with the actual value
         this.startedOn = dataExportOccurrence.getStartDate().toEpochMilli();
         this.finishedOn = dataExportOccurrence.getEndDate().isPresent() ? dataExportOccurrence.getEndDate().get().toEpochMilli() : null;
