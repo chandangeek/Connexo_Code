@@ -139,6 +139,10 @@ Ext.define('Dxp.controller.Tasks', {
         store.getProxy().setUrl(router.arguments);
         var grid = me.getHistory().down('tasks-history-grid');
 
+        Ext.Array.each(Ext.ComponentQuery.query('#view-log'), function (item) {
+            item.show();
+        });
+
         taskModel.load(taskId, {
             success: function (record) {
                 store.load(function(records, operation, success) {
@@ -294,6 +298,12 @@ Ext.define('Dxp.controller.Tasks', {
             router = me.getController('Uni.controller.history.Router'),
             route;
 
+        if (me.getHistory()) {
+            router.arguments.occurrenceId = menu.record.getId();
+        } else {
+            router.arguments.taskId = menu.record.getId();
+        }
+
         switch (item.action) {
             case 'viewDetails':
                 route = 'administration/dataexporttasks/dataexporttask';
@@ -305,14 +315,12 @@ Ext.define('Dxp.controller.Tasks', {
                 me.removeTask(menu.record);
                 break;
             case 'viewLog':
-                route = 'administration/dataexporttasks/dataexporttask/log';
+                route = 'administration/dataexporttasks/dataexporttask/history/occurrence';
                 break;
         }
 
         route && (route = router.getRoute(route));
-        route && route.forward({
-            taskId: menu.record.getId()
-        });
+        route && route.forward(router.arguments);
     },
 
     removeTask: function (record) {
