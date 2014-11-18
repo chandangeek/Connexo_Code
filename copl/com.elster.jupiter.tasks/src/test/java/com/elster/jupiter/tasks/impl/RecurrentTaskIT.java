@@ -50,6 +50,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -229,7 +230,9 @@ public class RecurrentTaskIT {
         long taskOccurrenceId;
         try (TransactionContext context = transactionService.getContext()) {
             TaskOccurrence taskOccurrence = recurrentTask.createTaskOccurrence();
-            taskOccurrence.log(Level.INFO, now, "   Coucou   ");
+            Logger logger = Logger.getAnonymousLogger();
+            logger.addHandler(taskOccurrence.createTaskLogHandler().asHandler());
+            logger.log(Level.INFO, "   Coucou   ");
 
             taskOccurrenceId = taskOccurrence.getId();
             context.commit();
