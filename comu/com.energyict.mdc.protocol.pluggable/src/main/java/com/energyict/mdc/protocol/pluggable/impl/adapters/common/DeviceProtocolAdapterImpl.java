@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Abstract adapter class that can provide general functionality for the {@link SmartMeterProtocol} and {@link MeterProtocol}
@@ -87,11 +88,10 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
 
     protected List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionTypePluggableClass> connectionTypePluggableClasses = this.getProtocolPluggableService().findAllConnectionTypePluggableClasses();
-        List<ConnectionType> connectionTypes = new ArrayList<>(connectionTypePluggableClasses.size());
-        for (ConnectionTypePluggableClass connectionTypePluggableClass : connectionTypePluggableClasses) {
-            connectionTypes.add(connectionTypePluggableClass.getConnectionType());
-        }
-        return connectionTypes;
+        return connectionTypePluggableClasses
+                .stream()
+                .map(ConnectionTypePluggableClass::getConnectionType)
+                .collect(Collectors.toList());
     }
 
     @Override

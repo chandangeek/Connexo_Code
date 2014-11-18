@@ -79,6 +79,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Provides an interface for the {@link ProtocolPluggableService} interface.
@@ -280,13 +281,9 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public DeviceProtocolPluggableClass findDeviceProtocolPluggableClass(long id) {
-        PluggableClass pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.DeviceProtocol, id);
-        if (pluggableClass == null) {
-            return null;
-        } else {
-            return DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
-        }
+    public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long id) {
+        Optional<PluggableClass> pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.DeviceProtocol, id);
+        return pluggableClass.map(pc -> DeviceProtocolPluggableClassImpl.from(this.dataModel, pc));
     }
 
     @Override
@@ -312,12 +309,10 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public void deleteDeviceProtocolPluggableClass(long id) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(id);
-        if (deviceProtocolPluggableClass == null) {
-            throw new NotFoundException("DeviceProtocolPluggableClass with id " + id + " cannot be deleted because it does not exist");
-        } else {
-            deviceProtocolPluggableClass.delete();
-        }
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(id);
+        deviceProtocolPluggableClass
+            .orElseThrow(() -> new NotFoundException("DeviceProtocolPluggableClass with id " + id + " cannot be deleted because it does not exist"))
+            .delete();
     }
 
     @Override
@@ -346,20 +341,16 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public InboundDeviceProtocolPluggableClass findInboundDeviceProtocolPluggableClass(long id) {
-        PluggableClass pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.DiscoveryProtocol, id);
-        if (pluggableClass == null) {
-            return null;
-        } else {
-            return InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
-        }
+    public Optional<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClass(long id) {
+        Optional<PluggableClass> pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.DiscoveryProtocol, id);
+        return pluggableClass.map(pc -> InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pc));
     }
 
     @Override
     public void deleteInboundDeviceProtocolPluggableClass(long id) {
-        InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = this.findInboundDeviceProtocolPluggableClass(id);
-        if (inboundDeviceProtocolPluggableClass != null) {
-            inboundDeviceProtocolPluggableClass.delete();
+        Optional<InboundDeviceProtocolPluggableClass> inboundDeviceProtocolPluggableClass = this.findInboundDeviceProtocolPluggableClass(id);
+        if (inboundDeviceProtocolPluggableClass.isPresent()) {
+            inboundDeviceProtocolPluggableClass.get().delete();
         }
     }
 
@@ -405,33 +396,24 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public ConnectionTypePluggableClass findConnectionTypePluggableClassByName(String name) {
+    public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByName(String name) {
         Optional<PluggableClass> pluggableClasses = this.pluggableService.findByTypeAndName(PluggableClassType.ConnectionType, name);
-        if (pluggableClasses.isPresent()) {
-            return ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClasses.get());
-        } else {
-            return null;
-        }
+        return pluggableClasses.map(pc -> ConnectionTypePluggableClassImpl.from(this.dataModel, pc));
     }
 
     @Override
-    public ConnectionTypePluggableClass findConnectionTypePluggableClass(long id) {
-        PluggableClass pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.ConnectionType, id);
-        if (pluggableClass == null) {
-            return null;
-        } else {
-            return ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass);
-        }
+    public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClass(long id) {
+        Optional<PluggableClass> pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.ConnectionType, id);
+        return pluggableClass.map(pc -> ConnectionTypePluggableClassImpl.from(this.dataModel, pc));
     }
 
     @Override
     public List<ConnectionTypePluggableClass> findAllConnectionTypePluggableClasses() {
         List<PluggableClass> pluggableClasses = this.pluggableService.findAllByType(PluggableClassType.ConnectionType).find();
-        List<ConnectionTypePluggableClass> connectionTypePluggableClasses = new ArrayList<>(pluggableClasses.size());
-        for (PluggableClass pluggableClass : pluggableClasses) {
-            connectionTypePluggableClasses.add(ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass));
-        }
-        return connectionTypePluggableClasses;
+        return pluggableClasses
+                .stream()
+                .map(pluggableClass -> ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass))
+                .collect(Collectors.toList());
     }
 
     @Override
