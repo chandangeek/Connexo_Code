@@ -135,7 +135,7 @@ Ext.define('Ext.form.field.Picker', {
             // in any other browsers
             e.preventDefault();
         }
-        
+
         if (this.isExpanded) {
             this.collapse();
             e.stopEvent();
@@ -227,9 +227,10 @@ Ext.define('Ext.form.field.Picker', {
 </span>     * Collapses this field's picker dropdown.
      */
     collapse: function() {
-        if (this.isExpanded &amp;&amp; !this.isDestroyed) {
-            var me = this,
-                openCls = me.openCls,
+        var me = this;
+
+        if (me.isExpanded &amp;&amp; !me.isDestroyed &amp;&amp; !me.destroying) {
+            var openCls = me.openCls,
                 picker = me.picker,
                 doc = Ext.getDoc(),
                 collapseIf = me.collapseIf,
@@ -262,7 +263,7 @@ Ext.define('Ext.form.field.Picker', {
     collapseIf: function(e) {
         var me = this;
 
-        if (!me.isDestroyed &amp;&amp; !e.within(me.bodyEl, false, true) &amp;&amp; !e.within(me.picker.el, false, true) &amp;&amp; !me.isEventWithinPickerLoadMask(e)) {
+        if (!me.isDestroyed &amp;&amp; !e.within(me.bodyEl, false, true) &amp;&amp; !me.owns(e.target)) {
             me.collapse();
         }
     },
@@ -273,15 +274,33 @@ Ext.define('Ext.form.field.Picker', {
      * @return {Ext.Component} The picker component
      */
     getPicker: function() {
-        var me = this;
-        return me.picker || (me.picker = me.createPicker());
+        var me = this,
+            picker = me.picker;
+
+        if (!picker) {
+            me.picker = picker = me.createPicker();
+            // For upward component searches.
+            picker.ownerCmp = me;
+        }
+
+        return picker;
+    },
+
+<span id='Ext-form-field-Picker-method-getRefItems'>    // @private
+</span>    // The CQ interface. Allow drilling down into the picker when it exists.
+    // Important for determining whether an event took place in the bounds of some
+    // higher level containing component. See AbstractComponent#owns
+    getRefItems: function() {
+        var result = [];
+        if (this.picker) {
+            result[0] = this.picker;
+        }
+        return result;
     },
 
 <span id='Ext-form-field-Picker-method-createPicker'>    /**
 </span>     * @method
      * Creates and returns the component to be used as this field's picker. Must be implemented by subclasses of Picker.
-     * The current field should also be passed as a configuration option to the picker component as the pickerField
-     * property.
      */
     createPicker: Ext.emptyFn,
 
@@ -300,22 +319,31 @@ Ext.define('Ext.form.field.Picker', {
             me.inputEl.focus();
         }
     },
-    
+
+<span id='Ext-form-field-Picker-method-onOtherFocus'>    onOtherFocus: function(dom) {
+</span>        if (this.hasFocus &amp;&amp; !this.owns(dom)) {
+            this.callParent([dom]);
+        }
+    },
+
 <span id='Ext-form-field-Picker-method-triggerBlur'>    triggerBlur: function() {
 </span>        var picker = this.picker;
-            
+
         this.callParent(arguments);
-        if (picker &amp;&amp; picker.isVisible()) {
-            picker.hide();
-        }
+
+        // Hide picker (if visible), and remove all attendant listeners
+        this.collapse();
     },
 
 <span id='Ext-form-field-Picker-method-mimicBlur'>    mimicBlur: function(e) {
 </span>        var me = this,
             picker = me.picker;
-        // ignore mousedown events within the picker element
-        if (!picker || !e.within(picker.el, false, true) &amp;&amp; !me.isEventWithinPickerLoadMask(e)) {
+
+        // Continue blur processing for events which are NOT within this component's descedant tree
+        if (!picker || !me.owns(e.target)) {
             me.callParent(arguments);
+        } else {
+            me.inputEl.focus();
         }
     },
 
@@ -324,28 +352,14 @@ Ext.define('Ext.form.field.Picker', {
             picker = me.picker;
 
         Ext.EventManager.removeResizeListener(me.alignPicker, me);
-        Ext.destroy(me.keyNav);
+        Ext.destroy(me.keyNav, picker);
         if (picker) {
+            delete me.picker;
             delete picker.pickerField;
-            picker.destroy();
         }
         me.callParent();
-    },
-
-<span id='Ext-form-field-Picker-method-isEventWithinPickerLoadMask'>    /**
-</span>     * returns true if the picker has a load mask and the passed event is within the load mask
-     * @private
-     * @param {Ext.EventObject} e
-     * @return {Boolean}
-     */
-    isEventWithinPickerLoadMask: function(e) {
-        var loadMask = this.picker.loadMask;
-
-        return loadMask ? e.within(loadMask.maskEl, false, true) || e.within(loadMask.el, false, true) : false;
     }
-
 });
-
 </pre>
 </body>
 </html>

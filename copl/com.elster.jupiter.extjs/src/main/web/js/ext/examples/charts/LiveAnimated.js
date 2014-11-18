@@ -68,6 +68,7 @@ Ext.onReady(function () {
         minWidth: 550,
         maximizable: true,
         title: 'Live Animated Chart',
+        constrain: true,
         autoShow: true,
         layout: 'fit',
         items: [{

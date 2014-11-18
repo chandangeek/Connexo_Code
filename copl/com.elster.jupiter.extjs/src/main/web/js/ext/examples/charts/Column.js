@@ -61,6 +61,7 @@ Ext.onReady(function () {
         hidden: false,
         maximizable: true,
         title: 'Column Chart',
+        constrain: true,
         autoShow: true,
         layout: 'fit',
         tbar: [{

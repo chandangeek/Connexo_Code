@@ -969,6 +969,8 @@ var noArgs = [],
          *      });
          * 
          *      Ext.define('Ext.some.DerivedClass', {
+         *          extend: 'Ext.some.Class',
+         *
          *          method: function () {
          *              console.log('Bad');
          * 
@@ -978,10 +980,10 @@ var noArgs = [],
          *          }
          *      });
          * 
-         * To patch the bug in `DerivedClass.method`, the typical solution is to create an
+         * To patch the bug in `Ext.some.DerivedClass.method`, the typical solution is to create an
          * override:
          * 
-         *      Ext.define('App.paches.DerivedClass', {
+         *      Ext.define('App.patches.DerivedClass', {
          *          override: 'Ext.some.DerivedClass',
          *          
          *          method: function () {

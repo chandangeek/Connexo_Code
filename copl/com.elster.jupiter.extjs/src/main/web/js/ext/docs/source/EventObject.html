@@ -23,7 +23,7 @@
 </span> * @class Ext.EventObject
 
 Just as {@link Ext.Element} wraps around a native DOM node, Ext.EventObject
-wraps the browser's native event-object normalizing cross-browser differences,
+wraps the {@link #property-browserEvent} browser's native event object}, normalizing cross-browser differences,
 such as which mouse button is clicked, keys pressed, mechanisms to stop
 event-propagation along with a method to prevent default actions from taking place.
 
@@ -293,7 +293,7 @@ Ext.define('Ext.EventObjectImpl', {
         63275: 35 // end
     },
 <span id='Ext-EventObject-property-btnMap'>    // normalize button clicks, don't see any way to feature detect this.
-</span>    btnMap: Ext.isIE ? {
+</span>    btnMap: Ext.isIE9m ? {
         1: 0,
         4: 1,
         2: 2
@@ -316,9 +316,19 @@ Ext.define('Ext.EventObjectImpl', {
 </span>     * @property {Boolean} shiftKey
      * True if the shift key was down during the event.
      */
+<span id='Ext-EventObject-property-browserEvent'>    /**
+</span>     * @property {DomEvent} browserEvent
+     * The raw browser event which this object wraps.
+     */
 
-    constructor: function(event, freezeEvent){
-        if (event) {
+<span id='Ext-EventObject-property-isEvent'>    /** 
+</span>     * @property {Boolean} isEvent
+     * `true` in this class to identify an object as an instantiated Event, or subclass thereof.
+     */
+    isEvent: true,
+
+<span id='Ext-EventObject-method-constructor'>    constructor: function(event, freezeEvent){
+</span>        if (event) {
             this.setEvent(event.browserEvent || event, freezeEvent);
         }
     },
@@ -685,7 +695,8 @@ Ext.getBody().on('click', function(e,t){
     * @return {Boolean}
     */
     hasModifier : function(){
-        return this.ctrlKey || this.altKey || this.shiftKey || this.metaKey;
+        var me = this;
+        return !!(me.ctrlKey || me.altKey || me.shiftKey || me.metaKey);
     },
 
 <span id='Ext-EventObject-method-injectEvent'>    /**

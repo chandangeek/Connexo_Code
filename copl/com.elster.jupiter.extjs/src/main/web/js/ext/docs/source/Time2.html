@@ -133,8 +133,13 @@ Ext.define('Ext.form.field.Time', {
     //&lt;/locale&gt;
 
 <span id='Ext-form-field-Time-cfg-increment'>    /**
-</span>     * @cfg {Number} increment
+</span>     * @cfg {Number} [increment=15]
      * The number of minutes between each time value in the list.
+     *
+     * Note that this only affects the *list of suggested times.*
+     *
+     * To enforce that only times on the list are valid, use {@link #snapToIncrement}. That will coerce
+     * any typed values to the nearest increment point upon blur.
      */
     increment: 15,
 
@@ -149,10 +154,12 @@ Ext.define('Ext.form.field.Time', {
      * Whether the Tab key should select the currently highlighted item.
      */
     selectOnTab: true,
-    
+
 <span id='Ext-form-field-Time-cfg-snapToIncrement'>    /**
 </span>     * @cfg {Boolean} [snapToIncrement=false]
      * Specify as `true` to enforce that only values on the {@link #increment} boundary are accepted.
+     *
+     * Typed values will be coerced to the nearest {@link #increment} point on blur.
      */
     snapToIncrement: false,
 
@@ -178,12 +185,16 @@ Ext.define('Ext.form.field.Time', {
 </span>        var me = this,
             min = me.minValue,
             max = me.maxValue;
+        
         if (min) {
             me.setMinValue(min);
         }
         if (max) {
             me.setMaxValue(max);
         }
+        // Forcibly create the picker, since we need the store it creates
+        me.store = me.getPicker().store;
+        
         me.displayTpl = new Ext.XTemplate(
             '&lt;tpl for=&quot;.&quot;&gt;' +
                 '{[typeof values === &quot;string&quot; ? values : this.formatDate(values[&quot;' + me.displayField + '&quot;])]}' +
@@ -191,7 +202,7 @@ Ext.define('Ext.form.field.Time', {
             '&lt;/tpl&gt;', {
             formatDate: Ext.Function.bind(me.formatDate, me)
         });
-        this.callParent();
+        me.callParent();
     },
 
 <span id='Ext-form-field-Time-method-transformOriginalValue'>    /**
@@ -280,9 +291,10 @@ Ext.define('Ext.form.field.Time', {
         me[isMin ? 'minValue' : 'maxValue'] = val;
     },
     
-<span id='Ext-form-field-Time-method-getInitDate'>    getInitDate: function(hours, minutes) {
+<span id='Ext-form-field-Time-method-getInitDate'>    getInitDate: function (hours, minutes, seconds) {
 </span>        var parts = this.initDateParts;
-        return new Date(parts[0], parts[1], parts[2], hours || 0, minutes || 0, 0, 0);    
+
+        return new Date(parts[0], parts[1], parts[2], hours || 0, minutes || 0, seconds || 0, 0);    
     },
 
 <span id='Ext-form-field-Time-method-valueToRaw'>    valueToRaw: function(value) {
@@ -427,7 +439,6 @@ Ext.define('Ext.form.field.Time', {
             maxHeight: me.pickerMaxHeight
         }, me.listConfig);
         picker = me.callParent();
-        me.bindStore(picker.store);
         return picker;
     },
     
@@ -486,7 +497,10 @@ Ext.define('Ext.form.field.Time', {
                                }
                            }
                         }
-                        selModel.select(toSelect);
+
+                        if (toSelect.length) {
+                            selModel.select(toSelect);
+                        }
                     }
                 }
             }
@@ -536,11 +550,12 @@ Ext.define('Ext.form.field.Time', {
         return me.parseDate(item);
     },
 
-<span id='Ext-form-field-Time-method-setValue'>    setValue: function(v) {
-</span>        // Store MUST be created for parent setValue to function
+<span id='Ext-form-field-Time-method-setValue'>    setValue: function (v) {
+</span>        // Store MUST be created for parent setValue to function.
         this.getPicker();
+
         if (Ext.isDate(v)) {
-            v = this.getInitDate(v.getHours(), v.getMinutes());
+            v = this.getInitDate(v.getHours(), v.getMinutes(), v.getSeconds());
         }
 
         return this.callParent([v]);

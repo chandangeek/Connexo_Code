@@ -119,7 +119,7 @@ Ext.define('Ext.state.CookieProvider', {
         var me = this;
 
         document.cookie = me.prefix + name + &quot;=&quot; + me.encodeValue(value) +
-           ((me.expires == null) ? &quot;&quot; : (&quot;; expires=&quot; + me.expires.toGMTString())) +
+           ((me.expires == null) ? &quot;&quot; : (&quot;; expires=&quot; + me.expires.toUTCString())) +
            ((me.path == null) ? &quot;&quot; : (&quot;; path=&quot; + me.path)) +
            ((me.domain == null) ? &quot;&quot; : (&quot;; domain=&quot; + me.domain)) +
            ((me.secure == true) ? &quot;; secure&quot; : &quot;&quot;);
@@ -129,7 +129,7 @@ Ext.define('Ext.state.CookieProvider', {
 </span>    clearCookie : function(name){
         var me = this;
 
-        document.cookie = me.prefix + name + &quot;=null; expires=Thu, 01-Jan-70 00:00:01 GMT&quot; +
+        document.cookie = me.prefix + name + &quot;=null; expires=Thu, 01-Jan-1970 00:00:01 GMT&quot; +
            ((me.path == null) ? &quot;&quot; : (&quot;; path=&quot; + me.path)) +
            ((me.domain == null) ? &quot;&quot; : (&quot;; domain=&quot; + me.domain)) +
            ((me.secure == true) ? &quot;; secure&quot; : &quot;&quot;);

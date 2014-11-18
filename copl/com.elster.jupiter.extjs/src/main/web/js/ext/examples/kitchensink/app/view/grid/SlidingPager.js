@@ -76,11 +76,12 @@ Ext.define('KitchenSink.view.grid.SlidingPager', {
                 dataIndex: 'pctChange',
                 width: this.themeInfo.percentChangeColumnWidth
             },{
+                xtype    : 'datecolumn',
                 text: 'Last Updated',
                 sortable: true,
                 dataIndex: 'lastChange',
                 width: this.themeInfo.lastUpdatedColumnWidth,
-                renderer: Ext.util.Format.dateRenderer('m/d/Y')
+                format: 'm/d/Y'
             }],
             bbar: {
                 xtype: 'pagingtoolbar',

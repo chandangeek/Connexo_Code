@@ -99,7 +99,7 @@ Ext.define('Ext.chart.Tip', {
         } else {
             tipConfig.renderer.call(tooltip, item.storeItem, item);
         }
-        tooltip.delayShow();
+        tooltip.delayShow(trackMouse);
         tooltip.trackMouse = trackMouse;
     },
 
@@ -113,6 +113,7 @@ Ext.define('Ext.chart.Tip', {
             tooltip.delayHide();
         }, 0);
     }
-});</pre>
+});
+</pre>
 </body>
 </html>

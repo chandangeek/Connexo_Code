@@ -65,6 +65,7 @@ Ext.onReady(function () {
         maximizable: true,
         style: 'overflow: hidden;',
         title: 'Radar Chart',
+        constrain: true,
         renderTo: Ext.getBody(),
         layout: 'fit',
         tbar: [{

@@ -66,6 +66,8 @@ Ext.define('Ext.selection.CheckboxModel', {
 <span id='Ext-selection-CheckboxModel-property-checkerOnCls'>    // private
 </span>    checkerOnCls: Ext.baseCSSPrefix + 'grid-hd-checker-on',
     
+<span id='Ext-selection-CheckboxModel-property-tdCls'>    tdCls: Ext.baseCSSPrefix + 'grid-cell-special ' + Ext.baseCSSPrefix + 'grid-cell-row-checker',
+</span>    
 <span id='Ext-selection-CheckboxModel-method-constructor'>    constructor: function(){
 </span>        var me = this;
         me.callParent(arguments);   
@@ -220,6 +222,7 @@ Ext.define('Ext.selection.CheckboxModel', {
             hideable: false,
             menuDisabled: true,
             dataIndex: '',
+            tdCls: me.tdCls,
             cls: showCheck ? Ext.baseCSSPrefix + 'column-header-checkbox ' : '',
             renderer: Ext.Function.bind(me.renderer, me),
             editRenderer: me.editRenderer || me.renderEmpty,
@@ -243,9 +246,7 @@ Ext.define('Ext.selection.CheckboxModel', {
      * See {@link Ext.grid.column.Column#renderer} for description of allowed parameters.
      */
     renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
-        var baseCSSPrefix = Ext.baseCSSPrefix;
-        metaData.tdCls = baseCSSPrefix + 'grid-cell-special ' + baseCSSPrefix + 'grid-cell-row-checker';
-        return '&lt;div class=&quot;' + baseCSSPrefix + 'grid-row-checker&quot; role=&quot;presentation&quot;&gt;&amp;#160;&lt;/div&gt;';
+        return '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'grid-row-checker&quot; role=&quot;presentation&quot;&gt;&amp;#160;&lt;/div&gt;';
     },
     
 <span id='Ext-selection-CheckboxModel-method-processSelection'>    processSelection: function(view, record, item, index, e){
@@ -337,7 +338,7 @@ Ext.define('Ext.selection.CheckboxModel', {
             selected = me.selected;
             hdSelectStatus = true;
             for (i = 0, len = selected.getCount(); i &lt; len; ++i) {
-                if (!me.storeHasSelected(selected.getAt(i))) {
+                if (!me.getStoreRecord(selected.getAt(i))) {
                     break;
                 }
                 ++selectedCount;

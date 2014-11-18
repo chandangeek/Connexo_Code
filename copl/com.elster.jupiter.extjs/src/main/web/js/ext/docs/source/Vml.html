@@ -323,8 +323,7 @@ Ext.define('Ext.draw.engine.Vml', {
                     Math.round((cy + ry) * me.zoom),
                     Math.round(cx * me.zoom));
                 sprite.dirtyPath = false;
-            }
-            else if (sprite.type !== &quot;text&quot; &amp;&amp; sprite.type !== 'image') {
+            } else {
                 sprite.attr.path = scrubbedAttrs.path = me.setPaths(sprite, scrubbedAttrs) || scrubbedAttrs.path;
                 dom.path = me.path2vml(scrubbedAttrs.path);
                 sprite.dirtyPath = false;

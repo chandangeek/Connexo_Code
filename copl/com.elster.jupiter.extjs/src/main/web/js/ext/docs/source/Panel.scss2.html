@@ -15,57 +15,33 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">.#{$prefix}panel,
-.#{$prefix}plain {
-    overflow: hidden;
+  <pre class="prettyprint lang-js">// form items
+.#{$prefix}form-item {
+    vertical-align: top;
+    table-layout: fixed;
+}
+
+// Allow for positioned child elements, e.g. custom icons
+.#{$prefix}form-item-body {
     position: relative;
 }
 
-.#{$prefix}panel {
-    outline: none;
-}
-
-@if $include-ie {
-    // Workaround for disappearing right edge in IE6
-    .#{$prefix}ie {
-        .#{$prefix}panel-header,
-        .#{$prefix}panel-header-tl,
-        .#{$prefix}panel-header-tc,
-        .#{$prefix}panel-header-tr,
-        .#{$prefix}panel-header-ml,
-        .#{$prefix}panel-header-mc,
-        .#{$prefix}panel-header-mr,
-        .#{$prefix}panel-header-bl,
-        .#{$prefix}panel-header-bc,
-        .#{$prefix}panel-header-br {
-            zoom: 1;
-        }
-    }
-    // Fix for IE8 clipping. EXTJSIV-1553
-    .#{$prefix}ie8 {
-        td.#{$prefix}frame-mc {
-            vertical-align: top;
-        }
+@if $include-rtl {
+    // EXTJSIV-9100: in IE quirks in rtl mode relatively positioning a td element (the form-item-body)
+    // causes the td to display outside of the table.  This only happens when the table itself
+    // is absolutely positioned (e.g. hbox layout on a toolbar) To fix position the tr element at right: 0;
+    //
+    // Note that this cannot be relatively-positioned.  See EXTJSIV-11571.
+    .#{$prefix}rtl.#{$prefix}form-item .#{$prefix}form-item-input-row {
+        right: 0;
     }
 }
 
-.#{$prefix}panel-body {
-    overflow: hidden;
-    position: relative;
-}
-
-@if $include-slicer-gradient {
-    .#{$prefix}nlg .#{$prefix}panel-header-vertical {
-        .#{$prefix}frame-mc {
-            background-repeat: repeat-y;
-        }
+.#{$prefix}form-form-item {
+    td {
+        border-top: 1px solid transparent;
     }
 }
-
-.#{$prefix}panel-header-plain,
-.#{$prefix}panel-body-plain {
-    border: 0;
-    padding: 0;
-}</pre>
+</pre>
 </body>
 </html>

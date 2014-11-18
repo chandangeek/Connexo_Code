@@ -69,6 +69,9 @@ Ext.define('Ext.calendar.view.Month', {
     moreElIdDelimiter: '-more-',
     weekLinkIdDelimiter: 'ext-cal-week-',
 
+    // See EXTJSIV-11407.
+    operaLT11: Ext.isOpera && (parseInt(Ext.operaVersion) < 11),
+
     // private
     initComponent: function() {
         this.callParent(arguments);
@@ -221,7 +224,7 @@ Ext.define('Ext.calendar.view.Month', {
             var tpl,
             body = this.getEventBodyMarkup();
 
-            tpl = !(Ext.isIE || Ext.isOpera) ?
+            tpl = !(Ext.isIE || this.operaLT11) ?
             new Ext.XTemplate(
                 '<div id="{_elId}" class="{_selectorCls} {_colorCls} {spanCls} ext-cal-evt ext-cal-evr">',
                     body,
@@ -229,12 +232,12 @@ Ext.define('Ext.calendar.view.Month', {
             )
             : new Ext.XTemplate(
                 '<tpl if="_renderAsAllDay">',
-                    '<div id="{_elId}" class="{_selectorCls} {spanCls} {_colorCls} ext-cal-evt ext-cal-evo">',
+                    '<div id="{_elId}" class="{_selectorCls} {spanCls} {_colorCls} {_operaLT11} ext-cal-evo">',
                         '<div class="ext-cal-evm">',
                             '<div class="ext-cal-evi">',
                 '</tpl>',
                 '<tpl if="!_renderAsAllDay">',
-                    '<div id="{_elId}" class="{_selectorCls} {_colorCls} ext-cal-evt ext-cal-evr">',
+                    '<div id="{_elId}" class="{_selectorCls} {_colorCls} {_operaLT11} ext-cal-evt ext-cal-evr">',
                 '</tpl>',
                     body,
                 '<tpl if="_renderAsAllDay">',
@@ -262,7 +265,8 @@ Ext.define('Ext.calendar.view.Month', {
             _elId: selector + '-' + evt._weekIndex,
             _isRecurring: evt.Recurrence && evt.Recurrence != '',
             _isReminder: evt[M.Reminder.name] && evt[M.Reminder.name] != '',
-            Title: (evt[M.IsAllDay.name] ? '' : Ext.Date.format(evt[M.StartDate.name], 'g:ia ')) + (!title || title.length == 0 ? '(No title)' : title)
+            Title: (evt[M.IsAllDay.name] ? '' : Ext.Date.format(evt[M.StartDate.name], 'g:ia ')) + (!title || title.length == 0 ? '(No title)' : title),
+            _operaLT11: this.operaLT11 ? 'ext-operaLT11' : ''
         },
         evt);
     },

@@ -5,6 +5,7 @@ Ext.Loader.setPath('Ext.ux', '../ux');
 
 Ext.require([
     'Ext.grid.*',
+    'Ext.layout.container.Border',
     'Ext.data.*',
     'Ext.form.field.Number',
     'Ext.form.field.Date',
@@ -69,6 +70,7 @@ Ext.onReady(function(){
         renderTo: document.body,
         columnLines : true,
         store: store,
+        layout: 'border',
         plugins: [
             cellEditing,
             {
@@ -116,9 +118,19 @@ Ext.onReady(function(){
             ftype: 'summary',
             dock: 'bottom'
         }],
+        split: true,
+        lockedGridConfig: {
+            title: 'Project tasks',
+            collapsible: true,
+            width: 300,
+            forceFit: true
+        },
+        lockedViewConfig: {
+            scroll: 'horizontal'
+        },
         columns: [{
             text: 'Task',
-            width: 300,
+            flex: 1,
             locked: true,
             tdCls: 'task',
             sortable: true,
@@ -178,7 +190,6 @@ Ext.onReady(function(){
             }, {
                 header: 'Cost',
                 width: 114,
-                flex: true,
                 sortable: false,
                 groupable: false,
                 renderer: function(value, metaData, record, rowIdx, colIdx, store, view) {

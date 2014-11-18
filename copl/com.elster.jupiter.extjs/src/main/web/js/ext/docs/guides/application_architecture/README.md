@@ -656,7 +656,9 @@ sent to `updateUsers.json`. This is just so we know things are working
 without overwriting our test data. After updating a record, the
 `updateUsers.json` file just contains `{"success": true}`. Since it is
 updated through a HTTP POST command, you may have to create an empty
-file to avoid receiving a 404 error.
+file to avoid receiving a 404 error. `updateUsers.json` is just a placeholder
+file that does nothing, it's only there to simulate a server page that
+would update the data to a persistent data store.
 
 The only other change we need to make is to tell our Store to
 synchronize itself after editing, which we do by adding one more line

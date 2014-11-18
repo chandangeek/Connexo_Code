@@ -242,13 +242,17 @@ Ext.define('Ext.util.Event', function() {
     },
 
     suspend: function() {
-        this.suspended += 1;
+        ++this.suspended;
     },
 
     resume: function() {
         if (this.suspended) {
-            this.suspended--;
+            --this.suspended;
         }
+    },
+    
+    isSuspended: function() {
+        return this.suspended &gt; 0;
     },
 
     fire: function() {

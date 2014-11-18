@@ -10,6 +10,7 @@ Ext.define('KitchenSink.view.tree.TreeGrid', {
     ],    
     xtype: 'tree-grid',
     
+    reserveScrollbar: true,
     //<example>
     exampleTitle: 'TreeGrid',
     exampleDescription: [

@@ -189,6 +189,11 @@ Ext.define('Ext.data.proxy.Direct', {
         });
         args.push(me.createRequestCallback(request, operation, callback, scope), me);
         fn.apply(window, args);
+        
+        // Store expects us to return something to indicate that the request
+        // is pending; not doing so will make a buffered Store repeat the
+        // requests over and over. See https://sencha.jira.com/browse/EXTJSIV-11757
+        return request;
     },
 
 <span id='Ext-data-proxy-Direct-property-applyEncoding'>    /*

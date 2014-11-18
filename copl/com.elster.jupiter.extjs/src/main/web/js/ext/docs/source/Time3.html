@@ -183,7 +183,8 @@ Ext.define('Ext.picker.Time', {
         }
 
         return new Ext.data.Store({
-            fields: ['disp', 'date'],
+            model: me.modelType,
+            autoDestroy: true,
             data: times
         });
     },
@@ -193,7 +194,11 @@ Ext.define('Ext.picker.Time', {
         // so this is here to prevent focus of the boundlist view. See EXTJSIV-7319.
         return false;
     }
-
+}, function() {
+    this.prototype.modelType = Ext.define(null, {
+        extend: 'Ext.data.Model',
+        fields: ['disp', 'date']
+    });
 });
 </pre>
 </body>

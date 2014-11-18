@@ -95,19 +95,21 @@ function initializeHospitalDropZone(v) {
         onNodeDrop : function(target, dd, e, data){
             var rowBody = Ext.fly(target).findParent('.x-grid-rowbody-tr', null, false),
                 mainRow = rowBody.previousSibling,
-                h = gridView.getRecord(mainRow),
+                hospital = gridView.getRecord(mainRow),
                 targetEl = Ext.get(target),
-                html = targetEl.dom.innerHTML;
+                html = targetEl.dom.innerHTML,
+                patients = hospital.get('patients');
                 
-            if (html == 'Drop Patient Here') {
-                html = data.patientData.name
-            } else {
-                html = data.patientData.name + ', ' + targetEl.dom.innerHTML;
+            if (!patients) {
+                patients = [];
+                hospital.set('patients', patients);
             }
-
+            patients.push(data.patientData.name);
+            html = patients.join(', ');
             targetEl.update(html);
             Ext.Msg.alert('Drop gesture', 'Dropped patient ' + data.patientData.name +
-                ' on hospital ' + h.data.name);
+                ' on hospital ' + hospital.get('name'));
+                
             return true;
         }
     });
@@ -148,13 +150,7 @@ Ext.onReady(function() {
     Ext.define('Patient', {
         extend: 'Ext.data.Model',
         idProperty: 'insuranceCode',
-        fields: [{
-                name: 'name'
-            }, {
-                name: 'address'
-            }, {
-                name: 'telephone'
-            }]
+        fields: ['name', 'address', 'telephone']
     });
 
     var patientStore = Ext.create('Ext.data.Store', {
@@ -187,13 +183,7 @@ Ext.onReady(function() {
     Ext.define('Hospital', {
         extend: 'Ext.data.Model',
         idProperty: 'code',
-        fields: [{
-            name: 'name'
-        }, {
-            name: 'address'
-        }, {
-            name: 'telephone'
-        }]
+        fields: ['name', 'address', 'telephone', 'patients']
     });
 
     var hospitalStore = Ext.create('Ext.data.Store', {
@@ -272,8 +262,19 @@ Ext.onReady(function() {
             ftype:'rowbody',
             setup: function(rows, rowValues) {
                 Ext.grid.feature.RowBody.prototype.setup.apply(this, arguments);
-                rowValues.rowBody = 'Drop Patient Here';
                 rowValues.rowBodyDivCls = 'hospital-target';
+            },
+            getAdditionalData: function(data) {
+                var patients = data.patients,
+                    html;
+                if (patients) {
+                    html = patients.join(', ');
+                } else {
+                    html = 'Drop patients here';
+                }
+                return {
+                    rowBody: html
+                };
             }
         }],
         viewConfig: {

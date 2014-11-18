@@ -28,6 +28,7 @@ Ext.define('Ext.container.Monitor', {
 <span id='Ext-container-Monitor-property-scope'>    scope: null,
 </span><span id='Ext-container-Monitor-property-addHandler'>    addHandler: null,
 </span><span id='Ext-container-Monitor-property-removeHandler'>    removeHandler: null,
+</span><span id='Ext-container-Monitor-property-invalidateHandler'>    invalidateHandler: null,
 </span>    
 <span id='Ext-container-Monitor-property-disabled'>    disabled: 0,
 </span>    
@@ -155,7 +156,7 @@ Ext.define('Ext.container.Monitor', {
 <span id='Ext-container-Monitor-method-onContainerRemove'>    onContainerRemove: function(ct, comp){
 </span>        var me = this,
             items, i, len, item;
-            
+         
         // If it's not a container, it means it's a queryable that isn't a container.
         // For example a button with a menu
         if (!comp.isDestroyed &amp;&amp; !comp.destroying &amp;&amp; comp.isContainer) {
@@ -173,7 +174,7 @@ Ext.define('Ext.container.Monitor', {
             }
         } else {
             // comp destroying, or we need to invalidate the collection
-            me.invalidateItems();
+            me.invalidateItems(true);
         }
     },
     
@@ -196,8 +197,14 @@ Ext.define('Ext.container.Monitor', {
         return items;
     },
     
-<span id='Ext-container-Monitor-method-invalidateItems'>    invalidateItems: function(){
-</span>        this.items = null;
+<span id='Ext-container-Monitor-method-invalidateItems'>    invalidateItems: function(triggerHandler) {
+</span>        var me = this,
+            handler = me.invalidateHandler;
+            
+        if (triggerHandler &amp;&amp; handler) {
+            handler.call(me.scope || me, me);
+        }
+        me.items = null;
     }
 });
 </pre>

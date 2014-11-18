@@ -1,8 +1,15 @@
 # Generating Metadata
 
-The metadata tracked by the Sencha Cmd compiler has a variety of uses, some of which we'll
-examine in this guide. To support these uses, the compiler can export and format this
-metadata in several different ways, which we'll cover here, as well.
+The metadata tracked by the [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/)
+compiler has a variety of uses, some of which we will examine in this guide. To support
+these uses, the compiler can export and format this metadata in several different ways,
+which we will cover here as well.
+
+## Prerequisites
+
+The following guides are recommended reading before proceeding further:
+
+  - [Sencha Compiler Reference](#!/guide/command_compiler)
 
 ## Generating Output with `meta`
 
@@ -232,9 +239,9 @@ that users can still compile their application using Sencha Cmd.
 
 The above creates a file that contains directives like this:
 
-    //@define Foo.bar.Thing
-    //@require Ext.panel.Panel
-    //@uses Ext.layout.container.HBox
+    // @define Foo.bar.Thing
+    // @require Ext.panel.Panel
+    // @uses Ext.layout.container.HBox
 
 These directives are recognized by the compiler and introduce the symbolic names needed for
 user code to compile. These symbols should be added to the obfuscated library file to ensure

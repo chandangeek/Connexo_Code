@@ -175,7 +175,7 @@ Ext.define('Ext.state.Provider', {
         } else if(typeof value == 'boolean') {
             enc = 'b:' + (value ? '1' : '0');
         } else if(Ext.isDate(value)) {
-            enc = 'd:' + value.toGMTString();
+            enc = 'd:' + value.toUTCString();
         } else if(Ext.isArray(value)) {
             for (len = value.length; i &lt; len; i++) {
                 flat += this.encodeValue(value[i]);

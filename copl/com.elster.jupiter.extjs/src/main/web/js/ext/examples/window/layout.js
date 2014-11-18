@@ -19,6 +19,8 @@ Ext.onReady(function(){
                 },
                 closable: true,
                 closeAction: 'hide',
+                maximizable: true,
+                animateTarget: button,
                 width: 600,
                 minWidth: 350,
                 height: 350,
@@ -41,7 +43,7 @@ Ext.onReady(function(){
                         // LTR even when example is RTL so that the code can be read
                         rtl: false,
                         title: 'Bogus Tab',
-                        html: '<p>Window configured with:</p><pre style="margin-left:20px"><code>header: {\n    titlePosition: 2,\n    titleAlign: "center"\n},\ntools: [{type: "pin"}],\nclosable: true</code></pre>'
+                        html: '<p>Window configured with:</p><pre style="margin-left:20px"><code>header: {\n    titlePosition: 2,\n    titleAlign: "center"\n},\nmaximizable: true,\ntools: [{type: "pin"}],\nclosable: true</code></pre>'
                     }, {
                         title: 'Another Tab',
                         html: 'Hello world 2'

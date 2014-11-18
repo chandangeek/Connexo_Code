@@ -68,7 +68,7 @@ Ext.define('Ext.grid.column.RowNumberer', {
 
 <span id='Ext-grid-column-RowNumberer-cfg-align'>    align: 'right',
 </span>
-<span id='Ext-grid-column-RowNumberer-method-constructor'>    constructor : function(config){
+<span id='Ext-grid-column-RowNumberer-method-constructor'>    constructor: function (config) {
 </span>        var me = this;
 
         // Copy the prototype's default width setting into an instance property to provide
@@ -79,8 +79,8 @@ Ext.define('Ext.grid.column.RowNumberer', {
         me.scope = me;
     },
 
-<span id='Ext-grid-column-RowNumberer-method-beforeRender'>    beforeRender: function() {
-</span>        var rowBody = this.up('gridpanel').view.findFeature('rowbody');
+<span id='Ext-grid-column-RowNumberer-method-beforeRender'>    beforeRender: function () {
+</span>        var rowBody = this.up('tablepanel').view.findFeature('rowbody');
 
         this.callParent(arguments);
 

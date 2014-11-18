@@ -1,188 +1,299 @@
 # Getting Started
 
-## 1. Requirements
+This guide helps you set up a development environment with all the required 
+software tools you need to create and debug Ext JS applications. This guide
+also explains the layout and directory contents of a standard application, 
+and walks you through the creation of a simple application.
 
-### 1.1 Web Browsers
+## Get Ext JS 4 SDK
 
-Ext JS 4 supports all major web browsers, from Internet Explorer 6 to the latest version of Google Chrome. During development, however, we recommend that you choose one of the following browsers for the best debugging experience:
+Download [Ext JS 4 SDK](http://www.sencha.com/products/extjs/). Unzip the package 
+into a new directory of your choosing. Because you may also be 
+creating Touch applications 
+as well, it's a good idea to place all available SDKs and their versions in a single 
+directory for easy reference whenever you wish to create a new 
+application (or upgrade older ones). 
+In this case, an appropriate directory in which to place your SDKs can be called 
+<code>SenchaSdk</code>, or any name you choose. 
+The directory where you unzip Ext JS is the "<i>/path/to/extjs</i>" directory, which 
+appears in the examples in this guide.
 
-- [Google Chrome](http://www.google.com/chrome/) 10+
-- [Apple Safari](http://www.apple.com/safari/download/) 5+
-- [Mozilla Firefox](http://www.mozilla.com/en-US/firefox/fx/) 4+ with the [Firebug](http://getfirebug.com/) Web Development Plugin
+## Get a Web Browser
 
-This tutorial assumes you are using the latest version of Google Chrome.  If you don't already have Chrome take a moment to install it, and familiarize yourself with the [Chrome Developer Tools](http://code.google.com/chrome/devtools/docs/overview.html).
+Ext JS 4 supports all major web browsers, from Internet Explorer 6 to the 
+latest version of Google Chrome. During development, however, we recommend 
+that you choose the latest version of the following browsers for the best debugging experience:
 
-### 1.2 Web Server
+- [Google Chrome](http://www.google.com/chrome/) 
+- [Apple Safari](http://www.apple.com/safari/download/) 
+- [Mozilla Firefox](http://www.mozilla.com/en-US/firefox/fx/) with the [Firebug](http://getfirebug.com/) web development plugin
 
-Even though a local web server is not a requirement to use Ext JS 4, it is still highly recommended that you develop with one, since [XHR](http://en.wikipedia.org/wiki/XHR) over local [file:// protocol](http://en.wikipedia.org/wiki/File_URI_scheme) has [cross origin restriction](http://en.wikipedia.org/wiki/Same_origin_policy) on most browsers.
-If you don't already have a local web server it is recommended that you download and install Apache HTTP Server.
+This tutorial assumes you are using the latest version of Google Chrome. 
+If you don't already have Chrome take a moment to install it, and familiarize 
+yourself with the 
+[Chrome Developer Tools](http://code.google.com/chrome/devtools/docs/overview.html).
 
-- [Instructions for installing Apache on Windows](http://httpd.apache.org/docs/current/platform/windows.html)
-- [Instructions for installing Apache on Linux](http://httpd.apache.org/docs/current/install.html)
-- Mac OS X comes with a build in apache installation which you can enable by navigating to "System Preferences > Sharing" and checking the box next to "Web Sharing".
+## Get Sencha Cmd
 
-Once you have installed or enabled Apache you can verify that it is running by navigating to [localhost](http://localhost/) in your browser.  You should see a startup page indicating that Apache HTTP Server was installed successfully and is running.
+<a href="http://www.sencha.com/products/sencha-cmd/download">Sencha Cmd</a>
+is a free tool with many useful functions. You can generate a starting environment, 
+"stub" applications, update your software, update files, and it also provides a 
+simplified web server. In addition, Sencha Cmd supports Ant commands 
+that let you customize build tools.
 
-### 1.3. Ext JS 4 SDK
+After you download and install Sencha Cmd, you can verify that it's working by 
+typing the <b>sencha</b> command in a command line prompt. The output appears as:
 
-Download [Ext JS 4 SDK][sdk-download]. Unzip the package to a new directory called "extjs" within your web root directory.  If you aren't sure where your web root directory is, consult the docs for your web server.
-Your web root directory may vary depending on your operating system, but if you are using Apache it is typically located at:
+<pre>
+$ sencha
+<b>Sencha Cmd vn.n.n.n</b>
+Sencha Cmd provides several categories of commands and some global switches. 
+...
+</pre>
 
-- Windows - "C:\Program Files\Apache Software Foundation\Apache2.2\htdocs"
-- Linux - "/var/www/"
-- Mac OS X - "/Library/WebServer/Documents/"
+<a name="scws"></a>
+## Sencha Cmd Web Server
 
-Once you have finished installing Apache navigate to [http://localhost/extjs/index.html](http://localhost/extjs/index.html) in your browser. If an Ext JS 4 welcome page appears, you are all set.
+Sencha Cmd provides a simplified Jetty web server for use in serving your application
+to your web browser. You can run the web server from a command line using the 
+the <b>sencha web start</b> command.
 
-## 2. Application Structure
+You can set the port with the <code>-port</code> option. The
+<code>-map</code> parameter specifies the path to the directory you want to serve.
 
-### 2.1 Basic Structure
+By default, the server is accessed using the
+<a href="http://localhost:1841">http://localhost:1841</a> URL in your browser.
+The directory used for the root of the web server is the directory in which you issue
+the <b>sencha web start</b> command.
 
-Although not mandatory, all suggestions listed below should be considered as best-practice guidelines to keep your application well organized, extensible and maintainable.
-The following is the recommended directory structure for an Ext JS application:
+The web server runs in the window until you press CTRL+c or open 
+another command prompt and type the <b>sencha web stop</b> command. 
 
-    - appname
-        - app
-            - namespace
-                - Class1.js
-                - Class2.js
-                - ...
-        - extjs
-        - resources
-            - css
-            - images
-            - ...
-        - app.js
-        - index.html
+After completing the tutorial in this guide, you may want to use 
+a more sophisticated web server such as the Apache HTTP web server. You 
+can obtain a pre-configured Apache web server
+using <a href="http://www.apachefriends.org/en/xampp.html">XAMPP</a>. 
+Information on starting and stopping that web server, and where 
+to put files that you access with the web server is
+available at the XAMPP site. 
 
-- `appname` is a directory that contains all your application's source files
-- `app` contains all your classes, the naming style of which should follow the convention listed in the [Class System](#/guide/class_system) guide
-- `extjs` contains the Ext JS 4 SDK files
-- `resources` contains additional CSS and image files which are responsible for the look and feel of the application, as well as other static resources (XML, JSON, etc.)
-- `index.html` is the entry-point HTML document
-- `app.js` contains your application's logic
+<a name"CreatingAnApp"></a>
+## Creating an Application
 
-Don't worry about creating all those directories at the moment.  For now lets just focus on creating the minimum amount of code necessary to get an Ext JS application up and running.
-To do this we'll create a basic "hello world" Ext JS application called "Hello Ext".  First, create the following directory and files in your web root directory.
+After you install Ext JS, you can use the Sencha Cmd <code>generate</code> command to 
+create the starting directory structure for your application. 
 
-    - helloext
-        - app.js
-        - index.html
+To create the "Hello Ext" application:
 
-Then unzip the Ext JS 4 SDK to a directory named `extjs` in the `helloext` directory
+<ol>
+<li><p>Choose or create a directory where your application will reside, 
+change to that directory and issue the following command:</p>
+<pre>
+$ sencha -sdk <i>/path/to/extjs</i> generate app <i>MyApp</i> .
+</pre>
+<p>Where:</p>
+<ol>
+<li><i>/path/to/extjs</i> is the directory where you unzipped the Ext JS software.</li>
+<li><i>MyApp</i> is the name you give your application.</li>
+</ol></li>
+<li><p>Now you're ready to write your application code. Open the 
+<code>Application.js</code> file in the <code>app</code> directory, 
+delete what's there, and insert the following code:</p>
+<pre>
+Ext.define('MyApp.Application', {
+    name: 'MyApp',
+    extend: 'Ext.app.Application',
+    launch: function() {
+        Ext.create('Ext.container.Viewport', {
+            layout: 'fit',
+            items: [
+                {
+                    title: 'Hello Ext',
+                    html : 'Hello! Welcome to Ext JS.'
+                }
+            ]
+        });
+    }
+});
+</pre>
+</li>
+<li><p>We can now start up the Sencha web server to view our
+application in a browser. If you have not already done so, open a command line
+prompt and change directory to your <code>MyApp</code> directory.
+Start the Sencha Cmd web server using the 
+<b>sencha&nbsp;web&nbsp;start</b> command. 
+These messages display:</p>
+<pre>
+$ <b>sencha web start</b>
+Sencha Cmd vn.n.n.n
+[INF] Starting shutdown listener socket
+[INF] Listening for stop requests on: 62249
+[INF] Mapping http://localhost:1841/ to ....
+[INF] Starting http://localhost:1841
+[INF] jetty-8.1.7.v20120910
+[INF] NO JSP Support for /, did not find org.apache.jasper.servlet.JspServlet
+[INF] started o.e.j.w.WebAppContext{/,file:/Users/me/Documents/MyApp/}
+[INF] started o.e.j.w.WebAppContext{/,file:/Users/me/Documents/MyApp/}
+[INF] Started SelectChannelConnector@0.0.0.0:1841
+</pre>
+</li>
+<li><p>Open your browser and navigate to 
+<a href="http://localhost:1841/">http://localhost:1841/</a>.
+You should see a panel with a title bar containing the text "Hello Ext" 
+and the "welcome" message in the panel's body area:</p>
+{@img WelcomeToExtJS.png}
+</li>
+</ol>
+<p>Success! You have created your first Ext JS application.</p>
 
-A typical Ext JS application is contained in a single HTML document - `index.html`.  Open `index.html` and insert the following html code:
+## Behind the Scenes
 
-    <html>
-    <head>
-        <title>Hello Ext</title>
+Now that you've created your first application, let's look at what happened
+as each step unfolded.
 
-        <link rel="stylesheet" type="text/css" href="extjs/resources/css/ext-all.css">
-        <script type="text/javascript" src="extjs/ext-debug.js"></script>
-        <script type="text/javascript" src="app.js"></script>
-    </head>
-    <body></body>
-    </html>
+<ol>
+<li><p>When you ran <b>sencha generate app</b>, Sencha Cmd 
+created this list of files:</p>
+<pre>
+MyApp:
+    .sencha    [Files used by Sencha CMD]
+    app:       [Contains your application source]
+        <b>Application.js</b> -- [The starting point of your app]
+        controller:
+            Main.js
+            Readme.md
+        model:
+            Readme.md
+        Readme.md
+        store:
+            Readme.md
+        view:
+            Main.js
+            Readme.md
+            Viewport.js
+    app.js
+    app.json
+    bootstrap.css
+    bootstrap.js
+    bootstrap.json
+    build:    [Where your testing, production, and native builds are generated]
+        temp:
+            production:
+                MyApp:
+                    sencha-compiler:
+                        app:
+                            full-page-master-bundle.js
+                        cmd-packages.js
+    build.xml
+    ext: [Ext JS framework - do not modify]
+        bootstrap.js
+        build.xml
+        builds:
+            ext-*.js [Debugging files]
+        cmd:
+        ext-*.js [Debug and themes files]
+        ext.js
+        file-header.js
+        license.txt
+        locale:
+            [Language source files]
+        packages:
+            [Locale &amp; themes directories]
+        src:
+            [Source files]
+    index.html
+    overrides: [Empty]
+    packages: [Empty]
+    Readme.md
+    resources: [Empty]
+    sass:
+        config.rb
+        etc: [Empty]
+        example:
+            bootstrap.css
+            custom.js
+            render.js
+            theme.html
+        src: [Empty]
+        var: [Empty]
+</pre>
+</li>
+<li><p>When you point your browser to the application directory, 
+the browser opens your <code>index.html</code> file, 
+loads the core Ext JS stylesheet, framework, and 
+bootstrap code along with the <code>app.js</code> file. 
+The <code>app.js</code> file contains the <code>Ext.application</code> class, 
+which is the starting point for all applications. Because Sencha Cmd uses 
+the <code>index.html</code> file to build production versions and 
+because the generated content of this file is critical to the proper 
+functioning of your application, do not edit this file.</p>
 
-- `extjs/resources/css/ext-all.css` contains all styling information needed for the whole framework
-- `extjs/ext-debug.js` contains a minimal set of Ext JS 4 Core library classes
-- `app.js` will contain your application code
+<pre>
+&lt;!DOCTYPE HTML>
+&lt;html>
+&lt;head>
+    &lt;meta charset="UTF-8">
+    &lt;title>MyApp&lt;/title>
+    &lt;!-- &lt;x-compile> -->
+        &lt;!-- &lt;x-bootstrap> -->
+            &lt;link rel="stylesheet" href="bootstrap.css">
+            &lt;script src="ext/ext-dev.js">&lt;/script>
+            &lt;script src="bootstrap.js">&lt;/script>
+        &lt;!-- &lt;/x-bootstrap> -->
+        &lt;script src="app.js">&lt;/script>
+    &lt;!-- &lt;/x-compile> -->
+&lt;/head>
+&lt;body>&lt;/body>
+&lt;/html>
+</pre></li>
+<li><p>The other important file generated by Sencha Cmd is <code>app.js</code>, 
+the contents of which are shown here:</p>
+<pre>
+Ext.application({
+    name: 'MyApp',
+    extend: 'MyApp.Application',    
+    autoCreateViewport: true
+});
+</pre></li>
+<li><p>As with the <code>index.html</code> file, 
+do not modify the generated 
+<code>app.js</code> file.</p> 
 
-Now you're ready to write your application code. Open `app.js` and insert the following JavaScript code:
+<p>Put your code in 
+the <code>Application.js</code> file, in the <code>app/</code> 
+directory. This is where you place your application’s startup 
+code, including a <code>launch</code> method, which contains 
+any code required to be run during the startup of your application.</p>
+<p>In our code example, the <code>launch</code> function creates 
+the application’s initial viewport, which is a simple panel with 
+a title and content:</p>
+<pre>
+Ext.define('MyApp.Application', {
+    name: 'MyApp',
+    extend: 'Ext.app.Application',
+    launch: function() {
+        Ext.create('Ext.container.Viewport', {
+            layout: 'fit',
+            items: [
+                {
+                    title: 'Hello Ext',
+                    html : 'Hello! Welcome to Ext JS.'
+                }
+            ]
+        });
+    }
+});
+</pre>
+</li>
+</ol>
 
-    Ext.application({
-        name: 'HelloExt',
-        launch: function() {
-            Ext.create('Ext.container.Viewport', {
-                layout: 'fit',
-                items: [
-                    {
-                        title: 'Hello Ext',
-                        html : 'Hello! Welcome to Ext JS.'
-                    }
-                ]
-            });
-        }
-    });
+<a name="FurtherReading"></a>
+## Further Reading
 
-Now open your browser and navigate to [http://localhost/helloext/index.html](http://localhost/helloext/index.html). You should see a panel with a title bar containing the text "Hello Ext" and the "welcome" message in the panel's body area.
-
-### 2.2 Dynamic Loading
-
-Open the Chrome Developer Tools and click on the Console option.  Now refresh the Hello Ext application.  You should see a warning in the console that looks like this:
-
-{@img loader-warning-viewport.png testing}
-
-Ext JS 4 comes with a system for dynamically loading only the JavaScript resources necessary to run your app.
-In our example `Ext.create` creates an instance of `Ext.container.Viewport`.  When `Ext.create` is called the loader will first check to see if `Ext.container.Viewport` has been defined.
-If it is undefined the loader will try to load the JavaScript file that contains the code for `Ext.container.Viewport` before instantiating the viewport object.  In our example the `Viewport.js` file gets loaded successfully, but the loader detects
-that files are being loaded in a less-than optimal manner.  Since we are loading the `Viewport.js` file only when an instance of `Ext.container.Viewport` is requested, execution of the code is stopped until that file has been loaded successfully, causing a short delay.
-This delay would be compounded if we had several calls to Ext.create,  because the application would wait for each file to load before requesting the next one.
-
-To fix this, we can add this one line of code above the call to `Ext.application`:
-
-`Ext.require('Ext.container.Viewport');`
-
-This will ensure that the file containing the code for `Ext.container.Viewport` is loaded before the application runs.  You should no longer see the `Ext.Loader` warning when you refresh the page.
-
-### 2.3 Library Inclusion methods
-
-When you unzip the Ext JS 4 download, you will see the following files:
-
-1. `ext-debug.js` - This file is only for use during development.  It provides the minimum number of core Ext JS classes needed to get up and running.  Any additional classes should be dynamically loaded as separate files as demonstrated above.
-
-2. `ext.js` - same as `ext-debug.js` but minified for use in production.  Meant to be used in combination with your application's `app-all.js` file. (see section *3*)
-
-3. `ext-all-debug.js` - This file contains the entire Ext JS library.  This can be helpful for shortening your initial learning curve, however `ext-debug.js` is preferred in most cases for actual application development.
-
-4. `ext-all.js` - This is a minified version of `ext-all-debug.js` that can be used in production environments, however, it is not recommended since most applications will not make use of all the classes that it contains.  Instead it is recommended that you create a custom build for your production environment as described in section *3*.
-
-## 3. Deployment
-
-The newly-introduced Sencha SDK Tools ([download here][sdk-download]) makes deployment of any Ext JS 4 application easier than ever. The tools allow you to generate a manifest of all JavaScript dependencies in the form of a JSB3 (JSBuilder file format) file, and create a custom build containing only the code that your application needs.
-
-Once you've installed the SDK Tools, open a terminal window and navigate into your application's directory.
-
-    cd path/to/web/root/helloext
-
-From here you only need to run a couple of simple commands. The first one generates a JSB3 file:
-
-    sencha create jsb -a index.html -p app.jsb3
-
-For applications built on top of a dynamic server-side language like PHP, Ruby, ASP, etc., you can simply replace `index.html` with the actual URL of your application:
-
-    sencha create jsb -a http://localhost/helloext/index.html -p app.jsb3
-
-This scans your `index.html` file for all framework and application files that are actually used by the app, and then creates a JSB file called `app.jsb3`. Generating the JSB3 first gives us a chance to modify the generated `app.jsb3` before building - this can be helpful if you have custom resources to copy, but in most cases we can immediately proceed to build the application with the second command:
-
-    sencha build -p app.jsb3 -d .
-
-This creates 2 files based on the JSB3 file:
-
-1. `all-classes.js` - This file contains all of your application's classes. It is not minified so is very useful for debugging problems with your built application.  In our example this file is empty because our "Hello Ext" application does not contain any classes.
-
-2. `app-all.js` - This file is a minimized build of your application plus all of the Ext JS classes required to run it. It is the minified and production-ready version of `all-classes.js + app.js`.
-
-An Ext JS application will need a separate `index.html` for the production version of the app.  You will typically handle this in your build process or server side logic, but for now let's just create a new file in the `helloext` directory called `index-prod.html`:
-
-    <html>
-    <head>
-        <title>Hello Ext</title>
-
-        <link rel="stylesheet" type="text/css" href="extjs/resources/css/ext-all.css">
-        <script type="text/javascript" src="extjs/ext.js"></script>
-        <script type="text/javascript" src="app-all.js"></script>
-    </head>
-    <body></body>
-    </html>
-
-Notice that `ext-debug.js` has been replaced with `ext.js`, and `app.js` has been replaced with `app-all.js`. If you navigate to [http://localhost/helloext/index-prod.html](http://localhost/helloext/index-prod.html) in your browser, you should see the production version of the "Hello Ext" application.
-
-## 4. Further Reading
-
-1. [Class System](#/guide/class_system)
-2. [MVC Application Architecture](#/guide/application_architecture)
-3. [Layouts and Containsers](#/guide/layouts_and_containers)
-4. [Working with Data](#/guide/data)
-
-[sdk-download]: http://www.sencha.com/products/extjs/
+ - [Class System](#/guide/class_system)
+ - [MVC Application Architecture](#/guide/application_architecture)
+ - [Layouts and Containers](#/guide/layouts_and_containers)
+ - [Workspaces in Sencha Cmd](#!/guide/command_workspace)
+ - [Working with Data](#/guide/data)
+ - [Ext JS SDK Download](http://www.sencha.com/products/extjs/)
+ - [Sencha Forums](http://www.sencha.com/forum/)

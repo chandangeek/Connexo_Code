@@ -10,6 +10,12 @@ Ext.samples = {
                     "desc": "Showcase of Ext JS components using a preview release of the new Neptune theme"
                 },
                 {
+                    "text": "Charts Kitchen Sink",
+                    "url": "build/ChartsKitchenSink/",
+                    "icon": "chart-bar-renderer.gif",
+                    "desc": "Showcase of Ext JS Charts"
+                },
+                {
                     "text": "Feed Viewer",
                     "url": "feed-viewer/feed-viewer.html",
                     "icon": "feeds.png",
@@ -61,8 +67,7 @@ Ext.samples = {
                     "text": "Right-to-Left (RTL)",
                     "url": "rtl/rtl.html",
                     "icon": "tasks.png",
-                    "desc": "Demonstrates Ext JS support for right-to-left languages",
-                    "status": "new"
+                    "desc": "Demonstrates Ext JS support for right-to-left languages"
                 }
             ]
         },
@@ -464,13 +469,13 @@ Ext.samples = {
                 {
                     "text": "Window Variations",
                     "url": "window/window.html",
-                    "icon": "window-layout.png",
+                    "icon": "window.png",
                     "desc": "A collection of Windows in different configurations, showing headers attached to any side of the window."
                 },
                 {
                     "text": "Layout Window",
                     "url": "window/layout.html",
-                    "icon": "window.png",
+                    "icon": "window-layout.png",
                     "desc": "A window containing a basic BorderLayout with nested TabPanel."
                 },
                 {
@@ -506,8 +511,7 @@ Ext.samples = {
                     "text": "Locking TreeGrid",
                     "url": "tree/locking-treegrid.html",
                     "icon": "tree-columns.png",
-                    "desc": "TreeGrid with lockable columns",
-                    "status": "new"
+                    "desc": "TreeGrid with lockable columns"
                 },
                 {
                     "text": "Check Tree",
@@ -531,14 +535,19 @@ Ext.samples = {
                     "text": "Buffer Rendered Tree",
                     "url": "tree/buffer-rendered-treegrid.html",
                     "icon": "tree-columns.png",
-                    "desc": "Rendering very large trees efficiently.",
-                    "status": "new"
+                    "desc": "Rendering very large trees efficiently."
                 },
                 {
                     "text": "Locking Buffer Rendered Tree",
                     "url": "tree/locking-buffer-rendered-treegrid.html",
                     "icon": "tree-columns.png",
-                    "desc": "Rendering very large trees efficiently. With locked columns",
+                    "desc": "Rendering very large trees efficiently. With locked columns"
+                },
+                {
+                    "text": "Tree Filtering",
+                    "url": "build/KitchenSink/ext-theme-neptune/#filtered-tree",
+                    "icon": "filtered-tree.png",
+                    "desc": "Filtering a tree based upon standard Store Filters.",
                     "status": "new"
                 }
             ]
@@ -650,8 +659,7 @@ Ext.samples = {
                     "text": "Grid Cell to Cell DnD",
                     "url": "dd/cell-to-cell-dd.html",
                     "icon": "dd-celltocell.png",
-                    "desc": "Illustrates how a custom plugin can enable cell drag and drop operations within the same GridView",
-                    "status": "new"
+                    "desc": "Illustrates how a custom plugin can enable cell drag and drop operations within the same GridView"
                 },
                 {
                     "text": "Grid to Form DnD",

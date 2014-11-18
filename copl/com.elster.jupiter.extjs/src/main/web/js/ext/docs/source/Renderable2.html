@@ -140,7 +140,7 @@ Ext.define('Ext.util.Renderable', {
     ],
 
 <span id='Ext-util-Renderable-method-afterRender'>    /**
-</span>     * Allows addition of behavior after rendering is complete. At this stage the Component’s Element
+</span>     * Allows addition of behavior after rendering is complete. At this stage the Component's Element
      * will have been styled according to the configuration, will have had any configured CSS class
      * names added, and will be in the configured visibility and the configured enable state.
      *
@@ -155,7 +155,7 @@ Ext.define('Ext.util.Renderable', {
             item, pre, hide, contentEl;
 
         me.finishRenderChildren();
-        
+
         // We need to do the contentEl here because it depends on the layout items (inner/outerCt)
         // to be rendered before we can put it in
         if (me.contentEl) {
@@ -200,7 +200,9 @@ Ext.define('Ext.util.Renderable', {
             y = me.y,
             hasX,
             hasY,
-            pos, xy;
+            pos, xy,
+            alignSpec = me.defaultAlign,
+            alignOffset = me.alignOffset;
 
         // We only have to set absolute position here if there is no ownerlayout which should take responsibility.
         // Consider the example of rendered components outside of a viewport - these might need their positions setting.
@@ -214,11 +216,11 @@ Ext.define('Ext.util.Renderable', {
         if (me.floating &amp;&amp; (!hasX || !hasY)) {
             if (me.floatParent) {
                 pos = me.floatParent.getTargetEl().getViewRegion();
-                xy = me.el.getAlignToXY(me.floatParent.getTargetEl(), 'c-c');
+                xy = me.el.getAlignToXY(me.alignTarget || me.floatParent.getTargetEl(), alignSpec, alignOffset);
                 pos.x = xy[0] - pos.x;
                 pos.y = xy[1] - pos.y;
             } else {
-                xy = me.el.getAlignToXY(me.container, 'c-c');
+                xy = me.el.getAlignToXY(me.alignTarget || me.container, alignSpec, alignOffset);
                 pos = me.container.translateXY(xy[0], xy[1]);
             }
             x = hasX ? x : pos.x;
@@ -318,7 +320,7 @@ Ext.define('Ext.util.Renderable', {
         var me = this;
         if (!me.rendered) {
             if (me.floating) {
-                me.render(document.body);
+                me.render(me.renderTo || document.body);
             } else {
                 me.render(Ext.isBoolean(me.autoRender) ? Ext.getBody() : me.autoRender);
             }
@@ -526,9 +528,9 @@ Ext.define('Ext.util.Renderable', {
         return config;
     },
 
-    // Create the framingTpl from the string.
-<span id='Ext-util-Renderable-method-initFramingTpl'>    // Poke in a reference to applyRenderTpl(frameInfo, out)
-</span>    initFramingTpl: function(table) {
+<span id='Ext-util-Renderable-method-initFramingTpl'>    // Create the framingTpl from the string.
+</span>    // Poke in a reference to applyRenderTpl(frameInfo, out)
+    initFramingTpl: function(table) {
         var tpl = this.getFrameTpl(table);
 
         if (tpl &amp;&amp; !tpl.applyRenderTpl) {

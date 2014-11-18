@@ -186,6 +186,7 @@ Ext.define('Ext.chart.series.Radar', {
             items,
             radius,
             maxValue = 0,
+            minValue = 0,
             fields = [],
             max = Math.max,
             cos = Math.cos,
@@ -201,6 +202,7 @@ Ext.define('Ext.chart.series.Radar', {
         me.setBBox();
         
         maxValue = aggregate? 0 : (axis.maximum || 0);
+        minValue = axis.minimum || 0;
         
         Ext.apply(seriesStyle, me.style || {});
 
@@ -243,11 +245,17 @@ Ext.define('Ext.chart.series.Radar', {
         }
         //ensure non-zero value.
         maxValue = maxValue || 1;
+        if (minValue &gt;= maxValue) {
+            minValue = maxValue - 1;
+        }
         //create path and items
         startPath = []; path = [];
         for (i = 0; i &lt; l; i++) {
             record = data[i];
-            rho = radius * record.get(field) / maxValue;
+            rho = radius * (record.get(field) - minValue) / (maxValue - minValue);
+            if (rho &lt; 0) {
+                rho = 0;
+            }
             x = rho * cos(i / l * pi2);
             y = rho * sin(i / l * pi2);
             if (i == 0) {

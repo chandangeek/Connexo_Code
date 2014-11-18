@@ -49,6 +49,7 @@ Ext.onReady(function () {
         hidden: false,
         maximizable: true,
         title: 'Grouped Bar Chart',
+        constrain: true,
         autoShow: true,
         layout: 'fit',
         tbar: [{

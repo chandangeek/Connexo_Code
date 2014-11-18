@@ -87,11 +87,15 @@ Ext.define('Ext.panel.Header', {
 <span id='Ext-panel-Header-cfg-iconCls'>    /**
 </span>     * @cfg {String} iconCls
      * CSS class for an icon in the header. Used for displaying an icon to the left of a title.
+     *
+     * There are no default icon classes that come with Ext JS.
      */
 
 <span id='Ext-panel-Header-cfg-icon'>    /**
 </span>     * @cfg {String} icon
      * Path to image for an icon in the header. Used for displaying an icon to the left of a title.
+     *
+     * There are no default icons that come with Ext JS.
      */
 
 <span id='Ext-panel-Header-cfg-glyph'>    /**
@@ -206,7 +210,7 @@ Ext.define('Ext.panel.Header', {
         // Add Tools
         Ext.Array.push(items, me.tools);
         // Clear the tools so we can have only the instances. Intentional mutation of passed in array
-        // Owning code in Panel uses this array as its pubic tools property.
+        // Owning code in Panel uses this array as its public tools property.
         me.tools.length = 0;
         me.callParent();
 

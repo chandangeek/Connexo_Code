@@ -339,7 +339,7 @@ Ext.define('Ext.panel.Tool', {
         if (me.keyMap) {
             me.keyMap.destroy();
         }
-        
+        delete me.toolOwner;
         me.callParent();
     },
 

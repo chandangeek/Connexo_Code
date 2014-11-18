@@ -69,7 +69,7 @@ Ext.define('KitchenSink.view.grid.GroupedGrid', {
         this.addDocked([{
             xtype: 'toolbar',
             items: ['->', {
-                text: 'Toggle groups...',
+                text: 'Toggle groups by Cuisine...',
                 destroyMenu: true,
                 menu: toggleMenu
             }]
@@ -116,26 +116,26 @@ Ext.define('KitchenSink.view.grid.GroupedGrid', {
 
         // Sync state of group toggle checkboxes
         if (grouped && groupBy === 'cuisine') {
-            toggleMenuItems = this.down('button[text=Toggle groups...]').menu.items.items;
+            toggleMenuItems = this.down('button[text=Toggle groups by Cuisine...]').menu.items.items;
             for (len = toggleMenuItems.length; i < len; i++) {
                 toggleMenuItems[i].setChecked(
                     this.groupingFeature.isExpanded(toggleMenuItems[i].text)
                 );
             }
-            this.down('[text=Toggle groups...]').enable();
+            this.down('[text=Toggle groups by Cuisine...]').enable();
         } else {
-            this.down('[text=Toggle groups...]').disable();
+            this.down('[text=Toggle groups by Cuisine...]').disable();
         }
     },
 
     onGroupCollapse: function(v, n, groupName) {
-        if (!this.down('[text=Toggle groups...]').disabled) {
+        if (!this.down('[text=Toggle groups by Cuisine...]').disabled) {
             this.down('menucheckitem[text=' + groupName + ']').setChecked(false, true);
         }
     },
 
     onGroupExpand: function(v, n, groupName) {
-        if (!this.down('[text=Toggle groups...]').disabled) {
+        if (!this.down('[text=Toggle groups by Cuisine...]').disabled) {
             this.down('menucheckitem[text=' + groupName + ']').setChecked(true, true);
         }
     }

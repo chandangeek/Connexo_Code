@@ -78,7 +78,7 @@ Ext.define('Ext.util.Floating', {
 
         // If modal, and focus navigation not being handled by the FocusManager,
         // catch tab navigation, and loop back in on tab off first or last item.
-        if (me.modal &amp;&amp; !(Ext.FocusManager &amp;&amp; Ext.FocusManager.enabled)) {
+        if (me.modal &amp;&amp; !(Ext.enableFocusManager)) {
             me.mon(me.el, {
                 keydown: me.onKeyDown,
                 scope: me
@@ -100,6 +100,17 @@ Ext.define('Ext.util.Floating', {
         me.registerWithOwnerCt();
 
         me.initHierarchyEvents();
+    },
+
+<span id='Ext-util-Floating-method-initFloatConstrain'>    initFloatConstrain: function () {
+</span>        var me = this,
+            floatParent = me.floatParent;
+
+        // If a floating Component is configured to be constrained, but has no configured
+        // constrainTo setting, set its constrainTo to be it's ownerCt before rendering.
+        if ((me.constrain || me.constrainHeader) &amp;&amp; !me.constrainTo) {
+            me.constrainTo = floatParent ? floatParent.getTargetEl() : me.container;
+        }
     },
 
 <span id='Ext-util-Floating-method-initHierarchyEvents'>    initHierarchyEvents: function() {
@@ -135,7 +146,8 @@ Ext.define('Ext.util.Floating', {
         // Set the floatParent to the ownertCt if one has been provided.
         // Otherwise use the zIndexParent.
         // Developers must only use ownerCt if there is really a containing relationship.
-        me.setFloatParent(ownerCt || zip);
+        me.floatParent = ownerCt || zip;
+        me.initFloatConstrain();
         delete me.ownerCt;
 
         if (zip) {
@@ -180,7 +192,7 @@ Ext.define('Ext.util.Floating', {
 </span>    // Mousedown brings to front, and programatically grabs focus *unless the mousedown was on a focusable element*
     onMouseDown: function (e) {
         var focusTask = this.focusTask;
-        
+
         if (this.floating &amp;&amp;
             // get out of here if there is already a pending focus.  This usually means
             // that the handler for a mousedown on a child element set the focus on some
@@ -191,32 +203,20 @@ Ext.define('Ext.util.Floating', {
         }
     },
 
-<span id='Ext-util-Floating-method-setFloatParent'>    setFloatParent: function(floatParent) {
-</span>        var me = this;
-
-        me.floatParent = floatParent;
-
-        // If a floating Component is configured to be constrained, but has no configured
-        // constrainTo setting, set its constrainTo to be it's ownerCt before rendering.
-        if ((me.constrain || me.constrainHeader) &amp;&amp; !me.constrainTo) {
-            me.constrainTo = floatParent ? floatParent.getTargetEl() : me.container;
-        }
-    },
-    
 <span id='Ext-util-Floating-method-syncShadow'>    // @private
 </span>    syncShadow : function() {
         if (this.floating) {
             this.el.sync(true);
         }
     },
-    
+
 <span id='Ext-util-Floating-method-onBeforeFloatLayout'>    onBeforeFloatLayout: function(){
 </span>        this.el.preventSync = true;
     },
-    
+
 <span id='Ext-util-Floating-method-onAfterFloatLayout'>    onAfterFloatLayout: function(){
 </span>        delete this.el.preventSync;
-        this.syncShadow();   
+        this.syncShadow();
     },
 
 <span id='Ext-util-Floating-method-syncHidden'>    /**
@@ -322,6 +322,9 @@ Ext.define('Ext.util.Floating', {
                 // If another floating Component is toFronted before the delay expires
                 // this will not receive focus.
                 me.focus(false, true);
+            }
+            if (me.hasListeners.tofront) {
+                me.fireEvent('tofront', me, me.el.getZIndex());
             }
         }
         

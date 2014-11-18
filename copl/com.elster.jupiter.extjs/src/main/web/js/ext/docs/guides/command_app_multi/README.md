@@ -1,25 +1,41 @@
 # Multi-page and Mixed Apps
 
+Build processes for large applications often require some sophisticated operations beyond
+what is typically needed by a single page application. This guide provides insight on how
+[Sencha Cmd](http://www.sencha.com/products/sencha-cmd/) can accomplish some of these
+more commonly requested things. Unlike other guides, this guide is not recommending any
+particular "best practices" but is rather showing how to "think like the compiler". The
+goal being to suggest what is possible and how you can express complex operations.
+
+## Prerequisites
+
+The following guides are recommended reading before proceeding further:
+
+  - [Single-Page Apps](#!/guide/command_app_single).
+  - [Workspaces in Sencha Cmd](#!/guide/command_workspace).
+
 ## Large Application Alternatives
 
-[Workspaces in Sencha Cmd](#/guide/command_workspace) describes the new workspace support
-in Sencha Cmd that is designed specifically to facilitate large, multi-page applications.
+[Workspaces in Sencha Cmd](#!/guide/command_workspace) describes the Workspace support in
+Sencha Cmd that is designed specifically to facilitate large, multi-page applications. This
+guide picks up where that guide left off and describes how to use lower-level commands to
+perform some advanced build operations.
 
-This guide picks up where that guide left off and describes how to use lower-level
-commands to perform some advanced build operations. These are primarily focused on creating
-two scripts per page instead of the typical one (`"all-classes.js"`) to improve caching as
-users navigate between pages. While there are many variations on the ideas discussed here
-that could be similarly implemented, this guide describes two approaches:
+A common desire for large applications is to generate two scripts per page instead of the
+typical one (`"all-classes.js"`) to improve caching as users navigate between pages. While
+there are many variations on the ideas this guides describes two basic approaches:
 
- - Putting all code common to multiple pages in a `"common.js"` file.
- - Putting all framework code needed by any page in a `"common.js"` file.
+ - Putting all code common to multiple pages in a `"common.js"` file
+ - Putting all framework code needed by any page in a `"common.js"` file
 
 Further, since we are using lower-level commands in this guide, we use a custom application
 folder structure to show how Sencha Cmd can be used to fit your own specific choices for
 code organization.
 
-This guide focuses primarily on Ext JS applications. Support for these techniques will be
-available for Sencha Touch in future releases.
+This guide focuses primarily on Ext JS applications but the basic techniques work as well
+for Sencha Touch applications. Many of the examples here could be (better) implemented
+as customizations to the build process but this example does not go that route and instead
+shows how to work directly with the compiler.
 
 ## Custom Structure Application
 
@@ -54,7 +70,7 @@ a file with just those classes.
 
 The following command will do precisely that:
 
-    sencha compile -classpath=ext/src,common/src,page1/src,page2/src \
+    sencha -sdk ext compile -classpath=common/src,page1/src,page2/src \
         page -name=page1 -in page1/index.php -out build/page1/index.php \
              -scripts ../common.js and \
         page -name=page2 -in page2/index.php -out build/page2/index.php \
@@ -74,7 +90,7 @@ Let's look closely at what each part of this command accomplishes.
 The first thing is to create the `compile` context and tell it the `classpath` for all of
 the source code folders:
 
-    sencha compile -classpath=ext/src,common/src,page1/src,page2/src \
+    sencha -sdk ext compile -classpath=common/src,page1/src,page2/src \
 
 Then we use two `page` commands to include the source from each page as well as generate
 the appropriate output pages in the `build` folder. Each `page` command produces a set
@@ -132,7 +148,7 @@ make up for this increase.
 
 The following command contains only a slight adjustment to the above:
 
-    sencha compile -classpath=ext/src,common/src,page1/src,page2/src \
+    sencha -sdk ext compile -classpath=common/src,page1/src,page2/src \
         page -name=page1 -in page1/index.php -out build/page1/index.php \
              -scripts ../common.js and \
         page -name=page2 -in page2/index.php -out build/page2/index.php \
@@ -179,7 +195,7 @@ applications.
 Another, simpler, way would be to use a "fuzzy intersection," that is an operation the
 selects all classes used by a specified minimum number of pages. Here's an example:
 
-    sencha compile -classpath=ext/src,common/src,page1/src,page2/src \
+    sencha -sdk ext compile -classpath=common/src,page1/src,page2/src \
         page -name=page1 -in page1/index.php -out build/page1/index.php \
              -scripts ../common.js and \
         page -name=page2 -in page2/index.php -out build/page2/index.php \

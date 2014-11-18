@@ -1,8 +1,14 @@
 # Advanced Sencha Cmd
 
-This guide covers capabilities of [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) 
-available to advanced users. Before using this functionality, read
-[Introduction to Sencha Cmd](#!/guide/command) and use the commands.
+This guide covers capabilities of [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/)
+available to advanced users.
+
+## Prerequisites
+
+The following guides are recommended reading before proceeding further:
+
+  - [Introduction to Sencha Cmd](#!/guide/command).
+  - [Using Sencha Cmd](#!/guide/command_app).
 
 ## Installation Considerations
 
@@ -34,19 +40,19 @@ named by their version number and located in a common parent folder.
 Alternatively, each installed version also provides a version-specific name for Sencha Cmd.
 This can be run as follows:
 
-    sencha-n.n.n ....
+    sencha-x.y.z ....
 
-The installer also sets an environment variable of the form `SENCHA_CMD_n_n_n`,
+The installer also sets an environment variable of the form `SENCHA_CMD_x_y_z`,
 which can be used to adjust the PATH of the current console/shell, as follows.
 
 On Windows, this looks like this (n is the current version):
 
-    set PATH=%SENCHA_CMD_n_n_n%;%PATH%
+    set PATH=%SENCHA_CMD_x_y_z%;%PATH%
     sencha ....
 
 On OSX/Linux, this looks like this:
 
-    set PATH=$SENCHA_CMD_n_n_n:$PATH
+    set PATH=$SENCHA_CMD_x_y_z:$PATH
     sencha ....
 
 ## Configuration
@@ -71,6 +77,10 @@ To set global options (like `debug` logging), do this:
 Configuration becomes more important over time as Sencha Cmd (especially the compiler)
 evolves.
 
+To see the current configuration properties, run this command:
+
+    sencha diag show
+
 ### Configuration Files
 
 Similar to Apache Ant (on which many aspects of Sencha Cmd are based), configuration is
@@ -82,32 +92,72 @@ proceeds up the file system until the Workspace is found. Along the way, Sencha 
 for the presence of an application or Sencha Framework SDK. At the end of the loading
 process, Sencha Cmd loads any of the following files it detects in this order:
 
+  * **`${app.dir}/app.json`** - Application configuration when in an application folder
+  that is the most specific loads first. See
   * **`${app.dir}/.sencha/app/sencha.cfg`** - Application configuration when in an application
   folder that is the most specific loads first.
+  * **`${package.dir}/package.json`** - Package configuration when in a package folder that
+  is the most specific loads next.
   * **`${package.dir}/.sencha/package/sencha.cfg`** - Package configuration when in a package
   folder that is the most specific loads next.
+  * **`${workspace.dir}/workspace.json`** - Workspace configuration applies next when you
+  are in a workspace (or an app or package in the workspace).
   * **`${workspace.dir}/.sencha/workspace/sencha.cfg`** - Workspace configuration applies
   next when you are in a workspace (or an app or package in the workspace).
   * **`${framework.dir}/cmd/sencha.cfg`** - Based on the applicable framework for the app or
   package at the current directory, those properties load next.
-  * **`${home.dir}/.sencha/cmd/sencha.cfg`** - Your personal configuration
-  loads next. This typically only sets high-level properties.
-  * **`${cmd.dir}/../sencha.cfg`** - Local machine Cmd configuration 
-  loads next. This typically only sets high-level properties. This loads from the
-  parent folder of the running Sencha Cmd, which is the folder that holds
-  the various installed versions of Sencha Cmd.
+  * **`${home.dir}/.sencha/cmd/sencha.cfg`** - Your personal configuration loads next. This
+  typically only sets high-level properties.
+  * **`${cmd.dir}/../sencha.cfg`** - Local machine Sencha Cmd configuration loads next.
+  This typically only sets high-level properties. This loads from the parent folder of the
+  running Sencha Cmd, which is the folder that holds the various installed versions of
+  Sencha Cmd.
   * **`${cmd.dir}/sencha.cfg`** - Lastly, the Sencha Cmd, version specific configuration 
   loads.
 
-This yields basically the same result as the legacy Sencha Cmd v3.0 approach that used a cascade
-that loaded the above files in reverse order but overwrote properties as it progressed.
-The key difference between Sencha Cmd v3.0 and later is that properties passed at the
-command line override those in these files. This is seen in the following command:
+The most important configuration properties are those passed on the command line. These
+will override properties coming from any of the above files. For example:
 
     sencha config -prop foo=42 then ...
 
-This sets `"foo"` to 42 prior to the loading the config files, and in Sencha Cmd v3.1 and later,
-this setting is "win".
+This sets `"foo"` to 42 prior to the loading the config files, and in Sencha Cmd v3.1 and
+later, this setting "wins".
+
+In most cases you can tell where a property comes from by its prefix:
+
+  * `app.`  -- See `"app.json"` and `".sencha/app/sencha.cfg"`.
+  * `package.` -- See `"package.json"` and `".sencha/package/sencha.cfg"`.
+  * `workspace.` -- See `"workspace.json"` and `".sencha/workspace/sencha.cfg"`.
+  * `framework.` -- See `"cmd/sencha.cfg"` in the Ext JS or Sencha Touch SDK.
+  * `cmd.` -- See `"sencha.cfg"` in the Sencha Cmd install folder.
+
+It is not required that these properties be set in these files, but it is the default and
+following this convention will help you manage these settings. That said, there are times
+when a Workspace setting may need to be overridden by an application. To do this, the
+`workspace.foo` property must be set in `".sencha/app/sencha.cfg"` because that is the
+application-level configuration file. When deviating from the convention, leaving behind
+a comment would be advised.
+
+#### Use of JSON Descriptors
+
+In Sencha Cmd v4, JSON files are now always respected as higher priority than their
+corresponding `"sencha.cfg"` file. In previous releases this was only true for applications
+based on Sencha Touch.
+
+The content of files like `"app.json"`, `"package.json"` and `"workspace.json"` are flattened
+into properties with the filename prefix applied (`"app"`, `"package"` or `"workspace"`).
+For example, if you placed the following JSON object in `"workspace.json"`:
+
+    {
+        foo: {
+            bar: 42
+        }
+    }
+
+This would set the `workspace.foo.bar` property to the value "42".
+
+This mechanism is what allows the `app.id` property to be imported from `"app.json"` for
+use in the build process.
 
 ### Java System Properties
 
@@ -280,3 +330,9 @@ which provides many [useful tasks](http://ant-contrib.sourceforge.net/tasks/task
 While the primary use of Sencha Cmd is at the command line (hence its name), Sencha Cmd is
 also usable directly from Ant. For details about the many commands provided at this level,
 see the [Ant Integration](#!/guide/command_ant) guide.
+
+## Next Steps
+
+ - [Ant Integration](#!/guide/command_ant)
+ - [Sencha Cmd Packages](#!/guide/command_packages)
+ - [Sencha Compiler Reference](#!/guide/command_compiler)

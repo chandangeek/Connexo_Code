@@ -53,6 +53,7 @@ Ext.onReady(function () {
         minWidth: 550,
         maximizable: true,
         title: 'Pie Renderer Chart',
+        constrain: true,
         autoShow: true,
         layout: 'fit',
         tbar: [{

@@ -30,10 +30,6 @@
 .x-portal-body {
     padding: 0 0 0 8px;
 }
-.x-portal .x-portal-column {
-    /* columns must have vertical padding to avoid losing dimensions when empty */
-    padding: 8px 8px 0 0;
-}
 .x-portal .x-panel-dd-spacer {
     border: 2px dashed #99bbe8;
     background: #f6f6f6;
@@ -49,6 +45,7 @@
     background: #fff;
 }
 .portlet-content {
+    color: black;
     padding: 10px;
     font-size: 11px;
 }

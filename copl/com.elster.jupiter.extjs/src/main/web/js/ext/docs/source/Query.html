@@ -17,6 +17,7 @@
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">// @tag dom,core
 // @require Helper.js
+
 // @define Ext.dom.Query
 // @define Ext.core.DomQuery
 // @define Ext.DomQuery
@@ -121,9 +122,7 @@ Ext.ns('Ext.core');
 Ext.dom.Query = Ext.core.DomQuery = Ext.DomQuery = (function() {
     var DQ,
         doc = document,
-        cache = {},
-        simpleCache = {},
-        valueCache = {},
+        cache, simpleCache, valueCache,
         useClassList = !!doc.documentElement.classList,
         useElementPointer = !!doc.documentElement.firstElementChild,
         useChildrenCollection = (function() {
@@ -611,6 +610,12 @@ Ext.dom.Query = Ext.core.DomQuery = Ext.DomQuery = (function() {
     }
 
     return DQ = {
+        clearCache: function () {
+            cache &amp;&amp; cache.clear();
+            valueCache &amp;&amp; valueCache.clear();
+            simpleCache &amp;&amp; simpleCache.clear();
+        },
+
         getStyle: function(el, name) {
             return Ext.fly(el, '_DomQuery').getStyle(name);
         },
@@ -718,36 +723,44 @@ Ext.dom.Query = Ext.core.DomQuery = Ext.DomQuery = (function() {
          * no matches, and empty Array is returned.
          */
         jsSelect: function(path, root, type) {
+            if (!cache) {
+                DQ._cache = cache = new Ext.util.LruCache({
+                    maxSize: 200
+                });
+            }
             // set root to doc if not specified.
             root = root || doc;
 
             if (typeof root == &quot;string&quot;) {
                 root = doc.getElementById(root);
             }
-            var paths = path.split(&quot;,&quot;),
+            var paths = Ext.splitAndUnescape(path, &quot;,&quot;),
                 results = [],
+                query,
                 i, len, subPath, result;
 
             // loop over each selector
             for (i = 0, len = paths.length; i &lt; len; i++) {
                 subPath = paths[i].replace(trimRe, &quot;&quot;);
                 // compile and place in cache
-                if (!cache[subPath]) {
+                query = cache.get(subPath);
+                if (!query) {
                     // When we compile, escaping is handled inside the compile method
-                    cache[subPath] = DQ.compile(subPath, type);
-                    if (!cache[subPath]) {
+                    query = DQ.compile(subPath, type);
+                    if (!query) {
                         Ext.Error.raise({
                             sourceClass:'Ext.DomQuery',
                             sourceMethod:'jsSelect',
                             msg:subPath + ' is not a valid selector'
                         });
                     }
+                    cache.add(subPath, query);
                 } else {
                     // If we've already compiled, we still need to check if the
                     // selector has escaping and setup the appropriate flags
                     setupEscapes(subPath);
                 }
-                result = cache[subPath](root);
+                result = query(root);
                 if (result &amp;&amp; result !== doc) {
                     results = results.concat(result);
                 }
@@ -833,15 +846,23 @@ Ext.dom.Query = Ext.core.DomQuery = Ext.DomQuery = (function() {
          * @return {String}
          */
         selectValue: function(path, root, defaultValue) {
+            if (!valueCache) {
+                DQ._valueCache = valueCache = new Ext.util.LruCache({
+                    maxSize: 200
+                });
+            }
             path = path.replace(trimRe, &quot;&quot;);
-            if (!valueCache[path]) {
-                valueCache[path] = DQ.compile(path, &quot;select&quot;);
+            var query = valueCache.get(path),
+                n, v;
+
+            if (!query) {
+                query = DQ.compile(path, &quot;select&quot;);
+                valueCache.add(path, query);
             } else {
                 setupEscapes(path);
             }
 
-            var n = valueCache[path](root),
-                v;
+            n = query(root);
 
             n = n[0] ? n[0] : n;
 
@@ -896,13 +917,22 @@ Ext.dom.Query = Ext.core.DomQuery = Ext.DomQuery = (function() {
          */
         filter: function(els, ss, nonMatches) {
             ss = ss.replace(trimRe, &quot;&quot;);
-            if (!simpleCache[ss]) {
-                simpleCache[ss] = DQ.compile(ss, &quot;simple&quot;);
+            if (!simpleCache) {
+                DQ._simpleCache = simpleCache = new Ext.util.LruCache({
+                    maxSize: 200
+                });
+            }
+            var query = simpleCache.get(ss),
+                result;
+
+            if (!query) {
+                query = DQ.compile(ss, &quot;simple&quot;);
+                simpleCache.add(ss, query);
             } else {
                 setupEscapes(ss);
             }
 
-            var result = simpleCache[ss](els);
+            result = query(els);
             return nonMatches ? quickDiff(result, els) : result;
         },
 

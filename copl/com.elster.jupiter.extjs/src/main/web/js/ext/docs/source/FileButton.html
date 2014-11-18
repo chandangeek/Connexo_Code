@@ -32,6 +32,11 @@ Ext.define('Ext.form.field.FileButton', {
 </span>    
 <span id='Ext-form-field-FileButton-cfg-preventDefault'>    preventDefault: false,
 </span>
+<span id='Ext-form-field-FileButton-cfg-autoEl'>    autoEl: {
+</span>        tag: 'div',
+        unselectable: 'on'
+    },
+
 <span id='Ext-form-field-FileButton-cfg-renderTpl'>    renderTpl: [
 </span>        '&lt;span id=&quot;{id}-btnWrap&quot; role=&quot;presentation&quot; class=&quot;{baseCls}-wrap',
             '&lt;tpl if=&quot;splitCls&quot;&gt; {splitCls}&lt;/tpl&gt;',
@@ -49,13 +54,14 @@ Ext.define('Ext.form.field.FileButton', {
                 '&lt;/span&gt;',
             '&lt;/span&gt;',
         '&lt;/span&gt;',
-        '&lt;input id=&quot;{id}-fileInputEl&quot; class=&quot;{childElCls} {inputCls}&quot; type=&quot;file&quot; size=&quot;1&quot; name=&quot;{inputName}&quot; role=&quot;{role}&quot;&gt;'
+        '&lt;input id=&quot;{id}-fileInputEl&quot; class=&quot;{childElCls} {inputCls}&quot; type=&quot;file&quot; size=&quot;1&quot; name=&quot;{inputName}&quot; role=&quot;{role}&quot; tabIndex=&quot;{tabIndex}&quot;&gt;'
     ],
     
 <span id='Ext-form-field-FileButton-method-getTemplateArgs'>    getTemplateArgs: function(){
 </span>        var args = this.callParent();
         args.inputCls = this.inputCls;
         args.inputName = this.inputName;
+        args.tabIndex = this.ownerCt.tabIndex;
         return args;
     },
     
@@ -83,7 +89,8 @@ Ext.define('Ext.form.field.FileButton', {
             cls: me.inputCls,
             tag: 'input',
             type: 'file',
-            size: 1
+            size: 1,
+            role: 'button'
         });
         me.fileInputEl.on('change', me.fireChange, me);  
     },

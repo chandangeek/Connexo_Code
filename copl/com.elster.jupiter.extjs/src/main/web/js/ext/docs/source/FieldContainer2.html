@@ -58,7 +58,7 @@ Ext.define('Ext.layout.component.field.FieldContainer', {
 
 <span id='Ext-layout-component-field-FieldContainer-method-publishInnerWidth'>    publishInnerWidth: function (ownerContext, width) {
 </span>        var bodyContext = ownerContext.bodyCellContext,
-            innerWidth = bodyContext.el.getWidth();
+            innerWidth = bodyContext.el.getWidth() - bodyContext.getPaddingInfo().width;
 
         bodyContext.setWidth(innerWidth, false);
         ownerContext.containerElContext.setWidth(innerWidth, false);
@@ -68,7 +68,7 @@ Ext.define('Ext.layout.component.field.FieldContainer', {
 </span>        var bodyContext = ownerContext.bodyCellContext,
             containerElContext = ownerContext.containerElContext;
             
-        height -= this.measureLabelErrorHeight(ownerContext);
+        height -= this.measureLabelErrorHeight(ownerContext) + bodyContext.getPaddingInfo().height;
         bodyContext.setHeight(height);
         containerElContext.setHeight(height);
     }

@@ -60,6 +60,7 @@ Ext.onReady(function () {
         hidden: false,
         maximizable: true,
         title: 'Mixed Charts',
+        constrain: true,
         renderTo: Ext.getBody(),
         layout: 'fit',
         tbar: [{

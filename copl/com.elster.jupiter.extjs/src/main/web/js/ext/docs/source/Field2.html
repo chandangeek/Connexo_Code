@@ -166,6 +166,13 @@ Ext.define('Ext.form.field.Field', {
      */
     transformOriginalValue: Ext.identityFn,
 
+<span id='Ext-form-field-Field-method-getFieldIdentifier'>    // Fields can be editors, and some editors may not have a name property that maps
+</span>    // to its data index, so it's necessary in these cases to look it up by its dataIndex
+    // property.  See EXTJSIV-11650.
+    getFieldIdentifier: function () {
+        return this.isEditorComponent ? this.dataIndex : this.name;
+    },
+
 <span id='Ext-form-field-Field-method-getName'>    /**
 </span>     * Returns the {@link Ext.form.field.Field#name name} attribute of the field. This is used as the parameter name
      * when including the field value in a {@link Ext.form.Basic#submit form submit()}.
@@ -263,7 +270,7 @@ Ext.define('Ext.form.field.Field', {
         // to be submitted,  but they can call this to get their model data.
         if (!me.disabled &amp;&amp; (me.submitValue || !isSubmitting)) {
             data = {};
-            data[me.getName()] = me.getValue();
+            data[me.getFieldIdentifier()] = me.getValue();
         }
         return data;
     },

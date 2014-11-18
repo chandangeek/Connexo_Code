@@ -96,7 +96,7 @@ Ext.define('Ext.app.EventDomain', {
     dispatch: function(target, ev, args) {
         var me = this,
             bus = me.bus,
-            selectors = bus[ev],
+            selectors = bus[ev.toLowerCase()],
             selector, controllers, id, events, event, i, ln;
 
         if (!selectors) {
@@ -179,6 +179,7 @@ Ext.define('Ext.app.EventDomain', {
                         options  = null;
                         listener = listeners[ev];
                         scope    = controller;
+                        ev       = ev.toLowerCase();
                         event    = new Ext.util.Event(controller, ev);
 
                         // Normalize the listener
@@ -278,6 +279,7 @@ Ext.define('Ext.app.EventDomain', {
             controllers, ev, selector, selectors;
 
         for (ev in bus) {
+            ev = ev.toLowerCase();
             if (bus.hasOwnProperty(ev) &amp;&amp; (selectors = bus[ev])) {
                 for (selector in selectors) {
                     controllers = selectors[selector];

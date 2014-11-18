@@ -103,7 +103,7 @@ The path of least resistance is to repair an invalid drop by reseting the style 
                 };
 
                 // Apply the repair animation
-                this.el.moveTo(this.originalXY[0], this.originalXY[1], animCfgObj);
+                this.el.setXY(this.originalXY[0], this.originalXY[1], animCfgObj);
                 delete this.invalidDrop;
             }
         },

@@ -413,6 +413,10 @@ Ext.define('Ext.ux.desktop.Desktop', {
 
     updateActiveWindow: function () {
         var me = this, activeWindow = me.getActiveWindow(), last = me.lastActiveWindow;
+        if (last && last.isDestroyed) {
+            me.lastActiveWindow = null;
+            return;
+        }
         if (activeWindow === last) {
             return;
         }

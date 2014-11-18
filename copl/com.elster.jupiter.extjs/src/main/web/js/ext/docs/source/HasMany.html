@@ -186,6 +186,10 @@ console.log(group.getUserList());
      * Defaults to &lt;tt&gt;false&lt;/tt&gt;.
      */
     
+<span id='Ext-data-association-HasMany-cfg-remoteFilter'>    /**
+</span>     * @cfg {Boolean} remoteFilter `true` to enable remote filtering on the related store.
+     */
+    
 <span id='Ext-data-association-HasMany-cfg-type'>    /**
 </span>     * @cfg {String} type The type configuration can be used when creating associations using a configuration object.
      * Use 'hasMany' to create a HasMany association
@@ -232,6 +236,7 @@ associations: [{
             primaryKey      = that.primaryKey,
             filterProperty  = that.filterProperty,
             autoLoad        = that.autoLoad,
+            remoteFilter    = that.remoteFilter,
             storeConfig     = that.storeConfig || {};
         
         return function() {
@@ -263,7 +268,7 @@ associations: [{
                 config = Ext.apply({}, storeConfig, {
                     model        : associatedModel,
                     filters      : filter ? [filter] : undefined,
-                    remoteFilter : false,
+                    remoteFilter : remoteFilter === true,
                     modelDefaults: modelDefaults,
                     disableMetaChangeEvent: true
                 });

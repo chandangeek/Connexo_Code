@@ -247,15 +247,15 @@ Ext.define('Ext.data.association.Association', {
         me.ownerModel = ownerModel;
         me.associatedModel = associatedModel;
 
-<span id='Ext-data-association-Association-property-ownerName'>        /**
-</span>         * @property {String} ownerName
-         * The name of the model that 'owns' the association
+<span id='Ext-data-association-Association-cfg-ownerName'>        /**
+</span>         * @cfg {String} ownerName The name of the model that 'owns' the association
          */
 
-<span id='Ext-data-association-Association-property-associatedName'>        /**
-</span>         * @property {String} associatedName
-         * The name of the model is on the other end of the association (e.g. if a User model hasMany Orders, this is
-         * 'Order')
+<span id='Ext-data-association-Association-cfg-associatedName'>        /**
+</span>         * @cfg {String} associatedName
+         * The property name the associated {@link Ext.data.Model} (for {@link Ext.data.association.HasOne HasOne} or {@link Ext.data.association.BelongsTo BelongsTo}
+         * or {@link Ext.data.Store} (for {@link Ext.data.association.HasMany HasMany}) is cached on. If associatedName is not defined, the {@link #associatedModel} value
+         * is then used.
          */
 
         Ext.applyIf(me, {

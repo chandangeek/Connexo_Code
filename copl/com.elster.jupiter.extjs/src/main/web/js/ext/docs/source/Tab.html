@@ -381,6 +381,13 @@ Ext.define('Ext.tab.Tab', {
             this.onCloseClick();
         }
     },
+    
+<span id='Ext-tab-Tab-method-afterClick'>    // @private
+</span>    afterClick: function(isCloseClick) {
+        if (!isCloseClick) {
+            this.focus();
+        }
+    },
 
 <span id='Ext-tab-Tab-method-activate'>    // @private
 </span>    activate : function(supressEvent) {

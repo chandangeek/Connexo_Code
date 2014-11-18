@@ -116,8 +116,7 @@ Ext.define('Ext.form.action.DirectSubmit', {
             form = me.form,
             api = form.api,
             fn = api.submit,
-            callback = Ext.Function.bind(me.onComplete, me),
-            formInfo = me.buildForm(),
+            callback, formInfo, options;
             options;
         
         if (typeof fn !== 'function') {
@@ -126,7 +125,6 @@ Ext.define('Ext.form.action.DirectSubmit', {
             //&lt;/debug&gt;
             
             api.submit = fn = Ext.direct.Manager.parseMethod(fn);
-            me.cleanup(formInfo);
 
             //&lt;debug&gt;
             if (!Ext.isFunction(fn)) {
@@ -141,7 +139,9 @@ Ext.define('Ext.form.action.DirectSubmit', {
             };
         }
         
-        fn.call(window, formInfo.formEl, callback, me, options);
+        formInfo = me.buildForm();
+        
+        fn.call(window, formInfo.formEl, me.onComplete, me, options);
         me.cleanup(formInfo);
     },
 

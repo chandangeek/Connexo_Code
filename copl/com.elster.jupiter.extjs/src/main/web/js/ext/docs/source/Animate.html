@@ -315,6 +315,14 @@ Ext.define('Ext.util.Animate', {
             paused: true
         }, config);
     },
+    
+<span id='Ext-util-Animate-method-getAnimationProps'>    // @private - get animation properties
+</span>    getAnimationProps: function() {
+        var me = this,
+            layout = me.layout;
+        
+        return layout &amp;&amp; layout.animate ? layout.animate : {};
+    },
 
 <span id='Ext-util-Animate-method-stopFx'>    /**
 </span>     * Stops any running effects and clears this object's internal effects queue if it contains any additional effects

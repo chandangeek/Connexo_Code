@@ -105,6 +105,7 @@
         <attribute name="target"/>
         <sequential>
             <ant dir="${basedir}" inheritall="false" inheritrefs="true" target="@{target}">
+                <property name="compiler.ref.id" value="${compiler.ref.id}-@{themeName}"/>
                 <property name="app.theme" value="ext-theme-@{themeName}"/>
                 <property name="cmd.dir" value="${cmd.dir}"/>
             </ant>

@@ -304,7 +304,7 @@ Ext.define('Ext.FocusManager', {
         }
 
         // When calling addFocusListener on Containers, the FocusManager must be enabled, otherwise it won't do it.
-        me.enabled = true;
+        me.enabled = Ext.enableFocusManager = true;
         me.initDOM(options);
 
         // Start handling key navigation

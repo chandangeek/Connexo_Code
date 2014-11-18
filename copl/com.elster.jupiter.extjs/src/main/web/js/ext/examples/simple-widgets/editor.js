@@ -6,7 +6,7 @@ Ext.require([
 ]);
 
 Ext.onReady(function(){
-    Ext.create('Ext.form.Panel', {
+    new Ext.form.Panel({
         renderTo: 'container',
         width: 700,
         height: 400,
@@ -40,7 +40,7 @@ Ext.onReady(function(){
                     ignoreNoChange: true
                 }, height = form.child('textfield').getHeight();
 
-                var labelEditor = Ext.create('Ext.Editor', Ext.apply({
+                var labelEditor = new Ext.Editor(Ext.apply({
                     autoSize: {
                         width: 'field'
                     },
@@ -65,7 +65,7 @@ Ext.onReady(function(){
                         enforceMaxLength: true
                     }
                 }, cfg));
-                form.body.on('dblclick', function(e, t){
+                form.getTargetEl().on('dblclick', function(e, t) {
                     labelEditor.startEdit(t);
                     // Manually focus, since clicking on the label will focus the text field
                     labelEditor.field.focus(50, true);
@@ -73,7 +73,7 @@ Ext.onReady(function(){
                     delegate: 'label.x-form-item-label'
                 });
 
-                var titleEditor = Ext.create('Ext.Editor', Ext.apply({
+                var titleEditor = new Ext.Editor(Ext.apply({
                     alignment: 'tl',
                     offsets: [0, -3],
                     field: {

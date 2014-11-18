@@ -305,7 +305,7 @@ Ext.define('Ext.util.Observable', function(Observable) {
         *
         *  A `Destroyable` object. An object which implements the `destroy` method which removes all listeners added in this call. For example:
         *
-        *     this.btnListeners =  = myButton.mon({
+        *     this.btnListeners = myButton.mon({
         *         destroyable: true
         *         mouseover:   function() { console.log('mouseover'); },
         *         mouseout:    function() { console.log('mouseout'); },
@@ -500,7 +500,9 @@ Ext.define('Ext.util.Observable', function(Observable) {
         },
 
 <span id='Ext-util-Observable-method-addListener'>        /**
-</span>        * Appends an event handler to this object.  For example:
+</span>        * The {@link #on} method is shorthand for {@link #addListener}.
+        *
+        * Appends an event handler to this object.  For example:
         *
         *     myGridPanel.on(&quot;mouseover&quot;, this.onMouseOver, this);
         *
@@ -843,6 +845,22 @@ Ext.define('Ext.util.Observable', function(Observable) {
         hasListener: function(ename) {
             return !!this.hasListeners[ename.toLowerCase()];
         },
+        
+<span id='Ext-util-Observable-method-isSuspended'>        /**
+</span>         * Checks if all events, or a specific event, is suspended.
+         * @param {String} [event] The name of the specific event to check
+         * @return {Boolean} `true` if events are suspended
+         */
+        isSuspended: function(event) {
+            var suspended = this.eventsSuspended &gt; 0;
+            if (!suspended &amp;&amp; event) {
+                event = this.events[event];
+                if (event &amp;&amp; event.isEvent) {
+                    return event.isSuspended();
+                }
+            }
+            return suspended;
+        },
 
 <span id='Ext-util-Observable-method-suspendEvents'>        /**
 </span>        * Suspends the firing of all events. (see {@link #resumeEvents})
@@ -869,15 +887,18 @@ Ext.define('Ext.util.Observable', function(Observable) {
          */
         suspendEvent: function(eventName) {
             var len = arguments.length,
-                i, event;
+                events = this.events,
+                i, event, ename;
 
             for (i = 0; i &lt; len; i++) {
-                event = this.events[arguments[i]];
-
-                // If it exists, and is an Event object (not still a boolean placeholder), suspend it
-                if (event &amp;&amp; event.suspend) {
-                    event.suspend();
+                ename = arguments[i];
+                event = events[ename];
+                if (!event || typeof event == 'boolean') {
+                    events[ename] = event = new ExtEvent(this, ename);
                 }
+
+                // Forcibly create the event, since we may not have anything bound when asking to suspend
+                event.suspend();
             }
         },
 
@@ -936,9 +957,11 @@ Ext.define('Ext.util.Observable', function(Observable) {
         *
         *     this.relayEvents(this.getStore(), ['load']);
         *
-        * The grid instance will then have an observable 'load' event which will be passed the
-        * parameters of the store's load event and any function fired with the grid's load event
-        * would have access to the grid using the `this` keyword.
+        * The grid instance will then have an observable 'load' event which will be passed 
+        * the parameters of the store's load event and any function fired with the grid's 
+        * load event would have access to the grid using the this keyword (unless the event 
+        * is handled by a controller's control/listen event listener in which case 'this' 
+        * will be the controller rather than the grid).
         *
         * @param {Object} origin The Observable whose events this object is to relay.
         * @param {String[]} events Array of event names to relay.
@@ -1124,7 +1147,6 @@ Ext.define('Ext.util.Observable', function(Observable) {
     Observable.createAlias({
 <span id='Ext-util-Observable-method-on'>        /**
 </span>         * @method
-         * Shorthand for {@link #addListener}.
          * @inheritdoc Ext.util.Observable#addListener
          */
         on: 'addListener',

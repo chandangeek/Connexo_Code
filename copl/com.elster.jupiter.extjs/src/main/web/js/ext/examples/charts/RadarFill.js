@@ -62,6 +62,7 @@ Ext.onReady(function () {
         maximizable: true,
         style: 'overflow: hidden;',
         title: 'Filled Radar Chart',
+        constrain: true,
         renderTo: Ext.getBody(),
         layout: 'fit',
         tbar: [{

@@ -193,6 +193,51 @@ Ext.define('Ext.dom.Element_scroll', {
 
 <span id='Ext-dom-Element-method-scrollIntoView'>    /**
 </span>     * Scrolls this element into view within the passed container.
+     *
+     *          
+     *       Ext.create('Ext.data.Store', {
+     *           storeId:'simpsonsStore',
+     *           fields:['name', 'email', 'phone'],
+     *           data:{'items':[
+     *               { 'name': 'Lisa',  &quot;email&quot;:&quot;lisa@simpsons.com&quot;,  &quot;phone&quot;:&quot;555-111-1224&quot;  },
+     *               { 'name': 'Bart',  &quot;email&quot;:&quot;bart@simpsons.com&quot;,  &quot;phone&quot;:&quot;555-222-1234&quot; },
+     *               { 'name': 'Homer', &quot;email&quot;:&quot;homer@simpsons.com&quot;,  &quot;phone&quot;:&quot;555-222-1244&quot;  },
+     *               { 'name': 'Marge', &quot;email&quot;:&quot;marge@simpsons.com&quot;, &quot;phone&quot;:&quot;555-222-1254&quot;  },
+     *               { 'name': 'Milhouse', &quot;email&quot;:&quot;milhouse@simpsons.com&quot;,  &quot;phone&quot;:&quot;555-222-1244&quot;  },
+     *               { 'name': 'Willy', &quot;email&quot;:&quot;willy@simpsons.com&quot;, &quot;phone&quot;:&quot;555-222-1254&quot;  },
+     *               { 'name': 'Skinner', &quot;email&quot;:&quot;skinner@simpsons.com&quot;,  &quot;phone&quot;:&quot;555-222-1244&quot;  },
+     *               { 'name': 'Hank (last row)', &quot;email&quot;:&quot;hank@simpsons.com&quot;, &quot;phone&quot;:&quot;555-222-1254&quot;  }
+     *           ]},
+     *           proxy: {
+     *               type: 'memory',
+     *               reader: {
+     *                   type: 'json',
+     *                   rootProperty: 'items'
+     *               }
+     *           }
+     *       });
+     *       
+     *       var grid = Ext.create('Ext.grid.Panel', {
+     *           title: 'Simpsons',
+     *           store: Ext.data.StoreManager.lookup('simpsonsStore'),
+     *           columns: [
+     *               { text: 'Name',  dataIndex: 'name', width: 125 },
+     *               { text: 'Email', dataIndex: 'email', flex: 1 },
+     *               { text: 'Phone', dataIndex: 'phone' }
+     *           ],
+     *           height: 190,
+     *           width: 400,
+     *           renderTo: Ext.getBody(),
+     *           tbar: [{
+     *               text: 'Scroll row 7 into view',
+     *               handler: function () {
+     *                   var view = grid.getView();
+     *                   
+     *                   Ext.get(view.getRow(7)).scrollIntoView(view.getEl(), null, true);
+     *               }
+     *           }]
+     *       });
+     * 
      * @param {String/HTMLElement/Ext.Element} [container=document.body] The container element
      * to scroll.  Should be a string (id), dom node, or Ext.Element.
      * @param {Boolean} [hscroll=true] False to disable horizontal scroll.

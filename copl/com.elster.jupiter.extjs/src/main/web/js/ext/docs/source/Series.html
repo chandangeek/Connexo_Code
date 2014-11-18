@@ -103,7 +103,14 @@ Ext.define('Ext.chart.series.Series', {
 <span id='Ext-chart-series-Series-cfg-renderer'>    /**
 </span>     * @cfg {Function} renderer
      * A function that can be overridden to set custom styling properties to each rendered element.
-     * Passes in (sprite, record, attributes, index, store) to the function.
+     * Passes in (sprite, record, attributes, index, store) to the function. This function **must** return
+     * an object of attributes. By default, the renderer will return the attributes parameter.
+     * @param {Ext.draw.Sprite} sprite The sprite being rendered.
+     * @param {Ext.data.Model} record The record associated with the sprite data point being rendered.
+     * @param {Object} attributes The attributes used to style the sprite.
+     * @param {Number} index The index of the record in the store.
+     * @param {Ext.data.Store} store The store for the chart.
+     * @return {Object} The attributes the sprite will use to render.
      */
     renderer: function(sprite, record, attributes, index, store) {
         return attributes;
@@ -111,7 +118,43 @@ Ext.define('Ext.chart.series.Series', {
 
 <span id='Ext-chart-series-Series-cfg-shadowAttributes'>    /**
 </span>     * @cfg {Array} shadowAttributes
-     * An array with shadow attributes
+     * An array with shadow attributes.
+     * 
+     * Defaults to: 
+     *
+     *     [{
+     *         &quot;stroke-width&quot;: 6,
+     *         &quot;stroke-opacity&quot;: 1,
+     *         &quot;stroke&quot;: 'rgb(200, 200, 200)',
+     *         &quot;translate&quot;: {
+     *             &quot;x&quot;: 1.2,
+     *             &quot;y&quot;: 2
+     *         }
+     *     },
+     *     {
+     *         &quot;stroke-width&quot;: 4,
+     *         &quot;stroke-opacity&quot;: 1,
+     *         &quot;stroke&quot;: 'rgb(150, 150, 150)',
+     *         &quot;translate&quot;: {
+     *             &quot;x&quot;: 0.9,
+     *             &quot;y&quot;: 1.5
+     *         }
+     *     },
+     *     {
+     *         &quot;stroke-width&quot;: 2,
+     *         &quot;stroke-opacity&quot;: 1,
+     *         &quot;stroke&quot;: 'rgb(100, 100, 100)',
+     *         &quot;translate&quot;: {
+     *             &quot;x&quot;: 0.6,
+     *             &quot;y&quot;: 1
+     *         }
+     *     }]
+     *
+     * Each object in the array will be applied to a sprite to make up the 
+     * underlying shadow. 
+     *
+     * Only applicable when the chart's shadow property is `true`.
+     * 
      */
     shadowAttributes: null,
 

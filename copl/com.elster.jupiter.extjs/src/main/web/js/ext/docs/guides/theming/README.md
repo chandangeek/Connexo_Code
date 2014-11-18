@@ -454,8 +454,8 @@ correctly when you build the my-custom-theme package using `sencha package build
 Youll musst also add these 2 script tags to `"theme-demo-app/sass/example/theme.html"`,
 so that the UIs will get sliced when building the app using `sencha app build`:
 
-    <script type="text/javascript" src="../../../packages/ext-theme-neptune/sass/example/manifest.js"></script>
-    <script type="text/javascript" src="../../../packages/my-custom-theme/sass/example/manifest.js"></script>
+    <script type="text/javascript" src="../../../../ext/packages/ext-theme-neptune/sass/example/manifest.js"></script>
+    <script type="text/javascript" src="../../../../ext/packages/my-custom-theme/sass/example/manifest.js"></script>
 
 In the future, it will seldom be necessary to modify `"theme.html"` manually but,
 in Sencha Cmd 3.1.0, script tags

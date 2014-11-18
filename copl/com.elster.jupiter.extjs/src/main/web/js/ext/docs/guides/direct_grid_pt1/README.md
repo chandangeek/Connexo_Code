@@ -22,7 +22,7 @@ You will need:
 For the best debugging experience I recommend Firefox with the Firebug add-on.
 
 ### 1.2 What is Ext Grid?
-A grid in Ext JS is "essentially a supercharged `<table>`" to quote {@link Ext.grid.Panel its documentation}. It allows you to manipulate data by sorting and filtering, and to fetch new data in, so it's much more dynamic than your run-of-the-mill table. As you can imagine, this allows you to do some pretty cool things.
+A grid in Ext JS is "essentially a supercharged `<table>`" to quote {@link Ext.grid.Panel its documentation}. A grid allows you to manipulate data by sorting and filtering, and to fetch new data in, so it's much more dynamic than your run-of-the-mill table. As you can imagine, this allows you to do some pretty cool things.
 
 ### 1.3 What is Ext Direct?
 Good question, Ext Direct provides a way to communicate between the browser and server using less code than traditional methods (i.e. PHP) to actually _do_ stuff with your data.
@@ -39,7 +39,10 @@ Now that we've all been persuaded, lets get to building it.
 
 III. Setting Up
 ---------------
-Following the best practices for an Ext application highlighted in [this guide](http://docs.sencha.com/ext-js/4-0/#/guide/getting_started) I've set up a skeleton directory structure with an index.html file and a blank JavaScript file called grid.js.
+After setting up an environment for an Ext JS application, which is described 
+in [Getting Started](#!/guide/getting_started), Sencha Cmd sets up a 
+skeleton directory structure with an index.html file. We add a blank 
+JavaScript file called grid.js and reference it in the index.html file.
 
 index.html
 
@@ -59,13 +62,13 @@ index.html
 	</body>
 	</html>
 
-Because we're using the HTML5 document type we're allowed to omit the type in a script tag, it assumes that all `<script>` tags will be JavaScript which helps cut down our bytes. However, you've probably also noticed the peculiar api.php file, surely that can't be JavaScript? All will be explained in time.
+Because we're using the HTML5 document type, we're allowed to omit the type in a script tag, it assumes that all `<script>` tags will be JavaScript which helps cut down our bytes. However, you've probably also noticed the peculiar api.php file, surely that can't be JavaScript? All will be explained in time.
 
 Now that the index is pointing to all the right places, unzip your copy of Ext 4 into a folder called 'extjs'. We are now ready to start building the application!
 
 IV. Writing the Application
 ---------------------------
-We'll start by writing the JavaScript portion to give us something to look at when we start trying to debug the PHP side of the app. Within grid.js we first want to declare what parts of the Ext framework we'll be dealing with, this will probably be a familiar process to ActionScript and Java users but for the rest of us, it's very simple. Because I've seen into the future, I know that we'll be using Ext Direct, Ext Data and Ext Grid, to display the data so we require the following:
+We'll start by writing the JavaScript portion to give us something to look at when we start trying to debug the PHP side of the app. Within grid.js we first want to declare what parts of the Ext JS framework we'll be dealing with, this will probably be a familiar process to ActionScript and Java users but for the rest of us, it's very simple. Because I've seen into the future, I know that we'll be using Ext Direct, Ext Data and Ext Grid, to display the data so we require the following:
 
 grid.js
 

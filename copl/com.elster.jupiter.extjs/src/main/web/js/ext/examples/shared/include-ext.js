@@ -79,7 +79,7 @@
         // overrides dynamically after Ext has been defined.
         neptunePath = (repoDevMode ? path + '/..' : path) +
             '/packages/ext-theme-neptune/build/ext-theme-neptune' +
-            (repoDevMode ? '-dev' : '') + '.js';
+            (repoDevMode ? '-debug' : '') + '.js';
 
         if (repoDevMode &&  window.ActiveXObject) {
             Ext = {

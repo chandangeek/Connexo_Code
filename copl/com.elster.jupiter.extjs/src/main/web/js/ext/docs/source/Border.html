@@ -683,6 +683,7 @@ Ext.define('Ext.layout.container.Border', {
         var me = this,
             placeholderFor = item.placeholderFor,
             region = item.region,
+            isCenter,
             split,
             hidden,
             cfg;
@@ -698,7 +699,8 @@ Ext.define('Ext.layout.container.Border', {
                 item.initBorderRegion();
             }
 
-            if (region === 'center') {
+            isCenter = region === 'center';
+            if (isCenter) {
                 //&lt;debug&gt;
                 if (me.centerRegion) {
                     Ext.Error.raise(&quot;Cannot have multiple center regions in a BorderLayout.&quot;);
@@ -719,7 +721,7 @@ Ext.define('Ext.layout.container.Border', {
                 }
             }
 
-            if (!item.hasOwnProperty('collapseMode')) {
+            if (!isCenter &amp;&amp; !item.hasOwnProperty('collapseMode')) {
                 item.collapseMode = me.panelCollapseMode;
             }
 

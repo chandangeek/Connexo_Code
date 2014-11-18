@@ -190,8 +190,9 @@ Ext.define('SimpleTasks.controller.Tasks', {
 
         // try to blur all of this form's items to make sure that the user can't type into a field while saving
         form.items.each(function(item) {
-            var inputEl = item.getEl().down('input')
-            if(inputEl) {
+            var inputEl = item.getEl().down('input');
+
+            if (inputEl) {
                 inputEl.blur();
             }
         });
@@ -698,6 +699,7 @@ Ext.define('SimpleTasks.controller.Tasks', {
      */
     saveEditWindow: function() {
         var taskEditWindow = this.getTaskEditWindow(),
+            listTree = this.getListTree(),
             windowEl = taskEditWindow.getEl(),
             form = taskEditWindow.down('form').getForm(),
             task = form.getRecord();
@@ -712,6 +714,7 @@ Ext.define('SimpleTasks.controller.Tasks', {
                 success: function(task, operation) {
                     windowEl.unmask();
                     taskEditWindow.close();
+                    listTree.view.refresh();
                 },
                 failure: function(task, operation) {
                     var error = operation.getError(),
@@ -1024,5 +1027,4 @@ Ext.define('SimpleTasks.controller.Tasks', {
     dismissReminder: function(button, e) {
         button.findParentByType('window').close();
     }
-
 });

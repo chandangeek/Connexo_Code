@@ -71,7 +71,8 @@ Ext.define('Ext.AbstractManager', {
      * @param {Object} item The item to unregister
      */
     unregister: function(item) {
-        this.all.remove(item);
+        var all = this.all;
+        all.removeAtKey(all.getKey(item));
     },
 
 <span id='Ext-AbstractManager-method-registerType'>    /**

@@ -10,7 +10,8 @@ Ext.define('KitchenSink.controller.Main', {
         'Restaurants',
         'Files',
         'States',
-        'BigData'
+        'BigData',
+        'Posts'
     ],
 
     refs: [
@@ -123,11 +124,15 @@ Ext.define('KitchenSink.controller.Main', {
             cmp;
 
         if (xtype) { // only leaf nodes have ids
+
+            // Bracket removal, adding, title setting, and description update within one layout.
+            Ext.suspendLayouts();
+
             contentPanel.removeAll(true);
 
-            var className = Ext.ClassManager.getNameByAlias(alias);
-            var ViewClass = Ext.ClassManager.get(className);
-            var clsProto = ViewClass.prototype;
+            var className = Ext.ClassManager.getNameByAlias(alias),
+                ViewClass = Ext.ClassManager.get(className),
+                clsProto = ViewClass.prototype;
             if (clsProto.themes) {
                 clsProto.themeInfo = clsProto.themes[themeName];
                 if (themeName === 'gray' || themeName === 'access') {
@@ -137,11 +142,6 @@ Ext.define('KitchenSink.controller.Main', {
 
             cmp = new ViewClass();
             contentPanel.add(cmp);
-            if (cmp.floating) {
-                cmp.show();
-            } else {
-                this.centerContent();
-            }
 
             contentPanel.setTitle(text);
 
@@ -154,6 +154,14 @@ Ext.define('KitchenSink.controller.Main', {
                 this.updateCodePreview(clsProto.exampleCode);
             } else {
                 this.updateCodePreviewAsync(clsProto, xtype);
+            }
+
+            Ext.resumeLayouts(true);
+
+            if (cmp.floating) {
+                cmp.show();
+            } else {
+                this.centerContent();
             }
         }
     },
@@ -195,7 +203,6 @@ Ext.define('KitchenSink.controller.Main', {
             i, line;
 
         // Remove all "example" blocks as they are fluff.
-        //
         for (i = 0; i < n; ++i) {
             line = lines[i];
             if (removing) {

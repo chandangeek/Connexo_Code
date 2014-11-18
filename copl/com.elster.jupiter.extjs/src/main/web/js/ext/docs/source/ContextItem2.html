@@ -800,10 +800,8 @@ Ext.define('Ext.layout.ContextItem', {
         // Only animate if the Component has been previously layed out: first layout should not animate
         if (animateFrom) {
             target = me.target;
-            targetAnim = target.layout &amp;&amp; target.layout.animate;
-            if (targetAnim) {
-                duration = Ext.isNumber(targetAnim) ? targetAnim : targetAnim.duration;
-            }
+            targetAnim = target.getAnimationProps();
+            duration = targetAnim.duration;
             animateProps = Ext.Object.getKeys(me.animatePolicy);
 
             // Create an animation block using the targetAnim configuration to provide defaults.

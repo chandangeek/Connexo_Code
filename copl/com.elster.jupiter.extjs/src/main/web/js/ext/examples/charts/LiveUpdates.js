@@ -72,6 +72,7 @@ Ext.onReady(function () {
         minWidth: 550,
         maximizable: true,
         title: 'Live Updated Chart',
+        constrain: true,
         layout: 'fit',
         items: [{
             xtype: 'chart',

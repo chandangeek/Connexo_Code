@@ -10,6 +10,10 @@ AJAX to consume AMF data sent over HTTP right inside a web browser, with no need
 for a Flash plugin.  This guide assumes you are already somewhat familiar with
 the Ext JS [Data Package](#/guide/data) and [Grids](#/guide/grid).
 
+**Note: **  _This functionality is only available with the purchase of 
+Sencha Complete.  For more information about using this class, please visit 
+our [Sencha Complete](https://www.sencha.com/products/complete/) product page._
+
 ## Working with AMF Packets
 
 AMF-encoded object graphs are typically formatted as an "AMF Packet".  Multiple

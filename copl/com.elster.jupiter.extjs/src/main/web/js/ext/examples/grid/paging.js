@@ -11,8 +11,6 @@ Ext.require([
     'Ext.tip.QuickTipManager'
 ]);
 
-
-
 Ext.onReady(function(){
     Ext.tip.QuickTipManager.init();
 
@@ -65,7 +63,6 @@ Ext.onReady(function(){
         return Ext.String.format('{0}<br/>by {1}', Ext.Date.dateFormat(value, 'M j, Y, g:i a'), r.get('lastposter'));
     }
 
-
     var pluginExpanded = true;
     var grid = Ext.create('Ext.grid.Panel', {
         width: 700,
@@ -75,15 +72,8 @@ Ext.onReady(function(){
         disableSelection: true,
         loadMask: true,
         viewConfig: {
-            id: 'gv',
             trackOver: false,
-            stripeRows: false,
-            plugins: [{
-                ptype: 'preview',
-                bodyField: 'excerpt',
-                expanded: true,
-                pluginId: 'preview'
-            }]
+            stripeRows: false
         },
         // grid columns
         columns:[{
@@ -117,20 +107,26 @@ Ext.onReady(function(){
             renderer: renderLast,
             sortable: true
         }],
+        plugins: [{
+            ptype: 'preview',
+            bodyField: 'excerpt',
+            expanded: true,
+            pluginId: 'preview'
+        }],
         // paging bar on the bottom
         bbar: Ext.create('Ext.PagingToolbar', {
             store: store,
             displayInfo: true,
             displayMsg: 'Displaying topics {0} - {1} of {2}',
             emptyMsg: "No topics to display",
+            inputItemWidth: 35,
             items:[
                 '-', {
                 text: 'Show Preview',
                 pressed: pluginExpanded,
                 enableToggle: true,
                 toggleHandler: function(btn, pressed) {
-                    var preview = Ext.getCmp('gv').getPlugin('preview');
-                    preview.toggleExpanded(pressed);
+                    grid.getPlugin('preview').toggleExpanded(pressed);
                 }
             }]
         }),

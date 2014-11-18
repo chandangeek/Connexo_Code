@@ -8,12 +8,13 @@ Ext.require([
 Ext.onReady(function () {
 
     Ext.create('Ext.Window', {
-        width: 800,
+        width: 1000,
         height: 250,
         minWidth: 650,
         minHeight: 225,
         autoShow: true,
         title: 'Gauge Charts',
+        constrain: true,
         tbar: [{
             text: 'Reload Data',
             handler: function() {

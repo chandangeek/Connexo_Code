@@ -32,7 +32,7 @@ Ext.define('Ext.picker.Month', {
     alternateClassName: 'Ext.MonthPicker',
 
 <span id='Ext-picker-Month-property-childEls'>    childEls: [
-</span>        'bodyEl', 'prevEl', 'nextEl', 'buttonsEl', 'monthEl', 'yearEl'
+</span>        'bodyEl', 'prevEl', 'nextEl', 'monthEl', 'yearEl'
     ],
 
 <span id='Ext-picker-Month-cfg-renderTpl'>    renderTpl: [
@@ -65,7 +65,7 @@ Ext.define('Ext.picker.Month', {
           '&lt;/div&gt;',
           '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'clear&quot;&gt;&lt;/div&gt;',
           '&lt;tpl if=&quot;showButtons&quot;&gt;',
-              '&lt;div id=&quot;{id}-buttonsEl&quot; class=&quot;{baseCls}-buttons&quot;&gt;{%',
+              '&lt;div class=&quot;{baseCls}-buttons&quot;&gt;{%',
                   'var me=values.$comp, okBtn=me.okBtn, cancelBtn=me.cancelBtn;',
                   'okBtn.ownerLayout = cancelBtn.ownerLayout = me.componentLayout;',
                   'okBtn.ownerCt = cancelBtn.ownerCt = me;',
@@ -254,8 +254,7 @@ Ext.define('Ext.picker.Month', {
 </span>    // @inheritdoc
     afterRender: function(){
         var me = this,
-            body = me.bodyEl,
-            buttonsEl = me.buttonsEl;
+            body = me.bodyEl;
 
         me.callParent();
 

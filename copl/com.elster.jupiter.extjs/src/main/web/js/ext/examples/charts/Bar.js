@@ -99,6 +99,7 @@ Ext.onReady(function () {
         hidden: false,
         maximizable: true,
         title: 'Bar Chart',
+        constrain: true,
         autoShow: true,
         layout: 'fit',
         tbar: [{

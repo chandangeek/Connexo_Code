@@ -99,6 +99,7 @@ Ext.onReady(function () {
         hidden: false,
         maximizable: true,
         title: 'Line Chart',
+        constrain: true,
         renderTo: Ext.getBody(),
         layout: 'fit',
         tbar: [{

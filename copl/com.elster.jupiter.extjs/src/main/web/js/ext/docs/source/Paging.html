@@ -236,7 +236,14 @@ Ext.define('Ext.toolbar.Paging', {
      * @private
      */
     getPagingItems: function() {
-        var me = this;
+        var me = this,
+            inputListeners = {
+                scope: me,
+                blur: me.onPagingBlur
+            };
+        
+        inputListeners[Ext.EventManager.getKeyEvent()] = me.onPagingKeyDown;
+        
         return [{
             itemId: 'first',
             tooltip: me.firstText,
@@ -272,11 +279,7 @@ Ext.define('Ext.toolbar.Paging', {
             isFormField: false,
             width: me.inputItemWidth,
             margins: '-1 2 3 2',
-            listeners: {
-                scope: me,
-                keydown: me.onPagingKeyDown,
-                blur: me.onPagingBlur
-            }
+            listeners: inputListeners
         },{
             xtype: 'tbtext',
             itemId: 'afterTextItem',
@@ -374,9 +377,13 @@ Ext.define('Ext.toolbar.Paging', {
     },
     
 <span id='Ext-toolbar-Paging-method-beforeRender'>    beforeRender: function() {
-</span>        this.callParent(arguments);
-        if (!this.store.isLoading()) {
-            this.onLoad();    
+</span>        var me = this;
+        
+        me.callParent(arguments);
+        if (!me.store.isLoading()) {
+            me.calledFromRender = true;
+            me.onLoad();    
+            delete me.calledFromRender;
         }    
     },
     
@@ -452,7 +459,9 @@ Ext.define('Ext.toolbar.Paging', {
         me.updateInfo();
         Ext.resumeLayouts(true);
 
-        me.fireEvent('change', me, pageData);
+        if (!me.calledFromRender) {
+            me.fireEvent('change', me, pageData);
+        }
     },
     
 <span id='Ext-toolbar-Paging-method-setChildDisabled'>    setChildDisabled: function(selector, disabled){

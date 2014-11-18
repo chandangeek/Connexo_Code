@@ -42,15 +42,6 @@
     .#{$prefix}rtl.#{$prefix}form-cb {
         right: 0;
         left: auto;
-        
-        // Fixes a weird bug in IE where the box itself is pushed over to the right
-        @if $include-ie {
-            .#{$prefix}quirks .#{$prefix}ie &amp;,
-            .#{$prefix}ie6 &amp; {
-                right: auto;
-            }
-        }
-        
     }
 }
 

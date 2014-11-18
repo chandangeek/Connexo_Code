@@ -115,7 +115,7 @@ Ext.define('SimpleTasks.view.lists.Tree', {
         );
 
         me.on('beforeedit', me.handleBeforeEdit, me);
-        me.relayEvents(me.getView(), ['taskdrop', 'listdrop'])
+        me.relayEvents(me.getView(), ['taskdrop', 'listdrop']);
 
     },
 
@@ -169,7 +169,7 @@ Ext.define('SimpleTasks.view.lists.Tree', {
             list.eachChild(function(child) {
                 countTasks(child);
             });
-        })(list);
+        }(list));
 
         return value + ' (' + count + ')';
     },

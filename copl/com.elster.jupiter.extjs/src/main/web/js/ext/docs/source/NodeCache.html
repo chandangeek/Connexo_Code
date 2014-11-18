@@ -196,16 +196,16 @@ Ext.define('Ext.view.NodeCache', {
             el,
             i, removeCount, fromPos;
 
-        if (end === undefined) {
-            end = me.count;
+        if (end == null) {
+            end = me.endIndex + 1;
         } else {
             end = Math.min(me.endIndex + 1, end + 1);
         }
-        if (!start) {
-            start = 0;
+        if (start == null) {
+            start = me.startIndex;
         }
         removeCount = end - start;
-        for (i = start, fromPos = end; i &lt; me.endIndex; i++, fromPos++) {
+        for (i = start, fromPos = end; i &lt;= me.endIndex; i++, fromPos++) {
             // Within removal range and we are removing from DOM
             if (removeDom &amp;&amp; i &lt; end) {
                 Ext.removeNode(elements[i]);

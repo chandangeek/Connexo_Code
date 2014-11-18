@@ -1,22 +1,31 @@
 # Ant Integration
 
-In addition to the command line interface described in the [Getting Started](#!/guide/command)
-guide, [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) also provides 
-direct interfaces for use in Ant.
+[Sencha Cmd](http://www.sencha.com/products/sencha-cmd/) is a cross-platform 
+command line tool. Under the covers Sencha Cmd uses [Apache Ant](http://ant.apache.org/)
+to provide much of its functionality. This guide describes the most important pieces of
+this interface in to Sencha Cmd.
+
+## Prerequisites
+
+The following guides are recommended reading before proceeding further:
+
+  - [Introduction to Sencha Cmd](#!/guide/command).
+  - [Using Sencha Cmd](#!/guide/command_app).
+
+## Ant
 
 [Apache Ant](http://ant.apache.org/) has long been a pillar of the Java development community,
-but at its core, Ant is an XML-based, cross-platform scripting platform. We call it a
-"platform" rather than a "language" because Ant can easily incorporate libraries of code
-in JAR form, or you can use one of the many supported scripting languages as part of your
-Ant script.
+but at its core, Ant is an XML-based, cross-platform scripting platform. It is a "platform"
+rather than a "language" because Ant can easily incorporate libraries of code in JAR form,
+or you can use one of the many supported scripting languages as part of your Ant script.
 
 Ant can, of course, call other programs (like Sencha Cmd), passing arguments and
 processing exit codes, but what Ant is particularly good at is manipulating files. This
-is because Ant was designed for use with build scripts.
+is because Ant was designed for use in build scripts.
 
 As touched on in the [Advanced Sencha Cmd](#!/guide/command_advanced) guide, Sencha Cmd
 is delivered as a JAR file and it exposes its core functionality as an Ant Library (or
-`antlib`). The command line level of Sencha Cmd, as well as specific processing
+`antlib`). The command line level of Sencha Cmd, as well as SDK-specific processing
 are implemented on top of this layer. So anything you can do in one, you can do in the
 other.
 
@@ -75,7 +84,7 @@ without deleting them. Also, blank lines are skipped:
 
     <x-sencha-command>
         compile
-            # Include the app folder and the Cmd/src folder
+            # Include the app folder and the sdk/src folder
             --classpath=${app.dir},${sdk.dir}/src
 
             # Turn off debugging (comment next line to leave debug enabled):
@@ -110,7 +119,7 @@ the template generator can be given a single source file or a source folder.
 
 The name of the source file determines if it should be processed as a "template":
 
- * `.tpl` = [XTemplate](http://docs.sencha.com/ext-js/4-2/#!/api/Ext.XTemplate)
+ * `.tpl` = [XTemplate](http://docs.sencha.com/ext-js/#!/api/Ext.XTemplate)
 
 For example, `"foo.js.tpl"` would be used to generate `"foo.js"` using the XTemplate engine.
 
@@ -180,7 +189,7 @@ can specify the `type` attribute as `json` or `properties`, like so:
         <load file="data" type="json" />
     </x-generate>
 
-*Note.* Parameters are applied in the order specified. Duplicate names are replaced if
+**Note.** Parameters are applied in the order specified. Duplicate names are replaced if
 they are encountered.
 
 ### x-generate file tofile

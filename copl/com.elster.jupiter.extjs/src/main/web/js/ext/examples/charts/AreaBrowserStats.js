@@ -286,6 +286,7 @@ Ext.onReady(function () {
         shadow: false,
         maximizable: false,
         title: 'What is the trend in Browser Usage?',
+        constrain: true,
         renderTo: Ext.getBody(),
         layout: 'fit',
         tbar: [{

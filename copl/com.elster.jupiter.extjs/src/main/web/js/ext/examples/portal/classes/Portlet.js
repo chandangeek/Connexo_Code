@@ -9,12 +9,16 @@ Ext.define('Ext.app.Portlet', {
     layout: 'fit',
     anchor: '100%',
     frame: true,
+    padding: '8 8 0 0',
     closable: true,
     collapsible: true,
     animCollapse: true,
     draggable: {
-        moveOnDrag: false    
+        moveOnDrag: false
     },
+    // Important: Portlets are fixed width. Only height may change, and then only from bottom
+    resizeHandles: 's',
+    resizable: true,
     cls: 'x-portlet',
 
     // Override Panel's default doClose to provide a custom fade out effect

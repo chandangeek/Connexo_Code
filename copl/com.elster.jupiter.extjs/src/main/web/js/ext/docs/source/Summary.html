@@ -115,6 +115,9 @@ Ext.define('Ext.grid.feature.Summary', {
 </span>    
 <span id='Ext-grid-feature-Summary-property-scrollPadProperty'>    scrollPadProperty: 'padding-right',
 </span>
+<span id='Ext-grid-feature-Summary-property-hasFeatureEvent'>    // turn off feature events.
+</span>    hasFeatureEvent: false,
+
 <span id='Ext-grid-feature-Summary-method-init'>    init: function(grid) {
 </span>        var me = this,
             view = me.view;
@@ -123,6 +126,7 @@ Ext.define('Ext.grid.feature.Summary', {
 
         if (me.dock) {
             grid.headerCt.on({
+                add: me.onStoreUpdate,
                 afterlayout: me.onStoreUpdate,
                 scope: me
             });
@@ -162,7 +166,7 @@ Ext.define('Ext.grid.feature.Summary', {
 
             // Stretch the innerCt of the summary bar upon headerCt layout
             grid.headerCt.afterComponentLayout = Ext.Function.createSequence(grid.headerCt.afterComponentLayout, function() {
-                var width = this.getFullWidth(),
+                var width = this.getTableWidth(),
                     innerCt = me.summaryBar.innerCt,
                     scrollWidth;
                     
@@ -220,13 +224,14 @@ Ext.define('Ext.grid.feature.Summary', {
 </span>        this.summaryBar.el.dom.scrollLeft = this.view.el.dom.scrollLeft;
     },
 
-<span id='Ext-grid-feature-Summary-method-createSummaryRecord'>    createSummaryRecord: function(view) {
+<span id='Ext-grid-feature-Summary-method-createSummaryRecord'>    createSummaryRecord: function (view) {
 </span>        var columns = view.headerCt.getVisibleGridColumns(),
             info = {
                 records: view.store.getRange()
             },
             colCount = columns.length, i, column,
-            summaryRecord = this.summaryRecord || (this.summaryRecord = new view.store.model(null, view.id + '-summary-record'));
+            summaryRecord = this.summaryRecord || (this.summaryRecord = new view.store.model(null, view.id + '-summary-record')),
+            dataIndex, summaryValue;
 
         // Set the summary field values
         summaryRecord.beginEdit();
@@ -235,12 +240,17 @@ Ext.define('Ext.grid.feature.Summary', {
 
             // In summary records, if there's no dataIndex, then the value in regular rows must come from a renderer.
             // We set the data value in using the column ID.
-            if (!column.dataIndex) {
-                column.dataIndex = column.id;
-            }
+            dataIndex = column.dataIndex || column.id;
 
-            summaryRecord.set(column.dataIndex, this.getSummary(view.store, column.summaryType, column.dataIndex, info));
+            // We need to capture this value because it could get overwritten when setting on the model if there
+            // is a convert() method on the model.
+            summaryValue = this.getSummary(view.store, column.summaryType, dataIndex, info);
+            summaryRecord.set(dataIndex, summaryValue);
+
+            // Capture the columnId:value for the summaryRenderer in the summaryData object.
+            this.setSummaryData(summaryRecord, column.id, summaryValue);
         }
+
         summaryRecord.endEdit(true);
         // It's not dirty
         summaryRecord.commit(true);
@@ -254,7 +264,7 @@ Ext.define('Ext.grid.feature.Summary', {
             view = me.view,
             record = me.createSummaryRecord(view),
             newRowDom = view.createRowElement(record, -1),
-            oldRowDom, partner,
+            oldRowDom,
             p;
 
         if (!view.rendered) {
@@ -275,15 +285,6 @@ Ext.define('Ext.grid.feature.Summary', {
             p = oldRowDom.parentNode;
             p.insertBefore(newRowDom, oldRowDom);
             p.removeChild(oldRowDom);
-
-            partner = me.lockingPartner;
-            // For locking grids...
-            // Update summary on other side (unless we have been called from the other side)
-            if (partner &amp;&amp; partner.grid.rendered &amp;&amp; !me.calledFromLockingPartner) {
-                partner.calledFromLockingPartner = true;
-                partner.onStoreUpdate();
-                partner.calledFromLockingPartner = false;
-            }
         }
         // If docked, the updated row will need sizing because it's outside the View
         if (me.dock) {
@@ -313,6 +314,7 @@ Ext.define('Ext.grid.feature.Summary', {
             }
         }
     }
-});</pre>
+});
+</pre>
 </body>
 </html>

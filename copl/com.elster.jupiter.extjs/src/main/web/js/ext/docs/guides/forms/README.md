@@ -42,8 +42,6 @@ The {@link Ext.form.Labelable#fieldLabel fieldLabel} configuration defines what 
 Notice how this Form Panel has a {@link Ext.form.Panel#defaultType defaultType} of 'textfield'.  This means that any of its items that do not have an {@link Ext.Component xtype} specified (the "First Name" and "Last Name" fields in this example), are {@link Ext.form.field.Text Text Field}s.
 The "Date of Birth" field on the other hand has its `xtype` explicitly defined as 'datefield' which makes it a {@link Ext.form.field.Date Date Field}. Date Fields expect to only contain valid date data, and come with a {@link Ext.menu.DatePicker DatePicker} for selecting a date.
 
-See the [Simple Form](guides/forms/examples/simple_form/index.html) example for a live demo.
-
 ## Fields
 
 ### Field Types

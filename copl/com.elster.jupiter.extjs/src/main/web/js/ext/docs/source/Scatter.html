@@ -384,8 +384,14 @@ Ext.define('Ext.chart.series.Scatter', {
             lnsh = shadowGroups.length,
             sprite, attrs, attr, ln, i, endMarkerStyle, shindex, type, shadows,
             rendererAttributes, shadowAttribute;
+        
+        if (!store || !store.getCount() || me.seriesIsHidden) {
+            me.hide();
+            me.items = [];
+            return;
+        }
 
-        endMarkerStyle = Ext.apply(me.markerStyle, me.markerConfig);
+        endMarkerStyle = Ext.apply({}, me.markerStyle, me.markerConfig);
         type = endMarkerStyle.type || 'circle';
         delete endMarkerStyle.type;
 

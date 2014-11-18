@@ -80,22 +80,25 @@ Ext.define('Ext.resizer.ResizeTracker', {
         this.startBox = this.target.getBox();
     },
 
-<span id='Ext-resizer-ResizeTracker-method-getDynamicTarget'>    /**
+<span id='Ext-resizer-ResizeTracker-method-getProxy'>    /**
 </span>     * @private
-     * Returns the object that will be resized on every mousemove event.
-     * If dynamic is false, this will be a proxy, otherwise it will be our actual target.
+     * Returns the object that will be resized instead of the true target on every mousemove event.
+     * If dynamic is false, this will be a proxy, otherwise it will be null target.
      */
-    getDynamicTarget: function() {
-        var me = this,
-            target = me.target;
-            
-        if (me.dynamic) {
-            return target;
-        } else if (!me.proxy) {
-            me.proxy = me.createProxy(target);
+    getProxy: function() {
+        var me = this;
+
+        if (!me.dynamic &amp;&amp; !me.proxy) {
+            me.proxy = me.createProxy(me.target || me.el);
+
+            // Only hide proxy at end if we create one dynamically
+            // When a wrapped resizer is used it passes the wrapping el in as the proxy.
+            me.hideProxy = true;
         }
-        me.proxy.show();
-        return me.proxy;
+        if (me.proxy) {
+            me.proxy.show();
+            return me.proxy;
+        }
     },
 
 <span id='Ext-resizer-ResizeTracker-method-createProxy'>    /**
@@ -127,10 +130,7 @@ Ext.define('Ext.resizer.ResizeTracker', {
 
         // If we are using a proxy, ensure it is sized.
         if (!this.dynamic) {
-            this.resize(this.startBox, {
-                horizontal: 'none',
-                vertical: 'none'
-            });
+            this.resize(this.startBox);
         }
     },
 
@@ -154,8 +154,6 @@ Ext.define('Ext.resizer.ResizeTracker', {
             adjustX = 0,
             adjustY = 0,
             dragRatio,
-            horizDir = offset[0] &lt; 0 ? 'right' : 'left',
-            vertDir = offset[1] &lt; 0 ? 'down' : 'up',
             oppositeCorner,
             axis, // 1 = x, 2 = y, 3 = x and y.
             newBox,
@@ -309,37 +307,43 @@ Ext.define('Ext.resizer.ResizeTracker', {
             }
         }
 
-        if (heightAdjust === 0) {
-            vertDir = 'none';
-        }
-        if (widthAdjust === 0) {
-            horizDir = 'none';
-        }
-        me.resize(newBox, {
-            horizontal: horizDir,
-            vertical: vertDir
-        }, atEnd);
+        // Keep track of whether position needs changing
+        me.setPosition = newBox.x !== me.startBox.x || newBox.y !== me.startBox.y;
+        me.resize(newBox, atEnd);
     },
 
-<span id='Ext-resizer-ResizeTracker-method-getResizeTarget'>    getResizeTarget: function(atEnd) {
-</span>        return atEnd ? this.target : this.getDynamicTarget();
-    },
-
-<span id='Ext-resizer-ResizeTracker-method-resize'>    resize: function(box, direction, atEnd) {
+<span id='Ext-resizer-ResizeTracker-method-resize'>    resize: function(box, atEnd) {
 </span>        var me = this,
-            target = me.getResizeTarget(atEnd);
+            target,
+            setPosition = me.setPosition;
 
-        target.setBox(box);
+        // We are live resizing the target, or at the end: Size the target
+        if (me.dynamic || (!me.dynamic &amp;&amp; atEnd)) {
+            // Resize the target
+            if (setPosition) {
+                me.target.setBox(box);
+            } else {
+                me.target.setSize(box.width, box.height);
+            }
 
-        // update the originalTarget if it was wrapped, and the target passed in was the wrap el.
-        if (me.originalTarget &amp;&amp; (me.dynamic || atEnd)) {
-            me.originalTarget.setBox(box);
+        }
+
+        // In the middle of a resize - just resize the proxy
+        if (!atEnd) {
+            target = me.getProxy();
+            if (target &amp;&amp; target !== me.target) {
+                if (setPosition || me.hideProxy) {
+                    target.setBox(box);
+                } else {
+                    target.setSize(box.width, box.height);
+                }
+            }
         }
     },
 
 <span id='Ext-resizer-ResizeTracker-method-onEnd'>    onEnd: function(e) {
 </span>        this.updateDimensions(e, true);
-        if (this.proxy) {
+        if (this.proxy &amp;&amp; this.hideProxy) {
             this.proxy.hide();
         }
     },

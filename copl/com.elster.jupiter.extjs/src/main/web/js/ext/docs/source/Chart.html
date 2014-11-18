@@ -199,7 +199,7 @@ Ext.define('Ext.chart.Chart', {
 
 <span id='Ext-chart-Chart-cfg-legend'>    /**
 </span>     * @cfg {Boolean/Object} legend
-     * True for the default legend display or a legend config object. Defaults to false.
+     * True for the default legend display or a {@link Ext.chart.Legend} config object.
      */
     legend: false,
 
@@ -856,6 +856,7 @@ Ext.define('Ext.chart.Chart', {
             config.axisTitleRightStyle = Ext.apply({}, themeAttrs.axisTitleRight);
             config.axisTitleTopStyle = Ext.apply({}, themeAttrs.axisTitleTop);
             config.axisTitleBottomStyle = Ext.apply({}, themeAttrs.axisTitleBottom);
+            me.configureAxisStyles(config);
         }
         
         switch (axis.position) {
@@ -902,7 +903,9 @@ Ext.define('Ext.chart.Chart', {
         }
         axis.initialized = true;
     },
-
+    
+<span id='Ext-chart-Chart-method-configureAxisStyles'>    configureAxisStyles: Ext.emptyFn,
+</span>
 <span id='Ext-chart-Chart-method-getInsets'>    /**
 </span>     * @private Get initial insets; override to provide different defaults.
      */

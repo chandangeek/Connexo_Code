@@ -442,6 +442,9 @@ Ext.define('Ext.form.field.Checkbox', {
         }
 
         me.checked = me.rawValue = checked;
+        if (!me.duringSetValue) {
+            me.lastValue = checked;
+        }
         return checked;
     },
 
@@ -468,17 +471,18 @@ Ext.define('Ext.form.field.Checkbox', {
                 box.setValue(Ext.Array.contains(checked, box.inputValue));
             }
         } else {
+            // The callParent() call ends up trigger setRawValue, we only want to modify
+            // the lastValue when setRawValue being called independently.
+            me.duringSetValue = true;
             me.callParent(arguments);
+            delete me.duringSetValue;
         }
 
         return me;
     },
 
-<span id='Ext-form-field-Checkbox-method-valueToRaw'>    // private
-</span>    valueToRaw: function(value) {
-        // No extra conversion for checkboxes
-        return value;
-    },
+<span id='Ext-form-field-Checkbox-property-valueToRaw'>    // private
+</span>    valueToRaw: Ext.identityFn,
 
 <span id='Ext-form-field-Checkbox-method-onChange'>    /**
 </span>     * @private

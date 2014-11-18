@@ -284,6 +284,9 @@ Ext.define('Ext.data.Connection', {
      *
      * @param {Object/String} options.jsonData JSON data to use as the post. Note: This will be used
      * instead of params for the post data. Any params will be appended to the URL.
+     * 
+     * @param {String} options.rawData A raw string to use as the post. Note: This will be used
+     * instead of params for the post data. Any params will be appended to the URL.
      *
      * @param {Array} options.binaryData An array of bytes to submit in binary form. Any params will be appended to the URL. If binaryData is present, you must set {@link Ext.data.Connection#binary binary} to &lt;tt&gt;true&lt;/tt&gt; and options.method to &lt;tt&gt;POST&lt;/tt&gt;.
      * 
@@ -503,15 +506,15 @@ Ext.define('Ext.data.Connection', {
             // Opera will fire an extraneous load event on about:blank
             // We want to ignore this since the load event will be fired twice
             if (doc) {
-                 if (Ext.isOpera &amp;&amp; doc.location == 'about:blank') {
-                     return;
-                 }
+                if (Ext.isOpera &amp;&amp; doc.location == 'about:blank') {
+                    return;
+                }
                 if (doc.body) {
 
                     // Response sent as Content-Type: text/json or text/plain. Browser will embed in a &lt;pre&gt; element
                     // Note: The statement below tests the result of an assignment.
                     if ((contentNode = doc.body.firstChild) &amp;&amp; /pre/i.test(contentNode.tagName)) {
-                        response.responseText = contentNode.textContent;
+                        response.responseText = contentNode.textContent || contentNode.innerText;
                     }
 
                     // Response sent as Content-Type: text/html. We must still support JSON response wrapped in textarea.

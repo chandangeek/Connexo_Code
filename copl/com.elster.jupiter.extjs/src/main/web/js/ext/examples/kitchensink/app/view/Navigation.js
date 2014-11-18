@@ -43,7 +43,8 @@ Ext.define('KitchenSink.view.Navigation', {
                     { id: 'tree-grid', text: 'Tree Grid', leaf: true },
                     { id: 'tree-two', text: 'Two Trees', leaf: true },
                     { id: 'check-tree', text: 'Check Tree', leaf: true },
-                    { id: 'tree-xml', text: 'XML Tree', leaf: true }
+                    { id: 'tree-xml', text: 'XML Tree', leaf: true },
+                    { id: 'filtered-tree', text: 'Filtered Tree', leaf: true }
                 ]
             },
             {

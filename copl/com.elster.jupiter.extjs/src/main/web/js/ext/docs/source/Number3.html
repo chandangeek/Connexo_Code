@@ -402,7 +402,7 @@ Ext.define('Ext.form.field.Number', {
 
 <span id='Ext-form-field-Number-method-beforeBlur'>    beforeBlur : function() {
 </span>        var me = this,
-            v = me.parseValue(me.getRawValue());
+            v = me.rawToValue(me.getRawValue());
 
         if (!Ext.isEmpty(v)) {
             me.setValue(v);

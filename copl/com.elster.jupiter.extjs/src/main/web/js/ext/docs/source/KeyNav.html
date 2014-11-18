@@ -20,8 +20,6 @@
  */
 Ext.define('Ext.menu.KeyNav', {
     extend: 'Ext.util.KeyNav',
-
-    requires: ['Ext.FocusManager'],
     
 <span id='Ext-menu-KeyNav-method-constructor'>    constructor: function(config) {
 </span>        var me = this;
@@ -94,7 +92,9 @@ Ext.define('Ext.menu.KeyNav', {
     },
 
 <span id='Ext-menu-KeyNav-method-isWhitelisted'>    isWhitelisted: function(item) {
-</span>        return Ext.FocusManager.isWhitelisted(item);
+</span>        var mgr = Ext['FocusManager'];
+        
+        return mgr &amp;&amp; mgr.isWhitelisted(item);
     },
 
 <span id='Ext-menu-KeyNav-method-left'>    left: function(e) {
@@ -105,8 +105,8 @@ Ext.define('Ext.menu.KeyNav', {
             return true;
         }
 
-        menu.hide();
         if (menu.parentMenu) {
+            menu.hide();
             menu.parentMenu.focus();
         }
     },
@@ -149,6 +149,7 @@ Ext.define('Ext.menu.KeyNav', {
         }
         me.focusNextItem(-1);
     }
-});</pre>
+});
+</pre>
 </body>
 </html>

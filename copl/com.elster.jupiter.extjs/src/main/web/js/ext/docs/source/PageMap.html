@@ -41,9 +41,11 @@ Ext.define('Ext.data.PageMap', {
             pageSize;
 
         for (i = 0; i &lt; pageCount; i++) {
-            pageNumbers[i] = Number(pageNumbers[i]);
+            pageNumbers[i] = +pageNumbers[i];
         }
-        Ext.Array.sort(pageNumbers);
+        Ext.Array.sort(pageNumbers, function(a, b) {
+            return a - b;
+        });
         scope = scope || me;
         for (i = 0; i &lt; pageCount; i++) {
             pageNumber = pageNumbers[i];

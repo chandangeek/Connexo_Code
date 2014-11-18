@@ -688,7 +688,7 @@ td.ext-cal-dtitle-today div {
 
 .ext-color-1,
 .x-ie .ext-color-1-ad,
-.x-opera .ext-color-1-ad {
+.x-opera .ext-operaLT11.ext-color-1-ad {
 	color: #306da6;
 }
 .ext-cal-day-col .ext-color-1,
@@ -709,7 +709,7 @@ td.ext-cal-dtitle-today div {
 
 .ext-color-2,
 .x-ie .ext-color-2-ad,
-.x-opera .ext-color-2-ad {
+.x-opera .ext-operaLT11.ext-color-2-ad {
 	color: #86a723;
 }
 .ext-cal-day-col .ext-color-2,
@@ -729,7 +729,7 @@ td.ext-cal-dtitle-today div {
 }
 .ext-color-3,
 .x-ie .ext-color-3-ad,
-.x-opera .ext-color-3-ad {
+.x-opera .ext-operaLT11.ext-color-3-ad {
     color: #b6a980;
 }
 .ext-cal-day-col .ext-color-3,

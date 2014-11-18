@@ -108,6 +108,9 @@ Ext.define('Ext.util.Sorter', {
 </span>        var me = this;
 
         Ext.apply(me, config);
+        if (me.direction) {
+            me.direction = me.direction.toUpperCase();
+        }
 
         //&lt;debug&gt;
         if (me.property === undefined &amp;&amp; me.sorterFn === undefined) {
@@ -126,7 +129,7 @@ Ext.define('Ext.util.Sorter', {
     createSortFunction: function(sorterFn) {
         var me        = this,
             direction = me.direction || &quot;ASC&quot;,
-            modifier  = direction.toUpperCase() == &quot;DESC&quot; ? -1 : 1;
+            modifier  = direction == &quot;DESC&quot; ? -1 : 1;
 
         //create a comparison function. Takes 2 objects, returns 1 if object 1 is greater,
         //-1 if object 2 is greater or 0 if they are equal

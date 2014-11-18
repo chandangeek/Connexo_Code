@@ -123,19 +123,26 @@ Ext.define('Ext.menu.Manager', {
 </span>    onMouseDown: function(e) {
         var me = this,
             active = me.active,
+            activeMenuCount = active.length,
             lastShow = me.lastShow,
-            doHide = true;
+            i;
 
-        if (Ext.Date.getElapsed(lastShow) &gt; 50 &amp;&amp; active.length &gt; 0 &amp;&amp; !e.getTarget(me.menuSelector)) {
+        if (Ext.Date.getElapsed(lastShow) &gt; 50 &amp;&amp; activeMenuCount) {
             // Because we use a buffer in IE, the target may have been removed from the
             // DOM by the time we get here, so the selector will never find the menu. In this
             // case, it's safer to not hide than menus than to do so
             if (Ext.isIE9m &amp;&amp; !Ext.getDoc().contains(e.target)) {
-                doHide = false;
+                return;
             }
-            if (doHide) {
-                me.hideAll();
+            else {
+                // If any active menus are an ancestor of the target element, we don't hide
+                for (i = 0; i &lt; activeMenuCount; i++) {
+                    if (active.items[i].owns(e.target)) {
+                        return;
+                    }
+                }
             }
+            me.hideAll();
         }
     },
 
@@ -240,6 +247,7 @@ Ext.define('Ext.menu.Manager', {
             }
         }
     }
-});</pre>
+});
+</pre>
 </body>
 </html>

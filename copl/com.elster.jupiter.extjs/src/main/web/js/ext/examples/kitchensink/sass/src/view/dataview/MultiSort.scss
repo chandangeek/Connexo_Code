@@ -20,10 +20,15 @@
 
 .x-btn .sort-direction-asc {
     background-image: theme-background-image('grid/sort_asc');
-    background-position: 4px center;
+    @if $theme-name != 'ext-theme-access' {
+        background-position: 4px center;
+    }
 }
 
 .x-btn .sort-direction-desc {
     background-image: theme-background-image('grid/sort_desc');
-    background-position: 4px center;
+    @if $theme-name != 'ext-theme-access' {
+        background-position: 4px center;
+    }
 }
+

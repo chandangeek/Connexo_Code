@@ -55,7 +55,7 @@ Ext.define('Ext.chooser.Window', {
                         name : 'filter',
                         fieldLabel: 'Filter',
                         labelAlign: 'right',
-                        labelWidth: 35,
+                        labelWidth: null,
                         listeners: {
                             scope : this,
                             buffer: 50,
@@ -64,10 +64,13 @@ Ext.define('Ext.chooser.Window', {
                     },
                     ' ',
                     {
+                        inputWidth: 150,
                         xtype: 'combo',
-                        fieldLabel: 'Sort By',
                         labelAlign: 'right',
-                        labelWidth: 45,
+
+                        // Use non-breaking space so that labelWidth of null shrinkwraps the unbroken string width
+                        fieldLabel: 'Sort\u00a0By',
+                        labelWidth: null,
                         valueField: 'field',
                         displayField: 'label',
                         value: 'Type',
@@ -157,8 +160,8 @@ Ext.define('Ext.chooser.Window', {
      */
     sort: function() {
         var field = this.down('combobox').getValue();
-        
-        this.down('dataview').store.sort(field);
+
+        this.down('iconbrowser').store.sort(field);
     },
     
     /**

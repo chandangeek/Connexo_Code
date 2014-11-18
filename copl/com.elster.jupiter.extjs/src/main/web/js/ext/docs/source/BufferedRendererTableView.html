@@ -25,58 +25,50 @@
 Ext.define('Ext.grid.plugin.BufferedRendererTableView', {
     override: 'Ext.view.Table',
 
+<span id='Ext-grid-plugin-BufferedRendererTableView-method-onReplace'>    onReplace: function(store, startIndex, oldRecords, newRecords) {
+</span>        var me = this,
+            bufferedRenderer = me.bufferedRenderer;
+
+        // If there's a buffered renderer and the removal range falls inside the current view...
+        if (me.rendered &amp;&amp; bufferedRenderer) {
+            bufferedRenderer.onReplace(store, startIndex, oldRecords, newRecords);
+        } else {
+            me.callParent(arguments);
+        }
+    },
+
 <span id='Ext-grid-plugin-BufferedRendererTableView-method-onAdd'>    // Listener function for the Store's add event
 </span>    onAdd: function(store, records, index) {
         var me = this,
-            bufferedRenderer = me.bufferedRenderer,
-            rows = me.all;
+            bufferedRenderer = me.bufferedRenderer;
 
-        // The newly added records will put us over the buffered view size, so we cannot just add as normal.
-        if (me.rendered &amp;&amp; bufferedRenderer &amp;&amp; (rows.getCount() + records.length) &gt; bufferedRenderer.viewSize) {
-
-            // Index puts the new row(s) in the visible area, then we have to refresh the view
-            if (index &lt; rows.startIndex + bufferedRenderer.viewSize &amp;&amp; (index + records.length) &gt; rows.startIndex) {
-                me.refreshView();
-            }
-            // New rows outside of visible area, just ensure that the scroll range is updated
-            else {
-                bufferedRenderer.stretchView(me, bufferedRenderer.getScrollHeight());
-            }
+        if (me.rendered &amp;&amp; bufferedRenderer) {
+             bufferedRenderer.onReplace(store, index, [], records);
         }
         // No BufferedRenderer present
-        // or
-        // View has not yet reached the viewSize: we can add as normal.
         else {
             me.callParent([store, records, index]);
         }
     },
 
-<span id='Ext-grid-plugin-BufferedRendererTableView-method-onRemove'>    onRemove: function(store, records, indices) {
+<span id='Ext-grid-plugin-BufferedRendererTableView-method-onRemove'>    onRemove: function(store, records, indices, isMove, removeRange) {
 </span>        var me = this,
-            bufferedRenderer = me.bufferedRenderer,
-            storeSize, all, startIndex;
+            bufferedRenderer = me.bufferedRenderer;
 
-        // Ensure all records are removed from the view
-        me.callParent([store, records, indices]);
-
-        // If there's a BufferedRenderer, the view must refresh to keep the view correct.
-        // Removing *may* have removed all of the rendered rows, leaving whitespace below the group header, 
-        // so the buffered renderer will be needed to keep the buffer rendered zone valid - to pull records up from
-        // below the removed zone into visibility.
+        // If there's a BufferedRenderer...
         if (me.rendered &amp;&amp; bufferedRenderer) {
-            storeSize = me.dataSource.getCount();
-            all = me.all;
-            // If that remove left a gap below the rendered range, ask the buffered renderer to render its
-            // current view size. This will do the minimum work required, and *append* rows to the table only
-            // if necessary
-            if (storeSize &gt; all.getCount()) {
-                startIndex = all.startIndex;
-                bufferedRenderer.renderRange(startIndex, Math.min(startIndex + bufferedRenderer.viewSize, storeSize) - 1);
+
+            // If it's a contiguous range, the replace processing can handle it.
+            if (removeRange) {
+                bufferedRenderer.onReplace(store, indices[0], records, []);
             }
-            // No overflow, still we have to ensure the scroll range is updated
+
+            // Otherwise it's a refresh
             else {
-                bufferedRenderer.stretchView(me, bufferedRenderer.getScrollHeight());
+                bufferedRenderer.refreshView();
             }
+        } else {
+            me.callParent([store, records, indices]);
         }
     },
 

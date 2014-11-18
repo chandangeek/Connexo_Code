@@ -25,6 +25,20 @@
         cfg.forceLtr = true;
     },
     
+    configureAxisStyles: function(config) {
+        var temp;
+        
+        if (this.getHierarchyState().rtl) {
+            temp = config.axisLabelLeftStyle;
+            config.axisLabelLeftStyle = config.axisLabelRightStyle;
+            config.axisLabelRightStyle = temp;
+        
+            temp = config.axisTitleLeftStyle;
+            config.axisTitleLeftStyle = config.axisTitleRightStyle;
+            config.axisTitleRightStyle = temp;
+        }
+    },
+    
     beforeRender: function() {
         // Put this here because by this point we definitely know that we've been added to a container
         // so we can identify the hierarchy state. Since the collection is keyed by side, we'll go ahead

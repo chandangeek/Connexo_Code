@@ -10,6 +10,10 @@ blenders. This guide assumes a basic knowledge of the Ext JS Data Package.
 If you are not yet familiar with the fundamentals of the Data Package please refer to the
 [Data Guide](#/guide/data).
 
+**Note: **  _This functionality is only available with the purchase of 
+Sencha Complete.  For more information about using this class, please visit 
+our [Sencha Complete](https://www.sencha.com/products/complete/) product page._
+
 ## Configuring a Store to load its records from a SOAP service
 For starters, let's take a look at the simplest configuration required to get a
 {@link Ext.data.Store Store} up and running with SOAP data.  First create a

@@ -28,7 +28,7 @@ Next let's create a {@link Ext.data.Store Store} that contains several `User` in
         data: [
             { name: 'Lisa', email: 'lisa@simpsons.com', phone: '555-111-1224' },
             { name: 'Bart', email: 'bart@simpsons.com', phone: '555-222-1234' },
-            { name: 'Homer', email: 'home@simpsons.com', phone: '555-222-1244' },
+            { name: 'Homer', email: 'homer@simpsons.com', phone: '555-222-1244' },
             { name: 'Marge', email: 'marge@simpsons.com', phone: '555-222-1254' }
         ]
     });
@@ -70,7 +70,7 @@ For the sake of ease we configured the grid with {@link Ext.AbstractComponent#re
         ]
     });
 
-And that's all there is to it.  We just created a {@link Ext.grid.Panel Grid Panel} that renders itself to the body element, and we told it to get its data from the `userStore` {@link Ext.data.Store Store} that we created earlier.  Finally we defined what columns the {@link Ext.grid.Panel Grid Panel} will have, and we used the `dataIndex` property to configure which field in the `User` {@link Ext.data.Model Model} each column will get its data from.  The `Name` column has a fixed width of 100px and has sorting and hiding disabled, the `Email Address` column is hidden by default (it can be shown again by using the menu on any other column), and the `Phone Number` column flexes to fit the remainder of the {@link Ext.grid.Panel Grid Panel}'s total width.  For a larger example, see the [Array Grid Example](#!/example/grid/array-grid.html).
+And that's all there is to it.  We just created a {@link Ext.grid.Panel Grid Panel} that renders itself to the body element, and we told it to get its data from the `userStore` {@link Ext.data.Store Store} that we created earlier.  Finally we defined what columns the {@link Ext.grid.Panel Grid Panel} will have, and we used the `dataIndex` property to configure which field in the `User` {@link Ext.data.Model Model} each column will get its data from.  The `Name` column has a fixed width of 100px and has sorting and hiding disabled, the `Email Address` column is hidden by default (it can be shown again by using the menu on any other column), and the `Phone Number` column flexes to fit the remainder of the {@link Ext.grid.Panel Grid Panel}'s total width.  For a larger example, see the [Array Grid Example](#!/example/build/KitchenSink/ext-theme-neptune/#array-grid).
 
 ## Renderers
 
@@ -93,7 +93,7 @@ You can use the `renderer` property of the column config to change the way data 
         }
     ]
 
-See [Array Grid Example](#!/example/grid/array-grid.html) for a live demo that uses custom renderers.
+See [Array Grid Example](#!/example/build/KitchenSink/ext-theme-neptune/#array-grid) for a live demo that uses custom renderers.
 
 
 ## Grouping
@@ -109,7 +109,7 @@ Organizing the rows in a {@link Ext.grid.Panel Grid Panel} into groups is easy, 
         groupField: 'department'
     });
 
-For more on grouping in {@link Ext.data.Store Store}s please refer to the [Data guide](#/guide/data).  Next we configure a grid with a grouping {@link Ext.grid.feature.Feature Feature} that will handle displaying the rows in groups:
+For more on grouping in {@link Ext.data.Store Store}s please refer to the [Data guide](#/guide/data).  Next we configure a grid with a {@link Ext.grid.feature.Feature Grouping Feature} that will handle displaying the rows in groups:
 
 
     Ext.create('Ext.grid.Panel', {
@@ -117,7 +117,7 @@ For more on grouping in {@link Ext.data.Store Store}s please refer to the [Data 
         features: [{ ftype: 'grouping' }]
     });
 
-See [Grouping Grid Panel](#!/example/grid/groupgrid.html) for a live example.
+See [Grouping Grid Panel](#!/example/build/KitchenSink/ext-theme-neptune/#grouped-grid) for a live example.
 
 
 ## Selection Models
@@ -195,7 +195,7 @@ Finally, to enable editing we need to configure the {@link Ext.grid.Panel Grid P
         ]
     });
 
-And that's all it takes to create an editable grid using cell editing. See [Cell Editing](#!/example/grid/cell-editing.html) for a working example.
+And that's all it takes to create an editable grid using cell editing. See [Cell Editing](#!/example/build/KitchenSink/ext-theme-neptune/#cell-editing) for a working example.
 
 {@img cell_editing.png Cell Editing Grid}
 
@@ -213,7 +213,7 @@ Row editing enables you to edit an entire row at a time, rather than editing cel
         ]
     });
 
-[Row Editing - Live Example](#!/example/grid/cell-editing.html)
+[Row Editing - Live Example](#!/example/grid/row-editing.html)
 
 {@img row_editing.png Row Editing Grid}
 
@@ -240,7 +240,7 @@ Before we can set up either type of paging on a {@link Ext.grid.Panel Grid Panel
         }
     });
 
-The {@link Ext.data.reader.Reader#totalProperty totalProperty} config tells the {@link Ext.data.reader.Reader Reader} where to get the total number of results in the JSON response.  This {@link Ext.data.Store Store} is configured to consume a JSON response that looks something like this:
+The {@link Ext.data.reader.Reader#totalProperty totalProperty} config tells the {@link Ext.data.reader.Json Reader} where to get the total number of results in the JSON response.  This {@link Ext.data.Store Store} is configured to consume a JSON response that looks something like this:
 
     {
         "success": true,
@@ -248,7 +248,7 @@ The {@link Ext.data.reader.Reader#totalProperty totalProperty} config tells the 
         "users": [
             { "name": "Lisa", "email": "lisa@simpsons.com", "phone": "555-111-1224" },
             { "name": "Bart", "email": "bart@simpsons.com", "phone": "555-222-1234" },
-            { "name": "Homer", "email": "home@simpsons.com", "phone": "555-222-1244" },
+            { "name": "Homer", "email": "homer@simpsons.com", "phone": "555-222-1244" },
             { "name": "Marge", "email": "marge@simpsons.com", "phone": "555-222-1254" }
         ]
     }

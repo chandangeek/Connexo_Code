@@ -48,8 +48,10 @@ Ext.define('Ext.AbstractPlugin', {
      * @param {Object} [config] Configuration object.
      */
     constructor: function(config) {
-        this.pluginConfig = config;
-        Ext.apply(this, config);
+        if (config) {
+            this.pluginConfig = config;
+            Ext.apply(this, config);
+        }
     },
 
 <span id='Ext-AbstractPlugin-method-clonePlugin'>    /**
@@ -143,6 +145,7 @@ Ext.define('Ext.AbstractPlugin', {
             cls.prototype.ptype = alias.split('plugin.')[1];
         }
     }
-});</pre>
+});
+</pre>
 </body>
 </html>

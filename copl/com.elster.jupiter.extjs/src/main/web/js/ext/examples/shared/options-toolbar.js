@@ -17,6 +17,7 @@
         defaultRtl = false,
         i = scriptTags.length,
         requires = [
+            'Ext.window.MessageBox',
             'Ext.toolbar.Toolbar',
             'Ext.form.field.ComboBox',
             'Ext.form.FieldContainer',

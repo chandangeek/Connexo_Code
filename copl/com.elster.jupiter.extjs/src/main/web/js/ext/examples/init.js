@@ -1,5 +1,7 @@
 Ext.require('*');
 Ext.onReady(function() {
+    
+    var examplePosition = window.location.hash;
 
     Ext.ns('Ext.samples');
     Ext.define('Ext.samples.SamplePanel', {
@@ -54,21 +56,35 @@ Ext.onReady(function() {
             if (group) {
                 group.up('div').toggleCls('collapsed');
             }
+        },
+
+        // Browser only scrolls to hash onload. The links are not there onload so restore scroll position now
+        listeners: {
+            refresh: function() {
+                if (examplePosition) {
+                    window.location.hash = '';
+                    window.location.hash = examplePosition;
+                }
+            },
+            single: true
         }
     });
 
     // Instantiate Ext.App instance
     var App = Ext.create('Ext.App', {});
 
-    var catalog = Ext.samples.samplesCatalog;
-
-    for (var i = 0, c; c = catalog[i]; i++) {
-        c.id = 'sample-' + i;
-    }
-
     var store = Ext.create('Ext.data.Store', {
-        fields     : ['id', 'title', 'items'],
-        data       : catalog
+        fields     : [{
+            name: 'id',
+            convert: function(v, record) {
+                return record.get('title').toLowerCase().replace(/\s+/g, '-');
+            }
+        }, {
+            name: 'title'
+        }, {
+            name: 'items'
+        }],
+        data       : Ext.samples.samplesCatalog
     });
 
     Ext.create('Ext.samples.SamplePanel', {
@@ -77,9 +93,9 @@ Ext.onReady(function() {
     });
 
     var tpl = Ext.create('Ext.XTemplate',
-        '<tpl for="."><li><a href="#{id}">{title:stripTags}</a></li></tpl>'
+        '<tpl for="."><li><a href="#{data.id}">{data.title:stripTags}</a></li></tpl>'
     );
-    tpl.overwrite('sample-menu', catalog);
+    tpl.overwrite('sample-menu', store);
 
     var bodyStyle = document.body.style,
         headerEl  = Ext.get('hd'),

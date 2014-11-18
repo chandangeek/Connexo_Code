@@ -15,10 +15,10 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">Ext.define('Ext.rtl.chart.axis.Gauge', {
-    override: 'Ext.chart.axis.Gauge',
+  <pre class="prettyprint lang-js">Ext.define('Ext.rtl.chart.series.Gauge', {
+    override: 'Ext.chart.series.Gauge',
     
-    constructor: function() {
+    initialize: function() {
         var me = this;
         
         me.callParent(arguments);
@@ -26,7 +26,7 @@
             me.reverse = true;
         }
     }
-})
+});
 </pre>
 </body>
 </html>

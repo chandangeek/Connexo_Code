@@ -223,10 +223,15 @@ Ext.define('Ext.layout.container.Fit', {
             }
         }
 
-        // Size the child items to the container (if non-shrinkWrap):
-        for (i = 0; i &lt; length; ++i) {
-            info.index = i;
-            me.fitItem(childItems[i], info);
+        // If length === 0, it means we either have no child items, or the children are hidden
+        if (length &gt; 0) {
+            // Size the child items to the container (if non-shrinkWrap):
+            for (i = 0; i &lt; length; ++i) {
+                info.index = i;
+                me.fitItem(childItems[i], info);
+            }
+        } else {
+            info.contentWidth = info.contentHeight = 0;
         }
         
         if (shrinkWrapHeight || shrinkWrapWidth) {

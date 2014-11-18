@@ -17,6 +17,10 @@ it is crucial to ensure that these selectors are tested properly. Selectors are
 one of the hardest things to test because they rely on the existence and
 particular layout of the components they select.
 
+For the simplified examples of test suites, we will use the
+[Jasmine](http://pivotal.github.com/jasmine/) framework.
+See [Unit Testing with Jasmine](#!/guide/testing) for background information.
+
 ## Testing refs
 
 Suppose that the application contains the following View and Controller:
@@ -68,12 +72,11 @@ Suppose that the application contains the following View and Controller:
         }
     });
 
-For this simplified example of a test suite, we will use the
-[Jasmine](http://pivotal.github.com/jasmine/) framework.
-See [Unit Testing with Jasmine](#!/guide/testing) for background information.
+Our test spec must call each possible selector defined for the Controller. It is
+not necessary to call the `init` method on the test Controller for testing refs,
+since the refs are created at construction time.
 
-Our test spec must call each possible selector defined for the Controller so
-looks something like this:
+Our test spec may look like this:
 
     describe('MyController refs', function() {
         var view = new MyApp.view.MyView({ renderTo: Ext.getBody() }),
@@ -110,25 +113,42 @@ Taking the same View/Controller setup, we can now add a spec to test component
 selectors:
 
     describe('MyController component selectors', function() {
-        var view = new MyApp.view.MyView({ renderTo: Ext.getBody() }),
+        var view, ctrl;
+        
+        beforeEach(function() {
+            view = new MyApp.view.MyView({ renderTo: Ext.getBody() });
             ctrl = new MyApp.controller.MyController();
-    
-        it('should initialize', function() {
+            
+            spyOn(ctrl, 'onMyViewButtonClick');
+            
             ctrl.init();
         });
-    
-        it('should control MyView button click events', function() {
-            spyOn(ctrl, 'onMyViewButtonClick');
         
+        afterEach(function() {
+            view.destroy();
+            view = ctrl = null;
+        });
+        
+        it('should control MyView button click events', function() {
             view.down('button[text=OK]').fireEvent('click');
         
             expect(ctrl.onMyViewButtonClick).toHaveBeenCalled();
         });
     });
 
-Note that our Controller's `init` method is called automatically when the
-application is run but we must call the `init` method manually in our test
-suite. An empty spec works just fine and always passes.
+Note the `ctrl.init()` call above; you do not have to do this in your
+production code because when you call `Ext.application()` it will create
+a new instance of `Ext.app.Application` class, which in turn will load and
+initialize the Controllers. Typically it is not a good idea to instantiate
+the Application in your unit tests, because it will load _all_ Controllers
+and Views, thus negating the whole point of testing your Controllers in
+isolation.
+
+If you are using Jasmine's `spyOn` function as in the example above, you
+will need to create the spies _before_ the Controller is initialized, or
+they will not work. The example above demonstrates using spies with manual
+Controller initialization, as well as recommended way to clean up the
+environment after running the tests.
 
 This approach may not be feasible for larger applications and bigger Views;
 in that case, it may be beneficial to create mockup components that simulate
@@ -180,11 +200,17 @@ with the supplied arguments.
 Sample code to test this configuration is:
 
     describe('MyController event domain selectors', function() {
-        var ctrl = new MyApp.controller.MyController();
+        var ctrl;
         
-        it('should listen to fooevent in controller domain', function() {
+        beforeEach(function() {
+            ctrl = new MyApp.controller.MyController();
+            
             spyOn(ctrl, 'onFooEvent');
             
+            ctrl.init();
+        });
+        
+        it('should listen to fooevent in controller domain', function() {
             ctrl.fireEvent('fooevent');
             
             expect(ctrl.onFooEvent).toHaveBeenCalled();
@@ -226,19 +252,27 @@ In this case we must mock the `MyOtherController` class in our test suite,
 to avoid instantiating it and loading its dependencies:
 
     describe('MyController event domain selectors', function() {
-        var ctrl1 = new MyApp.controller.MyController(),
+        var ctrl1, ctrl2;
+        
+        beforeEach(function() {
+            ctrl1 = new MyApp.controller.MyController();
             ctrl2 = new MyApp.controller.MyOtherController();
+            
+            spyOn(ctrl1, 'onMyOtherControllerFooEvent');
+            ... // Create other spies here, too
+            
+            ctrl1.init();
+            ctrl2.init();
+        });
         
         it('should listen to fooevent from MyOtherController', function() {
-            spyOn(ctrl, 'onMyOtherControllerFooEvent');
-            
             // We do not execute MyOtherController.someMethod but fire fooevent
             // directly, because in a real world Controller someMethod may do
             // something useful besides just firing an event, and we only want
             // to test the event domain selector
             ctrl2.fireEvent('fooevent');
             
-            expect(ctrl.onMyOtherControllerFooEvent).toHaveBeenCalled();
+            expect(ctrl1.onMyOtherControllerFooEvent).toHaveBeenCalled();
         });
     });
 

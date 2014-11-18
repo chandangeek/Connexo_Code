@@ -1,5 +1,7 @@
 Ext.require(['Ext.draw.Text', 'Ext.slider.Single']);
 Ext.onReady(function() {
+    var fill = Ext.getBody().hasCls('x-theme-access') ? '#fff' : '#000';
+
     Ext.create('Ext.draw.Text', {
         renderTo: Ext.get('text-ph'),
         padding: 20,
@@ -7,7 +9,7 @@ Ext.onReady(function() {
         degrees: 45,
         text: 'With Ext JS 4.0 Drawing',
         textStyle: {
-            fill: '#000',
+            fill: fill,
             'font-size': '18px',
             'font-family': 'Arial'
         }
@@ -20,7 +22,7 @@ Ext.onReady(function() {
         degrees: 90,
         text: 'Creating a rotated Text component',
         textStyle: {
-            fill: '#000',
+            fill: fill,
             'font-size': '18px',
             'font-family': 'Arial'
         }
@@ -38,7 +40,7 @@ Ext.onReady(function() {
         text: 'Is a snap!',
         textStyle: {
             padding: 20,
-            fill: '#000',
+            fill: fill,
             'font-size': '18px',
             'font-family': 'Arial',
             y: 50

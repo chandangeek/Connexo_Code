@@ -44,7 +44,7 @@ Ext.define('Ext.dom.AbstractQuery', {
             root = document.getElementById(root);
         }
 
-        q = q.split(&quot;,&quot;);
+        q = Ext.splitAndUnescape(q, &quot;,&quot;);
 
         for (i = 0,qlen = q.length; i &lt; qlen; i++) {
             if (typeof q[i] == 'string') {

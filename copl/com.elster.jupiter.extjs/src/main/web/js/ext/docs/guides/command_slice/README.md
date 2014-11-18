@@ -6,6 +6,13 @@ by `sencha package build` for a package or `sencha app build` for an application
 diagnostic purposes the `"theme-capture.json"` is left on disk in the build folder. This
 guide describes the format of this manifest.
 
+## Prerequisites
+
+The following guides are recommended reading before proceeding further:
+
+  - [Introduction to Sencha Cmd](#!/guide/command).
+  - [Using Sencha Cmd](#!/guide/command_app).
+
 ## Manifest Contents
 
 The manifest file contains an array of image area definitions that further contain a set

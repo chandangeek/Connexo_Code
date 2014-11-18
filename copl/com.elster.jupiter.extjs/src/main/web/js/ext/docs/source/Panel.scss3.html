@@ -15,137 +15,57 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">.#{$prefix}tab {
-    outline: none;
-    display: block;
-    white-space: nowrap;
-    z-index: 1;
-}
-
-.#{$prefix}tab-active {
-    z-index: 3;
-}
-
-.#{$prefix}tab-wrap {
-    display: block;
-    position: relative;
-}
-
-.#{$prefix}tab-button {
-    zoom: 1;
-    display: block;
-}
-
-.#{$prefix}tab-inner {
-    display: block;
-    text-align: center;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    -o-text-overflow: ellipsis;
+  <pre class="prettyprint lang-js">.#{$prefix}panel,
+.#{$prefix}plain {
     overflow: hidden;
-    zoom: 1; // required to make opacity work on IE quirks
-}
-
-.#{$prefix}btn-icon-el {
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    position: absolute;
-    background-repeat: no-repeat;
-    text-align: center;
-}
-
-.#{$prefix}tab-bar {
-    z-index: 1;
-}
-
-.#{$prefix}tab-bar-body {
-    z-index: 2;
     position: relative;
 }
 
-.#{$prefix}tab-bar-strip {
-    position: absolute;
-    line-height: 0;
-    font-size: 0;
-    z-index: 1;
+.#{$prefix}panel {
+    outline: none;
 }
 
-.#{$prefix}tab-bar-horizontal .#{$prefix}tab-bar-strip {
-    width: 100%;
-    left: 0;
-}
-
-.#{$prefix}tab-bar-vertical .#{$prefix}tab-bar-strip {
-    height: 100%;
-    top: 0;
-}
-
-.#{$prefix}tab-bar-strip-top {
-    bottom: 0;
-}
-
-.#{$prefix}tab-bar-strip-bottom {
-    top: 0;
-}
-
-.#{$prefix}tab-bar-strip-left {
-    right: 0;
-}
-
-@if $include-rtl {
-    .#{$prefix}rtl.#{$prefix}tab-bar .#{$prefix}tab-bar-strip-left {
-        right: auto;
-        left: 0;
+@if $include-ie {
+    // Workaround for disappearing right edge in IE6
+    .#{$prefix}ie {
+        .#{$prefix}panel-header,
+        .#{$prefix}panel-header-tl,
+        .#{$prefix}panel-header-tc,
+        .#{$prefix}panel-header-tr,
+        .#{$prefix}panel-header-ml,
+        .#{$prefix}panel-header-mc,
+        .#{$prefix}panel-header-mr,
+        .#{$prefix}panel-header-bl,
+        .#{$prefix}panel-header-bc,
+        .#{$prefix}panel-header-br {
+            zoom: 1;
+        }
+    }
+    // Fix for IE8 clipping. EXTJSIV-1553
+    .#{$prefix}ie8 {
+        td.#{$prefix}frame-mc {
+            vertical-align: top;
+        }
     }
 }
 
-.#{$prefix}tab-bar-strip-right {
-    left: 0;
+.#{$prefix}panel-body {
+    overflow: hidden;
+    position: relative;
 }
 
-@if $include-rtl {
-    .#{$prefix}rtl.#{$prefix}tab-bar .#{$prefix}tab-bar-strip-right {
-        left: auto;
-        right: 0;
+@if $include-slicer-gradient {
+    .#{$prefix}nlg .#{$prefix}panel-header-vertical {
+        .#{$prefix}frame-mc {
+            background-repeat: repeat-y;
+        }
     }
 }
 
-.#{$prefix}tab-bar-plain {
-    background: transparent !important;
-}
-
-.#{$prefix}tab-icon-el {
-    position: absolute;
-    background-repeat: no-repeat;
-    top: 0;
-    left: 0;
-    right: auto;
-    bottom: 0;
-}
-
-@if $include-rtl {
-    .#{$prefix}rtl.#{$prefix}tab-icon-el {
-        left: auto;
-        right: 0;
-    }
-}
-
-.#{$prefix}tab-close-btn {
-    display: block;
-    position: absolute;
-    font-size: 0;
-    line-height: 0;
-    background: no-repeat;
-}
-
-.#{$prefix}tab-mc {
-    // If the close icon's top/right is smaller that the size of the frame, then it ends
-    // up getting negatively positioned so that it overlaps the outer framing elements.
-    // Overflow is set to visible so that if this happens, the close icon will not get
-    // clipped.
-    overflow: visible;
+.#{$prefix}panel-header-plain,
+.#{$prefix}panel-body-plain {
+    border: 0;
+    padding: 0;
 }</pre>
 </body>
 </html>

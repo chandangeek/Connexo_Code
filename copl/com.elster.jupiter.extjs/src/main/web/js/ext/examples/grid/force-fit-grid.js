@@ -127,9 +127,10 @@ Ext.onReady(function() {
             },
             {
                 text     : 'Last Updated',
+                xtype    : 'datecolumn',
                 width    : 85,
                 sortable : true,
-                renderer : Ext.util.Format.dateRenderer('m/d/Y'),
+                format   : 'm/d/Y',
                 dataIndex: 'lastChange'
             },
             {

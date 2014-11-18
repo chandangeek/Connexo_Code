@@ -1,32 +1,35 @@
 # Introduction to Sencha Cmd
 
-[Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) is a cross-platform 
-command line tool that provides many automated tasks
-around the full life-cycle of your applications from generating a new project to
-deploying an application to production.
+[Sencha Cmd](http://www.sencha.com/products/sencha-cmd/) is a cross-platform 
+command line tool that provides many automated tasks around the full life-cycle
+of your applications from generating a new project to deploying an application to
+production.
 
-Sencha Cmd provides a collection of powerful time-saving features that
+## Understanding Sencha Cmd
+
+Sencha Cmd provides a collection of powerful, time-saving features that
 work together and in conjunction with the Sencha Ext JS and Sencha Touch frameworks.
 Sencha Cmd provides the following capabilities:
 
- - **Code Generation Tools**: Code generation tools to generate entire applications and extend those applications
- with new MVC components.
- - **JS Compiler**: A framework-aware, JavaScript compiler that knows the semantics of Sencha frameworks
- and can produce minimal footprint builds from your source. In the future, the compiler
- will optimize many of the high-level semantics provided by Sencha frameworks to reduce
- load time of your applications.
+ - **Code Generation Tools**: Code generation tools to generate entire applications and
+ extend those applications with new MVC components.
+ - **JS Compiler**: A framework-aware, JavaScript compiler that understands the semantics
+ of Sencha frameworks and can produce minimal footprint builds from your source. The
+ compiler can optimize many of the high-level semantics provided by Sencha frameworks to
+ reduce load time of your applications.
  - **Web Server**: Provides a lightweight web server that serves files from localhost.
- - **Packaging**: Native packaging to convert a Sencha Touch application into a first-class, mobile
- application that has access to device functionality and can be distributed in App Stores.
- - **Management System**: Distributed package management system for easy integration of packages (such as Ext JS
- Themes) created by others or from the Sencha Package Repository.
- - **Build Scripts**: Generated build script for applications and packages with "before" and "after" extension
- points so you can customize the build process to fit your specific needs.
- - **Tuning Tools**: Powerful code selection tools for tuning what is included in your application's final
- build, determine common code across pages and partition shared code into "packages" - all
+ - **Native Packaging**: Native packaging to convert a Sencha Touch application into a
+ first-class, mobile application that has access to device functionality and can be
+ distributed in App Stores.
+ - **Package Management System**: Distributed package management system for easy integration
+ of packages (such as Ext JS Themes) created by others or from the Sencha Package Repository.
+ - **Build Scripts**: Generated build script for applications and packages with "before" and
+ "after" extension points so you can customize the build process to fit your specific needs.
+ - **Tuning Tools**: Powerful code selection tools for tuning what is included in your
+ application's final build, determine common code across pages and partition shared code
  using high-level set operations to get builds exactly as you want them.
- - **Workspace Management**: Assists in sharing frameworks, packages and custom code between
- applications.
+ - **Workspace Management**: Assists in sharing frameworks, packages and custom code across
+ multiple applications.
  - **Image Capture**: Converts CSS3 features (such as border-radius and linear-gradient)
  into sprites for legacy browsers.
  - **Flexible Configuration System**: Enables defaults to be specified for command options
@@ -41,10 +44,10 @@ Sencha Cmd provides the following capabilities:
 
 ## Compatibility
 
-Sencha Cmd supports Sencha Ext JS version 4.1.1a or higher and Sencha Touch
-version 2.1 or higher. Many of the features of Sencha Cmd require framework support
-that is only available at these or later version levels. Some low-level commands 
-can be used for older versions of Sencha frameworks or JavaScript in general.
+Sencha Cmd supports Sencha Ext JS version 4.1.1a or higher and Sencha Touch version 2.1
+or higher. Many of the features of Sencha Cmd require framework support that is only
+available at these or later version levels. Some low-level commands can be used for older
+versions of Sencha frameworks or JavaScript in general.
 
 If you are using an older version of Ext JS, you may use Sencha Cmd's `build` command to
 build via your JSB file. In other words, Sencha Cmd can replace JSBuilder to produce a
@@ -55,22 +58,22 @@ Sencha Touch 2.0 and Sencha Ext JS 4.0 require the deprecated
 [SDK Tools v2](http://www.sencha.com/products/sdk-tools), which cannot be used 
 with later Touch or Ext JS versions.
 
+<a name="SystemSetup"></a>
 ## System Setup
 
 Download and install this software:
 
- - **JRE** Sencha Cmd is written in Java and requires 
+ - **JRE** Sencha Cmd requires 
    [Java Runtime Environment](http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html) 
-   version 1.6 or 1.7 (best)
- - [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download)
- - **Ruby 1.9.3** (or earlier): Sencha Cmd does not work with Ruby 2.0. Ruby differs by OS:
-  - **Windows**: Download Ruby 1.9.3.n from [rubyinstaller.org](http://rubyinstaller.org/downloads/).
+   version 1.7 to support all functionality, however, most features will work with 1.6 (the
+   minimum supported version).
+ - [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/)
+ - **Ruby** Ruby differs by OS:
+  - **Windows**: Download Ruby from [rubyinstaller.org](http://rubyinstaller.org/downloads/).
     Get the .exe file version of the software and install it.
-  - **Mac OS**: Ruby is pre-installed. You can test which version you have with the 
-    **Ruby -v** command. If you have version 2.0, download the [Ruby version manager](https://rvm.io/) (rvm). 
-    Use this command to download and install Ruby: **rvm install 1.9.3 --with-gcc=clang** and set 
-    your PATH variable to point to the Ruby 1.9.3 install directory.
-  - **Ubuntu**: Use **sudo apt-get install ruby1.9.3** to download Ruby 1.9.3.
+  - **Mac OS**: Ruby is pre-installed. You can test if Ruby is installed with the 
+    **Ruby -v** command. 
+  - **Ubuntu**: Use **sudo apt-get install ruby2.0.0** to download Ruby.
  - **iOS Packaging**: Apple [Xcode](https://developer.apple.com/xcode/)
  - **Android Packaging**: [Android SDK Tools](http://developer.android.com/sdk/index.html) and [Eclipse](http://www.eclipse.org/) (optional).
  
@@ -81,9 +84,9 @@ Add the install paths to your PATH environmental variable.
 To verify that Sencha Cmd is working properly, open a command line, change directory to
 your application, and type the `sencha` command. 
 
-You should see output that starts with:
+You should see output that starts something like this:
 
-    Sencha Cmd vn.n.n
+    Sencha Cmd v4.0.n.n
     ...
 
 
@@ -100,6 +103,16 @@ latest version if you don't already have it:
 
     sencha upgrade
 
+After the installer is done, start a new console or terminal to pick up the changes to
+your PATH environment variable.
+
+Because multiple versions of Sencha Cmd can be installed side-by-side, you can safely try
+new releases and simply uninstall them (or adjust the PATH) to go back to your previous
+version. Upgrading your applications using `sencha app upgrade` however, is something you
+may need "roll back" if you downgrade to an older Sencha Cmd.
+
+### Beta Releases
+
 If you want to check for beta releases, use:
 
     sencha upgrade --check --beta
@@ -107,14 +120,6 @@ If you want to check for beta releases, use:
 To install the latest beta version:
 
     sencha upgrade --beta
-
-After the installer is done, start a new console or terminal
-to pick up the changes to your PATH environment variable.
-
-Because multiple versions of Sencha Cmd can be installed side-by-side, you can safely try
-the Beta channel and then uninstall the beta (or adjust the PATH) to go back to the stable
-version. Upgrading your applications using `sencha upgrade` however, is something you
-may need "roll back" if you downgrade to an older Sencha Cmd.
 
 **Note** It is possible that the most current release is in either the "beta" or stable
 channel. That is to say, `sencha upgrade --beta` may install a beta that predates the
@@ -134,12 +139,13 @@ For example, try this:
 
     sencha help
 
-And you should see this:
+Displays the current version and the available top-level commands. For example:
 
-    Sencha Cmd vn.n.n
+    Sencha Cmd v4.0.n.n
     ...
 
     Options
+      * --background, -b - Runs the web server in a background thread
       * --cwd, -cw - Sets the directory from which commands should execute
       * --debug, -d - Sets log level to higher verbosity
       * --nologo, -n - Suppress the initial Sencha Cmd version display
@@ -152,14 +158,15 @@ And you should see this:
       * app - Perform various application build processes
       * compass - Wraps execution of compass for sass compilation
       * compile - Compile sources to produce concatenated output and metadata
+      * cordova - Manage Cmd/Cordova integration
       * fs - Utility commands to work with files
       * generate - Generates models, controllers, etc. or an entire application
-      * io - Create, deploy and manage applications on the Sencha.io cloud platform
-      * iofs - Manage Files stored in the Sencha.io cloud platform
       * manifest - Extract class metadata
       * package - Manages local and remote packages
+      * phonegap - Manage Cmd/PhoneGap integration
       * repository - Manage local repository and remote repository connections
       * theme - Commands for low-level operations on themes
+      * web - Manages a simple HTTP file server
 
     Commands
       * ant - Invoke Ant with helpful properties back to Sencha Cmd
@@ -173,7 +180,7 @@ And you should see this:
 ## Current Directory
 
 In many cases, Sencha Cmd requires that you set a specific current directory. Or it may
-just need to know details about the relevant SDK. The appropriate SDK can be determined
+just need to know details about the relevant Sencha SDK. The SDK can be determined
 automatically by Sencha Cmd when it is run from a generated application folder or, for
 some few commands, from an extracted SDK folder.
 
@@ -183,52 +190,17 @@ of a generated application. The commands fail if not run from the application's 
     * `sencha generate ...` (for commands other than `app`, `package` and `workspace`)
     * `sencha app ...`
 
-To generate an application, run the following command from an extracted SDK folder:
+This is also true of Packages. When running commands like `sencha package build`, the
+current directory must be the desired package folder.
 
-    cd /path/to/SDK
-    sencha generate app ...
+## Sencha Cmd Documentation
 
-Or you can use the `-sdk` switch:
+The many guides for Sencha Cmd are organized to help build on your understanding and it is
+recommended that you follow this sequence. Jumping ahead can result in confusion as the
+advanced guides often assume understanding of the content of the earlier guides.
 
-    sencha -sdk /path/to/sdk generate app ...
-
-When using the compiler, Sencha Cmd detects the framework in use when run from an
-application folder. If you are not running from a generated application, you may need to
-use the `-sdk` switch:
-
-    sencha -sdk /path/to/sdk compile ...
-
-**Important** Do not specify the `-sdk` parameter for `sencha app` commands. As noted
-above, these commands must be run from the application's root folder and therefore 
-automatically know which SDK to use. Using `-sdk` on these commands causes Sencha Cmd
-to believe your current directory is the SDK specified which is not the proper current
-directory for an application.
-
-## Developing Applications
-
-The starting point for most projects is to generate an application skeleton. This is done
-using the following:
-
-    sencha -sdk /path/to/sdk generate app MyApp /path/to/MyApp
-
-Ext JS and Sencha Touch applications are structured differently from each other. Further,
-particularly with Ext JS, applications can be quite large and may contain multiple pages.
-
-To get started building applications using Sencha Cmd, consult the
-[Using Sencha Cmd](#!/guide/command_app) guide.
-
-### Sencha Cmd Web Server
-
-The Sencha Cmd web server lets you serve files from your applications directory. 
-Use this command to start the web server:
-
-    sencha fs web [-port 8000] start -map <dir_name>
-
-(You can use any available TCP port number or omit it and use the default.)
-
-To access the Sencha Cmd web server, use: 
-
-    http://localhost:8000/
+At the start of each guide are links to any prerequisites for that guide. Further,
+most guides end with a set of links for further reading.
 
 ## Beyond The Basics
 
@@ -264,7 +236,8 @@ batch file` on Windows, follow these steps:
 ### Cannot find Ruby
 
 If you see an error related to not recognizing or finding `"ruby"` this is likely because
-Ruby is not installed or is not in your PATH. See the previous System Setup section.
+Ruby is not installed or is not in your PATH. See the previous [System Setup](#SystemSetup)
+section.
 
 ### Wrong Current Directory
 
@@ -291,3 +264,7 @@ Whenever you see a warning like this:
 Immediately add 'Ext.foo.Bar' inside the `requires` array property of the class from
 which the dependency originates. If it is a application-wide dependency, add it to the
 `requires` array property inside `Ext.application(...)` statement.
+
+## Next Steps
+
+ - [Using Sencha Cmd](#!/guide/command_app)

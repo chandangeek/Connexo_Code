@@ -64,6 +64,7 @@ Ext.onReady(function () {
         shadow: false,
         maximizable: true,
         title: 'Area Chart',
+        constrain: true,
         autoShow: true,
         layout: 'fit',
         tbar: [{

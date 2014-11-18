@@ -181,3 +181,8 @@ We have added a `callSuper` method for situations where you need to patch/replac
 on the target class in an `override`. This method should only be needed when an `override`
 needs to workaround the behavior of a specific method it is designed to replace so is not
 something to use in most cases. The typical use cases should still use `callParent`.
+
+## RowExpander
+`Ext.ux.RowExpander` has been officially promoted to be part of the core framework.  This class 
+is now known as `Ext.grid.plugin.RowExpander`.  `Ext.ux.RowExpander` still exists as an empty 
+stub that extends `Ext.grid.plugin.RowExpander` for backward compatibility reasons.

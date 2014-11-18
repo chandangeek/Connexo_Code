@@ -188,17 +188,16 @@ Ext.define('Ext.state.Stateful', {
      */
     addStateEvents: function (events) {
         var me = this,
-            i, event, stateEventsByName;
+            i, event, stateEventsByName,
+            eventArray;
 
         if (me.stateful &amp;&amp; me.getStateId()) {
-            if (typeof events == 'string') {
-                events = Array.prototype.slice.call(arguments, 0);
-            }
+            eventArray =  (typeof events == 'string') ? arguments : events;
 
             stateEventsByName = me.stateEventsByName || (me.stateEventsByName = {});
 
-            for (i = events.length; i--; ) {
-                event = events[i];
+            for (i = eventArray.length; i--; ) {
+                event = eventArray[i];
 
                 if (!stateEventsByName[event]) {
                     stateEventsByName[event] = 1;

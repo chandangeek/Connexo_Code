@@ -498,7 +498,7 @@ Ext.define('Ext.form.field.Date', {
     },
 
 <span id='Ext-form-field-Date-method-formatDate'>    // private
-</span>    formatDate : function(date){
+</span>    formatDate: function(date){
         return Ext.isDate(date) ? Ext.Date.dateFormat(date, this.format) : date;
     },
 
@@ -506,9 +506,11 @@ Ext.define('Ext.form.field.Date', {
 </span>        var me = this,
             format = Ext.String.format;
 
+        // Create floating Picker BoundList. It will acquire a floatParent by looking up
+        // its ancestor hierarchy (Pickers use their pickerField property as an upward link)
+        // for a floating component.
         return new Ext.picker.Date({
             pickerField: me,
-            ownerCt: me.ownerCt,
             renderTo: document.body,
             floating: true,
             hidden: true,
@@ -531,6 +533,7 @@ Ext.define('Ext.form.field.Date', {
             keyNavConfig: {
                 esc: function() {
                     me.collapse();
+                    me.focus();
                 }
             }
         });
@@ -549,6 +552,7 @@ Ext.define('Ext.form.field.Date', {
         me.setValue(d);
         me.fireEvent('select', me, d);
         me.collapse();
+        me.focus(false, 50);
     },
 
 <span id='Ext-form-field-Date-method-onExpand'>    /**
@@ -560,25 +564,12 @@ Ext.define('Ext.form.field.Date', {
         this.picker.setValue(Ext.isDate(value) ? value : new Date());
     },
 
-<span id='Ext-form-field-Date-method-onCollapse'>    /**
-</span>     * @private
-     * Focuses the field when collapsing the Date picker.
-     */
-    onCollapse: function() {
-        this.focus(false, 60);
-    },
-
 <span id='Ext-form-field-Date-method-beforeBlur'>    // private
-</span>    beforeBlur : function(){
+</span>    beforeBlur: function(){
         var me = this,
-            v = me.parseDate(me.getRawValue()),
-            focusTask = me.focusTask;
+            v = me.rawToValue(me.getRawValue());
 
-        if (focusTask) {
-            focusTask.cancel();
-        }
-
-        if (v) {
+        if (Ext.isDate(v)) {
             me.setValue(v);
         }
     }

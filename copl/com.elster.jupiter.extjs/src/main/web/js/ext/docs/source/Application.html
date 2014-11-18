@@ -105,8 +105,25 @@ Ext.define('Ext.app.Application', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Ext.tip.QuickTipManager'
+        'Ext.tip.QuickTipManager',
+        'Ext.util.MixedCollection'
     ],
+
+<span id='Ext-app-Application-cfg-extend'>    /**
+</span>     * @cfg {String} extend A class name to use with the `Ext.application` call. The class must also extend {@link Ext.app.Application}.
+     *
+     *     Ext.define('MyApp.Application', {
+     *         extend : 'Ext.app.Application',
+     *
+     *         launch : function() {
+     *             Ext.direct.Manager.addProvider(Ext.app.REMOTING_API);
+     *         }
+     *     });
+     *
+     *     Ext.application({
+     *         extend : 'MyApp.Application'
+     *     });
+     */
 
 <span id='Ext-app-Application-cfg-name'>    /**
 </span>     * @cfg {String} name

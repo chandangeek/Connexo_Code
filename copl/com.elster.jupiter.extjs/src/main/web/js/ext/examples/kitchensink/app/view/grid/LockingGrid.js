@@ -83,10 +83,11 @@ Ext.define('KitchenSink.view.grid.LockingGrid', {
                 },
                 dataIndex: 'pctChange'
             }, {
+                xtype    : 'datecolumn',
                 text     : 'Last Updated',
                 width    : 135,
                 sortable : true,
-                renderer : Ext.util.Format.dateRenderer('m/d/Y'),
+                format   : 'm/d/Y',
                 dataIndex: 'lastChange'
             }];
 

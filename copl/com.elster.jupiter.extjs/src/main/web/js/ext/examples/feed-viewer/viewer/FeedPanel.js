@@ -79,7 +79,9 @@ Ext.define('FeedViewer.FeedPanel', {
     },
 
     onViewReady: function(){
+        Ext.suspendLayouts();
         this.view.getSelectionModel().select(this.view.store.first());
+        Ext.resumeLayouts(true);
     },
 
     /**

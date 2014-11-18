@@ -43,13 +43,9 @@ no target was specified).
 This category contains various commands for application management.
 
 
-### Categories
-  * `package` - Packages a Sencha Touch application for native app stores
-
 ### Commands
   * `build` - Executes the build process for an application
   * `refresh` - Updates the application metadata (aka "bootstrap") file
-  * `resolve` - Generate dependencies in the loading order for the given app.
   * `upgrade` - Upgrade the current application to the specified SDK
 
 ## sencha app build
@@ -99,53 +95,6 @@ a command line invocation.
                                [destination] \
                                [archive]
 
-## sencha app package
-
-This category contains various commands for packing application for deployment
-on phones using the Sencha Mobile Packager.
-
-
-### Commands
-  * `build` - Packages an app with the given configuration file
-  * `generate` - Generates a Packager configuration JSON file
-  * `run` - Packages and tries to run the application for the given configuration JSON file
-
-## sencha app package build
-
-This command creates a native package of the current application.
-
-
-### Options
-  * `--path`, `-p` - the path to the configuration file
-
-### Syntax
-
-    sencha app package build [options] path
-
-## sencha app package generate
-
-This command generates a Packager configuration JSON file.
-
-
-### Options
-  * `--path`, `-p` - the path to the configuration file
-
-### Syntax
-
-    sencha app package generate [options] path
-
-## sencha app package run
-
-This command packages and runs the current application.
-
-
-### Options
-  * `--path`, `-p` - the path to the configuration file
-
-### Syntax
-
-    sencha app package run [options] path
-
 ## sencha app refresh
 
 This command regenerates the metadata file containing "bootstrap" data for the
@@ -172,23 +121,6 @@ The additional parameters are seldom used.
     sencha app refresh [options] [metadata-file] \
                                  [base-path]
 
-## sencha app resolve
-
-Generate a list of dependencies in the exact loading order for the current
-application.
-
-NOTE: the resolved paths are relative to the current application's HTML file.
-
-
-### Options
-  * `--output-file`, `-o` - The file path to write the results to in JSON format.
-  * `--uri`, `-u` - The URI to the application\'s HTML document
-
-### Syntax
-
-    sencha app resolve [options] uri \
-                                 output-file
-
 ## sencha app upgrade
 
 This command upgrades the current application (based on current directory) to a
@@ -208,6 +140,7 @@ of Sencha Cmd and not the framework in use, do this:
 
 ### Options
   * `--noappjs`, `-noa` - Disable upgrade of app.js
+  * `--nobackup`, `-nob` - Disable backup of application before upgrade
   * `--noframework`, `-nof` - Upgrade only the Sencha Cmd scaffolding and not the SDK
   * `--path`, `-p` - The path to the framework to which to upgrade
 
@@ -250,6 +183,7 @@ repeated calls.
   * `--ignore`, `-ig` - Ignore files in the classpath with names containing substrings (comma separated)
   * `--options`, `-o` - Sets options for the js directive parser (name:value,...)
   * `--prefix`, `-p` - The file with header or license prefix to remove from source files
+  * `--temp-directory`, `-t` - controls the temp directory root location used by page and app commands
 
 ### Commands
   * `concatenate` - Produce output file by concatenating the files in the current set
@@ -260,6 +194,7 @@ repeated calls.
   * `page` - Compiles the content of a page of markup (html, jsp, php, etc)
   * `pop` - Pops the current set back to the most recently pushed set from the stack
   * `push` - Pushes the current set on to a stack for later pop to restore the current set
+  * `require` - Adds external file to file reference information to the js compile context
   * `restore` - Restores the enabled set of files from a previously saved set
   * `save` - Stores the currently enabled set of files by a given name
   * `show-ignored` - Shows any files being ignored in the classpath
@@ -358,6 +293,7 @@ Choose one of the following options
   * `--filenames`, `-f` - Generate source file name information
   * `--loader-paths`, `-l` - Generate dynamic loader path information
   * `--manifest`, `-m` - Generate a class definition manifest file
+  * `--packages`, `-p` - Generate the list of required packages
 
 #### Format
 Choose one of the following options
@@ -370,6 +306,16 @@ Choose one of the following options
 
   * `--append`, `-ap` - Appends output to output file instead of overwriting output file
   * `--base-path`, `-b` - Set the base path for relative path references
+  * `--info-type`, `-i` - Selects the info type to operate on for this metadata command.
+    Supported Values:
+    * Alias : processes class name to alias information
+    * Alternates : processes alternate class name information
+    * Filenames : processes file name information for currently selected source files
+    * LoaderPaths : processes path configurations for the dynamic loader (Ext.Loader)
+    * Manifest : processes class definition manifest information
+    * Definitions : processes symbol information
+    * Packages : processes required packages and produces package name / version info
+
   * `--output-file`, `-o` - The output file name (or $ for stdout)
   * `--separator`, `-s` - The delimiter character used to separate multiple templates
 
@@ -445,6 +391,21 @@ needed and then restored for subsequent commands.
 ### Syntax
 
     sencha compile push 
+
+## sencha compile require
+
+
+
+### Options
+  * `--allow-unmet-dependencies`, `-a` - Allows this requirement to produce no resulting file-to-file dependencies
+  * `--file-name`, `-f` - Indicates that the name specified by the -source argument is a single file path.
+  * `--requires`, `-r` - The name being required by the files denoted by the -source argument.
+  * `--source-name`, `-so` - The set of files (class, @tag, or file) on which to add the requirement.
+  * `--uses`, `-u` - Indicates that this reference is a 'uses' level reference.
+
+### Syntax
+
+    sencha compile require [options] 
 
 ## sencha compile restore
 
@@ -537,7 +498,6 @@ This category provides commands for manipulating files.
 
 ### Categories
   * `mirror` - Commands for making mirror images for RTL languages
-  * `web` - Manages a simple HTTP file server
 
 ### Commands
   * `concatenate` - Concatenate multiple files into one
@@ -744,63 +704,6 @@ http://docs.sencha.com/ext-js/4-2/#!/guide/command_slice
 
     sencha fs slice [options] 
 
-## sencha fs web
-
-This category provides commands to manage a simple HTTP file server.
-
-
-### Options
-  * `--port`, `-p` - Set the port for the web server
-
-### Commands
-  * `start` - Starts a static file Web Server on a port
-  * `stop` - Stops the local web server on the specific port
-
-## sencha fs web start
-
-This command starts the Web server and routes requests to the specified files.
-For example:
-
-    sencha fs web -port 8000 start -map foo=/path/to/foo,bar=/another/path
-
-Given the above, the following URL entered in a browser will display the files
-in `"/path/to/foo"`:
-
-    http://localhost:8000/foo
-
-And this URL will display the files in `"/another/path"`:
-
-    http://localhost:8000/bar
-
-To stop the server, press CTRL+C or run the `sencha fs web stop` command:
-
-    sencha fs web -port 8000 stop
-
-
-### Options
-  * `--mappings`, `-m` - List of local folders (ex: [sub=]/path/to/folder)
-
-### Syntax
-
-    sencha fs web start [options] 
-
-## sencha fs web stop
-
-This command stops the Web server previously started by `sencha fs web start`.
-
-For example:
-
-    sencha fs web -port 8000 start -map foo=/path/to/foo,bar=/another/path
-
-From another terminal or console, this will stop the server:
-
-    sencha fs web -port 8000 stop
-
-
-### Syntax
-
-    sencha fs web stop 
-
 ## sencha generate
 
 This category contains code generators used to generate applications as well
@@ -833,6 +736,7 @@ Other application actions are provided in the `sencha app` category (e.g.,
   * `--library`, `-l` - the pre-built library to use (core or all). Default: core
   * `--name`, `-n` - The name of the application to generate
   * `--path`, `-p` - The path for the generated application
+  * `--refresh`, `-r` - Set to false to skip the "app refresh" of the generated app
   * `--starter`, `-s` - Overrides the default Starter App template directory
   * `--theme-name`, `-t` - The name of the defualt Theme
   * `--view-name`, `-v` - The name of the default View
@@ -915,6 +819,14 @@ often the same folder as your application).
 ### Options
   * `--name`, `-n` - The name of the package to generate
   * `--type`, `-t` - The type of the package to generate (i.e., "code" or "theme")
+    Supported Values:
+    * CODE : A library of code
+    * EXTENSION : An extension to Sencha Cmd
+    * FRAMEWORK : A framework
+    * THEME : A user interface theme or skin
+    * LOCALE : Localization overrides / styling
+    * OTHER : Unspecified type
+
 
 ### Syntax
 
@@ -1418,9 +1330,10 @@ For details see:
   * `build` - Builds the current package
   * `extract` - Extracts the contents of a package to an output folder
   * `get` - Get a package from a remote repository
+  * `install` - Installs a Sencha Cmd extension package
   * `list` - Lists packages in the repository
   * `remove` - Removes a package from the local repository
-  * `upgrade` - Upgrades the current pacakge
+  * `upgrade` - Upgrades the current package
 
 ## sencha package add
 
@@ -1530,6 +1443,23 @@ To get all packages required by those specified packages:
 ### Where:
 
   * `packages` - One or more packages/versions to fetch locally
+
+
+## sencha package install
+
+
+
+### Options
+  * `--clean`, `-c` - Delete any files in the output folder before extracting
+  * `--force`, `-f` - Ignore local copy and fetch from remote repository
+
+### Syntax
+
+    sencha package install [options] String[]...
+
+### Where:
+
+  * `String[]` - The names/versions of the packages to install
 
 
 ## sencha package list
@@ -2153,6 +2083,131 @@ the `--force` option is ignored.
 ### Syntax
 
     sencha upgrade [options] [version=""]
+
+## sencha web
+
+This category provides commands to manage a simple HTTP file server based on
+`Jetty` (see http://www.eclipse.org/jetty/).
+
+The following command is the simplest form:
+
+    sencha web start
+
+This starts the web server on the default port and "mounts" the current
+directory as the web root. This command will block the terminal so you can use
+CTRL+C to end the process.
+
+If this is started as a background process, you can use this command to stop
+the server from another terminal:
+
+    sencha web stop
+
+The port used can be specified on the command line or using the configuration
+property `cmd.web.port`. For example:
+
+    sencha web -port 8080 start
+
+And to stop the above:
+
+    sencha web -port 8080 stop
+
+For details on the web root, console help on `sencha web start`:
+
+    sencha help web start
+
+**NOTE:** These are low-level commands that do not relate to the current
+application. For applications, consider the `web-start` target using
+`sencha ant web-start` and `sencha ant web-stop`.
+
+
+### Options
+  * `--port`, `-p` - Set the port for the web server
+
+### Commands
+  * `start` - Starts a static file Web Server on a port
+  * `stop` - Stops the local web server on the specific port
+
+## sencha web start
+
+This command starts the Web server and routes requests to the specified files.
+For example:
+
+    sencha web start
+
+This will "mount" the current directory as the web root at the default port.
+The port can be specified if needed:
+
+    sencha web -port 8000 start
+
+To stop the server, press CTRL+C or you can use these commands (from another
+terminal), respectively:
+
+    sencha web stop
+
+    sencha web -port 8000 stop
+
+#### The Web Root
+
+By default, `sencha web start` mounts the current directory so that all files
+and folders are available at the root of the web server's URL. Sometimes you
+may need to connect various folders into a common web root. To do this, use
+the `-map` switch like so:
+
+    sencha web start -map foo=/path/to/foo,bar=/another/path
+
+Given the above, the following URL entered in a browser will display the files
+in `"/path/to/foo"`:
+
+    http://localhost:8000/foo
+
+And this URL will display the files in `"/another/path"`:
+
+    http://localhost:8000/bar
+
+For more details regarding the `Sencha Cmd` web server, run this command:
+
+    sencha help web
+
+*NOTE:* These are low-level commands that do not relate to the current
+application. For applications, consider the `web-start` target using
+`sencha ant web-start` and `sencha ant web-stop`.
+
+
+### Options
+  * `--mappings`, `-m` - List of local folders (ex: [sub=]/path/to/folder)
+
+### Syntax
+
+    sencha web start [options] 
+
+## sencha web stop
+
+This command stops the Web server previously started by `sencha web start`.
+
+If the server was started with this command:
+
+    sencha web start
+
+This command will stop that server:
+
+    sencha web stop
+
+If you are using a custom port, these must match. For example:
+
+    sencha web -port 8000 start
+
+From another terminal or console, this will stop the server:
+
+    sencha web -port 8000 stop
+
+*NOTE:* These are low-level commands that do not relate to the current
+application. For applications, consider the `web-start` target using
+`sencha ant web-start` and `sencha ant web-stop`.
+
+
+### Syntax
+
+    sencha web stop 
 
 ## sencha which
 

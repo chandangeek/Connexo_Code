@@ -25,18 +25,26 @@
 Ext.define('Ext.grid.plugin.BufferedRendererTreeView', {
     override: 'Ext.tree.View',
 
-<span id='Ext-grid-plugin-BufferedRendererTreeView-method-onRemove'>    onRemove: function(store, records, indices) {
-</span>        var me = this;
-        // Using buffered rendering - removal (eg folder node collapse)
-        // Has to refresh the view
-        if (me.rendered &amp;&amp; me.bufferedRenderer) {
-            me.refreshView();
-        }
-        // No BufferedRenderer preent
-        else {
+<span id='Ext-grid-plugin-BufferedRendererTreeView-method-onRemove'>    onRemove: function(store, records, indices, isMove, removeRange) {
+</span>        var me = this,
+            bufferedRenderer = me.bufferedRenderer;
+
+        // If there's a BufferedRenderer...
+        if (me.rendered &amp;&amp; bufferedRenderer) {
+
+            // If it's a contiguous range, the replace processing can handle it.
+            if (removeRange) {
+                bufferedRenderer.onReplace(store, indices[0], records, []);
+            }
+
+            // Otherwise it's a refresh
+            else {
+                bufferedRenderer.refreshView();
+            }
+        } else {
             me.callParent([store, records, indices]);
         }
-    }    
+    }
 });
 </pre>
 </body>

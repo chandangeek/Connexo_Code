@@ -406,6 +406,7 @@ Ext.onReady(function () {
         hidden: false,
         maximizable: true,
         title: 'Scatter Chart Renderer',
+        constrain: true,
         renderTo: Ext.getBody(),
         layout: 'fit',
         tbar: [{

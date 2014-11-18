@@ -144,10 +144,8 @@ Ext.define('SimpleTasks.view.tasks.EditWindow', {
                     id: 'cancel-task-edit-btn'
                 }
             ]
-        }]
+        }];
 
         this.callParent(arguments);
-
     }
-
 });

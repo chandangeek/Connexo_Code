@@ -11,6 +11,8 @@ Ext.define('Ext.app.PortalDropZone', {
         Ext.dd.ScrollManager.register(portal.body);
         Ext.app.PortalDropZone.superclass.constructor.call(this, portal.body, cfg);
         portal.body.ddScrollConfig = this.ddScrollConfig;
+        this.portal.afterLayout = Ext.Function.createSequence(this.portal.afterLayout, this.getGrid, this);
+        this.getGrid();
     },
 
     ddScrollConfig: {
@@ -35,34 +37,27 @@ Ext.define('Ext.app.PortalDropZone', {
     },
 
     notifyOver: function(dd, e, data) {
-        var xy = e.getXY(),
-            portal = this.portal,
-            proxy = dd.proxy;
-
-        // case column widths
-        if (!this.grid) {
-            this.grid = this.getGrid();
-        }
-
-        // handle case scroll where scrollbars appear during drag
-        var cw = portal.body.dom.clientWidth;
-        if (!this.lastCW) {
-            // set initial client width
-            this.lastCW = cw;
-        } else if (this.lastCW != cw) {
-            // client width has changed, so refresh layout & grid calcs
-            this.lastCW = cw;
-            //portal.doLayout();
-            this.grid = this.getGrid();
-        }
+        var me = this,
+            xy = e.getXY(),
+            portal = me.portal,
+            proxy = dd.proxy,
+            wasOverflowing,
+            isOverflowing,
+            overEvent,
+            scrollbarWidth = Ext.getScrollbarSize().width,
+            colIndex = 0,
+            colRight = 0,
+            cols = me.grid.columnX,
+            len = cols.length,
+            cmatch = false,
+            overPortlet, pos = 0,
+            h = 0,
+            match = false,
+            overColumn,
+            portlets,
+            overSelf = false;
 
         // determine column
-        var colIndex = 0,
-            colRight = 0,
-            cols = this.grid.columnX,
-            len = cols.length,
-            cmatch = false;
-
         for (len; colIndex < len; colIndex++) {
             colRight = cols[colIndex].x + cols[colIndex].w;
             if (xy[0] < colRight) {
@@ -76,12 +71,8 @@ Ext.define('Ext.app.PortalDropZone', {
         }
 
         // find insert position
-        var overPortlet, pos = 0,
-            h = 0,
-            match = false,
-            overColumn = portal.items.getAt(colIndex),
-            portlets = overColumn.items.items,
-            overSelf = false;
+        overColumn = portal.items.getAt(colIndex),
+        portlets = overColumn.items.items,
 
         len = portlets.length;
 
@@ -97,7 +88,8 @@ Ext.define('Ext.app.PortalDropZone', {
         }
 
         pos = (match && overPortlet ? pos : overColumn.items.getCount()) + (overSelf ? -1 : 0);
-        var overEvent = this.createEvent(dd, e, data, colIndex, overColumn, pos);
+        overEvent = me.createEvent(dd, e, data, colIndex, overColumn, pos);
+        wasOverflowing = scrollbarWidth && portal.body.dom.scrollHeight > portal.body.dom.clientHeight;
 
         if (portal.fireEvent('validatedrop', overEvent) !== false && portal.fireEvent('beforedragover', overEvent) !== false) {
 
@@ -109,12 +101,18 @@ Ext.define('Ext.app.PortalDropZone', {
                 dd.panelProxy.moveProxy(overColumn.el.dom, null);
             }
 
-            this.lastPos = {
+            // If moving the spacer caused change in scrollbar state, then we must do a layout to accommodate the new (or lack of) scrollbars
+            isOverflowing = scrollbarWidth && overColumn.el.dom.offsetHeight > portal.body.dom.clientHeight;
+            if (isOverflowing !== wasOverflowing) {
+                portal.updateLayout({isLayoutRoot: true});
+            }
+
+            me.lastPos = {
                 c: overColumn,
                 col: colIndex,
                 p: overSelf || (match && overPortlet) ? pos : false
             };
-            this.scrollPos = portal.body.getScroll();
+            me.scrollPos = portal.body.getScroll();
 
             portal.fireEvent('dragover', overEvent);
             return overEvent.status;
@@ -124,12 +122,7 @@ Ext.define('Ext.app.PortalDropZone', {
 
     },
 
-    notifyOut: function() {
-        delete this.grid;
-    },
-
     notifyDrop: function(dd, e, data) {
-        delete this.grid;
         if (!this.lastPos) {
             return;
         }
@@ -176,7 +169,7 @@ Ext.define('Ext.app.PortalDropZone', {
 
     // internal cache of body and column coords
     getGrid: function() {
-        var box = this.portal.body.getBox();
+        var box = this.grid = this.portal.body.getBox();
         box.columnX = [];
         this.portal.items.each(function(c) {
             box.columnX.push({
@@ -191,5 +184,6 @@ Ext.define('Ext.app.PortalDropZone', {
     unreg: function() {
         Ext.dd.ScrollManager.unregister(this.portal.body);
         Ext.app.PortalDropZone.superclass.unreg.call(this);
+        delete this.portal.afterLayout;
     }
 });

@@ -218,7 +218,9 @@ Ext.define('Ext.form.field.Base', {
     checkChangeEvents: Ext.isIE &amp;&amp; (!document.documentMode || document.documentMode &lt; 9) ?
                         ['change', 'propertychange', 'keyup'] :
                         ['change', 'input', 'textInput', 'keyup', 'dragdrop'],
-
+                        
+<span id='Ext-form-field-Base-property-ignoreChangeRe'>    ignoreChangeRe: /data\-errorqtip|style\.|className/,   
+</span>
 <span id='Ext-form-field-Base-cfg-checkChangeBuffer'>    /**
 </span>     * @cfg {Number} checkChangeBuffer
      * Defines a timeout in milliseconds for buffering {@link #checkChangeEvents} that fire in rapid succession.
@@ -501,7 +503,9 @@ Ext.define('Ext.form.field.Base', {
 
         // Some Field subclasses may not render an inputEl
         if (me.inputEl) {
+            me.bindPropertyChange(false);
             me.inputEl.dom.value = value;
+            me.bindPropertyChange(true);
         }
         return value;
     },
@@ -588,7 +592,7 @@ Ext.define('Ext.form.field.Base', {
 
 <span id='Ext-form-field-Base-method-onBoxReady'>    onBoxReady: function() {
 </span>        var me = this;
-        me.callParent();
+        me.callParent(arguments);
         
         if (me.setReadOnlyOnBoxReady) {
             me.setReadOnly(me.readOnly);
@@ -662,17 +666,21 @@ Ext.define('Ext.form.field.Base', {
             onChangeTask,
             onChangeEvent,
             events = me.checkChangeEvents,
-            e,
-            eLen   = events.length,
-            event;
+            ignoreChangeRe = me.ignoreChangeRe,
+            eLen = events.length,
+            e, event;
 
         if (inputEl) {
             me.mon(inputEl, Ext.EventManager.getKeyEvent(), me.fireKey,  me);
 
             // listen for immediate value changes
             onChangeTask = new Ext.util.DelayedTask(me.checkChange, me);
-            me.onChangeEvent = onChangeEvent = function() {
-                onChangeTask.delay(me.checkChangeBuffer);
+            me.onChangeEvent = onChangeEvent = function(e) {
+                // When using propertychange, we want to skip out on various values, since they won't cause
+                // the underlying value to change.
+                if (!(e.type == 'propertychange' &amp;&amp; ignoreChangeRe.test(e.browserEvent.propertyName))) {
+                    onChangeTask.delay(me.checkChangeBuffer);
+                }
             };
 
             for (e = 0; e &lt; eLen; e++) {
@@ -689,21 +697,23 @@ Ext.define('Ext.form.field.Base', {
     },
 
 <span id='Ext-form-field-Base-method-doComponentLayout'>    doComponentLayout: function() {
-</span>        var me = this,
-            inputEl = me.inputEl,
-            usesPropertychange = me.usesPropertychange,
-            ename = 'propertychange',
-            onChangeEvent = me.onChangeEvent;
-
-        // In IE if propertychange is one of the checkChangeEvents, we need to remove
+</span>        // In IE if propertychange is one of the checkChangeEvents, we need to remove
         // the listener prior to layout and re-add it after, to prevent it from firing
         // needlessly for attribute and style changes applied to the inputEl.
+        this.bindPropertyChange(false);
+        this.callParent(arguments);
+        this.bindPropertyChange(true);
+    },
+    
+<span id='Ext-form-field-Base-method-bindPropertyChange'>    /**
+</span>     * @private
+     */
+    bindPropertyChange: function(active) {
+        var me = this,
+            usesPropertychange = me.usesPropertychange;
+            
         if (usesPropertychange) {
-            me.mun(inputEl, ename, onChangeEvent);
-        }
-        me.callParent(arguments);
-        if (usesPropertychange) {
-            me.mon(inputEl, ename, onChangeEvent);
+            me[active ? 'mon' : 'mun'](me.inputEl, 'propertychange', me.onChangeEvent);
         }
     },
 

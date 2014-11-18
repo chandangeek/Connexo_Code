@@ -36,7 +36,7 @@ Ext.define('Ext.ShadowPool', {
 <span id='Ext-ShadowPool-method-pull'>    pull: function() {
 </span>        var sh = this.shadows.shift();
         if (!sh) {
-            sh = Ext.get(Ext.DomHelper.insertHtml(&quot;beforeBegin&quot;, document.body.firstChild, this.markup));
+            sh = Ext.get(Ext.DomHelper.insertHtml(&quot;afterBegin&quot;, document.body, this.markup));
             sh.autoBoxAdjust = false;
             //&lt;debug&gt;
             // tell the spec runner to ignore this element when checking if the dom is clean 

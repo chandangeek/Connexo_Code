@@ -1,5 +1,5 @@
 Ext.define('SimpleTasks.model.List', {
-    extend: 'Ext.data.Model',
+    extend: 'Ext.data.TreeModel',
     requires:[
         'Ext.data.proxy.LocalStorage',
         'Ext.data.proxy.Ajax'

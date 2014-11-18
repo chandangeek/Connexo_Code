@@ -1,32 +1,39 @@
 # Sencha Compiler Reference
 
-One of the major components in [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) 
+One of the major components in [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/)
 is its compiler, which provides a JavaScript-to-JavaScript, framework-aware optimizer. 
-The optimizer 
-"understands" your high-level Ext JS and Sencha Touch code and produces the smallest, most
-efficient code possible to support these high-level abstractions.
+The optimizer "understands" your high-level Ext JS and Sencha Touch code and produces the
+smallest, most efficient code possible to support these high-level abstractions.
 
-Before using the compiler, you should understand the basics of Sencha Cmd by reading the
-following guides:
+## Prerequisites
 
- * [Introduction to Sencha Cmd](#!/guide/command)
- * [Using Sencha Cmd](#!/guide/command_app)
- * [Compiler-Friendly Code Guidelines](#!/guide/command_code)
+The following guides are recommended reading before proceeding further:
+
+  - [Introduction to Sencha Cmd](#!/guide/command).
+  - [Compiler-Friendly Code Guidelines](#!/guide/command_code)
+  - [Using Sencha Cmd](#!/guide/command_app).
 
 ## Sets And The Current Set
 
 Under the covers, the compiler manages a set of source files and analyzes these files to
 determine their dependencies. The set of all files is determined by the `classpath`:
 
-    sencha compile -classpath=sdk/src,app ...
+    sencha compile -classpath=common,app ...
 
 In this example, the compiler recursively loads `"*.js"` from the specified list of folders.
 This set of all files defines the basis for all operations to follow (that is, it defines
 its "universe").
 
-The default classpath used by the compiler comes from these configuration properties:
+The default `classpath` used by the compiler comes from these configuration properties:
 
     ${framework.classpath},${workspace.classpath},${app.classpath}
+
+When running high-level commands like `sencha app build`, Sencha Cmd will know the SDK in
+use and load the appropriate configuration as well as include the `"src"` folder of that
+framework in the `classpath`. When using the compiler outside of these contexts you will
+probably need to use the `-sdk` switch:
+
+    sencha -sdk /path/to/sdk compile -classpath=common,app ...
 
 The compiler's output commands (for example, `concat` and `metadata`) operate on the set
 of files called the "current set". The current set starts out equal to the universe of all
@@ -38,8 +45,17 @@ chaining mechanism. Also, in practical use cases, for long command lines, you sh
 consider using [Ant](#!/guide/command_ant) or a "response file". See
 [Advanced Sencha Cmd](#!/guide/command_advanced). 
 
-In this guide, all command lines are
-complete (and potentially long) to keep the examples as clear as possible.
+In this guide, all command lines are complete (and potentially long) to keep the examples
+as clear as possible.
+
+### Frameworks and The Classpath
+
+Ultimately the compiler needs to reach the `"src"` folder of the desired SDK, but simply
+adding this to the `-classpath` will not produce the optimal result. Instead, as shown in
+the example above, the `-sdk` switch should be used to inform the compiler which Sencha
+framework is in use. This will enable the compiler to understand framework-specific things
+like config properties that imply class dependencies (such as the `model` config on an
+`Ext.data.Store`).
 
 ## Generating Output with `concat`
 
@@ -53,17 +69,14 @@ following options for compression:
 
  * `-compress` - Compresses the generated file using the default compressor. Currently this
  is the same as `-yui`.
- * `-max` - Compresses the generated file using all compressors and keep the smallest.
  * `-closure` - Compresses the generated file using the [Google Closure Compiler](https://developers.google.com/closure/compiler/).
- * `-uglify` - Compresses the generated file using [UglifyJS](https://github.com/mishoo/UglifyJS/).
  * `-yui` - Compresses the source file using the [YUI Compressor](http://developer.yahoo.com/yui/compressor/).
  * `-strip` - Strips comments from the output file, but preserves whitespace. This 
  option converts "ext-all-debug-w-comments.js" into "ext-all-debug.js".
 
-The following command produces three flavors of output from a single
-read of the source.
+The following command produces three flavors of output from a single read of the source.
 
-    sencha compile -classpath=sdk/src \
+    sencha -sdk sdk compile \
         exclude -namespace Ext.chart and \
         concat ext-all-nocharts-debug-w-comments.js and \
         -debug=true \
@@ -82,7 +95,7 @@ see the [Generating Metadata](#!/guide/command_compiler_meta) guide.
 When you need to produce multiple output files, it can be very helpful to save the
 current set for later use:
 
-    sencha compile -classpath=sdk/src \
+    sencha -sdk sdk compile \
         exclude -namespace Ext.chart and \
         save nocharts and \
         ...
@@ -92,7 +105,7 @@ current set for later use:
 `The `save` command takes a snapshot of the current set and stores it under the given name
 (`nocharts` in this example).
 
-The simplest use of a saved set is with the `restore` command., which does the reverse and
+The simplest use of a saved set is with the `restore` command, which does the reverse and
 restores the current set to its state at the time of the `save`.
 
 ## Set Operations
@@ -134,7 +147,7 @@ pairs as needed.
 
 So, let's start with a simple example and build an `"ext-all-no-charts-debug-w-comments.js"`.
 
-    sencha compile -classpath=sdk/src \
+    sencha -sdk sdk compile \
         exclude -namespace Ext.chart and \
         ...
 
@@ -151,7 +164,7 @@ the files included or excluded are all those that do not match the criteria.
 
 For example:
 
-    sencha compile -classpath=sdk/src,js \
+    sencha -sdk sdk compile -classpath=js \
         ... \
         exclude -not -namespace Ext and \
         ...
@@ -165,7 +178,7 @@ In some cases, it is very handy to restore the current set to all files or to th
 set. To do this, simply use `include` or `exclude` with the `-all` switch. To build
 on the previous example:
 
-    sencha compile -classpath=sdk/src \
+    sencha -sdk sdk compile -classpath=js \
         ... \
         include -all and \
         ... \
@@ -184,13 +197,13 @@ what the `union` command does.
 
 The `union` command has all of the options of `include`. Consider this `union` command:
 
-    sencha compile -classpath=sdk/src ... and \
+    sencha -sdk sdk compile -classpath=js ... and \
         union -namespace Ext.grid,Ext.chart and \
         ...
 
 It is exactly equivalent to this pair of `exclude` and `include` commands:
 
-    sencha compile -classpath=sdk/src ... and \
+    sencha -sdk sdk compile -classpath=js ... and \
         exclude -all and \
         include -namespace Ext.grid,Ext.chart and \
         ...
@@ -202,7 +215,7 @@ and all of the files they require. This is the core of a build process, since th
 how you select only the set of files you need. So, if you have a small set of top-level
 files to start the process, say the class `MyApp.App`, you can use:
 
-    sencha compile -classpath=sdk/src,app \
+    sencha -sdk sdk compile -classpath=app \
         union -r -class MyApp.App and \
         ...
 
@@ -215,7 +228,7 @@ is all files needed by the application.
 The `intersect` command is a bit less flexible in the criteria it supports: it only
 accepts named sets (using `-set`).
 
-    sencha compile -classpath=sdk/src,common,page1/src,page2/src \
+    sencha -sdk sdk compile -classpath=common,page1/src,page2/src \
         ... \
         intersect -set page1,page2 and \
         ... \
@@ -241,21 +254,24 @@ the three sets specified.
 ## Compiler Directives
 
 In many situations, it is helpful to embed metadata in files that only the compiler will
-pick up. To do this, the compiler recognizes special line comments as directives.
+pick up. To do this, the compiler recognizes special line comments as directives. These
+directives are single-line comments starting with a @-prefix word. For example:
+
+    // @define Foo.bar.Thing
 
 The list of directives is:
 
- * `//@charset`
- * `//@tag`
- * `//@define`
- * `//@require`
+ * `// @charset`
+ * `// @tag`
+ * `// @define`
+ * `// @require`
 
 ### Character Encoding
 
 There is no standard way to specify the character encoding of a particular JS file. The
 Sencha Cmd compiler, therefore, understands the following directive:
 
-    //@charset ISO-9959-1
+    // @charset ISO-9959-1
 
 This must be the first line of the JS file. The value to the right of `charset` can be any
 valid [Java charset](http://docs.oracle.com/javase/7/docs/api/java/nio/charset/Charset.html)
@@ -273,7 +289,7 @@ move this issue to the command-line level, the compiler can track arbitrary tags
 
 Consider the example:
 
-    //@tag foo,bar
+    // @tag foo,bar
 
 This assigns the tags `foo` and `bar` to the file. These tags can be used in the `include`,
 `exclude` and `union` commands with their `-tag` option.
@@ -289,8 +305,8 @@ try to load them, which will most likely fail).
 To support arbitrary JavaScript approaches to defining and requiring types, the compiler
 also provides these directives:
 
-    //@define Foo.bar.Thing
-    //@requires Bar.foo.Stuff
+    // @define Foo.bar.Thing
+    // @requires Bar.foo.Stuff
 
 These directives set up the same basic metadata in the compiler that tracks what file
 defines a type and what types that a file requires. In most ways, then, these directives

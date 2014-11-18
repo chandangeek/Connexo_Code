@@ -741,23 +741,31 @@ Ext.define(&quot;Ext.form.Labelable&quot;, {
      * @private
      * @return {String} The label styling
      */
-    getLabelStyle: function(){
+    getLabelStyle: function () {
         var me = this,
             labelPad = me.labelPad,
+            labelWidth = me.labelWidth,
             labelStyle = '';
 
         // Calculate label styles up front rather than in the Field layout for speed; this
         // is safe because label alignment/width/pad are not expected to change.
         if (me.labelAlign !== 'top') {
-            if (me.labelWidth) {
-                labelStyle = 'width:' + me.labelWidth + 'px;';
+            if (labelWidth) {
+                labelStyle = 'width:' + labelWidth + 'px;';
             }
             if (labelPad) {
-                labelStyle += 'margin-right:' + labelPad + 'px;';
+                labelStyle += me.getLabelStyleMarginProp() + labelPad + 'px;';
             }
+        } else if (labelPad) {
+            // For a top labelAlign give the labelPad a bottom margin.
+            labelStyle = 'margin-bottom:' + labelPad + 'px;';
         }
-        
+
         return labelStyle + (me.labelStyle || '');
+    },
+
+<span id='Ext-form-Labelable-method-getLabelStyleMarginProp'>    getLabelStyleMarginProp: function () {
+</span>        return 'margin-right:';
     },
 
 <span id='Ext-form-Labelable-method-getSubTplMarkup'>    /**

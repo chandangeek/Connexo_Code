@@ -7,6 +7,7 @@ Ext.define('KitchenSink.view.grid.BigData', {
     height: 400,
     width: 800,
     title: 'Editable Big Data Grid',
+    multiColumnSort: true,
 
     //<example>
     exampleTitle: 'Editable Big Data Grid',
@@ -17,7 +18,8 @@ Ext.define('KitchenSink.view.grid.BigData', {
         '<p>Filtering is enabled on certain columns using the FilterFeature UX.</p>' + 
         '<p>As an illustration of the ability of grid columns to act as containers, the ' +
         'Title column has a filter text field built in which filters as you type.</p>' +
-        '<p>The grid is editable using the RowEditing plugin.</p>'
+        '<p>The grid is editable using the RowEditing plugin.</p>',
+        '<p>The <code>multiColumnSort</code> config is used to allow multiple columns to have sorters.</p>'
     ].join(''),
     //</example>
 
@@ -121,7 +123,7 @@ Ext.define('KitchenSink.view.grid.BigData', {
             xtype: 'datefield'
         }
     }, {
-        text: 'Notice period',
+        text: 'Notice<br>period',
         dataIndex: 'noticePeriod',
         groupable: false,
         filter: {

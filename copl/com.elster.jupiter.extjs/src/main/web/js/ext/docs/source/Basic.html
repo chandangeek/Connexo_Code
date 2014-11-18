@@ -85,6 +85,10 @@ Ext.define('Ext.form.Basic', {
     alternateClassName: 'Ext.form.BasicForm',
     requires: ['Ext.util.MixedCollection', 'Ext.form.action.Load', 'Ext.form.action.Submit',
                'Ext.window.MessageBox', 'Ext.data.Errors', 'Ext.util.DelayedTask'],
+               
+<span id='Ext-form-Basic-property-taskDelay'>    // Not a public API config, this is useful when we're unit testing so we can
+</span>    // turn off the delayed tasks so they fire immediately.
+    taskDelay: 10,
 
 <span id='Ext-form-Basic-method-constructor'>    /**
 </span>     * Creates new form.
@@ -112,7 +116,8 @@ Ext.define('Ext.form.Basic', {
             selector: '[isFormField]:not([excludeForm])',
             scope: me,
             addHandler: me.onFieldAdd,
-            removeHandler: me.onFieldRemove
+            removeHandler: me.onFieldRemove,
+            invalidateHandler: me.onMonitorInvalidate
         });
         me.monitor.bind(owner);
 
@@ -296,7 +301,7 @@ Ext.define('Ext.form.Basic', {
 
 <span id='Ext-form-Basic-cfg-trackResetOnLoad'>    /**
 </span>     * @cfg {Boolean} trackResetOnLoad
-     * If set to true, {@link #reset}() resets to the last loaded or {@link #setValues}() data instead of
+     * If set to true, {@link #method-reset}() resets to the last loaded or {@link #method-setValues}() data instead of
      * when the form was first created.
      */
     trackResetOnLoad: false,
@@ -348,9 +353,7 @@ Ext.define('Ext.form.Basic', {
         
         me.mon(field, 'validitychange', me.checkValidityDelay, me);
         me.mon(field, 'dirtychange', me.checkDirtyDelay, me);
-        if (me.initialized) {
-            me.checkValidityDelay();
-        }
+        me.onMonitorInvalidate();
     },
     
 <span id='Ext-form-Basic-method-onFieldRemove'>    onFieldRemove: function(field){
@@ -358,8 +361,12 @@ Ext.define('Ext.form.Basic', {
         
         me.mun(field, 'validitychange', me.checkValidityDelay, me);
         me.mun(field, 'dirtychange', me.checkDirtyDelay, me);
-        if (me.initialized) {
-            me.checkValidityDelay();
+        me.onMonitorInvalidate();
+    },
+    
+<span id='Ext-form-Basic-method-onMonitorInvalidate'>    onMonitorInvalidate: function() {
+</span>        if (this.initialized) {
+            this.checkValidityDelay();
         }
     },
     
@@ -441,7 +448,12 @@ Ext.define('Ext.form.Basic', {
     },
     
 <span id='Ext-form-Basic-method-checkValidityDelay'>    checkValidityDelay: function(){
-</span>        this.checkValidityTask.delay(10);
+</span>        var timer = this.taskDelay;
+        if (timer) {
+            this.checkValidityTask.delay(timer);
+        } else {
+            this.checkValidity();
+        }
     },
 
 <span id='Ext-form-Basic-method-onValidityChange'>    /**
@@ -473,7 +485,11 @@ Ext.define('Ext.form.Basic', {
      *
      * Note that if this BasicForm was configured with {@link Ext.form.Basic#trackResetOnLoad
      * trackResetOnLoad} then the Fields' *original values* are updated when the values are
-     * loaded by {@link Ext.form.Basic#setValues setValues} or {@link #loadRecord}.
+     * loaded by {@link Ext.form.Basic#setValues setValues} or {@link #loadRecord}. This means
+     * that:
+     * 
+     * - {@link #trackResetOnLoad}: `false` -&gt; Will return `true` after calling this method.
+     * - {@link #trackResetOnLoad}: `true` -&gt; Will return `false` after calling this method.
      *
      * @return {Boolean}
      */
@@ -484,7 +500,12 @@ Ext.define('Ext.form.Basic', {
     },
     
 <span id='Ext-form-Basic-method-checkDirtyDelay'>    checkDirtyDelay: function(){
-</span>        this.checkDirtyTask.delay(10);
+</span>        var timer = this.taskDelay;
+        if (timer) {
+            this.checkDirtyTask.delay(timer);
+        } else {
+            this.checkDirty();
+        }
     },
 
 <span id='Ext-form-Basic-method-checkDirty'>    /**
@@ -515,11 +536,11 @@ Ext.define('Ext.form.Basic', {
      * but removed after the return data has been gathered.
      *
      * The server response is parsed by the browser to create the document for the IFRAME. If the server is using JSON
-     * to send the return object, then the [Content-Type][2] header must be set to &quot;text/html&quot; in order to tell the
-     * browser to insert the text unchanged into the document body.
+     * to send the return object, then the [Content-Type][2] header should be set to &quot;text/plain&quot; in order to tell the
+     * browser to insert the text unchanged into a '&amp;lt;pre&gt;' element in the document body from which it can be retrieved.
      *
-     * Characters which are significant to an HTML parser must be sent as HTML entities, so encode `&quot;&lt;&quot;` as `&quot;&amp;lt;&quot;`,
-     * `&quot;&amp;&quot;` as `&quot;&amp;amp;&quot;` etc.
+     * If the [Content-Type][2] header is sent as the default, &quot;text/html&quot;, then characters which are significant to an HTML
+     * parser must be sent as HTML entities, so encode `&quot;&lt;&quot;` as `&quot;&amp;lt;&quot;`, `&quot;&amp;&quot;` as `&quot;&amp;amp;&quot;` etc.
      *
      * The response text is retrieved from the document, and a fake XMLHttpRequest object is created containing a
      * responseText property in order to conform to the requirements of event handlers and callbacks.
@@ -721,8 +742,9 @@ Ext.define('Ext.form.Basic', {
 
 <span id='Ext-form-Basic-method-loadRecord'>    /**
 </span>     * Loads an {@link Ext.data.Model} into this form by calling {@link #setValues} with the
-     * {@link Ext.data.Model#raw record data}.
-     * See also {@link #trackResetOnLoad}.
+     * {@link Ext.data.Model#raw record data}. The fields in the model are mapped to 
+     * fields in the form by matching either the {@link Ext.form.field.Base#name} or {@link Ext.AbstractComponent#itemId}.  
+     * See also {@link #trackResetOnLoad}. 
      * @param {Ext.data.Model} record The record to load
      * @return {Ext.form.Basic} this
      */
@@ -830,9 +852,9 @@ Ext.define('Ext.form.Basic', {
      * {@link Ext.form.field.Field#getName name or hiddenName}).
      * @return {Ext.form.field.Field} The first matching field, or `null` if none was found.
      */
-    findField: function(id) {
-        return this.getFields().findBy(function(f) {
-            return f.id === id || f.getName() === id;
+    findField: function (id) {
+        return this.getFields().findBy(function (f) {
+            return f.id === id || f.name === id || f.dataIndex === id;
         });
     },
 

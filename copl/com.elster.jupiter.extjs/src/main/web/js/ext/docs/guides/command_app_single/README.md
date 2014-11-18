@@ -1,22 +1,23 @@
-# Single-Page Ext JS Apps
+# Single-Page Apps
 
-This guide covers single-page Ext JS applications that *do not* use the generated scaffold
-described in [Using Sencha Cmd with Ext JS](#/guide/command_app). While the convenient
-commands like `sencha app build` won't understand these applications and so cannot be
-used, you can use the lower-level commands provided by Sencha Cmd to produce builds and
-perform all of the same tasks.
+The majority of the build process is handled by the [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/)
+compiler and the package manager. These building blocks are connected and streamlined in a
+generated app, so that is typically the much simpler and recommended approach. If you need
+more control over the process, however, this guide shows how to use the low-level features
+of Sencha Cmd directly in your own build process.
 
-The majority of the build process is handled by the Sencha Cmd compiler and the
-package manager. These building blocks are connected and streamlined in a generated app,
-so that is typically the much simpler and recommended approach. If you need more control
-over the process, however, you can use these pieces directly in your own build process.
+## Prerequisites
 
-## Important Considerations
+The following guides are recommended reading before proceeding further:
 
-Even though this guide shows how to use Sencha Cmd at a lower level to support different
-organizational preferences, certain guidelines are still important. Please see:
+  - [Introduction to Sencha Cmd](#!/guide/command).
+  - [Using Sencha Cmd](#!/guide/command_app).
+  - [Compiler-Friendly Code Guidelines](#!/guide/command_code).
+  - [Advanced Sencha Cmd](#!/guide/command_advanced)
+  - [Sencha Compiler Reference](#!/guide/command_compiler)
 
-[Compiler-Friendly Code Guidelines](#/guide/command_code)
+If you are using a generated app or have configured the application to work with the
+Sencha Cmd build script, this guide can be skipped.
 
 ## The Application
 
@@ -91,16 +92,18 @@ Since most build processes create the production build in a separate folder, let
 
 Lets start with this command:
 
-    sencha compile -classpath=ext/src,js page -yui -in index.php -out build/index.php
+    sencha -sdk ../ext compile -classpath=js page -yui -in index.php -out build/index.php
 
 This command performs the following steps:
 
+ * The `-sdk` switch tells the compiler about the framework you are using. This is used to
+ pick up the JavaScript code as well as framework-specific configuration details.
  * The `-classpath` switch provides the compiler with all of the folders containing source
- code to be considered, in this case, the `"ext/src"` and `"js"` folders.
+ code to be considered (above and beyond that of the framework).
  * The compiler's `page` command then includes all of the `script` tags in `"index.php"`
  that are contained in the `x-compile` block.
- * Given all of the contents of `"ext/src"`, `"js"`, and `"index.php"`, the compiler analyzes
- the JavaScript code and determines what is ultimately needed by `"index.php"`.
+ * Given all of the contents of `"../ext/src"`, `"js"`, and `"index.php"`, the compiler
+ analyzes the JavaScript code and determines what is ultimately needed by `"index.php"`.
  * A modified version of `"index.php"` file is written to `"build/index.php"`.
  * All of the JavaScript files needed by `"index.php"` are concatenated, compressed using
  the [YUI Compressor](http://developer.yahoo.com/yui/compressor/), and written to the
@@ -130,7 +133,7 @@ never be used. By understanding the compiler below the level of the `sencha comp
 command, you can see how to go about further tuning this process. Beyond these techniques
 you can also use the compiler without the `page` command and operate purely on JavaScript
 source files. For more information on this lowest-level of the compiler, see the
-[Sencha Compiler Reference](#/guide/command_compiler)
+[Sencha Compiler Reference](#!/guide/command_compiler)
 
 If you were to remove the `-yui` switch from the compile command show above, you can
 examine `"all-classes.js"` and inspect the code that was identified as being needed by your
@@ -157,7 +160,7 @@ By naming the set we disable the automatic generation of `"all-classes.js"` so w
 its contents before generating it explicitly.
 
 This also illustrates the use of command chaining and category state discussed in more
-detail in [Advanced Sencha Cmd](#/guide/command_advanced). To summarize these two concepts:
+detail in [Advanced Sencha Cmd](#!/guide/command_advanced). To summarize these two concepts:
 
  1. Each use of `and` separates commands in the same category (`compile` in this case).
  2. The state of the `compile` is preserved across these commands.
@@ -192,11 +195,17 @@ the result to `"build/all-classes.js"`.
 There are many more commands and options provided to manipulate the current set. Basically,
 if you can imagine a way to arrive at the desired set of files using a sequence of set
 operations, the compiler can combine just those files for you. For more on this topic,
-see the [Sencha Compiler Reference](#/guide/command_compiler).
+see the [Sencha Compiler Reference](#!/guide/command_compiler).
 
 ## Generating A Custom Bootstrap
 
-The "bootstrap" file included in the example application (`"ext-dev.js"`) contains two very
+One of the key development aids provided for a standard Sencha Cmd application (see
+[Using Sencha Cmd](#!/guide/command_app)) is the "bootstrap". Historically, only the
+frameworks themselves contained a bootstrap but having an application bootstrap is
+extremely helpful for dealing with shared code in development (non-build) mode. Following
+are the steps to produce a bootstrap manually.
+
+ The "bootstrap" file included in the example application (`"ext-dev.js"`) contains two very
 important things:
 
  * The minimal amount of the framework required to perform dynamic loading.
@@ -236,6 +245,9 @@ This file should be added to the `x-bootstrap` section, like so:
     </html>
 
 There are other uses for code metadata. For details on generating metadata and what kinds
-of metadata are provided, see [Generating Metadata](#/guide/command_compiler_meta).
+of metadata are provided, see [Generating Metadata](#!/guide/command_compiler_meta).
 
-**Note.** This is handled automatically for generated applications.
+## Next Steps
+
+ - [Sencha Cmd Packages](#!/guide/command_packages)
+ - [Multi-page and Mixed Apps](#!/guide/command_app_single)

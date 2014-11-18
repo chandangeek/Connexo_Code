@@ -16,6 +16,11 @@ Ext.define('Employee', {
         name: 'salary',
         type: 'float'
     }, {
+        name: 'name',
+        convert: function (value, record) {
+            return record.get('forename') + ' ' + record.get('surname');
+        }
+    }, {
         name: 'forename'
     }, {
         name: 'surname'
@@ -142,7 +147,7 @@ Ext.onReady(function() {
         },
         features: [{
             ftype: 'groupingsummary',
-            groupHeaderTpl: 'Department: {name}',
+            groupHeaderTpl: '{columnName}: {name}',
             showSummaryRow: false
         }],
         // grid columns
@@ -161,9 +166,6 @@ Ext.onReady(function() {
             sortable: true,
             dataIndex: 'name',
             groupable: false,
-            renderer: function(v, cellValues, rec) {
-                return rec.get('forename') + ' ' + rec.get('surname');
-            },
             width: 120
         }, {
             text: 'Date of birth',
@@ -177,8 +179,7 @@ Ext.onReady(function() {
             groupable: false
         }, {
             text: 'Notice period',
-            dataIndex: 'noticePeriod',
-            groupable: false
+            dataIndex: 'noticePeriod'
         }, {
             text: 'Email address',
             dataIndex: 'email',
@@ -190,9 +191,7 @@ Ext.onReady(function() {
         }, {
             text: 'Department',
             dataIndex: 'department',
-            hidden: true,
-            hideable: false,
-            groupable: false
+            hidden: true
         }, {
             text: 'Absences',
             columns: [{
@@ -206,7 +205,7 @@ Ext.onReady(function() {
                 width: 70,
                 groupable: false
             }, {
-                text: 'Holday Allowance',
+                text: 'Holiday Allowance',
                 dataIndex: 'holidayAllowance',
                 width: 125,
                 groupable: false

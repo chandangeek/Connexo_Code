@@ -57,16 +57,32 @@ Ext.define('Ext.layout.component.Button', {
 
 <span id='Ext-layout-component-Button-method-beginLayoutCycle'>    beginLayoutCycle: function(ownerContext) {
 </span>        var owner = this.owner,
-            lastWidthModel = this.lastWidthModel;
+            lastWidthModel = this.lastWidthModel,
+            lastHeightModel = this.lastHeightModel,
+            btnInnerEl = owner.btnInnerEl,
+            table = owner.getFrameInfo().table;
 
         this.callParent(arguments);
+        
+        // If we are framing and we have a calculated/configured size, that size gets
+        // stamped onto the table frame element. If we're changing from !shrink -&gt; shrink,
+        // we need to clear the dimension of the innerEl (and by extension, the frame el),
+        // so that we can calculate our size properly.
 
-        if (lastWidthModel &amp;&amp; !this.lastWidthModel.shrinkWrap &amp;&amp;
+        if (lastWidthModel &amp;&amp; !lastWidthModel.shrinkWrap &amp;&amp;
             ownerContext.widthModel.shrinkWrap) {
             // clear any heights we set last time around if needed
             owner.btnWrap.setStyle('height', '');
             owner.btnEl.setStyle('height', '');
-            owner.btnInnerEl.setStyle('line-height', '');
+            btnInnerEl.setStyle('line-height', '');
+            if (table) {
+                btnInnerEl.setStyle('width', '');
+            }
+        }
+        
+        if (table &amp;&amp; lastHeightModel &amp;&amp; !lastHeightModel.shrinkWrap &amp;&amp;
+            ownerContext.heightModel.shrinkWrap) {
+            btnInnerEl.setStyle('height', '');
         }
     },
 

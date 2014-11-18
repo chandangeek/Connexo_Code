@@ -40,6 +40,7 @@ Ext.define('Ext.direct.RemotingMethod', {
              * a) String
              * b) Objects with a name property. We may want to encode extra info in here later
              */
+            me.strict = config.strict !== undefined ? config.strict : true;
             me.params = {};
 			pLen = params.length;
 
@@ -90,6 +91,7 @@ Ext.define('Ext.direct.RemotingMethod', {
             data = null,
             len  = me.len,
             params = me.params,
+            strict = me.strict,
             callback, scope, name, options;
 
         if (me.ordered) {
@@ -107,10 +109,12 @@ Ext.define('Ext.direct.RemotingMethod', {
             scope    = args[2];
             options  = args[3];
 
-            // filter out any non-existent properties
-            for (name in data) {
-                if (data.hasOwnProperty(name) &amp;&amp; !params[name]) {
-                    delete data[name];
+            // filter out any non-existent properties unless !strict
+            if (strict) {
+                for (name in data) {
+                    if (data.hasOwnProperty(name) &amp;&amp; !params[name]) {
+                        delete data[name];
+                    }
                 }
             }
         }

@@ -181,11 +181,13 @@ Ext.define('Ext.XTemplateCompiler', {
     },
 
 <span id='Ext-XTemplateCompiler-method-doSwitch'>    doSwitch: function (action) {
-</span>        var me = this;
+</span>        var me = this,
+            key;
 
         // If it's just a propName, use it directly in the switch
-        if (action === '.') {
-            me.body.push('switch (values) {\n');
+        if (action === '.' || action === '#') {
+            key = action === '.' ? 'values' : 'xindex';
+            me.body.push('switch (', key, ') {\n');
         } else if (me.propNameRe.test(action)) {
             me.body.push('switch (', me.parseTag(action), ') {\n');
         }

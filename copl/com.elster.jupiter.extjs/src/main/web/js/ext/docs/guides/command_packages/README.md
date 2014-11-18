@@ -1,6 +1,7 @@
 # Sencha Cmd Packages
 
-Sencha Cmd v3.1 includes the Sencha Package Manager. There are two basic problems that
+[Sencha Cmd](http://www.sencha.com/products/sencha-cmd/)
+includes the Sencha Package Manager. There are two basic problems that
 packages are designed to solve: consumption and distribution. This guide focused on these
 topics. See also [Creating Sencha Cmd Packages](#!/guide/command_package_authoring) for
 information about creating and sharing a package.
@@ -34,19 +35,19 @@ perform the steps needed to integrate the package in to your application. Typica
 after changing package requirements, you will need to run `sencha app refresh` so that
 the metadata required to support "dev mode" is up to date.
 
-Which ever command you run, Sencha Cmd will download and expand the package to your
+Whichever command you run, Sencha Cmd will download and expand the package to your
 `"packages"` folder. After this you will find a `"packages/ext-easy-button"` folder in
 your workspace.
 
 ## Local Packages
 
-One use of packages is simply to hold code or (in Ext JS 4.2) themes that are available
+One use of packages is simply to hold code or themes that are available
 for multiple applications in a workspace. These packages need never be distributed (beyond
 source control) to provide value to your development.
 
 In previous releases of Sencha Cmd, you could only share code in a workspace by using the
 `workspace.classpath` property in your `.sencha/workspace/sencha.cfg"` file. While this
-still works, this mechanism was limited because you could not easily share SASS/CSS
+still works, this mechanism was limited because you could not easily share Sass/CSS
 styling or resources such as images. Using packages, you can do all of these things.
 
 To add a package to your workspace, you just generate the package:
@@ -99,7 +100,7 @@ The local repository is created in a folder "beside" the various versions to fac
 caching. For example, the default install directory of Sencha Cmd on Windows for user Foo
 might be something like this:
 
-    C:\Users\Foo\bin\Sencha\Cmd\3.1.0.256
+    C:\Users\Foo\bin\Sencha\Cmd\n.n.n.n
 
 Given that install directory, the local repository would be located at:
 
@@ -119,7 +120,7 @@ a remote repository named "sencha".
 To see the list of remote repositories, run the `sencha repository list` command:
 
     > sencha repository list
-    Sencha Cmd v3.1.0.xxx
+    Sencha Cmd vn.n.n.xxx
     [INF] Remote repository connections (1):
     [INF]
     [INF]     sencha - http://cdn.sencha.com/cmd/packages/
@@ -175,7 +176,7 @@ In the `"package.json"` descriptor there are two important properties: `version`
 
     {
         ...
-        "version": "3.5.1",
+        "version": "n.n.n",
         "compatVersion": "2.4.2",
         ...
     }

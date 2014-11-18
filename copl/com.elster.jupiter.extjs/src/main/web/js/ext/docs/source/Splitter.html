@@ -117,6 +117,12 @@ Ext.define('Ext.resizer.Splitter', {
      */
     size: 5,
     
+<span id='Ext-resizer-Splitter-cfg-tracker'>    /**
+</span>     * @cfg {Object} [tracker]
+     * Any configuration options to be passed to the underlying {@link Ext.resizer.SplitterTracker}.
+     */
+    tracker: null,
+    
 <span id='Ext-resizer-Splitter-property-ariaRole'>    ariaRole: 'separator',
 </span>
 <span id='Ext-resizer-Splitter-method-getTrackerConfig'>    /**
@@ -126,11 +132,11 @@ Ext.define('Ext.resizer.Splitter', {
      * @protected
      */
     getTrackerConfig: function () {
-        return {
+        return Ext.apply({
             xclass: 'Ext.resizer.SplitterTracker',
             el: this.el,
             splitter: this
-        };
+        }, this.tracker);
     },
 
 <span id='Ext-resizer-Splitter-method-beforeRender'>    beforeRender: function() {
@@ -156,7 +162,8 @@ Ext.define('Ext.resizer.Splitter', {
 
 <span id='Ext-resizer-Splitter-method-onRender'>    onRender: function() {
 </span>        var me = this,
-            collapseEl;
+            collapseEl,
+            cfg;
 
         me.callParent(arguments);
 

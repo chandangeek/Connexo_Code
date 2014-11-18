@@ -99,8 +99,9 @@ Ext.define('KitchenSink.view.grid.CellEditing', {
             }, {
                 header: 'Available',
                 dataIndex: 'availDate',
+                xtype: 'datecolumn',
                 width: 95,
-                renderer: Ext.util.Format.dateRenderer('M d, Y'),
+                format: 'M d, Y',
                 editor: {
                     xtype: 'datefield',
                     format: 'm/d/y',

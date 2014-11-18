@@ -1,16 +1,23 @@
 # Compiler-Friendly Code Guidelines
 
-One of the major components in [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/download) 
+One of the major components in [Sencha Cmd](http://www.sencha.com/products/sencha-cmd/) 
 is its compiler. This guide describes how to write code that gets the most out of the compiler
 and prepares for future framework-aware optimizations.
+
+## Prerequisites
+
+The following guides are recommended reading before proceeding further:
+
+  - [Introduction to Sencha Cmd](#!/guide/command).
+  - [Using Sencha Cmd](#!/guide/command_app).
 
 ## What The Compiler Is Not
 
 Sencha Cmd compiler is **not** a replacement for tools like these:
 
- * [YUI Compressor](http://developer.yahoo.com/yui/compressor/).
- * [Google Closure Compiler](https://developers.google.com/closure/compiler/).
- * [UglifyJS](https://github.com/mishoo/UglifyJS/).
+ * [YUI Compressor](http://developer.yahoo.com/yui/compressor/)
+ * [Google Closure Compiler](https://developers.google.com/closure/compiler/)
+ * [UglifyJS](https://github.com/mishoo/UglifyJS/)
 
 These tools solve different problems for JavaScript developers and are
 very good at the world of JavaScript, but have no understanding of Sencha framework features
@@ -22,13 +29,13 @@ The role of the Sencha Cmd compiler is to provide framework-aware optimizations 
 diagnostics. Once code has passed through the Sencha Cmd compiler, it is ready 
 for more general tools.
 
-In early testing, these kinds of optimizations have shown to significantly improve "ingest"
-time of JavaScript code by the browser, especially on legacy browsers.
+These kinds of optimizations have shown to significantly improve the "ingest" time of
+JavaScript code by the browser, especially on legacy browsers.
 
-For the compiler to provide these benefits, however, it is now important to look
-at coding conventions that the compiler can "understand" and therefore optimize for you. Following
-the conventions described in this guide ensure that your code is positioned to get
-the most from Sencha Cmd today and in the future.
+For the compiler to provide these benefits, however, it is now important to look at the
+coding conventions that the compiler can "understand" and therefore optimize for you.
+Following the conventions described in this guide ensure that your code is positioned to
+get the most from Sencha Cmd today and in the future.
 
 ## Code Organization
 
@@ -56,7 +63,7 @@ only one class in each file.
 
 ## Class Declaration
 
-The Sencha Class System provides the `Ext.define` function to enable higher-level, object
+The Sencha Class System provides the `Ext.define` function to enable high-level, object
 oriented programming. The compiler takes the view that `Ext.define` is really a form of
 "declarative" programming and processes the "class declaration" accordingly.
 
@@ -126,7 +133,7 @@ this was the most common reason for the closure scope.
         };
     });
 
-**NOTE:** This form is only supported in Ext JS 4.1.2 and later and Sencha Touch 2.1 and later.
+**Note:** This form is only supported in Ext JS 4.1.2 and later and Sencha Touch 2.1 and later.
 
 #### Called Function Form
 
@@ -225,6 +232,11 @@ Mixins can also be specified as a String[]:
     ],
     //...
 
+This approach relies on the `mixinId` of the mixin class but also allows the receiving
+class to control the mixin order. This is important if the mixins have overlapping
+methods or properties and the receiving class wants to control which mixin supplies the
+overlapping methods or properties.
+
 #### The `statics` Keyword
 
 This keyword places properties or methods on the class, as opposed to on each of
@@ -284,7 +296,7 @@ that break apart large classes like `Ext.Element` into more manageable and cohes
 
 Overrides as patches are the historical use case and hence the most common in practice today.
 
-**CAUTION:** Care should be taken when patching code. While the use of override itself is
+**Caution:** Take care when patching code. While the use of override itself is
 supported, the end result of overriding framework methods is not supported. All overrides
 should be carefully reviewed whenever upgrading to a new framework version.
 
@@ -385,7 +397,8 @@ This feature can be used now by requiring it:
         'Foo.feature.grid.Panel'
     ]
 
-Or with a proper "bootstrap" file (see [Workspaces in Sencha Cmd](#!/guide/command_workspace)
+Or with a proper "bootstrap" file (see 
+[Workspaces in Sencha Cmd](#!/guide/command_workspace)
 or [Single-Page Ext JS Apps](#!/guide/command_app_single)):
 
     ...
@@ -419,6 +432,74 @@ provides a method named `callSuper` that can bypass an overridden method.
 In future releases, the compiler will use this semantic difference to perform dead-code
 elimination of overridden methods.
 
+### Override Compatibility
+
+Starting in version 4.2.2, overrides can declare their `compatibility` based on the
+framework version or on versions of other packages. This can be useful for selectively
+applying patches that are safely ignored when they are incompatible with the target class
+version.
+
+The simplest use case is to test framework version for compatibility:
+
+    Ext.define('App.overrides.grid.Panel', {
+        override: 'Ext.grid.Panel',
+
+        compatibility: '4.2.2', // only if framework version is 4.2.2
+
+        //...
+    });
+
+An array is treated as an OR, so if any specs match, the override is compatible.
+
+    Ext.define('App.overrides.some.Thing', {
+        override: 'Foo.some.Thing',
+
+        compatibility: [
+            '4.2.2',
+            'foo@1.0.1-1.0.2'
+        ],
+
+        //...
+    });
+
+To require that all specifications match, an object can be provided:
+ 
+    Ext.define('App.overrides.some.Thing', {
+        override: 'Foo.some.Thing',
+
+        compatibility: {
+            and: [
+                '4.2.2',
+                'foo@1.0.1-1.0.2'
+            ]
+        },
+
+        //...
+    });
+ 
+Because the object form is just a recursive check, these can be nested:
+ 
+    Ext.define('App.overrides.some.Thing', {
+        override: 'Foo.some.Thing',
+
+        compatibility: {
+            and: [
+                '4.2.2',  // exactly version 4.2.2 of the framework *AND*
+                {
+                    // either (or both) of these package specs:
+                    or: [
+                        'foo@1.0.1-1.0.2',
+                        'bar@3.0+'
+                    ]
+                }
+            ]
+        },
+
+        //...
+    });
+
+For details on version syntax, see the `checkVersion` method of `Ext.Version`.
+
 ## Conclusion
 
 As Sencha Cmd continues to evolve, it continues to introduce new diagnostic messages
@@ -426,3 +507,8 @@ to help point out deviations from these guidelines.
 
 A good place to start is to see how this information can help inform your own internal
 code style guidelines and practices.
+
+## Next Steps
+
+ - [Sencha Compiler Reference](#!/guide/command_compiler)
+ - [Advanced Sencha Cmd](#!/guide/command_advanced)

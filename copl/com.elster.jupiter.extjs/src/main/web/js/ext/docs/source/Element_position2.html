@@ -24,7 +24,7 @@ Ext.define('Ext.rtl.dom.Element_position', {
 <span id='Ext-dom-Element-property-_positionTopRight'>    _positionTopRight: ['position', 'top', 'right'],
 </span>
     statics: {
-<span id='Ext-dom-Element-method-getXY'>        getXY: function(el) {
+<span id='Ext-rtl-dom-Element_position-method-getXY'>        getXY: function(el) {
 </span>            var doc = document,
                 bd = doc.body,
                 docEl = doc.documentElement,
@@ -84,7 +84,7 @@ Ext.define('Ext.rtl.dom.Element_position', {
         }
     },
 
-<span id='Ext-dom-Element-method-getPositioning'>    getPositioning: function(autoPx){
+<span id='Ext-rtl-dom-Element_position-method-getPositioning'>    getPositioning: function(autoPx){
 </span>        var xStyle = Ext.rootHierarchyState.rtl ? 'right' : 'left',
             styles = this.getStyle([xStyle, 'top', 'position', 'z-index']),
             dom = this.dom;
@@ -185,39 +185,6 @@ Ext.define('Ext.rtl.dom.Element_position', {
         }
     },
 
-<span id='Ext-dom-Element-method-rtlSetX'>    rtlSetX: function(x, animate) {
-</span>        return this.rtlSetXY([x, this.getY()], animate);
-    },
-
-<span id='Ext-dom-Element-method-rtlSetXY'>    rtlSetXY: function(xy, animate) {
-</span>        var me = this,
-            pts, style, pos;
-
-        if (!animate || !me.anim) {
-            pts = me.rtlTranslatePoints(xy);
-            style = me.dom.style;
-
-            // left position may have been previously set by setXY or setLocalXY
-            // so clear it here just in case.
-            style.left = 'auto';
-            for (pos in pts) {
-                if (!isNaN(pts[pos])) {
-                    style[pos] = pts[pos] + &quot;px&quot;;
-                }
-            }
-        } else {
-            if (!Ext.isObject(animate)) {
-                animate = {};
-            }
-            me.animate(Ext.applyIf({ to: { x: xy[0], y: xy[1] } }, animate));
-        }
-        return me;
-    },
-
-<span id='Ext-dom-Element-method-rtlSetY'>    rtlSetY: function(y, animate) {
-</span>        return this.rtlSetXY([this.getX(), y], animate);
-    },
-
 <span id='Ext-dom-Element-method-rtlTranslatePoints'>    rtlTranslatePoints: function(x, y) {
 </span>        var pos = this.rtlTranslateXY(x, y);
 
@@ -265,21 +232,6 @@ Ext.define('Ext.rtl.dom.Element_position', {
             x: right,
             y: top
         };
-    },
-
-<span id='Ext-dom-Element-method-setX'>    setX: function(x, animate) {
-</span>        return Ext.rootHierarchyState.rtl ? this.rtlSetX(x, animate) :
-            this.callParent(arguments);
-    },
-
-<span id='Ext-dom-Element-method-setXY'>    setXY: function(xy, animate) {
-</span>        return Ext.rootHierarchyState.rtl ? this.rtlSetXY(xy, animate) :
-            this.callParent(arguments);
-    },
-
-<span id='Ext-dom-Element-method-setY'>    setY: function(y, animate) {
-</span>        return Ext.rootHierarchyState.rtl ? this.rtlSetY(y, animate) :
-            this.callParent(arguments);
     },
 
 <span id='Ext-dom-Element-method-translatePoints'>    translatePoints: function(x, y) {

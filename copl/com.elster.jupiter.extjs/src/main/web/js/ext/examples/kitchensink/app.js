@@ -1,4 +1,3 @@
-
 //@require @packageOverrides
 
 if (Ext.repoDevMode) {
@@ -25,6 +24,7 @@ Ext.application({
     autoCreateViewport: true,
 
     init: function() {
+        Ext.panel.Table.prototype.deferRowRender = false;
         Ext.setGlyphFontFamily('Pictos');
         Ext.tip.QuickTipManager.init();
         Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));

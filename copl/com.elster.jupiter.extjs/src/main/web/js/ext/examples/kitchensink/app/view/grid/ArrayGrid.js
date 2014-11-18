@@ -86,10 +86,11 @@ Ext.define('KitchenSink.view.grid.ArrayGrid', {
                 dataIndex: 'pctChange'
             },
             {
+                xtype    : 'datecolumn',
                 text     : 'Last Updated',
                 width    : this.themeInfo.lastUpdatedColumnWidth,
                 sortable : true,
-                renderer : Ext.util.Format.dateRenderer('m/d/Y'),
+                format   : 'm/d/Y',
                 dataIndex: 'lastChange'
             },
             {

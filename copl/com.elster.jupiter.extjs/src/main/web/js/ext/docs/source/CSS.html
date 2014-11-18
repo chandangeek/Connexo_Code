@@ -46,29 +46,27 @@ Ext.define('Ext.util.CSS', function() {
          * @param {String} id An id to add to the stylesheet for later removal
          * @return {CSSStyleSheet}
          */
-        createStyleSheet : function(cssText, id) {
+        createStyleSheet: function (cssText, id) {
             var ss,
-                head = doc.getElementsByTagName(&quot;head&quot;)[0],
-                styleEl = doc.createElement(&quot;style&quot;);
+                head = doc.getElementsByTagName('head')[0],
+                styleEl = doc.createElement('style');
 
-            styleEl.setAttribute(&quot;type&quot;, &quot;text/css&quot;);
+            styleEl.setAttribute('type', 'text/css');
+
             if (id) {
-               styleEl.setAttribute(&quot;id&quot;, id);
+               styleEl.setAttribute('id', id);
             }
 
-            if (Ext.isIE) {
-               head.appendChild(styleEl);
-               ss = styleEl.styleSheet;
-               ss.cssText = cssText;
-            } else {
-                try{
-                    styleEl.appendChild(doc.createTextNode(cssText));
-                } catch(e) {
-                   styleEl.cssText = cssText;
-                }
+            ss = styleEl.styleSheet;
+            if (ss) {
                 head.appendChild(styleEl);
-                ss = styleEl.styleSheet ? styleEl.styleSheet : (styleEl.sheet || doc.styleSheets[doc.styleSheets.length-1]);
+                ss.cssText = cssText;
+            } else {
+                styleEl.appendChild(doc.createTextNode(cssText));
+                head.appendChild(styleEl);
+                ss = styleEl.sheet;
             }
+
             CSS.cacheStyleSheet(ss);
             return ss;
         },
@@ -98,14 +96,6 @@ Ext.define('Ext.util.CSS', function() {
             ss.setAttribute(&quot;id&quot;, id);
             ss.setAttribute(&quot;href&quot;, url);
             doc.getElementsByTagName(&quot;head&quot;)[0].appendChild(ss);
-        },
-
-<span id='Ext-util-CSS-method-refreshCache'>        /**
-</span>         * Refresh the rule cache if you have dynamically added stylesheets
-         * @return {Object} An object (hash) of rules indexed by selector
-         */
-        refreshCache : function() {
-            return CSS.getRules(true);
         },
 
         // @private
@@ -157,7 +147,7 @@ Ext.define('Ext.util.CSS', function() {
                         parentStyleSheet: styleSheet,
                         cssRule: cssRule
                     };
-                };
+                }
             }
         },
 
@@ -179,6 +169,10 @@ Ext.define('Ext.util.CSS', function() {
             return result;
         },
         
+<span id='Ext-util-CSS-method-refreshCache'>        /**
+</span>         * Refresh the rule cache if you have dynamically added stylesheets
+         * @return {Object} An object (hash) of rules indexed by selector
+         */
         refreshCache: function() {
             var ds = doc.styleSheets,
                 i = 0,
@@ -255,7 +249,7 @@ Ext.define('Ext.util.CSS', function() {
                 rule = CSS.getRule(selector);
                 if (rule) {
                     // 2 arg form means cssText sent, so parse it and update each style
-                    if (arguments.length == 2) {
+                    if (arguments.length === 2) {
                         styles = Ext.Element.parseStyles(property);
                         for (property in styles) {
                             rule.style[property.replace(camelRe, camelFn)] = styles[property];
@@ -291,6 +285,7 @@ Ext.define('Ext.util.CSS', function() {
             }
         }
     };
-});</pre>
+});
+</pre>
 </body>
 </html>

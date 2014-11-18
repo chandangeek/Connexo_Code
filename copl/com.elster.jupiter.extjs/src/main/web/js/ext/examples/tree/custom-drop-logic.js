@@ -12,7 +12,7 @@ Ext.define('Item', {
 
 Ext.onReady(function() {
     
-    var store1 = new Ext.data.TreeStore({
+    var store1 = {
         model: 'Item',
         root: {
             text: 'Root 1',
@@ -39,9 +39,9 @@ Ext.onReady(function() {
                 leaf: true
             }]
         }
-    });
+    };
     
-    var store2 = new Ext.data.TreeStore({
+    var store2 = {
         model: 'Item',
         root: {
             text: 'Root 2',
@@ -56,7 +56,7 @@ Ext.onReady(function() {
                 expanded: true
             }]
         }
-    });
+    };
 
     new Ext.panel.Panel({
         renderTo: 'tree-div',

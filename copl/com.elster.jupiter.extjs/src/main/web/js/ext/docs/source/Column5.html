@@ -15,21 +15,20 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">Ext.define('Ext.rtl.layout.container.Column', {
-    override: 'Ext.layout.container.Column',
+  <pre class="prettyprint lang-js">Ext.define('Ext.rtl.grid.column.Column', {
+    override: 'Ext.grid.column.Column',
 
-    // Override to put the RTL class onto the innerCt so that columns can have a rule which switches float direction
-    getRenderData: function () {
-        var renderData = this.callParent();
+    isOnLeftEdge: function(e) {
+        return (!this.getHierarchyState().rtl !== !Ext.rootHierarchyState.rtl) ?
+            (this.getX() + this.getWidth() - e.getXY()[0] &lt;= this.handleWidth) :
+            this.callParent(arguments);
+    },
 
-        if (this.owner.getHierarchyState().rtl) {
-            renderData.innerCtCls =
-                (renderData.innerCtCls || '') + ' ' + Ext.baseCSSPrefix + 'rtl';
-        }
-        
-        return renderData;
+    isOnRightEdge: function(e) {
+        return (!this.getHierarchyState().rtl !== !Ext.rootHierarchyState.rtl) ?
+            (e.getXY()[0] - this.getX() &lt;= this.handleWidth) : this.callParent(arguments);
     }
-});
-</pre>
+
+});</pre>
 </body>
 </html>
