@@ -56,6 +56,7 @@ public class TransactionVerifierTest {
         verify(comparator, transactionService.inTransaction()).compare("A", "B");
     }
 
+
     @Test
     public void testInTransactionClass() {
         Transaction<String> transaction = () -> {
@@ -80,6 +81,51 @@ public class TransactionVerifierTest {
         String result = transactionService.execute(transaction);
 
         verify(comparator, transactionService.inTransaction()).compare("A", "B");
+    }
+
+    @Test
+    public void testNotInTransactionContext() {
+        try (TransactionContext ctx = transactionService.getContext()) {
+            ctx.commit();
+        }
+        comparator.compare("A", "B");
+
+        verify(comparator, transactionService.notInTransaction()).compare("A", "B");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testNotInTransactionContextFails() {
+        try (TransactionContext ctx = transactionService.getContext()) {
+            comparator.compare("A", "B");
+            ctx.commit();
+        }
+        verify(comparator, transactionService.notInTransaction()).compare("A", "B");
+    }
+
+    @Test
+    public void testNotInTransactionClass() {
+        Transaction<String> transaction = () -> {
+            return "A";
+        };
+        comparator.compare("A", "B");
+
+        String result = transactionService.execute(transaction);
+
+        assertThat(result).isEqualTo("A");
+
+        verify(comparator, transactionService.notInTransaction()).compare("A", "B");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testNotInTransactionClassFails() {
+        Transaction<String> transaction = () -> {
+            comparator.compare("A", "B");
+            return "A";
+        };
+
+        String result = transactionService.execute(transaction);
+
+        verify(comparator, transactionService.notInTransaction()).compare("A", "B");
     }
 
 

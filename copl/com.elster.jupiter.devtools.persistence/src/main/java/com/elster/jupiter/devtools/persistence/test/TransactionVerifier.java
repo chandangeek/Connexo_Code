@@ -92,6 +92,41 @@ public class TransactionVerifier implements TransactionService {
         };
     }
 
+    public VerificationMode notInTransaction() {
+        return new VerificationMode() {
+            private Reporter reporter = new Reporter();
+
+            @Override
+            public void verify(VerificationData data) {
+                boolean inTransaction = false;
+                InvocationMatcher wanted = data.getWanted();
+                List<Invocation> invocations = new AllInvocationsFinder().find(mocks);
+
+                for (Invocation invocation : invocations) {
+
+                    if (invocation.getMock() == transactionMode && invocation.getMethod().getName().equals("startTransaction")) {
+                        inTransaction = true;
+                    }
+                    if (invocation.getMock() == transactionMode && invocation.getMethod().getName().equals("endTransaction")) {
+                        inTransaction = false;
+                    }
+                    if (wanted.matches(invocation)) {
+                        if (inTransaction) {
+                            throw new MockitoAssertionError(new StringJoiner("\n")
+                                    .add("Method invoked inside of a transaction")
+                                    .add(invocation.toString())
+                                    .add(invocation.getLocation().toString())
+                                    .add("")
+                                    .toString()
+                            );
+                        }
+                    }
+                }
+
+            }
+        };
+    }
+
     interface TransactionMode {
         void startTransaction();
         void endTransaction();
