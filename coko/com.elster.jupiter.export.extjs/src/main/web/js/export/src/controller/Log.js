@@ -26,6 +26,7 @@ Ext.define('Dxp.controller.Log', {
             historyStore = me.getStore('Dxp.store.DataExportTasksHistory'),
             router = me.getController('Uni.controller.history.Router'),
             view,
+            runStartedOn,
             tasksSideMenu,
             occurrenceTask;
 
@@ -38,6 +39,7 @@ Ext.define('Dxp.controller.Log', {
                         r.set(Ext.apply({}, r.raw, record.raw));
                     });
                     occurrenceTask = this.getById(parseInt(occurrenceId));
+                    runStartedOn = moment(occurrenceTask.startedOn).valueOf();
                     view = Ext.widget('log-setup', {
                         router: router,
                         task: record
@@ -47,6 +49,7 @@ Ext.define('Dxp.controller.Log', {
                     tasksSideMenu.setTitle(record.get('name'));
                     tasksSideMenu.down('#tasks-log-link').show();
                     view.down('#log-preview-form').loadRecord(occurrenceTask);
+                    view.down('#run-started-on').setValue(moment(runStartedOn).format('ddd, DD MMM YYYY HH:mm:ss'));
                     me.getApplication().fireEvent('changecontentevent', view);
                 });
             }

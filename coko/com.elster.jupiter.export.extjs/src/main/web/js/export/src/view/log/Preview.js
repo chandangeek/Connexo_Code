@@ -24,7 +24,7 @@ Ext.define('Dxp.view.log.Preview', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('log.runStartedOn', 'DES', 'Run started on'),
-                    name: 'startedOn'
+                    itemId: 'run-started-on'
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.status', 'DES', 'Status'),
