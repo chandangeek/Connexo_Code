@@ -93,6 +93,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -428,7 +429,7 @@ public class MultiThreadedScheduledComPortTest {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallel");
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
-        when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
+        when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
         when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
@@ -474,7 +475,7 @@ public class MultiThreadedScheduledComPortTest {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithConnectionFailure");
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
-        when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
+        when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         // Force the connection to fail
         doThrow(ConnectionException.class).when(this.simultaneousConnectionTask1).connect(eq(comPort), anyList());
@@ -520,7 +521,7 @@ public class MultiThreadedScheduledComPortTest {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOne");
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
-        when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
+        when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
@@ -567,7 +568,7 @@ public class MultiThreadedScheduledComPortTest {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithConnectionFailure");
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
-        when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
+        when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         // Force the connection to fail
         doThrow(ConnectionException.class).when(this.serialConnectionTask1).connect(eq(comPort), anyList());
@@ -614,7 +615,7 @@ public class MultiThreadedScheduledComPortTest {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithWorkThatIsAlwaysStolenByOtherComponents");
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
-        when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
+        when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
         when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
@@ -662,7 +663,7 @@ public class MultiThreadedScheduledComPortTest {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithWorkThatIsAlwaysStolenByOtherComponents");
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
-        when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
+        when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
@@ -714,7 +715,7 @@ public class MultiThreadedScheduledComPortTest {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithWorkThatIsAlwaysStolenByOtherComponents");
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
-        when(comServerDAOMock.isStillPending(anyInt())).thenReturn(false);
+        when(comServerDAOMock.isStillPending(anyLong())).thenReturn(false);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(false);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
         when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
@@ -759,7 +760,7 @@ public class MultiThreadedScheduledComPortTest {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithWorkThatIsAlwaysStolenByOtherComponents");
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
-        when(comServerDAOMock.isStillPending(anyInt())).thenReturn(false);
+        when(comServerDAOMock.isStillPending(anyLong())).thenReturn(false);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(false);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
@@ -807,7 +808,7 @@ public class MultiThreadedScheduledComPortTest {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testConnectionFailureReschedulesTask");
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
-        when(comServerDAOMock.isStillPending(anyInt())).thenReturn(true);
+        when(comServerDAOMock.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(true);
         doThrow(ConnectionException.class).when(this.serialConnectionTask1).connect(eq(comPort), anyList());
         final List<ServerComTaskExecution> work = new ArrayList<>();

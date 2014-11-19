@@ -219,6 +219,12 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
+    public void createComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String errorDesciption, String commandDescription) {
+        if (this.getCurrentTaskExecutionBuilder() != null) {
+            this.getCurrentTaskExecutionBuilder().addComCommandJournalEntry(timestamp, completionCode, errorDesciption, commandDescription);
+        }
+    }
+
     public void fail(Throwable t, ComSession.SuccessIndicator reason) {
         sessionBuilder.addJournalEntry(now(), ComServer.LogLevel.ERROR, messageFor(t), t);
         this.createComSessionCommand(sessionBuilder, reason);
@@ -285,7 +291,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     public void initializeJournalist() {
-        this.journalist = new ComCommandJournalist(this.getCurrentTaskExecutionBuilder(), serviceProvider.clock());
+        this.journalist = new ComCommandJournalist(this, serviceProvider.clock());
     }
 
     public void markComTaskExecutionForConnectionSetupError(String reason) {

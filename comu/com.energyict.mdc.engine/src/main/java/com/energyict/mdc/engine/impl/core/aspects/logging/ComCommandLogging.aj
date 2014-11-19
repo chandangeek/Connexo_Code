@@ -6,7 +6,6 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 import com.energyict.mdc.engine.impl.core.CommandCreator;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -34,7 +33,7 @@ public aspect ComCommandLogging extends AbstractComCommandLogging {
     }
 
     protected ComCommandLogger getActualLogger (Logger logger, ExecutionContext executionContext) {
-        logger.addHandler(new ComCommandMessageJournalist(ServiceProvider.instance.get().clock(), executionContext.getCurrentTaskExecutionBuilder()));
+        logger.addHandler(new ComCommandMessageJournalist(executionContext));
         return LoggerFactory.getLoggerFor(ComCommandLogger.class, logger);
     }
 

@@ -495,7 +495,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     @Override
-    public CreateComTaskSessionCommand getCreateComTasSessionTask(CreateComTaskSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
+    public CreateComTaskSessionCommand getCreateComTaskSessionTask(CreateComTaskSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
         CreateComTaskSessionCommandImpl createComTaskSessionCommand = new CreateComTaskSessionCommandImpl(protocolTask, this, comTaskExecution);
         possibleCommandOwner.addCommand(createComTaskSessionCommand, comTaskExecution);
         return createComTaskSessionCommand;

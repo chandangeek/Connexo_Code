@@ -246,7 +246,7 @@ public interface CommandRoot extends CompositeComCommand {
      * @param comTaskExecution the ComTaskExecution that drives this ComCommand
      * @return the newly created CreateComTaskSessionCommand
      */
-    public CreateComTaskSessionCommand getCreateComTasSessionTask(CreateComTaskSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
+    public CreateComTaskSessionCommand getCreateComTaskSessionTask(CreateComTaskSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * Executes the ComCommands related to the given preparedComTaskExecution

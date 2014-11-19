@@ -63,6 +63,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.energyict.mdc.device.data.tasks.history.ComSession.SuccessIndicator.Broken;
 import static com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession.SuccessIndicator.Failure;
@@ -388,16 +390,19 @@ public abstract class JobExecution implements ScheduledJob {
      * We will make sure that the ProtocolTask 'BasicCheck' is the first task of the ComTasks, if it's present.
      * Each <i>set</i> of ProtocolTasks of a ComTask will be preceded by a CreateComTaskSession command.
      */
-    private List<? extends ProtocolTask> generateProtocolTaskList(ComTaskExecution comTaskExecution) {
-        final List<ProtocolTask> allProtocolTasks = new ArrayList<>();
-        comTaskExecution.getComTasks().stream().forEach(comTask -> {
-            List<ProtocolTask> protocolTasks = comTask.getProtocolTasks();
-            Collections.sort(protocolTasks, BasicCheckTasks.FIRST);
-            protocolTasks.add(0, new CreateComTaskSessionTask(comTask));
-            allProtocolTasks.addAll(protocolTasks);
-        });
+    private List<ProtocolTask> generateProtocolTaskList(ComTaskExecution comTaskExecution) {
+        return comTaskExecution
+                .getComTasks()
+                .stream()
+                .flatMap(this::generateProtocolTaskList)
+                .collect(Collectors.toList());
+    }
 
-        return allProtocolTasks;
+    private Stream<ProtocolTask> generateProtocolTaskList(ComTask comTask) {
+        List<ProtocolTask> protocolTasks = new ArrayList<>(comTask.getProtocolTasks()); // Copies the unmodifiable list
+        Collections.sort(protocolTasks, BasicCheckTasks.FIRST);
+        protocolTasks.add(0, new CreateComTaskSessionTask(comTask));
+        return protocolTasks.stream();
     }
 
     static TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution) {

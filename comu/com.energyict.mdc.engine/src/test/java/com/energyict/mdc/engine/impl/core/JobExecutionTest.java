@@ -73,7 +73,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.endsWith;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -215,7 +214,7 @@ public class JobExecutionTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
 
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
-        when(comSessionBuilder.addComTaskExecutionSession(eq(this.comTaskExecution), eq(this.comTask), eq(this.device), any(Instant.class))).
+        when(comSessionBuilder.addComTaskExecutionSession(eq(this.comTaskExecution), any(ComTask.class), eq(this.device), any(Instant.class))).
                 thenReturn(mock(ComTaskExecutionSessionBuilder.class));
         when(this.connectionTaskService.buildComSession(eq(this.connectionTask), eq(this.comPortPool), eq(this.comPort), any(Instant.class))).
                 thenReturn(comSessionBuilder);
@@ -398,7 +397,8 @@ public class JobExecutionTest {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
         ScheduledComTaskExecutionGroup jobExecution = getJobExecutionForBasicCheckInFrontTests();
 
-        jobExecution.setExecutionContext(jobExecution.newExecutionContext(this.connectionTask, this.comPort));
+        ExecutionContext executionContext = jobExecution.newExecutionContext(this.connectionTask, this.comPort);
+        jobExecution.setExecutionContext(executionContext);
 
         JobExecution.ComTaskPreparationContext comTaskPreparationContext = mock(JobExecution.ComTaskPreparationContext.class);
         when(comTaskPreparationContext.getCommandCreator()).thenReturn(new DeviceProtocolCommandCreator());

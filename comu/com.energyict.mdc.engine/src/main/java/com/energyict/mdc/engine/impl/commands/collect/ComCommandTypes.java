@@ -196,12 +196,12 @@ public enum ComCommandTypes {
     CREATE_COM_TASK_SESSION_COMMAND(CreateComTaskSessionTask.class){
         @Override
         public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getCreateComTasSessionTask((CreateComTaskSessionTask) protocolTask, root, comTaskExecution);
+            root.getCreateComTaskSessionTask((CreateComTaskSessionTask) protocolTask, root, comTaskExecution);
         }
 
         @Override
         public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getCreateComTasSessionTask((CreateComTaskSessionTask) protocolTask, root, comTaskExecution);
+            root.getCreateComTaskSessionTask((CreateComTaskSessionTask) protocolTask, root, comTaskExecution);
         }
     };
 
