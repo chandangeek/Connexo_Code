@@ -8,9 +8,11 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -25,6 +27,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -51,7 +55,7 @@ public class DeviceMessageResource {
     public PagedInfoList getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<DeviceMessageInfo> infos = device.getMessages().stream().
-                sorted((c1, c2) -> c2.getReleaseDate().compareTo(c1.getReleaseDate())).
+                sorted(comparing(DeviceMessage::getReleaseDate, nullsLast(Comparator.<Instant>naturalOrder().reversed()))).
                 map(deviceMessageInfoFactory::asInfo).
                 collect(toList());
 
