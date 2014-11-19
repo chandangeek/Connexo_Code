@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -18,10 +19,10 @@ import java.util.List;
  */
 public class DeviceOrganizedComTaskExecution {
 
-    private final BaseDevice device;
+    private final Device device;
     private final List<ComTaskWithSecurityAndConnectionSteps> comTasksWithStepsAndSecurity = new ArrayList<>();
 
-    public DeviceOrganizedComTaskExecution(BaseDevice device) {
+    public DeviceOrganizedComTaskExecution(Device device) {
         this.device = device;
     }
 
@@ -33,7 +34,7 @@ public class DeviceOrganizedComTaskExecution {
         return comTasksWithStepsAndSecurity;
     }
 
-    public BaseDevice getDevice() {
+    public Device getDevice() {
         return device;
     }
 

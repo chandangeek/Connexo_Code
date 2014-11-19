@@ -41,10 +41,7 @@ public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor impl
 
     @Override
     public void run() {
-        Optional<User> user = userService.findUser("batch executor");
-        if (user.isPresent()) {
-            threadPrincipalService.set(user.get(), "MultiThreadedComPort", "Executing", Locale.ENGLISH);
-        }
+        this.setThreadPrinciple();
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 ScheduledJob scheduledJob = jobBlockingQueue.take();
@@ -58,6 +55,11 @@ public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor impl
                 t.printStackTrace(System.err);
             }
         }
+    }
+
+    private void setThreadPrinciple() {
+        Optional<User> user = userService.findUser("batch executor");
+        user.ifPresent(u -> threadPrincipalService.set(u, "MultiThreadedComPort", "Executing", Locale.ENGLISH));
     }
 
 }

@@ -296,7 +296,7 @@ public class JobExecutionTest {
 
         // business method
         final JobExecution.PreparedComTaskExecution preparedComTaskExecution =
-                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, device, deviceProtocolSecurityPropertySet);
+                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, deviceProtocolSecurityPropertySet);
 
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
@@ -323,7 +323,7 @@ public class JobExecutionTest {
 
         // business method
         final JobExecution.PreparedComTaskExecution preparedComTaskExecution =
-                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, device, deviceProtocolSecurityPropertySet);
+                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, deviceProtocolSecurityPropertySet);
 
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
@@ -347,7 +347,7 @@ public class JobExecutionTest {
 
         // business method
         final JobExecution.PreparedComTaskExecution preparedComTaskExecution =
-                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, device, deviceProtocolSecurityPropertySet);
+                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, deviceProtocolSecurityPropertySet);
 
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
@@ -374,7 +374,7 @@ public class JobExecutionTest {
 
         // business method
         final JobExecution.PreparedComTaskExecution preparedComTaskExecution =
-                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, device, deviceProtocolSecurityPropertySet);
+                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, deviceProtocolSecurityPropertySet);
 
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
@@ -408,7 +408,7 @@ public class JobExecutionTest {
 
         // Business method
         JobExecution.PreparedComTaskExecution preparedComTaskExecution =
-                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, device, deviceProtocolSecurityPropertySet);
+                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, deviceProtocolSecurityPropertySet);
 
         ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup = getJobExecutionForBasicCheckInFrontTests();
         scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort));
@@ -442,7 +442,7 @@ public class JobExecutionTest {
 
         // Business method
         JobExecution.PreparedComTaskExecution preparedComTaskExecution =
-                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, device, deviceProtocolSecurityPropertySet);
+                jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, deviceProtocolSecurityPropertySet);
 
         ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup = getJobExecutionForBasicCheckInFrontTests();
         scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort));

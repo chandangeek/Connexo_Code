@@ -43,7 +43,7 @@ public final class ComTaskExecutionOrganizer {
      * The Encryption- and AuthenticationAccessLevel are defined as NOT USED.
      * The TypedProperty object doesn't contain any properties.
      */
-    protected static final DeviceProtocolSecurityPropertySet EMPTY_DEVICE_PROTOCOL_SECURITY_PROPERTY_SET =
+    static final DeviceProtocolSecurityPropertySet EMPTY_DEVICE_PROTOCOL_SECURITY_PROPERTY_SET =
             new DeviceProtocolSecurityPropertySetImpl(
                     DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID,
                     DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID,

@@ -41,7 +41,6 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.io.CommunicationException;
@@ -371,8 +370,8 @@ public abstract class JobExecution implements ScheduledJob {
         return ComSession.SuccessIndicator.SetupError;
     }
 
-    PreparedComTaskExecution getPreparedComTaskExecution(ComTaskPreparationContext comTaskPreparationContext, ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, BaseDevice<?, ?, ?> masterDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        final List<? extends ProtocolTask> protocolTasks = new ArrayList<>(comTaskExecution.getProtocolTasks()); // copied the ImmutableList
+    PreparedComTaskExecution getPreparedComTaskExecution(ComTaskPreparationContext comTaskPreparationContext, ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        final List<? extends ProtocolTask> protocolTasks = new ArrayList<>(comTaskExecution.getProtocolTasks()); // copies the ImmutableList
         Collections.sort(protocolTasks, BasicCheckTasks.FIRST);
         comTaskPreparationContext.getCommandCreator().
                 createCommands(
@@ -612,7 +611,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         private void takeDeviceOffline() {
             final OfflineDeviceForComTaskGroup offlineDeviceForComTaskGroup = new OfflineDeviceForComTaskGroup(deviceOrganizedComTaskExecution.getComTaskExecutions());
-            offlineDevice = new OfflineDeviceImpl((Device) deviceOrganizedComTaskExecution.getDevice(), offlineDeviceForComTaskGroup, new OfflineDeviceServiceProvider());
+            offlineDevice = new OfflineDeviceImpl(deviceOrganizedComTaskExecution.getDevice(), offlineDeviceForComTaskGroup, new OfflineDeviceServiceProvider());
         }
     }
 
@@ -643,7 +642,6 @@ public abstract class JobExecution implements ScheduledJob {
                                     comTaskPreparationContext,
                                     comTaskExecution,
                                     connectionSteps,
-                                    deviceOrganizedComTaskExecution.getDevice(),
                                     deviceProtocolSecurityPropertySet);
                     result.add(preparedComTaskExecution);
                 }
@@ -675,7 +673,6 @@ public abstract class JobExecution implements ScheduledJob {
                         comTaskPreparationContext,
                         comTaskWithSecurityAndConnectionSteps.getComTaskExecution(),
                         comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps(),
-                        deviceOrganizedComTaskExecution.getDevice(),
                         comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet());
             } else {
                 throw CodingException.incorrectNumberOfPreparedComTaskExecutions(1, deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size());

@@ -147,14 +147,4 @@ public abstract class ScheduledJobImpl extends JobExecution {
         }
     }
 
-    private class LocalConnectionException extends RuntimeException {
-        private LocalConnectionException(ConnectionException cause) {
-            super(cause);
-        }
-
-        @Override
-        public ConnectionException getCause() {
-            return (ConnectionException) super.getCause();
-        }
-    }
 }
