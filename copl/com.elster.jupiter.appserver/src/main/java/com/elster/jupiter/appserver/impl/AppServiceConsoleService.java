@@ -18,7 +18,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
 
-@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class}, property = {"name=" + "APS" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport"}, immediate = true)
+@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class},
+        property = {"name=" + "APS" + ".console", "osgi.command.scope=jupiter",
+                "osgi.command.function=create",
+                "osgi.command.function=executeSubscription",
+                "osgi.command.function=activateFileImport"},
+        immediate = true)
 public class AppServiceConsoleService {
 
     private volatile AppService appService;
