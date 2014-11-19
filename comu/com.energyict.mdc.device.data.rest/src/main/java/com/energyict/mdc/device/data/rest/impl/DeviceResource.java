@@ -149,7 +149,7 @@ public class DeviceResource {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         }
 
-        Device newDevice = deviceService.newDevice(deviceConfiguration.get(), info.mRID, info.mRID);
+        Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
         newDevice.setSerialNumber(info.serialNumber);
         newDevice.setYearOfCertification(ZonedDateTime.of(Integer.parseInt(info.yearOfCertification), 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant());
         newDevice.save();

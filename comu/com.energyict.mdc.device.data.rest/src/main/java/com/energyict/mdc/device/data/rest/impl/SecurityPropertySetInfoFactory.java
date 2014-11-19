@@ -52,7 +52,7 @@ public class SecurityPropertySetInfoFactory {
         TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
 
         securityPropertySetInfo.properties = new ArrayList<>();
-        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties, securityPropertySetInfo.userHasViewPrivilege && securityPropertySetInfo.userHasEditPrivilege);
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties, securityPropertySetInfo.userHasViewPrivilege && securityPropertySetInfo.userHasEditPrivilege, true);
         changeToRequiredProperties(securityPropertySetInfo.properties);
 
         securityPropertySetInfo.status = new IdWithNameInfo();
