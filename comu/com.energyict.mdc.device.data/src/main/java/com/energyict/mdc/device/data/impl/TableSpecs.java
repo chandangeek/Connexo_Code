@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.tasks.history.ComStatistics;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -55,7 +56,8 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-07 (14:28)
  */
-public enum TableSpecs {
+public enum
+        TableSpecs {
 
     DDC_DEVICE {
         @Override
@@ -425,6 +427,7 @@ public enum TableSpecs {
             Column successIndicator = table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComTaskExecutionSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
+            Column comTask = table.column("COMTASK").number().notNull().add();
             table.column("HIGHESTPRIOCOMPLETIONCODE").number().conversion(NUMBER2ENUM).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_COMPLETION_CODE.fieldName()).add();
             table.column("HIGHESTPRIOERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_ERROR_DESCRIPTION.fieldName()).add();
             table.foreignKey("FK_DDC_COMTSKEXECSESSION_SESS").
@@ -434,11 +437,17 @@ public enum TableSpecs {
                     map("comSession").
                     composition().
                     reverseMap("comTaskExecutionSessions").add();
-            table.foreignKey("FK_DDC_COMTASKSESSION_COMTASK").
+            table.foreignKey("FK_DDC_COMTASKSESSION_CTEXEC").
                     on(comTaskExecution).
                     references(DDC_COMTASKEXEC.name()).
                     onDelete(CASCADE).
                     map(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_COMTASKSESSION_COMTASK").
+                    on(comTask).
+                    references(TaskService.COMPONENT_NAME, "CTS_COMTASK").
+                    onDelete(CASCADE).
+                    map(ComTaskExecutionSessionImpl.Fields.COM_TASK.fieldName()).
                     add();
             table.foreignKey("FK_DDC_COMTSKEXECSESSION_STATS").
                     on(statistics).
@@ -452,8 +461,7 @@ public enum TableSpecs {
                     map(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).
                     add();
             table.primaryKey("PK_DDC_COMTASKEXECSESSION").on(id).add();
-//            table.index("DDC_CTES_CS_SUCCESS").on(session, successIndicator).compress(1).add();
-            table.index("DDC_CTES_CS_SUCCESS").on(session, successIndicator).add();
+            table.index("DDC_CTES_CS_SUCCESS").on(session, successIndicator).compress(1).add();
         }
     },
     ADD_LAST_SESSION_TO_COM_TASK_EXECUTION {

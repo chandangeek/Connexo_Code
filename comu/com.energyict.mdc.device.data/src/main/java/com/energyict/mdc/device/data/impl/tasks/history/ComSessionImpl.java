@@ -22,6 +22,8 @@ import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.tasks.ComTask;
+
 import com.google.common.collect.Range;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -318,8 +320,8 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
-    public ComTaskExecutionSessionImpl createComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Range<Instant> interval, ComTaskExecutionSession.SuccessIndicator successIndicator) {
-        ComTaskExecutionSessionImpl executionSession = ComTaskExecutionSessionImpl.from(dataModel, this, comTaskExecution, device, interval, successIndicator);
+    public ComTaskExecutionSessionImpl createComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Range<Instant> interval, ComTaskExecutionSession.SuccessIndicator successIndicator) {
+        ComTaskExecutionSessionImpl executionSession = ComTaskExecutionSessionImpl.from(dataModel, this, comTaskExecution, comTask, device, interval, successIndicator);
         comTaskExecutionSessions.add(executionSession);
         return executionSession;
     }
