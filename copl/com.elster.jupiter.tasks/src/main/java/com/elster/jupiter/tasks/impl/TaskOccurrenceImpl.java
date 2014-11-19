@@ -95,8 +95,8 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     @Override
     public LogEntryFinder getLogsFinder() {
         Condition condition = where("taskOccurrence").isEqualTo(this);
-        Order order = Order.descending("timeStamp");
-        LogEntryFinder finder = new TaskLogEntryFinder(dataModel.query(TaskLogEntry.class), condition, order);
+        Order[] orders = new Order[] {Order.descending("timeStamp"), Order.ascending("position")};
+        LogEntryFinder finder = new TaskLogEntryFinder(dataModel.query(TaskLogEntry.class), condition, orders);
         return finder;
     }
 

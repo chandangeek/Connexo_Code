@@ -11,16 +11,16 @@ import java.util.List;
 public class TaskLogEntryFinder implements LogEntryFinder {
     private QueryExecutor<TaskLogEntry> queryExecutor;
     private Condition condition;
-    private Order[] order;
+    private Order[] orders;
     private Integer start;
     private Integer limit;
 
     public TaskLogEntryFinder() {}
 
-    public TaskLogEntryFinder(QueryExecutor<TaskLogEntry> queryExecutor, Condition condition, Order order) {
+    public TaskLogEntryFinder(QueryExecutor<TaskLogEntry> queryExecutor, Condition condition, Order[] orders) {
         this.queryExecutor = queryExecutor;
         this.condition = condition;
-        this.order = new Order[] {order};
+        this.orders = orders;
     }
 
     public TaskLogEntryFinder with (Condition condition) {
@@ -39,6 +39,6 @@ public class TaskLogEntryFinder implements LogEntryFinder {
     }
 
     public List<? extends TaskLogEntry> find() {
-        return queryExecutor.select(condition, order, true, null, start, limit);
+        return queryExecutor.select(condition, orders, true, null, start, limit);
     }
 }
