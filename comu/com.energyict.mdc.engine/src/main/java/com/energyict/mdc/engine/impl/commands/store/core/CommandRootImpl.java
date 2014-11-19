@@ -7,6 +7,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskSessionCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
@@ -29,6 +30,7 @@ import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.BasicCheckCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ClockCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateComTaskSessionCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateMeterEventsFromStatusFlagsCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ForceClockCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LegacyLoadProfileLogBooksCommandImpl;
@@ -49,6 +51,7 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.TopologyComman
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyLoadProfilesCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifySerialNumberCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyTimeDifferenceCommandImpl;
+import com.energyict.mdc.engine.impl.core.CreateComTaskSessionTask;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -489,6 +492,13 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
         VerifySerialNumberCommand verifySerialNumberCommand = new VerifySerialNumberCommandImpl(this.offlineDevice, this);
         comCommands.addCommand(verifySerialNumberCommand, comTaskExecution);
         return verifySerialNumberCommand;
+    }
+
+    @Override
+    public CreateComTaskSessionCommand getCreateComTasSessionTask(CreateComTaskSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
+        CreateComTaskSessionCommandImpl createComTaskSessionCommand = new CreateComTaskSessionCommandImpl(protocolTask, this, comTaskExecution);
+        possibleCommandOwner.addCommand(createComTaskSessionCommand, comTaskExecution);
+        return createComTaskSessionCommand;
     }
 
     @Override

@@ -371,8 +371,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     PreparedComTaskExecution getPreparedComTaskExecution(ComTaskPreparationContext comTaskPreparationContext, ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        final List<? extends ProtocolTask> protocolTasks = new ArrayList<>(comTaskExecution.getProtocolTasks()); // copies the ImmutableList
-        Collections.sort(protocolTasks, BasicCheckTasks.FIRST);
+        final List<? extends ProtocolTask> protocolTasks = generateProtocolTaskList(comTaskExecution);
         comTaskPreparationContext.getCommandCreator().
                 createCommands(
                         comTaskPreparationContext.getRoot(),
@@ -383,6 +382,22 @@ public abstract class JobExecution implements ScheduledJob {
                         deviceProtocolSecurityPropertySet,
                         connectionSteps, comTaskExecution, this.serviceProvider.issueService());
         return new PreparedComTaskExecution(comTaskExecution, comTaskPreparationContext.getRoot(), comTaskPreparationContext.getDeviceProtocol());
+    }
+
+    /**
+     * We will make sure that the ProtocolTask 'BasicCheck' is the first task of the ComTasks, if it's present.
+     * Each <i>set</i> of ProtocolTasks of a ComTask will be preceded by a CreateComTaskSession command.
+     */
+    private List<? extends ProtocolTask> generateProtocolTaskList(ComTaskExecution comTaskExecution) {
+        final List<ProtocolTask> allProtocolTasks = new ArrayList<>();
+        comTaskExecution.getComTasks().stream().forEach(comTask -> {
+            List<ProtocolTask> protocolTasks = comTask.getProtocolTasks();
+            Collections.sort(protocolTasks, BasicCheckTasks.FIRST);
+            protocolTasks.add(0, new CreateComTaskSessionTask(comTask));
+            allProtocolTasks.addAll(protocolTasks);
+        });
+
+        return allProtocolTasks;
     }
 
     static TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution) {
@@ -497,6 +512,7 @@ public abstract class JobExecution implements ScheduledJob {
      * that prepares {@link ComTaskExecution}s for execution.
      */
     protected static class PreparationContext {
+
         private ComChannelPlaceHolder comChannelPlaceHolder = ComChannelPlaceHolder.empty();
 
         public ComChannelPlaceHolder getComChannelPlaceHolder() {
@@ -509,6 +525,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     public static class PreparedComTaskExecution {
+
         private final ComTaskExecution comTaskExecution;
         private final CommandRoot commandRoot;
         private final DeviceProtocol deviceProtocol;
@@ -534,6 +551,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private class ComCommandServiceProvider implements CommandRoot.ServiceProvider {
+
         @Override
         public Clock clock() {
             return JobExecution.this.serviceProvider.clock();
@@ -570,6 +588,7 @@ public abstract class JobExecution implements ScheduledJob {
      * This information is reusable for different ComTaskExecutions of the same device.
      */
     public class ComTaskPreparationContext {
+
         private DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution;
         private OfflineDevice offlineDevice;
         private CommandRoot root;
@@ -625,6 +644,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private class PrepareAllTransaction implements Transaction<List<PreparedComTaskExecution>> {
+
         private final List<? extends ComTaskExecution> comTaskExecutions;
 
         @Override
@@ -659,6 +679,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private class PrepareTransaction implements Transaction<PreparedComTaskExecution> {
+
         private final ComTaskExecution comTaskExecution;
 
         @Override
