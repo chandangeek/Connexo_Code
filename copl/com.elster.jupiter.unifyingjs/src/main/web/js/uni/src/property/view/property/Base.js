@@ -75,14 +75,18 @@ Ext.define('Uni.property.view.property.Base', {
      * @param {Uni.property.model.Property} property
      */
     initProperty: function (property) {
-        this.property = property;
+        var me = this;
+        me.property = property;
 
         if (property) {
-            this.key = property.get('key');
-            this.itemId = this.key;
+            me.key = property.get('key');
+            me.itemId = me.key;
 
-            if (this.isEdit) {
-                this.required = property.get('required');
+            if (me.isEdit) {
+                me.required = property.get('required');
+                if (me.required) {
+                    me.allowBlank = false
+                }
             }
         }
     },

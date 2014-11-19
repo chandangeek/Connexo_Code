@@ -28,7 +28,8 @@ Ext.define('Uni.property.view.property.Period', {
                 width: me.width,
                 forceSelection: false,
                 required: me.required,
-                readOnly: me.isReadOnly
+                readOnly: me.isReadOnly,
+                allowBlank: me.allowBlank
             }
         ];
     },
@@ -82,10 +83,11 @@ Ext.define('Uni.property.view.property.Period', {
     },
 
     getValue: function (values) {
-        if (!this.isCombo()) {
+        var me = this;
+        if (!me.isCombo()) {
             var result = {};
-            result.count = values[me.key].numberfield;
-            result.timeUnit = values[me.key].combobox;
+            result.count = me.getField().getValue();
+            result.timeUnit = me.getComboField().getValue();
 
             return result;
         } else {

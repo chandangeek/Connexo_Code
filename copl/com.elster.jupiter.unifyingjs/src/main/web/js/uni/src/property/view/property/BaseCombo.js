@@ -68,10 +68,6 @@ Ext.define('Uni.property.view.property.BaseCombo', {
         return this.down('combobox');
     },
 
-    getField: function () {
-        return this.getComboField()
-    },
-
     initListeners: function () {
         var me = this;
         this.callParent(arguments);

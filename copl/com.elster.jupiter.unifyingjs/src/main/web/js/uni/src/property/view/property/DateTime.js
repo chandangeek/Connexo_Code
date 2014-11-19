@@ -17,7 +17,8 @@ Ext.define('Uni.property.view.property.DateTime', {
             width: me.width,
             required: me.required,
             readOnly: me.isReadOnly,
-            inputType: me.inputType
+            inputType: me.inputType,
+            allowBlank: me.allowBlank
         };
 
         return result;

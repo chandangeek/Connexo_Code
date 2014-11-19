@@ -15,7 +15,8 @@ Ext.define('Uni.property.view.property.Password', {
             msgTarget: 'under',
             readOnly: me.isReadOnly,
             fieldLabel: undefined,
-            passwordAsTextComponent: me.passwordAsTextComponent
+            passwordAsTextComponent: me.passwordAsTextComponent,
+            allowBlank: me.allowBlank
         }
     },
 
