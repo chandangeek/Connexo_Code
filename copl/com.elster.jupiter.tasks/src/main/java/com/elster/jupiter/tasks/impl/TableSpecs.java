@@ -43,7 +43,7 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(TaskLogEntryImpl.class);
-            Column taskOccurrenceColumn = table.column("TASKOCCCURRENCE").number().notNull().conversion(NUMBER2LONG).add();
+            Column taskOccurrenceColumn = table.column("TASKOCCURRENCE").number().notNull().conversion(NUMBER2LONG).add();
             Column position = table.column("POSITION").number().notNull().map("position").conversion(NUMBER2INT).add();
             table.column("TIMESTAMP").number().notNull().conversion(NUMBER2INSTANT).map("timeStamp").add();
             table.column("LOGLEVEL").number().notNull().conversion(NUMBER2INT).map("level").add();
