@@ -42,6 +42,7 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
+import com.energyict.mdc.tasks.ComTask;
 
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -324,9 +325,9 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
-    public void start(ComTaskExecution comTaskExecution) {
+    public void start(ComTaskExecution comTaskExecution, ComTask comTask) {
         this.comTaskExecution = comTaskExecution;
-        this.currentTaskExecutionBuilder = sessionBuilder.addComTaskExecutionSession(comTaskExecution, connectionTask.getDevice(), now());
+        this.currentTaskExecutionBuilder = sessionBuilder.addComTaskExecutionSession(comTaskExecution, comTask, connectionTask.getDevice(), now());
         if (this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
             this.addProtocolDialectPropertiesAsJournalEntries(comTaskExecution);
         }

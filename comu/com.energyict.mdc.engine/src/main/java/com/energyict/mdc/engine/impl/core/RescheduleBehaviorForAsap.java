@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
@@ -115,9 +116,15 @@ public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implem
         Throwable t = new Throwable(reason);
         for (ComTaskExecution notExecutedComTaskExecution : getNotExecutedComTaskExecutions()) {
             if (this.executionContext != null) {
-                this.executionContext.start(notExecutedComTaskExecution);
-                this.executionContext.markComTaskExecutionForConnectionSetupError(reason);
-                this.executionContext.failForRetryAsapComTaskExec(notExecutedComTaskExecution, t); // I know we just started it, but the start creates the proper shadow for the ComTaskExecution
+                notExecutedComTaskExecution
+                        .getComTasks()
+                        .stream()
+                        .forEach(ct -> {
+                            this.executionContext.start(notExecutedComTaskExecution, ct);
+                            this.executionContext.markComTaskExecutionForConnectionSetupError(reason);
+                            this.executionContext.failForRetryAsapComTaskExec(notExecutedComTaskExecution, t); // I know we just started it, but the start creates the proper shadow for the ComTaskExecution
+
+                        });
             }
             getComServerDAO().executionFailed(notExecutedComTaskExecution);
         }
