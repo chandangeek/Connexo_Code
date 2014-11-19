@@ -90,4 +90,9 @@ public class MeterActivationsImpl implements ReadingContainer {
 		}
 		return meterActivations;
 	}
+
+    @Override
+    public boolean is(ReadingContainer other) {
+        return this == other;
+    }
 }

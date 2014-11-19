@@ -5,30 +5,26 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-
-import java.time.Clock;
-import java.time.ZoneId;
-
 import com.elster.jupiter.util.time.Interval;
-
-import java.time.Instant;
-import java.util.Optional;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -226,4 +222,9 @@ public class MeterActivationImpl implements MeterActivation {
 		}
 		return candidates.stream().findFirst().orElse(clock.getZone());
 	}
+
+    @Override
+    public boolean is(ReadingContainer other) {
+        return other instanceof MeterActivation && ((MeterActivation) other).getId() == getId();
+    }
 }
