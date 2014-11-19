@@ -1,13 +1,16 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cbo.*;
-import com.energyict.cpo.*;
+import com.energyict.cpo.Environment;
 import com.energyict.dlms.DLMSUtils;
-
-import java.util.*;
-import java.sql.*;
-import java.io.*;
 import com.energyict.dlms.UniversalObject;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @version : 1.0
@@ -55,15 +58,18 @@ public class RtuDLMSCache
           classid = universalObject[i].getClassID();
           version = universalObject[i].getVersion();
           objectdescription = DLMSUtils.getInfoLN(universalObject[i].getLNArray());
-         
+           if (objectdescription == "") {
+               objectdescription = "Unknown";
+           }
+
           try {
              doInsert();
-          }
-          catch(SQLException e) {
-             if ("23000".equals(e.getSQLState())) {
-                doUpdate();
-             }
-             else throw e;
+          } catch (SQLException e) {
+              if ("23000".equals(e.getSQLState())) {
+                  doUpdate();
+              } else {
+                  throw e;
+              }
           }
          
        } // for (int i=0;i<universalObject.length;i++)
@@ -172,7 +178,7 @@ public class RtuDLMSCache
           statement.setInt(4,0);
           statement.setString(5,objectdescription);
           statement.setInt(6,rtuid);
-          statement.setString(7,longname);          
+          statement.setString(7,longname);
           statement.executeUpdate();
        } finally {
     	   statement.close();
