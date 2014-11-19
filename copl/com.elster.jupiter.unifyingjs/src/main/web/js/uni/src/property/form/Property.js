@@ -115,36 +115,26 @@ Ext.define('Uni.property.form.Property', {
     },
 
     updateRecord: function () {
+
         var me = this;
         var raw = me.getFieldValues();
         var values = {};
-        _.each(raw.properties || [], function (rawValue, key) {
-            var fieldKey = key;
-            if (rawValue instanceof Object) {
-                _.each(rawValue, function (rawVal, key) {
-                    fieldKey += '.' + key;
-                    rawValue = rawVal
-                })
-            }
-            var field = me.getPropertyField(fieldKey);
-            values[fieldKey] = field.getValue(rawValue);
+
+        me.getRecord().properties().each(function (property) {
+            var key = property.get('key');
+            var field = me.getPropertyField(key);
+            values[key] = field.getValue(raw);
         });
+
         this.getForm().hydrator.hydrate(values, me.getRecord());
     },
 
     unFlattenObj: function (object) {
-        return _(object).inject(function (result, value, keys) {
-
-            var current = result,
-                partitions = keys.split('.'),
-                limit = partitions.length - 1;
-
-            _(partitions).each(function (key, index) {
-                current = current[key] = (index == limit ? value : (current[key] || {}));
-            });
-
+        return _.reduce(object, function (result, value, key) {
+            var properties = key.split('.');
+            result[_.first(properties)][_.rest(properties, 1).join('.')] = value;
             return result;
-        }, {});
+        }, {properties: {}});
     },
 
     /**
@@ -173,14 +163,14 @@ Ext.define('Uni.property.form.Property', {
         })
     },
 
-    showValues: function() {
-        this.items.each(function(item) {
+    showValues: function () {
+        this.items.each(function (item) {
             item.showValue();
         })
     },
 
-    hideValues: function() {
-        this.items.each(function(item) {
+    hideValues: function () {
+        this.items.each(function (item) {
             item.hideValue();
         })
     },

@@ -81,11 +81,11 @@ Ext.define('Uni.property.view.property.Period', {
         }
     },
 
-    getValue: function (value) {
+    getValue: function (values) {
         if (!this.isCombo()) {
             var result = {};
-            result.count = value.numberfield;
-            result.timeUnit = value.combobox;
+            result.count = values[me.key].numberfield;
+            result.timeUnit = values[me.key].combobox;
 
             return result;
         } else {

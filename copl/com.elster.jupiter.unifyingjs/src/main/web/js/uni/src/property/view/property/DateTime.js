@@ -49,16 +49,14 @@ Ext.define('Uni.property.view.property.DateTime', {
         }
     },
 
-    getValue: function (value) {
+    getValue: function () {
         var timeValue = this.getTimeField().getValue(),
             dateValue = this.getDateField().getValue();
-
         if (timeValue !== null && timeValue !== '' && dateValue !== null && dateValue !== '') {
             var newDate = new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(),
                 timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), 0);
             return newDate.getTime();
         }
-
         return null;
     }
 });

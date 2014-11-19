@@ -20,7 +20,6 @@ Ext.define('Uni.property.form.PropertyHydrator', {
             return false;
         }
         record.properties().each(function (property) {
-            debugger;
             var value,
                 propertyValue;
             if (property.get('isInheritedOrDefaultValue') === true) {

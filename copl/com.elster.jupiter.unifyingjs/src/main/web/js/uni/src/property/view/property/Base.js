@@ -219,8 +219,8 @@ Ext.define('Uni.property.view.property.Base', {
         }
     },
 
-    getValue: function (value) {
-        return value;
+    getValue: function () {
+        return this.getField().getValue()
     },
 
     /**
@@ -298,6 +298,7 @@ Ext.define('Uni.property.view.property.Base', {
      * Restores default field value
      */
     restoreDefault: function () {
+        debugger;
         var property = this.getProperty();
         var restoreValue = property.get('default');
         property.set('hasValue', false);
