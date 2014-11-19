@@ -3,10 +3,10 @@ package com.elster.jupiter.tasks.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogEntry;
-import com.elster.jupiter.tasks.TaskLogEntryFinder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.logging.LogEntryFinder;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -93,10 +93,10 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     }
 
     @Override
-    public TaskLogEntryFinder getLogsFinder() {
-        Condition condition = where("taskOccurrence").isEqualTo(this)/*.and((where("level").isEqualTo(Level.WARNING.intValue()).or(where("level").isEqualTo(Level.SEVERE.intValue()))))*/;
-        Order order = Order.descending("timeStamp");
-        TaskLogEntryFinder finder = new TaskLogEntryFinder(dataModel.query(TaskLogEntry.class), condition, order);
+    public LogEntryFinder getLogsFinder() {
+        Condition condition = where("taskOccurrence").isEqualTo(this);
+        Order[] orders = new Order[] {Order.descending("timeStamp"), Order.ascending("position")};
+        LogEntryFinder finder = new TaskLogEntryFinder(dataModel.query(TaskLogEntry.class), condition, orders);
         return finder;
     }
 
