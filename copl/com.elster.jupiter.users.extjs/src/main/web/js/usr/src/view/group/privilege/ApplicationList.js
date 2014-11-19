@@ -66,11 +66,13 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                     {
                         text: Uni.I18n.translate('privilege.no.access', 'USR', 'No access'),
                         icon: '../sky/build/resources/images/grid/drop-no.png',
+                        itemId: 'privilegesNoAccess',
                         action: 'privilegesNoAccess'
                     },
                     {
                         text: Uni.I18n.translate('privilege.full.control', 'USR', 'Full control'),
                         icon: '../sky/build/resources/images/grid/drop-yes.png',
+                        itemId: 'privilegesFullControl',
                         action: 'privilegesFullControl'
                     }
                 ]
