@@ -18,7 +18,7 @@ import java.util.StringJoiner;
 
 import static org.mockito.Mockito.mock;
 
-public class TransactionVerifier implements TransactionService {
+public final class TransactionVerifier implements TransactionService {
 
     private final List<Object> mocks;
     private TransactionMode transactionMode = mock(TransactionMode.class);
