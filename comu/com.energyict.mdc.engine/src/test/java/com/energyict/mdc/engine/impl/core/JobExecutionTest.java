@@ -73,6 +73,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.endsWith;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -104,6 +105,8 @@ public class JobExecutionTest {
     private ComServerDAO comServerDAO;
     @Mock
     private DeviceCommandExecutionToken token;
+    @Mock
+    private ComTask comTask;
     @Mock
     private ManuallyScheduledComTaskExecution comTaskExecution;
     @Mock
@@ -200,6 +203,8 @@ public class JobExecutionTest {
         ConnectionTask ct = connectionTask;
         when(comTaskExecution.getConnectionTask()).thenReturn(ct);
         when(comTaskExecution.getDevice()).thenReturn(device);
+        when(comTaskExecution.getComTask()).thenReturn(this.comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
@@ -210,7 +215,7 @@ public class JobExecutionTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
 
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
-        when(comSessionBuilder.addComTaskExecutionSession(eq(this.comTaskExecution), eq(this.device), any(Instant.class))).
+        when(comSessionBuilder.addComTaskExecutionSession(eq(this.comTaskExecution), eq(this.comTask), eq(this.device), any(Instant.class))).
                 thenReturn(mock(ComTaskExecutionSessionBuilder.class));
         when(this.connectionTaskService.buildComSession(eq(this.connectionTask), eq(this.comPortPool), eq(this.comPort), any(Instant.class))).
                 thenReturn(comSessionBuilder);

@@ -20,6 +20,9 @@ import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
+import com.energyict.mdc.tasks.ComTask;
+
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.After;
@@ -68,7 +71,7 @@ public abstract class AbstractComCommandExecuteTest {
 
     private void setupServiceProvider() {
         serviceProvider.setDeviceConfigurationService(deviceConfigurationService);
-        Clock clock = Clock.systemDefaultZone();  
+        Clock clock = Clock.systemDefaultZone();
         serviceProvider.setClock(clock);
         serviceProvider.setIssueService(new IssueServiceImpl(clock));
         serviceProvider.setConnectionTaskService(mock(ConnectionTaskService.class, RETURNS_DEEP_STUBS));
@@ -104,9 +107,12 @@ public abstract class AbstractComCommandExecuteTest {
     protected static ExecutionContext newTestExecutionContext(Logger logger) {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(DEVICE_ID);
+        ComTask comTask = mock(ComTask.class);
         ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(comTaskExecution.getDevice()).thenReturn(device);
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
@@ -126,7 +132,7 @@ public abstract class AbstractComCommandExecuteTest {
                         comPort,
                         serviceProvider);
         executionContext.setLogger(logger);
-        executionContext.start(comTaskExecution);
+        executionContext.start(comTaskExecution, comTask);
         return executionContext;
     }
 

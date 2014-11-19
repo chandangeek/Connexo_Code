@@ -477,7 +477,6 @@ public abstract class JobExecution implements ScheduledJob {
     private void start(ComTaskExecution comTaskExecution) {
         this.getExecutionContext().prepareStart(comTaskExecution);
         this.getComServerDAO().executionStarted(comTaskExecution, this.getComPort());
-        this.getExecutionContext().start(comTaskExecution);
     }
 
     enum BasicCheckTasks implements Comparator<ProtocolTask> {
