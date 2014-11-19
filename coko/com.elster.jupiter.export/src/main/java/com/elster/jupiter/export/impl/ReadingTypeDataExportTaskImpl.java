@@ -380,4 +380,8 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         }
         return empty;
     }
+
+    RecurrentTask getRecurrentTask() {
+        return recurrentTask.get();
+    }
 }

@@ -7,21 +7,19 @@ import com.elster.jupiter.export.NoSuchDataProcessorException;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -38,18 +36,17 @@ import static com.elster.jupiter.util.Ranges.copy;
 class DataExportTaskExecutor implements TaskExecutor {
 
     private final IDataExportService dataExportService;
-    private final TaskService taskService;
+    private final TransactionService transactionService;
 
-
-    public DataExportTaskExecutor(IDataExportService dataExportService, TaskService taskService) {
+    public DataExportTaskExecutor(IDataExportService dataExportService, TransactionService transactionService) {
         this.dataExportService = dataExportService;
-        this.taskService = taskService;
+        this.transactionService = transactionService;
     }
 
     @Override
     public void execute(TaskOccurrence occurrence) {
         IDataExportOccurrence dataExportOccurrence = createOccurrence(occurrence);
-        execute(dataExportOccurrence, getLogger(occurrence));
+        doExecute(dataExportOccurrence, getLogger(occurrence));
     }
 
     private Logger getLogger(TaskOccurrence occurrence) {
@@ -64,13 +61,16 @@ class DataExportTaskExecutor implements TaskExecutor {
         return dataExportOccurrence;
     }
 
-    private void execute(IDataExportOccurrence occurrence, Logger logger) {
+    private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
         IReadingTypeDataExportTask task = occurrence.getTask();
         Set<IReadingTypeDataExportItem> activeItems = getActiveItems(task, occurrence);
 
         task.getExportItems().stream()
                 .filter(item -> !activeItems.contains(item))
                 .peek(IReadingTypeDataExportItem::deactivate)
+                .forEach(IReadingTypeDataExportItem::update);
+        activeItems.stream()
+                .peek(IReadingTypeDataExportItem::activate)
                 .forEach(IReadingTypeDataExportItem::update);
 
         DataProcessor dataFormatter = getDataProcessor(task);
@@ -86,10 +86,11 @@ class DataExportTaskExecutor implements TaskExecutor {
 
     private Set<IReadingTypeDataExportItem> getActiveItems(IReadingTypeDataExportTask task, DataExportOccurrence occurrence) {
         return task.getEndDeviceGroup().getMembers(occurrence.getExportedDataInterval()).stream()
+                .map(EndDeviceMembership::getEndDevice)
                 .filter(device -> device instanceof Meter)
                 .map(Meter.class::cast)
                 .flatMap(meter -> readingTypeDataExportItems(task, meter))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private DataProcessor getDataProcessor(IReadingTypeDataExportTask task) {
@@ -99,7 +100,6 @@ class DataExportTaskExecutor implements TaskExecutor {
     }
 
     private void doProcess(DataProcessor dataFormatter, DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
-        item.activate();
         item.setLastRun(occurrence.getTriggerTime());
         dataFormatter.startItem(item);
         Range<Instant> exportInterval = determineExportInterval(occurrence, item);
@@ -112,14 +112,15 @@ class DataExportTaskExecutor implements TaskExecutor {
     }
 
     private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(IReadingTypeDataExportTask task, Meter meter) {
-        Map<ReadingType, List<IReadingTypeDataExportItem>> items = task.getExportItems().stream()
-                .collect(Collectors.groupingBy(ReadingTypeDataExportItem::getReadingType, Collectors.toCollection(ArrayList::new)));
 
         return task.getReadingTypes().stream()
-                .map(r -> Optional.ofNullable(items.get(r)).orElse(Collections.emptyList()).stream()
-                        .filter(i -> meter.equals(i.getReadingContainer()))
+                .map(r -> task.getExportItems().stream()
+                        .map(IReadingTypeDataExportItem.class::cast)
+                        .filter(item -> r.equals(item.getReadingType()))
+                        .filter(i -> i.getReadingContainer().is(meter))
                         .findAny()
-                        .orElseGet(() -> task.addExportItem(meter, r)));
+                        .orElseGet(() -> task.addExportItem(meter, r))
+                );
     }
 
     private Range<Instant> determineExportInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {

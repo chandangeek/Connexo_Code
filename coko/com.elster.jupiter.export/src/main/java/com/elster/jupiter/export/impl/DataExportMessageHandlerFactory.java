@@ -4,6 +4,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -12,10 +13,11 @@ public class DataExportMessageHandlerFactory implements MessageHandlerFactory {
 
     private volatile IDataExportService dataExportService;
     private volatile TaskService taskService;
+    private volatile TransactionService transactionService;
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new DataExportTaskExecutor(dataExportService, taskService));
+        return taskService.createMessageHandler(new DataExportTaskExecutor(dataExportService, transactionService));
     }
 
     @Reference
@@ -26,5 +28,10 @@ public class DataExportMessageHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 }
