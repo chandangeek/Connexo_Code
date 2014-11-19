@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,9 @@ import java.util.TimeZone;
  * Time: 11:26:42<br/>
  */
 public class DLMSProfileIntervals extends Array {
+
+    private static final int MILLIS = 1000;
+    private static final int SECONDS = 60;
 
     /**
      * Indicator for the default clock mask of the capturedObjects
@@ -55,11 +59,12 @@ public class DLMSProfileIntervals extends Array {
     protected final int channelMask;
 
     /**
-     * The used {@link com.energyict.protocolimpl.base.ProfileIntervalStatusBits}
+     * The used {@link ProfileIntervalStatusBits}
      */
     protected final ProfileIntervalStatusBits profileStatusBits;
 
     protected int profileInterval;
+    private boolean roundDownToNearestInterval = false;
 
     /**
      * Constructor with the default masks enabled:
@@ -70,11 +75,22 @@ public class DLMSProfileIntervals extends Array {
      * </ul>
      *
      * @param encodedData the raw encoded data of the buffer of the {@link com.energyict.dlms.cosem.ProfileGeneric}
-     * @param statusBits  the statusbits converter to use (if set to null, then the {@link com.energyict.protocolimpl.dlms.DLMSDefaultProfileIntervalStatusBits} will be used)
+     * @param statusBits  the statusbits converter to use (if set to null, then the {@link DLMSDefaultProfileIntervalStatusBits} will be used)
      * @throws IOException when encoding types are not as expected
      */
     public DLMSProfileIntervals(byte[] encodedData, ProfileIntervalStatusBits statusBits) throws IOException {
         this(encodedData, DefaultClockMask, DefaultStatusMask, -1, statusBits);
+    }
+
+    public boolean isRoundDownToNearestInterval() {
+        return roundDownToNearestInterval;
+    }
+
+    /**
+     * Enable this if you want to round down the interval timestamps to the nearest interval
+     */
+    public void setRoundDownToNearestInterval(boolean roundDownToNearestInterval) {
+        this.roundDownToNearestInterval = roundDownToNearestInterval;
     }
 
     /**
@@ -84,7 +100,7 @@ public class DLMSProfileIntervals extends Array {
      * @param clockMask   the binary represented mask of the clock index
      * @param statusMask  the binary represented mask of all the status indexes
      * @param channelMask the binary represented mask of all the channel indexes
-     * @param statusBits  the statusbits converter to use (if set to null, then the {@link com.energyict.protocolimpl.dlms.DLMSDefaultProfileIntervalStatusBits} will be used)
+     * @param statusBits  the statusbits converter to use (if set to null, then the {@link DLMSDefaultProfileIntervalStatusBits} will be used)
      * @throws IOException when encoding types are not as expected
      */
     public DLMSProfileIntervals(byte[] encodedData, int clockMask, int statusMask, int channelMask, ProfileIntervalStatusBits statusBits) throws IOException {
@@ -214,7 +230,7 @@ public class DLMSProfileIntervals extends Array {
      * @return the new Calendar object
      * @throws IOException when the dataType is not as expected or the calendar could not be constructed
      */
-    protected Calendar constructIntervalCalendar(Calendar cal, AbstractDataType dataType) throws IOException {
+    public Calendar constructIntervalCalendar(Calendar cal, AbstractDataType dataType) throws IOException {
         return this.constructIntervalCalendar(cal, dataType, null);
     }
 
@@ -227,7 +243,7 @@ public class DLMSProfileIntervals extends Array {
      * @return the new Calendar object
      * @throws IOException when the dataType is not as expected or the calendar could not be constructed
      */
-    protected Calendar constructIntervalCalendar(Calendar cal, AbstractDataType dataType, TimeZone timeZone) throws IOException {
+    public Calendar constructIntervalCalendar(Calendar cal, AbstractDataType dataType, TimeZone timeZone) throws IOException {
         if (dataType instanceof OctetString) {
             OctetString os = (OctetString) dataType;
             // check if the OctetString contains a date, otherwise just add the profileInterval to the current calendar
@@ -243,11 +259,64 @@ public class DLMSProfileIntervals extends Array {
                 throw new IOException("Could not create a correct calender for current interval.");
             }
         } else if (dataType instanceof NullData && cal != null) {
+            // Adjust the calendar to start of next interval
             cal.add(Calendar.SECOND, profileInterval);
+            if (roundDownToNearestInterval) {
+                Date roundedDate = roundDownToNearestInterval(cal.getTime(), profileInterval / 60);
+                cal.setTime(roundedDate);
+            }
         } else {
-            throw new IOException("Unknown calendar type for current interval.");
+            throw new IOException("Unexpected data type '" + dataType.getClass().getName() + "' for current LP interval timestamp. Expected an OctetString or NullData.");
         }
         return cal;
+    }
+
+    /**
+     * Rounds down to the nearest interval or to the nearest hour if the interval is daily/monthly
+     *
+     * @param timeStamp
+     * @param intervalInMinutes
+     * @return
+     */
+    protected Date roundDownToNearestInterval(Date timeStamp, int intervalInMinutes) {
+        return roundUpToNearestInterval(timeStamp, intervalInMinutes * (-1));
+    }
+
+    /**
+     * @param timeStamp
+     * @param intervalInMinutes
+     * @return
+     */
+    protected Date roundUpToNearestInterval(Date timeStamp, int intervalInMinutes) {
+        long intervalMillis = (long) intervalInMinutes * MILLIS * SECONDS;
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(timeStamp);
+        if (Math.abs(intervalInMinutes) >= (31 * 24 * 60)) { // In case of monthly intervals
+            cal.set(Calendar.DAY_OF_MONTH, 1);
+        }
+        if (Math.abs(intervalInMinutes) >= (24 * 60)) {    // In case of daily/monthly intervals
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+        }
+
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        long diff = timeStamp.getTime() - cal.getTimeInMillis();
+        long overTime = diff % intervalMillis;
+        long beforeTime = intervalMillis - overTime;
+
+        Calendar returnDate = Calendar.getInstance();
+        returnDate.setTime(timeStamp);
+        if (intervalInMinutes > 0) {
+            returnDate.add(Calendar.SECOND, overTime != 0 ? (int) (beforeTime / 1000) : 0);         // The seconds      - split up to avoid int limit
+            returnDate.add(Calendar.MILLISECOND, overTime != 0 ? (int) (beforeTime % 1000) : 0);    // The milliseconds
+        } else {
+            returnDate.add(Calendar.SECOND, (overTime != 0 ? (int) (overTime / 1000) : 0) * (-1));          // The seconds      - split up to avoid int limit
+            returnDate.add(Calendar.MILLISECOND, (overTime != 0 ? (int) (overTime % 1000) : 0) * (-1));     // The milliseconds
+        }
+        return returnDate.getTime();
     }
 
     /**
@@ -256,7 +325,7 @@ public class DLMSProfileIntervals extends Array {
      * @param index the index to check
      * @return true if the given index is the clockIndex, false otherwise
      */
-    protected boolean isClockIndex(int index) {
+    public boolean isClockIndex(int index) {
         return new BigInteger(String.valueOf(this.clockMask)).shiftRight(index).and(new BigInteger("1")).intValue() == 1;
     }
 
@@ -266,7 +335,7 @@ public class DLMSProfileIntervals extends Array {
      * @param index the index to check
      * @return true if the given index is a valid StatusIndex, false otherwise
      */
-    protected boolean isStatusIndex(int index) {
+    public boolean isStatusIndex(int index) {
         return new BigInteger(String.valueOf(this.statusMask)).shiftRight(index).and(new BigInteger("1")).intValue() == 1;
     }
 
@@ -276,7 +345,7 @@ public class DLMSProfileIntervals extends Array {
      * @param index the index to check
      * @return true if the given index is a valid ChannelIndex, false otherwise
      */
-    protected boolean isChannelIndex(int index) {
+    public boolean isChannelIndex(int index) {
         if (isClockIndex(index) || isStatusIndex(index)) {
             return false;
         }
@@ -288,7 +357,7 @@ public class DLMSProfileIntervals extends Array {
      *
      * @return the number of status indexes
      */
-    protected int getNrOfStatusIndexes() {
+    public int getNrOfStatusIndexes() {
         return Integer.bitCount(this.statusMask);
     }
 
@@ -297,7 +366,7 @@ public class DLMSProfileIntervals extends Array {
      *
      * @return the number of channel indexes
      */
-    protected int getNrOfChannelIndexes() {
+    public int getNrOfChannelIndexes() {
         return Integer.bitCount(this.channelMask);
     }
 
@@ -306,11 +375,11 @@ public class DLMSProfileIntervals extends Array {
      *
      * @return the number of clock indexes
      */
-    protected int getNrOfClockIndexes() {
+    public int getNrOfClockIndexes() {
         return Integer.bitCount(this.clockMask);
     }
 
-    protected int getProfileInterval() {
+    public int getProfileInterval() {
         return profileInterval;
     }
 }

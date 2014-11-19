@@ -1,3 +1,4 @@
+
 package com.energyict.protocolimpl.dlms.a1800;
 
 import com.energyict.dlms.ConnectionMode;
@@ -28,6 +29,7 @@ public class A1800Properties extends DlmsProtocolProperties implements DlmsSessi
     private static final String PROPNAME_SN = "SerialNumber";
     private static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
     private static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
+    private static final String PROPNAME_APPLY_TRANSFORMER_RATIOS = "ApplyTransformerRatios";
 
     public static final String READ_SERIAL_NUMBER = "ReadSerialNumber";
 
@@ -42,6 +44,7 @@ public class A1800Properties extends DlmsProtocolProperties implements DlmsSessi
         optional.add(READ_SERIAL_NUMBER);
         optional.add(PROPNAME_SEND_PREFIX);
         optional.add(PROPNAME_LOAD_PROFILE_OBIS_CODE);
+        optional.add(PROPNAME_APPLY_TRANSFORMER_RATIOS);
         return optional;
     }
 
@@ -50,7 +53,6 @@ public class A1800Properties extends DlmsProtocolProperties implements DlmsSessi
         return required;
     }
 
-    @Override
     protected void doValidateProperties() throws MissingPropertyException, InvalidPropertyException {
         final String obisString = getStringValue(PROPNAME_LOAD_PROFILE_OBIS_CODE, "");
         if (obisString.length() > 0) {
@@ -108,6 +110,21 @@ public class A1800Properties extends DlmsProtocolProperties implements DlmsSessi
         return new LocalSecurityProvider(this);
     }
 
+    public String getPassword()
+    {
+        return null;
+    }
+
+    public String getDeviceId()
+    {
+        return null;
+    }
+
+    public String getNodeAddress()
+    {
+        return null;
+    }
+
     @ProtocolProperty
     public String getSerialNumber() {
         return getStringValue(PROPNAME_SN, "");
@@ -141,5 +158,9 @@ public class A1800Properties extends DlmsProtocolProperties implements DlmsSessi
     @ProtocolProperty
     public String getManufacturer() {
         return "ELS";
+    }
+
+    public boolean needToApplyTransformerRatios() {
+        return getBooleanProperty(PROPNAME_APPLY_TRANSFORMER_RATIOS, "0");
     }
 }

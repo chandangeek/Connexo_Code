@@ -148,16 +148,18 @@ public class A1800Profile extends DLMSProfileHelper {
     private List<IntervalData> getIntervalData(Calendar from, Calendar to) throws IOException {
         getLogger().info("Reading interval buffer from device for profile [" + getObisCode() + "].");
 
-        int profileEntries = getProfileGeneric().getProfileEntries();
+        int profileEntriesInUse = getProfileGeneric().getEntriesInUse(); // The number of profile entries currently in use
         long interval = this.getProfileInterval();
         long a1800Time = getSession().getCosemObjectFactory().getClock(A1800.CLOCK_OBIS_CODE).getDateTime().getTime() / 1000;
         long fromTime = from.getTimeInMillis() / 1000;
 
         long entriesToRead = ((a1800Time - fromTime) / interval) + 1;
-        if (entriesToRead > profileEntries) {
-            entriesToRead = profileEntries;
-        } else if (entriesToRead < 0) { // This is the case when fromTime is after a1800Time, in fact telling to read out the future...
-            entriesToRead = 1;          // Then read out only the last entry
+        if (profileEntriesInUse == 0){
+            return new ArrayList<IntervalData>();// In case the profile buffer is empty
+        } else if (entriesToRead > profileEntriesInUse) {
+            entriesToRead = profileEntriesInUse; // It makes no sense to request more entries than the amount of entries currently in use
+        } else if (entriesToRead < 0) {
+            entriesToRead = 1;                   // This is the case when fromTime is after a1800Time, in fact telling to read out the future -> read out only the last entry
         }
 
         byte[] bufferData = getProfileGeneric().getBufferData(0, (int) entriesToRead, 0, 0);

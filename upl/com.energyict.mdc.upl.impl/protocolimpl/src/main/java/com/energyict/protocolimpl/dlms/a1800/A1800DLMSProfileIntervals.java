@@ -1,7 +1,11 @@
 package com.energyict.protocolimpl.dlms.a1800;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
@@ -9,7 +13,9 @@ import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -23,6 +29,7 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
 
     protected final int channelStatusMask;
     protected Long multiplier = null;
+    private static final byte[] INVALID_DATETIME_OCTET_STRING_BYTES = new byte[12];
 
     public A1800DLMSProfileIntervals(byte[] encodedData, int clockMask, int statusMask, int channelMask, ProfileIntervalStatusBits statusBits) throws IOException {
         this(encodedData, clockMask, statusMask, channelMask, 0, statusBits);
@@ -51,6 +58,7 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
         int profileStatus = 0;
         if (getAllDataTypes().size() != 0) {
             removeCurrentIntervalIndexes();
+            boolean jumpToNext = false;
             for (int i = 0; i < nrOfDataTypes(); i++) {
                 Structure element = (Structure) getDataType(i);
                 List<Long> values = new ArrayList<Long>();
@@ -60,6 +68,10 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
                     if (isClockIndex(d)) {
                         try {
                             cal = constructIntervalCalendar(cal, element.getDataType(d), timeZone);
+                            if (cal == null) {
+                                jumpToNext = true; // The current element is invalid, so no need to parse it, but instead jump to the next element
+                                break;
+                            }
                         } catch (IOException e) {
                             throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
                         }
@@ -75,19 +87,55 @@ public class A1800DLMSProfileIntervals extends DLMSProfileIntervals {
                         values.add(vc);
                     }
                 }
-                if (cal != null) {
-                    currentInterval = new IntervalData(cal.getTime(), profileStatus);
-                    for (int j = 0; j < values.size(); j++) {
-                        int channelStatus = (j < status.size()) ? status.get(j) : 0;
-                        currentInterval.addValue(values.get(j), 0, channelStatus);
+                if (!jumpToNext) {
+                    if (cal != null) {
+                        currentInterval = new IntervalData(cal.getTime(), profileStatus);
+                        for (int j = 0; j < values.size(); j++) {
+                            int channelStatus = (j < status.size()) ? status.get(j) : 0;
+                            currentInterval.addValue(values.get(j), 0, channelStatus);
+                        }
+                    } else {
+                        throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
                     }
-                } else {
-                    throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
+                    intervalList.add(currentInterval);
                 }
-                intervalList.add(currentInterval);
+                jumpToNext = false;
             }
         }
         return intervalList;
+    }
+
+    @Override
+    public Calendar constructIntervalCalendar(Calendar cal, AbstractDataType dataType, TimeZone timeZone) throws IOException {
+        if (dataType instanceof OctetString) {
+            OctetString os = (OctetString) dataType;
+            // check if the OctetString contains a date, otherwise just add the profileInterval to the current calendar
+            if (os.getOctetStr().length == 12) {
+                if (Arrays.equals(INVALID_DATETIME_OCTET_STRING_BYTES, os.getOctetStr())) {
+                    return null;
+                }
+
+                if (timeZone == null) {
+                    cal = new AXDRDateTime(os, AXDRDateTimeDeviationType.Negative).getValue();
+                } else {
+                    cal = new AXDRDateTime(os.getBEREncodedByteArray(), 0, timeZone).getValue();
+                }
+            } else if (cal != null) {
+                cal.add(Calendar.SECOND, profileInterval);
+            } else {
+                throw new IOException("Could not create a correct calender for current interval.");
+            }
+        } else if (dataType instanceof NullData && cal != null) {
+            // Adjust the calendar to start of next interval
+            cal.add(Calendar.SECOND, profileInterval);
+            if (isRoundDownToNearestInterval()) {
+                Date roundedDate = roundDownToNearestInterval(cal.getTime(), profileInterval / 60);
+                cal.setTime(roundedDate);
+            }
+        } else {
+            throw new IOException("Unexpected data type '" + dataType.getClass().getName() + "' for current LP interval timestamp. Expected an OctetString or NullData.");
+        }
+        return cal;
     }
 
     /**
