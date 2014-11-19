@@ -10,7 +10,8 @@ Ext.define('Sam.controller.Main', {
     controllers: [
         'Sam.controller.history.Administration',
         'Sam.controller.licensing.Licenses',
-        'Sam.controller.licensing.Upload'
+        'Sam.controller.licensing.Upload',
+        'Sam.controller.datapurge.Settings'
     ],
 
     stores: [
@@ -33,7 +34,8 @@ Ext.define('Sam.controller.Main', {
     },
 
     initMenu: function () {
-        var me = this;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
 
         if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license', 'privilege.view.license'])) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
@@ -63,6 +65,19 @@ Ext.define('Sam.controller.Main', {
                     licensingItem
                 );
             }
+
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('datapurge.title', 'SAM', 'Data purge'),
+                    portal: 'administration',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('datapurge.settings.title', 'SAM', 'Data purge settings'),
+                            href: router.getRoute('administration/datapurgesettings').buildUrl()
+                        }
+                    ]
+                })
+            );
         }
     }
 });

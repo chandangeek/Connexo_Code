@@ -31,6 +31,12 @@ Ext.define('Sam.controller.history.Administration', {
                             action: 'showOverview'
                         }
                     }
+                },
+                datapurgesettings: {
+                    title: Uni.I18n.translate('datapurge.settings.title', 'SAM', 'Data purge settings'),
+                    route: 'datapurgesettings',
+                    controller: 'Sam.controller.datapurge.Settings',
+                    action: 'showOverview'
                 }
             }
         }
