@@ -586,3 +586,5 @@
 -keepnames class com.energyict.protocolimpl.dlms.a1800.A1800
 
 -keepnames class com.energyict.protocolimpl.modbus.socomec.countis.e44.E44
+
+-keepnames class com.energyict.protocolimpl.iec1107.emh.nxt4.NXT4

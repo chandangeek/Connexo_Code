@@ -74,7 +74,8 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         this.protocolClasses.add("com.energyict.protocolimpl.iec1107.abba1500.ABBA1500");  this.protocolNames.add("Elster/ABB A1500 IEC1107 VDEW");
         this.protocolClasses.add("com.energyict.protocolimpl.iec1107.abba1700.ABBA1700");  this.protocolNames.add("Elster/ABB A1700 IEC1107");
         this.protocolClasses.add("com.energyict.protocolimpl.EMCO.FP93");  this.protocolNames.add("EMCO FP93 Steam Meter");
-        this.protocolClasses.add("com.energyict.protocolimpl.iec1107.emh.lzqj.LZQJ");  this.protocolNames.add("EMH LZQJ IEC1107 VDEW");
+        this.protocolClasses.add("com.energyict.protocolimpl.iec1107.emh.lzqj.LZQJ");  this.protocolNames.add("EMH LZQJ 4 quadrant combi meter VDEW");
+        this.protocolClasses.add("com.energyict.protocolimpl.iec1107.emh.nxt4.NXT4");  this.protocolNames.add("EMH NXT4 4 quadrant combi meter VDEW");
         this.protocolClasses.add("com.energyict.protocolimpl.emon.ez7.EZ7");  this.protocolNames.add("EMON EZ7");
         this.protocolClasses.add("com.energyict.protocolimpl.modbus.enerdis.enerium150.Enerium150");  this.protocolNames.add("Enerdis Enerium 150 Modbus");
         this.protocolClasses.add("com.energyict.protocolimpl.modbus.enerdis.enerium200.Enerium200");  this.protocolNames.add("Enerdis Enerium 200 Modbus");
