@@ -39,6 +39,6 @@ public class TaskLogEntryFinder implements LogEntryFinder {
     }
 
     public List<? extends TaskLogEntry> find() {
-        return queryExecutor.select(condition, orders, true, null, start, limit);
+        return queryExecutor.select(condition, orders, true, null, start, start+limit);
     }
 }
