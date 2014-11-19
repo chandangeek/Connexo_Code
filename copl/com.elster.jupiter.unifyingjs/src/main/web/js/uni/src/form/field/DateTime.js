@@ -162,7 +162,7 @@ Ext.define('Uni.form.field.DateTime', {
             dateField = me.down('#date-time-field-date'),
             hoursField = me.down('#date-time-field-hours'),
             minutesField = me.down('#date-time-field-minutes');
-        if (Ext.isDate(value) || moment(new Date(value)).isValid()) {
+        if (value != null && Ext.isDate(new Date(value))) {
             me.eachItem(function (item) {
                 item.suspendEvent('change');
             });
@@ -173,51 +173,37 @@ Ext.define('Uni.form.field.DateTime', {
             me.eachItem(function (item) {
                 item.resumeEvent('change');
             });
-        } else if (value === undefined || value === null) {
+        } else {
             dateField.reset();
             hoursField.reset();
             minutesField.reset();
-        } else {
-            //<debug>
-            console.error('\'' + value + '\' is not a date');
-            //</debug>
         }
     },
 
-    getValue: function() {
+    getValue: function () {
         var me = this,
             date = me.down('#date-time-field-date').getValue(),
             hours = me.down('#date-time-field-hours').getValue(),
             minutes = me.down('#date-time-field-minutes').getValue();
-
         if (date) {
             date = date.getTime();
-            if (hours) {
-                date += hours * 3600000;
-            }
-            if (minutes) {
-                date += minutes * 60000;
-            }
+            if (hours) date += hours * 3600000;
+            if (minutes) date += minutes * 60000;
         }
-
-        if(me.getRawValue) {
-            return date;
-        }
-
+        if (me.getRawValue) return date;
         date = new Date(date);
-
         return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
     },
 
-    markInvalid: function(fields){
-        this.eachItem(function(field){
+    markInvalid: function (fields) {
+        this.eachItem(function (field) {
             field.markInvalid('');
         });
         this.items.items[0].markInvalid(fields);
     },
 
-    eachItem: function(fn, scope) {
-        if(this.items && this.items.each){
+    eachItem: function (fn, scope) {
+        if (this.items && this.items.each) {
             this.items.each(fn, scope || this);
         }
     },
