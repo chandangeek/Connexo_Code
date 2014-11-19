@@ -34,6 +34,7 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 transactionService.execute(processTransaction);
+                handler.onMessageDelete();
             } catch (RuntimeException e) {
                 MessageSeeds.MESSAGEHANDLER_FAILED.log(LOGGER, thesaurus, e);
                 // transaction has been rolled back, message will be reoffered after a delay or moved to dead letter queue as configured, we can just continue with the next message

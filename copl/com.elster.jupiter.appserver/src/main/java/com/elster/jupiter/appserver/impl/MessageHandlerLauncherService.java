@@ -9,7 +9,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
-import java.util.Optional;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -22,6 +21,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -110,10 +110,7 @@ public class MessageHandlerLauncherService {
 
     private void addMessageHandlerFactory(String subscriberName, MessageHandlerFactory factory) {
         Optional<SubscriberExecutionSpec> subscriberExecutionSpec = findSubscriberExecutionSpec(subscriberName);
-        if (subscriberExecutionSpec.isPresent()) {
-            SubscriberExecutionSpec executionSpec = subscriberExecutionSpec.get();
-            launch(factory, executionSpec.getThreadCount(), executionSpec.getSubscriberSpec());
-        }
+        subscriberExecutionSpec.ifPresent(executionSpec ->  launch(factory, executionSpec.getThreadCount(), executionSpec.getSubscriberSpec()));
     }
 
     private void launch(MessageHandlerFactory factory, int threadCount, SubscriberSpec subscriberSpec) {
