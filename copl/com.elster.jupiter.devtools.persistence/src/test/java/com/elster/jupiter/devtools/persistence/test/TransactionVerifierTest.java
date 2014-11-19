@@ -22,14 +22,14 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionVerifierTest {
 
-    private TransactionVerifier transactionVerifier;
+    private TransactionVerifier transactionService;
 
     @Mock
     private Comparator<String> comparator;
 
     @Before
     public void setUp() {
-        transactionVerifier = new TransactionVerifier(comparator);
+        transactionService = new TransactionVerifier(comparator);
     }
 
     @After
@@ -39,21 +39,21 @@ public class TransactionVerifierTest {
 
     @Test
     public void testInTransactionContext() {
-        try (TransactionContext ctx = transactionVerifier.getContext()) {
+        try (TransactionContext ctx = transactionService.getContext()) {
             comparator.compare("A", "B");
             ctx.commit();
         }
 
-        verify(comparator, transactionVerifier.inTransaction()).compare("A", "B");
+        verify(comparator, transactionService.inTransaction()).compare("A", "B");
     }
 
     @Test(expected = AssertionError.class)
     public void testInTransactionContextFails() {
-        try (TransactionContext ctx = transactionVerifier.getContext()) {
+        try (TransactionContext ctx = transactionService.getContext()) {
             ctx.commit();
         }
         comparator.compare("A", "B");
-        verify(comparator, transactionVerifier.inTransaction()).compare("A", "B");
+        verify(comparator, transactionService.inTransaction()).compare("A", "B");
     }
 
     @Test
@@ -63,11 +63,11 @@ public class TransactionVerifierTest {
             return "A";
         };
 
-        String result = transactionVerifier.execute(transaction);
+        String result = transactionService.execute(transaction);
 
         assertThat(result).isEqualTo("A");
 
-        verify(comparator, transactionVerifier.inTransaction()).compare("A", "B");
+        verify(comparator, transactionService.inTransaction()).compare("A", "B");
     }
 
     @Test(expected = AssertionError.class)
@@ -77,9 +77,9 @@ public class TransactionVerifierTest {
         };
         comparator.compare("A", "B");
 
-        String result = transactionVerifier.execute(transaction);
+        String result = transactionService.execute(transaction);
 
-        verify(comparator, transactionVerifier.inTransaction()).compare("A", "B");
+        verify(comparator, transactionService.inTransaction()).compare("A", "B");
     }
 
 
