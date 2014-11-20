@@ -3,11 +3,12 @@ Ext.define('Dxp.view.log.Setup', {
     alias: 'widget.log-setup',
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Dxp.view.tasks.Menu',
+        'Dxp.view.log.Menu',
         'Dxp.view.log.Grid',
         'Dxp.view.log.Preview'
     ],
     task: null,
+    runStartedOn: null,
     router: null,
     initComponent: function () {
         var me = this;
@@ -19,10 +20,9 @@ Ext.define('Dxp.view.log.Setup', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'tasks-menu',
-                        itemId: 'tasks-view-menu',
-                        router: me.router,
-                        toggle: 2
+                        xtype: 'log-menu',
+                        itemId: 'log-view-menu',
+                        toggle: 0
                     }
                 ]
             }
@@ -46,7 +46,7 @@ Ext.define('Dxp.view.log.Setup', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('log.empty.title', 'DES', 'No logging has been found.'),
                         reasons: [
-                            Uni.I18n.translate('log.empty.list.item1', 'DES', 'No logging has been found for the') + ' ' + me.task.get('name') + ' ' + Uni.I18n.translate('general.startedon', 'DES', 'started on') + ' ' + me.task.get('startedOn')
+                            Uni.I18n.translate('log.empty.list.item1', 'DES', 'No logging has been found for the') + ' ' + me.task.get('name') + ' ' + Uni.I18n.translate('general.startedon', 'DES', 'started on') + ' ' + me.runStartedOn
                         ]
                     }
                 }

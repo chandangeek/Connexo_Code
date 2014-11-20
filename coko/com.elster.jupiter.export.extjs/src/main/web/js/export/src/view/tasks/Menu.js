@@ -27,14 +27,6 @@ Ext.define('Dxp.view.tasks.Menu', {
                 hrefTarget: '_self'
             });           
         }
-
-        me.add(
-            {
-                text: Uni.I18n.translate('general.log', 'DES', 'Log'),
-                itemId: 'tasks-log-link',
-                hidden: true
-            }
-        );
         
         me.toggleMenuItem(me.toggle);
     }
