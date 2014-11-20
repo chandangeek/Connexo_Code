@@ -20,7 +20,6 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
@@ -227,7 +226,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     public ObisCode getCorrectedRegisterObisCode(OfflineRegister register) {
-        return this.protocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getSerialNumber());
+        return this.protocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getDeviceSerialNumber());
     }
 
     /**
@@ -320,7 +319,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
-        return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getAmrRegisterObisCode(), offlineRtuRegister.getObisCode(), new DeviceIdentifierBySerialNumber(offlineRtuRegister.getSerialNumber()));
+        return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getAmrRegisterObisCode(), offlineRtuRegister.getObisCode(), new DeviceIdentifierBySerialNumber(offlineRtuRegister.getDeviceSerialNumber()));
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
