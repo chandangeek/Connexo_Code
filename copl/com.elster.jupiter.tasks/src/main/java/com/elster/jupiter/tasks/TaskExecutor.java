@@ -4,4 +4,6 @@ public interface TaskExecutor {
 
     void execute(TaskOccurrence occurrence);
 
+    default void postExecute(TaskOccurrence occurrence) {
+    }
 }

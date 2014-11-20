@@ -14,6 +14,8 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class TaskOccurrenceImplTest {
 
@@ -24,7 +26,8 @@ public class TaskOccurrenceImplTest {
 
     @Before
     public void setUp() {
-
+        when(dataModel.getInstance(TaskOccurrenceImpl.class)).thenAnswer(invocation -> new TaskOccurrenceImpl(dataModel));
+        when(dataModel.getInstance(TaskLogEntryImpl.class)).thenAnswer(invocation -> new TaskLogEntryImpl());
     }
 
     @After

@@ -25,14 +25,18 @@ class TaskExecutionMessageHandler implements MessageHandler {
     @Override
     public void process(Message message) {
         TaskOccurrenceImpl taskOccurrence = getTaskOccurrence(message);
-        if (taskOccurrence != null) {
-            taskExecutor.execute(taskOccurrence);
-            taskOccurrence.hasRun();
-        }
+        taskExecutor.execute(taskOccurrence);
+    }
+
+    @Override
+    public void onMessageDelete(Message message) {
+        TaskOccurrenceImpl taskOccurrence = getTaskOccurrence(message);
+        taskExecutor.postExecute(taskOccurrence);
+        taskOccurrence.hasRun();
     }
 
     private TaskOccurrenceImpl getTaskOccurrence(Message message) {
-        return (TaskOccurrenceImpl) dataModel.mapper(TaskOccurrence.class).getOptional(getTaskOccurrenceMessage(message).taskOccurrenceId).get();
+        return (TaskOccurrenceImpl) dataModel.mapper(TaskOccurrence.class).getExisting(getTaskOccurrenceMessage(message).taskOccurrenceId);
     }
 
     private TaskOccurrenceMessage getTaskOccurrenceMessage(Message message) {

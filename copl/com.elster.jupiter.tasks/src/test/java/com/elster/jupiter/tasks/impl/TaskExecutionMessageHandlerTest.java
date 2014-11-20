@@ -53,6 +53,7 @@ public class TaskExecutionMessageHandlerTest {
         when(taskOccurrence.getId()).thenReturn(ID);
         taskOccurrenceMessage = new TaskOccurrenceMessage(taskOccurrence);
         when(taskOccurrenceFactory.getOptional(ID)).thenReturn(Optional.of(taskOccurrence));
+        when(taskOccurrenceFactory.getExisting(ID)).thenReturn(taskOccurrence);
         when(jsonService.deserialize(PAYLOAD, TaskOccurrenceMessage.class)).thenReturn(taskOccurrenceMessage);
         when(dataModel.mapper(TaskOccurrence.class)).thenReturn(taskOccurrenceFactory);
     }
