@@ -51,7 +51,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         itemId: 'task-name',
                         width: 500,
                         required: true,
-                        maskRe: /[^:\\/*?"<>|]/,
+                        //maskRe: /[^:\\/*?"<>|]/,
                         emptyText: Uni.I18n.translate('general.emptyTextName', 'DES', 'Enter a name'),
                         fieldLabel: Uni.I18n.translate('general.name', 'DES', 'Name'),
                         allowBlank: false,
