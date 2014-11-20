@@ -1,25 +1,13 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.FieldType;
-import com.elster.jupiter.orm.IllegalTableMappingException;
-import com.elster.jupiter.orm.MappingException;
-import com.elster.jupiter.orm.SqlDialect;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.TableConstraint;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.fields.impl.ColumnMapping;
-import com.elster.jupiter.orm.fields.impl.FieldMapping;
-import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
-import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
-import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
-import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2CURRENCY;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2PRINCIPAL;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTWRAPPER;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2NOW;
+import static com.elster.jupiter.util.Checks.is;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
@@ -37,8 +25,25 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.util.Checks.is;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.FieldType;
+import com.elster.jupiter.orm.IllegalTableMappingException;
+import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.fields.impl.ColumnMapping;
+import com.elster.jupiter.orm.fields.impl.FieldMapping;
+import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
+import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
+import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
+import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 
 public class TableImpl<T> implements Table<T> {
 	
@@ -862,7 +867,7 @@ public class TableImpl<T> implements Table<T> {
 		if (getJournalTableName() == null) {
 			return;
 		}
-		if (getDataModel().getSqlDialect() != SqlDialect.ORACLE) {
+		if (!getDataModel().getSqlDialect().hasPartitioning()) {
 			// todo sql delete
 			return;
 		}
