@@ -68,8 +68,8 @@ Ext.define('Usr.controller.UserEdit', {
 
                     Ext.ModelManager.getModel('Usr.model.UserDirectory').load(user.get('domain'), {
                         callback: function (domain) {
-                            if (!domain.get('manageGroupsInternal')) {
-                                panel.down('[itemId=selectRoles]').disable();
+                            if (!domain.get('manageGroupsInternal')||(user.get('authenticationName') == "admin")) {
+                                    panel.down('[itemId=selectRoles]').disable();
                             }
 
                             widget.setLoading(false);
