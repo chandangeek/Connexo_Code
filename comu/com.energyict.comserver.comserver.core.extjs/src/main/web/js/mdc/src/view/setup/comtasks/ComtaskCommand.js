@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommand', {
     bbar: [
         {
             xtype: 'button',
-            text: 'Add command',
+            text: 'Add action',
             ui: 'action',
             action: 'addCommand',
             disabled: true,
@@ -25,14 +25,14 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommand', {
         },
         {
             xtype: 'button',
-            text: 'Save command',
+            text: 'Save action',
             ui: 'action',
             action: 'saveCommand',
             hidden: true
         },
         {
             xtype: 'button',
-            text: 'Remove command',
+            text: 'Remove action',
             ui: 'remove',
             action: 'removeCommand',
             hidden: true
