@@ -32,20 +32,21 @@ class Installer {
 	}
 	
 	void install() {
+		List<LifeCycleCategory> categories = new ArrayList<>();
 		for (LifeCycleCategoryKind category : LifeCycleCategoryKind.values()) {
 			LifeCycleCategory newCategory = new LifeCycleCategoryImpl(dataModel).init(category);
 			dataModel.persist(newCategory);
+			categories.add(newCategory);
 		}
 		createTask();
-		createTranslations();
+		createTranslations(categories);
 	}
 	
-	private void createTranslations() {
-	        List<Translation> translations = new ArrayList<>();
-	        for (LifeCycleCategoryKind category : LifeCycleCategoryKind.values()) {
-	        	String key = "data.lifecycle.category" + category.name();
-	        	SimpleNlsKey nlsKey = SimpleNlsKey.key(LifeCycleService.COMPONENTNAME, Layer.DOMAIN, key).defaultMessage(category.name().toLowerCase());
-	            translations.add(toTranslation(nlsKey, Locale.ENGLISH, category.name().toLowerCase()));
+	private void createTranslations(List<LifeCycleCategory> categories) {
+	        List<Translation> translations = new ArrayList<>(categories.size());
+	        for (LifeCycleCategory category : categories) {
+	        	SimpleNlsKey nlsKey = SimpleNlsKey.key(LifeCycleService.COMPONENTNAME, Layer.DOMAIN, category.getTranslationKey()).defaultMessage(category.getName());
+	            translations.add(toTranslation(nlsKey, Locale.ENGLISH, category.getName()));
 	        }
 	        thesaurus.addTranslations(translations);
 	    }

@@ -62,4 +62,14 @@ public class LifeCycleCategoryImpl implements LifeCycleCategory {
 		this.retention = days;
 		dataModel.update(this);
 	}
+	
+	@Override
+	public String getName() {
+		return kind.name().toLowerCase();
+	}
+	
+	@Override
+	public String getTranslationKey() {
+    	return "data.lifecycle.category." + kind.name();
+	}
 }
