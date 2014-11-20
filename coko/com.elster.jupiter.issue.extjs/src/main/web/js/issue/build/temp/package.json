@@ -8,6 +8,5 @@
   "type": "code",
   "requires": [
     "com.elster.jupiter.unifyingjs"
-  ],
-  "local": true
+  ]
 }

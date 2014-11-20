@@ -264,12 +264,18 @@ Ext.define('Isu.util.CreatingControl', {
                     listeners: {
                         focus: {
                             fn: function () {
-                                this.nextSibling().focus();
+                                var combo = this.nextSibling();
+                                Ext.Array.each(this.up('issues-assignee-control').query('radiofield'), function (radiofield) {
+                                    radiofield.nextSibling().allowBlank = true;
+                                });
+                                combo.allowBlank = false;
+                                combo.focus();
                             }
                         }
                     }
                 };
             control.fieldLabel = '';
+            control.allowBlank = index !== 0 ? true : false;
             control.listeners = {
                 focus: {
                     fn: function () {
@@ -465,118 +471,26 @@ Ext.define('Isu.controller.ApplyIssueAction', {
     }
 });
 
-/**
- * This class is used as a mixin.
- *
- * This class is to be used to provide basic methods for controllers that handle events of grid view.
- */
-Ext.define('Isu.util.IsuGrid', {
-    /**
-     * Handle 'refresh' event.
-     * Set tooltip for assignee type icon.
-     * 'class' property of element must be equal 'isu-assignee-type-icon'.
-     */
-    setAssigneeTypeIconTooltip: function (grid) {
-        var gridEl = grid.getEl(),
-            icons = gridEl.query('.isu-assignee-type-icon');
+Ext.define('Isu.view.component.AssigneeColumn', {
+    extend: 'Ext.grid.column.Column',
+    xtype: 'isu-assignee-column',
+    header: '',
+    emptyText: '',
 
-        Ext.Array.each(icons, function (item) {
-            var icon = Ext.get(item),
-                text;
+    renderer: function (value, metaData, record, rowIndex, colIndex) {
+        var result;
 
-            if (icon.hasCls('isu-icon-USER')) {
-                text = 'User';
-            } else if (icon.hasCls('isu-icon-GROUP')) {
-                text = 'User group';
-            } else if (icon.hasCls('isu-icon-ROLE')) {
-                text = 'User role';
+        if (!Ext.isEmpty(value)) {
+            result = '';
+            if (value.type) {
+                result += '<span class="isu-icon-' + value.type + ' isu-assignee-type-icon" data-qtip="' + Uni.I18n.translate('assignee.tooltip.' + value.type, 'ISU', value.type) + '"></span> ';
             }
-
-            if (text) {
-                icon.tooltip = Ext.create('Ext.tip.ToolTip', {
-                    target: icon,
-                    html: text
-                });
-
-                grid.on('destroy', function () {
-                    icon.tooltip.destroy();
-                });
-                grid.on('beforerefresh', function () {
-                    icon.tooltip.destroy();
-                });
+            if (value.name) {
+                result += value.name;
             }
-        });
-    },
-
-    /**
-     * Handle 'refresh' event.
-     * Set tooltip for description cell if inner text is shown with ellipsis.
-     * 'rtdCls' property of column must be equal 'isu-grid-description'.
-     */
-    setDescriptionTooltip: function (grid) {
-        var gridEl = grid.getEl(),
-            descriptionCells = gridEl.query('.isu-grid-description');
-
-        Ext.Array.each(descriptionCells, function (item) {
-            var cell = Ext.get(item),
-                cellInner = cell.down('.x-grid-cell-inner'),
-                text = cellInner.getHTML();
-
-            cell.tooltip = Ext.create('Ext.tip.ToolTip', {
-                target: cell,
-                html: text
-            });
-
-            grid.on('destroy', function () {
-                cell.tooltip && cell.tooltip.destroy();
-            });
-            grid.on('beforerefresh', function () {
-                cell.tooltip && cell.tooltip.destroy();
-            });
-        });
-    },
-
-    /**
-     * Handle 'select' event.
-     * Load item model and fire event for item panel view.
-     */
-    loadGridItemDetail: function (selectionModel, record) {
-        var itemPanel = this.getItemPanel(),
-            form = itemPanel.down('form');
-
-        itemPanel.setLoading(true);
-
-        this.gridItemModel.load(record.getId(), {
-            success: function (record) {
-                if (!form.isDestroyed) {
-                    form.loadRecord(record);
-                    form.up('panel').down('menu').record = record;
-                    itemPanel.setLoading(false);
-                    itemPanel.fireEvent('afterChange',itemPanel);
-                    itemPanel.setTitle(record.data.title);
-                }
-            }
-        });
-    },
-
-    /**
-     * Handle 'refresh' event.
-     * Select first row in grid.
-     */
-
-    selectFirstGridRow: function (grid) {
-        var itemPanel = this.getItemPanel(),
-            index = 0,
-            item = grid.getNode(index),
-            record;
-
-        if (item) {
-            itemPanel.show();
-            record = grid.getRecord(item);
-            grid.fireEvent('itemclick', grid, record, item, index);
-        } else {
-            itemPanel.hide();
         }
+
+        return result || this.columns[colIndex].emptyText;
     }
 });
 
@@ -584,7 +498,8 @@ Ext.define('Isu.view.assignmentrules.List', {
     extend: 'Ext.grid.Panel',
     requires: [
         'Ext.layout.container.Column',
-        'Ext.grid.column.Template'
+        'Ext.grid.column.Template',
+        'Isu.view.component.AssigneeColumn'
     ],
     alias: 'widget.issues-assignment-rules-list',
     store: 'Isu.store.AssignmentRules',
@@ -594,13 +509,12 @@ Ext.define('Isu.view.assignmentrules.List', {
         {
             header: 'Description',
             dataIndex: 'description',
-            tdCls: 'isu-grid-description',
             flex: 1
         },
         {
             header: 'Assign to',
-            xtype: 'templatecolumn',
-            tpl: '<tpl if="assignee.type"><span class="isu-icon-{assignee.type} isu-assignee-type-icon"></span></tpl> {assignee.name}',
+            xtype: 'isu-assignee-column',
+            dataIndex: 'assignee',
             flex: 1
         }
     ],
@@ -726,27 +640,10 @@ Ext.define('Isu.controller.AssignmentRules', {
         'Isu.view.assignmentrules.Overview'
     ],
 
-    mixins: {
-        isuGrid: 'Isu.util.IsuGrid'
-    },
-
-    init: function () {
-        this.control({
-            'issue-assignment-rules-overview issues-assignment-rules-list gridview': {
-                refresh: this.onGridRefresh
-            }
-        });
-    },
-
     showOverview: function () {
         var widget = Ext.widget('issue-assignment-rules-overview');
         this.getApplication().fireEvent('changecontentevent', widget);
         this.getStore('Isu.store.AssignmentRules').load();
-    },
-
-    onGridRefresh: function (grid) {
-        this.setAssigneeTypeIconTooltip(grid);
-        this.setDescriptionTooltip(grid);
     }
 });
 
@@ -1474,7 +1371,6 @@ Ext.define('Isu.view.creationrules.Edit', {
                                     itemId: 'addAction',
                                     text: 'Add action',
                                     action: 'addAction',
-                                    ui: 'action',
                                     margin: '0 0 10 0'
                                 },
                                 {
@@ -1742,9 +1638,9 @@ Ext.define('Isu.store.DueinTypes', {
     model: 'Isu.model.DueinType',
 
     data: [
-        {name: "days", displayValue: 'day(s)'},
-        {name: "weeks", displayValue: 'week(s)'},
-        {name: "months", displayValue: 'month(s)'}
+        {name: 'days', displayValue: 'day(s)'},
+        {name: 'weeks', displayValue: 'week(s)'},
+        {name: 'months', displayValue: 'month(s)'}
     ]
 });
 
@@ -1832,7 +1728,6 @@ Ext.define('Isu.controller.CreationRuleEdit', {
     ],
 
     mixins: [
-        'Isu.util.IsuGrid',
         'Isu.util.CreatingControl'
     ],
 
@@ -1977,20 +1872,23 @@ Ext.define('Isu.controller.CreationRuleEdit', {
                         formField && formField.setValue(value);
                     }
                 }
-
-                page.setLoading(false);
             }, me, {single: true});
         }
 
         nameField.setValue(data.name);
         issueTypeField.getStore().load(function () {
             issueTypeField.setValue(data.issueType.uid || issueTypeField.getStore().getAt(0).get('uid'));
+            reasonField.getStore().getProxy().setExtraParam('issueType', issueTypeField.getValue());
+            page.setLoading(true);
+            reasonField.getStore().load(function () {
+                page.setLoading(false);
+                if (!reasonField.isDestroyed) {
+                    reasonField.setValue(data.reason.id);
+                }
+            });
             templateField.getStore().on('load', function () {
                 templateField.setValue(data.template.uid);
             }, me, {single: true});
-        });
-        reasonField.getStore().load(function () {
-            reasonField.setValue(data.reason.id);
         });
         if (data.dueIn.number) {
             dueDateTrigger.setValue({dueDate: true});
@@ -2305,7 +2203,6 @@ Ext.define('Isu.view.creationrules.List', {
                 itemId: 'Name',
                 header: Uni.I18n.translate('general.title.name', 'ISU', 'Name'),
                 dataIndex: 'name',
-                tdCls: 'isu-grid-description',
                 flex: 1
             },
             {
@@ -2313,7 +2210,6 @@ Ext.define('Isu.view.creationrules.List', {
                 header: Uni.I18n.translate('general.title.ruleTemplate', 'ISU', 'Rule template'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="template">{template.name}</tpl>',
-                tdCls: 'isu-grid-description',
                 flex: 1
             },
             {
@@ -2321,11 +2217,11 @@ Ext.define('Isu.view.creationrules.List', {
                 header: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue type'),
                 xtype: 'templatecolumn',
                 tpl: '<tpl if="issueType">{issueType.name}</tpl>',
-                tdCls: 'isu-grid-description',
                 flex: 1
             },
             {   itemId: 'action',
                 xtype: 'uni-actioncolumn',
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.creationRule'),
                 items: 'Isu.view.creationrules.ActionMenu'
             }
         ]
@@ -2349,6 +2245,7 @@ Ext.define('Isu.view.creationrules.List', {
                         itemId: 'createRule',
                         xtype: 'button',
                         text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Add rule'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.creationRule'),
                         href: '#/administration/creationrules/add',
                         action: 'create'
                     }
@@ -2400,6 +2297,7 @@ Ext.define('Isu.view.creationrules.Item', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
+            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.creationRule'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'creation-rule-action-menu'
@@ -2501,6 +2399,7 @@ Ext.define('Isu.view.creationrules.Overview', {
                             {
                                 itemId: 'createRule',
                                 text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Add rule'),
+                                privileges:['privilege.administrate.creationRule'],
                                 href: '#/administration/creationrules/add',
                                 action: 'create'
                             }
@@ -2526,10 +2425,6 @@ Ext.define('Isu.controller.CreationRules', {
         'Isu.view.creationrules.Overview'
     ],
 
-    mixins: {
-        isuGrid: 'Isu.util.IsuGrid'
-    },
-
     refs: [
         {
             ref: 'page',
@@ -2548,10 +2443,7 @@ Ext.define('Isu.controller.CreationRules', {
     init: function () {
         this.control({
             'issue-creation-rules-overview issues-creation-rules-list': {
-                select: this.loadGridItemDetail
-            },
-            'issue-creation-rules-overview issues-creation-rules-list gridview': {
-                refresh: this.setAssigneeTypeIconTooltip
+                select: this.showPreview
             },
             'issues-creation-rules-list uni-actioncolumn': {
                 menuclick: this.chooseAction
@@ -2563,13 +2455,30 @@ Ext.define('Isu.controller.CreationRules', {
                 click: this.createRule
             }
         });
-
-        this.gridItemModel = this.getModel('Isu.model.CreationRule');
     },
 
     showOverview: function () {
         var widget = Ext.widget('issue-creation-rules-overview');
         this.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    showPreview: function (selectionModel, record) {
+        var itemPanel = this.getItemPanel(),
+            form = itemPanel.down('form');
+
+        itemPanel.setLoading(true);
+
+        this.getModel('Isu.model.CreationRule').load(record.getId(), {
+            success: function (record) {
+                if (!form.isDestroyed) {
+                    form.loadRecord(record);
+                    form.up('panel').down('menu').record = record;
+                    itemPanel.setLoading(false);
+                    itemPanel.fireEvent('afterChange',itemPanel);
+                    itemPanel.setTitle(record.data.title);
+                }
+            }
+        });
     },
 
     chooseAction: function (menu, item) {
@@ -2629,6 +2538,7 @@ Ext.define('Isu.controller.CreationRules', {
             callback: function (model, operation) {
                 page.setLoading(false);
                 if (operation.response.status == 204) {
+                    page.down('#creation-rules-list pagingtoolbartop').totalCount = 0;
                     store.loadPage(1);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('administration.issueCreationRules.deleteSuccess.msg', 'ISU', 'Issue creation rule deleted'));
                 }
@@ -2905,8 +2815,7 @@ Ext.define('Isu.controller.IssuesOverview', {
     extend: 'Ext.app.Controller',
 
     mixins: [
-        'Isu.util.IsuComboTooltip',
-        'Isu.util.IsuGrid'
+        'Isu.util.IsuComboTooltip'
     ],
 
     showOverview: function (issueType, widgetXtype) {
@@ -3305,14 +3214,14 @@ Ext.define('Isu.controller.history.Administration', {
                             title: Uni.I18n.translate('route.addIssueCreationRule', 'ISU', 'Add issue creation rule'),
                             route: 'add',
                             controller: 'Isu.controller.CreationRuleEdit',
+                            privileges: ['privilege.administrate.creationRule'],
                             action: 'showCreate',
                             items: {
                                 addaction: {
                                     title: Uni.I18n.translate('route.addAction', 'ISU', 'Add action'),
                                     route: 'addaction',
                                     controller: 'Isu.controller.CreationRuleActionEdit',
-                                    action: 'showCreate',
-                                    privileges: ['privilege.administrate.creationRule']
+                                    action: 'showCreate'
                                 }
                             }
                         },
@@ -3827,6 +3736,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
     predefinedItems: [
         {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
+            hidden: Uni.Auth.hasNoPrivilege('privilege.comment.issue'),
             action: 'addComment'
         }
     ],
@@ -3879,8 +3789,28 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
         // add dynamic actions
         me.store.each(function (record) {
+            var isHidden = false;
+            switch (record.get('name')) {
+                case 'Assign issue':
+                    isHidden = Uni.Auth.hasNoPrivilege('privilege.assign.issue');
+                    break;
+                case 'Close issue':
+                    isHidden = Uni.Auth.hasNoPrivilege('privilege.close.issue');
+                    break;
+                case 'Retry now':
+                    isHidden = Uni.Auth.hasNoPrivilege('privilege.view.scheduleDevice');
+                    break;
+                case 'Send someone to inspect':
+                    isHidden = Uni.Auth.hasNoPrivilege('privilege.action.issue');
+                    break;
+                case 'Notify user':
+                    isHidden = Uni.Auth.hasNoPrivilege('privilege.action.issue');
+                    break;
+            }
+
             var menuItem = {
-                text: record.get('name')
+                text: record.get('name'),
+                hidden: isHidden
             };
 
             if (Ext.isEmpty(record.get('parameters'))) {
@@ -3905,48 +3835,50 @@ Ext.define('Isu.view.issues.ActionMenu', {
         }
 
         // add specific actions
-        deviceMRID = me.record.get('deviceMRID');
-        if (deviceMRID) {
-            comTaskId = me.record.get('comTaskId');
-            comTaskSessionId = me.record.get('comTaskSessionId');
-            connectionTaskId = me.record.get('connectionTaskId');
-            comSessionId = me.record.get('comSessionId');
-            if (comTaskId && comTaskSessionId) {
-                me.add({
-                    text: Uni.I18n.translate('issues.actionMenu.viewCommunicationLog', 'ISU', 'View communication log'),
-                    href: me.router.getRoute('devices/device/communicationtasks/history/viewlog').buildUrl(
-                        {
-                            mRID: deviceMRID,
-                            comTaskId: comTaskId,
-                            historyId: comTaskSessionId
-                        },
-                        {
-                            filter: {
-                                logLevels: ['Error', 'Warning', 'Information']
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device'])) {
+            deviceMRID = me.record.get('deviceMRID');
+            if (deviceMRID) {
+                comTaskId = me.record.get('comTaskId');
+                comTaskSessionId = me.record.get('comTaskSessionId');
+                connectionTaskId = me.record.get('connectionTaskId');
+                comSessionId = me.record.get('comSessionId');
+                if (comTaskId && comTaskSessionId) {
+                    me.add({
+                        text: Uni.I18n.translate('issues.actionMenu.viewCommunicationLog', 'ISU', 'View communication log'),
+                        href: me.router.getRoute('devices/device/communicationtasks/history/viewlog').buildUrl(
+                            {
+                                mRID: deviceMRID,
+                                comTaskId: comTaskId,
+                                historyId: comTaskSessionId
+                            },
+                            {
+                                filter: {
+                                    logLevels: ['Error', 'Warning', 'Information']
+                                }
                             }
-                        }
-                    ),
-                    hrefTarget: '_blank'
-                });
-            }
-            if (connectionTaskId && comSessionId) {
-                me.add({
-                    text: Uni.I18n.translate('issues.actionMenu.viewConnectionLog', 'ISU', 'View connection log'),
-                    href: me.router.getRoute('devices/device/connectionmethods/history/viewlog').buildUrl(
-                        {
-                            mRID: deviceMRID,
-                            connectionMethodId: connectionTaskId,
-                            historyId: comSessionId
-                        },
-                        {
-                            filter: {
-                                logLevels: ['Error', 'Warning', 'Information'],
-                                logTypes: ['connections', 'communications']
+                        ),
+                        hrefTarget: '_blank'
+                    });
+                }
+                if (connectionTaskId && comSessionId) {
+                    me.add({
+                        text: Uni.I18n.translate('issues.actionMenu.viewConnectionLog', 'ISU', 'View connection log'),
+                        href: me.router.getRoute('devices/device/connectionmethods/history/viewlog').buildUrl(
+                            {
+                                mRID: deviceMRID,
+                                connectionMethodId: connectionTaskId,
+                                historyId: comSessionId
+                            },
+                            {
+                                filter: {
+                                    logLevels: ['Error', 'Warning', 'Information'],
+                                    logTypes: ['connections', 'communications']
+                                }
                             }
-                        }
-                    ),
-                    hrefTarget: '_blank'
-                });
+                        ),
+                        hrefTarget: '_blank'
+                    });
+                }
             }
         }
     }
@@ -4041,6 +3973,7 @@ Ext.define('Isu.view.issues.CommentsList', {
             itemId: 'issue-comments-add-comment-button',
             ui: 'action',
             text: 'Add comment',
+            hidden: Uni.Auth.hasNoPrivilege('privilege.comment.issue'),
             action: 'add'
         }
     ]
@@ -4093,6 +4026,8 @@ Ext.define('Isu.view.issues.DetailTop', {
                 xtype: 'button',
                 itemId: 'issue-detail-top-actions-button',
                 text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
+                hidden:  Uni.Auth.hasAnyPrivilege(['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
+                    'privilege.administrate.device','privilege.view.device','privilege.view.scheduleDevice']),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'issues-action-menu',
@@ -4120,7 +4055,8 @@ Ext.define('Isu.view.issues.Grid', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Isu.view.issues.ActionMenu'
+        'Isu.view.issues.ActionMenu',
+        'Isu.view.component.AssigneeColumn'
     ],
     alias: 'widget.issues-grid',
     router: null,
@@ -4157,13 +4093,15 @@ Ext.define('Isu.view.issues.Grid', {
             {
                 itemId: 'issues-grid-assignee',
                 header: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
-                xtype: 'templatecolumn',
-                tpl: '<tpl if="assignee_type"><span class="isu-icon-{assignee_type} isu-assignee-type-icon"></span></tpl> {assignee_name}',
+                xtype: 'isu-assignee-column',
+                dataIndex: 'assignee',
                 flex: 1
             },
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
+                hidden:  Uni.Auth.hasAnyPrivilege(['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
+                    'privilege.administrate.device','privilege.view.device','privilege.view.scheduleDevice']),
                 menu: {
                     xtype: 'issues-action-menu',
                     itemId: 'issues-overview-action-menu',
@@ -4187,6 +4125,7 @@ Ext.define('Isu.view.issues.Grid', {
                         xtype: 'button',
                         itemId: 'issues-bulk-action',
                         text: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.close.issue', 'privilege.assign.issue']),
                         action: 'issuesBulkAction',
                         href: me.router.getRoute(me.router.currentRoute + '/bulkaction').buildUrl()
                     }
