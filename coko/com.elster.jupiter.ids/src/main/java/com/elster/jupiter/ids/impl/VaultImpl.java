@@ -5,7 +5,6 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -210,7 +209,7 @@ public class VaultImpl implements Vault {
             builder.append(", JOURNALTIME, VERSIONCOUNT");
         }
         builder.append("))");
-        if (isOracle()) {
+        if (dataModel.getSqlDialect().hasIndexOrganizedTables()) {
             builder.append(" ORGANIZATION INDEX COMPRESS 1 ");
             if (textSlotCount > 0) {
                 builder.append(" OVERFLOW");
@@ -492,10 +491,6 @@ public class VaultImpl implements Vault {
 
     public void persist() {
         dataModel.persist(this);
-    }
-
-    private boolean isOracle() {
-        return dataModel.getSqlDialect().equals(SqlDialect.ORACLE);
     }
 
     List<TimeSeriesEntry> getEntriesBefore(TimeSeriesImpl timeSeries, Instant when, int entryCount, boolean includeBoundary) {
