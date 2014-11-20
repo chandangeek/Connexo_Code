@@ -179,6 +179,17 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                             return '';
                                         }
                                     }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'durationInSeconds',
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.duration', 'MDC', 'Duration'),
+                                    itemId: 'durationInSeconds',
+                                    renderer: function (value) {
+                                        if (value !== '') {
+                                            return value + ' ' + Uni.I18n.translate('general.seconds', 'MDC', 'seconds');
+                                        }
+                                    }
                                 }
                             ]
                         }
