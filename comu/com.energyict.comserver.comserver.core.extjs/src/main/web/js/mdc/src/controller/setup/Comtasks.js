@@ -113,7 +113,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             callback: function () {
                 widget.setLoading(false);
                 window = Ext.create('Mdc.view.setup.comtasks.ComTaskAddCommandWindow', {
-                    title: Uni.I18n.translate('communicationtasks.task.addCommand', 'MDC', 'Add command'),
+                    title: Uni.I18n.translate('communicationtasks.task.addCommand', 'MDC', 'Add action'),
                     btnAction: 'add',
                     btnText: Uni.I18n.translate('general.add', 'MDC', 'Add')
                 });

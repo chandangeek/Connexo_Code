@@ -125,7 +125,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         var deviceConnectionHistoryGridActionColumn = this.getDeviceConnectionHistoryGridActionColumn();
         deviceConnectionHistoryGridActionColumn.menu.removeAll();
         var menuItem = {
-            text: Uni.I18n.translate('deviceconnectionhistory.viewLog', 'MDC', 'View log'),
+            text: Uni.I18n.translate('deviceconnectionhistory.viewLog', 'MDC', 'View connection log'),
             action: 'viewLog',
             listeners: {
                 click: function () {
