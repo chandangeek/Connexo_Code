@@ -51,6 +51,7 @@ Ext.define('Isu.view.issues.CommentsList', {
             itemId: 'issue-comments-add-comment-button',
             ui: 'action',
             text: 'Add comment',
+            hidden: Uni.Auth.hasNoPrivilege('privilege.comment.issue'),
             action: 'add'
         }
     ]

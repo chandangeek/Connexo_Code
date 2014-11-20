@@ -27,14 +27,14 @@ Ext.define('Isu.controller.history.Administration', {
                             title: Uni.I18n.translate('route.addIssueCreationRule', 'ISU', 'Add issue creation rule'),
                             route: 'add',
                             controller: 'Isu.controller.CreationRuleEdit',
+                            privileges: ['privilege.administrate.creationRule'],
                             action: 'showCreate',
                             items: {
                                 addaction: {
                                     title: Uni.I18n.translate('route.addAction', 'ISU', 'Add action'),
                                     route: 'addaction',
                                     controller: 'Isu.controller.CreationRuleActionEdit',
-                                    action: 'showCreate',
-                                    privileges: ['privilege.administrate.creationRule']
+                                    action: 'showCreate'
                                 }
                             }
                         },

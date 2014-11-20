@@ -33,6 +33,7 @@ Ext.define('Isu.view.creationrules.List', {
             },
             {   itemId: 'action',
                 xtype: 'uni-actioncolumn',
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.creationRule'),
                 items: 'Isu.view.creationrules.ActionMenu'
             }
         ]
@@ -56,6 +57,7 @@ Ext.define('Isu.view.creationrules.List', {
                         itemId: 'createRule',
                         xtype: 'button',
                         text: Uni.I18n.translate('administration.issueCreationRules.add', 'ISU', 'Add rule'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.creationRule'),
                         href: '#/administration/creationrules/add',
                         action: 'create'
                     }

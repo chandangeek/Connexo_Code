@@ -51,6 +51,8 @@ Ext.define('Isu.view.issues.Grid', {
             {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
+                hidden:  Uni.Auth.hasAnyPrivilege(['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
+                    'privilege.administrate.device','privilege.view.device','privilege.view.scheduleDevice']),
                 menu: {
                     xtype: 'issues-action-menu',
                     itemId: 'issues-overview-action-menu',
@@ -74,6 +76,7 @@ Ext.define('Isu.view.issues.Grid', {
                         xtype: 'button',
                         itemId: 'issues-bulk-action',
                         text: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.close.issue', 'privilege.assign.issue']),
                         action: 'issuesBulkAction',
                         href: me.router.getRoute(me.router.currentRoute + '/bulkaction').buildUrl()
                     }
