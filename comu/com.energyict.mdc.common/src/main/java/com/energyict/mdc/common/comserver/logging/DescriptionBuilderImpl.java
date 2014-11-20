@@ -32,11 +32,6 @@ public class DescriptionBuilderImpl implements DescriptionBuilder {
      */
     private static final String PROPERTY_SEPARATOR = "; ";
 
-    /**
-     * The separator between the different values of a multi-value property.
-     */
-    private static final String PROPERTY_VALUE_SEPARATOR = ", ";
-
     private String title;
     private List<PropertyDescriptionBuilder> propertyBuilders = new ArrayList<>();
 
