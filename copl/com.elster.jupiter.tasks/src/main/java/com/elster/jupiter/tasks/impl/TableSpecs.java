@@ -14,23 +14,26 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 enum TableSpecs {
 
-    TSK_RECURRENT_TASK(RecurrentTask.class) {
+    TSK_RECURRENT_TASK {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+        	Table<RecurrentTask> table = dataModel.addTable(name(), RecurrentTask.class);
             table.map(RecurrentTaskImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
             table.column("NEXTEXECUTION").type("number").conversion(NUMBER2INSTANT).map("nextExecution").add();
             table.column("PAYLOAD").varChar(NAME_LENGTH).notNull().map("payload").add();
             table.column("DESTINATION").type("varchar2(30)").notNull().map("destination").add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();
+            table.unique("TSK_UK_RECURRENTTASK").on(nameColumn).add();
         }
     },
-    TSK_TASK_OCCURRENCE(TaskOccurrence.class) {
+    TSK_TASK_OCCURRENCE {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+        	Table<TaskOccurrence> table = dataModel.addTable(name(), TaskOccurrence.class);
             table.map(TaskOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column recurrentIdColumn = table.column("RECURRENTTASKID").type("number").notNull().conversion(NUMBER2LONG).map("recurrentTaskId").add();
@@ -39,9 +42,10 @@ enum TableSpecs {
             table.primaryKey("TSK_PK_TASK_OCCURRENCE").on(idColumn).add();
         }
     },
-    TSK_TASK_LOG(TaskLogEntry.class) {
+    TSK_TASK_LOG {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+        	Table<TaskLogEntry> table = dataModel.addTable(name(), TaskLogEntry.class);
             table.map(TaskLogEntryImpl.class);
             Column taskOccurrenceColumn = table.column("TASKOCCURRENCE").number().notNull().conversion(NUMBER2LONG).add();
             Column position = table.column("POSITION").number().notNull().map("position").conversion(NUMBER2INT).add();
@@ -49,25 +53,13 @@ enum TableSpecs {
             table.column("LOGLEVEL").number().notNull().conversion(NUMBER2INT).map("level").add();
             table.column("MESSAGE").varChar(DESCRIPTION_LENGTH).map("message").add();
             table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
-
             table.primaryKey("TSK_PK_LOG_ENTRY").on(taskOccurrenceColumn, position).add();
             table.foreignKey("TSK_FKTASKLOG_OCCURRENCE").references(TSK_TASK_OCCURRENCE.name()).on(taskOccurrenceColumn).onDelete(DeleteRule.CASCADE)
                     .map("taskOccurrence").reverseMap("logEntries").reverseMapOrder("position").composition().add();
         }
     };
-
-    private final Class<?> api;
-
-    TableSpecs(Class<?> api) {
-        this.api = api;
-    }
-
-    void addTo(DataModel component) {
-        Table table = component.addTable(name(), api);
-        describeTable(table);
-    }
-
-    abstract void describeTable(Table table);
+    
+    abstract void addTo(DataModel dataModel);
 
 
 }

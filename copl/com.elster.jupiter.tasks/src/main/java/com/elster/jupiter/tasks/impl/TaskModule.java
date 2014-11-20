@@ -21,8 +21,7 @@ public class TaskModule extends AbstractModule {
     @Override
     protected void configure() {
         requireBinding(Clock.class);
-        requireBinding(MessageService.class);
-        requireBinding(LogService.class);
+        requireBinding(MessageService.class);      
         requireBinding(QueryService.class);
         requireBinding(TransactionService.class);
         requireBinding(CronExpressionParser.class);
