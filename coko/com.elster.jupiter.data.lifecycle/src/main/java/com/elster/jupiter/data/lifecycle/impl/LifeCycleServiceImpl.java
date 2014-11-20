@@ -30,7 +30,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.google.inject.AbstractModule;
 
-@Component(name="com.elster.jupiter.data.lifecycle")
+@Component(name="com.elster.jupiter.data.lifecycle", property = "name=" + LifeCycleService.COMPONENTNAME)
 public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 	
 	private volatile OrmService ormService;
