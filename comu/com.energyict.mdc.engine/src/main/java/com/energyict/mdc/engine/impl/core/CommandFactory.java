@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCommand;
@@ -47,8 +48,7 @@ public final class CommandFactory {
      */
     public static void createCommandsFromTask(final CommandRoot commandRoot, ComTaskExecution comTaskExecution, final List<? extends ProtocolTask> protocolTasks) {
         for (ProtocolTask protocolTask : protocolTasks) {
-            ComCommandTypes comCommandType = ComCommandTypes.forProtocolTask(protocolTask.getClass());
-            comCommandType.createCommandsFromTask(commandRoot, protocolTask, comTaskExecution);
+            ComCommandTypes.forProtocolTask(protocolTask).createCommandsFromTask(commandRoot, protocolTask, comTaskExecution);
         }
     }
 
@@ -67,7 +67,7 @@ public final class CommandFactory {
     }
 
     private static void createLegacyCommandsFromProtocolTask (CommandRoot root, ComTaskExecution comTaskExecution, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask) {
-        ComCommandTypes comCommandType = ComCommandTypes.forProtocolTask(protocolTask.getClass());
+        ComCommandType comCommandType = ComCommandTypes.forProtocolTask(protocolTask);
         comCommandType.createLegacyCommandsFromProtocolTask(root, protocolTasks, protocolTask, comTaskExecution);
     }
 

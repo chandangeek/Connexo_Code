@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
@@ -35,7 +36,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
      * Contains all necessary commands for this {@link ComCommand}.
      * <b>It is necessary to use a LinkedHashMap because we need the commands in chronological order</b>
      */
-    private Map<ComCommandTypes, ComCommand> comCommands = new LinkedHashMap<>();
+    private Map<ComCommandType, ComCommand> comCommands = new LinkedHashMap<>();
 
     protected CompositeComCommandImpl(final CommandRoot commandRoot) {
         super(commandRoot);
@@ -45,9 +46,9 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
     public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         ComServerRuntimeException firstException = null;
         boolean canWeStillDoADisconnect = true;
-        for (Map.Entry<ComCommandTypes, ComCommand> comCommandEntry : comCommands.entrySet()) {
+        for (Map.Entry<ComCommandType, ComCommand> comCommandEntry : comCommands.entrySet()) {
             final ComCommand comCommand = comCommandEntry.getValue();
-            final ComCommandTypes commandType = comCommandEntry.getKey();
+            final ComCommandType commandType = comCommandEntry.getKey();
             if(areWeAllowedToPerformTheCommand(firstException, canWeStillDoADisconnect, commandType, executionContext.hasBasicCheckFailed())){
                 try {
                     performTheComCommandIfAllowed(deviceProtocol, executionContext, comCommand);
@@ -74,10 +75,10 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
      * @param firstException the firstException
      * @param canWeStillDoADisconnect indication whether the firstException was related to Communication
      * @param commandType the type fo the Command
-     * @param hasBasicCheckFailed
+     * @param hasBasicCheckFailed The flag that indicates if the basic check task has failed before
      * @return true or false
      */
-    private boolean areWeAllowedToPerformTheCommand(ComServerRuntimeException firstException, boolean canWeStillDoADisconnect, ComCommandTypes commandType, boolean hasBasicCheckFailed) {
+    private boolean areWeAllowedToPerformTheCommand(ComServerRuntimeException firstException, boolean canWeStillDoADisconnect, ComCommandType commandType, boolean hasBasicCheckFailed) {
         return (firstException == null && !hasBasicCheckFailed) || areWeStillAllowedToPerformTheCommand(commandType, canWeStillDoADisconnect);
     }
 
@@ -93,12 +94,11 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
      * @param canWeStillDoADisconnect an indication whether we can still communicate (no connection exceptions)
      * @return true if we can perform the command of the given commandType
      */
-    private boolean areWeStillAllowedToPerformTheCommand(ComCommandTypes commandType, boolean canWeStillDoADisconnect) {
-        return (canWeStillDoADisconnect &&
-                (commandType.equals(ComCommandTypes.DAISY_CHAINED_LOGOFF)
-                        || commandType.equals(ComCommandTypes.LOGOFF)))
-                || commandType.equals(ComCommandTypes.DEVICE_PROTOCOL_TERMINATE)
-                || commandType.equals(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+    private boolean areWeStillAllowedToPerformTheCommand(ComCommandType commandType, boolean canWeStillDoADisconnect) {
+        return (    canWeStillDoADisconnect
+                && (commandType.equals(ComCommandTypes.DAISY_CHAINED_LOGOFF) || commandType.equals(ComCommandTypes.LOGOFF)))
+            || commandType.equals(ComCommandTypes.DEVICE_PROTOCOL_TERMINATE)
+            || commandType.equals(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
     }
 
     private boolean areWeStillAbleToPerformAProperDisconnect(Exception e) {
@@ -116,7 +116,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
     }
 
     @Override
-    public boolean checkCommandTypeExistence(final ComCommandTypes comCommandType, final Map<ComCommandTypes, ComCommand> allCommands) {
+    public boolean checkCommandTypeExistence(final ComCommandType comCommandType, final Map<ComCommandType, ComCommand> allCommands) {
         if (allCommands.containsKey(comCommandType)) {
             return true;
         }
@@ -134,7 +134,7 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
      *
      * @return the requested list of ComCommands
      */
-    public Map<ComCommandTypes, ComCommand> getCommands() {
+    public Map<ComCommandType, ComCommand> getCommands() {
         return this.comCommands;
     }
 

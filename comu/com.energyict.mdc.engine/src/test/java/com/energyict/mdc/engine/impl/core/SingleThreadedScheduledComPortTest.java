@@ -556,7 +556,7 @@ public class SingleThreadedScheduledComPortTest {
             scheduledComPort.verifyConnectionTaskLockAttemptCalls();
             scheduledComPort.verifyNoComTaskLockAttemptCalls();
             scheduledComPort.verifyExecuteComTaskGroupCalls();
-            scheduledComPort.verifyNoExecuteComTaskJobCalls();
+            scheduledComPort.verifyExecuteComTaskJobCalls();
             verify(this.deviceCommandExecutor, times(1)).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {
             this.shutdown(scheduledComPort);
@@ -597,7 +597,7 @@ public class SingleThreadedScheduledComPortTest {
             scheduledComPort.verifyConnectionTaskLockAttemptCalls();
             scheduledComPort.verifyNoComTaskLockAttemptCalls();
             scheduledComPort.verifyExecuteComTaskGroupCalls();
-            scheduledComPort.verifyNoExecuteComTaskJobCalls();
+            scheduledComPort.verifyExecuteComTaskJobCalls();
             verify(this.deviceCommandExecutor, times(1)).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {
             this.shutdown(scheduledComPort);

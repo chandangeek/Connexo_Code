@@ -71,7 +71,7 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     }
 
     private boolean areDuplicates(OfflineRegister register1, OfflineRegister register2) {
-        return register2.getSerialNumber().equals(register1.getSerialNumber())
+        return register2.getDeviceMRID().equals(register1.getDeviceMRID())
                 && register2.getRegisterId() == register1.getRegisterId()
                 && register2.getObisCode().equals(register1.getObisCode());
     }

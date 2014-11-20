@@ -401,7 +401,7 @@ public abstract class JobExecution implements ScheduledJob {
     private Stream<ProtocolTask> generateProtocolTaskList(ComTask comTask) {
         List<ProtocolTask> protocolTasks = new ArrayList<>(comTask.getProtocolTasks()); // Copies the unmodifiable list
         Collections.sort(protocolTasks, BasicCheckTasks.FIRST);
-        protocolTasks.add(0, new CreateComTaskSessionTask(comTask));
+        protocolTasks.add(0, new CreateComTaskExecutionSessionTask(comTask));
         return protocolTasks.stream();
     }
 

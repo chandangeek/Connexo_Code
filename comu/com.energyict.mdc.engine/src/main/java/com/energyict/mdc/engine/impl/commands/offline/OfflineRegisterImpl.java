@@ -59,7 +59,11 @@ public class OfflineRegisterImpl implements OfflineRegister {
     /**
      * The serialNumber of the Device owning this Register
      */
-    private String meterSerialNumber;
+    private String deviceSerialNumber;
+    /**
+     * The mRID of the Device owning this Register
+     */
+    private String deviceMRID;
     /**
      * The database ID of the Device
      */
@@ -81,7 +85,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
     public OfflineRegisterImpl(final Register<?> register) {
         this.register = register;
         this.device = register.getDevice();
-        this.deviceId = (int) register.getDevice().getId();
+        this.deviceId = register.getDevice().getId();
         this.goOffline();
     }
 
@@ -102,7 +106,8 @@ public class OfflineRegisterImpl implements OfflineRegister {
         for (RegisterGroup registerGroup : registerGroups) {
             this.registerGroupIds.add(registerGroup.getId());
         }
-        this.meterSerialNumber = this.register.getDevice().getSerialNumber();
+        this.deviceSerialNumber = this.register.getDevice().getSerialNumber();
+        this.deviceMRID = this.register.getDevice().getmRID();
         this.readingType = this.register.getRegisterSpec().getRegisterType().getReadingType();
         this.overFlow = this.register.getRegisterSpec().isTextual()?new BigDecimal(Double.MAX_VALUE): ((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue();
         this.isText = this.register.getRegisterSpec().isTextual();
@@ -116,12 +121,6 @@ public class OfflineRegisterImpl implements OfflineRegister {
         return this.registerId;
     }
 
-    /**
-     * Returns the ObisCode for this Register.<br/>
-     * (actually the ObisCode from the {@link com.energyict.mdc.masterdata.MeasurementType})
-     *
-     * @return the ObisCode
-     */
     @Override
     public ObisCode getObisCode() {
         return this.deviceRegisterObisCode;
@@ -142,24 +141,19 @@ public class OfflineRegisterImpl implements OfflineRegister {
         return !Collections.disjoint(this.registerGroupIds, registerGroupIds);
     }
 
-    /**
-     * The {@link Unit} corresponding with this register
-     *
-     * @return the unit of this register
-     */
     @Override
     public Unit getUnit() {
         return this.registerUnit;
     }
 
-    /**
-     * The serialNumber of the {@link com.energyict.mdc.protocol.api.device.offline.OfflineDevice} owning this {@link OfflineRegister}
-     *
-     * @return the serialNumber of the Device owning this Register
-     */
     @Override
-    public String getSerialNumber() {
-        return this.meterSerialNumber;
+    public String getDeviceMRID() {
+        return this.deviceMRID;
+    }
+
+    @Override
+    public String getDeviceSerialNumber() {
+        return this.deviceSerialNumber;
     }
 
     @Override

@@ -20,9 +20,9 @@ import java.util.List;
 public interface ComCommand {
 
     /**
-     * @return the {@link ComCommandTypes ComCommandType} of this command.
+     * @return the {@link ComCommandType type} of this command.
      */
-    public ComCommandTypes getCommandType();
+    public ComCommandType getCommandType();
 
     /**
      * Get the root of this command which serves as a root for unique {@link ComCommand ComCommands}.

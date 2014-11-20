@@ -22,6 +22,7 @@ import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
@@ -304,7 +305,7 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandTypes, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
+        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
         assertThat(commands).isNotEmpty();
         assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
     }
@@ -331,7 +332,7 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandTypes, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
+        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
         assertThat(commands).isNotEmpty();
         assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
     }
@@ -355,7 +356,7 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandTypes, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
+        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
         assertThat(commands).isNotEmpty();
         assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND);
 
@@ -382,7 +383,7 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandTypes, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
+        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
         assertThat(commands).isNotEmpty();
         assertThat(commands.keySet()).containsSequence(ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
 

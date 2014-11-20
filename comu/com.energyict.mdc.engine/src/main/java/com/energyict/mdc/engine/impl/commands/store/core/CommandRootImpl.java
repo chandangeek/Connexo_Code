@@ -4,10 +4,11 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
-import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskSessionCommand;
+import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskExecutionSessionCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
@@ -30,7 +31,7 @@ import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.BasicCheckCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ClockCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateComTaskSessionCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateComTaskExecutionSessionCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateMeterEventsFromStatusFlagsCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ForceClockCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LegacyLoadProfileLogBooksCommandImpl;
@@ -51,7 +52,7 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.TopologyComman
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyLoadProfilesCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifySerialNumberCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyTimeDifferenceCommandImpl;
-import com.energyict.mdc.engine.impl.core.CreateComTaskSessionTask;
+import com.energyict.mdc.engine.impl.core.CreateComTaskExecutionSessionTask;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -74,7 +75,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementation for a CommandRoot
+ * Implementation for the {@link CommandRoot} interface.
  *
  * @author gna
  * @since 10/05/12 - 14:29
@@ -137,7 +138,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
      * @param comCommands the list of ComCommands to search in
      * @return the requested ComCommand
      */
-    private ComCommand getComCommandFromList(final ComCommandTypes commandType, final Map<ComCommandTypes, ComCommand> comCommands) {
+    private ComCommand getComCommandFromList(final ComCommandTypes commandType, final Map<ComCommandType, ComCommand> comCommands) {
         if (comCommands.get(commandType) != null) {
             return comCommands.get(commandType);
         }
@@ -495,8 +496,8 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     @Override
-    public CreateComTaskSessionCommand getCreateComTaskSessionTask(CreateComTaskSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
-        CreateComTaskSessionCommandImpl createComTaskSessionCommand = new CreateComTaskSessionCommandImpl(protocolTask, this, comTaskExecution);
+    public CreateComTaskExecutionSessionCommand getCreateComTaskSessionTask(CreateComTaskExecutionSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
+        CreateComTaskExecutionSessionCommandImpl createComTaskSessionCommand = new CreateComTaskExecutionSessionCommandImpl(protocolTask, this, comTaskExecution);
         possibleCommandOwner.addCommand(createComTaskSessionCommand, comTaskExecution);
         return createComTaskSessionCommand;
     }
