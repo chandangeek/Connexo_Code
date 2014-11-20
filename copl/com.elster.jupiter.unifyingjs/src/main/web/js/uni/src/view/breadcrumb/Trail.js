@@ -52,9 +52,9 @@ Ext.define('Uni.view.breadcrumb.Trail', {
             // Ignore.
         }
 
-        if (child !== undefined && child.rendered) {
+        if (typeof child !== 'undefined' && child.rendered) {
             link.setHref(baseHref + href);
-        } else if (child !== undefined && !child.rendered) {
+        } else if (typeof child !== 'undefined' && !child.rendered) {
             link.href = baseHref + href;
         }
 
