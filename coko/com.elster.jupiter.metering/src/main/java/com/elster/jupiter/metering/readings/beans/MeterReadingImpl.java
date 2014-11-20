@@ -62,16 +62,16 @@ public class MeterReadingImpl implements MeterReading {
         }
     }
 
-    public void addAllIntervalBlocks(List<IntervalBlock> intervalBlocks){
+    public void addAllIntervalBlocks(List<? extends IntervalBlock> intervalBlocks){
         this.intervalBlocks.addAll(intervalBlocks);
 
     }
 
-    public void addAllEndDeviceEvents(List<EndDeviceEvent> endDeviceEvents) {
+    public void addAllEndDeviceEvents(List<? extends EndDeviceEvent> endDeviceEvents) {
         this.endDeviceEvents.addAll(endDeviceEvents);
     }
 
-    public void addAllReadings(List<Reading> readings){
+    public void addAllReadings(List<? extends Reading> readings){
         this.readings.addAll(readings);
     }
 

@@ -5,6 +5,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -20,16 +21,15 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
-import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class UsagePointImpl implements UsagePoint {
@@ -403,5 +403,9 @@ public class UsagePointImpl implements UsagePoint {
 		return Optional.empty();
 	}
 
+    @Override
+    public boolean is(ReadingContainer other) {
+        return other instanceof UsagePoint && ((UsagePoint) other).getId() == getId();
+    }
 
 }

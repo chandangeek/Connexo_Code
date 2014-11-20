@@ -1,9 +1,10 @@
 package com.elster.jupiter.metering;
 
+import com.google.common.collect.Range;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import com.google.common.collect.Range;
 
 public interface ReadingContainer {
 	Set<ReadingType> getReadingTypes(Range<Instant> range);
@@ -11,4 +12,5 @@ public interface ReadingContainer {
 	List<? extends BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType , int count);
 	List<? extends BaseReadingRecord> getReadingsOnOrBefore(Instant when, ReadingType readingType , int count);
     boolean hasData();
+    boolean is(ReadingContainer other);
 }

@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -19,7 +20,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -28,6 +28,7 @@ import javax.inject.Provider;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
@@ -145,5 +146,10 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
         Condition condition = Where.where("channel.meterActivation.meter").isEqualTo(this);
         condition = condition.and(Where.where("readingTimestamp").in(range));
         return query.select(condition);
+    }
+
+    @Override
+    public boolean is(ReadingContainer other) {
+        return other instanceof Meter && ((Meter) other).getId() == getId();
     }
 }
