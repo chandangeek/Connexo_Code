@@ -18,6 +18,7 @@ public class YellowfinServiceImpl implements YellowfinService {
 
     private String yellowfinHost;
     private int yellowfinPort;
+    private String yellowfinUrl;
 
     @Activate
     public void activate(BundleContext context) {
@@ -26,10 +27,16 @@ public class YellowfinServiceImpl implements YellowfinService {
             url = DEFAULT_YELLOWFIN_URL;
         }
 
+        yellowfinUrl = url;
         String parts[] = url.substring("http://".length()).split(":");
         yellowfinHost = parts[0];
         yellowfinPort = Integer.parseInt(parts[1]);
 
+    }
+
+    @Override
+    public String getYellowfinUrl(){
+        return yellowfinUrl;
     }
 
     @Override
@@ -67,6 +74,7 @@ public class YellowfinServiceImpl implements YellowfinService {
         return null;
     }
 
+    /*
     @Override
     public boolean logout(String username, String password, String sessionId)  {
         ReportServiceResponse rs = null;
@@ -103,8 +111,9 @@ public class YellowfinServiceImpl implements YellowfinService {
 
         return false;
     }
+    */
 
-    /*
+
     @Override
     public boolean logout(String username, String password, String sessionId)  {
         AdministrationServiceResponse rs = null;
@@ -120,17 +129,14 @@ public class YellowfinServiceImpl implements YellowfinService {
         rsr.setLoginId(username);
         rsr.setPassword(password);
         rsr.setOrgId(new Integer(1));
-        rsr.setFunction("EXPIRESESSION");
+        rsr.setFunction("LOGOUTUSER");
         AdministrationPerson ap = new AdministrationPerson();
         ap.setUserId("admin");
         ap.setPassword("admin");
         rsr.setPerson(ap);
 
-
-// This is the primary organization
-
 // This is the Session ID
-        rsr.setSessionId(sessionId);
+        //rsr.setLoginSessionId(sessionId);
         if (rssbs != null) {
             try {
                 rs = rssbs.remoteAdministrationCall(rsr);
@@ -144,5 +150,5 @@ public class YellowfinServiceImpl implements YellowfinService {
 
         return false;
     }
-    */
+
 }
