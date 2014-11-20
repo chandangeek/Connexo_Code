@@ -104,7 +104,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.ValidationPreview', {
                             } else {
                                 str += rule.name;
                             }
-                            str += + prop + '</span>' + '<br>';
+                            str += prop + '</span>' + '<br>';
                         }
                     });
                     return str;
