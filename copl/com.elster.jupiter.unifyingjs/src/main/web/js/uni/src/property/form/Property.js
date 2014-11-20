@@ -40,6 +40,8 @@ Ext.define('Uni.property.form.Property', {
     isEdit: true,
     isReadOnly: false,
     inheritedValues: false,
+    inputType: 'text',
+    passwordAsTextComponent: false,
 
     /**
      * Loads record to the form.
@@ -88,7 +90,9 @@ Ext.define('Uni.property.form.Property', {
                 var field = Ext.create(fieldType, Ext.apply(me.defaults, {
                     property: property,
                     isEdit: me.isEdit,
-                    isReadOnly: me.isReadOnly
+                    isReadOnly: me.isReadOnly,
+                    inputType: me.inputType,
+                    passwordAsTextComponent: me.passwordAsTextComponent
                 }));
 
                 me.add(field);
@@ -159,6 +163,18 @@ Ext.define('Uni.property.form.Property', {
     restoreAll: function() {
         this.items.each(function(item){
             item.restoreDefault();
+        })
+    },
+
+    showValues: function() {
+        this.items.each(function(item) {
+            item.showValue();
+        })
+    },
+
+    hideValues: function() {
+        this.items.each(function(item) {
+            item.hideValue();
         })
     },
 

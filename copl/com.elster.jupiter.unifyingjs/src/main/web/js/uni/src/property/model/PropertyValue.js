@@ -3,6 +3,7 @@ Ext.define('Uni.property.model.PropertyValue', {
     fields: [
         {name: 'value'},
         {name: 'defaultValue'},
-        {name: 'inheritedValue'}
+        {name: 'inheritedValue'},
+        {name: 'propertyHasValue', type:'boolean'}
     ]
 });

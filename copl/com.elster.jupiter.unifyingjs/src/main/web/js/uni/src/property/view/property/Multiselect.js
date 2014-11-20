@@ -20,7 +20,8 @@ Ext.define('Uni.property.view.property.Multiselect', {
                         valueField: 'id',
                         width: me.width,
                         height: 194,
-                    readOnly: me.isReadOnly,
+                        readOnly: me.isReadOnly,
+                        inputType: me.inputType,
                         msgTarget: 'multiselect-invalid-id-' + me.id,
                         validateOnChange: false,
                             listeners: {
