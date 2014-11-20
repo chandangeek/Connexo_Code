@@ -89,6 +89,13 @@ class TableDdlGenerator {
             sb.append(getJournalConstraint(constraint));
         }
         sb.append(")");
+        if (dialect == ORACLE) {
+        	sb.append("partition by range(");
+        	sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
+        	sb.append(") interval (");
+        	sb.append(86400L * 1000L * 30L);
+        	sb.append(") (partition P0 values less than(0))");
+        }
         return sb.toString();
     }
 
@@ -99,8 +106,11 @@ class TableDdlGenerator {
         sb.append("(");
         doAppendColumns(sb, constraint.getColumns(), false, false);
         sb.append(", ");
-        sb.append(table.getExtraJournalPrimaryKeyColumnName());
+        sb.append(table.getExtraJournalPrimaryKeyColumnNames());
         sb.append(")");
+        if (dialect == ORACLE) {
+        	sb.append(" USING INDEX LOCAL");
+        }
         return sb.toString();
     }
 

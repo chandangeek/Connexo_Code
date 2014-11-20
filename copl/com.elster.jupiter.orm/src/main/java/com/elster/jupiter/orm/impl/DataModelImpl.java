@@ -1,5 +1,29 @@
 package com.elster.jupiter.orm.impl;
 
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
+import javax.validation.MessageInterpolator;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+
+import oracle.jdbc.OracleConnection;
+
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -14,38 +38,12 @@ import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.orm.query.impl.QueryStreamImpl;
-
-import java.time.Clock;
-
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
-
-import oracle.jdbc.OracleConnection;
-
-import javax.inject.Inject;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorFactory;
-import javax.validation.MessageInterpolator;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-
-import java.security.Principal;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class DataModelImpl implements DataModel {
@@ -73,10 +71,6 @@ public class DataModelImpl implements DataModel {
         this.name = name;
         this.description = description;
         return this;
-    }
-
-    static DataModelImpl from(OrmServiceImpl ormService, String name, String description) {
-        return new DataModelImpl(ormService).init(name, description);
     }
 
     @Override
@@ -129,7 +123,7 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public String toString() {
-        return Joiner.on(" ").join("DataModel", name, "(" + description + ")");
+        return String.join(" ","DataModel", name, "(" + description + ")");
     }
 
     private void add(TableImpl<?> table) {
@@ -495,6 +489,11 @@ public class DataModelImpl implements DataModel {
             }
         }
     }
+
+	@Override
+	public void dropJournal(Instant upTo, Logger logger) {
+		getTables().forEach(table -> table.dropJournal(upTo, logger));
+	}
 
 
 }

@@ -6,8 +6,10 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.FieldType;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.MappingException;
+import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnMapping;
@@ -20,13 +22,20 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.util.Checks.is;
@@ -268,9 +277,10 @@ public class TableImpl<T> implements Table<T> {
     }
 
 
-    String getExtraJournalPrimaryKeyColumnName() {
+    String getExtraJournalPrimaryKeyColumnNames() {
+    	String base = JOURNALTIMECOLUMNNAME;
         Column[] versionColumns = getVersionColumns();
-        return versionColumns.length > 0 ? versionColumns[0].getName() : JOURNALTIMECOLUMNNAME;
+        return versionColumns.length > 0 ? String.join(",", base, versionColumns[0].getName()) : base;
     }
 
     @Override
@@ -846,6 +856,65 @@ public class TableImpl<T> implements Table<T> {
         }
         return null;
     }
+
+	@Override
+	public void dropJournal(Instant upTo, Logger logger) {		
+		if (getJournalTableName() == null) {
+			return;
+		}
+		if (getDataModel().getSqlDialect() != SqlDialect.ORACLE) {
+			// todo sql delete
+			return;
+		}
+		try {
+			doDropJournal(upTo, logger);
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		}
+	}
+	
+	private void doDropJournal(Instant upTo, Logger logger) throws SQLException {
+		try (Connection connection = getDataModel().getConnection(false)) {
+			try(PreparedStatement statement = connection.prepareStatement(partitionQuerySql())) {
+				statement.setString(1, getJournalTableName().toUpperCase());
+				try (ResultSet resultSet = statement.executeQuery()) {		
+					while (resultSet.next()) {
+						String highValueString = resultSet.getString(2);
+						try {
+							long highValue = Long.parseLong(highValueString);
+							if (highValue <= upTo.toEpochMilli()) {
+								String partitionName = resultSet.getString(1);
+								dropPartition(partitionName, connection);
+								logger.info("Dropped partition " + partitionName + " from table " + getJournalTableName() + " containing entries up to " + Instant.ofEpochMilli(highValue));
+							}
+						} catch (NumberFormatException ex) {
+							// if highValue is not a number , ignore partition
+						}
+					}
+				}
+			}
+		}		
+	}
+	
+	private String partitionQuerySql() {
+		return "select partition_name, high_value from user_tab_partitions where table_name = ? and interval = 'YES'";
+	}
+	
+	private String dropPartitionSql(String partitionName) {
+		return new StringBuilder("ALTER TABLE ")
+			.append(getJournalTableName())
+			.append(" DROP PARTITION ")
+			.append(partitionName)
+			.append(" UPDATE GLOBAL INDEXES")
+			.toString();
+	}
+	
+	
+	private void dropPartition(String name, Connection connection) throws SQLException {
+		try (Statement statement = connection.createStatement()) {
+			statement.executeUpdate(dropPartitionSql(name));
+		}
+	}
 
 }
 

@@ -1,8 +1,10 @@
 package com.elster.jupiter.orm;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * Describes a relational table, and its mapping to objects.
@@ -85,5 +87,7 @@ public interface Table<T> {
     Table<T> map(Map<String, Class<? extends T>> implementers);
 
     boolean maps(Class<?> implementer);
+    
+	void dropJournal(Instant upTo, Logger logger);
 
 }

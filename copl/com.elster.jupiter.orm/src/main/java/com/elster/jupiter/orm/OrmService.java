@@ -1,9 +1,10 @@
 package com.elster.jupiter.orm;
 
 import com.elster.jupiter.orm.associations.RefAny;
-
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 /*
  * OSGI ORM Service
@@ -37,4 +38,8 @@ public interface OrmService {
      *
      */
     void invalidateCache(String componentName, String tableName);
+    // maintenance
+    
+    void dropJournal(Instant upTo, Logger logger);
+    	
 }

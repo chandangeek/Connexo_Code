@@ -15,7 +15,10 @@ import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
+
 import java.time.Clock;
+import java.time.Instant;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
@@ -38,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class, InstallService.class}, property = "name=" + OrmService.COMPONENTNAME)
 public class OrmServiceImpl implements OrmService, InstallService {
@@ -293,4 +297,9 @@ public class OrmServiceImpl implements OrmService, InstallService {
         }
     }
 
+	@Override
+	public void dropJournal(Instant upTo, Logger logger) {
+		dataModels.values().forEach(dataModel -> dataModel.dropJournal(upTo, logger));
+	}
+    
 }
