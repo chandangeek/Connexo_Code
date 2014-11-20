@@ -66,8 +66,8 @@ class TableDdlGenerator {
         	}
         }
         sb.append(")");
-        if (dialect.hasIndexOrganizedTables()) {
-            sb.append(" index organized ");
+        if (table.isIndexOrganized() && dialect.hasIndexOrganizedTables()) {
+            sb.append(" organization index ");
         }
         return sb.toString();
     }
