@@ -54,7 +54,9 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import java.util.Optional;
+
+import java.util.*;
+
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
@@ -69,14 +71,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -602,4 +597,16 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         }
     }
 
+    @Override
+    public List<SecurityPropertySet> findUniqueSecurityPropertySets() {
+        List<SecurityPropertySet> securityPropertySets = dataModel.mapper(SecurityPropertySet.class).find();
+        List<SecurityPropertySet> uniqueSecurityPropertySets = securityPropertySets.stream().filter(s -> s.getId() ==
+                        securityPropertySets.stream()
+                                .filter(s2 -> s2.getName().equals(s.getName()))
+                                .sorted((s3, s4) -> s4.getAuthenticationDeviceAccessLevel().getId() - s3.getAuthenticationDeviceAccessLevel().getId())
+                                .sorted((s3, s4) -> s4.getEncryptionDeviceAccessLevel().getId() - s3.getEncryptionDeviceAccessLevel().getId())
+                                .findFirst().get().getId()
+        ).collect(Collectors.toList());
+        return uniqueSecurityPropertySets;
+    }
 }

@@ -211,4 +211,6 @@ public interface DeviceConfigurationService {
     public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration);
 
     List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
+
+    public List<SecurityPropertySet> findUniqueSecurityPropertySets();
 }
