@@ -13,7 +13,8 @@ Ext.define('Mdc.model.DeviceCommunicationTaskExecution', {
         'comScheduleFrequency',
         {name: 'startTime', dateFormat: 'time', type: 'date'},
         {name: 'finishTime', dateFormat: 'time', type: 'date'},
-        {name: 'alwaysExecuteOnInbound', type: 'boolean'}
+        {name: 'alwaysExecuteOnInbound', type: 'boolean'},
+        {name: 'durationInSeconds', type: 'int'}
     ],
     proxy: {
         type: 'rest',

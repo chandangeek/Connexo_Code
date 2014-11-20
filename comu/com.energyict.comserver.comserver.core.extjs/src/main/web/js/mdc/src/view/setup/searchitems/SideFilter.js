@@ -85,7 +85,7 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                 },
                 {
                     xtype: 'combobox',
-                    name: 'type',
+                    name: 'configuration',
                     itemId: 'configuration',
                     store: 'Mdc.store.DeviceConfigurations',
                     queryMode: 'local',

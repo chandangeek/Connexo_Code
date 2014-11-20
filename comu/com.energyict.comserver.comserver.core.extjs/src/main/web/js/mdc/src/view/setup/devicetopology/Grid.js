@@ -43,8 +43,7 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 renderer: function (value) {
                     return Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(value), 'MDC', 'M d, Y H:i');
                 }
-            },
-
+            }
         ];
 
         me.dockedItems = [
