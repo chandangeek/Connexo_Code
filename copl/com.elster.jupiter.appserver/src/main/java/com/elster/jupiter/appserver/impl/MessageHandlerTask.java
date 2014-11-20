@@ -5,8 +5,8 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
@@ -18,7 +18,7 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
 
     private final SubscriberSpec subscriberSpec;
     private final MessageHandler handler;
-    private final MessageHandlerTask.ProcessTransaction processTransaction = new ProcessTransaction();
+    private final Transaction<Message> processTransaction = new ProcessTransaction();
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
 
@@ -33,8 +33,10 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                transactionService.execute(processTransaction);
-                handler.onMessageDelete();
+                Message message = transactionService.execute(processTransaction);
+                if (message != null) {
+                    handler.onMessageDelete(message);
+                }
             } catch (RuntimeException e) {
                 MessageSeeds.MESSAGEHANDLER_FAILED.log(LOGGER, thesaurus, e);
                 // transaction has been rolled back, message will be reoffered after a delay or moved to dead letter queue as configured, we can just continue with the next message
@@ -57,16 +59,16 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
         };
     }
 
-    private class ProcessTransaction extends VoidTransaction {
-
+    private class ProcessTransaction implements Transaction<Message> {
         @Override
-        protected void doPerform() {
+        public Message perform() {
             Message message = subscriberSpec.receive();
             if (message == null) { // receive() got cancelled, by a shut down request
                 Thread.currentThread().interrupt();
-                return;
+                return null;
             }
             handler.process(message);
+            return message;
         }
     }
 }

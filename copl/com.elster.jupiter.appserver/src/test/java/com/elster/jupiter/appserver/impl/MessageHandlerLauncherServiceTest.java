@@ -3,13 +3,12 @@ package com.elster.jupiter.appserver.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import org.junit.After;
@@ -30,7 +29,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,7 +56,7 @@ public class MessageHandlerLauncherServiceTest {
     @Mock
     private User user;
     @Mock
-    private TransactionService transactionService;
+    private TransactionVerifier transactionService;
     @Mock
     private MessageHandler handler;
     @Mock
@@ -77,17 +75,12 @@ public class MessageHandlerLauncherServiceTest {
         when(factory.newMessageHandler()).thenReturn(handler);
         when(appServer.getName()).thenReturn(NAME);
 
-        initFakeTransactionService();
+        transactionService = new TransactionVerifier(handler);
 
         messageHandlerLauncherService.setAppService(appService);
         messageHandlerLauncherService.setUserService(userService);
         messageHandlerLauncherService.setThreadPrincipalService(threadPrincipalService);
         messageHandlerLauncherService.setTransactionService(transactionService);
-    }
-
-    @SuppressWarnings("unchecked")
-	private void initFakeTransactionService() {
-        when(transactionService.execute(any())).thenAnswer(invocationOnMock -> ((Transaction<?>) invocationOnMock.getArguments()[0]).perform());
     }
 
     @After
@@ -119,7 +112,7 @@ public class MessageHandlerLauncherServiceTest {
             }
         };
         doAnswer(methodReached).when(handler).process(message);
-        doAnswer(methodReached).when(handler).onMessageDelete();
+        doAnswer(methodReached).when(handler).onMessageDelete(message);
 
         Map<String, Object> map = new HashMap<>();
         map.put("subscriber", SUBSCRIBER);
@@ -166,7 +159,10 @@ public class MessageHandlerLauncherServiceTest {
 
             verify(subscriberSpec, atLeastOnce()).receive();
             verify(handler).process(message);
-            verify(handler, never()).onMessageDelete();
+            verify(handler, never()).onMessageDelete(message);
+
+            verify(handler, transactionService.inTransaction()).process(message);
+
         } catch(Exception e) {
             e.printStackTrace();
         } finally {
@@ -205,7 +201,11 @@ public class MessageHandlerLauncherServiceTest {
             verify(subscriberSpec).cancel();
             InOrder inOrder = inOrder(handler);
             inOrder.verify(handler).process(message);
-            inOrder.verify(handler).onMessageDelete();
+            inOrder.verify(handler).onMessageDelete(message);
+
+            verify(handler, transactionService.inTransaction()).process(message);
+            verify(handler, transactionService.notInTransaction()).onMessageDelete(message);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
