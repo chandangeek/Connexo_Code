@@ -14,6 +14,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
     predefinedItems: [
         {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
+            hidden: Uni.Auth.hasNoPrivilege('privilege.comment.issue'),
             action: 'addComment'
         }
     ],
@@ -70,8 +71,28 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
         // add dynamic actions
         me.store.each(function (record) {
+            var isHidden = false;
+            switch (record.get('name')) {
+                case 'Assign issue':
+                    isHidden = Uni.Auth.hasNoPrivilege('privilege.assign.issue');
+                    break;
+                case 'Close issue':
+                    isHidden = Uni.Auth.hasNoPrivilege('privilege.close.issue');
+                    break;
+                case 'Retry now':
+                    isHidden = Uni.Auth.hasNoPrivilege('privilege.view.scheduleDevice');
+                    break;
+                case 'Send someone to inspect':
+                    isHidden = Uni.Auth.hasNoPrivilege('privilege.action.issue');
+                    break;
+                case 'Notify user':
+                    isHidden = Uni.Auth.hasNoPrivilege('privilege.action.issue');
+                    break;
+            }
+
             var menuItem = {
-                text: record.get('name')
+                text: record.get('name'),
+                hidden: isHidden
             };
 
             if (Ext.isEmpty(record.get('parameters'))) {
@@ -96,48 +117,50 @@ Ext.define('Isu.view.issues.ActionMenu', {
         }
 
         // add specific actions
-        deviceMRID = me.record.get('deviceMRID');
-        if (deviceMRID) {
-            comTaskId = me.record.get('comTaskId');
-            comTaskSessionId = me.record.get('comTaskSessionId');
-            connectionTaskId = me.record.get('connectionTaskId');
-            comSessionId = me.record.get('comSessionId');
-            if (comTaskId && comTaskSessionId) {
-                me.add({
-                    text: Uni.I18n.translate('issues.actionMenu.viewCommunicationLog', 'ISU', 'View communication log'),
-                    href: me.router.getRoute('devices/device/communicationtasks/history/viewlog').buildUrl(
-                        {
-                            mRID: deviceMRID,
-                            comTaskId: comTaskId,
-                            historyId: comTaskSessionId
-                        },
-                        {
-                            filter: {
-                                logLevels: ['Error', 'Warning', 'Information']
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device'])) {
+            deviceMRID = me.record.get('deviceMRID');
+            if (deviceMRID) {
+                comTaskId = me.record.get('comTaskId');
+                comTaskSessionId = me.record.get('comTaskSessionId');
+                connectionTaskId = me.record.get('connectionTaskId');
+                comSessionId = me.record.get('comSessionId');
+                if (comTaskId && comTaskSessionId) {
+                    me.add({
+                        text: Uni.I18n.translate('issues.actionMenu.viewCommunicationLog', 'ISU', 'View communication log'),
+                        href: me.router.getRoute('devices/device/communicationtasks/history/viewlog').buildUrl(
+                            {
+                                mRID: deviceMRID,
+                                comTaskId: comTaskId,
+                                historyId: comTaskSessionId
+                            },
+                            {
+                                filter: {
+                                    logLevels: ['Error', 'Warning', 'Information']
+                                }
                             }
-                        }
-                    ),
-                    hrefTarget: '_blank'
-                });
-            }
-            if (connectionTaskId && comSessionId) {
-                me.add({
-                    text: Uni.I18n.translate('issues.actionMenu.viewConnectionLog', 'ISU', 'View connection log'),
-                    href: me.router.getRoute('devices/device/connectionmethods/history/viewlog').buildUrl(
-                        {
-                            mRID: deviceMRID,
-                            connectionMethodId: connectionTaskId,
-                            historyId: comSessionId
-                        },
-                        {
-                            filter: {
-                                logLevels: ['Error', 'Warning', 'Information'],
-                                logTypes: ['connections', 'communications']
+                        ),
+                        hrefTarget: '_blank'
+                    });
+                }
+                if (connectionTaskId && comSessionId) {
+                    me.add({
+                        text: Uni.I18n.translate('issues.actionMenu.viewConnectionLog', 'ISU', 'View connection log'),
+                        href: me.router.getRoute('devices/device/connectionmethods/history/viewlog').buildUrl(
+                            {
+                                mRID: deviceMRID,
+                                connectionMethodId: connectionTaskId,
+                                historyId: comSessionId
+                            },
+                            {
+                                filter: {
+                                    logLevels: ['Error', 'Warning', 'Information'],
+                                    logTypes: ['connections', 'communications']
+                                }
                             }
-                        }
-                    ),
-                    hrefTarget: '_blank'
-                });
+                        ),
+                        hrefTarget: '_blank'
+                    });
+                }
             }
         }
     }
