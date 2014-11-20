@@ -35,6 +35,10 @@ public interface ReadingType extends IdentifiedObject {
 	
 	boolean isBulkQuantityReadingType(ReadingType readingType);
 	boolean isRegular();
+	default boolean isCumulative() {
+		return getAccumulation().isCumulative();
+	}
+	
     long getVersion();
 
     void setDescription(String description);
