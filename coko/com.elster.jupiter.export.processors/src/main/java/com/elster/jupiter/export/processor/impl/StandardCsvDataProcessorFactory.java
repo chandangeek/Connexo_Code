@@ -3,6 +3,7 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -50,6 +51,31 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
     @Override
     public String getName() {
         return NAME;
+    }
+
+    @Override
+    public void validateProperties(List<DataExportProperty> properties) {
+        for (DataExportProperty property : properties) {
+            if (property.getName().equals(FormatterProperties.FILENAME_PREFIX.getKey())) {
+                checkInvalidChars((String) property.getValue(), FormatterProperties.FILENAME_PREFIX.getKey());
+            } else if (property.getName().equals(FormatterProperties.FILE_EXTENSION.getKey())) {
+                checkInvalidChars((String) property.getValue(), FormatterProperties.FILE_EXTENSION.getKey());
+            } else if (property.getName().equals(FormatterProperties.UPDATE_FILE_PREFIX.getKey())) {
+                checkInvalidChars((String) property.getValue(), FormatterProperties.UPDATE_FILE_PREFIX.getKey());
+            } else if (property.getName().equals(FormatterProperties.UPDATE_FILE_EXTENSION.getKey())) {
+                checkInvalidChars((String) property.getValue(), FormatterProperties.UPDATE_FILE_EXTENSION.getKey());
+            }
+        }
+    }
+
+    protected void checkInvalidChars(String value, String fieldName) {
+        String invalidChars = "\":*?<>|";
+        for (int i = 0; i < invalidChars.length(); i++) {
+            char invalidChar = invalidChars.charAt(i);
+            if (value.indexOf(invalidChar) != -1) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS_EXCEPTION, "properties." + fieldName);
+            }
+        }
     }
 
 }
