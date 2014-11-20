@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                 },
                 {
                     xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('comtask.commands', 'MDC', 'Commands'),
+                    fieldLabel: Uni.I18n.translate('comtask.commands', 'MDC', 'Actions'),
                     items: [
                         {
                           xtype: 'container',
@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                                 {
                                     xtype: 'button',
                                     name: 'addCommands',
-                                    text: Uni.I18n.translate('comtask.add.command', 'MDC', 'Add command'),
+                                    text: Uni.I18n.translate('comtask.add.command', 'MDC', 'Add action'),
                                     margin: '5 0 5 0',
                                     itemId: 'addCommandsToTask',
                                     action: 'addCommand'
@@ -66,20 +66,20 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                 },
                 {
                     xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('comtask.messages', 'MDC', 'Messages'),
+                    fieldLabel: Uni.I18n.translate('comtask.messages', 'MDC', 'Commands'),
                     items:[
                         {
                             xtype: 'displayfield',
-                            value: Uni.I18n.translate('comtask.messages.text', 'MDC', 'Send pending messages of these message categories every time this communication task executes')
+                            value: Uni.I18n.translate('comtask.messages.text', 'MDC', 'Send pending commands of these command categories every time this communication task executes')
                         },
                         {
                             xtype: 'connected-grid',
                             itemId: 'messagesConnectedGrid',
                             disableIndication: true,
                             enableSorting: true,
-                            allItemsTitle: Uni.I18n.translate('comtask.message.categories', 'MDC', 'Message categories'),
+                            allItemsTitle: Uni.I18n.translate('comtask.message.categories', 'MDC', 'Command categories'),
                             allItemsStoreName: 'Mdc.store.MessageCategories',
-                            selectedItemsTitle: Uni.I18n.translate('comtask.selected.message.categories', 'MDC', 'Selected message categories'),
+                            selectedItemsTitle: Uni.I18n.translate('comtask.selected.message.categories', 'MDC', 'Selected command categories'),
                             selectedItemsStoreName: 'Mdc.store.SelectedMessageCategories',
                             displayedColumn: 'name'
                         }

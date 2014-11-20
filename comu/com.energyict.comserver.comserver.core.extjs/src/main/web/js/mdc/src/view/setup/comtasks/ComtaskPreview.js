@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreview', {
             },
             {
                 itemId: 'comtaskCommands',
-                fieldLabel: Uni.I18n.translate('comtask.commands', 'MDC', 'Commands'),
+                fieldLabel: Uni.I18n.translate('comtask.commands', 'MDC', 'Actions'),
                 name: 'commands',
                 renderer: function (value) {
                     var str = '';
@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreview', {
             },
             {
                 itemId: 'comtaskMessages',
-                fieldLabel: Uni.I18n.translate('comtask.message.categories', 'MDC', 'Message categories'),
+                fieldLabel: Uni.I18n.translate('comtask.message.categories', 'MDC', 'Command categories'),
                 name: 'messages',
                 renderer: function (value) {
                     var str = '';
