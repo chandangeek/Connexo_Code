@@ -12,6 +12,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Comparator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -126,6 +127,23 @@ public class TransactionVerifierTest {
         String result = transactionService.execute(transaction);
 
         verify(comparator, transactionService.notInTransaction()).compare("A", "B");
+    }
+
+    @Test
+    public void testInNthTransactionClassFails() {
+        Transaction<String> transaction = () -> {
+            comparator.compare("A", "B");
+            return "A";
+        };
+
+        String result = transactionService.execute(transaction);
+
+        try {
+            verify(comparator, transactionService.inTransaction(2)).compare("A", "B");
+            fail("expected verification to fail.");
+        } catch (AssertionError e) {
+            assertThat(e.getMessage()).contains("Method invoked in the 1st transaction instead of in the 2nd");
+        }
     }
 
 
