@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
         items: [
             {
                 itemId: 'name',
-                text: Uni.I18n.translate('deviceconnectionhistory.communication', 'MDC', 'Communication'),
+                text: Uni.I18n.translate('deviceconnectionhistory.communication', 'MDC', 'Communication task'),
                 dataIndex: 'name',
                 flex: 1
             },
@@ -46,13 +46,13 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 }
             },
             {
-                itemId: 'finishTime',
-                text: Uni.I18n.translate('deviceconnectionhistory.finishedOn', 'MDC', 'Finished on'),
-                dataIndex: 'finishTime',
+                itemId: 'durationInSeconds',
+                text: Uni.I18n.translate('deviceconnectionhistory.duration', 'MDC', 'Duration'),
+                dataIndex: 'durationInSeconds',
                 flex: 1,
-                renderer: function (value,metadata) {
-                    if (value !== null) {
-                        return new Date(value).toLocaleString();
+                renderer: function (value) {
+                    if (value !== '') {
+                        return value + ' ' + Uni.I18n.translate('general.seconds', 'MDC', 'seconds');
                     }
                 }
             },
