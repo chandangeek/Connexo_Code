@@ -25,7 +25,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.ScheduleExpression;
-import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -218,12 +217,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public ScheduleExpression getScheduleExpression() {
         return recurrentTask.get().getScheduleExpression();
-    }
-
-    @Override
-    public Optional<? extends DataExportOccurrence> getLastOccurrence() {
-        return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("readingTask", this), new Order[]{Order.descending("startDate")},
-                false, new String[]{}, 1, 1).stream().findAny();
     }
 
     @Override
