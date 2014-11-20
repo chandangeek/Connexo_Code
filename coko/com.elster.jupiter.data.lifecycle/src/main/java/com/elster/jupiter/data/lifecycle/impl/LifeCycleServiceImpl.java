@@ -13,17 +13,19 @@ import javax.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import sun.security.action.GetLongAction;
-
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskExecutor;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.google.inject.AbstractModule;
 
@@ -32,6 +34,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 	
 	private volatile OrmService ormService;
 	private volatile DataModel dataModel;
+	private volatile Thesaurus thesaurus;
 	private volatile MessageService messageService;
 	private volatile TaskService taskService;
 	
@@ -39,8 +42,9 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 	}
 
 	@Inject
-	public LifeCycleServiceImpl(OrmService ormService, MessageService messageService, TaskService taskService) {
+	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService) {
 		setOrmService(ormService);
+		setNlsService(nlsService);
 		setMessageService(messageService);
 		setTaskService(taskService);
 		if (!dataModel.isInstalled()) {
@@ -51,25 +55,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 	@Override
 	public void install() {		
 		dataModel.install(true, true);
-		for (LifeCycleCategoryKind category : LifeCycleCategoryKind.values()) {
-			LifeCycleCategory newCategory = new LifeCycleCategoryImpl(dataModel).init(category);
-			dataModel.persist(newCategory);
-		}
-		createTask();
-	}
-
-	private DestinationSpec getDestination() {
-		return messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get().createDestinationSpec("DataLifeCycle", 10);
-	}
-	
-	private void createTask() {
-		taskService.newBuilder()
-			.setName("Data Lifecycle")
-			.setScheduleExpressionString("0 0 18 ? * 1L") // last sunday of the month at 18:00		
-			.setDestination(getDestination())
-			.setPayLoad("Data Lifecycle")
-			.scheduleImmediately()
-			.build().save();
+		new Installer(dataModel, thesaurus, messageService , taskService).install();
 	}
 	
 	@Override
@@ -90,6 +76,11 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 				bind(DataModel.class).toInstance(dataModel);
 			}
 		});
+	}
+	
+	@Reference
+	public void setNlsService(NlsService nlsService) {
+		this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
 	}
 
 	@Reference
@@ -113,8 +104,14 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 	public RecurrentTask getTask() {
 		return taskService.getRecurrentTask("Data Lifecycle").get();
 	}
-
+	
 	@Override
+	public void runNow() {
+		TaskExecutor executor = new LifeCycleTaskExecutor(this);
+		TaskOccurrence occurrence = getTask().createTaskOccurrence();
+		executor.execute(occurrence);
+	}
+
 	public void execute(Logger logger) {
 		LifeCycleCategory journal = getCategories().stream().filter(cat -> cat.getKind() == LifeCycleCategoryKind.JOURNAL).findFirst().get();
 		Instant instant = Instant.now().minus(journal.getRetention()).truncatedTo(ChronoUnit.DAYS);

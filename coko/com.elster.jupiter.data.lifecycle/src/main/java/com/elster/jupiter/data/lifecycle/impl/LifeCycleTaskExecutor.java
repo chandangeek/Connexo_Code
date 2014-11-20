@@ -1,20 +1,19 @@
-package com.elster.jupiter.data.lifecycle.run.impl;
+package com.elster.jupiter.data.lifecycle.impl;
 
 import java.time.Instant;
+import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.logging.Handler;
 
-import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
 
 public class LifeCycleTaskExecutor implements TaskExecutor {
 
-	private final LifeCycleService lifeCycleService; 
+	private final LifeCycleServiceImpl lifeCycleService; 
 	
-	LifeCycleTaskExecutor(LifeCycleService service) {
+	LifeCycleTaskExecutor(LifeCycleServiceImpl service) {
 		this.lifeCycleService = service;
 		
 	}

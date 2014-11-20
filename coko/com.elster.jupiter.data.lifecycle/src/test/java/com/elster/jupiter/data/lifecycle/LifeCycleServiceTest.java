@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,6 +18,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.data.lifecycle.impl.DataLifeCycleModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -37,6 +37,7 @@ public class LifeCycleServiceTest {
 	
 	private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 	private LifeCycleService lifeCycleService;
+	private Injector injector; 
 
 	private static class MockModule extends AbstractModule {
 		@Override
@@ -50,11 +51,12 @@ public class LifeCycleServiceTest {
 
 	@Before
 	public void setUp() throws SQLException {
-		Injector injector = Guice.createInjector(
+		injector = Guice.createInjector(
 				new MockModule(), 
     			inMemoryBootstrapModule,      		
     			new OrmModule(),
     			new DomainUtilModule(), 
+    			new NlsModule(),
     			new UserModule(),
     			new UtilModule(), 
     			new ThreadSecurityModule(), 
@@ -83,7 +85,7 @@ public class LifeCycleServiceTest {
 			assertThat(categories.indexOf(category)).isEqualTo(	category.getKind().ordinal());		
 		}
 		lifeCycleService.getTask();
-		lifeCycleService.execute(Logger.getLogger(getClass().getPackage().getName()));
+		injector.getInstance(TransactionService.class).execute(() -> { lifeCycleService.runNow(); return null; });
 	}
 
 }
