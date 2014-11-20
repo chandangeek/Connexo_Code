@@ -31,6 +31,8 @@ Ext.define('Dxp.view.tasks.PropertyForm', {
                         labelWidth: 250,
                         width: 235,
                         allowBlank: !property.get('required'),
+                        name: property.get('key'),
+                        itemId: property.get('key'),
                         boxLabel: Uni.I18n.translate(property.get('key'), 'DES', property.get('key'))
 
                     }),
