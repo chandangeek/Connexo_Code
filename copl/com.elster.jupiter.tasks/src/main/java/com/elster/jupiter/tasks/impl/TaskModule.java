@@ -9,7 +9,6 @@ import com.elster.jupiter.util.json.JsonService;
 import java.time.Clock;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-import org.osgi.service.log.LogService;
 
 /**
  * Module intended for use by integration tests that use the {@link TaskService}.
