@@ -31,8 +31,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
 import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
-import com.energyict.mdc.engine.impl.core.aspects.journaling.ComCommandJournalist;
-import com.energyict.mdc.engine.impl.core.aspects.logging.ComCommandLogger;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
@@ -88,7 +86,6 @@ public final class ExecutionContext implements JournalEntryFactory {
     private ComSessionBuilder sessionBuilder;
     private ComTaskExecutionSessionBuilder currentTaskExecutionBuilder;
     private ComCommandJournalist journalist;
-    private ComCommandLogger comCommandLogger;
     private ComPort comPort;
     private ConnectionTask<?, ?> connectionTask;
     private ConnectionTaskPropertyCache connectionTaskPropertyCache = new ConnectionTaskPropertyCache();
@@ -124,6 +121,10 @@ public final class ExecutionContext implements JournalEntryFactory {
             this.comPortRelatedComChannel.close();
             this.addStatisticalInformationToComSession();
         }
+    }
+
+    public Clock clock() {
+        return this.serviceProvider.clock();
     }
 
     private boolean isConnected() {
@@ -239,10 +240,6 @@ public final class ExecutionContext implements JournalEntryFactory {
         return comPortRelatedComChannel;
     }
 
-    public ComCommandLogger getComCommandLogger() {
-        return comCommandLogger;
-    }
-
     public ComPort getComPort() {
         return comPort;
     }
@@ -302,10 +299,6 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     public void setBasicCheckFailed(boolean basicCheckFailed) {
         this.basicCheckFailed = basicCheckFailed;
-    }
-
-    public void setComCommandLogger(ComCommandLogger comCommandLogger) {
-        this.comCommandLogger = comCommandLogger;
     }
 
     public void setComSessionShadow(ComSessionBuilder comSessionShadow) {

@@ -69,6 +69,7 @@ public class SynchronizeClockCommandImplTest extends CommonCommandImplTests {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         ClockCommand clockCommand = mock(ClockCommand.class);
         ClockTask clockTask = mock(ClockTask.class);
+        when(clockTask.getMaximumClockShift()).thenReturn(Optional.empty());
         when(clockTask.getMaximumClockDifference()).thenReturn(Optional.of(maxClockDifference));
         when(clockCommand.getClockTask()).thenReturn(clockTask);
         when(clockCommand.getTimeDifference()).thenReturn(Optional.of(clockDiff));

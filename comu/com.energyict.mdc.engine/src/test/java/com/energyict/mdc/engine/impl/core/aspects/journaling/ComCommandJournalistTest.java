@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core.aspects.journaling;
 
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.core.ComCommandJournalist;
 import com.energyict.mdc.engine.impl.core.JournalEntryFactory;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;

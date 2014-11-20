@@ -120,7 +120,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         this.getComServerDAO().unlock(comTaskExecution);
     }
 
-    boolean establishConnectionFor() {
+    boolean establishConnection() {
         return this.getExecutionContext().connect();
     }
 

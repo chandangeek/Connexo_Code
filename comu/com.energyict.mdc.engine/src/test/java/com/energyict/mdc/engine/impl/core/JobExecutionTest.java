@@ -417,7 +417,7 @@ public class JobExecutionTest {
         ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup = getJobExecutionForBasicCheckInFrontTests();
         scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort));
 
-        scheduledComTaskExecutionGroup.establishConnectionFor();
+        scheduledComTaskExecutionGroup.establishConnection();
         scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);
 
         assertThat(scheduledComTaskExecutionGroup.getExecutionContext().hasBasicCheckFailed()).isTrue();
@@ -451,7 +451,7 @@ public class JobExecutionTest {
         ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup = getJobExecutionForBasicCheckInFrontTests();
         scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort));
 
-        scheduledComTaskExecutionGroup.establishConnectionFor();
+        scheduledComTaskExecutionGroup.establishConnection();
         scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);
 
         assertThat(scheduledComTaskExecutionGroup.getExecutionContext().hasBasicCheckFailed()).isTrue();

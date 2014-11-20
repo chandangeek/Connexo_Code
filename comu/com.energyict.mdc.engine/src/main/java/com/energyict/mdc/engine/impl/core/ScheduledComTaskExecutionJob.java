@@ -78,7 +78,7 @@ public class ScheduledComTaskExecutionJob extends ScheduledJobImpl {
         boolean connectionOk = false;
         try {
             PreparedComTaskExecution preparedComTaskExecution = prepare();
-            if (this.establishConnectionFor()) {
+            if (this.establishConnection()) {
                 connectionOk = true;
                 performPreparedComTaskExecution(preparedComTaskExecution);
             }

@@ -116,4 +116,12 @@ public interface ComCommand {
      */
     public String toJournalMessageDescription (LogLevel serverLogLevel);
 
+    /**
+     * Creates a human readable description of all issues;
+     * If no issues occurred, then an empty string will be returned.
+     *
+     * @return The human readable description of the issues
+     */
+    public String issuesToJournalMessageDescription();
+
 }

@@ -1,9 +1,9 @@
-package com.energyict.mdc.engine.impl.core.aspects.journaling;
+package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
-import com.energyict.mdc.engine.impl.core.JournalEntryFactory;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.Problem;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -14,7 +14,7 @@ import java.time.Clock;
 import java.util.List;
 
 /**
- * Writes the journal entries on behalf of the ComCommandJournaling aspect.
+ * Writes the journal entries for {@link ComCommand}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-01-15 (13:50)
@@ -60,8 +60,11 @@ public class ComCommandJournalist {
         StringBuilder builder = new StringBuilder();
         if (hasIssues(comCommand)) {
             appendHeader(builder, comCommand);
-            appendIssues(builder, "Problems", comCommand.getProblems());
-            builder.append(comCommand.getProblems().isEmpty() ? "" : "\n");
+            List<Problem> problems = comCommand.getProblems();
+            appendIssues(builder, "Problems", problems);
+            if (!problems.isEmpty()) {
+                builder.append("\n");
+            }
             appendIssues(builder, "Warnings", comCommand.getWarnings());
         }
         return builder.toString();

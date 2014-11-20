@@ -218,7 +218,7 @@ public class ScheduledJobImplTest {
 
         ScheduledComTaskExecutionJob scheduledComTaskExecutionJob = new ScheduledComTaskExecutionJob(comPort, comServerDAO, this.deviceCommandExecutor, scheduledComTask, this.serviceProvider);
         scheduledComTaskExecutionJob.createExecutionContext();
-        scheduledComTaskExecutionJob.establishConnectionFor();
+        scheduledComTaskExecutionJob.establishConnection();
         JobExecution.PreparedComTaskExecution preparedComTaskExecution = scheduledComTaskExecutionJob.prepareOne(scheduledComTask);
 
         // asserts
@@ -254,7 +254,7 @@ public class ScheduledJobImplTest {
 
         ScheduledComTaskExecutionGroup group = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, this.serviceProvider);
         group.createExecutionContext();
-        group.establishConnectionFor();
+        group.establishConnection();
         group.add(comTask1);
         group.add(comTask2);
         group.add(comTask3);

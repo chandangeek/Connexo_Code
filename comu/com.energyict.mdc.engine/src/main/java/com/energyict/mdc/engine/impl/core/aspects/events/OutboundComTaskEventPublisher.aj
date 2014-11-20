@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
@@ -33,16 +34,17 @@ public aspect OutboundComTaskEventPublisher {
                 ));
     }
 
-    private pointcut completeTask (JobExecution job, ComTaskExecution comTaskExecution):
-            execution(void JobExecution.completeExecutedComTask(ComTaskExecution))
+    private pointcut completeTask (JobExecution job, ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator):
+            execution(void JobExecution.completeExecutedComTask(ComTaskExecution, ComTaskExecutionSession.SuccessIndicator))
          && target(job)
-         && args(comTaskExecution);
+         && args(comTaskExecution, successIndicator);
 
-    after (JobExecution job, ComTaskExecution comTaskExecution): completeTask(job, comTaskExecution) {
+    after (JobExecution job, ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator): completeTask(job, comTaskExecution, successIndicator) {
         this.publish(
                 new ComTaskExecutionCompletionEvent(
                         new ComServerEventServiceProviderAdapter(),
                         comTaskExecution,
+                        successIndicator,
                         job.getExecutionContext().getComPort(),
                         job.getExecutionContext().getConnectionTask()
                 ));
