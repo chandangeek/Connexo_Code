@@ -91,9 +91,7 @@ public class RecurrentTaskIT {
         protected void configure() {
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(LogService.class).toInstance(logService);
-            bind(CronExpressionParser.class).toInstance(new DefaultCronExpressionParser());
+            bind(EventAdmin.class).toInstance(eventAdmin);      
         }
     }
 

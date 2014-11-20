@@ -16,6 +16,10 @@ public interface TaskService {
     MessageHandler createMessageHandler(TaskExecutor taskExecutor);
 
     Optional<RecurrentTask> getRecurrentTask(long id);
+    
+    Optional<RecurrentTask> getRecurrentTask(String name);
+
+    Optional<TaskOccurrence> getOccurrence(Long id);
 
     List<TaskOccurrence> getOccurrences(RecurrentTask recurrentTask, Range<Instant> period);
 

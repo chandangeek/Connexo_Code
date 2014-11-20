@@ -14,19 +14,21 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.TaskServiceAlreadyLaunched;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogService;
 
 import javax.inject.Inject;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
@@ -42,7 +44,6 @@ public class TaskServiceImpl implements TaskService, InstallService {
     private DueTaskFetcher dueTaskFetcher;
     private volatile Clock clock;
     private volatile MessageService messageService;
-    private volatile LogService logService;
     private volatile QueryService queryService;
     private volatile TransactionService transactionService;
     private volatile CronExpressionParser cronExpressionParser;
@@ -58,12 +59,11 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     // For unit test purposes only
     @Inject
-    public TaskServiceImpl(OrmService ormService, Clock clock, MessageService messageService, LogService logService, QueryService queryService, TransactionService transactionService, CronExpressionParser cronExpressionParser, JsonService jsonService) {
+    public TaskServiceImpl(OrmService ormService, Clock clock, MessageService messageService, QueryService queryService, TransactionService transactionService, CronExpressionParser cronExpressionParser, JsonService jsonService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
         this.setMessageService(messageService);
-        this.setLogService(logService);
         this.setQueryService(queryService);
         this.setTransactionService(transactionService);
         this.setCronExpressionParser(cronExpressionParser);
@@ -118,6 +118,16 @@ public class TaskServiceImpl implements TaskService, InstallService {
     }
 
     @Override
+    public Optional<TaskOccurrence> getOccurrence(Long id) {
+        return dataModel.mapper(TaskOccurrence.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<RecurrentTask> getRecurrentTask(String name) {
+        return dataModel.stream(RecurrentTask.class).filter(Where.where("name").isEqualTo(name)).findFirst();
+    }
+
+    @Override
     public Optional<RecurrentTask> getRecurrentTask(long id) {
         return dataModel.mapper(RecurrentTask.class).getOptional(id);
     }
@@ -167,11 +177,6 @@ public class TaskServiceImpl implements TaskService, InstallService {
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
-    }
-
-    @Reference
-    public void setLogService(LogService logService) {
-        this.logService = logService;
     }
 
     @Reference
