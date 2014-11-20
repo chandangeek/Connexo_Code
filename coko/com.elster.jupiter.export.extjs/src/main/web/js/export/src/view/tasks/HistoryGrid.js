@@ -3,8 +3,10 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
     alias: 'widget.tasks-history-grid',
     store: 'Dxp.store.DataExportTasksHistory',
     router: null,
+
     requires: [
         'Uni.grid.column.Action',
+        'Uni.grid.column.Duration',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
     ],
@@ -20,7 +22,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 flex: 2
             },
             {
-                header: Uni.I18n.translate('general.duration', 'DES', 'Duration'),
+                xtype: 'uni-grid-column-duration',
                 dataIndex: 'duration',
                 flex: 1
             },

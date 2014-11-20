@@ -37,7 +37,7 @@ Ext.define('Dxp.controller.history.Export', {
                             },
                             items: {
                                 edit: {
-                                    title: Uni.I18n.translate('general.editDataExportTask', 'DES', 'Edit data export task'),
+                                    title: Uni.I18n.translate('general.edit', 'DES', 'Edit'),
                                     route: 'edit',
                                     controller: 'Dxp.controller.Tasks',
                                     privileges: ['privilege.update.dataExportTask','privilege.update.schedule.dataExportTask'],
