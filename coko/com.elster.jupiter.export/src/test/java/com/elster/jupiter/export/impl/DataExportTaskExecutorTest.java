@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DataExportProperty;
@@ -16,7 +17,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import org.junit.After;
@@ -39,8 +40,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.devtools.tests.Matcher.matches;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -55,6 +59,7 @@ public class DataExportTaskExecutorTest {
     private ZonedDateTime lastExported;
     private Range<Instant> exportPeriod;
     private LogRecorder logRecorder;
+    private TransactionVerifier transactionService;
 
     @Mock
     private TaskService taskService;
@@ -88,8 +93,6 @@ public class DataExportTaskExecutorTest {
     private DataExportStrategy strategy;
     @Mock(extraInterfaces = {IntervalReading.class})
     private ReadingRecord reading1, reading2;
-    @Mock
-    private TransactionService transactionService;
 
     @Before
     public void setUp() {
@@ -100,9 +103,12 @@ public class DataExportTaskExecutorTest {
         exportPeriod = Range.openClosed(exportPeriodStart.toInstant(), exportPeriodEnd.toInstant());
         logRecorder = new LogRecorder(Level.ALL);
 
+        transactionService = new TransactionVerifier(dataProcessor, newItem, existingItem);
+
         when(occurrence.createTaskLogHandler()).thenReturn(taskLogHandler);
         when(taskLogHandler.asHandler()).thenReturn(logRecorder);
         when(dataExportService.createExportOccurrence(occurrence)).thenReturn(dataExportOccurrence);
+        when(dataExportService.findDataExportOccurrence(occurrence)).thenReturn(Optional.of(dataExportOccurrence));
         when(dataExportService.getDataProcessorFactory("CSV")).thenReturn(Optional.of(dataProcessorFactory));
         when(dataExportOccurrence.getTask()).thenReturn(task);
         when(dataExportOccurrence.getExportedDataInterval()).thenReturn(exportPeriod);
@@ -144,7 +150,10 @@ public class DataExportTaskExecutorTest {
     public void testExecuteObsoleteItemIsDeactivated() {
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
 
-        executor.execute(occurrence);
+        try (TransactionContext context = transactionService.getContext()) {
+            executor.execute(occurrence);
+        }
+        executor.postExecute(occurrence);
 
         InOrder inOrder = inOrder(obsoleteItem);
         inOrder.verify(obsoleteItem).deactivate();
@@ -155,7 +164,10 @@ public class DataExportTaskExecutorTest {
     public void testExecuteExistingItemIsUpdated() {
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
 
-        executor.execute(occurrence);
+        try (TransactionContext context = transactionService.getContext()) {
+            executor.execute(occurrence);
+        }
+        executor.postExecute(occurrence);
 
         InOrder inOrder = inOrder(existingItem);
         inOrder.verify(existingItem).activate();
@@ -168,7 +180,10 @@ public class DataExportTaskExecutorTest {
     public void testNewItemIsUpdated() {
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
 
-        executor.execute(occurrence);
+        try (TransactionContext context = transactionService.getContext()) {
+            executor.execute(occurrence);
+        }
+        executor.postExecute(occurrence);
 
         InOrder inOrder = inOrder(newItem);
         inOrder.verify(newItem).activate();
@@ -181,7 +196,10 @@ public class DataExportTaskExecutorTest {
     public void testDataProcessorGetsTheRightNotifications() {
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
 
-        executor.execute(occurrence);
+        try (TransactionContext context = transactionService.getContext()) {
+            executor.execute(occurrence);
+        }
+        executor.postExecute(occurrence);
 
         ArgumentCaptor<Logger> logCaptor = ArgumentCaptor.forClass(Logger.class);
         ArgumentCaptor<MeterReading> readingCaptor1 = ArgumentCaptor.forClass(MeterReading.class);
@@ -191,10 +209,10 @@ public class DataExportTaskExecutorTest {
         inOrder.verify(dataProcessor).startExport(eq(dataExportOccurrence), logCaptor.capture());
         inOrder.verify(dataProcessor).startItem(newItem);
         inOrder.verify(dataProcessor).processData(readingCaptor1.capture());
-        inOrder.verify(dataProcessor).endItem();
+        inOrder.verify(dataProcessor).endItem(newItem);
         inOrder.verify(dataProcessor).startItem(existingItem);
         inOrder.verify(dataProcessor).processData(readingCaptor2.capture());
-        inOrder.verify(dataProcessor).endItem();
+        inOrder.verify(dataProcessor).endItem(existingItem);
         inOrder.verify(dataProcessor).endExport();
 
         logCaptor.getValue().log(Level.WARNING, "testHandler");
@@ -213,7 +231,10 @@ public class DataExportTaskExecutorTest {
 
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
 
-        executor.execute(occurrence);
+        try (TransactionContext context = transactionService.getContext()) {
+            executor.execute(occurrence);
+        }
+        executor.postExecute(occurrence);
 
         ArgumentCaptor<Logger> logCaptor = ArgumentCaptor.forClass(Logger.class);
         ArgumentCaptor<MeterReading> readingCaptor1 = ArgumentCaptor.forClass(MeterReading.class);
@@ -223,10 +244,10 @@ public class DataExportTaskExecutorTest {
         inOrder.verify(dataProcessor).startExport(eq(dataExportOccurrence), logCaptor.capture());
         inOrder.verify(dataProcessor).startItem(newItem);
         inOrder.verify(dataProcessor).processData(readingCaptor1.capture());
-        inOrder.verify(dataProcessor).endItem();
+        inOrder.verify(dataProcessor).endItem(newItem);
         inOrder.verify(dataProcessor).startItem(existingItem);
         inOrder.verify(dataProcessor).processData(readingCaptor2.capture());
-        inOrder.verify(dataProcessor).endItem();
+        inOrder.verify(dataProcessor).endItem(existingItem);
         inOrder.verify(dataProcessor).endExport();
 
         logCaptor.getValue().log(Level.WARNING, "testHandler");
@@ -241,5 +262,30 @@ public class DataExportTaskExecutorTest {
         assertThat(readingCaptor2.getValue().getIntervalBlocks().get(0).getIntervals()).contains((IntervalReading) reading2);
     }
 
+    @Test
+    public void testDataProcessorGetsTheRightNotificationsInTheRightTransactions() {
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try (TransactionContext context = transactionService.getContext()) {
+            executor.execute(occurrence);
+        }
+        executor.postExecute(occurrence);
+
+        verify(dataProcessor, transactionService.notInTransaction()).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor, transactionService.inTransaction(2)).startItem(newItem);
+        verify(dataProcessor, transactionService.inTransaction(2)).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor, transactionService.inTransaction(2)).endItem(newItem);
+        verify(dataProcessor, transactionService.inTransaction(3)).startItem(existingItem);
+        verify(dataProcessor, transactionService.inTransaction(3)).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor, transactionService.inTransaction(3)).endItem(existingItem);
+        verify(dataProcessor, transactionService.notInTransaction()).endExport();
+
+        verify(newItem, transactionService.inTransaction(4)).update();
+        verify(existingItem, transactionService.inTransaction(4)).update();
+
+        transactionService.assertThatTransaction(2).wasCommitted();
+        transactionService.assertThatTransaction(3).wasCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+    }
 
 }

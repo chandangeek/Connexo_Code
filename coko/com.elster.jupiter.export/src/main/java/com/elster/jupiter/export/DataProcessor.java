@@ -18,7 +18,7 @@ public interface DataProcessor {
 
     void processUpdatedData(MeterReading data);
 
-    void endItem();
+    void endItem(ReadingTypeDataExportItem item);
 
     void endExport();
 

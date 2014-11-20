@@ -15,4 +15,5 @@ interface IDataExportService extends DataExportService {
 
     IDataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence);
 
+    Optional<IDataExportOccurrence> findDataExportOccurrence(TaskOccurrence occurrence);
 }

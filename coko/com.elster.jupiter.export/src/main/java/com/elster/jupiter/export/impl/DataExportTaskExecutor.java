@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.Range;
 
@@ -46,6 +47,11 @@ class DataExportTaskExecutor implements TaskExecutor {
     @Override
     public void execute(TaskOccurrence occurrence) {
         IDataExportOccurrence dataExportOccurrence = createOccurrence(occurrence);
+    }
+
+    @Override
+    public void postExecute(TaskOccurrence occurrence) {
+        IDataExportOccurrence dataExportOccurrence = findOccurrence(occurrence);
         doExecute(dataExportOccurrence, getLogger(occurrence));
     }
 
@@ -59,6 +65,10 @@ class DataExportTaskExecutor implements TaskExecutor {
         IDataExportOccurrence dataExportOccurrence = dataExportService.createExportOccurrence(occurrence);
         dataExportOccurrence.persist();
         return dataExportOccurrence;
+    }
+
+    private IDataExportOccurrence findOccurrence(TaskOccurrence occurrence) {
+        return dataExportService.findDataExportOccurrence(occurrence).orElseThrow(IllegalArgumentException::new);
     }
 
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
@@ -81,7 +91,10 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         dataFormatter.endExport();
 
-        activeItems.forEach(IReadingTypeDataExportItem::update);
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            activeItems.forEach(IReadingTypeDataExportItem::update);
+            transactionContext.commit();
+        }
     }
 
     private Set<IReadingTypeDataExportItem> getActiveItems(IReadingTypeDataExportTask task, DataExportOccurrence occurrence) {
@@ -101,14 +114,17 @@ class DataExportTaskExecutor implements TaskExecutor {
 
     private void doProcess(DataProcessor dataFormatter, DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
         item.setLastRun(occurrence.getTriggerTime());
-        dataFormatter.startItem(item);
-        Range<Instant> exportInterval = determineExportInterval(occurrence, item);
-        List<? extends BaseReadingRecord> readings = item.getReadingContainer().getReadings(exportInterval, item.getReadingType());
-        if (!readings.isEmpty()) {
-            Optional<Instant> lastExported = dataFormatter.processData(asMeterReading(item, readings));
-            lastExported.ifPresent(item::setLastExportedDate);
+        try (TransactionContext context = transactionService.getContext()) {
+            dataFormatter.startItem(item);
+            Range<Instant> exportInterval = determineExportInterval(occurrence, item);
+            List<? extends BaseReadingRecord> readings = item.getReadingContainer().getReadings(exportInterval, item.getReadingType());
+            if (!readings.isEmpty()) {
+                Optional<Instant> lastExported = dataFormatter.processData(asMeterReading(item, readings));
+                lastExported.ifPresent(item::setLastExportedDate);
+            }
+            dataFormatter.endItem(item);
+            context.commit();
         }
-        dataFormatter.endItem();
     }
 
     private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(IReadingTypeDataExportTask task, Meter meter) {

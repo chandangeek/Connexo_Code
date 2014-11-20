@@ -22,6 +22,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Operator;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -223,6 +224,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     public IDataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence) {
         IReadingTypeDataExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
         return DataExportOccurrenceImpl.from(dataModel, taskOccurrence, task);
+    }
+
+    @Override
+    public Optional<IDataExportOccurrence> findDataExportOccurrence(TaskOccurrence occurrence) {
+        return dataModel.query(IDataExportOccurrence.class, IReadingTypeDataExportTask.class).select(Operator.EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
     }
 
     private Optional<IReadingTypeDataExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
