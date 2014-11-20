@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
         'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.form.field.Duration'
     ],
 
     initComponent: function () {
@@ -77,15 +78,11 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                                                 }
                                             },
                                             {
-                                                xtype: 'displayfield',
+                                                xtype: 'uni-form-field-duration',
                                                 name: 'durationInSeconds',
                                                 fieldLabel: Uni.I18n.translate('deviceconnectionhistory.duration', 'MDC', 'Duration'),
                                                 itemId: 'duration',
-                                                renderer: function (value) {
-                                                    if (value !== null) {
-                                                        return value + ' ' + Uni.I18n.translate('general.seconds', 'MDC', 'seconds');
-                                                    }
-                                                }
+                                                usesSeconds: true
                                             },
                                             {
                                                 xtype: 'displayfield',
