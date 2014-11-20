@@ -5,7 +5,7 @@ Ext.define('Uni.view.window.Confirmation', {
     extend: 'Ext.window.MessageBox',
     xtype: 'confirmation-window',
     cls: Uni.About.baseCssPrefix + 'confirmation-window',
-
+    confirmBtnUi: 'remove',
     /**
      * @cfg {String}
      *
@@ -53,7 +53,7 @@ Ext.define('Uni.view.window.Confirmation', {
                 name: 'confirm',
                 scope: me,
                 text: me.confirmText,
-                ui: 'remove',
+                ui: me.confirmBtnUi,
                 handler: me.confirmation
             },
             {

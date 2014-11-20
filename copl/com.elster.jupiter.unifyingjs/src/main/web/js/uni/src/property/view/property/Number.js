@@ -40,6 +40,11 @@ Ext.define('Uni.property.view.property.Number', {
     },
 
     getField: function () {
-        return this.down('numberfield');
+        var me = this;
+        if (me.isCombo()) {
+            return me.down('combobox')
+        } else {
+            return me.down('numberfield')
+        }
     }
 });

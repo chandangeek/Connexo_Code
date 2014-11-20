@@ -36,7 +36,7 @@ Ext.define('Uni.property.view.property.Password', {
 
 
     getField: function () {
-        return this.down('password-field');
+        return this.getPasswordField();
     },
 
     getPasswordField: function () {

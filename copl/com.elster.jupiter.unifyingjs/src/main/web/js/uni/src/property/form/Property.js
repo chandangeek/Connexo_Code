@@ -132,7 +132,9 @@ Ext.define('Uni.property.form.Property', {
     unFlattenObj: function (object) {
         return _.reduce(object, function (result, value, key) {
             var properties = key.split('.');
-            result[_.first(properties)][_.rest(properties, 1).join('.')] = value;
+            if (_.first(properties) == 'properties') {
+                result[_.first(properties)][_.rest(properties, 1).join('.')] = value;
+            }
             return result;
         }, {properties: {}});
     },
