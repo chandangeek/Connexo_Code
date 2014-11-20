@@ -1,8 +1,10 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.NoSuchDataProcessorException;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -23,17 +25,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.copy;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/11/2014
- * Time: 9:35
- */
 class DataExportTaskExecutor implements TaskExecutor {
 
     private final IDataExportService dataExportService;
@@ -53,6 +51,7 @@ class DataExportTaskExecutor implements TaskExecutor {
     public void postExecute(TaskOccurrence occurrence) {
         IDataExportOccurrence dataExportOccurrence = findOccurrence(occurrence);
         doExecute(dataExportOccurrence, getLogger(occurrence));
+        // TODO set last run on DataExportTask
     }
 
     private Logger getLogger(TaskOccurrence occurrence) {
@@ -85,11 +84,15 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         DataProcessor dataFormatter = getDataProcessor(task);
 
-        dataFormatter.startExport(occurrence, logger);
+        try {
+            dataFormatter.startExport(occurrence, logger);
 
-        activeItems.forEach(item -> doProcess(dataFormatter, occurrence, item));
+            activeItems.forEach(item -> doProcess(dataFormatter, occurrence, item, logger));
 
-        dataFormatter.endExport();
+            dataFormatter.endExport();
+        } catch (RuntimeException e) {
+            throw new FatalDataExportException(e);
+        }
 
         try (TransactionContext transactionContext = transactionService.getContext()) {
             activeItems.forEach(IReadingTypeDataExportItem::update);
@@ -112,7 +115,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         return dataProcessorFactory.createDataFormatter(task.getDataExportProperties());
     }
 
-    private void doProcess(DataProcessor dataFormatter, DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
+    private void doProcess(DataProcessor dataFormatter, DataExportOccurrence occurrence, IReadingTypeDataExportItem item, Logger logger) {
         item.setLastRun(occurrence.getTriggerTime());
         try (TransactionContext context = transactionService.getContext()) {
             dataFormatter.startItem(item);
@@ -124,6 +127,8 @@ class DataExportTaskExecutor implements TaskExecutor {
             }
             dataFormatter.endItem(item);
             context.commit();
+        } catch (DataExportException e) {
+            logger.log(Level.WARNING, e.getLocalizedMessage(), e);
         }
     }
 

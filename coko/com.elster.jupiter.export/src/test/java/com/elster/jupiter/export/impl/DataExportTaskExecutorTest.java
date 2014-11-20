@@ -3,10 +3,12 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.Using;
+import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -42,6 +44,7 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.devtools.tests.Matcher.matches;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -286,6 +289,306 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasCommitted();
+    }
+
+    @Test
+    public void testStartExportThrowsFatalException() {
+        doThrow(new FatalDataExportException(new RuntimeException())).when(dataProcessor).startExport(eq(dataExportOccurrence), any());
+
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try {
+            try (TransactionContext context = transactionService.getContext()) {
+                executor.execute(occurrence);
+            }
+            executor.postExecute(occurrence);
+        } catch (FatalDataExportException e) {
+            // expected
+        }
+
+        verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor, never()).startItem(newItem);
+        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor, never()).endItem(newItem);
+        verify(dataProcessor, never()).startItem(existingItem);
+        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor, never()).endItem(existingItem);
+        verify(dataProcessor, never()).endExport();
+
+    }
+
+    @Test
+    public void testStartExportThrowsRuntimeException() {
+        doThrow(new RuntimeException()).when(dataProcessor).startExport(eq(dataExportOccurrence), any());
+
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try {
+            try (TransactionContext context = transactionService.getContext()) {
+                executor.execute(occurrence);
+            }
+            executor.postExecute(occurrence);
+        } catch (FatalDataExportException e) {
+            // expected
+        }
+
+        verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor, never()).startItem(newItem);
+        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor, never()).endItem(newItem);
+        verify(dataProcessor, never()).startItem(existingItem);
+        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor, never()).endItem(existingItem);
+        verify(dataProcessor, never()).endExport();
+
+    }
+
+    @Test
+    public void testStartItemThrowsFatalException() {
+        doThrow(new FatalDataExportException(new RuntimeException())).when(dataProcessor).startItem(existingItem);
+
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try {
+            try (TransactionContext context = transactionService.getContext()) {
+                executor.execute(occurrence);
+            }
+            executor.postExecute(occurrence);
+            fail("expected FatalDataExportException");
+        } catch (FatalDataExportException e) {
+            // expected
+        }
+
+        verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor).startItem(newItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).endItem(newItem);
+        verify(dataProcessor).startItem(existingItem);
+        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor, never()).endItem(existingItem);
+        verify(dataProcessor, never()).endExport();
+
+        transactionService.assertThatTransaction(2).wasCommitted();
+        transactionService.assertThatTransaction(3).wasNotCommitted();
+
+    }
+
+    @Test
+    public void testStartItemThrowsRuntimeException() {
+        doThrow(new RuntimeException()).when(dataProcessor).startItem(existingItem);
+
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try {
+            try (TransactionContext context = transactionService.getContext()) {
+                executor.execute(occurrence);
+            }
+            executor.postExecute(occurrence);
+            fail("expected FatalDataExportException");
+        } catch (FatalDataExportException e) {
+            // expected
+        }
+
+        verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor).startItem(newItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).endItem(newItem);
+        verify(dataProcessor).startItem(existingItem);
+        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor, never()).endItem(existingItem);
+        verify(dataProcessor, never()).endExport();
+
+        transactionService.assertThatTransaction(2).wasCommitted();
+        transactionService.assertThatTransaction(3).wasNotCommitted();
+
+    }
+
+    @Test
+    public void testStartItemThrowsDataExportException() {
+        doThrow(DataExportException.class).when(dataProcessor).startItem(newItem);
+
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try (TransactionContext context = transactionService.getContext()) {
+            executor.execute(occurrence);
+        }
+        executor.postExecute(occurrence);
+
+        verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor).startItem(newItem);
+        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor, never()).endItem(newItem);
+        verify(dataProcessor).startItem(existingItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).endItem(existingItem);
+        verify(dataProcessor).endExport();
+
+        transactionService.assertThatTransaction(2).wasNotCommitted();
+        transactionService.assertThatTransaction(3).wasCommitted();
+    }
+
+    @Test
+    public void testProcessItemThrowsFatalException() {
+        doThrow(new FatalDataExportException(new RuntimeException())).when(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try {
+            try (TransactionContext context = transactionService.getContext()) {
+                executor.execute(occurrence);
+            }
+            executor.postExecute(occurrence);
+            fail("expected FatalDataExportException");
+        } catch (FatalDataExportException e) {
+            // expected
+        }
+
+        verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor).startItem(newItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).endItem(newItem);
+        verify(dataProcessor).startItem(existingItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor, never()).endItem(existingItem);
+        verify(dataProcessor, never()).endExport();
+
+        transactionService.assertThatTransaction(2).wasCommitted();
+        transactionService.assertThatTransaction(3).wasNotCommitted();
+    }
+
+    @Test
+    public void testProcessItemThrowsRuntimeException() {
+        doThrow(new RuntimeException()).when(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try {
+            try (TransactionContext context = transactionService.getContext()) {
+                executor.execute(occurrence);
+            }
+            executor.postExecute(occurrence);
+            fail("expected FatalDataExportException");
+        } catch (FatalDataExportException e) {
+            // expected
+        }
+
+        verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor).startItem(newItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).endItem(newItem);
+        verify(dataProcessor).startItem(existingItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor, never()).endItem(existingItem);
+        verify(dataProcessor, never()).endExport();
+
+        transactionService.assertThatTransaction(2).wasCommitted();
+        transactionService.assertThatTransaction(3).wasNotCommitted();
+    }
+
+    @Test
+    public void testProcessItemThrowsDataExportException() {
+        doThrow(DataExportException.class).when(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try (TransactionContext context = transactionService.getContext()) {
+            executor.execute(occurrence);
+        }
+        executor.postExecute(occurrence);
+
+        verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor).startItem(newItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor, never()).endItem(newItem);
+        verify(dataProcessor).startItem(existingItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).endItem(existingItem);
+        verify(dataProcessor).endExport();
+
+        transactionService.assertThatTransaction(2).wasNotCommitted();
+        transactionService.assertThatTransaction(3).wasCommitted();
+    }
+
+    @Test
+    public void testEndItemThrowsFatalException() {
+        doThrow(new FatalDataExportException(new RuntimeException())).when(dataProcessor).endItem(existingItem);
+
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try {
+            try (TransactionContext context = transactionService.getContext()) {
+                executor.execute(occurrence);
+            }
+            executor.postExecute(occurrence);
+            fail("expected FatalDataExportException");
+        } catch (FatalDataExportException e) {
+            // expected
+        }
+
+        verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor).startItem(newItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).endItem(newItem);
+        verify(dataProcessor).startItem(existingItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).endItem(existingItem);
+        verify(dataProcessor, never()).endExport();
+
+        transactionService.assertThatTransaction(2).wasCommitted();
+        transactionService.assertThatTransaction(3).wasNotCommitted();
+    }
+
+    @Test
+    public void testEndItemThrowsRuntimeException() {
+        doThrow(new RuntimeException()).when(dataProcessor).endItem(existingItem);
+
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try {
+            try (TransactionContext context = transactionService.getContext()) {
+                executor.execute(occurrence);
+            }
+            executor.postExecute(occurrence);
+            fail("expected FatalDataExportException");
+        } catch (FatalDataExportException e) {
+            // expected
+        }
+
+        verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor).startItem(newItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).endItem(newItem);
+        verify(dataProcessor).startItem(existingItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).endItem(existingItem);
+        verify(dataProcessor, never()).endExport();
+
+        transactionService.assertThatTransaction(2).wasCommitted();
+        transactionService.assertThatTransaction(3).wasNotCommitted();
+    }
+
+    @Test
+    public void testEndItemThrowsDataExportException() {
+        doThrow(DataExportException.class).when(dataProcessor).endItem(newItem);
+
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService);
+
+        try (TransactionContext context = transactionService.getContext()) {
+            executor.execute(occurrence);
+        }
+        executor.postExecute(occurrence);
+
+        verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
+        verify(dataProcessor).startItem(newItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).endItem(newItem);
+        verify(dataProcessor).startItem(existingItem);
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).endItem(existingItem);
+        verify(dataProcessor).endExport();
+
+        transactionService.assertThatTransaction(2).wasNotCommitted();
+        transactionService.assertThatTransaction(3).wasCommitted();
     }
 
 }
