@@ -151,7 +151,7 @@ public class RegisterValue implements Serializable {
 
     public RegisterValue(OfflineRegister register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId, String text) {
         this.obisCode = register.getObisCode();
-        this.rtuSerialNumber = register.getSerialNumber();
+        this.rtuSerialNumber = register.getDeviceSerialNumber();
         this.quantity = quantity;
         this.eventTime = eventTime;
         this.fromTime = fromTime;

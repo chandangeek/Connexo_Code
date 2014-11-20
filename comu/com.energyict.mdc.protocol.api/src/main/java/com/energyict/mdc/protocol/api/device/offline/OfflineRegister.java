@@ -58,11 +58,18 @@ public interface OfflineRegister extends Offline {
     public Unit getUnit();
 
     /**
+     * The master resource identifier of the {@link OfflineDevice} owning this OfflineRegister.
+     *
+     * @return the mRID
+     */
+    public String getDeviceMRID();
+
+    /**
      * The serialNumber of the {@link OfflineDevice} owning this OfflineRegister.
      *
      * @return the serialNumber of the Device owning this Register
      */
-    public String getSerialNumber();
+    public String getDeviceSerialNumber();
 
     /**
      * The ObisCode of the Register, known by the HeadEnd system.
