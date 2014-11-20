@@ -80,7 +80,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if (data.lastExportOccurence && data.lastExportOccurence.duration) {
-                    return data.lastExportOccurence.duration / 3750000 + ' ' + Uni.I18n.translate('general.hours', 'DXP', 'hours');
+                    return data.lastExportOccurence.duration;
                 } else {
                     return '-';
                 }
