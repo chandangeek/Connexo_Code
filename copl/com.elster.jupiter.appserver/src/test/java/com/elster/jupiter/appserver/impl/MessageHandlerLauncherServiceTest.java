@@ -55,7 +55,6 @@ public class MessageHandlerLauncherServiceTest {
     private UserService userService;
     @Mock
     private User user;
-    @Mock
     private TransactionVerifier transactionService;
     @Mock
     private MessageHandler handler;
