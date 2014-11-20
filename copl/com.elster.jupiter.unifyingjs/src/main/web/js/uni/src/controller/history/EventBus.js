@@ -41,6 +41,7 @@ Ext.define('Uni.controller.history.EventBus', {
         if (token === null || token === '') {
             token = me.getDefaultToken();
             Ext.util.History.add(token);
+            Ext.util.History.currentToken = token;
         }
 
         me.onHistoryChange(token);

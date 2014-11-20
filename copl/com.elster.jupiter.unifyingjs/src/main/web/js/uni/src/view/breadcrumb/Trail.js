@@ -52,16 +52,16 @@ Ext.define('Uni.view.breadcrumb.Trail', {
             // Ignore.
         }
 
-        if (child !== undefined && child.rendered) {
+        if (typeof child !== 'undefined' && child !== null && child.rendered) {
             link.setHref(baseHref + href);
-        } else if (child !== undefined && !child.rendered) {
+        } else if (typeof child !== 'undefined' && child !== null && !child.rendered) {
             link.href = baseHref + href;
         }
 
         this.addBreadcrumbComponent(link);
 
         // Recursively add the children.
-        if (child !== undefined && child !== null) {
+        if (typeof child !== 'undefined' && child !== null) {
             if (item.data.relative) {
                 baseHref += href;
             }

@@ -33,7 +33,7 @@ Ext.define('Uni.form.field.Password', {
     initComponent: function() {
         this.items[0].name = this.name;
         if (!this.passwordAsTextComponent) {
-            this.items.add(
+            this.items[1] = (
                 {
                     xtype: 'checkbox',
                     boxLabel: Uni.I18n.translate('comServerComPorts.form.showChar', 'MDC', 'Show characters')
