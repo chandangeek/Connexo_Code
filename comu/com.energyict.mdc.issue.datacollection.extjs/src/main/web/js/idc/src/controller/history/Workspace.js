@@ -28,6 +28,7 @@ Ext.define('Idc.controller.history.Workspace', {
                                 bulkaction: {
                                     title: 'Bulk action',
                                     route: 'bulkaction',
+                                    privileges: ['privilege.close.issue','privilege.assign.issue'],
                                     controller: 'Idc.controller.BulkChangeIssues'
                                 },
                                 view: {
@@ -47,7 +48,7 @@ Ext.define('Idc.controller.history.Workspace', {
                                             title: 'Action',
                                             route: 'action/{actionId}',
                                             controller: 'Idc.controller.ApplyAction',
-                                            privileges: ['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue'],
+                                            privileges: ['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue','privilege.view.scheduleDevice'],
                                             callback: function (route) {
                                                 this.getApplication().on('issueActionLoad', function (record) {
                                                     route.setTitle(record.get('name'));
