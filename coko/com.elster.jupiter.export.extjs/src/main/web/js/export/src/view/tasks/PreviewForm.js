@@ -1,13 +1,17 @@
 Ext.define('Dxp.view.tasks.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.tasks-preview-form',
+
     requires: [
         'Uni.property.form.Property',
+        'Uni.form.field.Duration',
         'Dxp.view.tasks.PropertyForm'
     ],
+
     myTooltip: Ext.create('Ext.tip.ToolTip', {
         renderTo: Ext.getBody()
     }),
+
     items: [
         {
             xtype: 'displayfield',
@@ -54,7 +58,9 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                                     tip.update(str);
                                     tip.showAt(e.getXY());
                                 },
-                                mouseout: function () { field.up('form').myTooltip.hide(); }
+                                mouseout: function () {
+                                    field.up('form').myTooltip.hide();
+                                }
                             });
                         }
                     }
@@ -95,7 +101,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     name: 'finishedOn'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.duration', 'DES', 'Duration'),
+                    xtype: 'uni-form-field-duration',
                     name: 'duration'
                 },
                 {
