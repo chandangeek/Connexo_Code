@@ -1,5 +1,6 @@
 package com.elster.jupiter.data.lifecycle.impl;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -37,16 +38,18 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 	private volatile Thesaurus thesaurus;
 	private volatile MessageService messageService;
 	private volatile TaskService taskService;
+	private volatile Clock clock;
 	
 	public LifeCycleServiceImpl() {	
 	}
 
 	@Inject
-	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService) {
+	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService, Clock clock) {
 		setOrmService(ormService);
 		setNlsService(nlsService);
 		setMessageService(messageService);
 		setTaskService(taskService);
+		setClock(clock);
 		if (!dataModel.isInstalled()) {
 			install();
 		}
@@ -60,7 +63,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 	
 	@Override
 	public List<String> getPrerequisiteModules() {
-		return Arrays.asList(OrmService.COMPONENTNAME, MessageService.COMPONENTNAME, TaskService.COMPONENTNAME);
+		return Arrays.asList(OrmService.COMPONENTNAME, MessageService.COMPONENTNAME, TaskService.COMPONENTNAME, NlsService.COMPONENTNAME);
 	}
 
 	@Reference
@@ -93,6 +96,11 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 		this.taskService = taskService;
 	}
 	
+	@Reference
+	public void setClock(Clock clock) {
+		this.clock = clock;
+	}
+	
 	@Override
 	public List<LifeCycleCategory> getCategories() {
 		return dataModel.stream(LifeCycleCategory.class)
@@ -114,7 +122,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 
 	public void execute(Logger logger) {
 		LifeCycleCategory journal = getCategories().stream().filter(cat -> cat.getKind() == LifeCycleCategoryKind.JOURNAL).findFirst().get();
-		Instant instant = Instant.now().minus(journal.getRetention()).truncatedTo(ChronoUnit.DAYS);
+		Instant instant = clock.instant().minus(journal.getRetention()).truncatedTo(ChronoUnit.DAYS);
 		logger.info("Removing journals up to " + instant);
 		ormService.dropJournal(instant,logger);
 	}
