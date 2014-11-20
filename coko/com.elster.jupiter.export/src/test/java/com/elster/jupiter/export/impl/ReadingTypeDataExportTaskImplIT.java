@@ -230,7 +230,7 @@ public class ReadingTypeDataExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getUpdatePeriod().get().getId()).isEqualTo(oneYearBeforeLastYear.getId());
         assertThat(readingTypeDataExportTask.getLastRun()).isAbsent();
         assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
-        assertThat(readingTypeDataExportTask.getOccurrences(Range.<Instant>all())).isEmpty();
+        assertThat(readingTypeDataExportTask.getOccurrences(/*Range.<Instant>all()*/)).isEmpty();
         assertThat(readingTypeDataExportTask.getStrategy()).isNotNull();
         assertThat(readingTypeDataExportTask.getStrategy().getValidatedDataOption()).isEqualTo(ValidatedDataOption.INCLUDE_ALL);
         assertThat(readingTypeDataExportTask.getStrategy().isExportContinuousData()).isTrue();
@@ -350,7 +350,7 @@ public class ReadingTypeDataExportTaskImplIT {
             dataExportService.createExportOccurrence(test).persist();
             context.commit();
         }
-        List<? extends DataExportOccurrence> occurrences = task.getOccurrences(Range.atLeast(Instant.EPOCH));
+        List<? extends DataExportOccurrence> occurrences = task.getOccurrences(/*Range.atLeast(Instant.EPOCH)*/);
         assertThat(occurrences).hasSize(1);
         DataExportOccurrence occ = occurrences.get(0);
         assertThat(occ.getExportedDataInterval()).isNotNull();

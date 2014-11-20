@@ -1,6 +1,7 @@
 package com.elster.jupiter.export;
 
 import com.elster.jupiter.util.logging.LogEntry;
+import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -26,4 +27,6 @@ public interface DataExportOccurrence {
     Long getId();
 
     List<? extends LogEntry> getLogs();
+
+    LogEntryFinder getLogsFinder();
 }

@@ -2,7 +2,10 @@ package com.elster.jupiter.export;
 
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.metering.readings.MeterReading;
 
+import java.time.Instant;
+import java.util.logging.Logger;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -16,11 +19,9 @@ public interface DataProcessor {
 
     Optional<Instant> processData(MeterReading data);
 
-    void processUpdatedData(MeterReading data);
+    Optional<Instant> processUpdatedData(MeterReading updatedData);
 
     void endItem(ReadingTypeDataExportItem item);
 
     void endExport();
-
-    List<PropertySpec<?>> getPropertySpecs();
 }

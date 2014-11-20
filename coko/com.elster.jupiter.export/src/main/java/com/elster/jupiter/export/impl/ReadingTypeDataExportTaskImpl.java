@@ -5,6 +5,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -73,7 +74,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private transient ScheduleExpression scheduleExpression;
     private transient boolean recurrentTaskDirty;
     private transient boolean propertiesDirty;
-    private transient DataExportOccurrenceFinder dataExportOccurrenceFinder;
     private transient Instant nextExecution;
 
     @Inject
@@ -142,7 +142,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public List<? extends DataExportOccurrence> getOccurrences(Range<Instant> interval) {
+    public List<? extends DataExportOccurrence> getOccurrences() {
         return dataModel.mapper(DataExportOccurrenceImpl.class).find("readingTask", this);
     }
 
@@ -151,6 +151,17 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         Condition condition = where("readingTask").isEqualTo(this);
         Order order = Order.descending("startDate");
         return new DataExportOccurrenceFinder(dataModel.query(DataExportOccurrence.class), condition, order);
+    }
+
+    @Override
+    public Optional<? extends DataExportOccurrence> getLastOccurrence() {
+        return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("readingTask", this), new Order[]{Order.descending("startDate")},
+                false, new String[]{}, 1, 1).stream().findAny();
+    }
+
+    @Override
+    public Optional<? extends DataExportOccurrence> getOccurrence(Long id) {
+        return getOccurrences().stream().filter(occurrence -> occurrence.getId().equals(id)).findFirst();
     }
 
     @Override
@@ -167,6 +178,11 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public void save() {
+        Optional<DataProcessorFactory> optional = dataExportService.getDataProcessorFactory(dataProcessor);
+        if (optional.isPresent()) {
+            DataProcessorFactory dataProcessorFactory = optional.get();
+            dataProcessorFactory.validateProperties(properties);
+        }
         if (id == 0) {
             persist();
         } else {
