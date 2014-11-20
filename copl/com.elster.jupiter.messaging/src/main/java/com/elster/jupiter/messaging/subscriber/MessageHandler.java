@@ -2,6 +2,7 @@ package com.elster.jupiter.messaging.subscriber;
 
 import com.elster.jupiter.messaging.Message;
 
+
 public interface MessageHandler {
 
     void process(Message message);
@@ -9,6 +10,6 @@ public interface MessageHandler {
     /**
      * the message handler may do additional processing here that falls outside the Transaction that dequeued the message
      */
-    default void onMessageDelete() {
+    default void onMessageDelete(Message message) {
     }
 }
