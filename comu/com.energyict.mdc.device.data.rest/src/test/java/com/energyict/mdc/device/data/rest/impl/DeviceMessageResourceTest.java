@@ -125,6 +125,30 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     }
 
     @Test
+    public void testGetDeviceCommandsWithoutReleaseDate() throws Exception {
+        Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
+        Instant sent = LocalDateTime.of(2014, 10, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
+
+        Device device = mock(Device.class);
+        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
+        DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "T15", "Jeff", 4, "DeviceMessageCategories.RESET", created.minusSeconds(5), null, sent);
+        when(device.getMessages()).thenReturn(Arrays.asList(command1,command2));
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
+        when(command1.getAttributes()).thenReturn(Collections.emptyList());
+
+        String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+
+        assertThat(model.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(model.<Integer>get("$.deviceMessages[0].id")).isEqualTo(1);
+        assertThat(model.<Integer>get("$.deviceMessages[1].id")).isEqualTo(2);
+    }
+
+    @Test
     public void testGetDeviceCommandProperties() throws Exception {
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
 
