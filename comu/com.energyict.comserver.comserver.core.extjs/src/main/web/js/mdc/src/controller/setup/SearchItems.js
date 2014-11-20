@@ -31,16 +31,16 @@ Ext.define('Mdc.controller.setup.SearchItems', {
             '#filteritemid button[action=clear]': {
                 click: this.clearCriteria
             },
-            '#sideFilter filter-form': {
+            '#searchItems #sideFilter filter-form': {
                 applyfilter: this.searchClick
             },
             '#sortitemid button[action=clear]': {
                 click: this.clearSort
             },
-            '#clearAllItems[action=clearfilter]': {
+            '#searchItems #clearAllItems[action=clearfilter]': {
                 click: this.clearAllItems
             },
-            '#searchAllItems[action=applyfilter]': {
+            '#searchItems #searchAllItems[action=applyfilter]': {
                 click: this.searchClick
             },
             '#filteritemid button[action=customizeFilter]': {
