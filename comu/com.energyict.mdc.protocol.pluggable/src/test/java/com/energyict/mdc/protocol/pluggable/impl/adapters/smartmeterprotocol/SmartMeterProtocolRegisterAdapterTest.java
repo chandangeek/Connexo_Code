@@ -63,7 +63,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
     private static OfflineRegister getMockedRegister() {
         OfflineRegister register = mock(OfflineRegister.class);
         when(register.getObisCode()).thenReturn(OBIS_CODE);
-        when(register.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        when(register.getDeviceSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         return register;
     }
 
