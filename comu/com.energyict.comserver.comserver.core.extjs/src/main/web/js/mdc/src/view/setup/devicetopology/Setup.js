@@ -33,8 +33,7 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
             },
             {
                 xtype: 'search-side-filter',
-                margin: '-45 0 0 0',
-                title: null,
+                title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
                 width: 285
             }
         ];
