@@ -1,6 +1,7 @@
 package com.energyict.mdc.tasks;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TaskService {
 
@@ -8,9 +9,10 @@ public interface TaskService {
 
     public ComTask newComTask(String name);
 
-    public ComTask findComTask(long id);
+    public Optional<ComTask> findComTask(long id);
 
     public List<ComTask> findAllComTasks();
 
-    public ProtocolTask findProtocolTask(long id);
+    public Optional<ProtocolTask> findProtocolTask(long id);
+
 }

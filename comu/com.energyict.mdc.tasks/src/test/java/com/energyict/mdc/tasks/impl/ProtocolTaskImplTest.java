@@ -57,7 +57,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         simpleComTask.createStatusInformationTask();
         simpleComTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId()).get();
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         StatusInformationTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), StatusInformationTask.class);
         assertThat(taskByType).isNotNull();
@@ -71,7 +71,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createClockTask(ClockTaskType.SETCLOCK).minimumClockDifference(minimumClockDifference).maximumClockDifference(maximumClockDifference).maximumClockShift(maximumClockShift).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         ClockTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), ClockTask.class);
         assertThat(taskByType).isNotNull();
@@ -131,7 +131,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createClockTask(ClockTaskType.SYNCHRONIZECLOCK).minimumClockDifference(minimumClockDifference).maximumClockDifference(maximumClockDifference).maximumClockShift(maximumClockShift).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         ClockTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), ClockTask.class);
         assertThat(taskByType).isNotNull();
@@ -179,7 +179,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createClockTask(ClockTaskType.FORCECLOCK).minimumClockDifference(minimumClockDifference).maximumClockDifference(maximumClockDifference).maximumClockShift(maximumClockShift).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         ClockTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), ClockTask.class);
         assertThat(taskByType).isNotNull();
@@ -200,14 +200,14 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createClockTask(ClockTaskType.FORCECLOCK).minimumClockDifference(minimumClockDifference).maximumClockDifference(maximumClockDifference).maximumClockShift(maximumClockShift).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         ClockTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), ClockTask.class);
         taskByType.setMaximumClockDifference(TimeDuration.days(1));
         taskByType.setMinimumClockDifference(TimeDuration.hours(1));
         taskByType.setMaximumClockShift(TimeDuration.minutes(1));
         taskByType.save();
 
-        ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         ClockTask reloadedTaskByType = getTaskByType(rereloadedComTask.getProtocolTasks(), ClockTask.class);
         assertThat(rereloadedComTask.getProtocolTasks()).hasSize(1);
         assertThat(reloadedTaskByType).isNotNull();
@@ -229,7 +229,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createClockTask(ClockTaskType.FORCECLOCK).minimumClockDifference(maximumClockDifference).maximumClockDifference(minimumClockDifference).maximumClockShift(maximumClockShift).add();
         comTask.save(); // MIN > MAX !
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         ClockTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), ClockTask.class);
         taskByType.setClockTaskType(ClockTaskType.SETCLOCK);
         taskByType.save();
@@ -242,7 +242,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createClockTask(ClockTaskType.FORCECLOCK).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         ClockTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), ClockTask.class);
         assertThat(taskByType).isNotNull();
@@ -260,7 +260,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createTopologyTask(TopologyAction.VERIFY);
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         TopologyTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), TopologyTask.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
@@ -275,13 +275,13 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.save();
 
         // update
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         TopologyTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), TopologyTask.class);
         taskByType.setTopologyAction(TopologyAction.UPDATE);
         taskByType.save();
 
         // verify
-        reloadedComTask = getTaskService().findComTask(comTask.getId());
+        reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), TopologyTask.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
@@ -299,7 +299,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
                 createMeterEventsFromFlags(true).add();
 
         comTask.save();
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         LoadProfilesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
@@ -321,7 +321,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
                 createMeterEventsFromFlags(true).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         LoadProfilesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
         taskByType.setCreateMeterEventsFromStatusFlags(false);
         taskByType.setFailIfConfigurationMisMatch(false);
@@ -329,7 +329,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         taskByType.setMinClockDiffBeforeBadTime(TimeDuration.hours(1));
         taskByType.save();
 
-        ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         LoadProfilesTask reloadedTaskByType = getTaskByType(rereloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
 
         assertThat(reloadedTaskByType).isNotNull();
@@ -348,7 +348,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createLogbooksTask().add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         LogBooksTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LogBooksTask.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
@@ -362,12 +362,12 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createStatusInformationTask();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         LogBooksTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LogBooksTask.class);
         reloadedComTask.removeTask(taskByType);
         reloadedComTask.save();
 
-        ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask rereloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         LogBooksTask reloadedTaskByType = getTaskByType(rereloadedComTask.getProtocolTasks(), LogBooksTask.class);
         assertThat(reloadedTaskByType).isNull();
     }
@@ -381,7 +381,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createMessagesTask().deviceMessageCategories(Arrays.asList(deviceMessageCategory)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         MessagesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
@@ -397,13 +397,13 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createMessagesTask().deviceMessageCategories(Arrays.asList(deviceMessageCategory)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         MessagesTaskImpl taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         DeviceMessageCategory deviceMessageCategory2 = this.getDeviceMessageCategory(2);
         taskByType.setDeviceMessageCategories(Arrays.asList(deviceMessageCategory, deviceMessageCategory2));
         taskByType.save();
 
-        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
@@ -420,12 +420,12 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createMessagesTask().deviceMessageCategories(Arrays.asList(deviceMessageCategory, deviceMessageCategory2)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         MessagesTaskImpl taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         taskByType.setDeviceMessageCategories(Arrays.asList(deviceMessageCategory2)); // we dropped spec1
         taskByType.save();
 
-        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
@@ -443,13 +443,13 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createMessagesTask().deviceMessageCategories(Arrays.asList(deviceMessageCategory, deviceMessageCategory2)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         MessagesTaskImpl taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         DeviceMessageCategory deviceMessageCategory3 = this.getDeviceMessageCategory(3);
         taskByType.setDeviceMessageCategories(Arrays.asList(deviceMessageCategory2, deviceMessageCategory3)); // we dropped spec1 but added spec3
         taskByType.save();
 
-        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), MessagesTaskImpl.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getComTask().getId()).isEqualTo(comTask.getId());
@@ -465,7 +465,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createRegistersTask().add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getRegisterGroups()).isEmpty();
@@ -481,7 +481,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getRegisterGroups()).hasSize(1);
@@ -497,14 +497,14 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
         RegisterGroup registerGroup2 = getMasterDataService().newRegisterGroup("group2");
         registerGroup2.save();
         taskByType.setRegisterGroups(Arrays.asList(registerGroup, registerGroup2));
         taskByType.save();
 
-        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), RegistersTask.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getRegisterGroups()).hasSize(2);
@@ -523,12 +523,12 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup, registerGroup2)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
         taskByType.setRegisterGroups(Arrays.asList(registerGroup2));
         taskByType.save();
 
-        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), RegistersTask.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getRegisterGroups()).hasSize(1);
@@ -547,14 +547,14 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup, registerGroup2)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
         RegisterGroup registerGroup3 = getMasterDataService().newRegisterGroup("group3");
         registerGroup3.save();
         taskByType.setRegisterGroups(Arrays.asList(registerGroup2, registerGroup3));
         taskByType.save();
 
-        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         taskByType = getTaskByType(reReloadedComTask.getProtocolTasks(), RegistersTask.class);
         assertThat(taskByType).isNotNull();
         assertThat(taskByType.getRegisterGroups()).hasSize(2);
@@ -569,7 +569,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createBasicCheckTask().verifyClockDifference(true).verifySerialNumber(true).maximumClockDifference(TimeDuration.days(1)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         BasicCheckTask actual = getTaskByType(reloadedComTask.getProtocolTasks(), BasicCheckTask.class);
         assertThat(actual).isNotNull();
@@ -586,14 +586,14 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createBasicCheckTask().verifyClockDifference(true).verifySerialNumber(true).maximumClockDifference(TimeDuration.days(1)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         BasicCheckTask actual = getTaskByType(reloadedComTask.getProtocolTasks(), BasicCheckTask.class);
         actual.setVerifyClockDifference(false);
         actual.setVerifySerialNumber(false);
         actual.setMaximumClockDifference(TimeDuration.hours(1));
         actual.save();
 
-        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         actual = getTaskByType(reReloadedComTask.getProtocolTasks(), BasicCheckTask.class);
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         assertThat(actual).isNotNull();
@@ -611,12 +611,12 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createStatusInformationTask();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         BasicCheckTask actual = getTaskByType(reloadedComTask.getProtocolTasks(), BasicCheckTask.class);
         reloadedComTask.removeTask(actual);
         reloadedComTask.save();
 
-        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         actual = getTaskByType(reReloadedComTask.getProtocolTasks(), BasicCheckTask.class);
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         assertThat(actual).isNull();
@@ -632,14 +632,14 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createLoadProfilesTask().loadProfileTypes(Arrays.asList(myLPT)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         LoadProfilesTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
         final LoadProfileType myLPT2 = getMasterDataService().newLoadProfileType("MyLPT2", ObisCode.fromString("1.0.99.2.0.255"), TimeDuration.days(1));
         myLPT2.save();
         taskByType.setLoadProfileTypes(Arrays.asList(myLPT, myLPT2));
         taskByType.save();
 
-        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         LoadProfilesTask loadProfileTask = getTaskByType(reReloadedComTask.getProtocolTasks(), LoadProfilesTask.class);
         assertThat(loadProfileTask).isNotNull();
         assertThat(loadProfileTask.getLoadProfileTypes()).hasSize(2);
@@ -667,7 +667,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createLoadProfilesTask().loadProfileTypes(Arrays.asList(myLPT)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         reloadedComTask.delete();
 
         List<LoadProfileTypeUsageInProtocolTask> loadProfileTypeUsageInProtocolTasks = getDataModel().mapper(LoadProfileTypeUsageInProtocolTask.class).find();
@@ -683,14 +683,14 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         comTask.createLogbooksTask().logBookTypes(Arrays.asList(lbType)).add();
         comTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         LogBooksTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), LogBooksTask.class);
         final LogBookType lbType2 = getMasterDataService().newLogBookType("LBType2", ObisCode.fromString("0.0.99.97.0.255"));
         lbType2.save();
         taskByType.setLogBookTypes(Arrays.asList(lbType, lbType2));
         taskByType.save();
 
-        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId());
+        ComTask reReloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         LogBooksTask logBooksTask = getTaskByType(reloadedComTask.getProtocolTasks(), LogBooksTask.class);
 
         assertThat(logBooksTask).isNotNull();
@@ -744,7 +744,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         MessagesTask messagesTask = simpleComTask.createMessagesTask().setMessageTaskType(MessagesTask.MessageTaskType.ALL).add();
         simpleComTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId()).get();
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
 
@@ -759,7 +759,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         MessagesTask messagesTask = simpleComTask.createMessagesTask().deviceMessageCategories(categories).add();
         simpleComTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId()).get();
         assertThat(reloadedComTask.getProtocolTasks()).hasSize(1);
         MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
 
@@ -773,13 +773,13 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         MessagesTask messagesTask = simpleComTask.createMessagesTask().setMessageTaskType(MessagesTask.MessageTaskType.ALL).add();
         simpleComTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId()).get();
         MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
 
         reloadedMessageTask.setMessageTaskType(MessagesTask.MessageTaskType.NONE);
         reloadedMessageTask.save();
 
-        reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        reloadedComTask = getTaskService().findComTask(simpleComTask.getId()).get();
         reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
 
         assertThat(reloadedMessageTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.NONE);
@@ -794,13 +794,13 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         MessagesTask messagesTask = simpleComTask.createMessagesTask().deviceMessageCategories(categories).add();
         simpleComTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId()).get();
         MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
 
         reloadedMessageTask.setMessageTaskType(MessagesTask.MessageTaskType.NONE);
         reloadedMessageTask.save();
 
-        reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        reloadedComTask = getTaskService().findComTask(simpleComTask.getId()).get();
         reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
 
         assertThat(reloadedMessageTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.NONE);
@@ -815,13 +815,13 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         MessagesTask messagesTask = simpleComTask.createMessagesTask().setMessageTaskType(MessagesTask.MessageTaskType.NONE).add();
         simpleComTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId()).get();
         MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
 
         reloadedMessageTask.setDeviceMessageCategories(categories);
         reloadedMessageTask.save();
 
-        reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        reloadedComTask = getTaskService().findComTask(simpleComTask.getId()).get();
         reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
 
         assertThat(reloadedMessageTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.SELECTED);
@@ -836,13 +836,13 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         MessagesTask messagesTask = simpleComTask.createMessagesTask().setMessageTaskType(MessagesTask.MessageTaskType.ALL).add();
         simpleComTask.save();
 
-        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        ComTask reloadedComTask = getTaskService().findComTask(simpleComTask.getId()).get();
         MessagesTask reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
 
         reloadedMessageTask.setDeviceMessageCategories(categories);
         reloadedMessageTask.save();
 
-        reloadedComTask = getTaskService().findComTask(simpleComTask.getId());
+        reloadedComTask = getTaskService().findComTask(simpleComTask.getId()).get();
         reloadedMessageTask = getTaskByType(reloadedComTask.getProtocolTasks(), MessagesTask.class);
 
         assertThat(reloadedMessageTask.getMessageTaskType()).isEqualTo(MessagesTask.MessageTaskType.SELECTED);

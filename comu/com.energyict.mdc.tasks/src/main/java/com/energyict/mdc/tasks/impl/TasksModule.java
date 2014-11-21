@@ -17,5 +17,7 @@ public class TasksModule extends AbstractModule {
         requireBinding(MasterDataService.class);
         requireBinding(EventService.class);
         bind(TaskService.class).to(TaskServiceImpl.class).in(Scopes.SINGLETON);
+        bind(ServerTaskService.class).to(TaskServiceImpl.class).in(Scopes.SINGLETON);
     }
+
 }

@@ -7,6 +7,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
@@ -30,11 +32,13 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-@Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
-public class TaskServiceImpl implements TaskService, InstallService {
+@Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, InstallService.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
+public class TaskServiceImpl implements ServerTaskService, InstallService {
 
     private final Logger logger = Logger.getLogger(TaskServiceImpl.class.getName());
 
@@ -95,6 +99,11 @@ public class TaskServiceImpl implements TaskService, InstallService {
         this.thesaurus = nlsService.getThesaurus(TaskService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
+    @Override
+    public Thesaurus getThesaurus() {
+        return this.thesaurus;
+    }
+
     @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
         // Not actively used but required for foreign keys in TableSpecs
@@ -148,18 +157,27 @@ public class TaskServiceImpl implements TaskService, InstallService {
     }
 
     @Override
-    public ComTask findComTask(long id) {
-        return dataModel.mapper(ComTask.class).getUnique("id", id).orElse(null);
+    public Optional<ComTask> findComTask(long id) {
+        return dataModel.mapper(ComTask.class).getUnique("id", id);
     }
 
     @Override
-    public ProtocolTask findProtocolTask(long id) {
-        return dataModel.mapper(ProtocolTask.class).getUnique("id", id).orElse(null);
+    public Optional<ProtocolTask> findProtocolTask(long id) {
+        return dataModel.mapper(ProtocolTask.class).getUnique("id", id);
     }
 
     @Override
     public List<ComTask> findAllComTasks() {
         return dataModel.mapper(ComTask.class).find();
+    }
+
+    @Override
+    public List<LogBooksTask> findTasksUsing(LogBookType logBookType) {
+        List<LogBookTypeUsageInProtocolTask> usages =
+                this.dataModel
+                        .mapper(LogBookTypeUsageInProtocolTask.class)
+                        .find(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName(), logBookType);
+        return usages.stream().map(LogBookTypeUsageInProtocolTask::getLogBooksTask).collect(Collectors.toList());
     }
 
 }
