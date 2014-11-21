@@ -38,7 +38,7 @@ public class DataExportTaskInfo {
     public MeterGroupInfo deviceGroup;
     public DataExportTaskHistoryInfo lastExportOccurence;
     public Long nextRun;
-    public Instant lastRun;
+    public Long lastRun;
 
 
     public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus) {
@@ -79,7 +79,7 @@ public class DataExportTaskInfo {
         }
         Optional<Instant> lastRunOptional = dataExportTask.getLastRun();
         if (lastRunOptional.isPresent()) {
-            lastRun = lastRunOptional.get();
+            lastRun = lastRunOptional.get().toEpochMilli();
         }
 
     }

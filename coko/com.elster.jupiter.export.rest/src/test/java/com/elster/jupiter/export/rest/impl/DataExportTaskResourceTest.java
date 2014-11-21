@@ -46,7 +46,6 @@ import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
@@ -117,6 +116,7 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
         when(readingTypeDataExportTask.getOccurrencesFinder()).thenReturn(finder);
         when(readingTypeDataExportTask.getName()).thenReturn("Name");
         when(readingTypeDataExportTask.getLastOccurrence()).thenReturn(Optional.empty());
+        when(readingTypeDataExportTask.getLastRun()).thenReturn(Optional.<Instant>empty());
 
         doReturn(Optional.of(readingTypeDataExportTask)).when(dataExportService).findExportTask(TASK_ID);
     }
