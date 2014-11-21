@@ -53,6 +53,7 @@ import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Path("/devices")
 public class DeviceResource {
@@ -288,14 +289,15 @@ public class DeviceResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         TopologyTimeline timeline = deviceService.getPysicalTopologyTimeline(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
-        List<DeviceTopologyInfo> topologyList = timeline.getAllDevices().stream()
-                .filter(filterPredicate)
-                .sorted(Comparator.comparing(Device::getmRID))
-                .skip(queryParameters.getStart()) //NPE if no start parameter
-                .limit(queryParameters.getLimit())
-                .map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d)))
-                .collect(Collectors.toList());
-
+        Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate)
+                .sorted(Comparator.comparing(Device::getmRID));
+        if(queryParameters.getStart() != null && queryParameters.getStart() > 0) {
+            stream = stream.skip(queryParameters.getStart());
+        }
+        if (queryParameters.getLimit() != null && queryParameters.getLimit() > 0){
+            stream = stream.limit(queryParameters.getLimit() + 1);
+        }
+        List<DeviceTopologyInfo> topologyList =  stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d))).collect(Collectors.toList());
         return PagedInfoList.asJson("slaveDevices", topologyList, queryParameters);
     }
 
