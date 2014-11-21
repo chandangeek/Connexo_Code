@@ -78,15 +78,19 @@ class DataExportTaskExecutor implements TaskExecutor {
 
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
         IReadingTypeDataExportTask task = occurrence.getTask();
-        Set<IReadingTypeDataExportItem> activeItems = getActiveItems(task, occurrence);
+        Set<IReadingTypeDataExportItem> activeItems;
+        try (TransactionContext context = transactionService.getContext()) {
+            activeItems = getActiveItems(task, occurrence);
 
-        task.getExportItems().stream()
-                .filter(item -> !activeItems.contains(item))
-                .peek(IReadingTypeDataExportItem::deactivate)
-                .forEach(IReadingTypeDataExportItem::update);
-        activeItems.stream()
-                .peek(IReadingTypeDataExportItem::activate)
-                .forEach(IReadingTypeDataExportItem::update);
+            task.getExportItems().stream()
+                    .filter(item -> !activeItems.contains(item))
+                    .peek(IReadingTypeDataExportItem::deactivate)
+                    .forEach(IReadingTypeDataExportItem::update);
+            activeItems.stream()
+                    .peek(IReadingTypeDataExportItem::activate)
+                    .forEach(IReadingTypeDataExportItem::update);
+            context.commit();
+        }
 
         DataProcessor dataFormatter = getDataProcessor(task);
 
