@@ -58,8 +58,7 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
     }
 
     protected void setComTask(long comTaskId) {
-        ComTaskExecution comTaskExecution = getCommunicationTaskService().findComTaskExecution(comTaskId);
-        this.comTask = Optional.ofNullable(comTaskExecution);
+        this.comTask = getCommunicationTaskService().findComTaskExecution(comTaskId);
     }
 
     @Override
