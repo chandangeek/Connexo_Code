@@ -15,8 +15,7 @@ Ext.define('Uni.grid.column.Action', {
         plain: true,
         items: []
     },
-
-    constructor: function(config) {
+    constructor: function (config) {
         var me = this,
             cfg = Ext.apply({}, config);
 
@@ -45,7 +44,7 @@ Ext.define('Uni.grid.column.Action', {
             menuXtype = me.menu.xtype;
         menuXtype == null ? menuXtype = 'menu' : null;
         me.menu = Ext.widget(menuXtype, me.menu);
-        me.menu.on('click', function(menu, item, e, eOpts) {
+        me.menu.on('click', function (menu, item, e, eOpts) {
             me.fireEvent('menuclick', menu, item, e, eOpts);
             if (item.action && !Ext.isObject(item.action)) {
 
@@ -54,7 +53,7 @@ Ext.define('Uni.grid.column.Action', {
         });
     },
 
-    handler: function(grid, rowIndex, colIndex) {
+    handler: function (grid, rowIndex, colIndex) {
         var me = this;
         var record = grid.getStore().getAt(rowIndex);
         var cell = grid.getCellByPosition({row: rowIndex, column: colIndex});
@@ -70,7 +69,7 @@ Ext.define('Uni.grid.column.Action', {
         }
 
         // this is for menu toggling, change the code below with accuracy!
-        me.menu.on('hide', function() {
+        me.menu.on('hide', function () {
             var actions = grid.getEl().query('.' + me.iconCls + ':hover');
             if (!actions.length) {
                 me.menu.cell = null;
