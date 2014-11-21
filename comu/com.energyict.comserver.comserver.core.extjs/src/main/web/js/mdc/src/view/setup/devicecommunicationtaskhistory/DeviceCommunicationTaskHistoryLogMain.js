@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
         'Uni.view.navigation.SubMenu',
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.form.field.Duration'
     ],
 
     initComponent: function () {
@@ -80,17 +81,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                                 }
                                             },
                                             {
-                                                xtype: 'displayfield',
+                                                xtype: 'uni-form-field-duration',
                                                 name: 'durationInSeconds',
                                                 fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.duration', 'MDC', 'Duration'),
                                                 itemId: 'duration',
-                                                renderer: function (value) {
-                                                    if (value !== '') {
-                                                        return value + ' ' + Uni.I18n.translate('general.seconds', 'MDC', 'seconds');
-                                                    } else {
-                                                        return '';
-                                                    }
-                                                }
+                                                usesSeconds: true
                                             },
                                             {
                                                 xtype: 'displayfield',
