@@ -146,4 +146,4 @@ mvn:com.elster.jupiter/export/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/export.extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/export.processors/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/export.rest/1.0.0-SNAPSHOT
-mvn:com.elster.jupiter/data/lifecycle/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/data.lifecycle/1.0.0-SNAPSHOT
