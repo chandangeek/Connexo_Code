@@ -18,7 +18,7 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
     init: function () {
         this.control({
             '#deviceTopologySetup #clearAllItems[action=clearfilter]': {
-                click: this.clearAllItems
+                click: this.clearAllFilters
             },
             '#deviceTopologySetup #searchAllItems[action=applyfilter]': {
                 click: this.searchClick

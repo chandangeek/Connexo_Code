@@ -92,25 +92,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                     },
                                     items: [
                                         {
-                                            xtype: 'fieldcontainer',
-                                            columnWidth: 0.5,
-                                            fieldLabel: Uni.I18n.translate('devicetype.deviceType', 'MDC', 'Device type'),
-//                                            labelAlign: 'right',
-                                            layout: {
-                                                type: 'vbox'
-                                            },
-                                            items: [
-                                                {
-                                                    xtype: 'button',
-                                                    name: 'deviceTypeName',
-                                                    text: Uni.I18n.translate('devicetype.deviceType', 'MDC', 'Device type'),
-                                                    ui: 'link',
-                                                    itemId: 'deviceConfigurationDetailDeviceTypeLink',
-                                                    href: '#'
-                                                }
-                                            ]
-                                        },
-                                        {
                                             xtype: 'displayfield',
                                             name: 'name',
                                             fieldLabel: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
@@ -134,20 +115,30 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                         },
                                         {
                                             xtype: 'displayfield',
-                                            name: 'canBeGateway',
-                                            fieldLabel: Uni.I18n.translate('deviceconfiguration.isGateway', 'MDC', 'Can act as gateway'),
-                                            itemId: 'deviceConfigurationIsGateway',
-                                            renderer: function (item) {
-                                                return item ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                            fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
+                                            name: 'isDirectlyAddressable',
+                                            renderer: function (value) {
+                                                return value === true ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
                                             }
                                         },
                                         {
                                             xtype: 'displayfield',
-                                            name: 'isDirectlyAddressable',
-                                            fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
-                                            itemId: 'deviceConfigurationDirectlyAddressable',
-                                            renderer: function (item) {
-                                                return item ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                            fieldLabel: Uni.I18n.translate('deviceconfiguration.Gateway', 'MDC', 'Gateway'),
+                                            name: 'canBeGateway',
+                                            renderer: function (value) {
+                                                var text,
+                                                    record;
+
+                                                if (value) {
+                                                    record = this.up('#deviceConfigurationDetailForm').getRecord();
+                                                    text = Uni.I18n.translate('general.yes', 'MDC', 'Yes');
+                                                    if (record) {
+                                                        text += ' (' + record.get('gatewayType') + ')';
+                                                    }
+                                                } else {
+                                                    text = Uni.I18n.translate('general.no', 'MDC', 'No');
+                                                }
+                                                return text;
                                             }
                                         }
 //                                {
