@@ -90,7 +90,7 @@ public class ComServerDAOImplTest {
         when(this.engineModelService.findComServerBySystemName()).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(this.comPort);
-        when(this.communicationTaskService.findComTaskExecution(SCHEDULED_COMTASK_ID)).thenReturn(this.scheduledComTask);
+        when(this.communicationTaskService.findComTaskExecution(SCHEDULED_COMTASK_ID)).thenReturn(Optional.of(this.scheduledComTask));
         when(this.comServer.getId()).thenReturn(COMSERVER_ID);
         when(this.comPort.getId()).thenReturn(COMPORT_ID);
         when(this.scheduledComTask.getId()).thenReturn(SCHEDULED_COMTASK_ID);

@@ -43,12 +43,9 @@ public class ComTaskExecutionRequest extends IdBusinessObjectRequest {
     }
 
     private ComTaskExecution findComTaskExecution(long comTaskExecutionId) {
-        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecutionId);
-        if (comTaskExecution == null) {
-            throw new NotFoundException("ComTaskExecution with id " + comTaskExecutionId + " not found");
-        } else {
-            return comTaskExecution;
-        }
+        return communicationTaskService
+                .findComTaskExecution(comTaskExecutionId)
+                .orElseThrow(() -> new NotFoundException("ComTaskExecution with id " + comTaskExecutionId + " not found"));
     }
 
     @Override

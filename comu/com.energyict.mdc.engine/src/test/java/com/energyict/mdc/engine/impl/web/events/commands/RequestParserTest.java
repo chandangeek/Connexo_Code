@@ -433,6 +433,7 @@ public class RequestParserTest {
     public void testNonExistingComTaskExecution() throws RequestParseException {
         this.mockComTaskExecutions();
         RequestParser parser = new RequestParser(serviceProvider);
+        when(this.communicationTaskService.findComTaskExecution(NON_EXISTING_COMTASK_TASK_ID)).thenReturn(Optional.empty());
 
         //Business method
         parser.parse("Register request for comTaskExecution: " + NON_EXISTING_COMTASK_TASK_ID);
@@ -640,8 +641,8 @@ public class RequestParserTest {
         when(comTaskExecution1.getId()).thenReturn(COM_TASK_EXECUTION1_ID);
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
         when(comTaskExecution2.getId()).thenReturn(COM_TASK_EXECUTION2_ID);
-        when(this.communicationTaskService.findComTaskExecution(COM_TASK_EXECUTION1_ID)).thenReturn(comTaskExecution1);
-        when(this.communicationTaskService.findComTaskExecution(COM_TASK_EXECUTION2_ID)).thenReturn(comTaskExecution2);
+        when(this.communicationTaskService.findComTaskExecution(COM_TASK_EXECUTION1_ID)).thenReturn(Optional.of(comTaskExecution1));
+        when(this.communicationTaskService.findComTaskExecution(COM_TASK_EXECUTION2_ID)).thenReturn(Optional.of(comTaskExecution2));
     }
 
     private void mockComPorts() {

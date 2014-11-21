@@ -159,7 +159,7 @@ public class RequestApplyToTest {
     private ComTaskExecution mockComTaskExecution() {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
-        when(this.communicationTaskService.findComTaskExecution(COM_TASK_EXECUTION_ID)).thenReturn(comTaskExecution);
+        when(this.communicationTaskService.findComTaskExecution(COM_TASK_EXECUTION_ID)).thenReturn(Optional.of(comTaskExecution));
         return comTaskExecution;
     }
 
