@@ -32,6 +32,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
@@ -46,6 +47,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -341,7 +343,8 @@ public class ReadingTypeDataExportTaskImplIT {
 
         RecurrentTask recurrentTask = task.getRecurrentTask();
         try (TransactionContext context = transactionService.getContext()) {
-            TaskOccurrence test = recurrentTask.createTaskOccurrence();
+            recurrentTask.triggerNow();
+            TaskOccurrence test = injector.getInstance(TaskService.class).getOccurrences(recurrentTask, Range.<Instant>all()).stream().findFirst().get();
 
             dataExportService.createExportOccurrence(test).persist();
             context.commit();
