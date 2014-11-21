@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
     itemId: 'deviceCommunicationTaskHistoryGrid',
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Uni.grid.column.Duration'
     ],
     store: 'DeviceCommunicationTaskHistory',
     columns: {
@@ -25,15 +26,12 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 }
             },
             {
+                xtype: 'uni-grid-column-duration',
                 itemId: 'durationInSeconds',
                 text: Uni.I18n.translate('devicecommunicationtaskhistory.duration', 'MDC', 'Duration'),
                 dataIndex: 'durationInSeconds',
                 flex: 1,
-                renderer: function (value, metadata) {
-                    if (value !== '') {
-                        return value + ' ' + Uni.I18n.translate('general.seconds', 'MDC', 'seconds');
-                    }
-                }
+                usesSeconds: true
             },
             {
                 itemId: 'result',

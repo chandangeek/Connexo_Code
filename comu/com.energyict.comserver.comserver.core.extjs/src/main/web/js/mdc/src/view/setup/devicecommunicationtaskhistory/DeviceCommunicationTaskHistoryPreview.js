@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
     alias: 'widget.deviceCommunicationTaskHistoryPreview',
     itemId: 'deviceCommunicationTaskHistoryPreview',
     requires: [
-
+        'Uni.form.field.Duration'
     ],
     layout: {
         type: 'vbox',
@@ -99,28 +99,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     }
                                 },
                                 {
-                                    xtype: 'displayfield',
-                                    name: 'startTime',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationhistory.startedOn', 'MDC', 'Started on'),
-                                    itemId: 'startedOn',
-                                    renderer: function (value, metadata) {
-                                        if (value !== '') {
-                                            return new Date(value).toLocaleString();
-                                        } else {
-                                            return '';
-                                        }
-                                    }
-                                },
-                                {
-                                    xtype: 'displayfield',
+                                    xtype: 'uni-form-field-duration',
                                     name: 'durationInSeconds',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.duration', 'MDC', 'Duration'),
                                     itemId: 'durationInSeconds',
-                                    renderer: function (value) {
-                                        if (value !== '') {
-                                            return value + ' ' + Uni.I18n.translate('general.seconds', 'MDC', 'seconds');
-                                        }
-                                    }
+                                    usesSeconds: true
                                 },
                                 {
                                     xtype: 'displayfield',
@@ -336,14 +319,10 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     }
                                 },
                                 {
-                                    xtype: 'displayfield',
+                                    xtype: 'uni-form-field-duration',
                                     name: 'durationInSeconds',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.duration', 'MDC', 'Duration'),
-                                    renderer: function (value) {
-                                        if (value !== '') {
-                                            return value + ' ' + Uni.I18n.translate('general.seconds', 'MDC', 'seconds');
-                                        }
-                                    }
+                                    usesSeconds: true
                                 }
                             ]
                         }
