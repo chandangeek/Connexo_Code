@@ -1,12 +1,19 @@
 package com.elster.jupiter.ids.impl;
 
+import org.junit.Before;
 import org.mockito.Mock;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.SqlDialect;
+
 import java.time.Clock;
+
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Provider;
+import javax.inject.Provider;
+
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 public class VaultImplTest extends EqualsContractTest {
 
@@ -14,17 +21,22 @@ public class VaultImplTest extends EqualsContractTest {
     private static int SLOT_COUNT = 54;
     private static String COMPONENT_NAME = "CMP";
     private static String DESCRIPTION = "description";
-    @Mock
+
     private DataModel dataModel;
     @Mock
     private Clock clock;
     @Mock
     private Provider<TimeSeriesImpl> provider;
     
-    private Object a = new VaultImpl(dataModel, provider).init(COMPONENT_NAME,ID,DESCRIPTION,SLOT_COUNT,0,true);
-
+    private Object a;
+    
     @Override
     protected Object getInstanceA() {
+    	if (a == null) {
+    		dataModel = mock(DataModel.class);
+    		when(dataModel.getSqlDialect()).thenReturn(SqlDialect.H2);
+    		a = new VaultImpl(dataModel, provider).init(COMPONENT_NAME,ID,DESCRIPTION,SLOT_COUNT,0,true);
+    	}
     	return a;
     }
 

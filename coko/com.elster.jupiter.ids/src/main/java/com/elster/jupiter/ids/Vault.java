@@ -31,4 +31,5 @@ public interface Vault {
 	TimeSeries createIrregularTimeSeries(RecordSpec spec, ZoneId zoneId);
 	boolean isValidInstant(Instant instant);
 	void persist();
+	void purge(Instant instant);
 }

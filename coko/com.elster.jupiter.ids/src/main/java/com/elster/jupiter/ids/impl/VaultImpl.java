@@ -8,10 +8,9 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.google.common.base.Joiner;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-import com.google.inject.Provider;
+import javax.inject.Provider;
 
 import javax.inject.Inject;
 
@@ -73,7 +72,7 @@ public class VaultImpl implements Vault {
         this.regular = regular;
         this.localTime = regular;
         this.journal = true;
-        this.partition = false;
+        this.partition = dataModel.getSqlDialect().hasPartitioning();
         this.active = false;
         this.minTime = Instant.ofEpochMilli(0);
         return this;
@@ -212,7 +211,7 @@ public class VaultImpl implements Vault {
         if (dataModel.getSqlDialect().hasIndexOrganizedTables()) {
             builder.append(" ORGANIZATION INDEX COMPRESS 1 ");
             if (textSlotCount > 0) {
-                builder.append(" OVERFLOW");
+                builder.append(" OVERFLOW ");
             }
         }
         if (isPartitioned()) {
@@ -221,7 +220,7 @@ public class VaultImpl implements Vault {
             builder.append(" VALUES LESS THAN (");
             builder.append(to.toEpochMilli() + 1L);
             builder.append("))");
-        }
+        }                
         return builder.toString();
     }
 
@@ -247,7 +246,7 @@ public class VaultImpl implements Vault {
 
 
     private String getPartitionName(Instant to) {
-        return "P" + to;
+        return "P" + to.toString().replaceAll("-","").replaceAll(":","");
     }
 
     @Override
@@ -445,7 +444,7 @@ public class VaultImpl implements Vault {
         if (hasLocalTime()) {
             builder.append("LOCALDATE, ");
         }
-        builder.append(Joiner.on(", ").join(recordSpec.columnNames()));
+        builder.append(String.join(", ", recordSpec.columnNames()));
         builder.append(") VALUES (?,?,1,?");
         if (hasLocalTime()) {
             builder.append(",?");
@@ -553,4 +552,50 @@ public class VaultImpl implements Vault {
         return builder;
     }
 
+    @Override
+    public void purge(Instant instant) {
+    	if (isPartitioned()) {
+    		try {
+    			doPurge(instant);
+    		} catch (SQLException ex) {
+    			throw new UnderlyingSQLFailedException(ex);
+    		}
+    	}
+    	if (instant.isAfter(minTime)) {
+    		this.minTime = instant;
+    		dataModel.update(this, "minTime");
+    	}
+    }
+    
+    private void doPurge(Instant instant) throws SQLException {
+    	SqlBuilder builder = new SqlBuilder("SELECT table_name, partition_name, high_value FROM user_tab_partitions WHERE (table_name = ");
+    	builder.addObject(getTableName().toUpperCase());
+    	if (hasJournal()) {
+    		builder.append(" OR table_name = ");
+    		builder.addObject(getJournalTableName().toUpperCase());
+    	}
+    	builder.append(") ORDER by high_value");
+    	try (Connection connection = getConnection(false)) {
+    		try (PreparedStatement statement = builder.prepare(connection)) {
+    			try (ResultSet resultSet = statement.executeQuery()) {
+    				while (resultSet.next()) {    				
+    					try {
+    						long highValue = Long.parseLong(resultSet.getString(3));
+    						if (Instant.ofEpochMilli(highValue).isBefore(instant)) {
+    							dropPartition(connection, resultSet.getString(1), resultSet.getString(2));
+    						}
+    					} catch (NumberFormatException ex) {
+    						// skip partitions with strange high_value
+    					}
+    				}
+    			}    			
+    		}
+    	}
+    }
+    
+    private void dropPartition(Connection connection, String table, String partition) throws SQLException {
+    	try (Statement statement = connection.createStatement()) {
+    		statement.execute("ALTER TABLE " + table + " DROP PARTITION " + partition + " UPDATE GLOBAL INDEXES");
+    	}
+    }
 }
