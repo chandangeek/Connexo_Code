@@ -1006,6 +1006,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device gateway = mockDeviceForTopologyTest("gateway");
         Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid");
         Device slave2 = mockDeviceForTopologyTest("123456789");
+        when(slave2.getSerialNumber()).thenReturn(null);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
 
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
@@ -1056,6 +1057,67 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
                 .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'%34*7?9'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+    }
+
+
+    @Test
+    public void testGetCommunicationTopologyFilterOnSerialNumber() throws Exception{
+        Device gateway = mockDeviceForTopologyTest("gateway");
+        Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid");
+        Device slave2 = mockDeviceForTopologyTest("123456789");
+        when(slave2.getSerialNumber()).thenReturn(null);
+        Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
+
+        TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
+        when(topologyTimeline.getAllDevices()).thenReturn(slaves);
+        when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
+
+        when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
+        when(deviceService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+
+
+        Map<?, ?> response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'*'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(2);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'%'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(2);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'D(%'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(0);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'123456?89'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'1234*'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'*789'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'%34*7?9'}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
     }

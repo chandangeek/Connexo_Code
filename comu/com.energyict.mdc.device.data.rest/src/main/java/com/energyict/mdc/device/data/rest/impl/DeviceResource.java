@@ -311,9 +311,15 @@ public class DeviceResource {
     }
 
     private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, String> extractor){
-        Pattern filterPattern = getFilterPattern(filter.getProperty(name));
+        Pattern filterPattern = getFilterPattern(name, filter.getProperty(name));
         if (filterPattern != null){
-            return predicate.and(d -> filterPattern.matcher(extractor.apply(d)).matches());
+            return predicate.and(d -> {
+                String stringToSearch = extractor.apply(d);
+                if (stringToSearch == null){
+                    stringToSearch = "";
+                }
+                return filterPattern.matcher(stringToSearch).matches();
+            });
         }
         return predicate;
     }
@@ -345,9 +351,10 @@ public class DeviceResource {
      * @param filter the filter expression
      * @return search pattern
      */
-    private Pattern getFilterPattern(String filter){
+    private Pattern getFilterPattern(String name, String filter){
         if (filter != null){
-            return Pattern.compile(filter.replace('%', '*').replaceAll("([*?])", "\\.$1"));
+            filter = "\\Q" + filter.replace('%', '*') + "\\E";
+            return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
         }
         return null;
     }
