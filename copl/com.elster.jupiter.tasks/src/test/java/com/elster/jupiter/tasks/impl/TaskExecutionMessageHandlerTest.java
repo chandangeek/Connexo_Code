@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import org.junit.After;
 import org.junit.Before;
@@ -43,11 +44,13 @@ public class TaskExecutionMessageHandlerTest {
     private SQLException sqlException;
     @Mock
     private DataModel dataModel;
+    @Mock
+    private TransactionService transactionService;
 
     @Before
     public void setUp() {
 
-        taskExecutionMessageHandler = new TaskExecutionMessageHandler(dataModel, taskExecutor, jsonService);
+        taskExecutionMessageHandler = new TaskExecutionMessageHandler(dataModel, taskExecutor, jsonService, transactionService);
 
         when(message.getPayload()).thenReturn(PAYLOAD);
         when(taskOccurrence.getId()).thenReturn(ID);

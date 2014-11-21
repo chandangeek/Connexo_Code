@@ -88,7 +88,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     @Override
     public MessageHandler createMessageHandler(TaskExecutor taskExecutor) {
-        return new TaskExecutionMessageHandler(dataModel, taskExecutor, jsonService);
+        return new TaskExecutionMessageHandler(dataModel, taskExecutor, jsonService, transactionService);
     }
 
     @Deactivate
