@@ -10,8 +10,6 @@ import java.util.Set;
 
 import com.elster.jupiter.orm.SqlDialect;
 
-import static com.elster.jupiter.orm.SqlDialect.ORACLE;
-
 class TableDdlGenerator {
 
     private final TableImpl<?> table;
@@ -68,8 +66,8 @@ class TableDdlGenerator {
         	}
         }
         sb.append(")");
-        if (table.isIndexOrganized() && dialect == ORACLE) {
-            sb.append(" index organized ");
+        if (table.isIndexOrganized() && dialect.hasIndexOrganizedTables()) {
+            sb.append(" organization index ");
         }
         return sb.toString();
     }
@@ -89,6 +87,13 @@ class TableDdlGenerator {
             sb.append(getJournalConstraint(constraint));
         }
         sb.append(")");
+        if (dialect.hasPartitioning()) {
+        	sb.append("partition by range(");
+        	sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
+        	sb.append(") interval (");
+        	sb.append(86400L * 1000L * 30L);
+        	sb.append(") (partition P0 values less than(0))");
+        }
         return sb.toString();
     }
 
@@ -99,8 +104,11 @@ class TableDdlGenerator {
         sb.append("(");
         doAppendColumns(sb, constraint.getColumns(), false, false);
         sb.append(", ");
-        sb.append(table.getExtraJournalPrimaryKeyColumnName());
+        sb.append(table.getExtraJournalPrimaryKeyColumnNames());
         sb.append(")");
+        if (dialect.hasPartitioning()) {
+        	sb.append(" USING INDEX LOCAL");
+        }
         return sb.toString();
     }
 
@@ -126,7 +134,7 @@ class TableDdlGenerator {
         builder.append(" ON ");
         builder.append(table.getQualifiedName());
         appendColumns(builder, index.getColumns(), false, false);
-        if (index.getCompress() > 0 && dialect == ORACLE) {
+        if (dialect.hasIndexCompression()) {
             builder.append(" COMPRESS ");
             builder.append(index.getCompress());
         }

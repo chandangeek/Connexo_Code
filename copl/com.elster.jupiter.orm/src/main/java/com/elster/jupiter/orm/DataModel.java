@@ -4,10 +4,13 @@ import com.elster.jupiter.orm.associations.RefAny;
 import com.google.inject.Module;
 
 import javax.validation.ValidatorFactory;
+
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * @author kha
@@ -68,5 +71,9 @@ public interface DataModel {
 
     @Deprecated
     <T> DataMapper<T> getDataMapper(Class<T> api, String tableName);
+    
+    // Maintenance
+	void dropJournal(Instant upTo, Logger logger);  	
+    
 
 }
