@@ -1,24 +1,41 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
-import java.util.Optional;
+
+import com.elster.jupiter.nls.Thesaurus;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LoadProfileConfigurationResource {
 
@@ -282,34 +299,27 @@ public class LoadProfileConfigurationResource {
     }
 
     private LoadProfileType findLoadProfileTypeByIdOrThrowException(long loadProfileTypeId) {
-        Optional<LoadProfileType> loadProfileType = masterDataService.findLoadProfileType(loadProfileTypeId);
-        if (!loadProfileType.isPresent()){
-            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND);
-        }
-        return loadProfileType.get();
+        return masterDataService
+                .findLoadProfileType(loadProfileTypeId)
+                .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND));
     }
 
     private LoadProfileSpec findLoadProfileSpecByIdOrThrowEception(long loadProfileSpecId) {
-        LoadProfileSpec loadProfileSpec = deviceConfigurationService.findLoadProfileSpec(loadProfileSpecId);
-        if (loadProfileSpec == null){
-            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfileSpecId);
-        }
-        return loadProfileSpec;
+        return deviceConfigurationService
+                .findLoadProfileSpec(loadProfileSpecId)
+                .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfileSpecId));
     }
 
     private ChannelSpec findChannelSpecByIdOrThrowException(long channelId) {
-        ChannelSpec channelSpec = deviceConfigurationService.findChannelSpec(channelId);
-        if (channelSpec == null){
-            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelId);
-        }
-        return channelSpec;
+        return deviceConfigurationService
+                .findChannelSpec(channelId)
+                .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelId));
     }
 
     private Phenomenon findPhenomenonByIdOrThrowException(long phenomenonId) {
-        Phenomenon phenomenon = masterDataService.findPhenomenon(phenomenonId).orElse(null);
-        if (phenomenon == null){
-            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_PHENOMENON_FOUND, phenomenonId);
-        }
-        return phenomenon;
+        return masterDataService
+                .findPhenomenon(phenomenonId)
+                .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_PHENOMENON_FOUND, phenomenonId));
     }
+
 }

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -69,12 +70,13 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
     @Test
     public void testGetLoadProfileSpec(){
         mockNlsMessageFormat();
+        when(deviceConfigurationService.findLoadProfileSpec(anyLong())).thenReturn(Optional.empty());
 
         Response response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/9999").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
-        LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1, "spec");
-        when(deviceConfigurationService.findLoadProfileSpec(1)).thenReturn(loadProfileSpec);
+        LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1L, "spec");
+        when(deviceConfigurationService.findLoadProfileSpec(1L)).thenReturn(Optional.of(loadProfileSpec));
 
         Map<String, Object> map = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/1").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(1);
@@ -89,10 +91,13 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
         getDeviceConfiguration();
 
         LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1, "spec");
-        when(deviceConfigurationService.findLoadProfileSpec(1)).thenReturn(loadProfileSpec);
+        when(deviceConfigurationService.findLoadProfileSpec(anyLong())).thenReturn(Optional.empty());
 
         Response response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/9999").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+        when(deviceConfigurationService.findLoadProfileSpec(1L)).thenReturn(Optional.of(loadProfileSpec));
+
         response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/1").request().delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
@@ -130,14 +135,15 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
         info.overruledObisCode = new ObisCode(200,201,202,203,204,205);
         Entity<LoadProfileSpecInfo> json = Entity.json(info);
         LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1, "spec");
+        when(deviceConfigurationService.findLoadProfileSpec(1L)).thenReturn(Optional.empty());
         LoadProfileSpec.LoadProfileSpecUpdater specUpdater = mock(LoadProfileSpec.LoadProfileSpecUpdater.class);
 
         Response response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/1").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
-        when(deviceConfigurationService.findLoadProfileSpec(1)).thenReturn(loadProfileSpec);
-        when(deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec)).thenReturn(specUpdater);
+        when(deviceConfigurationService.findLoadProfileSpec(1L)).thenReturn(Optional.of(loadProfileSpec));
         when(specUpdater.setOverruledObisCode(info.overruledObisCode)).thenReturn(specUpdater);
+        when(deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec)).thenReturn(specUpdater);
 
         response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/1").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
