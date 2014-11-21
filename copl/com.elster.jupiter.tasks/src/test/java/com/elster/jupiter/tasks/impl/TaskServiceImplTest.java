@@ -13,13 +13,6 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +25,12 @@ import org.mockito.stubbing.Answer;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -96,7 +94,7 @@ public class TaskServiceImplTest {
 
         taskService = new TaskServiceImpl();
         taskService.setDueTaskFetcher(dueTaskFetcher);
-        taskService.setCronExpressionParser(cronExpressionParser);
+        taskService.setScheduleExpressionParser(cronExpressionParser);
         taskService.setOrmService(ormService);
         taskService.setTransactionService(transactionService);
         taskService.setJsonService(jsonService);
