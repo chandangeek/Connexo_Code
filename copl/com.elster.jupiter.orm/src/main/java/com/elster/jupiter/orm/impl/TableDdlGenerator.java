@@ -138,7 +138,7 @@ class TableDdlGenerator {
         builder.append(" ON ");
         builder.append(table.getQualifiedName());
         appendColumns(builder, index.getColumns(), false, false);
-        if (dialect.hasIndexCompression()) {
+        if (dialect.hasIndexCompression() && index.getCompress() > 0) {
             builder.append(" COMPRESS ");
             builder.append(index.getCompress());
         }
