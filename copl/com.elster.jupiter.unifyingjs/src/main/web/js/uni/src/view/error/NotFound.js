@@ -42,6 +42,11 @@ Ext.define('Uni.view.error.NotFound', {
                             'error.pageNotFoundNotAuthorized',
                             'UNI',
                             "You are not authorized to access this page."
+                        ),
+                        Uni.I18n.translate(
+                            'error.pageNotFoundNotLicense',
+                            'UNI',
+                            "Your license has expired."
                         )
                     ],
                     stepItems: []
