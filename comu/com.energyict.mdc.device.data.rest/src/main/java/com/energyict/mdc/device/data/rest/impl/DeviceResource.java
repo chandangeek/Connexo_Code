@@ -353,7 +353,7 @@ public class DeviceResource {
      */
     private Pattern getFilterPattern(String name, String filter){
         if (filter != null){
-            filter = "\\Q" + filter.replace('%', '*') + "\\E";
+            filter = Pattern.quote(filter.replace('%', '*'));
             return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
         }
         return null;

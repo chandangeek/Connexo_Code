@@ -1093,7 +1093,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'D(%'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'D(\\E%\\\\Q'}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(0);
 
