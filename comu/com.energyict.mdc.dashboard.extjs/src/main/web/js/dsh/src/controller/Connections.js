@@ -50,12 +50,12 @@ Ext.define('Dsh.controller.Connections', {
             selector: '#connectionsdetails #filter-form'
         },
         {
-            ref: 'connectionsGridActionMenu',
-            selector: '#connectionsGridActionMenu'
+            ref: 'connectionsActionMenu',
+            selector: '#connectionsActionMenu'
         },
         {
             ref: 'connectionsPreviewActionMenu',
-            selector: '#connectionsPreviewActionMenu'
+            selector: '#connectionsPreviewActionBtn #connectionsActionMenu'
         },
         {
             ref: 'communicationsGridActionMenu',
@@ -76,6 +76,10 @@ Ext.define('Dsh.controller.Connections', {
             },
             '#communicationsdetails': {
                 selectionchange: this.onCommunicationSelectionChange
+            },
+            '#connectionsActionMenu': {
+                click: this.selectAction,
+                afterrender: this.initConnectionMenu
             }
         });
 
@@ -139,8 +143,8 @@ Ext.define('Dsh.controller.Connections', {
             commPanel = me.getCommunicationsPanel(),
             commStore = me.getStore('Dsh.store.Communications'),
             record = selected[0];
-        if (!_.isEmpty(record)){
-            this.initConnectionMenu(record,me);
+        if (!_.isEmpty(record)) {
+            me.getConnectionsPreviewActionMenu().record = record;
             var id = record.get('id'),
                 title = ' ' + record.get('title');
             preview.loadRecord(record);
@@ -155,39 +159,45 @@ Ext.define('Dsh.controller.Connections', {
         }
     },
 
-    initConnectionMenu: function (record, me) {
-        this.getConnectionsGridActionMenu().menu.removeAll();
-        this.getConnectionsPreviewActionMenu().menu.removeAll();
-        if(record.get('comSessionId')!==0){
-            var menuItem = {
-                text: Uni.I18n.translate('connection.widget.details.connectionMenuItem', 'MDC', 'View connection log'),
-                action: {
-                    action: 'viewlog',
-                    connection: {
-                        mRID: record.get('device').id,
-                        connectionMethodId: record.get('id'),
-                        sessionId: record.get('comSessionId')
-
-                    }
-                },
-                listeners: {
-                    click: me.viewConnectionLog
-                }
-            };
-            this.getConnectionsGridActionMenu().menu.add(menuItem);
-            this.getConnectionsPreviewActionMenu().menu.add(menuItem);
+    initConnectionMenu: function (menu) {
+        if (menu && menu.record) {
+            if (menu.record.get('comSessionId') !== 0) {
+                menu.down('menuitem[action=viewLog]').show()
+            } else {
+                menu.down('menuitem[action=viewLog]').hide()
+            }
         }
     },
 
-    viewConnectionLog: function(item){
-        location.href = '#/devices/' + item.action.connection.mRID + '/connectionmethods/' + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog' +
-            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
+    selectAction: function (menu, item) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            record = menu.record;
+        switch (item.action) {
+            case 'viewLog':
+                router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
+                    {
+                        mRID: record.get('device').id,
+                        connectionMethodId: record.get('id'),
+                        historyId: record.get('comSessionId')
+                    }
+                );
+                break;
+            case 'viewHistory':
+                router.getRoute('devices/device/connectionmethods/history').forward(
+                    {
+                        mRID: record.get('device').id,
+                        connectionMethodId: record.get('id')
+                    }
+                );
+                break;
+        }
     },
 
-    viewCommunicationLog: function(item){
+    viewCommunicationLog: function (item) {
         location.href = '#/devices/' + item.action.comTask.mRID
-            + '/communicationtasks/' +  item.action.comTask.comTaskId
-            + '/history/' +  item.action.comTask.sessionId
+            + '/communicationtasks/' + item.action.comTask.comTaskId
+            + '/history/' + item.action.comTask.sessionId
             + '/viewlog' +
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     }
