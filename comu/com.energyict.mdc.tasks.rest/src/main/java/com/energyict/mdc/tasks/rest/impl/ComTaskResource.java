@@ -51,7 +51,8 @@ public class ComTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public Response getComTask(@PathParam("id") long id) {
-        return Response.status(Response.Status.OK).entity(ComTaskInfo.fullFrom(taskService.findComTask(id))).build();
+        ComTask comTask = taskService.findComTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+        return Response.status(Response.Status.OK).entity(ComTaskInfo.fullFrom(comTask)).build();
     }
 
     @POST
@@ -91,34 +92,29 @@ public class ComTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
     public Response updateComTask(@PathParam("id") long id, ComTaskInfo comTaskInfo) {
-        ComTask editedComTask = taskService.findComTask(id);
-        if (editedComTask != null) {
-            editedComTask.setName(comTaskInfo.name);
-            List<ProtocolTask> currentProtocolTasks = new ArrayList<>(editedComTask.getProtocolTasks());
-            Set<Long> protocolTasksIds = new HashSet<>();
+        ComTask comTask = taskService.findComTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+        comTask.setName(comTaskInfo.name);
+        List<ProtocolTask> currentProtocolTasks = new ArrayList<>(comTask.getProtocolTasks());
+        Set<Long> protocolTasksIds = new HashSet<>();
 
-            for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
-                Categories category = Categories.valueOf(protocolTaskInfo.category.toUpperCase());
-                if (protocolTaskInfo.id != null) {
-                    protocolTasksIds.add(protocolTaskInfo.id);
-                    ProtocolTask protocolTask = taskService.findProtocolTask(protocolTaskInfo.id);
-                    if (protocolTask != null) {
-                        category.updateProtocolTask(masterDataService, protocolTask, protocolTaskInfo);
-                    }
-                } else {
-                    category.createProtocolTask(masterDataService, editedComTask, protocolTaskInfo);
-                }
+        for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
+            Categories category = Categories.valueOf(protocolTaskInfo.category.toUpperCase());
+            if (protocolTaskInfo.id != null) {
+                protocolTasksIds.add(protocolTaskInfo.id);
+                taskService.findProtocolTask(protocolTaskInfo.id).ifPresent(t -> category.updateProtocolTask(masterDataService, t, protocolTaskInfo));
+            } else {
+                category.createProtocolTask(masterDataService, comTask, protocolTaskInfo);
             }
-
-            for (ProtocolTask protocolTask : currentProtocolTasks) {
-                if (!protocolTasksIds.contains(protocolTask.getId()))
-                    editedComTask.removeTask(protocolTask);
-            }
-            addMessageCategoriesToComTask(comTaskInfo, editedComTask);
-            editedComTask.save();
-            return Response.ok(ComTaskInfo.from(editedComTask)).build();
         }
-        throw new WebApplicationException(Response.Status.BAD_REQUEST);
+
+        for (ProtocolTask protocolTask : currentProtocolTasks) {
+            if (!protocolTasksIds.contains(protocolTask.getId())) {
+                comTask.removeTask(protocolTask);
+            }
+        }
+        addMessageCategoriesToComTask(comTaskInfo, comTask);
+        comTask.save();
+        return Response.ok(ComTaskInfo.from(comTask)).build();
     }
 
     @DELETE
@@ -126,12 +122,9 @@ public class ComTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
     public Response deleteComTask(@PathParam("id") long id) {
-        ComTask comTask = taskService.findComTask(id);
-        if (comTask != null) {
-            comTask.delete();
-            return Response.status(Response.Status.OK).build();
-        }
-        throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        ComTask comTask = taskService.findComTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+        comTask.delete();
+        return Response.status(Response.Status.OK).build();
     }
 
     @GET
@@ -165,8 +158,8 @@ public class ComTaskResource {
     public Response getMessageCategories(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
         Stream<DeviceMessageCategory> messageCategoriesStream = deviceMessageSpecificationService.allCategories().stream();
         String availableFor = uriInfo.getQueryParameters().getFirst("availableFor");
-        if (availableFor != null){
-            ComTask comTask = taskService.findComTask(Long.parseLong(availableFor));
+        if (availableFor != null) {
+            ComTask comTask = taskService.findComTask(Long.parseLong(availableFor)).orElse(null);
             if (comTask != null){
                 List<Integer> categoriesInComTask = getMessageCategoriesIdsInComTask(comTask);
                 messageCategoriesStream = messageCategoriesStream.filter(obj -> !categoriesInComTask.contains(obj.getId()));
