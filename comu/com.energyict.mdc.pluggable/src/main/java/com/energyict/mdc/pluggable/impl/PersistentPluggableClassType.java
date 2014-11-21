@@ -16,6 +16,7 @@ public enum PersistentPluggableClassType {
     OBSOLETE_SERVICEREQUESTHANDLER, OBSOLETE_PORTALWIDGET, OBSOLETE_MESSAGESERVICERHANDLER, OBSOLETE_REPORTCONTENTPROVIDER, OBSOLETE_RTUREGISTERVALIDATOR,
     OBSOLETE_INVOICEACTION, OBSOLETE_CONSUMPTIONPERIODACTION, OBSOLETE_WORKFLOWSERVICE, OBSOLETE_CUSTOM_MEASUREMENTSTRATEGY, OBSOLETE_KPICALCULATOR,
     OBSOLETE_RTUACTION,
+    // 18
     CONNECTION_TYPE {
         @Override
         public PluggableClassType toActualType() {
@@ -23,12 +24,14 @@ public enum PersistentPluggableClassType {
         }
     },
     OBSOLETE_NOTRACEOFWHATTHISUSEDTOBE,
+    // 20
     DISCOVERY_PROTOCOL {
         @Override
         public PluggableClassType toActualType() {
             return PluggableClassType.DiscoveryProtocol;
         }
     },
+    // 21
     DEVICE_PROTOCOL {
         @Override
         public PluggableClassType toActualType() {
