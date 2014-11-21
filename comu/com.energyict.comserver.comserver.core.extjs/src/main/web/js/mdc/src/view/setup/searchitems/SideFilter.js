@@ -7,6 +7,9 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
     title: Uni.I18n.translate('searchItems.searchFor', 'MDC', 'Search for devices'),
     ui: 'medium',
 
+    applyBtnText: Uni.I18n.translate('searchItems.searchAll', 'MDC', 'Search'),
+    cleatBtnText: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Clear all'),
+
     requires: [
         'Uni.component.filter.view.Filter',
         'Mdc.store.DeviceTypes',
@@ -107,20 +110,8 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
             dockedItems: [
                 {
                     xtype: 'toolbar',
-                    dock: 'bottom',
-                    items: [
-                        {
-                            text: Uni.I18n.translate('searchItems.searchAll', 'MDC', 'Search'),
-                            ui: 'action',
-                            itemId: 'searchAllItems',
-                            action: 'applyfilter'
-                        },
-                        {
-                            text: Uni.I18n.translate('searchItems.clearAll', 'MDC', 'Clear all'),
-                            itemId: 'clearAllItems',
-                            action: 'clearfilter'
-                        }
-                    ]
+                    itemId: 'dockedToolbar',
+                    dock: 'bottom'
                 }
             ]
         }
@@ -128,6 +119,21 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
 
     initComponent: function () {
         this.callParent(arguments);
+        var dockedToolbar = this.down('#dockedToolbar');
+
+        dockedToolbar.add([
+            {
+                text: this.applyBtnText,
+                ui: 'action',
+                itemId: 'searchAllItems',
+                action: 'applyfilter'
+            },
+            {
+                text: this.cleatBtnText,
+                itemId: 'clearAllItems',
+                action: 'clearfilter'
+            }
+        ]);
 
         var combo = this.down('filter-form #type'),
             store = Ext.create('Mdc.store.DeviceTypes', {storeId: 'DeviceTypesCbSearch'});
