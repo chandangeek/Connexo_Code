@@ -17,6 +17,7 @@ import java.util.List;
  * Time: 10:37
  */
 @Component(name="com.energyict.mdc.device.config.delete.comportpool.eventhandler", service = TopicHandler.class, immediate = true)
+@SuppressWarnings("unused")
 public class ComPortPoolDeletionEventHandler implements TopicHandler {
 
     private volatile DeviceConfigurationService deviceConfigurationService;
@@ -40,6 +41,7 @@ public class ComPortPoolDeletionEventHandler implements TopicHandler {
     }
 
     @Reference
+    @SuppressWarnings("unused")
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
