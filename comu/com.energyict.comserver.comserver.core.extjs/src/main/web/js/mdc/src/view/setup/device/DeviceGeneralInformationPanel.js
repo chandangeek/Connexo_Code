@@ -31,6 +31,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                     labelAlign: 'right',
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deviceType', 'MDC', 'Device type'),
+                    margin: '0 0 13 0',
                     layout: {
                         type: 'vbox'
                     },
@@ -51,6 +52,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                 {
                     labelAlign: 'right',
                     xtype: 'fieldcontainer',
+                    margin: '0 0 13 0',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deviceConfiguration', 'MDC', 'Device configuration'),
                     layout: {
                         type: 'vbox'
