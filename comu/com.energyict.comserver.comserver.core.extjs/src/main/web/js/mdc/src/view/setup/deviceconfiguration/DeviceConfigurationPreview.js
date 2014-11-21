@@ -84,6 +84,34 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
                                     renderer: function (value) {
                                         return value === true ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                                     }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
+                                    name: 'isDirectlyAddressable',
+                                    renderer: function (value) {
+                                        return value === true ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    fieldLabel: Uni.I18n.translate('deviceconfiguration.Gateway', 'MDC', 'Gateway'),
+                                    name: 'canBeGateway',
+                                    renderer: function (value) {
+                                        var text,
+                                            record;
+
+                                        if (value) {
+                                            record = this.up('#deviceConfigurationPreviewForm').getRecord();
+                                            text = Uni.I18n.translate('general.yes', 'MDC', 'Yes');
+                                            if (record) {
+                                                text += ' (' + record.get('gatewayType') + ')';
+                                            }
+                                        } else {
+                                            text = Uni.I18n.translate('general.no', 'MDC', 'No');
+                                        }
+                                        return text;
+                                    }
                                 }
                             ]
                         },

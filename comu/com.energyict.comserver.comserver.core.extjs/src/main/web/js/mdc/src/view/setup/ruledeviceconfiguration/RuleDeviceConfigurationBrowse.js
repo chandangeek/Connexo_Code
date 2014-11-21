@@ -34,7 +34,6 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationBrowse
                                 {
                                     text: Uni.I18n.translate('validation.deviceconfiguration.add', 'CFG', 'Add device configuration'),
                                     itemId: 'addDeviceConfiguration',
-                                    ui: 'action',
                                     listeners: {
                                         click: {
                                             fn: function () {

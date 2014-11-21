@@ -25,7 +25,8 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                 align: 'stretch'
             },
             defaults: {
-                labelAlign: 'top'
+                labelAlign: 'top',
+                labelPad: 0
             },
             items: [
                 {
