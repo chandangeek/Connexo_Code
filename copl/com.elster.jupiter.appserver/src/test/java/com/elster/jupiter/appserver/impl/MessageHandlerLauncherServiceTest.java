@@ -3,23 +3,19 @@ package com.elster.jupiter.appserver.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -30,9 +26,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,8 +55,7 @@ public class MessageHandlerLauncherServiceTest {
     private UserService userService;
     @Mock
     private User user;
-    @Mock
-    private TransactionService transactionService;
+    private TransactionVerifier transactionService;
     @Mock
     private MessageHandler handler;
     @Mock
@@ -79,22 +74,12 @@ public class MessageHandlerLauncherServiceTest {
         when(factory.newMessageHandler()).thenReturn(handler);
         when(appServer.getName()).thenReturn(NAME);
 
-        initFakeTransactionService();
+        transactionService = new TransactionVerifier(handler);
 
         messageHandlerLauncherService.setAppService(appService);
         messageHandlerLauncherService.setUserService(userService);
         messageHandlerLauncherService.setThreadPrincipalService(threadPrincipalService);
         messageHandlerLauncherService.setTransactionService(transactionService);
-    }
-
-    @SuppressWarnings("unchecked")
-	private void initFakeTransactionService() {
-        when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((Transaction<?>) invocationOnMock.getArguments()[0]).perform();
-            }
-        });
     }
 
     @After
@@ -115,16 +100,18 @@ public class MessageHandlerLauncherServiceTest {
 
     @Test
     public void testAddResourceStartReceivingMessages() throws InterruptedException {
-        final CountDownLatch arrivalLatch = new CountDownLatch(1);
+        final CountDownLatch arrivalLatch = new CountDownLatch(2);
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
-        doAnswer(new Answer<Void>() {
+        Answer<Void> methodReached = new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
                 arrivalLatch.countDown();
                 return null;
             }
-        }).when(handler).process(message);
+        };
+        doAnswer(methodReached).when(handler).process(message);
+        doAnswer(methodReached).when(handler).onMessageDelete(message);
 
         Map<String, Object> map = new HashMap<>();
         map.put("subscriber", SUBSCRIBER);
@@ -136,6 +123,45 @@ public class MessageHandlerLauncherServiceTest {
             arrivalLatch.await();
 
             verify(subscriberSpec, atLeastOnce()).receive();
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            messageHandlerLauncherService.deactivate();
+        }
+    }
+
+    @Test
+    public void testExceptionInHandlerProcess() throws InterruptedException {
+        final CountDownLatch arrivalLatch = new CountDownLatch(1);
+        when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        Answer<Void> methodReached = new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+                try {
+                    throw new RuntimeException();
+                } finally {
+                    arrivalLatch.countDown();
+                }
+            }
+        };
+        doAnswer(methodReached).when(handler).process(message);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("subscriber", SUBSCRIBER);
+
+        try {
+            messageHandlerLauncherService.activate();
+            messageHandlerLauncherService.addResource(factory, map);
+
+            arrivalLatch.await();
+
+            verify(subscriberSpec, atLeastOnce()).receive();
+            verify(handler).process(message);
+            verify(handler, never()).onMessageDelete(message);
+
+            verify(handler, transactionService.inTransaction()).process(message);
+
         } catch(Exception e) {
             e.printStackTrace();
         } finally {
@@ -172,7 +198,13 @@ public class MessageHandlerLauncherServiceTest {
             waitForCancel.countDown();
 
             verify(subscriberSpec).cancel();
-            verify(handler).process(message);
+            InOrder inOrder = inOrder(handler);
+            inOrder.verify(handler).process(message);
+            inOrder.verify(handler).onMessageDelete(message);
+
+            verify(handler, transactionService.inTransaction()).process(message);
+            verify(handler, transactionService.notInTransaction()).onMessageDelete(message);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
