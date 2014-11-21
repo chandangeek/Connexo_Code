@@ -308,7 +308,7 @@ public class ComScheduleImplTest extends PersistenceTest {
         comSchedule.save();
 
         Optional<ComSchedule> updating = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
-        ComTask task = inMemoryPersistence.getTaskService().findComTask(comTask2.getId());
+        ComTask task = inMemoryPersistence.getTaskService().findComTask(comTask2.getId()).get();
         updating.get().removeComTask(task);
         updating.get().save();
 
