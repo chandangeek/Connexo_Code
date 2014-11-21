@@ -67,7 +67,11 @@ class TableDdlGenerator {
         }
         sb.append(")");
         if (table.isIndexOrganized() && dialect.hasIndexOrganizedTables()) {
-            sb.append(" organization index ");
+            sb.append(" organization index");
+            if (table.getIotCompressCount() > 0) {
+            	sb.append(" compress ");
+            	sb.append(table.getIotCompressCount());            	
+            }
         }
         return sb.toString();
     }

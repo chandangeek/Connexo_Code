@@ -30,7 +30,7 @@ public enum SqlDialect {
     	
     	@Override
     	public boolean hasPartitioning() {
-    		return true;
+    		return false;
     	}
 
 		@Override
