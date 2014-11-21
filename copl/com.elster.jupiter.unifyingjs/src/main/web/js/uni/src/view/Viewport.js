@@ -21,25 +21,6 @@ Ext.define('Uni.view.Viewport', {
             weight: 30
         },
         {
-            xtype: 'container',
-            ui: 'navigationwrapper',
-            region: 'west',
-            layout: 'absolute',
-            width: 48,
-            items: [
-                {
-                    xtype: 'navigationMenu'
-                }
-            ],
-            weight: 10
-        },
-        {
-            xtype: 'container',
-            region: 'center',
-            itemId: 'contentPanel',
-            layout: 'fit'
-        },
-        {
             region: 'north',
             xtype: 'container',
             itemId: 'northContainer',
@@ -54,6 +35,23 @@ Ext.define('Uni.view.Viewport', {
                 }
             ],
             weight: 20
+        },
+        {
+            xtype: 'container',
+            ui: 'navigationwrapper',
+            region: 'west',
+            layout: 'fit',
+            items: [
+                {
+                    xtype: 'navigationMenu'
+                }
+            ]
+        },
+        {
+            xtype: 'container',
+            region: 'center',
+            itemId: 'contentPanel',
+            layout: 'fit'
         }
     ]
 });

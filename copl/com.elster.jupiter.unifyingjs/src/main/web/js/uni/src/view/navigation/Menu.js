@@ -3,7 +3,7 @@
  */
 Ext.define('Uni.view.navigation.Menu', {
     extend: 'Ext.container.Container',
-    alias: 'widget.navigationMenu',
+    xtype: 'navigationMenu',
     ui: 'navigationmenu',
 
     layout: {
@@ -11,21 +11,44 @@ Ext.define('Uni.view.navigation.Menu', {
         align: 'stretch'
     },
 
-    defaults: {
-        xtype: 'button',
-        ui: 'menuitem',
-        hrefTarget: '_self',
-        toggleGroup: 'menu-items',
-        action: 'menu-main',
-        enableToggle: true,
-        allowDepress: false,
-        cls: 'menu-item',
-        tooltipType: 'title',
-        scale: 'large'
+    initComponent: function () {
+        var me = this;
+
+        me.items = [
+            {
+                xtype: 'container',
+                flex: 1,
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                defaults: {
+                    xtype: 'button',
+                    ui: 'menuitem',
+                    hrefTarget: '_self',
+                    toggleGroup: 'menu-items',
+                    action: 'menu-main',
+                    enableToggle: true,
+                    allowDepress: false,
+                    cls: 'menu-item',
+                    tooltipType: 'title',
+                    scale: 'large'
+                }
+            },
+            {
+                // TODO
+                xtype: 'button',
+                text: 'Toggle',
+                enableToggle: true,
+                ui: 'action'
+            }
+        ];
+
+        me.callParent(arguments);
     },
 
     removeAllMenuItems: function () {
-        this.removeAll();
+        this.getMenuContainer().removeAll();
     },
 
     addMenuItem: function (model) {
@@ -34,9 +57,9 @@ Ext.define('Uni.view.navigation.Menu', {
 
         // TODO Sort the buttons on their model's index value, instead of relying on insert.
         if (model.data.index === '' || model.data.index === null || model.data.index === undefined) {
-            this.add(item);
+            me.getMenuContainer().add(item);
         } else {
-            this.insert(model.data.index, item);
+            me.getMenuContainer().insert(model.data.index, item);
         }
     },
 
@@ -58,7 +81,7 @@ Ext.define('Uni.view.navigation.Menu', {
         var me = this,
             itemId = model.id;
 
-        this.items.items.forEach(function (item) {
+        this.getMenuContainer().items.items.forEach(function (item) {
             if (itemId === item.data.id) {
                 me.deselectAllMenuItems();
                 item.toggle(true, false);
@@ -67,8 +90,12 @@ Ext.define('Uni.view.navigation.Menu', {
     },
 
     deselectAllMenuItems: function () {
-        this.items.items.forEach(function (item) {
+        this.getMenuContainer().items.items.forEach(function (item) {
             item.toggle(false, false);
         });
+    },
+
+    getMenuContainer: function () {
+        return this.down('container:first');
     }
 });
