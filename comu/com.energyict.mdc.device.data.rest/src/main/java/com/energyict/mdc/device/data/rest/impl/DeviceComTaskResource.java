@@ -32,6 +32,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -174,7 +175,7 @@ public class DeviceComTaskResource {
     public PagedInfoList getComTaskExecutionSessions(@PathParam("mRID") String mrid,
                                                      @PathParam("comTaskId") long comTaskId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ComTask comTask = taskService.findComTask(comTaskId);
+        ComTask comTask = this.taskService.findComTask(comTaskId).orElse(null);
         if (comTask==null || device.getDeviceConfiguration().getComTaskEnablementFor(comTask)==null) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
         }
@@ -196,7 +197,7 @@ public class DeviceComTaskResource {
     public ComTaskExecutionSessionInfo getComTaskExecutionSession(@PathParam("mRID") String mrid,
                                                                   @PathParam("comTaskId") long comTaskId, @PathParam("comTaskExecutionSessionId") Long comTaskExecutionSessionId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ComTask comTask = taskService.findComTask(comTaskId);
+        ComTask comTask = taskService.findComTask(comTaskId).orElse(null);
         if (comTask==null || device.getDeviceConfiguration().getComTaskEnablementFor(comTask)==null) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
         }
@@ -222,7 +223,7 @@ public class DeviceComTaskResource {
                                                      @BeanParam JsonQueryFilter jsonQueryFilter,
                                                      @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ComTask comTask = taskService.findComTask(comTaskId);
+        ComTask comTask = taskService.findComTask(comTaskId).orElse(null);
         if (comTask==null || device.getDeviceConfiguration().getComTaskEnablementFor(comTask)==null) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
         }
@@ -295,12 +296,12 @@ public class DeviceComTaskResource {
                     .filter(comTaskExecution -> comTaskExecution.getComTasks().stream()
                             .mapToLong(ComTask::getId)
                             .anyMatch(comTaskId::equals))
-                   .findFirst().orElseThrow(()->exceptionFactory.newException(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId, device.getmRID()));
+                   .findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId, device.getmRID()));
     }
 
     private List<ComTaskEnablement> getComTaskEnablementsForDeviceAndComtask(Long comTaskId, Device device){
         return device.getDeviceConfiguration().getComTaskEnablements().stream()
-                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId()== comTaskId)
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == comTaskId)
                 .collect(toList());
     }
 
