@@ -100,19 +100,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'startTime',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationhistory.startedOn', 'MDC', 'Started on'),
-                                    itemId: 'startedOn',
-                                    renderer: function (value, metadata) {
-                                        if (value !== '') {
-                                            return new Date(value).toLocaleString();
-                                        } else {
-                                            return '';
-                                        }
-                                    }
-                                },
-                                {
-                                    xtype: 'displayfield',
                                     name: 'durationInSeconds',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.duration', 'MDC', 'Duration'),
                                     itemId: 'durationInSeconds',
