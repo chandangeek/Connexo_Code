@@ -131,8 +131,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     name: 'result',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.result', 'MDC', 'Result'),
                                     itemId: 'result',
-                                    renderer: function(value){
-                                        if(value){
+                                    renderer: function (value) {
+                                        if (value) {
                                             return value.displayValue;
                                         }
                                     }
@@ -142,10 +142,13 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.communicationTasks', 'DSH', 'Communication tasks'),
                                     name: 'comTaskCount',
                                     renderer: function (val) {
-                                        return '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '') + '</span><br></tpl>' +
-                                            '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '') + '</span><br></tpl>' +
-                                            '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '') + '</span></tpl>'
-                                            ;
+                                        var template = '';
+                                        if (val.numberOfSuccessfulTasks || val.numberOfFailedTasks || val.numberOfIncompleteTasks) {
+                                            template += '<tpl><img src="/apps/dsh/resources/images/widget/running.png" title="Success" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</span><br></tpl>';
+                                            template += '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" title="Failed" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</span><br></tpl>';
+                                            template += '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" title="Not Executed" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</span></tpl>';
+                                        }
+                                        return template;
                                     }
                                 }
                             ]

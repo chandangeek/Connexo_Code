@@ -76,5 +76,6 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
         ];
 
         me.callParent(arguments);
+        me.maxHeight = 560;
     }
 });
