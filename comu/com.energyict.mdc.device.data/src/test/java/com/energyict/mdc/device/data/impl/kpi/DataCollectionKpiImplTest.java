@@ -32,9 +32,13 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.impl.MdcCommonModule;
@@ -78,12 +82,15 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Period;
 import java.time.ZonedDateTime;
@@ -112,6 +119,7 @@ public class DataCollectionKpiImplTest {
     private static SecurityPropertyService securityPropertyService;
 
     private static TransactionService transactionService;
+    private static Clock clock = Clock.systemDefaultZone();
 
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -148,6 +156,9 @@ public class DataCollectionKpiImplTest {
             bind(LicensedProtocolService.class).toInstance(mock(LicensedProtocolService.class));
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(CronExpressionParser.class).toInstance(cronExpressionParser);
+            bind(Clock.class).toInstance(clock);
+            bind(JsonService.class).to(JsonServiceImpl.class).in(Scopes.SINGLETON);
+            bind(BeanService.class).to(BeanServiceImpl.class).in(Scopes.SINGLETON);
         }
     }
 
@@ -172,7 +183,6 @@ public class DataCollectionKpiImplTest {
                 new EventsModule(),
                 new PubSubModule(),
                 new TransactionModule(),
-                new UtilModule(),
                 new NlsModule(),
                 new DomainUtilModule(),
                 new MasterDataModule(),

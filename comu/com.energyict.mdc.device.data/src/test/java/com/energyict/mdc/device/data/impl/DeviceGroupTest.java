@@ -163,7 +163,6 @@ public class DeviceGroupTest {
             bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(LogService.class).toInstance(mock(LogService.class));
         }
     }

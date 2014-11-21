@@ -194,7 +194,6 @@ public class ComSessionCrudIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(LogService.class).toInstance(mock(LogService.class));
         }
 
