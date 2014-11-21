@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.ValidationOverview', {
                                 } else {
                                     result = rule.key.name;
                                 }
-                            }   result += + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
+                            }   result += ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
                         });
                         return result;
                     } else {

@@ -43,6 +43,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                             me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                             widget.down('#deviceLoadProfilesPreviewForm').loadRecord(record);
                             widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
+                            widget.down('deviceLoadProfilesActionMenu').record = record;
+                            widget.down('#viewDetails').hide();
                             widget.setLoading(false);
                         }
                     }
