@@ -152,7 +152,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
         if (isLaunched()) {
             throw new TaskServiceAlreadyLaunched();
         }
-        TaskOccurrenceLauncher taskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(transactionService, jsonService, getDueTaskFetcher());
+        TaskOccurrenceLauncher taskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(transactionService, getDueTaskFetcher());
         TaskScheduler taskScheduler = new TaskScheduler(taskOccurrenceLauncher, 1, TimeUnit.MINUTES);
         schedulerThread = new Thread(taskScheduler);
         schedulerThread.setName("SchedulerThread");

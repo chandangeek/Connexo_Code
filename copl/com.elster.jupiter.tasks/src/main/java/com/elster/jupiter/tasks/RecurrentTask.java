@@ -23,8 +23,6 @@ public interface RecurrentTask extends HasName {
 
     Instant getNextExecution();
 
-    TaskOccurrence createTaskOccurrence();
-
     Optional<Instant> getLastRun();
 
     void save();
@@ -40,4 +38,6 @@ public interface RecurrentTask extends HasName {
     void setNextExecution(Instant instant);
 
     void setScheduleExpression(ScheduleExpression scheduleExpression);
+
+    void triggerNow();
 }

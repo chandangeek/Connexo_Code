@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,13 +47,15 @@ public class DefaultRecurrentTaskBuilderTest {
     private DataModel dataModel;
     @Mock
     private MessageService messageService;
+    @Mock
+    private JsonService jsonService;
 
     @Before
     public void setUp() {
         when(dataModel.getInstance(RecurrentTaskImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, clock);
+                return new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock);
             }
         });
 

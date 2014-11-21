@@ -3,8 +3,9 @@ package com.elster.jupiter.tasks.impl;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
@@ -31,12 +32,14 @@ class RecurrentTaskImpl implements RecurrentTask {
     private final ScheduleExpressionParser scheduleExpressionParser;
     private final MessageService messageService;
     private final DataModel dataModel;
+    private final JsonService jsonService;
 
     @Inject
-	RecurrentTaskImpl(DataModel dataModel, ScheduleExpressionParser scheduleExpressionParser, MessageService messageService, Clock clock) {
+	RecurrentTaskImpl(DataModel dataModel, ScheduleExpressionParser scheduleExpressionParser, MessageService messageService, JsonService jsonService, Clock clock) {
         this.dataModel = dataModel;
         this.scheduleExpressionParser = scheduleExpressionParser;
         this.messageService = messageService;
+        this.jsonService = jsonService;
         // for persistence
         this.clock = clock;
     }
@@ -96,9 +99,8 @@ class RecurrentTaskImpl implements RecurrentTask {
         return nextExecution;
     }
 
-    @Override
-    public TaskOccurrence createTaskOccurrence() {
-        TaskOccurrence occurrence = TaskOccurrenceImpl.from(dataModel, this, nextExecution != null ? nextExecution : clock.instant());
+    TaskOccurrenceImpl createTaskOccurrence() {
+        TaskOccurrenceImpl occurrence = TaskOccurrenceImpl.createScheduled(dataModel, this, nextExecution != null ? nextExecution : clock.instant());
         occurrence.save();
         return occurrence;
     }
@@ -147,6 +149,28 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     @Override
+    public void triggerNow() {
+        TaskOccurrenceImpl taskOccurrence = createTaskOccurrence();
+        enqueue(taskOccurrence);
+    }
+
+    private void enqueue(TaskOccurrenceImpl taskOccurrence) {
+        String json = toJson(taskOccurrence);
+        getDestination().message(json).send();
+    }
+
+    @TransactionRequired
+    TaskOccurrenceImpl launchOccurrence() {
+        TaskOccurrenceImpl taskOccurrence = createTaskOccurrence();
+        String json = toJson(taskOccurrence);
+        getDestination().message(json).send();
+        updateNextExecution();
+        save();
+        return taskOccurrence;
+    }
+
+
+    @Override
     public Optional<Instant> getLastRun() {
         return Optional.ofNullable(lastRun);
     }
@@ -155,4 +179,9 @@ class RecurrentTaskImpl implements RecurrentTask {
         lastRun = triggerTime;
         save();
     }
+
+    private String toJson(TaskOccurrenceImpl taskOccurrence) {
+        return jsonService.serialize(taskOccurrence.asMessage());
+    }
+
 }

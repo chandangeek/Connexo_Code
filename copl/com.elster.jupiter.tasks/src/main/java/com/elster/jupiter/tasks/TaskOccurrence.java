@@ -22,4 +22,6 @@ public interface TaskOccurrence {
     LogEntryFinder getLogsFinder();
 
     TaskLogHandler createTaskLogHandler();
+
+    boolean wasScheduled();
 }

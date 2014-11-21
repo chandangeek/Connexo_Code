@@ -4,16 +4,15 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
-import java.time.Clock;
-import java.time.Instant;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +37,7 @@ class DueTaskFetcher {
         this.clock = clock;
     }
 
-    Iterable<RecurrentTask> dueTasks() {
+    Iterable<RecurrentTaskImpl> dueTasks() {
         try (Connection connection = dataModel.getConnection(false)) {
             return dueTasks(connection);
         } catch (SQLException e) {
@@ -46,7 +45,7 @@ class DueTaskFetcher {
         }
     }
 
-    private Iterable<RecurrentTask> dueTasks(Connection connection) throws SQLException {
+    private Iterable<RecurrentTaskImpl> dueTasks(Connection connection) throws SQLException {
         Instant now = clock.instant();
         try (PreparedStatement statement = connection.prepareStatement("select id, name, cronstring, nextexecution, payload, destination from TSK_RECURRENT_TASK where nextExecution < ?")) {
             statement.setLong(1, now.toEpochMilli());
@@ -56,8 +55,8 @@ class DueTaskFetcher {
         }
     }
 
-    private List<RecurrentTask> getRecurrentTasks(ResultSet resultSet) throws SQLException {
-        List<RecurrentTask> result = new ArrayList<>();
+    private List<RecurrentTaskImpl> getRecurrentTasks(ResultSet resultSet) throws SQLException {
+        List<RecurrentTaskImpl> result = new ArrayList<>();
         while (resultSet.next()) {
             result.add(getRecurrentTask(resultSet));
         }

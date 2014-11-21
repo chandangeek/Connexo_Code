@@ -2,12 +2,9 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
-import java.time.Clock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +14,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import java.time.Clock;
 import java.util.Arrays;
 
 import static org.mockito.Matchers.any;
@@ -37,11 +35,11 @@ public class TaskOccurrenceLauncherTest {
     @Mock
     private DueTaskFetcher dueTaskFetcher;
     @Mock
-    private RecurrentTask recurrentTask1, recurrentTask2;
+    private RecurrentTaskImpl recurrentTask1, recurrentTask2;
     @Mock
     private Clock clock;
     @Mock
-    private TaskOccurrence taskOccurrence1, taskOccurrence2;
+    private TaskOccurrenceImpl taskOccurrence1, taskOccurrence2;
     @Mock
     private TransactionService transactionService;
     @Mock
@@ -79,7 +77,7 @@ public class TaskOccurrenceLauncherTest {
             }
         });
 
-        launcher = new DefaultTaskOccurrenceLauncher(transactionService, jsonService, dueTaskFetcher);
+        launcher = new DefaultTaskOccurrenceLauncher(transactionService, dueTaskFetcher);
     }
 
     @After
@@ -90,9 +88,7 @@ public class TaskOccurrenceLauncherTest {
     public void testRun() throws Exception {
         launcher.run();
 
-        verify(destinationSpec1).message("{1}");
-        verify(destinationSpec2).message("{2}");
-        verify(recurrentTask1).save();
-        verify(recurrentTask2).save();
+        verify(recurrentTask1).launchOccurrence();
+        verify(recurrentTask2).launchOccurrence();
     }
 }

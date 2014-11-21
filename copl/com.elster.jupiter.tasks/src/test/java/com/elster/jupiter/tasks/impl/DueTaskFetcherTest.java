@@ -7,11 +7,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Optional;
-
+import com.elster.jupiter.util.json.JsonService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +21,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -59,6 +58,8 @@ public class DueTaskFetcherTest {
     private DueTaskFetcher dueTaskFetcher;
     @Mock
     private DataModel dataModel;
+    @Mock
+    private JsonService jsonService;
 
     @Before
     public void setUp() throws SQLException {
@@ -76,7 +77,7 @@ public class DueTaskFetcherTest {
         when(dataModel.getInstance(RecurrentTaskImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, clock);
+                return new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock);
             }
         });
 
@@ -108,7 +109,7 @@ public class DueTaskFetcherTest {
         when(resultSet.getString(5)).thenReturn(PAYLOAD);
         when(resultSet.getString(6)).thenReturn(DESTINATION);
 
-        Iterable<RecurrentTask> recurrentTasks = dueTaskFetcher.dueTasks();
+        Iterable<RecurrentTaskImpl> recurrentTasks = dueTaskFetcher.dueTasks();
 
         assertThat(recurrentTasks).hasSize(1);
         RecurrentTask recurrentTask = recurrentTasks.iterator().next();

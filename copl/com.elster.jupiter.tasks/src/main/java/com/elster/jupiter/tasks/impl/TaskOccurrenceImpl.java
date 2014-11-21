@@ -24,6 +24,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     private long recurrentTaskId;
     private RecurrentTask recurrentTask;
     private Instant triggerTime;
+    private boolean scheduled = true;
 
     private List<TaskLogEntry> logEntries = new ArrayList<>();
 
@@ -36,8 +37,14 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         this.dataModel = dataModel;
     }
 
-    static TaskOccurrenceImpl from(DataModel dataModel, RecurrentTask recurrentTask, Instant triggerTime) {
+    static TaskOccurrenceImpl createScheduled(DataModel dataModel, RecurrentTask recurrentTask, Instant triggerTime) {
         return dataModel.getInstance(TaskOccurrenceImpl.class).init(recurrentTask, triggerTime);
+    }
+
+    static TaskOccurrenceImpl createAdHoc(DataModel dataModel, RecurrentTask recurrentTask, Instant triggerTime) {
+        TaskOccurrenceImpl taskOccurrence = dataModel.getInstance(TaskOccurrenceImpl.class).init(recurrentTask, triggerTime);
+        taskOccurrence.scheduled = false;
+        return taskOccurrence;
     }
 
     @Override
@@ -81,8 +88,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     public LogEntryFinder getLogsFinder() {
         Condition condition = where("taskOccurrence").isEqualTo(this);
         Order[] orders = new Order[] {Order.descending("timeStamp"), Order.ascending("position")};
-        LogEntryFinder finder = new TaskLogEntryFinder(dataModel.query(TaskLogEntry.class), condition, orders);
-        return finder;
+        return new TaskLogEntryFinder(dataModel.query(TaskLogEntry.class), condition, orders);
     }
 
     @Override
@@ -92,20 +98,23 @@ class TaskOccurrenceImpl implements TaskOccurrence {
 
         TaskOccurrenceImpl that = (TaskOccurrenceImpl) o;
 
-        if (id != that.id) return false;
+        return id == that.id;
 
-        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        return result;
+        return (int) (id ^ (id >>> 32));
     }
 
     @Override
     public TaskLogHandler createTaskLogHandler() {
         return new TaskLogHandlerImpl(this);
+    }
+
+    @Override
+    public boolean wasScheduled() {
+        return scheduled;
     }
 
     TaskOccurrenceImpl init(RecurrentTask recurrentTask, Instant triggerTime) {
@@ -122,4 +131,9 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     void log(Level level, Instant timestamp, String message) {
         logEntries.add(dataModel.getInstance(TaskLogEntryImpl.class).init(this, timestamp, level, message));
     }
+
+    TaskOccurrenceMessage asMessage() {
+        return new TaskOccurrenceMessage(this);
+    }
+
 }

@@ -2,12 +2,9 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
-import java.time.Clock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
 import java.util.Arrays;
 
 import static org.mockito.Matchers.any;
@@ -31,13 +29,13 @@ public class DefaultTaskOccurrenceLauncherTest {
     @Mock
     DueTaskFetcher dueTaskFetcher;
     @Mock
-    private RecurrentTask task1, task2;
+    private RecurrentTaskImpl task1, task2;
     @Mock
     private TransactionService transactionService;
     @Mock
     private JsonService jsonService;
     @Mock
-    private TaskOccurrence taskOccurrence1, taskOccurrence2;
+    private TaskOccurrenceImpl taskOccurrence1, taskOccurrence2;
     @Mock
     private Clock clock;
     @Mock
@@ -47,7 +45,7 @@ public class DefaultTaskOccurrenceLauncherTest {
 
     @Before
     public void setUp() {
-        defaultTaskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(transactionService, jsonService, dueTaskFetcher);
+        defaultTaskOccurrenceLauncher = new DefaultTaskOccurrenceLauncher(transactionService, dueTaskFetcher);
 
         when(dueTaskFetcher.dueTasks()).thenReturn(Arrays.asList(task1, task2));
 //        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
@@ -73,17 +71,13 @@ public class DefaultTaskOccurrenceLauncherTest {
         ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
         verify(transactionService).execute(transactionCaptor.capture());
 
-        verify(task1, never()).save(); // never save outside transaction
+        verify(task1, never()).launchOccurrence(); // never save outside transaction
 
         transactionCaptor.getValue().perform();
 
-        verify(destination1).message(SERIALIZED1);
-        verify(builder1).send();
-        verify(task1).save(); // does save within transaction
+        verify(task1).launchOccurrence(); // does save within transaction
 
-        verify(destination2).message(SERIALIZED2);
-        verify(builder2).send();
-        verify(task2).save(); // does save within transaction
+        verify(task2).launchOccurrence(); // does save within transaction
 
     }
 

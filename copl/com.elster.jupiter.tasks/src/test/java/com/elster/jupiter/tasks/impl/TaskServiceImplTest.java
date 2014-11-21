@@ -8,18 +8,10 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
-import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +24,12 @@ import org.mockito.stubbing.Answer;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -62,7 +59,7 @@ public class TaskServiceImplTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Table table;
     @Mock
-    private RecurrentTask recurrentTask;
+    private RecurrentTaskImpl recurrentTask;
     @Mock
     private TransactionService transactionService;
     @Mock
@@ -72,7 +69,7 @@ public class TaskServiceImplTest {
     @Mock
     private DueTaskFetcher dueTaskFetcher;
     @Mock
-    private TaskOccurrence taskOccurrence;
+    private TaskOccurrenceImpl taskOccurrence;
     @Mock
     private DestinationSpec destination;
     @Mock
@@ -144,18 +141,18 @@ public class TaskServiceImplTest {
         when(recurrentTask.createTaskOccurrence()).thenReturn(taskOccurrence);
         when(recurrentTask.getDestination()).thenReturn(destination);
         when(destination.message(anyString())).thenReturn(messageBuilder);
-        doAnswer(new Answer<Void>() {
+        doAnswer(new Answer<TaskOccurrenceImpl>() {
             @Override
-            public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+            public TaskOccurrenceImpl answer(InvocationOnMock invocationOnMock) throws Throwable {
                 jobEndedLatch.countDown();
-                return null;
+                return taskOccurrence;
             }
-        }).when(recurrentTask).save();
+        }).when(recurrentTask).launchOccurrence();
 
         try {
             taskService.launch();
 
-            assertThat(jobEndedLatch.await(10, TimeUnit.MINUTES)).isTrue(); // ensure jobs get executed
+            assertThat(jobEndedLatch.await(5, TimeUnit.SECONDS)).isTrue(); // ensure jobs get executed
         } finally {
             taskService.deactivate();
         }

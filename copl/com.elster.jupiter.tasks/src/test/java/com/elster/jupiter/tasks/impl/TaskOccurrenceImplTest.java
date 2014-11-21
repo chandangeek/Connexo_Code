@@ -37,7 +37,7 @@ public class TaskOccurrenceImplTest {
 
     @Test
     public void testCreatedLogHandlerTriggersLogEntriesBeingAdded() {
-        TaskOccurrenceImpl taskOccurrence = TaskOccurrenceImpl.from(dataModel, recurrentTask, Instant.EPOCH);
+        TaskOccurrenceImpl taskOccurrence = TaskOccurrenceImpl.createScheduled(dataModel, recurrentTask, Instant.EPOCH);
 
         Handler handler = taskOccurrence.createTaskLogHandler().asHandler();
 

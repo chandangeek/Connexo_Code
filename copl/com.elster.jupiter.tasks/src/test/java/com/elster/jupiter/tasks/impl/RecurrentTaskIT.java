@@ -27,8 +27,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -221,7 +219,7 @@ public class RecurrentTaskIT {
     @Test
     public void testTaskOccurrenceLog() {
         long id = createRecurrentTask("0 0 18 * * ? *");
-        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
+        RecurrentTaskImpl recurrentTask = (RecurrentTaskImpl) taskService.getRecurrentTask(id).get();
         OrmService instance = injector.getInstance(OrmService.class);
         DataModel dataModel = instance.getDataModel(TaskService.COMPONENTNAME).get();
 

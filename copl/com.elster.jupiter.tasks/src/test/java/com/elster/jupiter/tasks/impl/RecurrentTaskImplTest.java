@@ -1,6 +1,7 @@
 package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -8,10 +9,12 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -24,6 +27,8 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,6 +39,8 @@ public class RecurrentTaskImplTest {
     private static final String NAME = "name";
     private static final Instant NOW = Instant.ofEpochMilli(5000000);
     private static final Instant NEXT = Instant.ofEpochMilli(6000000);
+    private static final String SERIALIZED1 = "S1";
+    private static final String SERIALIZED2 = "S2";
 
     private RecurrentTaskImpl recurrentTask;
 
@@ -47,12 +54,16 @@ public class RecurrentTaskImplTest {
     private DataMapper<TaskOccurrence> taskOccurrenceFactory;
     @Mock
     private DataMapper<RecurrentTask> recurrentTaskFactory;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataModel dataModel;
     @Mock
     private CronExpressionParser cronExpressionParser;
     @Mock
     private MessageService messageService;
+    @Mock
+    private JsonService jsonService;
+    @Mock
+    private MessageBuilder builder;
 
     @Before
     public void setUp() {
@@ -65,7 +76,7 @@ public class RecurrentTaskImplTest {
         when(dataModel.mapper(TaskOccurrence.class)).thenReturn(taskOccurrenceFactory);
         when(dataModel.mapper(RecurrentTask.class)).thenReturn(recurrentTaskFactory);
 
-        recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, clock).init(NAME, cronExpression, destination, PAYLOAD);
+        recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(NAME, cronExpression, destination, PAYLOAD);
 
         when(clock.instant()).thenReturn(NOW);
         when(cronExpression.nextOccurrence(zoned(NOW))).thenReturn(Optional.of(zoned(NEXT)));
@@ -133,6 +144,22 @@ public class RecurrentTaskImplTest {
 
         assertThat(recurrentTask.getNextExecution()).isEqualTo(NEXT);
         verify(recurrentTaskFactory).persist(recurrentTask);
+
+    }
+
+    @Test
+    public void testLaunchOccurrence() {
+        field("id").ofType(Long.TYPE).in(recurrentTask).set(1234L); // simulate being saved already
+
+        when(jsonService.serialize(any())).thenReturn(SERIALIZED1);
+        when(destination.message(SERIALIZED1)).thenReturn(builder);
+
+        TaskOccurrenceImpl taskOccurrence = recurrentTask.launchOccurrence();
+
+        verify(destination).message(SERIALIZED1);
+        verify(builder).send();
+        verify(dataModel.mapper(RecurrentTask.class)).update(recurrentTask);
+        assertThat(taskOccurrence).isNotNull();
 
     }
 
