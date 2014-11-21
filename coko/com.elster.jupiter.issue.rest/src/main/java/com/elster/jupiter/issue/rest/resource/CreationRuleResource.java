@@ -32,7 +32,7 @@ public class CreationRuleResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_CREATION_RULE)
+    @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
     public Response getCreationRules(@BeanParam StandardParametersBean params){
         validateMandatory(params, START, LIMIT);
 
@@ -50,7 +50,7 @@ public class CreationRuleResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_CREATION_RULE)
+    @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
     public Response getCreationRule(@PathParam(ID) long id){
         Optional<CreationRule> rule = getIssueCreationService().findCreationRule(id);
         if (!rule.isPresent()){

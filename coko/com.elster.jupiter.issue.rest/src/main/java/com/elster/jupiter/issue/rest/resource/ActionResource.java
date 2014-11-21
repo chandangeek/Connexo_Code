@@ -35,7 +35,7 @@ public class ActionResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getAllActionTypes(@BeanParam StandardParametersBean params){
         String issueTypeKey = params.getFirst(ISSUE_TYPE);
         IssueType issueType = getIssueService().findIssueType(issueTypeKey).orElse(null);
@@ -66,7 +66,7 @@ public class ActionResource extends BaseResource {
     @GET
     @Path("/phases")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getAllActionPhases(){
         List<CreationRuleActionPhaseInfo> availablePhases = new ArrayList<>();
         for (CreationRuleActionPhase phase : CreationRuleActionPhase.values()) {

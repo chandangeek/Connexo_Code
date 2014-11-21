@@ -36,7 +36,7 @@ public class AssigneeResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public AssigneeFilterListInfo getAllAssignees(@BeanParam StandardParametersBean params, @Context SecurityContext securityContext) {
         String searchText = params.getFirst(LIKE);
         Boolean findMe = Boolean.parseBoolean(params.getFirst(ME));
@@ -70,7 +70,7 @@ public class AssigneeResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getAssignee(@PathParam(ID) long id, @QueryParam(ASSIGNEE_TYPE) String assigneeType){
         IssueAssignee assignee = getIssueService().findIssueAssignee(assigneeType, id);
         if (assignee == null) {
@@ -94,7 +94,7 @@ public class AssigneeResource extends BaseResource {
     @GET
     @Path("/groups")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getGroups() {
         Query<AssigneeTeam> query = getIssueService().query(AssigneeTeam.class);
         List<AssigneeTeam> list = query.select(Condition.TRUE);
@@ -110,7 +110,7 @@ public class AssigneeResource extends BaseResource {
     @GET
     @Path("/roles")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getTeams() {
         Query<AssigneeRole> query = getIssueService().query(AssigneeRole.class);
         List<AssigneeRole> list = query.select(Condition.TRUE);
@@ -120,7 +120,7 @@ public class AssigneeResource extends BaseResource {
     @GET
     @Path("/users")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getUsers(@BeanParam StandardParametersBean params) {
         String searchText = params.getFirst(LIKE);
         Condition condition = Condition.TRUE;

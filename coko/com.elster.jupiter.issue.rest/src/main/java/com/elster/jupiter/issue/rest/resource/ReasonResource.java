@@ -30,7 +30,7 @@ public class ReasonResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getReasons(@BeanParam StandardParametersBean params) {
         validateMandatory(params, ISSUE_TYPE);
         IssueType issueType = getIssueService().findIssueType(params.getFirst(ISSUE_TYPE)).orElse(null);
@@ -53,7 +53,7 @@ public class ReasonResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getReason(@PathParam(ID) String key){
         Optional<IssueReason> reasonRef = getIssueService().findReason(key);
         if(!reasonRef.isPresent()){

@@ -56,7 +56,7 @@ public class RuleResource extends BaseResource{
     @GET
     @Path("/templates")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_CREATION_RULE)
+    @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
     public Response getCreationRulesTemplates(@BeanParam StandardParametersBean params){
         validateMandatory(params, ISSUE_TYPE);
 
@@ -80,7 +80,7 @@ public class RuleResource extends BaseResource{
     @GET
     @Path("/templates/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_CREATION_RULE)
+    @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
     public Response getTemplate(@PathParam(ID) String id){
         Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(id);
         if (!template.isPresent()){

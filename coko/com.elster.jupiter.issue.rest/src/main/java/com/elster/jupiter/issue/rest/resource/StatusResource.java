@@ -27,7 +27,7 @@ public class StatusResource extends BaseResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getStatuses() {
         Query<IssueStatus> query = getIssueService().query(IssueStatus.class);
         List<IssueStatus> statuses = query.select(Condition.TRUE);
@@ -43,7 +43,7 @@ public class StatusResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getStatus(@PathParam(ID) String key){
         Optional<IssueStatus> statusRef = getIssueService().findStatus(key);
         if(!statusRef.isPresent()){
