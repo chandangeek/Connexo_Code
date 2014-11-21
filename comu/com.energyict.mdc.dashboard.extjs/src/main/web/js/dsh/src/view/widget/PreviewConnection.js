@@ -121,13 +121,17 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.commTasks', 'DSH', 'Communication tasks'),
                     name: 'taskCount',
                     renderer: function (val) {
-                        var failed = val.numberOfFailedTasks ? val.numberOfFailedTasks: '',
-                            success = val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '',
-                            notCompleted = val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '';
-                        return '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + success + '</span><br></tpl>' +
-                            '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + failed  + '</span><br></tpl>' +
-                            '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + notCompleted + '</span></tpl>'
-                            ;
+                        var failed = val.numberOfFailedTasks ? val.numberOfFailedTasks : 0,
+                            success = val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : 0,
+                            notCompleted = val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : 0;
+                        if (failed === 0 && success === 0 && notCompleted === 0) {
+                            return '';
+                        } else {
+                            return '<tpl><img src="/apps/dsh/resources/images/widget/running.png" title="Success" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + success + '</span><br></tpl>' +
+                                '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" title="Failed" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + failed + '</span><br></tpl>' +
+                                '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" title="Not executed" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + notCompleted + '</span></tpl>'
+                                ;
+                        }
                     }
                 },
                 {
