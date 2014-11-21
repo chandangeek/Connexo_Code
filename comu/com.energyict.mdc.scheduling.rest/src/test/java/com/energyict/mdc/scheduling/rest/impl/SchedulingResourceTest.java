@@ -332,7 +332,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComTask comTask1 = mock(ComTask.class);
         when(comTask1.getId()).thenReturn(id);
         when(comTask1.getName()).thenReturn(name);
-        when(taskService.findComTask(id)).thenReturn(comTask1);
+        when(taskService.findComTask(id)).thenReturn(Optional.of(comTask1));
         return comTask1;
     }
 

@@ -275,10 +275,7 @@ public class SchedulingResource {
         }
 
         for (ComTaskInfo comTaskInfo : newComTaskIdMap.values()) {
-            ComTask comTask = taskService.findComTask(comTaskInfo.id);
-            if (comTask == null) {
-                throw new WebApplicationException("No ComTask with id " + comTaskInfo.id, Response.Status.BAD_REQUEST);
-            }
+            ComTask comTask = taskService.findComTask(comTaskInfo.id).orElseThrow(() -> new WebApplicationException("No ComTask with id " + comTaskInfo.id, Response.Status.BAD_REQUEST));
             comSchedule.addComTask(comTask);
         }
     }
