@@ -22,7 +22,7 @@ Ext.define('Dxp.view.tasks.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
-                dataIndex: 'lastRun',
+                dataIndex: 'lastRun_formatted',
                 renderer: function (value, metaData, record) {
                     if (value) {
                         return record.get('status') + ' ' + Uni.I18n.translate('general.on', 'DES', 'on') + ' ' + value;

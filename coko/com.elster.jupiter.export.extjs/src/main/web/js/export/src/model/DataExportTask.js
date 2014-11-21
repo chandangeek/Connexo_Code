@@ -4,18 +4,22 @@ Ext.define('Dxp.model.DataExportTask', {
         'Uni.property.model.Property'
     ],
     fields: [
-        'id', 'name', 'deviceGroup', 'dataProcessor', 'schedule', 'exportperiod', 'properties', 'readingTypes', 'nextRun',
+        'id', 'name', 'deviceGroup', 'dataProcessor', 'schedule', 'exportperiod', 'properties', 'readingTypes', 'nextRun', 'lastRun',
         {
             name: 'lastExportOccurence',
             persist: false
         },
         {
-            name: 'lastRun',
+            name: 'lastRun_formatted',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.lastRun) {
-                    return moment(data.lastExportOccurence.lastRun).format('ddd, DD MMM YYYY HH:mm:ss');
+                var result;
+                if (data.lastRun && (data.lastRun !== 0)) {
+                    result = moment(data.lastRun).format('ddd, DD MMM YYYY HH:mm:ss');
+                } else {
+                    result = ''
                 }
+                return result;
             }
         },
         {
