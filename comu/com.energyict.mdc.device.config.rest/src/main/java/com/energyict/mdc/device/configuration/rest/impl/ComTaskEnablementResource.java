@@ -38,14 +38,12 @@ import java.util.List;
 public class ComTaskEnablementResource {
 
     private final ResourceHelper resourceHelper;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final TaskService taskService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public ComTaskEnablementResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, TaskService taskService, Thesaurus thesaurus) {
+    public ComTaskEnablementResource(ResourceHelper resourceHelper, TaskService taskService, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.taskService = taskService;
         this.thesaurus = thesaurus;
     }
@@ -81,7 +79,7 @@ public class ComTaskEnablementResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
 
-        ComTask comTask = taskService.findComTask(comTaskEnablementInfo.comTask.id);
+        ComTask comTask = this.findComTaskOrThrowException(comTaskEnablementInfo.comTask.id);
         SecurityPropertySet securityPropertySet = findSecurityPropertySetByIdOrThrowException(deviceConfiguration, comTaskEnablementInfo.securityPropertySet.id);
 
         ComTaskEnablementInfo.PartialConnectionTaskInfo partialConnectionTaskInfoParameter = comTaskEnablementInfo.partialConnectionTask;
@@ -249,6 +247,12 @@ public class ComTaskEnablementResource {
         }
 
         throw new WebApplicationException("No such connection task for the device configuration", Response.status(Response.Status.NOT_FOUND).entity("No such connection task for the device configuration").build());
+    }
+
+    private ComTask findComTaskOrThrowException(long comTaskId) {
+        return this.taskService
+                .findComTask(comTaskId)
+                .orElseThrow(() -> new WebApplicationException("No such communication task", Response.status(Response.Status.NOT_FOUND).entity("No such communication task").build()));
     }
 
     private ComTaskEnablement findComTaskEnablementOrThrowException(DeviceConfiguration deviceConfiguration, long comTaskEnablementId) {
