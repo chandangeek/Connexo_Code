@@ -56,6 +56,12 @@ Ext.define('Dxp.controller.history.Export', {
                                             action: 'showLog'
                                         }
                                     }
+                                },
+                                datasources: {
+                                    title: Uni.I18n.translate('general.dataSources', 'DES', 'Data sources'),
+                                    route: 'datasources',
+                                    controller: 'Dxp.controller.Tasks',
+                                    action: 'showDataSources'
                                 }
                             }
                         }

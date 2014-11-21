@@ -4,7 +4,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.view.tasks.Add',
         'Dxp.view.tasks.Setup',
         'Dxp.view.tasks.Details',
-        'Dxp.view.tasks.History'
+        'Dxp.view.tasks.History',
+        'Dxp.view.datasources.Setup'
     ],
     stores: [
         'Dxp.store.DeviceGroups',
@@ -13,7 +14,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.FileFormatters',
         'Dxp.store.ReadingTypes',
         'Dxp.store.DataExportTasks',
-        'Dxp.store.DataExportTasksHistory'
+        'Dxp.store.DataExportTasksHistory',
+        'Dxp.store.DataSources'
     ],
     models: [
         'Dxp.model.DeviceGroup',
@@ -24,7 +26,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.model.ReadingType',
         'Dxp.model.DataExportTask',
         'Dxp.model.DataExportTaskHistory',
-        'Dxp.model.AddDataExportTaskForm'
+        'Dxp.model.AddDataExportTaskForm',
+        'Dxp.model.DataSource'
     ],
     refs: [
         {
@@ -42,6 +45,10 @@ Ext.define('Dxp.controller.Tasks', {
         {
             ref: 'history',
             selector: 'data-export-tasks-history'
+        },
+        {
+            ref: 'dataSourcesPage',
+            selector: 'data-sources-setup'
         }
     ],
     fromDetails: false,
@@ -277,6 +284,26 @@ Ext.define('Dxp.controller.Tasks', {
                     me.getApplication().fireEvent('changecontentevent', view);
                 });
             });
+        });
+    },
+
+    showDataSources: function (currentTaskId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            taskModel = me.getModel('Dxp.model.DataExportTask'),
+            view = Ext.widget('data-sources-setup', {
+                router: router,
+                taskId: currentTaskId
+            }),
+            sideMenu;
+
+        me.getApplication().fireEvent('changecontentevent', view);
+        taskModel.load(currentTaskId, {
+            success: function (record) {
+                me.getApplication().fireEvent('dataexporttaskload', record);
+                sideMenu = view.down('#tasks-view-menu');
+                sideMenu.setTitle(record.get('name'));
+            }
         });
     },
 
