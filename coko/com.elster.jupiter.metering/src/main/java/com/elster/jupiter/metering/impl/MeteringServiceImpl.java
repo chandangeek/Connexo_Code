@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.PurgeConfiguration;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -34,8 +35,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
-import java.time.Clock;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -364,5 +365,8 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
         return serviceCategory;
     }
 
-
+    @Override
+    public void purge(PurgeConfiguration purgeConfiguration) {
+    	new DataPurger(purgeConfiguration,this).purge();
+    }
 }
