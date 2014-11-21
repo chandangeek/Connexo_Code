@@ -48,7 +48,7 @@ public interface DeviceConfigurationService {
     public Optional<DeviceType> findDeviceTypeByName(String name);
 
     /**
-     * Finds a {@link DeviceConfiguration} which is uniquely identified by the given ID
+     * Finds a {@link DeviceConfiguration} which is uniquely identified by the given ID.
      *
      * @param id the id of the DeviceConfiguration
      * @return the DeviceConfiguration or <code>null</code> if there is no such DeviceConfiguration
@@ -56,20 +56,20 @@ public interface DeviceConfigurationService {
     public Optional<DeviceConfiguration> findDeviceConfiguration(long id);
 
     /**
-     * Finds a {@link ChannelSpec} which is uniquely identified by the given ID
+     * Finds a {@link ChannelSpec} which is uniquely identified by the given ID.
      *
      * @param channelSpecId the id of the ChannelSpec
      * @return the ChannelSpec or <code>null</code> if there is no such ChannelSpec
      */
-    public ChannelSpec findChannelSpec(long channelSpecId);
+    public Optional<ChannelSpec> findChannelSpec(long channelSpecId);
 
     /**R
-     * Finds a {@link RegisterSpec} which is uniquely identified by the given ID
+     * Finds a {@link RegisterSpec} which is uniquely identified by the given ID.
      *
      * @param id the id of the RegisterSpec
      * @return the RegisterSpec or <code>null</code> if there is no such RegisterSpec
      */
-    public RegisterSpec findRegisterSpec(long id);
+    public Optional<RegisterSpec> findRegisterSpec(long id);
 
     /**
      * Finds a list of {@link RegisterSpec RegisterSpecs} which are owned by the given {@link DeviceType} and modelled by the given RegisterType
@@ -113,7 +113,7 @@ public interface DeviceConfigurationService {
      * @param loadProfileSpecId the ID of the LoadProfileSpec
      * @return the LoadProfileSpec or <code>null</code> if there is no such LoadProfileSpec
      */
-    public LoadProfileSpec findLoadProfileSpec(long loadProfileSpecId);
+    public Optional<LoadProfileSpec> findLoadProfileSpec(long loadProfileSpecId);
 
     /**
      * Find a {@link LoadProfileSpec} which is modeled by the given {@link LoadProfileType} for the given
@@ -123,7 +123,7 @@ public interface DeviceConfigurationService {
      * @param loadProfileType the LoadProfileType which models the LoadProfileSpec
      * @return the requested LoadProfileSpec
      */
-    public LoadProfileSpec findLoadProfileSpecsByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType);
+    public Optional<LoadProfileSpec> findLoadProfileSpecByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType);
 
     public List<LoadProfileSpec> findLoadProfileSpecsByLoadProfileType(LoadProfileType loadProfileType);
 
@@ -133,9 +133,9 @@ public interface DeviceConfigurationService {
      * @param id the ID of the LogBookSpec
      * @return the LogBookSpec or <code>null</code> if there is no such LogBookSpec
      */
-    public LogBookSpec findLogBookSpec(long id);
+    public Optional<LogBookSpec> findLogBookSpec(long id);
 
-    public ChannelSpec findChannelSpecForLoadProfileSpecAndChannelType(LoadProfileSpec loadProfileSpec, ChannelType channelType);
+    public Optional<ChannelSpec> findChannelSpecForLoadProfileSpecAndChannelType(LoadProfileSpec loadProfileSpec, ChannelType channelType);
 
     public List<DeviceConfiguration> findDeviceConfigurationsUsingLoadProfileType(LoadProfileType loadProfileType);
 

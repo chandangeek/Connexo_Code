@@ -40,6 +40,7 @@ import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -230,9 +231,9 @@ public class ChannelSpecImpl extends PersistentNamedObject<ChannelSpec> implemen
     }
 
     private void validateChannelSpecsForDuplicateChannelTypes() {
-        ChannelSpec channelSpec = this.deviceConfigurationService.findChannelSpecForLoadProfileSpecAndChannelType(getLoadProfileSpec(), getChannelType());
-        if (channelSpec != null && channelSpec.getId() != getId()) {
-            throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(thesaurus, channelSpec, getChannelType(), this.getLoadProfileSpec());
+        Optional<ChannelSpec> channelSpec = this.deviceConfigurationService.findChannelSpecForLoadProfileSpecAndChannelType(getLoadProfileSpec(), getChannelType());
+        if (channelSpec.isPresent() && channelSpec.get().getId() != getId()) {
+            throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(thesaurus, channelSpec.get(), getChannelType(), this.getLoadProfileSpec());
         }
     }
 
