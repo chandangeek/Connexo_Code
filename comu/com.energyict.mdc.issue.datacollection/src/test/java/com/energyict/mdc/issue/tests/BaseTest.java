@@ -108,7 +108,6 @@ public abstract class BaseTest {
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(MessageInterpolator.class).toInstance(thesaurus);
 
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(LogService.class).toInstance(mock(LogService.class));
         }
     }
