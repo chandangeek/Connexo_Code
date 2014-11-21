@@ -92,7 +92,7 @@ public class AppServiceConsoleService {
         create(name, cronString, false);
     }
 
-    private void create(String name, String cronString, boolean active) {
+    public void create(String name, String cronString, boolean active) {
         threadPrincipalService.set(new Principal() {
             @Override
             public String getName() {
