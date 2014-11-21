@@ -238,12 +238,12 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      * We are already in a Transaction so we don't wrap it again.
      */
     private void reloadMyselfForObsoleting() {
-        ComTaskExecution updatedVersionOfMyself = this.communicationTaskService.findComTaskExecution(this.getId());
-        if (updatedVersionOfMyself != null) {
-            this.comPort.set(updatedVersionOfMyself.getExecutingComPort());
-            this.obsoleteDate = this.asInstant(updatedVersionOfMyself.getObsoleteDate());
-            this.setConnectionTask(updatedVersionOfMyself.getConnectionTask());
-        }
+        Optional<ComTaskExecution> updatedVersionOfMyself = this.communicationTaskService.findComTaskExecution(this.getId());
+        updatedVersionOfMyself.ifPresent(cte -> {
+            this.comPort.set(cte.getExecutingComPort());
+            this.obsoleteDate = this.asInstant(cte.getObsoleteDate());
+            this.setConnectionTask(cte.getConnectionTask());
+        });
     }
 
     private Instant asInstant(Date date) {

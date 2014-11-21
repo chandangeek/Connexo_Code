@@ -698,8 +698,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public ComTaskExecution findComTaskExecution(long id) {
-        return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).getUnique("id", id).orElse(null);
+    public Optional<ComTaskExecution> findComTaskExecution(long id) {
+        return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).getUnique("id", id);
     }
 
     @Override

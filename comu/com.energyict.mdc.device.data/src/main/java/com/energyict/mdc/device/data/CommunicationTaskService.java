@@ -62,7 +62,7 @@ public interface CommunicationTaskService {
      * @param id the unique ID of the ComTaskExecution
      * @return the requested ComTaskExecution
      */
-    public ComTaskExecution findComTaskExecution(long id);
+    public Optional<ComTaskExecution> findComTaskExecution(long id);
 
     /**
      * Counts all {@link ComTaskExecution}s in the system,

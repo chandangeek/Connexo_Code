@@ -132,7 +132,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.delete();
 
         // Asserts
-        assertThat(inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecId)).isNull();
+        assertThat(inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecId).isPresent()).isFalse();
     }
 
     @Test
@@ -239,7 +239,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
         comTaskExecution.runNow();
 
-        ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId());
+        ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         ScheduledConnectionTask reloadedScheduledConnectionTask = inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(connectionTask.getId()).get();
 
         assertThat(reloadedComTaskExecution.getNextExecutionTimestamp()).isEqualTo(frozenClock);
