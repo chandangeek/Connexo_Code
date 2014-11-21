@@ -63,6 +63,7 @@ class DataExportTaskExecutor implements TaskExecutor {
 
             try (TransactionContext transactionContext = transactionService.getContext()) {
                 dataExportOccurrence.end(success ? DataExportStatus.SUCCESS : DataExportStatus.FAILED, errorMessage);
+                dataExportOccurrence.update();
                 transactionContext.commit();
             }
         }
