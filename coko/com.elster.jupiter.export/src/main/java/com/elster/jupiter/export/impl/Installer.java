@@ -84,8 +84,8 @@ class Installer {
         QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
         destinationSpec.save();
-        destinationSpec.subscribe(SUBSCRIBER_NAME);
         destinationSpec.activate();
+        destinationSpec.subscribe(SUBSCRIBER_NAME);
     }
 
     private void installDataModel() {
