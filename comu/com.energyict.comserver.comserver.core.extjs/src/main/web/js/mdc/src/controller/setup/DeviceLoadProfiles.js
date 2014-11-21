@@ -143,9 +143,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 confirmation: function () {
                     me.activateDataValidation(record, this);
                 }
-            });
+            }),
+            router = this.getController('Uni.controller.history.Router'),
+            mRID = me.mRID ? me.mRID : router.arguments.mRID;
+
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + me.mRID + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + mRID + '/validationrulesets/validationstatus',
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -214,13 +217,17 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     },
 
     activateDataValidation: function (record, confWindow) {
-        var me = this;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            mRID = me.mRID ? me.mRID : router.arguments.mRID,
+            loadProfileId = me.loadProfileId ? me.loadProfileId : router.arguments.loadProfileId;
+
         if (confWindow.down('#validateLoadProfileFromDate').getValue() > me.dataValidationLastChecked) {
             confWindow.down('#validateLoadProfileDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateLoadProfileDateErrors').setVisible(true);
         } else {
             Ext.Ajax.request({
-                url: '../../api/ddr/devices/' + me.mRID + '/loadprofiles/' + me.loadProfileId + '/validate',
+                url: '../../api/ddr/devices/' + mRID + '/loadprofiles/' + loadProfileId + '/validate',
                 method: 'PUT',
                 jsonData: {
                     lastChecked: confWindow.down('#validateLoadProfileFromDate').getValue().getTime()

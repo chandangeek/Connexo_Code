@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
     alias: 'widget.deviceConnectionHistoryPreview',
     itemId: 'deviceConnectionHistoryPreview',
     requires: [
-
+        'Uni.form.field.Duration'
     ],
     layout: {
         type: 'vbox',
@@ -81,17 +81,11 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
 
                                 },
                                 {
-                                    xtype: 'displayfield',
+                                    xtype: 'uni-form-field-duration',
                                     name: 'durationInSeconds',
                                     fieldLabel: Uni.I18n.translate('deviceconnectionhistory.duration', 'MDC', 'Duration'),
                                     itemId: 'durationInSeconds',
-                                    renderer: function (value) {
-                                        if (value !== '') {
-                                            return value + ' ' + Uni.I18n.translate('general.seconds', 'MDC', 'seconds');
-                                        } else {
-                                            return '';
-                                        }
-                                    }
+                                    usesSeconds: true
 
                                 },
                                 {
