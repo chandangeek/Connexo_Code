@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.FatalDataExportException;
@@ -50,12 +51,20 @@ class DataExportTaskExecutor implements TaskExecutor {
     @Override
     public void postExecute(TaskOccurrence occurrence) {
         IDataExportOccurrence dataExportOccurrence = findOccurrence(occurrence);
-        doExecute(dataExportOccurrence, getLogger(occurrence));
+        boolean success = false;
+        String errorMessage = null;
+        try {
+            doExecute(dataExportOccurrence, getLogger(occurrence));
+            success = true;
+        } catch (Exception ex) {
+            errorMessage = ex.getMessage();
+            throw ex;
+        } finally {
 
-
-        try (TransactionContext transactionContext = transactionService.getContext()) {
-            dataExportOccurrence.getTask().updateLastRun(occurrence.getTriggerTime());
-            transactionContext.commit();
+            try (TransactionContext transactionContext = transactionService.getContext()) {
+                dataExportOccurrence.end(success ? DataExportStatus.SUCCESS : DataExportStatus.FAILED, errorMessage);
+                transactionContext.commit();
+            }
         }
 
     }
@@ -80,6 +89,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         IReadingTypeDataExportTask task = occurrence.getTask();
         Set<IReadingTypeDataExportItem> activeItems;
         try (TransactionContext context = transactionService.getContext()) {
+            occurrence.start();
             activeItems = getActiveItems(task, occurrence);
 
             task.getExportItems().stream()
