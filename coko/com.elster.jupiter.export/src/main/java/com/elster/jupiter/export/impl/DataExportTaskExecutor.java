@@ -51,7 +51,13 @@ class DataExportTaskExecutor implements TaskExecutor {
     public void postExecute(TaskOccurrence occurrence) {
         IDataExportOccurrence dataExportOccurrence = findOccurrence(occurrence);
         doExecute(dataExportOccurrence, getLogger(occurrence));
-        // TODO set last run on DataExportTask
+
+
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            dataExportOccurrence.getTask().updateLastRun(occurrence.getTriggerTime());
+            transactionContext.commit();
+        }
+
     }
 
     private Logger getLogger(TaskOccurrence occurrence) {

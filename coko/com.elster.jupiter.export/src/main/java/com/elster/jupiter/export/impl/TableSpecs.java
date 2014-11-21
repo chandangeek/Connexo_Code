@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 enum TableSpecs {
@@ -31,6 +32,8 @@ enum TableSpecs {
             table.column("EXPORT_UPDATE").bool().map("exportUpdate").add();
             table.column("EXPORT_CONTINUOUS_DATA").bool().map("exportContinuousData").add();
             table.column("VALIDATED_DATA_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("validatedDataOption").add();
+
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
 
             table.foreignKey("DES_FK_RTET_EXPORTPERIOD")
                     .on(exportPeriod)

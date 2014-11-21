@@ -69,6 +69,8 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private List<ReadingTypeInExportTask> readingTypes = new ArrayList<>();
     private List<ReadingTypeDataExportItemImpl> exportItems = new ArrayList<>();
 
+    private Instant lastRun;
+
     private transient boolean scheduleImmediately;
     private transient ScheduleExpression scheduleExpression;
     private transient boolean recurrentTaskDirty;
@@ -114,10 +116,10 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         return updatePeriod.getOptional();
     }
 
-    @Override
+    /*@Override
     public Optional<Instant> getLastRun() {
         return recurrentTask.get().getLastRun();
-    }
+    }*/
 
     @Override
     public EndDeviceGroup getEndDeviceGroup() {
@@ -392,5 +394,16 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     RecurrentTask getRecurrentTask() {
         return recurrentTask.get();
+    }
+
+    @Override
+    public Optional<Instant> getLastRun() {
+        return Optional.ofNullable(lastRun);
+    }
+
+    @Override
+    public void updateLastRun(Instant triggerTime) {
+        lastRun = triggerTime;
+        save();
     }
 }
