@@ -442,7 +442,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         comTask.setMaxNrOfTries(maxNrOfTries);
         comTask.createBasicCheckTask().add();
         comTask.save();
-        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
+        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
     }
 
     private ComTask createComTaskWithLogBooks() {
@@ -451,7 +451,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         comTask.setMaxNrOfTries(maxNrOfTries);
         comTask.createLogbooksTask().add();
         comTask.save();
-        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
+        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
     }
 
     private ComTask createComTaskWithRegisters() {
@@ -460,7 +460,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         comTask.setMaxNrOfTries(maxNrOfTries);
         comTask.createRegistersTask().add();
         comTask.save();
-        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
+        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
     }
 
     protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp) {

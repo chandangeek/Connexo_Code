@@ -69,7 +69,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         comTask.setMaxNrOfTries(maxNrOfTries);
         comTask.createBasicCheckTask().add();
         comTask.save();
-        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()); // to make sure all elements in the composition are properly loaded
+        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
     }
 
     protected ComTaskEnablement enableComTask(boolean useDefault) {
