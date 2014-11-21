@@ -28,7 +28,6 @@ public class DeviceConfigIsPresentAndActiveValidator  implements ConstraintValid
                 constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext.
                         buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_CONFIGURATION_REQUIRED_KEY + "}").
-                        addPropertyNode(DeviceFields.DEVICECONFIGURATION.fieldName()).
                         addConstraintViolation();
                 return false;
             } else if(!deviceConfigReference.get().isActive()){
