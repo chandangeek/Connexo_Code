@@ -8,7 +8,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.export.impl.messagehandlerfactory", service = MessageHandlerFactory.class, immediate = true)
+@Component(name = "com.elster.jupiter.export.impl.messagehandlerfactory", property = {"subscriber=" + DataExportServiceImpl.SUBSCRIBER_NAME, "destination="+DataExportServiceImpl.DESTINATION_NAME}, service = MessageHandlerFactory.class, immediate = true)
 public class DataExportMessageHandlerFactory implements MessageHandlerFactory {
 
     private volatile IDataExportService dataExportService;

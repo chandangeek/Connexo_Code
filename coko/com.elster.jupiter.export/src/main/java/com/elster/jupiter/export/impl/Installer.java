@@ -23,7 +23,8 @@ import java.util.Locale;
 
 class Installer {
 
-    public static final String DESTINATION_NAME = "DataExport";
+    public static final String DESTINATION_NAME = DataExportServiceImpl.DESTINATION_NAME;
+    public static final String SUBSCRIBER_NAME = DataExportServiceImpl.SUBSCRIBER_NAME;
     public static final String RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.dataExport";
 
     private final DataModel dataModel;
@@ -49,7 +50,7 @@ class Installer {
     void install() {
         ExceptionCatcher.executing(
                 this::installDataModel,
-                this::createDestination,
+                this::createDestinationAndSubscriber,
                 this::createRelativePeriodcategory,
                 this::createTranslations,
                 this::createPrivileges,
@@ -79,10 +80,11 @@ class Installer {
         timeService.createRelativePeriodCategory(RELATIVE_PERIOD_CATEGORY);
     }
 
-    private void createDestination() {
+    private void createDestinationAndSubscriber() {
         QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
         destinationSpec.save();
+        destinationSpec.subscribe(SUBSCRIBER_NAME);
         destinationSpec.activate();
     }
 

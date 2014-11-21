@@ -44,6 +44,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DataExportServiceImpl implements IDataExportService, InstallService {
 
     public static final String DESTINATION_NAME = "DataExport";
+    public static final String SUBSCRIBER_NAME = "DataExport";
     private volatile DataModel dataModel;
     private volatile TimeService timeService;
     private volatile TaskService taskService;
