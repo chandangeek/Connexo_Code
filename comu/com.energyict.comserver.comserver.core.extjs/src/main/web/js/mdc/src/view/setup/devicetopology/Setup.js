@@ -34,7 +34,9 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
             {
                 xtype: 'search-side-filter',
                 title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
-                width: 285
+                width: 285,
+                applyBtnText: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
+                cleatBtnText: Uni.I18n.translate('searchItems.reset', 'MDC', 'Reset')
             }
         ];
 
