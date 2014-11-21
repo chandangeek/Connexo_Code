@@ -125,9 +125,9 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                         if (failed === 0 && success === 0 && notCompleted === 0) {
                             return '';
                         } else {
-                            return '<tpl><img src="/apps/dsh/resources/images/widget/running.png" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + success + '</span><br></tpl>' +
-                                '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + failed + '</span><br></tpl>' +
-                                '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + notCompleted + '</span></tpl>'
+                            return '<tpl><img src="/apps/dsh/resources/images/widget/running.png" title="Success" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + success + '</span><br></tpl>' +
+                                '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" title="Failed" class="ct-result ct-failure"><span style="position: relative; top: -3px; left: 4px">' + failed + '</span><br></tpl>' +
+                                '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" title="Not executed" class="ct-result ct-incomplete"><span  style="position: relative; top: -3px; left: 4px">' + notCompleted + '</span></tpl>'
                                 ;
                         }
                     }
