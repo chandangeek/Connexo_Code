@@ -408,6 +408,11 @@
         <artifactId>jersey-media-multipart</artifactId>
         <version>${jersey.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-csv</artifactId>
+        <version>1.0</version>
+      </dependency>
 
       <!-- Test dependencies -->
       <dependency>
