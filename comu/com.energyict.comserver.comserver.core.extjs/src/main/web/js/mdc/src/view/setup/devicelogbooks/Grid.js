@@ -4,6 +4,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
     itemId: 'deviceLogbooksGrid',
     store: 'Mdc.store.LogbooksOfDevice',
     router: null,
+    forceFit: true,
+    autoScroll: false,
     requires: [
         'Uni.grid.column.Action',
         'Uni.grid.column.Obis',

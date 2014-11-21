@@ -2,6 +2,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.comtaskGrid',
     store: 'Mdc.store.CommunicationTasks',
+    forceFit: true,
+    autoScroll: false,
     enableColumnHide: false,
     columns: {
         defaults: {
