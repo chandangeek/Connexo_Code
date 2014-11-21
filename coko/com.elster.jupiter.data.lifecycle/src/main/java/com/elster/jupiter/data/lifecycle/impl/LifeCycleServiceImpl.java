@@ -2,6 +2,7 @@ package com.elster.jupiter.data.lifecycle.impl;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -18,6 +19,8 @@ import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.PurgeConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -38,17 +41,19 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 	private volatile Thesaurus thesaurus;
 	private volatile MessageService messageService;
 	private volatile TaskService taskService;
+	private volatile MeteringService meteringService;
 	private volatile Clock clock;
 	
 	public LifeCycleServiceImpl() {	
 	}
 
 	@Inject
-	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService, Clock clock) {
+	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService, MeteringService meteringService, Clock clock) {
 		setOrmService(ormService);
 		setNlsService(nlsService);
 		setMessageService(messageService);
 		setTaskService(taskService);
+		setMeteringService(meteringService);
 		setClock(clock);
 		if (!dataModel.isInstalled()) {
 			install();
@@ -97,6 +102,11 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 	}
 	
 	@Reference
+	public void setMeteringService(MeteringService meteringService) {
+		this.meteringService = meteringService;
+	}
+	
+	@Reference
 	public void setClock(Clock clock) {
 		this.clock = clock;
 	}
@@ -120,11 +130,29 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 		executor.execute(occurrence);
 	}
 
+	private Instant limit(Period period) {
+		if (period.getDays() < 30) {
+			throw new IllegalArgumentException();
+		}
+		return clock.instant().minus(period).truncatedTo(ChronoUnit.DAYS);
+	}
+	
+	private LifeCycleCategory getCategory(LifeCycleCategoryKind kind) {
+		return getCategories().stream().filter(cat -> cat.getKind() == kind).findFirst().get();
+	}
+	
 	public void execute(Logger logger) {
-		LifeCycleCategory journal = getCategories().stream().filter(cat -> cat.getKind() == LifeCycleCategoryKind.JOURNAL).findFirst().get();
-		Instant instant = clock.instant().minus(journal.getRetention()).truncatedTo(ChronoUnit.DAYS);
-		logger.info("Removing journals up to " + instant);
-		ormService.dropJournal(instant,logger);
+		Instant instant = limit(getCategory(LifeCycleCategoryKind.JOURNAL).getRetention());
+		logger.info("Removing journals up to " + instant);	
+		ormService.dropJournal(instant,logger);		
+		PurgeConfiguration purgeConfiguration = PurgeConfiguration.builder()
+				.registerLimit(limit(getCategory(LifeCycleCategoryKind.REGISTER).getRetention()))
+				.intervalLimit(limit(getCategory(LifeCycleCategoryKind.INTERVAL).getRetention()))
+				.dailyLimit(limit(getCategory(LifeCycleCategoryKind.DAILY).getRetention()))
+				.eventLimit(limit(getCategory(LifeCycleCategoryKind.ENDDEVICEEVENT).getRetention()))
+				.logger(logger)
+				.build();
+		meteringService.purge(purgeConfiguration);
 	}
 	
 }

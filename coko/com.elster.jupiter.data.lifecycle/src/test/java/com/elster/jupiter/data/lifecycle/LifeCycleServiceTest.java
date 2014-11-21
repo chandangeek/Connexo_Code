@@ -17,9 +17,13 @@ import org.osgi.service.event.EventAdmin;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.data.lifecycle.impl.DataLifeCycleModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -63,7 +67,11 @@ public class LifeCycleServiceTest {
     			new PubSubModule(), 
     			new TransactionModule(printSql),
     			new InMemoryMessagingModule(),
-    			new TaskModule(),    		
+    			new TaskModule(), 
+    			new IdsModule(),
+    			new EventsModule(),
+    			new PartyModule(),
+    			new MeteringModule(),
     			new DataLifeCycleModule()
 				);
 	        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {

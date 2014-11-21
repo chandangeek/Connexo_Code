@@ -10,6 +10,5 @@ public interface LifeCycleService {
 	
 	List<LifeCycleCategory> getCategories();
 	RecurrentTask getTask();
-	void runNow();
-	
+	void runNow();	
 }
