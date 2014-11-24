@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                                         xtype: 'container',
                                         flex: 1
                                     },
-                                    {
+                                   /* {
                                         xtype: 'button',
                                         text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
                                         iconCls: 'x-uni-action-iconD',
@@ -76,7 +76,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                                         },
                                         hidden: true,
                                         itemId: 'device-security-setting-action-menu-in-title'
-                                    },
+                                    },*/
                                     {
                                         xtype: 'container',
                                         flex: 1
@@ -145,6 +145,41 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                     {
                         xtype: 'property-form',
                         width: '100%'
+                    },
+                    {
+                        xtype: 'form',
+                        border: false,
+                        itemId: 'deviceSecuritySettingEditShowValuesForm',
+                        layout: {
+                            type: 'hbox',
+                            align: 'stretch'
+                        },
+                        width: '100%',
+                        defaults: {
+                            labelWidth: 250
+                        },
+                        items: [
+                            {
+                                xtype: 'fieldcontainer',
+                                fieldLabel: '&nbsp',
+                                itemId: 'device-security-setting-show-value',
+                                visible: false,
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        xtype: 'checkbox',
+                                        name: 'showValues',
+                                        checked: false,
+                                        margin: '0 16 0 0',
+                                        itemId: 'device-security-setting-show-value-checkbox'
+                                    },
+                                    {
+                                        xtype: 'label',
+                                        text: Uni.I18n.translate('general.showEncryptedValue', 'MDC', 'Show values')
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     {
                         xtype: 'form',

@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.DeviceTopology', {
     extend: 'Ext.app.Controller',
 
+    models: [
+        'Mdc.model.TopologyFilter'
+    ],
+
     stores: [
         'Mdc.store.DeviceTopology'
     ],
@@ -11,7 +15,8 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
 
     refs: [
         {ref: 'deviceTopology', selector: '#deviceTopologySetup'},
-        {ref: 'sideFilter', selector: '#deviceTopologySetup search-side-filter'},
+        {ref: 'sideFilter', selector: '#deviceTopologySetup #topologySideFilter'},
+        {ref: 'sideFilterForm', selector: '#deviceTopologySetup #topologySideFilter form'},
         {ref: 'topFilter', selector: '#deviceTopologySetup #topFilterDeviceTopology'}
     ],
 
@@ -36,27 +41,15 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
         });
     },
 
-    clearAllItems: function () {
-        var sideFilter = this.getSideFilter(),
-            mridField = sideFilter.down('#mrid'),
-            serialField = sideFilter.down('#sn'),
-            typeCombo = sideFilter.down('#type'),
-            configurationCombo = sideFilter.down('#configuration');
-
-        mridField.setValue(null);
-        serialField.setValue(null);
-        typeCombo.setValue(null);
-        configurationCombo.setValue(null);
-        configurationCombo.hide();
-    },
-
     clearAllFilters: function () {
-        this.clearAllItems();
-        this.loadTopology();
+        this.getSideFilterForm().getRecord().getProxy().destroy();
+        this.getDeviceTopology().down('#deviceTopologyGrid').getStore().removeAll();
     },
 
     searchClick: function () {
-        this.loadTopology();
+        this.getSideFilterForm().updateRecord();
+        this.getSideFilterForm().getRecord().save();
+        this.getDeviceTopology().down('#deviceTopologyGrid').getStore().removeAll();
     },
 
     removeFilter: function (key) {
@@ -76,10 +69,10 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
         }
 
         field.setValue(null);
-        this.loadTopology();
+        this.searchClick();
     },
 
-    clearConfigurationCombo: function() {
+    clearConfigurationCombo: function () {
         var sideFilter = this.getSideFilter();
 
         sideFilter.down('combobox[name=configuration]').setValue(null);
@@ -87,36 +80,55 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
 
     loadTopology: function () {
         var me = this,
-            sideFilter = this.getSideFilter(),
-            widget = this.getDeviceTopology(),
-            filter = this.getTopFilter(),
-            filterBtns = Ext.ComponentQuery.query('#topFilterDeviceTopology tag-button'),
+            router = this.getController('Uni.controller.history.Router'),
+            sideFilter = me.getSideFilter(),
+            widget = me.getDeviceTopology(),
+            filter = me.getTopFilter(),
             grid = widget.down('#deviceTopologyGrid'),
             topologyStore = grid.getStore(),
             mridField = sideFilter.down('#mrid'),
             serialField = sideFilter.down('#sn'),
             typeCombo = sideFilter.down('#type'),
             configurationCombo = sideFilter.down('#configuration'),
-            properties = [];
+            properties = [],
+            loadStoreWithFilter;
+
+        loadStoreWithFilter = function () {
+            me.getSideFilterForm().loadRecord(router.filter);
+
+            properties = me.pushProperty(properties, mridField, filter, 'mrid');
+            properties = me.pushProperty(properties, serialField, filter, 'serialNumber');
+            properties = me.pushProperty(properties, typeCombo, filter, 'deviceTypeId');
+            properties = me.pushProperty(properties, configurationCombo, filter, 'deviceConfigurationId');
+
+            topologyStore.getProxy().setExtraParam('filter', Ext.encode(properties));
+            topologyStore.load();
+            widget.setLoading(false);
+        };
 
 
         widget.setLoading();
 
-        Ext.each(filterBtns, function (btn) {
-            btn.destroy();
-        });
+        if (router.filter.get('type') && !Ext.isEmpty(router.filter.get('type')[0])) {
+            typeCombo.getStore().load({
+                callback: function () {
+                    if (router.filter.get('type').length === 1) {
+                        configurationCombo.getStore().getProxy().setExtraParam('deviceType', router.filter.get('type')[0]);
+                        configurationCombo.show();
+                        configurationCombo.getStore().load({
+                            callback: function () {
+                                loadStoreWithFilter();
+                            }
+                        })
+                    } else {
+                        loadStoreWithFilter();
+                    }
+                }
+            });
+        } else {
+            loadStoreWithFilter();
+        }
 
-        properties = this.pushProperty(properties, mridField, filter, 'mrid');
-        properties = this.pushProperty(properties, serialField, filter, 'serialNumber');
-        properties = this.pushProperty(properties, typeCombo, filter, 'deviceTypeId');
-        properties = this.pushProperty(properties, configurationCombo, filter, 'deviceConfigurationId');
-
-        topologyStore.getProxy().setExtraParam('filter', Ext.encode(properties));
-        topologyStore.load({
-            callback: function () {
-                widget.setLoading(false);
-            }
-        });
     },
 
     pushProperty: function (properties, field, filter, propertyName) {
@@ -167,9 +179,12 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
     showTopologyView: function (mRID) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
+            viewPort = Ext.ComponentQuery.query('viewport')[0],
             deviceTopologyStore,
             widget;
 
+
+        viewPort.setLoading();
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
@@ -178,6 +193,7 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 deviceTopologyStore = widget.down('#deviceTopologyGrid').getStore();
                 deviceTopologyStore.getProxy().setUrl(device.get('mRID'));
+                viewPort.setLoading(false);
                 me.loadTopology();
             }
         });
