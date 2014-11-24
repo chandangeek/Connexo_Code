@@ -7,7 +7,9 @@
     $background-color-pressed: $button-remove-background-color-pressed,
     $background-color-disabled: $button-remove-background-color-disabled,
     $background-color-focus: $button-remove-background-color-focus,
-    $border-color-focus: $button-remove-border-color-focus
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
   );
 }
 
@@ -20,7 +22,9 @@
     $background-color-pressed: $button-remove-background-color-pressed,
     $background-color-disabled: $button-remove-background-color-disabled,
     $background-color-focus: $button-remove-background-color-focus,
-    $border-color-focus: $button-remove-border-color-focus
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
   );
 }
 
@@ -33,7 +37,9 @@
     $background-color-pressed: $button-remove-background-color-pressed,
     $background-color-disabled: $button-remove-background-color-disabled,
     $background-color-focus: $button-remove-background-color-focus,
-    $border-color-focus: $button-remove-border-color-focus
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
   );
 }
 
@@ -46,7 +52,9 @@
     $background-color-pressed: $button-remove-background-color-pressed,
     $background-color-disabled: $button-remove-background-color-disabled,
     $background-color-focus: $button-remove-background-color-focus,
-    $border-color-focus: $button-remove-border-color-focus
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
   );
 }
 
@@ -59,7 +67,9 @@
     $background-color-pressed: $button-remove-background-color-pressed,
     $background-color-disabled: $button-remove-background-color-disabled,
     $background-color-focus: $button-remove-background-color-focus,
-    $border-color-focus: $button-remove-border-color-focus
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
   );
 }
 
@@ -72,15 +82,8 @@
     $background-color-pressed: $button-remove-background-color-pressed,
     $background-color-disabled: $button-remove-background-color-disabled,
     $background-color-focus: $button-remove-background-color-focus,
-    $border-color-focus: $button-remove-border-color-focus
+    $border-color-focus: $button-remove-border-color-focus,
+    $border-color-pressed: $button-remove-background-color-pressed,
+    $border-color-over: $button-remove-background-color-over
   );
-}
-
-.#{$prefix}btn-remove-small-pressed,
-.#{$prefix}btn-remove-medium-pressed,
-.#{$prefix}btn-remove-large-pressed,
-.#{$prefix}btn-remove-toolbar-small-pressed,
-.#{$prefix}btn-remove-toolbar-medium-pressed,
-.#{$prefix}btn-remove-toolbar-large-pressed {
-    background: linear-gradient(#e0422d, #ec7464 61%);
 }

@@ -9,7 +9,9 @@
     $background-color-over: $button-action-background-color-over,
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
-    $border-color-focus: $button-action-border-color-focus
+    $border-color-focus: $button-action-border-color-focus,
+    $border-color-pressed: $button-action-background-color-pressed,
+    $border-color-over: $button-action-background-color-over
     );
 }
 
@@ -22,7 +24,9 @@
     $background-color-over: $button-action-background-color-over,
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
-    $border-color-focus: $button-action-border-color-focus
+    $border-color-focus: $button-action-border-color-focus,
+    $border-color-pressed: $button-action-background-color-pressed,
+    $border-color-over: $button-action-background-color-over
     );
 }
 
@@ -35,7 +39,9 @@
     $background-color-over: $button-action-background-color-over,
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
-    $border-color-focus: $button-action-border-color-focus
+    $border-color-focus: $button-action-border-color-focus,
+    $border-color-pressed: $button-action-background-color-pressed,
+    $border-color-over: $button-action-background-color-over
     );
 }
 
@@ -48,7 +54,9 @@
     $background-color-over: $button-action-background-color-over,
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
-    $border-color-focus: $button-action-border-color-focus
+    $border-color-focus: $button-action-border-color-focus,
+    $border-color-pressed: $button-action-background-color-pressed,
+    $border-color-over: $button-action-background-color-over
     );
 }
 
@@ -61,7 +69,9 @@
     $background-color-over: $button-action-background-color-over,
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
-    $border-color-focus: $button-action-border-color-focus
+    $border-color-focus: $button-action-border-color-focus,
+    $border-color-pressed: $button-action-background-color-pressed,
+    $border-color-over: $button-action-background-color-over
     );
 }
 
@@ -74,15 +84,8 @@
     $background-color-over: $button-action-background-color-over,
     $background-color-disabled: $button-action-background-color-disabled,
     $background-color-focus: $button-action-background-color-focus,
-    $border-color-focus: $button-action-border-color-focus
+    $border-color-focus: $button-action-border-color-focus,
+    $border-color-pressed: $button-action-background-color-pressed,
+    $border-color-over: $button-action-background-color-over
     );
-}
-
-.#{$prefix}btn-action-small-pressed,
-.#{$prefix}btn-action-medium-pressed,
-.#{$prefix}btn-action-large-pressed,
-.#{$prefix}btn-action-toolbar-small-pressed,
-.#{$prefix}btn-action-toolbar-medium-pressed,
-.#{$prefix}btn-action-toolbar-large-pressed {
-    background: linear-gradient(#4c952e, #5cb636 61%);
 }
