@@ -7661,7 +7661,7 @@ a.x-tab .x-tab-inner-right {
 /* line 320, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-disabled {
   background-image: none;
-  background-color: #d2d2d2;
+  background-color: #d4d4d4;
 }
 
 /* line 346, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -7799,15 +7799,17 @@ a.x-tab .x-tab-inner-right {
 
 /* line 531, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-over {
+  border-color: #5897b3;
   background-image: none;
-  background-color: #51add5;
+  background-color: #5897b3;
 }
 
 /* line 556, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-menu-active,
 .x-btn-default-small-pressed {
+  border-color: #8ec5dc;
   background-image: none;
-  background-color: #47b4e4;
+  background-color: #8ec5dc;
 }
 
 /* line 588, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -7846,7 +7848,7 @@ a.x-tab .x-tab-inner-right {
 }
 /* line 617, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-over .x-frame-mc {
-  background-color: #51add5;
+  background-color: #5897b3;
   background-image: url(images/btn/btn-default-small-over-fbg.gif);
 }
 
@@ -7875,7 +7877,7 @@ a.x-tab .x-tab-inner-right {
 /* line 640, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-menu-active .x-frame-mc,
 .x-btn-default-small-pressed .x-frame-mc {
-  background-color: #47b4e4;
+  background-color: #8ec5dc;
   background-image: url(images/btn/btn-default-small-pressed-fbg.gif);
 }
 
@@ -7895,7 +7897,7 @@ a.x-tab .x-tab-inner-right {
 }
 /* line 662, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-small-disabled .x-frame-mc {
-  background-color: #d2d2d2;
+  background-color: #d4d4d4;
   background-image: url(images/btn/btn-default-small-disabled-fbg.gif);
 }
 
@@ -8164,7 +8166,7 @@ a.x-tab .x-tab-inner-right {
 /* line 320, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-disabled {
   background-image: none;
-  background-color: #d2d2d2;
+  background-color: #d4d4d4;
 }
 
 /* line 346, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -8302,15 +8304,17 @@ a.x-tab .x-tab-inner-right {
 
 /* line 531, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-over {
+  border-color: #5897b3;
   background-image: none;
-  background-color: #51add5;
+  background-color: #5897b3;
 }
 
 /* line 556, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-menu-active,
 .x-btn-default-medium-pressed {
+  border-color: #8ec5dc;
   background-image: none;
-  background-color: #47b4e4;
+  background-color: #8ec5dc;
 }
 
 /* line 588, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -8349,7 +8353,7 @@ a.x-tab .x-tab-inner-right {
 }
 /* line 617, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-over .x-frame-mc {
-  background-color: #51add5;
+  background-color: #5897b3;
   background-image: url(images/btn/btn-default-medium-over-fbg.gif);
 }
 
@@ -8378,7 +8382,7 @@ a.x-tab .x-tab-inner-right {
 /* line 640, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-menu-active .x-frame-mc,
 .x-btn-default-medium-pressed .x-frame-mc {
-  background-color: #47b4e4;
+  background-color: #8ec5dc;
   background-image: url(images/btn/btn-default-medium-pressed-fbg.gif);
 }
 
@@ -8398,7 +8402,7 @@ a.x-tab .x-tab-inner-right {
 }
 /* line 662, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-medium-disabled .x-frame-mc {
-  background-color: #d2d2d2;
+  background-color: #d4d4d4;
   background-image: url(images/btn/btn-default-medium-disabled-fbg.gif);
 }
 
@@ -8667,7 +8671,7 @@ a.x-tab .x-tab-inner-right {
 /* line 320, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-disabled {
   background-image: none;
-  background-color: #d2d2d2;
+  background-color: #d4d4d4;
 }
 
 /* line 346, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -8805,15 +8809,17 @@ a.x-tab .x-tab-inner-right {
 
 /* line 531, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-over {
+  border-color: #5897b3;
   background-image: none;
-  background-color: #51add5;
+  background-color: #5897b3;
 }
 
 /* line 556, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-menu-active,
 .x-btn-default-large-pressed {
+  border-color: #8ec5dc;
   background-image: none;
-  background-color: #47b4e4;
+  background-color: #8ec5dc;
 }
 
 /* line 588, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -8852,7 +8858,7 @@ a.x-tab .x-tab-inner-right {
 }
 /* line 617, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-over .x-frame-mc {
-  background-color: #51add5;
+  background-color: #5897b3;
   background-image: url(images/btn/btn-default-large-over-fbg.gif);
 }
 
@@ -8881,7 +8887,7 @@ a.x-tab .x-tab-inner-right {
 /* line 640, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-menu-active .x-frame-mc,
 .x-btn-default-large-pressed .x-frame-mc {
-  background-color: #47b4e4;
+  background-color: #8ec5dc;
   background-image: url(images/btn/btn-default-large-pressed-fbg.gif);
 }
 
@@ -8901,7 +8907,7 @@ a.x-tab .x-tab-inner-right {
 }
 /* line 662, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-large-disabled .x-frame-mc {
-  background-color: #d2d2d2;
+  background-color: #d4d4d4;
   background-image: url(images/btn/btn-default-large-disabled-fbg.gif);
 }
 
@@ -15797,7 +15803,7 @@ div.x-lbl-top-err-icon {
 /* line 6, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px Lato;
 }
 
 /* line 21, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Base.scss */
@@ -15877,7 +15883,7 @@ textarea.x-form-empty-field {
 
 /* line 11, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px/17px Lato;
   color: #686868;
   margin-top: 6px;
 }
@@ -16891,7 +16897,7 @@ a.x-color-picker-item:hover {
 
 /* line 100, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px Lato;
   background-color: white;
   resize: none;
 }
