@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.FatalDataExportException;
@@ -50,8 +51,23 @@ class DataExportTaskExecutor implements TaskExecutor {
     @Override
     public void postExecute(TaskOccurrence occurrence) {
         IDataExportOccurrence dataExportOccurrence = findOccurrence(occurrence);
-        doExecute(dataExportOccurrence, getLogger(occurrence));
-        // TODO set last run on DataExportTask
+        boolean success = false;
+        String errorMessage = null;
+        try {
+            doExecute(dataExportOccurrence, getLogger(occurrence));
+            success = true;
+        } catch (Exception ex) {
+            errorMessage = ex.getMessage();
+            throw ex;
+        } finally {
+
+            try (TransactionContext transactionContext = transactionService.getContext()) {
+                dataExportOccurrence.end(success ? DataExportStatus.SUCCESS : DataExportStatus.FAILED, errorMessage);
+                dataExportOccurrence.update();
+                transactionContext.commit();
+            }
+        }
+
     }
 
     private Logger getLogger(TaskOccurrence occurrence) {
@@ -72,15 +88,20 @@ class DataExportTaskExecutor implements TaskExecutor {
 
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
         IReadingTypeDataExportTask task = occurrence.getTask();
-        Set<IReadingTypeDataExportItem> activeItems = getActiveItems(task, occurrence);
+        Set<IReadingTypeDataExportItem> activeItems;
+        try (TransactionContext context = transactionService.getContext()) {
+            occurrence.start();
+            activeItems = getActiveItems(task, occurrence);
 
-        task.getExportItems().stream()
-                .filter(item -> !activeItems.contains(item))
-                .peek(IReadingTypeDataExportItem::deactivate)
-                .forEach(IReadingTypeDataExportItem::update);
-        activeItems.stream()
-                .peek(IReadingTypeDataExportItem::activate)
-                .forEach(IReadingTypeDataExportItem::update);
+            task.getExportItems().stream()
+                    .filter(item -> !activeItems.contains(item))
+                    .peek(IReadingTypeDataExportItem::deactivate)
+                    .forEach(IReadingTypeDataExportItem::update);
+            activeItems.stream()
+                    .peek(IReadingTypeDataExportItem::activate)
+                    .forEach(IReadingTypeDataExportItem::update);
+            context.commit();
+        }
 
         DataProcessor dataFormatter = getDataProcessor(task);
 

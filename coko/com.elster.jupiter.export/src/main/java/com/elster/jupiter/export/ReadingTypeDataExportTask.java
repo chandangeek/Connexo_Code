@@ -80,4 +80,6 @@ public interface ReadingTypeDataExportTask extends HasName {
     void setUpdatePeriod(RelativePeriod relativePeriod);
 
     void triggerNow();
+
+    void updateLastRun(Instant triggerTime);
 }

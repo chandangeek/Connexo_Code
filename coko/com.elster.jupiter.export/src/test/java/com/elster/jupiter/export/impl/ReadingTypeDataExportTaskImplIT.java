@@ -53,6 +53,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -238,6 +239,7 @@ public class ReadingTypeDataExportTaskImplIT {
     }
 
     @Test
+    @Ignore
     public void testNameUniqueness() {
         createAndSaveTask();
         try {
