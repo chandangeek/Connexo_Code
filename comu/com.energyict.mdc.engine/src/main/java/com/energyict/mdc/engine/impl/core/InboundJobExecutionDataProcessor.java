@@ -110,7 +110,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private ProtocolTask getMessageTask(ComTaskExecution comTaskExecution) {
         for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
             //TODO reenable onces messages are ported
-//            if (ComCommandTypes.MESSAGES_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+//            if (ComCommandTypes.MESSAGES_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask))) {
 //                return protocolTask;
 //            }
         }
@@ -119,7 +119,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private ProtocolTask getLogBooksTask(ComTaskExecution comTaskExecution) {
         for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
-            if (ComCommandTypes.LOGBOOKS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+            if (ComCommandTypes.LOGBOOKS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask))) {
                 return protocolTask;
             }
         }
@@ -129,7 +129,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private ProtocolTask getLoadProfilesTask(ComTaskExecution comTaskExecution) {
         for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
-            if (ComCommandTypes.LOAD_PROFILE_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+            if (ComCommandTypes.LOAD_PROFILE_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask))) {
                 return protocolTask;
             }
         }
@@ -138,7 +138,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private ProtocolTask getRegistersTask(ComTaskExecution comTaskExecution) {
         for (ProtocolTask protocolTask : comTaskExecution.getProtocolTasks()) {
-            if (ComCommandTypes.REGISTERS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+            if (ComCommandTypes.REGISTERS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask))) {
                 return protocolTask;
             }
         }

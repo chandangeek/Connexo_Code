@@ -22,6 +22,7 @@ import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
@@ -73,7 +74,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.endsWith;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -215,7 +215,7 @@ public class JobExecutionTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.TRACE);
 
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
-        when(comSessionBuilder.addComTaskExecutionSession(eq(this.comTaskExecution), eq(this.comTask), eq(this.device), any(Instant.class))).
+        when(comSessionBuilder.addComTaskExecutionSession(eq(this.comTaskExecution), any(ComTask.class), eq(this.device), any(Instant.class))).
                 thenReturn(mock(ComTaskExecutionSessionBuilder.class));
         when(this.connectionTaskService.buildComSession(eq(this.connectionTask), eq(this.comPortPool), eq(this.comPort), any(Instant.class))).
                 thenReturn(comSessionBuilder);
@@ -305,7 +305,7 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandTypes, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
+        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
         assertThat(commands).isNotEmpty();
         assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
     }
@@ -332,7 +332,7 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandTypes, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
+        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
         assertThat(commands).isNotEmpty();
         assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND, ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
     }
@@ -356,7 +356,7 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandTypes, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
+        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
         assertThat(commands).isNotEmpty();
         assertThat(commands.keySet()).containsSequence(ComCommandTypes.BASIC_CHECK_COMMAND);
 
@@ -383,7 +383,7 @@ public class JobExecutionTest {
         // asserts
         assertThat(preparedComTaskExecution).isNotNull();
         assertThat(preparedComTaskExecution.getCommandRoot()).isNotNull();
-        final Map<ComCommandTypes, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
+        final Map<ComCommandType, ComCommand> commands = preparedComTaskExecution.getCommandRoot().getCommands();
         assertThat(commands).isNotEmpty();
         assertThat(commands.keySet()).containsSequence(ComCommandTypes.LOAD_PROFILE_COMMAND, ComCommandTypes.LOGBOOKS_COMMAND, ComCommandTypes.TOPOLOGY_COMMAND);
 
@@ -398,7 +398,8 @@ public class JobExecutionTest {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
         ScheduledComTaskExecutionGroup jobExecution = getJobExecutionForBasicCheckInFrontTests();
 
-        jobExecution.setExecutionContext(jobExecution.newExecutionContext(this.connectionTask, this.comPort));
+        ExecutionContext executionContext = jobExecution.newExecutionContext(this.connectionTask, this.comPort);
+        jobExecution.setExecutionContext(executionContext);
 
         JobExecution.ComTaskPreparationContext comTaskPreparationContext = mock(JobExecution.ComTaskPreparationContext.class);
         when(comTaskPreparationContext.getCommandCreator()).thenReturn(new DeviceProtocolCommandCreator());
@@ -417,7 +418,7 @@ public class JobExecutionTest {
         ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup = getJobExecutionForBasicCheckInFrontTests();
         scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort));
 
-        scheduledComTaskExecutionGroup.establishConnectionFor();
+        scheduledComTaskExecutionGroup.establishConnection();
         scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);
 
         assertThat(scheduledComTaskExecutionGroup.getExecutionContext().hasBasicCheckFailed()).isTrue();
@@ -451,7 +452,7 @@ public class JobExecutionTest {
         ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup = getJobExecutionForBasicCheckInFrontTests();
         scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort));
 
-        scheduledComTaskExecutionGroup.establishConnectionFor();
+        scheduledComTaskExecutionGroup.establishConnection();
         scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);
 
         assertThat(scheduledComTaskExecutionGroup.getExecutionContext().hasBasicCheckFailed()).isTrue();

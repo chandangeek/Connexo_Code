@@ -9,6 +9,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.util.MissingResourceException;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
@@ -35,9 +36,9 @@ public class ExecutionContextLogHandler extends Handler {
 
     @Override
     public void publish (LogRecord record) {
-        ComTaskExecutionSessionBuilder taskExecutionSession = this.executionContext.getCurrentTaskExecutionBuilder();
-        if (taskExecutionSession != null) {
-            this.publishComTaskMessageJournalEntry(taskExecutionSession, record);
+        Optional<ComTaskExecutionSessionBuilder> taskExecutionSession = this.executionContext.getCurrentTaskExecutionBuilder();
+        if (taskExecutionSession.isPresent()) {
+            this.publishComTaskMessageJournalEntry(taskExecutionSession.get(), record);
         }
         else {
             this.publishComSessionJournalEntry(this.executionContext.getComSessionBuilder(), record);

@@ -1,11 +1,9 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
+import com.energyict.mdc.engine.impl.core.JournalEntryFactory;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 
-import java.time.Clock;
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Handler;
@@ -21,21 +19,18 @@ import java.util.logging.LogRecord;
  */
 public class ComCommandMessageJournalist extends Handler {
 
-    private final Clock clock;
-    private final ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
+    private final JournalEntryFactory journalEntryFactory;
 
-    public ComCommandMessageJournalist(Clock clock, ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder) {
+    public ComCommandMessageJournalist(JournalEntryFactory journalEntryFactory) {
         super();
-        this.clock = clock;
-        this.comTaskExecutionSessionBuilder = comTaskExecutionSessionBuilder;
+        this.journalEntryFactory = journalEntryFactory;
     }
 
     @Override
     public void publish (LogRecord record) {
-        this.comTaskExecutionSessionBuilder.addComTaskExecutionMessageJournalEntry(
-        		this.clock.instant(),
+        this.journalEntryFactory.createJournalEntry(
                 LogLevelMapper.forJavaUtilLogging().toComServerLogLevel(record.getLevel()),
-                extractInfo(record), "");
+                extractInfo(record));
     }
 
     private String extractInfo (LogRecord record) {

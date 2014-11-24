@@ -24,14 +24,13 @@ import java.time.Clock;
  */
 public aspect OutboundConnectionEventPublisher {
 
-    private pointcut establishConnectionFor (ComPort comPort, ScheduledJobImpl scheduledJob):
-            execution(boolean ScheduledJobImpl.establishConnectionFor(ComPort))
-                    && target(scheduledJob)
-                    && args(comPort);
+    private pointcut establishConnection(ScheduledJobImpl scheduledJob):
+           execution(boolean ScheduledJobImpl.establishConnection())
+        && target(scheduledJob);
 
-    after (ComPort comPort, ScheduledJobImpl scheduledJob) returning (boolean succes) : establishConnectionFor(comPort, scheduledJob) {
+    after (ScheduledJobImpl scheduledJob) returning (boolean succes) : establishConnection(scheduledJob) {
         if (succes) {
-            this.publish(new EstablishConnectionEvent(new ServiceProviderAdapter(), comPort, scheduledJob.getConnectionTask()));
+            this.publish(new EstablishConnectionEvent(new ServiceProviderAdapter(), scheduledJob.getComPort(), scheduledJob.getConnectionTask()));
          }
     }
 

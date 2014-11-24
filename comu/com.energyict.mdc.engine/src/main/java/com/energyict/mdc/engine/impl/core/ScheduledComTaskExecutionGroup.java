@@ -93,7 +93,7 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
         boolean connectionOk = false;
         try {
             List<PreparedComTaskExecution> preparedComTaskExecutions = prepare();
-            if (this.establishConnectionFor()) {
+            if (this.establishConnection()) {
                 connectionOk = true;
                 preparedComTaskExecutions.forEach(this::performPreparedComTaskExecution);
             }

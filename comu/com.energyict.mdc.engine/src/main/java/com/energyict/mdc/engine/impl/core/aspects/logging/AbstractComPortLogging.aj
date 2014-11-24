@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.RescheduleBehavior;
@@ -16,6 +17,7 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.tasks.ComTask;
 
 import java.util.logging.Logger;
 
@@ -28,7 +30,6 @@ import java.util.logging.Logger;
  */
 public abstract aspect AbstractComPortLogging {
     declare precedence :
-            com.energyict.mdc.engine.impl.core.aspects.journaling.ComCommandJournaling,
             com.energyict.mdc.engine.impl.core.aspects.events.OutboundConnectionEventPublisher,
             com.energyict.mdc.engine.impl.core.aspects.events.OutboundComTaskEventPublisher,
             InboundComPortLogging,
@@ -66,11 +67,11 @@ public abstract aspect AbstractComPortLogging {
 
     protected abstract ComPortConnectionLogger initializeUniqueLogger (ComPort comPort, ExecutionContext executionContext, LogLevel logLevel);
 
-    private pointcut establishConnectionFor (ScheduledJobImpl scheduledJob):
-            execution(boolean ScheduledJobImpl.establishConnectionFor())
+    private pointcut establishConnection (ScheduledJobImpl scheduledJob):
+            execution(boolean ScheduledJobImpl.establishConnection())
          && target(scheduledJob);
 
-    after (ScheduledJobImpl scheduledJob) returning (boolean success) : establishConnectionFor(scheduledJob) {
+    after (ScheduledJobImpl scheduledJob) returning (boolean success) : establishConnection(scheduledJob) {
         ExecutionContext executionContext = scheduledJob.getExecutionContext();
         ComPortConnectionLogger logger = executionContext.connectionLogger;
         if (success) {
@@ -129,7 +130,7 @@ public abstract aspect AbstractComPortLogging {
         this.startingTask(executionContext.connectionLogger, job, comTaskExecution);
     }
 
-    protected void startingTask (CompositeComPortConnectionLogger logger, JobExecution job, ComTaskExecution comTaskExecution) {
+    protected void startingTask(CompositeComPortConnectionLogger logger, JobExecution job, ComTaskExecution comTaskExecution) {
         // At most one subclass should be calling logger.startingTask(job.getThreadName(), comTaskExecution);
     }
 
@@ -174,12 +175,12 @@ public abstract aspect AbstractComPortLogging {
         // At most one subclass should be calling logger.completingTask(job.getThreadName(), comTaskExecution);
     }
 
-    private pointcut rescheduleAfterFailure(JobExecution job, RescheduleBehavior.RescheduleReason rescheduleReason):
-            execution(void JobExecution.reschedule(java.lang.Throwable, RescheduleBehavior.RescheduleReason))
+    private pointcut rescheduleAfterFailure(JobExecution job, ComServerDAO comServerDAO, RescheduleBehavior.RescheduleReason rescheduleReason):
+            execution(void JobExecution.reschedule(ComServerDAO, Throwable, RescheduleBehavior.RescheduleReason))
             && target(job)
-            && args(.., rescheduleReason);
+            && args(.., comServerDAO, rescheduleReason);
 
-    before(JobExecution job, RescheduleBehavior.RescheduleReason rescheduleReason): rescheduleAfterFailure(job, rescheduleReason) {
+    before(JobExecution job, ComServerDAO comServerDAO, RescheduleBehavior.RescheduleReason rescheduleReason): rescheduleAfterFailure(job, comServerDAO, rescheduleReason) {
         ExecutionContext executionContext = job.getExecutionContext();
         for (ComTaskExecution failedComTasks : job.getFailedComTaskExecutions()) {
             this.rescheduleAfterFailure(executionContext.connectionLogger, job, failedComTasks);

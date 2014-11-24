@@ -1,9 +1,9 @@
-package com.energyict.mdc.engine.impl.core.aspects.journaling;
+package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.Problem;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -14,21 +14,21 @@ import java.time.Clock;
 import java.util.List;
 
 /**
- * Writes the journal entries on behalf of the ComCommandJournaling aspect.
+ * Writes the journal entries for {@link ComCommand}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-01-15 (13:50)
  */
 public class ComCommandJournalist {
 
-    private final ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
+    private final JournalEntryFactory journalEntryFactory;
     private final Clock clock;
     public static final NumberFormat NUMBER_FORMAT = new DecimalFormat("00");
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss:SSS");
 
-    public ComCommandJournalist(ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder, Clock clock) {
+    public ComCommandJournalist(JournalEntryFactory journalEntryFactory, Clock clock) {
         super();
-        this.comTaskExecutionSessionBuilder = comTaskExecutionSessionBuilder;
+        this.journalEntryFactory = journalEntryFactory;
         this.clock = clock;
     }
 
@@ -53,15 +53,18 @@ public class ComCommandJournalist {
     private void addJournalEntries(ComCommand comCommand, LogLevel serverLogLevel) {
         String errorDescription = buildErrorDescription(comCommand);
         String commandDescription = comCommand.toJournalMessageDescription(serverLogLevel);
-        comTaskExecutionSessionBuilder.addComCommandJournalEntry(clock.instant(), comCommand.getCompletionCode(), errorDescription, commandDescription);
+        this.journalEntryFactory.createComCommandJournalEntry(clock.instant(), comCommand.getCompletionCode(), errorDescription, commandDescription);
     }
 
     private String buildErrorDescription(ComCommand comCommand) {
         StringBuilder builder = new StringBuilder();
         if (hasIssues(comCommand)) {
             appendHeader(builder, comCommand);
-            appendIssues(builder, "Problems", comCommand.getProblems());
-            builder.append(comCommand.getProblems().isEmpty() ? "" : "\n");
+            List<Problem> problems = comCommand.getProblems();
+            appendIssues(builder, "Problems", problems);
+            if (!problems.isEmpty()) {
+                builder.append("\n");
+            }
             appendIssues(builder, "Warnings", comCommand.getWarnings());
         }
         return builder.toString();

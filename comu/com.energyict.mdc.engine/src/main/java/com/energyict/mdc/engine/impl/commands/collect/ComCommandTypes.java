@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.energyict.mdc.engine.impl.core.CreateComTaskSessionTask;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
@@ -10,7 +10,6 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import java.util.List;
 
@@ -21,7 +20,7 @@ import java.util.List;
  * @author gna
  * @since 10/05/12 - 14:50
  */
-public enum ComCommandTypes {
+public enum ComCommandTypes implements ComCommandType {
 
     UNKNOWN,
     ROOT,
@@ -92,7 +91,7 @@ public enum ComCommandTypes {
          */
         private LogBooksTask checkGetLogBooksTask(List<? extends ProtocolTask> protocolTasks) {
             for (ProtocolTask protocolTask : protocolTasks) {
-                if (ComCommandTypes.forProtocolTask(protocolTask.getClass()).equals(ComCommandTypes.LOGBOOKS_COMMAND)) {
+                if (ComCommandTypes.forProtocolTask(protocolTask).equals(ComCommandTypes.LOGBOOKS_COMMAND)) {
                     return (LogBooksTask) protocolTask;
                 }
             }
@@ -180,7 +179,7 @@ public enum ComCommandTypes {
          */
         private LoadProfilesTask checkGetLoadProfilesTask(List<? extends ProtocolTask> protocolTasks) {
             for (ProtocolTask protocolTask : protocolTasks) {
-                if (ComCommandTypes.forProtocolTask(protocolTask.getClass()).equals(ComCommandTypes.LOAD_PROFILE_COMMAND)) {
+                if (ComCommandTypes.forProtocolTask(protocolTask).equals(ComCommandTypes.LOAD_PROFILE_COMMAND)) {
                     return (LoadProfilesTask) protocolTask;
                 }
             }
@@ -191,24 +190,12 @@ public enum ComCommandTypes {
     READ_LOGBOOKS_COMMAND,
 
     LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND,
-    READ_LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND,
-
-    CREATE_COM_TASK_SESSION_COMMAND(CreateComTaskSessionTask.class){
-        @Override
-        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getCreateComTasSessionTask((CreateComTaskSessionTask) protocolTask, root, comTaskExecution);
-        }
-
-        @Override
-        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
-            root.getCreateComTasSessionTask((CreateComTaskSessionTask) protocolTask, root, comTaskExecution);
-        }
-    };
+    READ_LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND;
 
     /**
      * The protocolTask that can model a {@link ComCommand} from this type.
      */
-    private Class protocolTaskClass;
+    private Class<? extends ProtocolTask> protocolTaskClass;
 
     private ComCommandTypes(Class<? extends ProtocolTask> protocolTaskClass) {
         this.protocolTaskClass = protocolTaskClass;
@@ -218,26 +205,35 @@ public enum ComCommandTypes {
     }
 
     /**
-     * Get the commandType based on the given {@link ProtocolTask}
+     * Get the CommandType for the given {@link ProtocolTask}.
      *
-     * @param protocolTaskClass the class of the ProtocolTask
+     * @param protocolTask The ProtocolTask
      * @return the corresponding ComCommandType
      */
-    public static ComCommandTypes forProtocolTask(final Class<? extends ProtocolTask> protocolTaskClass) {
-        for (ComCommandTypes comCommandTypes : values()) {
-            if (comCommandTypes.protocolTaskClass != null && comCommandTypes.protocolTaskClass.isAssignableFrom(protocolTaskClass)) {
-                return comCommandTypes;
-            }
+    public static ComCommandType forProtocolTask(ProtocolTask protocolTask) {
+        if (protocolTask instanceof CreateComTaskExecutionSessionCommand) {
+            CreateComTaskExecutionSessionCommand createComTaskExecutionSessionCommand = (CreateComTaskExecutionSessionCommand) protocolTask;
+            return new CreateComTaskExecutionSessionCommandType(createComTaskExecutionSessionCommand.getComTask());
         }
-        return UNKNOWN;
+        else {
+            final Class<? extends ProtocolTask> protocolTaskClass = protocolTask.getClass();
+            for (ComCommandTypes comCommandTypes : values()) {
+                if (comCommandTypes.protocolTaskClass != null && comCommandTypes.protocolTaskClass.isAssignableFrom(protocolTaskClass)) {
+                    return comCommandTypes;
+                }
+            }
+            return UNKNOWN;
+        }
     }
 
+    @Override
     public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
         /* Default behavior is to create nothing
          * enum values that need to create something will override this method.
          * Consider logging the fact that this is being ignored. */
     }
 
+    @Override
     public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
         /* Default behavior is to create nothing
          * enum values that need to create something will override this method.

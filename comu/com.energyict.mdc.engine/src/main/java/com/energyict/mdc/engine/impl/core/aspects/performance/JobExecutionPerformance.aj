@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.aspects.performance;
 
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.RescheduleBehavior;
 import com.energyict.mdc.engine.impl.logging.PerformanceLogger;
@@ -49,14 +50,14 @@ public aspect JobExecutionPerformance {
         return preparedComTaskExecution;
     }
 
-    private pointcut reschedule (JobExecution jobExecution, RescheduleBehavior.RescheduleReason reason):
-           execution(protected void doReschedule (RescheduleBehavior.RescheduleReason))
+    private pointcut reschedule (JobExecution jobExecution, ComServerDAO comServerDAO, RescheduleBehavior.RescheduleReason reason):
+           execution(protected void doReschedule (ComServerDAO, RescheduleBehavior.RescheduleReason))
         && target(jobExecution)
-        && args(reason);
+        && args(comServerDAO, reason);
 
-    void around (JobExecution jobExecution, RescheduleBehavior.RescheduleReason reason): reschedule(jobExecution, reason) {
+    void around (JobExecution jobExecution, ComServerDAO comServerDAO, RescheduleBehavior.RescheduleReason reason): reschedule(jobExecution, comServerDAO, reason) {
         LoggingStopWatch stopWatch = new LoggingStopWatch("JobExecution.doReschedule", PerformanceLogger.INSTANCE);
-        proceed(jobExecution, reason);
+        proceed(jobExecution, comServerDAO, reason);
         stopWatch.stop();
     }
 

@@ -147,7 +147,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         // asserts
         assertNotNull(basicCheckCommand.getVerifySerialNumberCommand());
         assertNotNull(basicCheckCommand.getBasicCheckTask());
-        // verify that the getSerialNumber is called
+        // verify that the getDeviceSerialNumber is called
         verify(deviceProtocol).getSerialNumber();
         assertNull(basicCheckCommand.getVerifyTimeDifferenceCommand());
         // the verification should have been successful so the test should not fail

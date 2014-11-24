@@ -30,7 +30,7 @@ public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
      *
      * @return the requested list of ComCommands
      */
-    public Map<ComCommandTypes,ComCommand> getCommands();
+    public Map<ComCommandType, ComCommand> getCommands();
 
     /**
      * Checks whether the given argument already exists in the current root.
@@ -38,6 +38,6 @@ public interface CompositeComCommand extends Iterable<ComCommand>, ComCommand {
      * @param comCommandType the {@link ComCommandTypes} to check for existence
      * @return true if the ComCommand type already exists, false otherwise
      */
-    public boolean checkCommandTypeExistence(final ComCommandTypes comCommandType, final Map<ComCommandTypes,ComCommand> comCommands);
+    public boolean checkCommandTypeExistence(final ComCommandType comCommandType, final Map<ComCommandType,ComCommand> comCommands);
 
 }

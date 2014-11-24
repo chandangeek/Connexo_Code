@@ -4,12 +4,17 @@ import com.energyict.mdc.common.StackTracePrinter;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
+import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.ComCommandJournalist;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
@@ -21,6 +26,7 @@ import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +36,7 @@ import static com.energyict.mdc.device.data.tasks.history.CompletionCode.Unexpec
 import static com.energyict.mdc.device.data.tasks.history.CompletionCode.forResultType;
 
 /**
- * Provides an implementation for a {@link ComCommand}
+ * Provides an implementation for the {@link ComCommand} interface.
  *
  * @author gna
  * @since 9/05/12 - 12:02
@@ -210,8 +216,33 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                 } else {
                     this.executionState = ExecutionState.FAILED;
                 }
+                this.journalExecutionCompleted(executionContext);
+                this.publishExecutionCompletedEvent(executionContext);
             }
         }
+    }
+
+    private void journalExecutionCompleted(ExecutionContext executionContext) {
+        ComCommandJournalist journalist = executionContext.getJournalist();
+        if (journalist != null) {
+            journalist.executionCompleted(this, this.getServerLogLevel(executionContext));
+        }
+    }
+
+    private void publishExecutionCompletedEvent(ExecutionContext executionContext) {
+        new ComCommandJournalEventPublisher().executionCompleted(this, executionContext);
+    }
+
+    private LogLevel getServerLogLevel (ExecutionContext executionContext) {
+        return this.getServerLogLevel(executionContext.getComPort());
+    }
+
+    private LogLevel getServerLogLevel (ComPort comPort) {
+        return this.getServerLogLevel(comPort.getComServer());
+    }
+
+    private LogLevel getServerLogLevel (ComServer comServer) {
+        return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getCommunicationLogLevel());
     }
 
     private boolean isExceptionCausedByALegacyTimeout(LegacyProtocolException e) {
@@ -296,6 +327,38 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         DescriptionBuilder builder = new DescriptionBuilderImpl(this);
         this.toJournalMessageDescription(builder, serverLogLevel);
         return builder.toString();
+    }
+
+    public String issuesToJournalMessageDescription() {
+        if (getIssues().isEmpty()) {
+            return "";
+        }
+        else {
+            DescriptionBuilder builder = new DescriptionBuilderImpl(() -> "Issues");
+            this.buildErrorDescription(builder);
+            return builder.toString();
+        }
+    }
+
+    private void buildErrorDescription(DescriptionBuilder builder) {
+        this.buildErrorDescription(builder, "Problems", this.getProblems());
+        this.buildErrorDescription(builder, "Warnings", this.getWarnings());
+    }
+
+    private <T extends Issue> void buildErrorDescription(DescriptionBuilder builder, String heading, List<T> issues) {
+        if (!issues.isEmpty()) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSSS");
+            PropertyDescriptionBuilder listBuilder = builder.addListProperty(heading);
+            for (T issue : issues) {
+                listBuilder.append(issue.getDescription());
+                appendIssueTimestamp(listBuilder, dateFormat, issue);
+                listBuilder.next();
+            }
+        }
+    }
+
+    private <T extends Issue> void appendIssueTimestamp(PropertyDescriptionBuilder builder, SimpleDateFormat dateFormat, T issue) {
+        builder.append(" (").append(dateFormat.format(issue.getTimestamp())).append(")");
     }
 
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {

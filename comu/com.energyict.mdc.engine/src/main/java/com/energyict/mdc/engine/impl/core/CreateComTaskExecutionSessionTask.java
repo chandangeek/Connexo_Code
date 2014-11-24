@@ -4,17 +4,17 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
 /**
- * A ProtocolTask that is solely used by the FrameWork to initiate the creation of a ComTaskExecutionSession
+ * A ProtocolTask that is solely used by the FrameWork to initiate the creation of a ComTaskExecutionSession.
  *
  * Copyrights EnergyICT
  * Date: 11/19/14
  * Time: 12:05 PM
  */
-public class CreateComTaskSessionTask implements ProtocolTask {
+public class CreateComTaskExecutionSessionTask implements ProtocolTask {
 
     private final ComTask comTask;
 
-    public CreateComTaskSessionTask(ComTask comTask) {
+    public CreateComTaskExecutionSessionTask(ComTask comTask) {
         this.comTask = comTask;
     }
 
@@ -32,4 +32,5 @@ public class CreateComTaskSessionTask implements ProtocolTask {
     public void save() {
         // intentionally left blank
     }
+
 }

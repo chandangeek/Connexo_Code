@@ -122,6 +122,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         when(registerGroup.getId()).thenReturn(1L);
         Device mockedDevice = mock(Device.class);
         when(mockedDevice.getSerialNumber()).thenReturn(serialNumber);
+        when(mockedDevice.getmRID()).thenReturn(serialNumber);
         Register register = mock(Register.class);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
         when(register.getDevice()).thenReturn(mockedDevice);

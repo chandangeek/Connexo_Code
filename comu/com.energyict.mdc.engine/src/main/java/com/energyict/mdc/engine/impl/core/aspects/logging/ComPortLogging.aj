@@ -1,17 +1,18 @@
 package com.energyict.mdc.engine.impl.core.aspects.logging;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.core.ComJob;
+import com.energyict.mdc.engine.impl.core.ComPortServerProcess;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.core.ScheduledComPortImpl;
 import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.impl.core.ComPortServerProcess;
-import com.energyict.mdc.engine.impl.core.ScheduledComPortImpl;
-import com.energyict.mdc.engine.impl.core.ComJob;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.protocol.api.ConnectionException;
+
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -79,7 +80,7 @@ public aspect ComPortLogging extends AbstractComPortLogging {
     }
 
     @Override
-    protected void startingTask (CompositeComPortConnectionLogger logger, JobExecution job, ComTaskExecution comTaskExecution) {
+    protected void startingTask(CompositeComPortConnectionLogger logger, JobExecution job, ComTaskExecution comTaskExecution) {
         logger.startingTask(job.getThreadName(), comTaskExecution.getComTasks().get(0).getName());
     }
 

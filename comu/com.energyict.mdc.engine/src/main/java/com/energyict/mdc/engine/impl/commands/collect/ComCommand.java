@@ -20,9 +20,9 @@ import java.util.List;
 public interface ComCommand {
 
     /**
-     * @return the {@link ComCommandTypes ComCommandType} of this command.
+     * @return the {@link ComCommandType type} of this command.
      */
-    public ComCommandTypes getCommandType();
+    public ComCommandType getCommandType();
 
     /**
      * Get the root of this command which serves as a root for unique {@link ComCommand ComCommands}.
@@ -115,5 +115,13 @@ public interface ComCommand {
      * @param serverLogLevel The LogLevel set on the ComServer
      */
     public String toJournalMessageDescription (LogLevel serverLogLevel);
+
+    /**
+     * Creates a human readable description of all issues;
+     * If no issues occurred, then an empty string will be returned.
+     *
+     * @return The human readable description of the issues
+     */
+    public String issuesToJournalMessageDescription();
 
 }

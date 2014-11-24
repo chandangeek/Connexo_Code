@@ -78,7 +78,7 @@ public class OfflineRtuRegisterImplTest {
         assertEquals(RTU_REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
         assertEquals(REGISTER_UNIT, offlineRegister.getUnit());
         assertThat(offlineRegister.inGroup(RTU_REGISTER_GROUP_ID)).isTrue();
-        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
+        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getDeviceSerialNumber());
     }
 
     @Test
@@ -99,6 +99,6 @@ public class OfflineRtuRegisterImplTest {
         assertEquals(RTU_REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
         assertEquals(REGISTER_UNIT, offlineRegister.getUnit());
         assertThat(offlineRegister.inGroup(RTU_REGISTER_GROUP_ID)).isFalse();
-        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
+        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getDeviceSerialNumber());
     }
 }

@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.events;
 
-import java.io.Externalizable;
 import java.util.Date;
 
 /**

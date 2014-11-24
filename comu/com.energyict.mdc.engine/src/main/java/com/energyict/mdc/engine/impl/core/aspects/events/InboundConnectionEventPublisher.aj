@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.impl.core.aspects.events;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.core.aspects.ComServerEventServiceProviderAdapter;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
+import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionCompletionEvent;
 import com.energyict.mdc.engine.impl.events.comtask.ComTaskExecutionStartedEvent;
@@ -25,12 +27,12 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
  */
 public aspect InboundConnectionEventPublisher {
 
-    private pointcut handle (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContext context):
-            execution(void handle (InboundDeviceProtocol, InboundDiscoveryContext))
+    private pointcut handle (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context):
+            execution(void handle (InboundDeviceProtocol, InboundDiscoveryContextImpl))
          && target(handler)
          && args(inboundDeviceProtocol, context);
 
-    before (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContext context) : handle(handler, inboundDeviceProtocol, context) {
+    before (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context) : handle(handler, inboundDeviceProtocol, context) {
         this.publish(new UndiscoveredEstablishConnectionEvent(new ComServerEventServiceProviderAdapter(), handler.getComPort()));
     }
 
@@ -55,7 +57,12 @@ public aspect InboundConnectionEventPublisher {
 
     after (InboundCommunicationHandler handler, InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice): processCollectedData(handler, inboundDeviceProtocol, token, offlineDevice) {
         for (ComTaskExecution comTaskExecution : handler.getDeviceComTaskExecutions()) {
-            this.publish(new ComTaskExecutionCompletionEvent(new ComServerEventServiceProviderAdapter(), comTaskExecution, handler.getComPort(), handler.getConnectionTask()));
+            this.publish(new ComTaskExecutionCompletionEvent(
+                                new ComServerEventServiceProviderAdapter(),
+                                comTaskExecution,
+                                ComTaskExecutionSession.SuccessIndicator.Success,
+                                handler.getComPort(),
+                                handler.getConnectionTask()));
         }
     }
 

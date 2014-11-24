@@ -44,7 +44,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests the {@link com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl} component.
+ * Tests the {@link DeviceCommandExecutorImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-21 (14:24)
