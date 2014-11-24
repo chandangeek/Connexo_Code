@@ -905,9 +905,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private boolean isSecurityPropertySetComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties){
-        // TODO JP-6225 all properties are required
-        //if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> p.isRequired() && typedProperties.getPropertyValue(p.getName()) == null)) {
-        if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> typedProperties.getPropertyValue(p.getName()) == null)) {
+        if (securityPropertySet.getPropertySpecs().stream().anyMatch(p -> p.isRequired() && typedProperties.getPropertyValue(p.getName()) == null)) {
             return false;
         } else {
             return true;

@@ -8,6 +8,7 @@ import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
@@ -210,6 +211,7 @@ public class SecurityPropertyServiceImplTest {
         private ApplicationContext applicationContext;
         private PropertySpecService propertySpecService;
         private LicenseService licenseService;
+        private DeviceConfigurationService deviceConfigurationService;
 
         public RelationService getRelationService() {
             return relationService;
@@ -241,6 +243,7 @@ public class SecurityPropertyServiceImplTest {
                             bind(ConnectionTypeService.class).toInstance(connectionTypeService);
                             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
                             bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
+                            bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                         }
                     },
                     this.bootstrapModule,
@@ -267,6 +270,7 @@ public class SecurityPropertyServiceImplTest {
                 this.relationService = injector.getInstance(RelationService.class);
                 this.ormService = injector.getInstance(OrmService.class);
                 this.propertySpecService = injector.getInstance(PropertySpecService.class);
+                this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
                 createOracleAliases((OrmServiceImpl) this.ormService);
                 initializeFactoryProviders();
                 ctx.commit();
@@ -278,7 +282,7 @@ public class SecurityPropertyServiceImplTest {
                 List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
                 finders.add(new ConnectionTaskFinder(ormService.getDataModels().get(0)));
                 finders.add(new DeviceFinder(ormService.getDataModels().get(0)));
-                finders.add(new SecuritySetFinder(ormService.getDataModels().get(0)));
+                finders.add(new SecuritySetFinder(deviceConfigurationService));
                 return finders;
             });
         }
@@ -292,6 +296,7 @@ public class SecurityPropertyServiceImplTest {
             this.bundleContext = mock(BundleContext.class);
             this.eventAdmin = mock(EventAdmin.class);
             this.principal = mock(Principal.class);
+            this.deviceConfigurationService = mock(DeviceConfigurationService.class);
             when(this.principal.getName()).thenReturn("SecurityPropertyServiceImplTest");
             this.licenseService = mock(LicenseService.class);
             when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());

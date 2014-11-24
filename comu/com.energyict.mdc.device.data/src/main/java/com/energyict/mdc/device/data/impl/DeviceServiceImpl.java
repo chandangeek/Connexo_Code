@@ -56,7 +56,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
         List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
         finders.add(new DeviceFinder(this.deviceDataModelService.dataModel()));
         finders.add(new ProtocolDialectPropertiesFinder(this.deviceDataModelService.dataModel()));
-        finders.add(new SecuritySetFinder(this.deviceDataModelService.dataModel()));
+        finders.add(new SecuritySetFinder(this.deviceDataModelService.deviceConfigurationService()));
         return finders;
     }
 
