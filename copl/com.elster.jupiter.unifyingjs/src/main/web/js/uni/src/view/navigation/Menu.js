@@ -11,6 +11,8 @@ Ext.define('Uni.view.navigation.Menu', {
         align: 'stretch'
     },
 
+    baseCollapsedCookieKey: '_nav_menu_collapsed',
+
     initComponent: function () {
         var me = this;
 
@@ -30,21 +32,46 @@ Ext.define('Uni.view.navigation.Menu', {
                     action: 'menu-main',
                     enableToggle: true,
                     allowDepress: false,
-                    cls: 'menu-item',
                     tooltipType: 'title',
+                    iconAlign: 'top',
                     scale: 'large'
                 }
             },
             {
-                // TODO
-                xtype: 'button',
-                text: 'Toggle',
-                enableToggle: true,
-                ui: 'action'
+                xtype: 'container',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+                padding: '4px',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '&nbsp;',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'button',
+                        ui: 'toggle',
+                        itemId: 'toggle-button',
+                        toggleGroup: 'uni-navigation-menu-toggle-button',
+                        tooltipType: 'title',
+                        tooltip: Uni.I18n.translate('navigation.toggle.collapse', 'UNI', 'Collapse'),
+                        enableToggle: true,
+                        scale: 'large',
+                        toggleHandler: me.onToggleClick,
+                        pressed: Ext.util.Cookies.get(me.getCollapsedCookieKey()),
+                        scope: me
+                    }
+                ]
             }
         ];
 
         me.callParent(arguments);
+
+        me.on('afterrender', function () {
+            me.setCollapsed(Ext.util.Cookies.get(me.getCollapsedCookieKey()) || false);
+        }, me);
     },
 
     removeAllMenuItems: function () {
@@ -95,7 +122,63 @@ Ext.define('Uni.view.navigation.Menu', {
         });
     },
 
+    onToggleClick: function (button, state) {
+        var me = this;
+        me.setCollapsed(state);
+    },
+
+    setCollapsed: function (collapsed) {
+        var me = this;
+
+        if (collapsed) {
+            me.collapseMenu();
+        } else {
+            me.expandMenu();
+        }
+
+        me.setCollapsedCookie(collapsed);
+    },
+
+    getCollapsedCookieKey: function () {
+        var me = this,
+            namespace = Uni.util.Application.getAppNamespace();
+
+        namespace = namespace.replace(/\s+/g, '-').toLowerCase();
+
+        return namespace + me.baseCollapsedCookieKey;
+    },
+
+    collapseMenu: function () {
+        var me = this;
+
+        me.getToggleButton().setTooltip(Uni.I18n.translate('navigation.toggle.expand', 'UNI', 'Expand'));
+
+        me.addCls('collapsed');
+        me.setWidth(50);
+        me.doLayout();
+    },
+
+    expandMenu: function () {
+        var me = this;
+
+        me.getToggleButton().setTooltip(Uni.I18n.translate('navigation.toggle.collapse', 'UNI', 'Collapse'));
+
+        me.removeCls('collapsed');
+        me.setWidth(null);
+        me.doLayout();
+    },
+
+    setCollapsedCookie: function (collapsed) {
+        var me = this;
+
+        Ext.util.Cookies.set(me.getCollapsedCookieKey(), collapsed);
+    },
+
     getMenuContainer: function () {
         return this.down('container:first');
+    },
+
+    getToggleButton: function () {
+        return this.down('#toggle-button');
     }
 });
