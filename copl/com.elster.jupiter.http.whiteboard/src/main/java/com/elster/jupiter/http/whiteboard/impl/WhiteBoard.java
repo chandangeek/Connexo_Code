@@ -190,6 +190,10 @@ public class WhiteBoard extends Application implements BinderProvider {
         return new ArrayList<>(resources);
     }
 
+    LicenseService getLicenseService() {
+        return licenseService;
+    }
+
     List<App> getApps() {
         return apps;
     }
