@@ -31,6 +31,7 @@ import com.energyict.mdc.device.data.impl.PersistentIdObject;
 import com.energyict.mdc.device.data.impl.PropertyCache;
 import com.energyict.mdc.device.data.impl.PropertyFactory;
 import com.energyict.mdc.device.data.impl.RelationTransactionExecutor;
+import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.SimpleRelationTransactionExecutor;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -249,7 +250,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     private void unRegisterConnectionTaskFromComTasks() {
         for (ComTaskExecution comTaskExecution : this.findDependentComTaskExecutions()) {
-            ((ComTaskExecutionImpl) comTaskExecution).connectionTaskRemoved();
+            ((ServerComTaskExecution)comTaskExecution).connectionTaskRemoved();
         }
     }
 

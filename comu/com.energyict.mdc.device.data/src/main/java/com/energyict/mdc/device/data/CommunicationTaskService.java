@@ -261,4 +261,9 @@ public interface CommunicationTaskService {
      */
     public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap(QueryEndDeviceGroup deviceGroup);
 
+    void executionCompletedFor(ComTaskExecution comTaskExecution);
+
+    void executionFailedFor(ComTaskExecution comTaskExecution);
+
+    void executionStartedFor(ComTaskExecution comTaskExecution, ComPort comPort);
 }

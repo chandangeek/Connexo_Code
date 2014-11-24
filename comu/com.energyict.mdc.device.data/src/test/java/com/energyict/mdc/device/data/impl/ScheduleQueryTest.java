@@ -4,7 +4,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImplIT;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;

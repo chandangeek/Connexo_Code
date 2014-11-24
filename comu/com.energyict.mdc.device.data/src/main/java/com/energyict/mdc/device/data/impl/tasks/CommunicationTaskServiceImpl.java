@@ -23,6 +23,7 @@ import com.energyict.mdc.device.data.TopologyTimeslice;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
+import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
@@ -719,7 +720,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         if (lockResult.isPresent()) {
             ComTaskExecution lockedComTaskExecution = lockResult.get();
             if (lockedComTaskExecution.getExecutingComPort() == null) {
-                ((ServerComTaskExecution) lockedComTaskExecution).setLockedComPort(comPort);
+                getServerComTaskExecution(lockedComTaskExecution).setLockedComPort(comPort);
                 return lockedComTaskExecution;
             } else {
                 // No database lock but business lock is already set
@@ -733,7 +734,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public void unlockComTaskExecution(ComTaskExecution comTaskExecution) {
-        ((ComTaskExecutionImpl) comTaskExecution).setLockedComPort(null);
+        getServerComTaskExecution(comTaskExecution).setLockedComPort(null);
     }
 
     @Override
@@ -867,6 +868,25 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(" group by dev.devicetype, cte.lastsess_highestpriocomplcode");
         Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
         return this.buildDeviceTypeHeatMap(partialCounters);
+    }
+
+    private ServerComTaskExecution getServerComTaskExecution(ComTaskExecution comTaskExecution) {
+        return (ServerComTaskExecution) comTaskExecution;
+    }
+
+    @Override
+    public void executionCompletedFor(ComTaskExecution comTaskExecution) {
+        getServerComTaskExecution(comTaskExecution).executionCompleted();
+    }
+
+    @Override
+    public void executionFailedFor(ComTaskExecution comTaskExecution) {
+        getServerComTaskExecution(comTaskExecution).executionFailed();
+    }
+
+    @Override
+    public void executionStartedFor(ComTaskExecution comTaskExecution, ComPort comPort) {
+        getServerComTaskExecution(comTaskExecution).executionStarted(comPort);
     }
 
     private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<CompletionCode, Long>> partialCounters) {

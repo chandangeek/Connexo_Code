@@ -14,7 +14,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ServerComTaskExecution;
+import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
@@ -661,13 +661,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     public void connectionTaskRemoved() {
         this.setConnectionTask(null);
         this.setUseDefaultConnectionTask(true);
-        this.post();
-    }
-
-    @Override
-    public void updateConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        this.assignConnectionTask(connectionTask);
-        this.setUseDefaultConnectionTask(false);
         this.post();
     }
 

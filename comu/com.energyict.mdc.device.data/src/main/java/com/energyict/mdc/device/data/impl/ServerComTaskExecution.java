@@ -1,22 +1,17 @@
-package com.energyict.mdc.device.data;
+package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComPort;
 
 /**
  * Adds behavior to ComTaskExecution that is private
  * to the server side implementation.
  *
- * TODO fix this, this should not be in the public api ...
- *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-09-21 (15:27)
  */
 public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTaskExecutionSession {
-    // TODO move back to impl package, mdc-all has references on this class though
 
     /**
      * Sets the given Comport as 'lock'
@@ -86,16 +81,5 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      * to that new default ConnectionTask.
      */
     public void connectionTaskRemoved ();
-
-    /**
-     * Updates this ComTaskExecution with the given ConnectionTask.
-     * Regardless whether or not the given ConnectionTask is marked as default
-     * (OutboundConnectionTask#isDefault()),
-     * this ComTaskExecution wil NOT be marked to use the default
-     * (i.e. ComTaskExecution#useDefaultConnectionTask() will return <code>false</code>)
-     *
-     * @param connectionTask the OutboundConnectionTask which will handle this task if scheduled by the ComServer
-     */
-    public void updateConnectionTask(ConnectionTask<?,?> connectionTask);
 
 }
