@@ -9,7 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
-    INVALIDCHARS_EXCEPTION(2, Keys.INVALIDCHARS_EXCEPTION, "*?\" <> and | are not allowed.", Level.SEVERE);
+    INVALIDCHARS_EXCEPTION(2, Keys.INVALIDCHARS_EXCEPTION, "*?\" <> and | are not allowed.", Level.SEVERE),
+    INVALID_READING_CONTAINER(3, Keys.INVALID_READING_CONTAINER, "Reading container is not a Meter", Level.WARNING);
 
     private final int number;
     private final String key;
@@ -61,6 +62,7 @@ public enum MessageSeeds implements MessageSeed {
     public enum Keys {
         ;
         public static final String INVALIDCHARS_EXCEPTION = "InvalidChars";
+        public static final String INVALID_READING_CONTAINER = "InvalidReadingContainer";
     }
 }
 

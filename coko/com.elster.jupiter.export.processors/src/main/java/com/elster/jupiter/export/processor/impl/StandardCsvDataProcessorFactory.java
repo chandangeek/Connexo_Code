@@ -45,7 +45,7 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
 
     @Override
     public DataProcessor createDataFormatter(List<DataExportProperty> properties) {
-        return null;
+        return new StandardCsvDataProcessor(properties);
     }
 
     @Override
