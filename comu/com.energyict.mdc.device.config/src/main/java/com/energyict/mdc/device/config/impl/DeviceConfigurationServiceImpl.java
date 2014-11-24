@@ -153,13 +153,13 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public ChannelSpec findChannelSpec(long channelSpecId) {
-        return this.getDataModel().mapper((ChannelSpec.class)).getUnique("id", channelSpecId).orElse(null);
+    public Optional<ChannelSpec> findChannelSpec(long channelSpecId) {
+        return this.getDataModel().mapper((ChannelSpec.class)).getUnique("id", channelSpecId);
     }
 
     @Override
-    public RegisterSpec findRegisterSpec(long id) {
-        return this.getDataModel().mapper((RegisterSpec.class)).getUnique("id", id).orElse(null);
+    public Optional<RegisterSpec> findRegisterSpec(long id) {
+        return this.getDataModel().mapper((RegisterSpec.class)).getUnique("id", id);
     }
 
     @Override
@@ -194,13 +194,13 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public LoadProfileSpec findLoadProfileSpec(long loadProfileSpecId) {
-        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("id", loadProfileSpecId).orElse(null);
+    public Optional<LoadProfileSpec> findLoadProfileSpec(long loadProfileSpecId) {
+        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("id", loadProfileSpecId);
     }
 
     @Override
-    public LoadProfileSpec findLoadProfileSpecsByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
-        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("deviceConfiguration", deviceConfig, "loadProfileType", loadProfileType).orElse(null);
+    public Optional<LoadProfileSpec> findLoadProfileSpecByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
+        return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("deviceConfiguration", deviceConfig, "loadProfileType", loadProfileType);
     }
 
     @Override
@@ -209,13 +209,13 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public LogBookSpec findLogBookSpec(long logBookSpecId) {
-        return this.getDataModel().mapper(LogBookSpec.class).getUnique("id", logBookSpecId).orElse(null);
+    public Optional<LogBookSpec> findLogBookSpec(long logBookSpecId) {
+        return this.getDataModel().mapper(LogBookSpec.class).getUnique("id", logBookSpecId);
     }
 
     @Override
-    public ChannelSpec findChannelSpecForLoadProfileSpecAndChannelType(LoadProfileSpec loadProfileSpec, ChannelType channelType) {
-        return this.getDataModel().mapper(ChannelSpec.class).getUnique("loadProfileSpec", loadProfileSpec, "channelType", channelType).orElse(null);
+    public Optional<ChannelSpec> findChannelSpecForLoadProfileSpecAndChannelType(LoadProfileSpec loadProfileSpec, ChannelType channelType) {
+        return this.getDataModel().mapper(ChannelSpec.class).getUnique("loadProfileSpec", loadProfileSpec, "channelType", channelType);
     }
 
     @Override
