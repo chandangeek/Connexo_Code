@@ -49,7 +49,7 @@ public class AS220DataDumpParser extends com.energyict.protocolimpl.base.DataDum
     }
 
     @Override
-    public String getRegisterStrValue(String strReg) throws IOException {
+    public String getRegisterStrValue(String strReg) throws NoSuchRegisterException {
         int splitter = strReg.indexOf('*');
         if (splitter == -1) {   // Actual registers can be read out with conventional method
             return super.getRegisterStrValue(strReg);

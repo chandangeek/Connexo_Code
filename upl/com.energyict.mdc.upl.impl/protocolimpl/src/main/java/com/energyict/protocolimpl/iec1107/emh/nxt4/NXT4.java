@@ -57,6 +57,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
     private TimeZone timeZone;
     private Logger logger;
     private byte[] dataReadout;
+    private boolean reconnect;
     private NXT4Properties properties;
     private NXT4Profile profile;
     private NXT4Registry registry;
@@ -67,9 +68,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
     private static Map<String, String> exceptionInfoMap = new HashMap<String, String>();
 
     static {
-        exceptionInfoMap.put("ERROR", "Request could not execute!");
-        exceptionInfoMap.put("ERROR01", "EMH NXT4 ERROR 01, invalid command!");
-        exceptionInfoMap.put("ERROR06", "EMH NXT4 ERROR 06, invalid command!");
+        exceptionInfoMap.put("ERROR", "Request could not be executed!");
     }
 
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
@@ -115,7 +114,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
             throw new IOException(e.getMessage());
         }
 
-        if (getProperties().useExtendedLogging()) {
+        if (getProperties().useExtendedLogging() && ! isReconnect()) {
             printRegisterInfo();
         }
     }
@@ -366,6 +365,14 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
         return dataReadout;
     }
 
+    public boolean isReconnect() {
+        return reconnect;
+    }
+
+    public void setReconnect(boolean reconnect) {
+        this.reconnect = reconnect;
+    }
+
     public FlagIEC1107Connection getFlagIEC1107Connection() {
         return flagIEC1107Connection;
     }
@@ -386,7 +393,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
 
     public NXT4Profile getProfile() {
         if (this.profile == null) {
-            this.profile = new NXT4Profile(this, this, getRegistry());
+            this.profile = new NXT4Profile(this, getRegistry());
         }
         return this.profile;
     }

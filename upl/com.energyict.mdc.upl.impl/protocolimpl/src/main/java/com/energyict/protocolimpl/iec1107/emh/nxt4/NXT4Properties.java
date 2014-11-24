@@ -93,7 +93,7 @@ public class NXT4Properties implements ConfigurationSupport {
     }
 
     public int getIEC1107TimeOut() {
-        return getIntProperty("Timeout", "20000");
+        return getIntProperty("Timeout", "10000");
     }
 
     public int getRetries() {
@@ -132,12 +132,20 @@ public class NXT4Properties implements ConfigurationSupport {
         return getBooleanProperty("DataReadout", "1");
     }
 
+    protected void setDataReadout(boolean useDataReadout) {
+        getProtocolProperties().setProperty("DataReadout", useDataReadout ? "1" : "0");
+    }
+
     public boolean useExtendedLogging() {
         return getBooleanProperty("ExtendedLogging", "0");
     }
 
     public boolean useSoftware7E1() {
         return getBooleanProperty("Software7E1", "0");
+    }
+
+    public boolean readUserLogBook() {
+        return getBooleanProperty("ReadUserLogBook", "0");
     }
 
     public ProtocolChannelMap getProtocolChannelMap() {
@@ -197,6 +205,7 @@ public class NXT4Properties implements ConfigurationSupport {
         result.add("Software7E1");
         result.add("FixedProfileTimeZone");
         result.add("DateFormat");
+        result.add("ReadUserLogBook");
         return result;
     }
 

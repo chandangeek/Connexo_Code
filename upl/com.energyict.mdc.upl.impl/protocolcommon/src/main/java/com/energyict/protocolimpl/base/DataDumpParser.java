@@ -55,7 +55,7 @@ public class DataDumpParser {
         return strValue.substring(0,strValue.indexOf("\r"));
     }
 
-    public String getRegisterStrValue(String strReg) throws IOException {
+    public String getRegisterStrValue(String strReg) throws NoSuchRegisterException {
         String strRegister;
         if (strFrame.startsWith(strReg)) {
             strRegister = strReg;
@@ -178,7 +178,7 @@ public class DataDumpParser {
         return strRegister.substring(0,strRegister.indexOf(strDelimiter));
     }
 
-    private String searchRegister(String strRegister) throws IOException {
+    private String searchRegister(String strRegister) throws NoSuchRegisterException {
        int iIndex = strFrame.indexOf(strRegister+"(");
        if (iIndex == -1) {
 			throw new NoSuchRegisterException("DataDumpParser, searchRegister, register not found");

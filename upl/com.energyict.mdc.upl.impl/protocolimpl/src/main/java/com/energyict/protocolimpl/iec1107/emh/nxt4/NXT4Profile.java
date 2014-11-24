@@ -1,11 +1,9 @@
 package com.energyict.protocolimpl.iec1107.emh.nxt4;
 
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
@@ -23,15 +21,18 @@ public class NXT4Profile extends VDEWProfile {
 
     private static final int DEVICE_CLOCK_STATUS = 0x8000;
     private static final int DEVICE_CLOCK_SET_AFTER = 0x0020;
-    private static final int READ_MODE = 5;
+    private static final int READ_MODE = 6;
+
+    private final NXT4 protocol;
 
     /**
      * Creates a new instance of LZQJProfile
      */
-    public NXT4Profile(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink,
+    public NXT4Profile(NXT4 protocol,
                        AbstractVDEWRegistry abstractVDEWRegistry) {
-        super(meterExceptionInfo, protocolLink, abstractVDEWRegistry, false);
-        this.setReadMode(READ_MODE); // Force use read mode 5, as there are problems with read mode 6 - TODO: check whether this is OK, or should change ?!
+        super(protocol, protocol, abstractVDEWRegistry, false);
+        this.protocol = protocol;
+        this.setReadMode(READ_MODE);
     }
 
     /**
@@ -50,6 +51,7 @@ public class NXT4Profile extends VDEWProfile {
         toCalendar.setTime(toReading);
 
 		ProfileData profileData = doGetProfileData(fromCalendar, toCalendar, 1);
+        disconnectAndReconnect();
 
         if (includeEvents) {
             List<MeterEvent> meterEvents = readMeterEvents(fromCalendar, toCalendar);
@@ -64,8 +66,26 @@ public class NXT4Profile extends VDEWProfile {
     private List<MeterEvent> readMeterEvents(Calendar fromCalendar, Calendar toCalendar) throws IOException {
         List<MeterEvent> events = new ArrayList<MeterEvent>();
         events.addAll(doGetLogBook(OPERATION_LOG_PROFILE_ID, fromCalendar, toCalendar));
-        events.addAll(doGetLogBook(EVENT_LOG_PROFILE_ID, fromCalendar, toCalendar));
+        disconnectAndReconnect();
+        if (getProtocol().getProperties().readUserLogBook()) {
+            events.addAll(doGetLogBook(EVENT_LOG_PROFILE_ID, fromCalendar, toCalendar));
+            disconnectAndReconnect();
+        }
         return events;
+    }
+
+    /**
+     * After readout of data using the R6 command, the connection to the device should be re-established. <br/>
+     * This should be done by doing a disconnect, followed by a reconnect.
+     * @throws IOException
+     */
+    private void disconnectAndReconnect() throws IOException {
+        boolean oldDataReadoutMode = getProtocol().getProperties().isDataReadout();
+        getProtocol().getFlagIEC1107Connection().getHhuSignOn().enableDataReadout(false);   // To prevent a 2th readout of the data dump, cause the dump has already been read out
+        getProtocol().setReconnect(true); // To prevent the 'Extended logging' is printed a 2th time
+        getProtocol().disconnect();
+        getProtocol().connect();
+        getProtocol().getFlagIEC1107Connection().getHhuSignOn().enableDataReadout(oldDataReadoutMode);
     }
 
     /**
@@ -73,7 +93,6 @@ public class NXT4Profile extends VDEWProfile {
      */
     protected byte parseIntervalStatus(byte[] ba, int startIdx) throws IOException {
         return (byte) Integer.parseInt(parseFindString(ba, startIdx), 16);
-
     }
 
     /**
@@ -225,5 +244,9 @@ public class NXT4Profile extends VDEWProfile {
             default:
                 return new MeterEvent(date, MeterEvent.OTHER, eventCode);
         }
+    }
+
+    public NXT4 getProtocol() {
+        return protocol;
     }
 }
