@@ -114,7 +114,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.id")).isEqualTo("DEVICE_ACTIONS_DEMAND_RESET");
         assertThat(model.<String>get("$.deviceMessages[0].trackingId")).isEqualTo("T14");
         assertThat(model.<String>get("$.deviceMessages[0].category")).isEqualTo("DeviceMessageCategories.RESET");
-        assertThat(model.<String>get("$.deviceMessages[0].status")).isEqualTo("Pending");
+        assertThat(model.<String>get("$.deviceMessages[0].status.displayValue")).isEqualTo("Pending");
+        assertThat(model.<String>get("$.deviceMessages[0].status.value")).isEqualTo("CommandPending");
         assertThat(model.<Long>get("$.deviceMessages[0].releaseDate")).isEqualTo(created.plusSeconds(10).toEpochMilli());
         assertThat(model.<Long>get("$.deviceMessages[0].creationDate")).isEqualTo(created.toEpochMilli());
         assertThat(model.<Long>get("$.deviceMessages[0].sentDate")).isNull();
