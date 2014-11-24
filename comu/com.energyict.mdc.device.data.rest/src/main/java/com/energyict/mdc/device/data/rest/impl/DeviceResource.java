@@ -53,6 +53,7 @@ import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Path("/devices")
 public class DeviceResource {
@@ -288,14 +289,15 @@ public class DeviceResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         TopologyTimeline timeline = deviceService.getPysicalTopologyTimeline(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
-        List<DeviceTopologyInfo> topologyList = timeline.getAllDevices().stream()
-                .filter(filterPredicate)
-                .sorted(Comparator.comparing(Device::getmRID))
-                .skip(queryParameters.getStart()) //NPE if no start parameter
-                .limit(queryParameters.getLimit())
-                .map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d)))
-                .collect(Collectors.toList());
-
+        Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate)
+                .sorted(Comparator.comparing(Device::getmRID));
+        if(queryParameters.getStart() != null && queryParameters.getStart() > 0) {
+            stream = stream.skip(queryParameters.getStart());
+        }
+        if (queryParameters.getLimit() != null && queryParameters.getLimit() > 0){
+            stream = stream.limit(queryParameters.getLimit() + 1);
+        }
+        List<DeviceTopologyInfo> topologyList =  stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d))).collect(Collectors.toList());
         return PagedInfoList.asJson("slaveDevices", topologyList, queryParameters);
     }
 
@@ -309,9 +311,15 @@ public class DeviceResource {
     }
 
     private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, String> extractor){
-        Pattern filterPattern = getFilterPattern(filter.getProperty(name));
+        Pattern filterPattern = getFilterPattern(name, filter.getProperty(name));
         if (filterPattern != null){
-            return predicate.and(d -> filterPattern.matcher(extractor.apply(d)).matches());
+            return predicate.and(d -> {
+                String stringToSearch = extractor.apply(d);
+                if (stringToSearch == null){
+                    stringToSearch = "";
+                }
+                return filterPattern.matcher(stringToSearch).matches();
+            });
         }
         return predicate;
     }
@@ -343,9 +351,10 @@ public class DeviceResource {
      * @param filter the filter expression
      * @return search pattern
      */
-    private Pattern getFilterPattern(String filter){
+    private Pattern getFilterPattern(String name, String filter){
         if (filter != null){
-            return Pattern.compile(filter.replace('%', '*').replaceAll("([*?])", "\\.$1"));
+            filter = Pattern.quote(filter.replace('%', '*'));
+            return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
         }
         return null;
     }

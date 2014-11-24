@@ -51,6 +51,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.jayway.jsonpath.JsonModel;
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -917,7 +918,65 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testGetCommunicationTopology(){
+    public void testGetCommunicationTopology() {
+        mockTopologyTimeline();
+
+        String response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .request().get(String.class);
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Integer>get("$.total")).isEqualTo(7);
+        assertThat(model.<List>get("$.slaveDevices")).hasSize(7);
+        assertThat(model.<String>get("$.slaveDevices[0].mRID")).isEqualTo("slave1");
+        assertThat(model.<String>get("$.slaveDevices[6].mRID")).isEqualTo("slave7");
+    }
+
+    @Test
+    public void testCommunicationTopologyPaging() {
+        mockTopologyTimeline();
+        String response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 3).queryParam("limit", 2)
+                .request().get(String.class);
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Integer>get("$.total")).isEqualTo(6); // 3 (start) + 2 (limit) + 1 (for FE)
+        assertThat(model.<List>get("$.slaveDevices")).hasSize(2);
+        assertThat(model.<String>get("$.slaveDevices[0].mRID")).isEqualTo("slave4");
+        assertThat(model.<String>get("$.slaveDevices[1].mRID")).isEqualTo("slave5");
+    }
+
+    @Test
+    public void testGetCommunicationTopologyPagingBigStart() {
+        mockTopologyTimeline();
+        String response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 1000).queryParam("limit", 2)
+                .request().get(String.class);
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1000); // 1000 (start) + 0 (limit) + 0 (for FE: no additional pages)
+        assertThat(model.<List>get("$.slaveDevices")).hasSize(0);
+    }
+
+    @Test
+    public void testGetCommunicationTopologyPagingBigEnd(){
+        mockTopologyTimeline();
+        String response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 6).queryParam("limit", 1000)
+                .request().get(String.class);
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Integer>get("$.total")).isEqualTo(7);
+        assertThat(model.<List>get("$.slaveDevices")).hasSize(1);
+    }
+
+    @Test
+    public void testGetCommunicationTopologyNoPaging(){
+        mockTopologyTimeline();
+        String response = target("/devices/gateway/topology/communication")
+                .request().get(String.class);
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Integer>get("$.total")).isEqualTo(7);
+        assertThat(model.<List>get("$.slaveDevices")).hasSize(7);
+    }
+
+    private void mockTopologyTimeline() {
         Device gateway = mockDeviceForTopologyTest("gateway");
         Device slave1 = mockDeviceForTopologyTest("slave1");
         Device slave2 = mockDeviceForTopologyTest("slave2");
@@ -940,23 +999,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
         when(deviceService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
-
-        Map<?, ?> response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
-                .request().get(Map.class);
-        assertThat(response.get("total")).isEqualTo(7);
-        List<Map> topologyList = (List<Map>) response.get("slaveDevices");
-        assertThat(topologyList.get(0).get("mRID")).isEqualTo("slave1");
-        assertThat(topologyList.get(6).get("mRID")).isEqualTo("slave7");
-
-        response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 3).queryParam("limit", 2)
-                .request().get(Map.class);
-        topologyList = (List<Map>) response.get("slaveDevices");
-        assertThat(topologyList.size()).isEqualTo(2);
-        assertThat(topologyList.get(0).get("mRID")).isEqualTo("slave4");
-        assertThat(topologyList.get(1).get("mRID")).isEqualTo("slave5");
-
     }
 
     @Test
@@ -964,6 +1006,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device gateway = mockDeviceForTopologyTest("gateway");
         Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid");
         Device slave2 = mockDeviceForTopologyTest("123456789");
+        when(slave2.getSerialNumber()).thenReturn(null);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
 
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
@@ -1014,6 +1057,67 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
                 .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'%34*7?9'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+    }
+
+
+    @Test
+    public void testGetCommunicationTopologyFilterOnSerialNumber() throws Exception{
+        Device gateway = mockDeviceForTopologyTest("gateway");
+        Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid");
+        Device slave2 = mockDeviceForTopologyTest("123456789");
+        when(slave2.getSerialNumber()).thenReturn(null);
+        Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
+
+        TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
+        when(topologyTimeline.getAllDevices()).thenReturn(slaves);
+        when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
+        when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
+
+        when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
+        when(deviceService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+
+
+        Map<?, ?> response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'*'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(2);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'%'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(2);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'D(\\E%\\\\Q'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(0);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'123456?89'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'1234*'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'*789'}]", "UTF-8"))
+                .request().get(Map.class);
+        assertThat(response.get("total")).isEqualTo(1);
+
+        response = target("/devices/gateway/topology/communication")
+                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'%34*7?9'}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
     }
