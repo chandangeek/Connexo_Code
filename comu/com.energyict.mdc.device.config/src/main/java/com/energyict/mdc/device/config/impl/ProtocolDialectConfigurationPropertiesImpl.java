@@ -71,17 +71,11 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         this.clock = clock;
     }
 
-    @Override
-    public void update() {
-        save();
-    }
-
     static class PropertyValueValidator implements ConstraintValidator<ProtocolDialectConfigurationHasCorrectPropertyValues, ProtocolDialectConfigurationPropertiesImpl> {
 
         @Override
         public void initialize(ProtocolDialectConfigurationHasCorrectPropertyValues constraintAnnotation) {
             //nothing for now
-
         }
 
         @Override

@@ -13,13 +13,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 public interface ProtocolDialectConfigurationProperties extends HasName, HasId, HasDynamicProperties {
 
     /**
-     * Applies the updates that are specified
-     * to this ProtocolDialectConfigurationProperties.
-     *
-     */
-    public void update();
-
-    /**
      * Gets the {@link com.energyict.mdc.device.config.DeviceCommunicationConfiguration} that owns this {@link ProtocolDialectConfigurationProperties}
      *
      * @return The DeviceCommunicationConfiguration

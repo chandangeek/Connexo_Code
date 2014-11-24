@@ -348,6 +348,26 @@ public enum TableSpecs {
         }
     },
 
+    DTC_PROTOCOLCONFIGPROPSATTR {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ProtocolConfigurationProperty> table = dataModel.addTable(name(), ProtocolConfigurationProperty.class);
+            table.map(ProtocolConfigurationProperty.class);
+            Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
+            table.column("VALUE").varChar().notNull().map("value").add();
+            table.foreignKey("FK_DTC_PROTCONFPROPSATTR_CONF")
+                    .on(deviceConfiguration)
+                    .references(DTC_DEVICECONFIG.name())
+                    .map("deviceConfiguration")
+                    .composition()
+                    .reverseMap("protocolProperties")
+                    .onDelete(CASCADE)
+                    .add();
+            table.primaryKey("PK_DTC_PROTOCOLCONFPROPSATTR").on(deviceConfiguration, name).add();
+        }
+    },
+
     DTC_PARTIALCONNECTIONTASK {
         @Override
         public void addTo(DataModel dataModel) {

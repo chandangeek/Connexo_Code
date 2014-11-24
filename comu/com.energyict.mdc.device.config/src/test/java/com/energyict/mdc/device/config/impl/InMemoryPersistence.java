@@ -5,6 +5,7 @@ import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
@@ -116,6 +117,7 @@ public class InMemoryPersistence {
 
     private ApplicationContext applicationContext;
     private boolean mockProtocolPluggableService;
+    private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
     private LogBookTypeUpdateEventHandler logBookTypeUpdateEventHandler;
     private LogBookTypeDeletionEventHandler logBookTypeDeletionEventHandler;
@@ -152,6 +154,7 @@ public class InMemoryPersistence {
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
             this.validationService = injector.getInstance(ValidationService.class);
+            this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.injector.getInstance(PluggableService.class);
             if (!mockedProtocolPluggableService) {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
@@ -289,6 +292,10 @@ public class InMemoryPersistence {
 
     public TransactionService getTransactionService() {
         return transactionService;
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     public ProtocolPluggableService getProtocolPluggableService() {

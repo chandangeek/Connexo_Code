@@ -50,7 +50,6 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -108,6 +107,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private Instant modificationDate;
     private Clock clock;
     private GatewayType gatewayType = GatewayType.NONE;
+    @Valid
+    private List<ProtocolConfigurationProperty> protocolProperties = new ArrayList<>();
+    private ProtocolConfigurationPropertyChanges protocolConfigurationPropertyChanges = new ProtocolConfigurationPropertyChanges();
     private final Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
     private final Provider<NumericalRegisterSpecImpl> numericalRegisterSpecProvider;
     private final Provider<TextualRegisterSpecImpl> textualRegisterSpecProvider;
@@ -917,7 +919,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public List<ValidationRuleSet> getValidationRuleSets() {
-        List<ValidationRuleSet> result = new ArrayList<ValidationRuleSet>();
+        List<ValidationRuleSet> result = new ArrayList<>();
         for (DeviceConfValidationRuleSetUsage usage : this.deviceConfValidationRuleSetUsages)  {
             if (usage.getValidationRuleSet() != null) {
                 result.add(usage.getValidationRuleSet());
@@ -951,7 +953,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes) {
-        List<ValidationRule> result = new ArrayList<ValidationRule>();
+        List<ValidationRule> result = new ArrayList<>();
         List<ValidationRuleSet> ruleSets = getValidationRuleSets();
         for (ValidationRuleSet ruleSet : ruleSets) {
             result.addAll(ruleSet.getRules(readingTypes));
@@ -970,4 +972,41 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             this.gatewayType = GatewayType.NONE;
         }
     }
+
+    @Override
+    public ProtocolConfigurationProperties getProtocolProperties() {
+        return new ProtocolConfigurationPropertiesImpl(this);
+    }
+
+    List<ProtocolConfigurationProperty> getProtocolPropertyList() {
+        return protocolProperties;
+    }
+
+    void addProtocolProperty(ProtocolConfigurationProperty property) {
+        this.protocolConfigurationPropertyChanges.addProtocolProperty(property);
+    }
+
+    boolean removeProtocolProperty(String propertyName) {
+        return this.protocolConfigurationPropertyChanges.addProtocolProperty(propertyName);
+    }
+
+    private class ProtocolConfigurationPropertyChanges {
+        private Map<String, ProtocolConfigurationProperty> newProperties = new HashMap<>();
+        private Map<String, ProtocolConfigurationProperty> obsoleteProperties = new HashMap<>();
+
+        private void addProtocolProperty(ProtocolConfigurationProperty property) {
+            this.newProperties.put(property.getName(), property);
+        }
+
+        private boolean removeProtocolProperty(String propertyName) {
+
+        }
+
+        private void apply() {
+            protocolProperties.removeAll(this.obsoleteProperties.values());
+            protocolProperties.addAll(this.newProperties.values());
+        }
+
+    }
+
 }

@@ -46,7 +46,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link DeviceConfigurationImpl} component
+ * Tests the {@link DeviceConfigurationImpl} component.
  * <p>
  * Copyrights EnergyICT
  * Date: 20/02/14
