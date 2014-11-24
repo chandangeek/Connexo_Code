@@ -928,7 +928,7 @@ h6 {
   border: none !important;
 }
 
-/* line 4, ../../sass/src/container/NavigationMenu.scss */
+/* line 3, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu {
   background: -webkit-linear-gradient(top, #2e587e, #478bae);
   /* For Safari 5.1 to 6.0 */
@@ -946,21 +946,78 @@ h6 {
   -o-transition: width 400ms;
   /* Opera */
 }
-/* line 21, ../../sass/src/container/NavigationMenu.scss */
+/* line 16, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu .x-panel-body-default {
   background-color: transparent;
 }
-/* line 25, ../../sass/src/container/NavigationMenu.scss */
+/* line 20, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu .x-pressed {
   background-color: white;
 }
-/* line 29, ../../sass/src/container/NavigationMenu.scss */
+/* line 23, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu .x-pressed:hover {
+  background-color: white;
+}
+/* line 28, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu .x-pressed .x-btn-button .x-btn-inner, .x-container-navigationmenu .x-pressed .x-btn-button .x-btn-glyph {
   color: #2f77ac;
 }
-/* line 33, ../../sass/src/container/NavigationMenu.scss */
-.x-container-navigationmenu .x-pressed .x-btn-button:hover {
-  background-color: white;
+/* line 34, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] {
+  background: none;
+  border: none;
+  border-radius: 0;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  padding: 0;
+  margin-right: 0 !important;
+  border-radius: 21px;
+}
+/* line 9, ../../sass/src/button/TransparentButton.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+/* line 15, ../../sass/src/button/TransparentButton.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button .x-btn-inner {
+  color: white;
+}
+/* line 19, ../../sass/src/button/TransparentButton.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button .x-btn-glyph {
+  opacity: 1;
+  height: auto;
+  line-height: 36px;
+  margin-top: 3px;
+  margin-left: 10px;
+}
+/* line 41, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-']:hover {
+  background-color: #71adc7;
+}
+/* line 45, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button {
+  height: 42px;
+  width: 42px;
+  background-image: url("images/container/menu/navCollapse.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+/* line 49, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button .x-btn-icon-el {
+  width: 42px;
+}
+/* line 60, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'].x-pressed .x-btn-button {
+  background-image: url("images/container/menu/navExpand.png");
+}
+/* line 68, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu.collapsed *[class*='x-btn-menuitem-'] .x-btn-button .x-btn-inner {
+  color: transparent;
+  padding-top: 16px;
+}
+/* line 73, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu.collapsed *[class*='x-btn-menuitem-'] .x-btn-button *[class*='uni-icon-'] {
+  margin-left: -3px;
 }
 
 /* line 17, ../../sass/src/container/AppCenter.scss */
@@ -1319,7 +1376,7 @@ h6 {
   background-color: #71adc7;
 }
 
-/* line 4, ../../sass/src/container/NavigationMenu.scss */
+/* line 3, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu {
   background: -webkit-linear-gradient(top, #2e587e, #478bae);
   /* For Safari 5.1 to 6.0 */
@@ -1337,21 +1394,78 @@ h6 {
   -o-transition: width 400ms;
   /* Opera */
 }
-/* line 21, ../../sass/src/container/NavigationMenu.scss */
+/* line 16, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu .x-panel-body-default {
   background-color: transparent;
 }
-/* line 25, ../../sass/src/container/NavigationMenu.scss */
+/* line 20, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu .x-pressed {
   background-color: white;
 }
-/* line 29, ../../sass/src/container/NavigationMenu.scss */
+/* line 23, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu .x-pressed:hover {
+  background-color: white;
+}
+/* line 28, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu .x-pressed .x-btn-button .x-btn-inner, .x-container-navigationmenu .x-pressed .x-btn-button .x-btn-glyph {
   color: #2f77ac;
 }
-/* line 33, ../../sass/src/container/NavigationMenu.scss */
-.x-container-navigationmenu .x-pressed .x-btn-button:hover {
-  background-color: white;
+/* line 34, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] {
+  background: none;
+  border: none;
+  border-radius: 0;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  padding: 0;
+  margin-right: 0 !important;
+  border-radius: 21px;
+}
+/* line 9, ../../sass/src/button/TransparentButton.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+/* line 15, ../../sass/src/button/TransparentButton.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button .x-btn-inner {
+  color: white;
+}
+/* line 19, ../../sass/src/button/TransparentButton.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button .x-btn-glyph {
+  opacity: 1;
+  height: auto;
+  line-height: 36px;
+  margin-top: 3px;
+  margin-left: 10px;
+}
+/* line 41, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-']:hover {
+  background-color: #71adc7;
+}
+/* line 45, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button {
+  height: 42px;
+  width: 42px;
+  background-image: url("images/container/menu/navCollapse.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+/* line 49, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button .x-btn-icon-el {
+  width: 42px;
+}
+/* line 60, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu *[class*='x-btn-toggle-'].x-pressed .x-btn-button {
+  background-image: url("images/container/menu/navExpand.png");
+}
+/* line 68, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu.collapsed *[class*='x-btn-menuitem-'] .x-btn-button .x-btn-inner {
+  color: transparent;
+  padding-top: 16px;
+}
+/* line 73, ../../sass/src/container/NavigationMenu.scss */
+.x-container-navigationmenu.collapsed *[class*='x-btn-menuitem-'] .x-btn-button *[class*='uni-icon-'] {
+  margin-left: -3px;
 }
 
 /* line 1, ../../sass/src/container/ContentContainer.scss */
@@ -8272,7 +8386,7 @@ a:hover, a.x-btn:hover {
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
   padding: 0;
-  text-align: left;
+  margin-right: -1px !important;
 }
 /* line 9, ../../sass/src/button/TransparentButton.scss */
 *[class*='x-btn-menuitem-'] .x-btn-button {
@@ -8292,32 +8406,23 @@ a:hover, a.x-btn:hover {
   margin-left: 10px;
 }
 /* line 20, ../../sass/src/button/MenuItemButton.scss */
-*[class*='x-btn-menuitem-'] .x-btn-button {
-  height: 48px;
-  padding-right: 5px;
-  padding-left: 5px;
-}
-/* line 28, ../../sass/src/button/MenuItemButton.scss */
-*[class*='x-btn-menuitem-'] .x-btn-button .x-btn-inner, *[class*='x-btn-menuitem-'] .x-btn-button .x-btn-glyph {
-  line-height: 45px;
-  text-align: left;
-  margin-top: 3px;
-  font-size: 14px;
-}
-/* line 35, ../../sass/src/button/MenuItemButton.scss */
-*[class*='x-btn-menuitem-'] .x-btn-button .x-btn-inner {
-  margin-left: 10px;
-  padding-left: 38px;
-}
-/* line 40, ../../sass/src/button/MenuItemButton.scss */
-*[class*='x-btn-menuitem-'] .x-btn-button:hover {
+*[class*='x-btn-menuitem-']:hover {
   background-color: #71adc7;
 }
-/* line 44, ../../sass/src/button/MenuItemButton.scss */
-*[class*='x-btn-menuitem-'] .x-btn-button .x-btn-icon-el {
-  width: 48px;
+/* line 24, ../../sass/src/button/MenuItemButton.scss */
+*[class*='x-btn-menuitem-'] .x-btn-button {
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
-/* line 48, ../../sass/src/button/MenuItemButton.scss */
+/* line 30, ../../sass/src/button/MenuItemButton.scss */
+*[class*='x-btn-menuitem-'] .x-btn-button .x-btn-inner, *[class*='x-btn-menuitem-'] .x-btn-button .x-btn-glyph {
+  font-size: 14px;
+}
+/* line 34, ../../sass/src/button/MenuItemButton.scss */
+*[class*='x-btn-menuitem-'] .x-btn-button .x-btn-inner {
+  padding-top: 32px;
+}
+/* line 38, ../../sass/src/button/MenuItemButton.scss */
 *[class*='x-btn-menuitem-'] .x-btn-button *[class*='uni-icon-'] {
   background-position: center center;
   background-repeat: no-repeat;
@@ -8338,7 +8443,7 @@ a:hover, a.x-btn:hover {
 *[class*='x-btn-menuitem-'] .x-btn-button .uni-icon-settings {
   background-image: url("images/container/menu/settings.png");
 }
-/* line 59, ../../sass/src/button/MenuItemButton.scss */
+/* line 49, ../../sass/src/button/MenuItemButton.scss */
 *[class*='x-btn-menuitem-'] .x-btn-button .uni-icon-none {
   background-image: url("images/container/menu/settings.png");
 }
@@ -8359,7 +8464,7 @@ a:hover, a.x-btn:hover {
 .x-pressed .uni-icon-settings {
   background-image: url("images/container/menu/settingsSelected.png") !important;
 }
-/* line 72, ../../sass/src/button/MenuItemButton.scss */
+/* line 62, ../../sass/src/button/MenuItemButton.scss */
 .x-pressed .uni-icon-none {
   background-image: url("images/container/menu/settingsSelected.png") !important;
 }
@@ -14932,128 +15037,4 @@ a:hover, a.x-btn:hover {
 /* line 682, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-nlg .x-btn-sort-small-over {
   background-image: url(images/btn/btn-sort-small-over-bg.gif);
-}
-
-/* line 691, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-nlg .x-btn-sort-small-menu-active,
-.x-nlg .x-btn-sort-small-pressed {
-  background-image: url(images/btn/btn-sort-small-pressed-bg.gif);
-}
-
-/* line 699, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-nlg .x-btn-sort-small-disabled {
-  background-image: url(images/btn/btn-sort-small-disabled-bg.gif);
-}
-
-/* line 707, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-nbr .x-btn-sort-small {
-  background-image: none;
-}
-
-/* line 722, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-small .x-btn-split-right {
-  background-image: url(images/button/sort-small-s-arrow.png);
-  padding-right: 23px;
-}
-/* line 728, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-small .x-rtl.x-btn-split-right {
-  background-image: url(images/button/sort-small-s-arrow-rtl.png);
-  padding-right: 0;
-  padding-left: 23px;
-}
-/* line 735, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-small .x-btn-split-bottom {
-  background-image: url(images/button/sort-small-s-arrow-b.png);
-  padding-bottom: 20px;
-}
-
-/*<if slicer>*/
-/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-btn-sort-small-focus:after {
-  display: none;
-  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-small-focus-corners.gif), sides:url(images/btn/btn-sort-small-focus-sides.gif), frame-bg:url(images/btn/btn-sort-small-focus-fbg.gif), bg:url(images/btn/btn-sort-small-focus-bg.gif)";
-}
-
-/*</if slicer>*/
-/* */
-/*<if slicer>*/
-/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-btn-sort-small-over:after {
-  display: none;
-  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-small-over-corners.gif), sides:url(images/btn/btn-sort-small-over-sides.gif), frame-bg:url(images/btn/btn-sort-small-over-fbg.gif), bg:url(images/btn/btn-sort-small-over-bg.gif)";
-}
-
-/*</if slicer>*/
-/* */
-/*<if slicer>*/
-/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-btn-sort-small-pressed:after {
-  display: none;
-  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-small-pressed-corners.gif), sides:url(images/btn/btn-sort-small-pressed-sides.gif), frame-bg:url(images/btn/btn-sort-small-pressed-fbg.gif), bg:url(images/btn/btn-sort-small-pressed-bg.gif)";
-}
-
-/*</if slicer>*/
-/* */
-/*<if slicer>*/
-/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-btn-sort-small-disabled:after {
-  display: none;
-  content: "x-slicer:stretch:bottom, corners:url(images/btn/btn-sort-small-disabled-corners.gif), sides:url(images/btn/btn-sort-small-disabled-sides.gif), frame-bg:url(images/btn/btn-sort-small-disabled-fbg.gif), bg:url(images/btn/btn-sort-small-disabled-bg.gif)";
-}
-
-/*</if slicer>*/
-/* */
-/* line 255, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-sort-medium {
-  border-color: transparent;
-}
-
-/* line 137, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium {
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  -ms-border-radius: 5px;
-  -o-border-radius: 5px;
-  border-radius: 5px;
-  padding: 4px 4px 4px 4px;
-  border-width: 1px;
-  border-style: solid;
-  background-color: #d8d8d8;
-}
-
-/* line 187, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-mc {
-  background-color: #d8d8d8;
-}
-
-/* line 234, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-nbr .x-btn-sort-medium {
-  padding: 0 !important;
-  border-width: 0 !important;
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  -ms-border-radius: 0px;
-  -o-border-radius: 0px;
-  border-radius: 0px;
-  background-color: transparent;
-}
-
-/* line 249, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-frameInfo {
-  font-family: th-5-5-5-5-1-1-1-1-4-4-4-4;
-}
-
-/* line 315, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tl {
-  background-position: 0 -10px;
-}
-
-/* line 319, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tr {
-  background-position: right -15px;
-}
-
-/* line 323, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-bl {
-  background-position: 0 -20px;
 }
