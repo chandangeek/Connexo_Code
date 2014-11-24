@@ -46,8 +46,6 @@ public class NXT4Properties implements ConfigurationSupport {
         validateIntegerProperty(properties, "RequestHeader");
         validateIntegerProperty(properties, "DataReadout");
         validateIntegerProperty(properties, "ExtendedLogging");
-        validateIntegerProperty(properties, "VDEWCompatible");
-        validateIntegerProperty(properties, "FixedProfileTimeZone");
         validateProtocolChannelMap(properties, "ChannelMap");
 
         // 2. Set the properties
@@ -97,7 +95,7 @@ public class NXT4Properties implements ConfigurationSupport {
     }
 
     public int getRetries() {
-        return getIntProperty("Retries", "5");
+        return getIntProperty("Retries", "3");
     }
 
     public int getRoundTripCorrection() {
@@ -197,13 +195,10 @@ public class NXT4Properties implements ConfigurationSupport {
         result.add("EchoCancelling");
         result.add("IEC1107Compatible");
         result.add("ForcedDelay");
-        result.add("ChannelMap");
         result.add("RequestHeader");
         result.add("DataReadout");
         result.add("ExtendedLogging");
-        result.add("VDEWCompatible");
         result.add("Software7E1");
-        result.add("FixedProfileTimeZone");
         result.add("DateFormat");
         result.add("ReadUserLogBook");
         return result;

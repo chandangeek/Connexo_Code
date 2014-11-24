@@ -209,7 +209,7 @@ public class NXT4Profile extends VDEWProfile {
             case VARIABLE_SET: return new MeterEvent(date,MeterEvent.CONFIGURATIONCHANGE, eventCode,"Variable set");
             case POWER_FAILURE: return new MeterEvent(date,MeterEvent.POWERDOWN, eventCode, "Voltage failure");
             case POWER_RECOVERY: return new MeterEvent(date,MeterEvent.POWERUP, eventCode, "Voltage returned");
-            case DEVICE_CLOCK_SET_AFTER: return new MeterEvent(date,MeterEvent.SETCLOCK_AFTER, eventCode,"Device clock has been set"+msg);
+            case DEVICE_CLOCK_SET_AFTER: return new MeterEvent(date,MeterEvent.SETCLOCK_AFTER, eventCode,"Device clock has been set, "+msg);
             case DEVICE_RESET: return new MeterEvent(date,MeterEvent.CLEAR_DATA, eventCode, "Reset was carried out");
             case SEASONAL_SWITCHOVER: return new MeterEvent(date,MeterEvent.OTHER, eventCode,"Season change has taken place, "+msg);
             case DISTURBED_MEASURE: return new MeterEvent(date,MeterEvent.OTHER, eventCode, "Measured value interfered");
