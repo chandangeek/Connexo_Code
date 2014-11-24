@@ -239,11 +239,13 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                                 //widget.down('#showValueDeviceSecuritySetting').setVisible(true);
                                 //widget.down('#hideValueDeviceSecuritySetting').setVisible(false);
                             } else if (!deviceSecuritySetting.get('userHasViewPrivilege') && deviceSecuritySetting.get('userHasEditPrivilege')) {
+                                widget.down('#device-security-setting-show-value').setVisible(false);
                                 form.show();
                                 form.loadRecord(deviceSecuritySetting);
                                 me.getDeviceSecuritySettingDetailTitle().setVisible(true);
                             } else if (deviceSecuritySetting.get('userHasViewPrivilege') && !deviceSecuritySetting.get('userHasEditPrivilege')) {
                                 // only view
+                                widget.down('#device-security-setting-show-value').setVisible(false);
                                 form.isReadOnly = true;
                                 form.show();
                                 me.getRestoreAllButton().hide();
@@ -251,6 +253,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                                 form.loadRecord(deviceSecuritySetting);
                                 me.getDeviceSecuritySettingDetailTitle().setVisible(true);
                             } else {
+                                widget.down('#device-security-setting-show-value').setVisible(false);
                                 form.hide();
                                 me.getRestoreAllButton().hide();
                                 me.getAddEditButton().hide();
