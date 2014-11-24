@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 itemId: 'durationInSeconds',
                 text: Uni.I18n.translate('deviceconnectionhistory.duration', 'MDC', 'Duration'),
                 dataIndex: 'durationInSeconds',
-                flex: 1,
+                flex: 2,
                 usesSeconds: true
             },
             {
