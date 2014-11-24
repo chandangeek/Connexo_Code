@@ -154,7 +154,7 @@ Ext.define('Uni.view.navigation.Menu', {
         me.getToggleButton().setTooltip(Uni.I18n.translate('navigation.toggle.expand', 'UNI', 'Expand'));
 
         me.addCls('collapsed');
-        me.setWidth(50);
+        me.setWidth(48);
         me.doLayout();
     },
 
