@@ -47,7 +47,7 @@
 
     a {
       color: $button-link-color;
-      text-decoration: none;
+      text-decoration: underline;
       //          $button-link-color-focus: $color-blue-2;
       //          $button-link-color-pressed: $color-blue-1;
       //          $button-link-color-disabled: $color-grey-5;
@@ -55,6 +55,9 @@
     a:hover {
 //      color: $button-link-color-over;
       text-decoration: underline;
+    }
+    a:active {
+      text-decoration: none;
     }
 
     .#{$prefix}form-display-field-body {
@@ -64,7 +67,7 @@
       }
     }
   }
-  .#{$prefix}grid-row-selected, .#{$prefix}grid-row-over {
+  .#{$prefix}grid-row-selected {
     a {
       color: $grid-row-cell-selected-color;
     }
