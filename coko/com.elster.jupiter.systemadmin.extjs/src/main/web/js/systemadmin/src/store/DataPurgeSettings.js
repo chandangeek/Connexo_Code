@@ -12,7 +12,7 @@ Ext.define('Sam.store.DataPurgeSettings', {
         url: '/api/lic/data/lifecycle/categories',
         reader: {
             type: 'json',
-            root: 'lifeCycleCategories'
+            root: 'data'
         }
     }
 });
