@@ -171,7 +171,8 @@ Ext.define('Uni.view.navigation.Menu', {
     setCollapsedCookie: function (collapsed) {
         var me = this;
 
-        Ext.util.Cookies.set(me.getCollapsedCookieKey(), collapsed);
+        Ext.util.Cookies.set(me.getCollapsedCookieKey(), collapsed,
+            new Date(new Date().getTime() + 365.25 * 24 * 60 * 60 * 1000)); // Expires in a year.
     },
 
     getMenuContainer: function () {
