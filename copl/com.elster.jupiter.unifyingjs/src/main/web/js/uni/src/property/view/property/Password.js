@@ -56,13 +56,23 @@ Ext.define('Uni.property.view.property.Password', {
             field.on('change', function () {
                 me.getProperty().set('isInheritedOrDefaultValue', false);
                 me.updateResetButton();
+                if (field.getValue() === null || field.getValue() === '') {
+                    me.getProperty().set('hasValue', false);
+                    me.getProperty().set('propertyHasValue', false);
+                }
             });
+            field.on('blur', function () {
+                if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
+                    me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
+                }
+
+            })
         }
     },
 
     setValue: function (value) {
         if (this.isEdit) {
-            if (this.getProperty().get('hasValue')) {
+            if (this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
                 this.getPasswordField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
             } else {
                 this.getPasswordField().emptyText = '';

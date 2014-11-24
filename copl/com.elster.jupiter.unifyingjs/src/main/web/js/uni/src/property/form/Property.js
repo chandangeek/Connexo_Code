@@ -42,6 +42,8 @@ Ext.define('Uni.property.form.Property', {
     inheritedValues: false,
     inputType: 'text',
     passwordAsTextComponent: false,
+    userHasEditPrivilege: true,
+    userHasViewPrivilege: true,
 
     /**
      * Loads record to the form.
@@ -92,7 +94,9 @@ Ext.define('Uni.property.form.Property', {
                     isEdit: me.isEdit,
                     isReadOnly: me.isReadOnly,
                     inputType: me.inputType,
-                    passwordAsTextComponent: me.passwordAsTextComponent
+                    passwordAsTextComponent: me.passwordAsTextComponent,
+                    userHasEditPrivilege: me.userHasEditPrivilege,
+                    userHasViewPrivilege: me.userHasViewPrivilege
                 }));
 
                 me.add(field);
