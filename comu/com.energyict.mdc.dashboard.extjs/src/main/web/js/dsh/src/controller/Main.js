@@ -61,7 +61,7 @@ Ext.define('Dsh.controller.Main', {
             })
         );
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.view.communicationInfrastructure'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'])) {
             Uni.store.MenuItems.add(
                 Ext.create('Uni.model.MenuItem', {
                     text: 'Workspace',
