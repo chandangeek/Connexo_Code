@@ -93,7 +93,7 @@ public class TaskServiceImplTest {
 
         taskService = new TaskServiceImpl();
         taskService.setDueTaskFetcher(dueTaskFetcher);
-        taskService.setCronExpressionParser(cronExpressionParser);
+        taskService.setScheduleExpressionParser(cronExpressionParser);
         taskService.setOrmService(ormService);
         taskService.setTransactionService(transactionService);
         taskService.setJsonService(jsonService);

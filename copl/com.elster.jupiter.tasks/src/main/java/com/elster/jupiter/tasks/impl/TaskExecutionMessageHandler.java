@@ -5,6 +5,8 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 
 /**
@@ -15,11 +17,13 @@ class TaskExecutionMessageHandler implements MessageHandler {
     private final TaskExecutor taskExecutor;
     private final DataModel dataModel;
     private final JsonService jsonService;
+    private final TransactionService transactionService;
 
-    public TaskExecutionMessageHandler(DataModel dataModel, TaskExecutor taskExecutor, JsonService jsonService) {
+    public TaskExecutionMessageHandler(DataModel dataModel, TaskExecutor taskExecutor, JsonService jsonService, TransactionService transactionService) {
         this.dataModel = dataModel;
         this.taskExecutor = taskExecutor;
         this.jsonService = jsonService;
+        this.transactionService = transactionService;
     }
 
     @Override
@@ -32,7 +36,10 @@ class TaskExecutionMessageHandler implements MessageHandler {
     public void onMessageDelete(Message message) {
         TaskOccurrenceImpl taskOccurrence = getTaskOccurrence(message);
         taskExecutor.postExecute(taskOccurrence);
-        taskOccurrence.hasRun();
+        try (TransactionContext context = transactionService.getContext()) {
+            taskOccurrence.hasRun();
+            context.commit();
+        }
     }
 
     private TaskOccurrenceImpl getTaskOccurrence(Message message) {

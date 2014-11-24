@@ -125,7 +125,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     }
 
     void hasRun() {
-        ((RecurrentTaskImpl) recurrentTask).updateLastRun(getTriggerTime());
+        ((RecurrentTaskImpl) getRecurrentTask()).updateLastRun(getTriggerTime());
     }
 
     void log(Level level, Instant timestamp, String message) {

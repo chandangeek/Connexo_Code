@@ -21,14 +21,12 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
@@ -46,7 +44,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
     private volatile MessageService messageService;
     private volatile QueryService queryService;
     private volatile TransactionService transactionService;
-    private volatile CronExpressionParser cronExpressionParser;
+    private volatile CompositeScheduleExpressionParser scheduleExpressionParser;
     private volatile JsonService jsonService;
 
     private Thread schedulerThread;
@@ -66,7 +64,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
         this.setMessageService(messageService);
         this.setQueryService(queryService);
         this.setTransactionService(transactionService);
-        this.setCronExpressionParser(cronExpressionParser);
+        this.setScheduleExpressionParser(cronExpressionParser);
         this.setJsonService(jsonService);
         this.activate();
         this.install();
@@ -74,10 +72,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     @Activate
     public void activate() {
-        CompositeScheduleExpressionParser scheduleExpressionParser = new CompositeScheduleExpressionParser();
-        scheduleExpressionParser.add(new TemporalExpressionParser());
-        scheduleExpressionParser.add(cronExpressionParser);
-        scheduleExpressionParser.add(Never.NEVER);
+
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -93,7 +88,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     @Override
     public MessageHandler createMessageHandler(TaskExecutor taskExecutor) {
-        return new TaskExecutionMessageHandler(dataModel, taskExecutor, jsonService);
+        return new TaskExecutionMessageHandler(dataModel, taskExecutor, jsonService, transactionService);
     }
 
     @Deactivate
@@ -161,7 +156,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     @Override
     public RecurrentTaskBuilder newBuilder() {
-        return new DefaultRecurrentTaskBuilder(dataModel, cronExpressionParser);
+        return new DefaultRecurrentTaskBuilder(dataModel, scheduleExpressionParser);
     }
 
     @Reference
@@ -170,8 +165,12 @@ public class TaskServiceImpl implements TaskService, InstallService {
     }
 
     @Reference
-    public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
-        this.cronExpressionParser = cronExpressionParser;
+    public void setScheduleExpressionParser(CronExpressionParser cronExpressionParser) {
+        CompositeScheduleExpressionParser scheduleExpressionParser = new CompositeScheduleExpressionParser();
+        scheduleExpressionParser.add(new TemporalExpressionParser());
+        scheduleExpressionParser.add(cronExpressionParser);
+        scheduleExpressionParser.add(Never.NEVER);
+        this.scheduleExpressionParser = scheduleExpressionParser;
     }
 
     @Reference
@@ -209,7 +208,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     private DueTaskFetcher getDueTaskFetcher() {
         if (dueTaskFetcher == null) {
-            dueTaskFetcher = new DueTaskFetcher(dataModel, messageService, cronExpressionParser, clock);
+            dueTaskFetcher = new DueTaskFetcher(dataModel, messageService, scheduleExpressionParser, clock);
         }
         return dueTaskFetcher;
     }
