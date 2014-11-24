@@ -700,7 +700,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
         logBookSpec.validateDelete();
         removeFromHasIdList(this.logBookSpecs,logBookSpec);
-        this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(),logBookSpec);
+        this.eventService.postEvent(EventType.DEVICETYPE_DELETED.topic(), logBookSpec);
     }
 
     @Override
@@ -724,6 +724,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     @Override
     public void save() {
         this.modificationDate = this.clock.instant();
+        this.protocolConfigurationPropertyChanges.apply();
         super.save();
         if (this.communicationConfiguration != null) {
             getCommunicationConfiguration().save();
@@ -987,7 +988,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     boolean removeProtocolProperty(String propertyName) {
-        return this.protocolConfigurationPropertyChanges.addProtocolProperty(propertyName);
+        return this.protocolConfigurationPropertyChanges.removeProtocolProperty(propertyName);
     }
 
     private class ProtocolConfigurationPropertyChanges {
@@ -999,12 +1000,36 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
 
         private boolean removeProtocolProperty(String propertyName) {
+            ProtocolConfigurationProperty newProperty = this.newProperties.get(propertyName);
+            if (newProperty != null) {
+                // Property was added before, revoke it
+                this.newProperties.remove(propertyName);
+                return true;
+            }
+            else {
+                Optional<ProtocolConfigurationProperty> existingProperty = this.findProperty(propertyName);
+                if (existingProperty.isPresent()) {
+                    this.obsoleteProperties.put(propertyName, existingProperty.get());
+                    return true;
+                }
+                else {
+                    return false;   // There was not such property
+                }
+            }
+        }
 
+        private Optional<ProtocolConfigurationProperty> findProperty(String propertyName) {
+            return protocolProperties
+                    .stream()
+                    .filter(p -> p.getName().equals(propertyName))
+                    .findFirst();
         }
 
         private void apply() {
             protocolProperties.removeAll(this.obsoleteProperties.values());
             protocolProperties.addAll(this.newProperties.values());
+            this.newProperties.clear();
+            this.obsoleteProperties.clear();
         }
 
     }

@@ -115,6 +115,7 @@ public class ProtocolConfigurationPropertiesImpl implements ProtocolConfiguratio
         String stringValue = propertySpec.getValueFactory().toStringValue(value);
         ProtocolConfigurationProperty property = ProtocolConfigurationProperty.forNameAndValue(name, stringValue, this.deviceConfiguration);
         this.deviceConfiguration.addProtocolProperty(property);
+        this.properties.setProperty(name, value);
     }
 
     @Override
@@ -128,14 +129,6 @@ public class ProtocolConfigurationPropertiesImpl implements ProtocolConfiguratio
         if (this.deviceConfiguration.removeProtocolProperty(name)) {
             this.properties.removeProperty(name);
         }
-    }
-
-    private Optional<ProtocolConfigurationProperty> findProperty(String name) {
-        return this.deviceConfiguration
-                .getProtocolPropertyList()
-                .stream()
-                .filter(p -> p.getName().equals(name))
-                .findFirst();
     }
 
 }

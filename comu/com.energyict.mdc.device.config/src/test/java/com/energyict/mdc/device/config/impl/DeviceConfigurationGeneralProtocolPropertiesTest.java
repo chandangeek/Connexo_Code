@@ -49,6 +49,7 @@ public class DeviceConfigurationGeneralProtocolPropertiesTest extends DeviceType
 
         // Asserts
         assertThat(protocolProperties).isNotNull();
+        assertThat(protocolProperties.getDeviceConfiguration()).isEqualTo(deviceConfiguration);
         assertThat(protocolProperties.getTypedProperties()).isNotNull();
         assertThat(protocolProperties.getTypedProperties().hasValueFor(NUMERIC_PROPERTY_SPEC_NAME)).isFalse();
         assertThat(protocolProperties.getTypedProperties().hasValueFor(STRING_PROPERTY_SPEC_NAME)).isFalse();
@@ -88,6 +89,29 @@ public class DeviceConfigurationGeneralProtocolPropertiesTest extends DeviceType
 
     @Test
     @Transactional
+    public void testSetPropertyTwice() {
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("testNewConfigurationHasEmptyProperties");
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+        ProtocolConfigurationProperties protocolProperties = deviceConfiguration.getProtocolProperties();
+        protocolProperties.setProperty(STRING_PROPERTY_SPEC_NAME, "Will be overruled soon");
+
+        // Business method
+        String expectedStringPropertyValue = "Actual string value";
+        protocolProperties.setProperty(STRING_PROPERTY_SPEC_NAME, expectedStringPropertyValue);
+        deviceConfiguration.save();
+
+        // Asserts
+        DeviceConfiguration reloadedDeviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId()).get();
+        ProtocolConfigurationProperties reloadedProtocolProperties = reloadedDeviceConfiguration.getProtocolProperties();
+        assertThat(reloadedProtocolProperties).isNotNull();
+        assertThat(reloadedProtocolProperties.getTypedProperties()).isNotNull();
+        assertThat(reloadedProtocolProperties.getTypedProperties().hasValueFor(NUMERIC_PROPERTY_SPEC_NAME)).isFalse();
+        assertThat(reloadedProtocolProperties.getTypedProperties().hasValueFor(STRING_PROPERTY_SPEC_NAME)).isTrue();
+        assertThat(reloadedProtocolProperties.getTypedProperties().getProperty(STRING_PROPERTY_SPEC_NAME)).isEqualTo(expectedStringPropertyValue);
+    }
+
+    @Test
+    @Transactional
     public void testAddProperty() {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("testNewConfigurationHasEmptyProperties");
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
@@ -106,6 +130,86 @@ public class DeviceConfigurationGeneralProtocolPropertiesTest extends DeviceType
         assertThat(reloadedProtocolProperties.getTypedProperties().hasValueFor(NUMERIC_PROPERTY_SPEC_NAME)).isFalse();
         assertThat(reloadedProtocolProperties.getTypedProperties().hasValueFor(STRING_PROPERTY_SPEC_NAME)).isTrue();
         assertThat(reloadedProtocolProperties.getTypedProperties().getProperty(STRING_PROPERTY_SPEC_NAME)).isEqualTo(expectedStringPropertyValue);
+    }
+
+    @Test
+    @Transactional
+    public void testSetAndGetPropertyWithoutSaving() {
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("testNewConfigurationHasEmptyProperties");
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+        ProtocolConfigurationProperties protocolProperties = deviceConfiguration.getProtocolProperties();
+        String expectedStringPropertyValue = "Actual string value";
+
+        // Business method
+        protocolProperties.setProperty(STRING_PROPERTY_SPEC_NAME, expectedStringPropertyValue);
+
+        // Asserts
+        assertThat(protocolProperties.getProperty(STRING_PROPERTY_SPEC_NAME)).isEqualTo(expectedStringPropertyValue);
+    }
+
+    @Test
+    @Transactional
+    public void testAddAndRemoveSamePropertyWithOneSave() {
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("testNewConfigurationHasEmptyProperties");
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+        ProtocolConfigurationProperties protocolProperties = deviceConfiguration.getProtocolProperties();
+        protocolProperties.setProperty(STRING_PROPERTY_SPEC_NAME, "Does not really matter");
+        protocolProperties.removeProperty(STRING_PROPERTY_SPEC_NAME);
+
+        // Business method
+        deviceConfiguration.save();
+
+        // Asserts
+        DeviceConfiguration reloadedDeviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId()).get();
+        ProtocolConfigurationProperties reloadedProtocolProperties = reloadedDeviceConfiguration.getProtocolProperties();
+        assertThat(reloadedProtocolProperties).isNotNull();
+        assertThat(reloadedProtocolProperties.getTypedProperties()).isNotNull();
+        assertThat(reloadedProtocolProperties.getTypedProperties().hasValueFor(NUMERIC_PROPERTY_SPEC_NAME)).isFalse();
+        assertThat(reloadedProtocolProperties.getTypedProperties().hasValueFor(STRING_PROPERTY_SPEC_NAME)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testRemoveProperty() {
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("testNewConfigurationHasEmptyProperties");
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+        ProtocolConfigurationProperties protocolProperties = deviceConfiguration.getProtocolProperties();
+        protocolProperties.setProperty(STRING_PROPERTY_SPEC_NAME, "Does not really matter");
+        deviceConfiguration.save();
+
+        // Business method
+        protocolProperties.removeProperty(STRING_PROPERTY_SPEC_NAME);
+        deviceConfiguration.save();
+
+        // Asserts
+        DeviceConfiguration reloadedDeviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId()).get();
+        ProtocolConfigurationProperties reloadedProtocolProperties = reloadedDeviceConfiguration.getProtocolProperties();
+        assertThat(reloadedProtocolProperties).isNotNull();
+        assertThat(reloadedProtocolProperties.getTypedProperties()).isNotNull();
+        assertThat(reloadedProtocolProperties.getTypedProperties().hasValueFor(NUMERIC_PROPERTY_SPEC_NAME)).isFalse();
+        assertThat(reloadedProtocolProperties.getTypedProperties().hasValueFor(STRING_PROPERTY_SPEC_NAME)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testRemovePropertyWithSetterMethod() {
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("testNewConfigurationHasEmptyProperties");
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+        ProtocolConfigurationProperties protocolProperties = deviceConfiguration.getProtocolProperties();
+        protocolProperties.setProperty(STRING_PROPERTY_SPEC_NAME, "Does not really matter");
+        deviceConfiguration.save();
+
+        // Business method
+        protocolProperties.setProperty(STRING_PROPERTY_SPEC_NAME, null);
+        deviceConfiguration.save();
+
+        // Asserts
+        DeviceConfiguration reloadedDeviceConfiguration = inMemoryPersistence.getDeviceConfigurationService().findDeviceConfiguration(deviceConfiguration.getId()).get();
+        ProtocolConfigurationProperties reloadedProtocolProperties = reloadedDeviceConfiguration.getProtocolProperties();
+        assertThat(reloadedProtocolProperties).isNotNull();
+        assertThat(reloadedProtocolProperties.getTypedProperties()).isNotNull();
+        assertThat(reloadedProtocolProperties.getTypedProperties().hasValueFor(NUMERIC_PROPERTY_SPEC_NAME)).isFalse();
+        assertThat(reloadedProtocolProperties.getTypedProperties().hasValueFor(STRING_PROPERTY_SPEC_NAME)).isFalse();
     }
 
 }
