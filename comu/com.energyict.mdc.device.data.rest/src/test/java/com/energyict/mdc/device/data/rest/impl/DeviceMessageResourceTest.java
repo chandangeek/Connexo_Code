@@ -126,6 +126,32 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     }
 
     @Test
+    public void testGetDeviceCommandsByPage() throws Exception {
+        Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
+        Instant sent = LocalDateTime.of(2014, 10, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
+
+        Device device = mock(Device.class);
+        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
+        DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(20), null);
+        DeviceMessage<Device> command3 = mockCommand(device, 3L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.minusSeconds(10), null);
+        DeviceMessage<Device> command4 = mockCommand(device, 4L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.minusSeconds(20), null);
+        when(device.getMessages()).thenReturn(Arrays.asList(command1,command2, command3, command4));
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
+        when(command1.getAttributes()).thenReturn(Collections.emptyList());
+
+        String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 2).queryParam("limit", 2).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+
+        assertThat(model.<Integer>get("$.total")).isEqualTo(4);
+        assertThat(model.<Integer>get("$.deviceMessages[0].id")).isEqualTo(3);
+        assertThat(model.<Integer>get("$.deviceMessages[1].id")).isEqualTo(4);
+    }
+
+    @Test
     public void testGetDeviceCommandProperties() throws Exception {
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
 
