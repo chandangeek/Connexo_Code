@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.TypedProperties;
@@ -46,6 +47,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,6 +58,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -145,6 +148,24 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         inMemoryPersistence.getThreadPrincipalService().set(null);
         device.newDeviceMessage(contactorClose).setReleaseDate(releaseInstant).add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.USER_IS_REQUIRED + "}")
+    public void createWithoutEmptyUserTest() {
+        Device device = createSimpleDeviceWithName("createWithoutEmptyUserTest", "createWithoutEmptyUserTest");
+        DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
+
+        ThreadPrincipalService mockedThreadPrincipalService = mock(ThreadPrincipalService.class);
+        Principal mockedPrincipal = mock(Principal.class);
+        when(mockedPrincipal.getName()).thenReturn("");
+        when(mockedThreadPrincipalService.getPrincipal()).thenReturn(mockedPrincipal);
+        DeviceMessageImpl deviceMessage = new DeviceMessageImpl(inMemoryPersistence.getDataModel(), inMemoryPersistence.getEventService(), inMemoryPersistence.getThesaurus(), mockedThreadPrincipalService, inMemoryPersistence.getDeviceMessageSpecificationService(), inMemoryPersistence.getClock());
+
+        deviceMessage.initialize(device, contactorClose);
+
+        deviceMessage.save();
     }
 
     @Test

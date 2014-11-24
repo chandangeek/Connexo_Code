@@ -1,8 +1,21 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.ConnectionTaskFields;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceFields;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -20,33 +33,18 @@ import com.energyict.mdc.device.data.tasks.history.ComStatistics;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
-import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 /**
@@ -577,7 +575,7 @@ public enum
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
             table.column("DEVICEMESSAGEID").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).notNull().add();
             table.column("STATUS").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).notNull().add();
-            Column user = table.column("USR").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("USR").varChar(SHORT_DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.USER.fieldName()).notNull().add();
             table.column("TRACKINGID").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.TRACKINGID.fieldName()).add();
             table.column("PROTOCOLINFO").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).add();
             table.column("CREATEDATE").number().map(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
@@ -585,7 +583,6 @@ public enum
             table.column("SENTDATE").number().map(DeviceMessageImpl.Fields.SENTDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.primaryKey("PK_DDC_DEVICEMESSAGE").on(id).add();
             table.foreignKey("FK_DDC_DEVMESSAGE_DEV").on(device).references(DDC_DEVICE.name()).map("device").reverseMap("deviceMessages").add();
-            table.foreignKey("FK_DDC_DEVMESSAGE_USR").on(user).references(UserService.COMPONENTNAME, "USR_USER").map("user").add();
         }
     },
 
