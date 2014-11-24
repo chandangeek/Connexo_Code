@@ -24,6 +24,7 @@ import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.tasks.ComTask;
 
 import org.joda.time.DateTime;
 
@@ -158,7 +159,8 @@ public class RescheduleBehaviorForAsapTest {
 
     @Test
     public void rescheduleDueToConnectionSetupErrorTest() throws ConnectionException {
-        ComTaskExecution notExecutedComTaskExecution = getMockedComTaskExecution();
+        ComTask comTask = mock(ComTask.class);
+        ComTaskExecution notExecutedComTaskExecution = getMockedComTaskExecution(comTask);
 
         final ExecutionContext executionContext = newTestExecutionContext();
         RescheduleBehaviorForAsap rescheduleBehavior = new RescheduleBehaviorForAsap(
@@ -169,7 +171,7 @@ public class RescheduleBehaviorForAsapTest {
         when(commandRoot.getComTaskRoot(notExecutedComTaskExecution)).thenReturn(mock(ComTaskExecutionComCommand.class));
         executionContext.setCommandRoot(commandRoot);
         ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = mock(ComTaskExecutionSessionBuilder.class);
-        when(this.comSessionBuilder.addComTaskExecutionSession(eq(notExecutedComTaskExecution), eq(device), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
+        when(this.comSessionBuilder.addComTaskExecutionSession(eq(notExecutedComTaskExecution), eq(comTask), eq(device), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
         rescheduleBehavior.performRescheduling(RescheduleBehavior.RescheduleReason.CONNECTION_SETUP);
 
         // asserts
@@ -210,6 +212,17 @@ public class RescheduleBehaviorForAsapTest {
     private ComTaskExecution getMockedComTaskExecution() {
         ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ComTaskExecution.class));
         when(comTaskExecution.getDevice()).thenReturn(device);
+        ProtocolDialectConfigurationProperties mockedProtocolDialectProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(mockedProtocolDialectProperties.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mockedProtocolDialectProperties);
+        return comTaskExecution;
+    }
+
+    private ComTaskExecution getMockedComTaskExecution(ComTask comTask) {
+        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ServerComTaskExecution.class));
+        when(comTaskExecution.getDevice()).thenReturn(device);
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         ProtocolDialectConfigurationProperties mockedProtocolDialectProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(mockedProtocolDialectProperties.getTypedProperties()).thenReturn(TypedProperties.empty());
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mockedProtocolDialectProperties);

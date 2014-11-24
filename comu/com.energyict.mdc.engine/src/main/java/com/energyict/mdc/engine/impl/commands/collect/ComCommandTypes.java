@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
+import com.energyict.mdc.engine.impl.core.CreateComTaskSessionTask;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
@@ -190,7 +191,19 @@ public enum ComCommandTypes {
     READ_LOGBOOKS_COMMAND,
 
     LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND,
-    READ_LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND;
+    READ_LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND,
+
+    CREATE_COM_TASK_SESSION_COMMAND(CreateComTaskSessionTask.class){
+        @Override
+        public void createLegacyCommandsFromProtocolTask(CommandRoot root, List<? extends ProtocolTask> protocolTasks, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            root.getCreateComTasSessionTask((CreateComTaskSessionTask) protocolTask, root, comTaskExecution);
+        }
+
+        @Override
+        public void createCommandsFromTask(CommandRoot root, ProtocolTask protocolTask, ComTaskExecution comTaskExecution) {
+            root.getCreateComTasSessionTask((CreateComTaskSessionTask) protocolTask, root, comTaskExecution);
+        }
+    };
 
     /**
      * The protocolTask that can model a {@link ComCommand} from this type.

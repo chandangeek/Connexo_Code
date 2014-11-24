@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
+import com.energyict.mdc.engine.impl.core.CreateComTaskSessionTask;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.issues.IssueService;
@@ -238,6 +239,14 @@ public interface CommandRoot extends CompositeComCommand {
      * @return the {@link VerifySerialNumberCommand} in this {@link CommandRoot}
      */
     public VerifySerialNumberCommand getVerifySerialNumberCommand(final BasicCheckCommand comCommands, ComTaskExecution comTaskExecution);
+
+    /**
+     * @param protocolTask the task for which this command is created
+     * @param possibleCommandOwner the possible owner of this command if it does not exist yet
+     * @param comTaskExecution the ComTaskExecution that drives this ComCommand
+     * @return the newly created CreateComTaskSessionCommand
+     */
+    public CreateComTaskSessionCommand getCreateComTasSessionTask(CreateComTaskSessionTask protocolTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution);
 
     /**
      * Executes the ComCommands related to the given preparedComTaskExecution
