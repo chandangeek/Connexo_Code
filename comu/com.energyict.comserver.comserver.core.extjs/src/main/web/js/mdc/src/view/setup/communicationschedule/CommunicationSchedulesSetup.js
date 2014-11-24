@@ -29,6 +29,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesSetup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add shared communication schedule'),
+                                privileges: ['privilege.administrate.schedule'],
                                 action: 'createCommunicationSchedule'
                             }
                         ]
