@@ -15,7 +15,10 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_CAN_NOT_BE_EMPTY(1002, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH(1003, Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH, "Field's text length should be between 1 and " + Table.NAME_LENGTH + " symbols", Level.SEVERE),
     NO_SUCH_PROCESSOR(1004, Keys.NO_SUCH_PROCESSOR, "Processor {0} does not exist.", Level.SEVERE),
-    NAME_MUST_BE_UNIQUE(7, Keys.NAME_MUST_BE_UNIQUE, "Data export task with such name already exists", Level.SEVERE),;
+    NAME_MUST_BE_UNIQUE(1005, Keys.NAME_MUST_BE_UNIQUE, "Data export task with such name already exists", Level.SEVERE),
+    ITEM_FAILED(1006, "dataexport.item.failed", "Item {0} failed to export", Level.WARNING),
+    ITEM_FATALLY_FAILED(1007, "dataexport.item.fatally.failed", "Item {0} fatally failed to export", Level.SEVERE),
+    ITEM_EXPORTED_SUCCESFULLY(1008, "dataexport.item.success", "Item {0} exported succesfully for period {1}", Level.INFO);
 
     private final int number;
     private final String key;

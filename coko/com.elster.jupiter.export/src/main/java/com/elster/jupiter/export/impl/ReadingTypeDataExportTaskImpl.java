@@ -335,6 +335,11 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
+    public void triggerNow() {
+        recurrentTask.get().triggerNow();
+    }
+
+    @Override
     public String getName() {
         return name;
     }

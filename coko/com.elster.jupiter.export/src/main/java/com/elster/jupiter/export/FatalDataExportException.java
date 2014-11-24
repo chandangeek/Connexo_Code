@@ -6,6 +6,6 @@ package com.elster.jupiter.export;
 public class FatalDataExportException extends RuntimeException {
 
     public FatalDataExportException(Exception cause) {
-        super(cause);
+        super(cause.getMessage(), cause);
     }
 }

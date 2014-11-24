@@ -103,8 +103,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
 
     @Override
     public void end(DataExportStatus status) {
-        this.status = status;
-        this.endDate = clock.instant();
+        end(status, null);
     }
 
     @Override
@@ -112,6 +111,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
         this.status = status;
         this.endDate = clock.instant();
         this.failureReason = message;
+        getTask().updateLastRun(getTriggerTime());
     }
 
     @Override
@@ -132,5 +132,10 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     @Override
     public Long getId() {
         return taskOccurrence.get().getId();
+    }
+
+    @Override
+    public boolean wasScheduled() {
+        return taskOccurrence.get().wasScheduled();
     }
 }
