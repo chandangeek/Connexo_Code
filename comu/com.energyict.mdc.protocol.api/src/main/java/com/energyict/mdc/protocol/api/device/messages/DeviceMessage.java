@@ -115,7 +115,7 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
      * User who created the command
      * @return User
      */
-    public User getUser();
+    public String getUser();
 
     /**
      * Updates the release date of this device message. Will only be allowed for messages in state WAITING. Will be persisted by save()
