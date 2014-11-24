@@ -836,6 +836,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'topology',
                             controller: 'Mdc.controller.setup.DeviceTopology',
                             privileges: ['privilege.view.device', 'privilege.administrate.device'],
+                            filter: 'Mdc.model.TopologyFilter',
                             action: 'showTopologyView'
                         },
 
