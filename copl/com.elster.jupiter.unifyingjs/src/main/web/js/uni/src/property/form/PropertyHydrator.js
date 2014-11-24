@@ -37,6 +37,7 @@ Ext.define('Uni.property.form.PropertyHydrator', {
                 }
                 var propertyValue = property.getPropertyValue();
                 propertyValue.set('value', value);
+                propertyValue.set('propertyHasValue', property.get('hasValue'));
             }
 
         });
