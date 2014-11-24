@@ -219,7 +219,7 @@ public class RescheduleBehaviorForAsapTest {
     }
 
     private ComTaskExecution getMockedComTaskExecution(ComTask comTask) {
-        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ServerComTaskExecution.class));
+        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ComTaskExecution.class));
         when(comTaskExecution.getDevice()).thenReturn(device);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
