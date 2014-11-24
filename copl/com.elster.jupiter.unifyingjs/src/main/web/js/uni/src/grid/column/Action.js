@@ -68,6 +68,8 @@ Ext.define('Uni.grid.column.Action', {
             if (grid.getStore().indexOf(selectedRecord) !== rowIndex) {
                 selectionModel.select(rowIndex);
             }
+        } else if (selection.length === 0 && grid.getStore().getCount() > 0) {
+            selectionModel.select(rowIndex);
         }
 
         if (me.menu.cell === cell) {
