@@ -971,7 +971,7 @@ h6 {
   -webkit-border-radius: 0;
   padding: 0;
   margin-right: 0 !important;
-  border-radius: 21px;
+  border-radius: 20px;
 }
 /* line 9, ../../sass/src/button/TransparentButton.scss */
 .x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button {
@@ -996,15 +996,15 @@ h6 {
 }
 /* line 45, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button {
-  height: 42px;
-  width: 42px;
+  height: 40px;
+  width: 40px;
   background-image: url("images/container/menu/navCollapse.png");
   background-position: center center;
   background-repeat: no-repeat;
 }
 /* line 49, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button .x-btn-icon-el {
-  width: 42px;
+  width: 40px;
 }
 /* line 60, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu *[class*='x-btn-toggle-'].x-pressed .x-btn-button {
@@ -1419,7 +1419,7 @@ h6 {
   -webkit-border-radius: 0;
   padding: 0;
   margin-right: 0 !important;
-  border-radius: 21px;
+  border-radius: 20px;
 }
 /* line 9, ../../sass/src/button/TransparentButton.scss */
 .x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button {
@@ -1444,15 +1444,15 @@ h6 {
 }
 /* line 45, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button {
-  height: 42px;
-  width: 42px;
+  height: 40px;
+  width: 40px;
   background-image: url("images/container/menu/navCollapse.png");
   background-position: center center;
   background-repeat: no-repeat;
 }
 /* line 49, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu *[class*='x-btn-toggle-'] .x-btn-button .x-btn-icon-el {
-  width: 42px;
+  width: 40px;
 }
 /* line 60, ../../sass/src/container/NavigationMenu.scss */
 .x-container-navigationmenu *[class*='x-btn-toggle-'].x-pressed .x-btn-button {

@@ -35,7 +35,7 @@
         @include transparent-button();
         margin-right: 0 !important;
 
-        $toggle-size: 42px;
+        $toggle-size: 40px;
         border-radius: $toggle-size / 2;
 
         &:hover {
