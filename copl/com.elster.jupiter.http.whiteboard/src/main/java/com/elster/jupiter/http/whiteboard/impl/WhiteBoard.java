@@ -9,7 +9,6 @@ import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.YellowfinService;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -102,14 +101,13 @@ public class WhiteBoard extends Application implements BinderProvider {
     @Reference(name = "ZApplication", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addApplication(App resource) {
         List<String> applications = licenseService.getLicensedApplicationKeys();
-        // TODO: remove comment to activate license check
-        //if(resource.getKey().equals("SYS") ||
-        //        applications.stream().filter(application -> application.equals(resource.getKey())).findFirst().isPresent()){
+        if(resource.getKey().equals("SYS") ||
+                applications.stream().filter(application -> application.equals(resource.getKey())).findFirst().isPresent()){
             if (resource.isInternalApp()) {
                 addResource(resource.getMainResource());
             }
             apps.add(resource);
-        //}
+        }
     }
 
     @Activate
@@ -155,8 +153,7 @@ public class WhiteBoard extends Application implements BinderProvider {
         Optional<License> license;
         List<String> applications = licenseService.getLicensedApplicationKeys();
 
-        // TODO: remove comment to activate license check
-        /*for(App application : apps){
+        for(App application : apps){
             if(!application.getKey().equals("SYS")){
                 license = licenseService.getLicenseForApplication(application.getKey());
                 if( !license.isPresent() ||
@@ -164,7 +161,7 @@ public class WhiteBoard extends Application implements BinderProvider {
                     unregisterRestApplication(application.getKey());
                 }
             }
-        }*/
+        }
     }
 
     private void unregisterRestApplication(String application){
@@ -203,6 +200,7 @@ public class WhiteBoard extends Application implements BinderProvider {
             @Override
             protected void configure() {
                 this.bind(WhiteBoard.this).to(WhiteBoard.class);
+                this.bind(yellowfinService).to(YellowfinService.class);
             }
         };
     }

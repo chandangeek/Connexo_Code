@@ -13,6 +13,15 @@ public class App {
     private final HttpResource mainResource;
     private final String externalUrl;
 
+    public App(String key, String name, String icon, String context, HttpResource mainResource, String externalUrl) {
+        this.key = key;
+        this.name = name;
+        this.icon = icon;
+        this.context = context;
+        this.mainResource = mainResource;
+        this.externalUrl = externalUrl;
+    }
+
     public App(String key, String name, String icon, String context, HttpResource mainResource) {
         this.key = key;
         this.name = name;
@@ -52,7 +61,7 @@ public class App {
     }
 
     public boolean isInternalApp() {
-        return externalUrl == null;
+        return mainResource != null;
     }
 
     public String getKey() {

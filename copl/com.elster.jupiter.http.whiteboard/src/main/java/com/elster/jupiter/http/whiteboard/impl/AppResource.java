@@ -32,10 +32,12 @@ public class AppResource {
                                         "privilege.administrate.deviceGroup","privilege.administrate.deviceOfEnumeratedGroup","privilege.view.deviceGroupDetail",
                                         "privilege.import.inventoryManagement","privilege.revoke.inventoryManagement","privilege.create.inventoryManagement","privilege.administrate.deviceSecurity",
                                         "privilege.view.deviceSecurity"};
+    private static final String[] APP_YELLOWFIN_PRIVILEGES = {"privilege.view.*"};
     private static final String[] BPM_CONSOLE_PRIVILEGES = {"privilege.view.bpm"};
     private static final String APP_SYSTEM_ADMIN_NAME = "Connexo System Admin";
     private static final String APP_MULTI_SENSE_NAME = "Connexo Multi Sense";
     private static final String APP_BPM_CONSOLE_NAME = "BPM console";
+    private static final String APP_YELLOWFIN_NAME = "Reports";
 
 
     @GET
@@ -51,6 +53,8 @@ public class AppResource {
         appInfo.name = app.getName();
         appInfo.icon = app.getIcon();
         appInfo.url = getUrl(app);
+        appInfo.externalUrl = app.getExternalUrl();
+        appInfo.isExternal = app.getExternalUrl()!=null;
         return appInfo;
     }
 
@@ -77,6 +81,11 @@ public class AppResource {
                 if (isUserInApp(BPM_CONSOLE_PRIVILEGES, privileges)) {
                     applications.add(app);
                 }
+            }
+            if (app.getName().equals(APP_YELLOWFIN_NAME)){
+                //if (isUserInApp(APP_YELLOWFIN_PRIVILEGES, privileges)) {
+                    applications.add(app);
+                //}
             }
         }
         return applications;

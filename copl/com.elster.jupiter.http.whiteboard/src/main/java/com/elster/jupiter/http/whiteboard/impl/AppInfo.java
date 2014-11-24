@@ -5,5 +5,7 @@ public class AppInfo {
     public String name;
     public String url;
     public String icon;
+    public String externalUrl;
+    public Boolean isExternal;
 
 }

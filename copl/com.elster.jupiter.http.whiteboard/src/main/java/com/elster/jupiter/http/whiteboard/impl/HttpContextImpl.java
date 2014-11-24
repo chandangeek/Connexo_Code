@@ -92,8 +92,6 @@ public class HttpContextImpl implements HttpContext {
             return true;
         }
 
-        whiteboard.checkLicense();
-
         String authentication = request.getHeader("Authorization");
         if (authentication == null) {
             // Not logged in or session expired, so authentication is required
@@ -117,23 +115,19 @@ public class HttpContextImpl implements HttpContext {
         }
 
         if(user.isPresent()){
-            loginYellowfin(response);
+            whiteboard.checkLicense();
             return allow(request, response, user.get());
         }
 
         return deny(response);
     }
 
-    private void loginYellowfin(HttpServletResponse response) {
-        //if(whiteboard.getApps().stream().filter(application -> application.getKey().equals("YFN")).findFirst().isPresent()){
-            String yellowfinSession = yellowfinService.login("");
-            if(yellowfinSession != null){
-                Cookie cookie = new Cookie("JSESSIONID_YELLOWFIN", yellowfinSession);
-                cookie.setPath("/");
-                response.addCookie(cookie);
-            }
-        //}
+
+
+    private void logoutYellowfin(HttpServletRequest request) {
+        yellowfinService.logout("admin", "admin", "ddd");
     }
+
 
     private boolean login(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
@@ -155,7 +149,6 @@ public class HttpContextImpl implements HttpContext {
         request.getSession(true).setMaxInactiveInterval(whiteboard.getSessionTimeout());
         request.getSession(false).setAttribute("user", user);
         response.setHeader("Cache-Control", "max-age=86400");
-        response.addCookie(new Cookie("JSESSIONID_YELLOWFIN", "test"));
         return true;
     }
 
@@ -166,6 +159,7 @@ public class HttpContextImpl implements HttpContext {
 
     private boolean logoutRequested(HttpServletRequest request) {
         if (request.getParameter("logout") != null && request.getParameter("logout").equals("true")) {
+
             return true;
         }
         return false;
@@ -175,6 +169,8 @@ public class HttpContextImpl implements HttpContext {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
+
+            logoutYellowfin(request);
         }
     }
 
