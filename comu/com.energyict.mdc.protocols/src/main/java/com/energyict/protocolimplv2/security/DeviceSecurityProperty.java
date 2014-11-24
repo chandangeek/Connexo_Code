@@ -26,6 +26,7 @@ public enum DeviceSecurityProperty {
             return propertySpecService.
                     newPropertySpecBuilder(new PasswordFactory()).
                     name(SecurityPropertySpecName.PASSWORD.toString()).
+                    markRequired().
                     finish();
         }
     },
@@ -38,6 +39,7 @@ public enum DeviceSecurityProperty {
             return propertySpecService.
                     newPropertySpecBuilder(new EncryptedStringFactory()).
                     name(SecurityPropertySpecName.ENCRYPTION_KEY.toString()).
+                    markRequired().
                     finish();
         }
     },
@@ -50,6 +52,7 @@ public enum DeviceSecurityProperty {
             return propertySpecService.
                     newPropertySpecBuilder(new EncryptedStringFactory()).
                     name(SecurityPropertySpecName.AUTHENTICATION_KEY.toString()).
+                    markRequired().
                     finish();
         }
     },
@@ -62,6 +65,7 @@ public enum DeviceSecurityProperty {
             return propertySpecService.
                     newPropertySpecBuilder(new BigDecimalFactory()).
                     name(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()).
+                    markRequired().
                     finish();
         }
     },
@@ -74,6 +78,7 @@ public enum DeviceSecurityProperty {
             return propertySpecService.
                     newPropertySpecBuilder(new StringFactory()).
                     name(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString()).
+                    markRequired().
                     finish();
         }
     },
@@ -86,6 +91,7 @@ public enum DeviceSecurityProperty {
             return propertySpecService.
                     newPropertySpecBuilder(new StringFactory()).
                     name(SecurityPropertySpecName.ANSI_C12_USER.toString()).
+                    markRequired().
                     finish();
         }
     },
@@ -98,6 +104,7 @@ public enum DeviceSecurityProperty {
             return propertySpecService.
                     newPropertySpecBuilder(new StringFactory()).
                     name(SecurityPropertySpecName.ANSI_C12_USER_ID.toString()).
+                    markRequired().
                     finish();
         }
     },
@@ -110,6 +117,7 @@ public enum DeviceSecurityProperty {
             return propertySpecService.
                     newPropertySpecBuilder(new BooleanFactory()).
                     name(SecurityPropertySpecName.BINARY_PASSWORD.toString()).
+                    markRequired().
                     finish();
         }
     },
@@ -122,6 +130,7 @@ public enum DeviceSecurityProperty {
             return propertySpecService.
                     newPropertySpecBuilder(new StringFactory()).
                     name(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString()).
+                    markRequired().
                     finish();
         }
     };
