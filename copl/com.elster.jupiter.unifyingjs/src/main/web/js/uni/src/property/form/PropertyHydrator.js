@@ -40,6 +40,7 @@ Ext.define('Uni.property.form.PropertyHydrator', {
                 }
                 propertyValue = property.getPropertyValue();
                 propertyValue.set('value', value);
+                propertyValue.set('propertyHasValue', property.get('hasValue'));
             }
 
         });

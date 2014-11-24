@@ -16,6 +16,8 @@ Ext.define('Uni.grid.column.Action', {
         items: []
     },
     constructor: function (config) {
+
+    constructor: function (config) {
         var me = this,
             cfg = Ext.apply({}, config);
 
@@ -33,7 +35,7 @@ Ext.define('Uni.grid.column.Action', {
         cfg.items = null;
         me.callParent([cfg]);
 
-        this.initMenu();
+        me.initMenu();
     },
 
     /**
@@ -52,11 +54,24 @@ Ext.define('Uni.grid.column.Action', {
             }
         });
     },
-
+  
     handler: function (grid, rowIndex, colIndex) {
-        var me = this;
-        var record = grid.getStore().getAt(rowIndex);
-        var cell = grid.getCellByPosition({row: rowIndex, column: colIndex});
+        var me = this,
+            record = grid.getStore().getAt(rowIndex),
+            cell = grid.getCellByPosition({row: rowIndex, column: colIndex}),
+            selectionModel = grid.getSelectionModel(),
+            selection = selectionModel.getSelection(),
+            selectedRecord;
+
+        if (selection.length > 0) {
+            selectedRecord = selection[0];
+
+            if (grid.getStore().indexOf(selectedRecord) !== rowIndex) {
+                selectionModel.select(rowIndex);
+            }
+        } else if (selection.length === 0 && grid.getStore().getCount() > 0) {
+            selectionModel.select(rowIndex);
+        }
 
         if (me.menu.cell === cell) {
             me.menu.hide();

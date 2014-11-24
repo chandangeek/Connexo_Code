@@ -20,8 +20,7 @@ Ext.define('Uni.grid.column.Duration', {
     usesSeconds: false,
 
     renderer: function (value, metaData, record) {
-        var me = this;
-
+        var me = metaData.column;
         if (!isNaN(value)) {
             value = me.usesSeconds ? value * 1000 : value;
             return Uni.util.String.formatDuration(parseInt(value, 10));

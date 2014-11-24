@@ -46,27 +46,27 @@ Ext.define('Uni.controller.Navigation', {
             me.selectMenuItemByActiveToken();
         });
 
-        this.initApps();
-        this.initMenuItems();
+        me.initApps();
+        me.initMenuItems();
 
-        this.control({
+        me.control({
             'navigationMenu': {
-                afterrender: this.onAfterRenderNavigationMenu
+                afterrender: me.onAfterRenderNavigationMenu
             },
             'navigationAppSwitcher': {
-                afterrender: this.resetAppSwitcherState
+                afterrender: me.resetAppSwitcherState
             },
             'navigationHeader #globalSearch': {
-                afterrender: this.initSearch
+                afterrender: me.initSearch
             }
         });
 
-        this.getApplication().on('changemaincontentevent', this.showContent, this);
-        this.getApplication().on('changemainbreadcrumbevent', this.initTitle, this);
-        this.getApplication().on('changemainbreadcrumbevent', this.setBreadcrumb, this);
+        me.getApplication().on('changemaincontentevent', me.showContent, me);
+        me.getApplication().on('changemainbreadcrumbevent', me.initTitle, me);
+        me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb, me);
 
-        this.getController('Uni.controller.history.Router').on('routematch', this.initBreadcrumbs, this);
-        this.getController('Uni.controller.history.Router').on('routechange', this.initBreadcrumbs, this);
+        me.getController('Uni.controller.history.Router').on('routematch', me.initBreadcrumbs, me);
+        me.getController('Uni.controller.history.Router').on('routechange', me.initBreadcrumbs, me);
     },
 
     initApps: function () {
