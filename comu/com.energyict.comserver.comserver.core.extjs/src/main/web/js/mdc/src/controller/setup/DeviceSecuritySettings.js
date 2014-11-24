@@ -61,11 +61,8 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             '#deviceSecuritySettingPreview menuitem[action=hideValueDeviceSecuritySetting]': {
                 click: this.hideValue
             },
-            '#deviceSecuritySettingEdit menuitem[action=showValueDeviceSecuritySetting]': {
-                click: this.showValueInEdit
-            },
-            '#deviceSecuritySettingEdit menuitem[action=hideValueDeviceSecuritySetting]': {
-                click: this.hideValueInEdit
+            '#deviceSecuritySettingEdit checkbox' :{
+                change: this.showValueInEdit
             }
         });
     },
@@ -234,19 +231,21 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         form.passwordAsTextComponent = true;
                         if (deviceSecuritySetting.properties().count()) {
                             if (deviceSecuritySetting.get('userHasViewPrivilege') && deviceSecuritySetting.get('userHasEditPrivilege')) {
-                                widget.down('#device-security-setting-action-menu-in-title').setVisible(true);
+                                widget.down('#device-security-setting-show-value').setVisible(true);
                                 form.show();
                                 form.loadRecord(deviceSecuritySetting);
                                 me.getDeviceSecuritySettingDetailTitle().setVisible(true);
-                                widget.down('#editDeviceSecuritySetting').setVisible(false);
-                                widget.down('#showValueDeviceSecuritySetting').setVisible(true);
-                                widget.down('#hideValueDeviceSecuritySetting').setVisible(false);
+                                //widget.down('#editDeviceSecuritySetting').setVisible(false);
+                                //widget.down('#showValueDeviceSecuritySetting').setVisible(true);
+                                //widget.down('#hideValueDeviceSecuritySetting').setVisible(false);
                             } else if (!deviceSecuritySetting.get('userHasViewPrivilege') && deviceSecuritySetting.get('userHasEditPrivilege')) {
+                                widget.down('#device-security-setting-show-value').setVisible(false);
                                 form.show();
                                 form.loadRecord(deviceSecuritySetting);
                                 me.getDeviceSecuritySettingDetailTitle().setVisible(true);
                             } else if (deviceSecuritySetting.get('userHasViewPrivilege') && !deviceSecuritySetting.get('userHasEditPrivilege')) {
                                 // only view
+                                widget.down('#device-security-setting-show-value').setVisible(false);
                                 form.isReadOnly = true;
                                 form.show();
                                 me.getRestoreAllButton().hide();
@@ -254,6 +253,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                                 form.loadRecord(deviceSecuritySetting);
                                 me.getDeviceSecuritySettingDetailTitle().setVisible(true);
                             } else {
+                                widget.down('#device-security-setting-show-value').setVisible(false);
                                 form.hide();
                                 me.getRestoreAllButton().hide();
                                 me.getAddEditButton().hide();
@@ -307,18 +307,13 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         me.getDeviceSecuritySettingPreviewForm().focus();
     },
 
-    showValueInEdit: function () {
+    showValueInEdit: function (field, newValue, oldValue, options){
         var me = this;
-        me.getDeviceSecuritySettingEditView().down('property-form').showValues();
-        me.getDeviceSecuritySettingEditView().down('#showValueDeviceSecuritySetting').setVisible(false);
-        me.getDeviceSecuritySettingEditView().down('#hideValueDeviceSecuritySetting').setVisible(true);
-    },
-
-    hideValueInEdit: function() {
-        var me = this;
-        me.getDeviceSecuritySettingEditView().down('property-form').hideValues();
-        me.getDeviceSecuritySettingEditView().down('#showValueDeviceSecuritySetting').setVisible(true);
-        me.getDeviceSecuritySettingEditView().down('#hideValueDeviceSecuritySetting').setVisible(false);
+        if (newValue) {
+            me.getDeviceSecuritySettingEditView().down('property-form').showValues();
+        } else {
+            me.getDeviceSecuritySettingEditView().down('property-form').hideValues();
+        }
     }
 })
 ;

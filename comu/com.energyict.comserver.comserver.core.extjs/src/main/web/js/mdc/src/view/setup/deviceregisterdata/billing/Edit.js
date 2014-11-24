@@ -137,7 +137,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                             },
                             {
                                 xtype: 'displayfield',
-                                itemId: 'valueUnitDisplayField'
+                                itemId: 'valueUnitDisplayField',
+                                padding: '0 0 0 10'
                             }
                         ]
                     },

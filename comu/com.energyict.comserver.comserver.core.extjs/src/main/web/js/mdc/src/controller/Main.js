@@ -183,6 +183,7 @@ Ext.define('Mdc.controller.Main', {
                 },
                 {
                     text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Shared communication schedules'),
+                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.schedule','privilege.view.schedule']),
                     href: '#/administration/communicationschedules',
                     route: 'communicationschedules'
                 },
