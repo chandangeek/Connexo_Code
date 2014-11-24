@@ -71,7 +71,7 @@ public class SchedulingResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_SCHEDULE)
+    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE,Privileges.VIEW_SCHEDULE})
     public PagedInfoList getSchedules(@BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         String mrid = queryFilter.getFilterProperties().get("mrid") != null ? queryFilter.<String>getProperty("mrid") : null;
         boolean available = queryFilter.getFilterProperties().get("available") != null ? queryFilter.<Boolean>getProperty("available") : false;
@@ -204,7 +204,7 @@ public class SchedulingResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_SCHEDULE)
+    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE,Privileges.VIEW_SCHEDULE})
     public ComScheduleInfo getSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         return ComScheduleInfo.from(comSchedule, isInUse(comSchedule));
@@ -291,7 +291,7 @@ public class SchedulingResource {
     @GET
     @Path("/{id}/comTasks")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_SCHEDULE)
+    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE,Privileges.VIEW_SCHEDULE})
     public Response getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         if (queryFilter.getFilterProperties().containsKey("available") && queryFilter.getProperty("available", new BooleanAdapter())) {
