@@ -9,7 +9,7 @@ import java.util.List;
 public class DeviceMessageSpecInfo {
     public String id;
     public String name;
-    public boolean willBePickedUpByPlannedComTask;
-    public boolean willBePickedUpByComTask;
+    public Boolean willBePickedUpByPlannedComTask;
+    public Boolean willBePickedUpByComTask;
     public List<PropertyInfo> properties;
 }

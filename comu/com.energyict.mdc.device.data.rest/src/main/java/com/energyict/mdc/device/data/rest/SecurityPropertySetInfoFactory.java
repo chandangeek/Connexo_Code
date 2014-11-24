@@ -55,7 +55,6 @@ public class SecurityPropertySetInfoFactory {
 
         securityPropertySetInfo.properties = new ArrayList<>();
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties, securityPropertySetInfo.userHasViewPrivilege && securityPropertySetInfo.userHasEditPrivilege, true);
-        changeToRequiredProperties(securityPropertySetInfo.properties);
 
         securityPropertySetInfo.status = new IdWithNameInfo();
         if (!getStatus(device, securityPropertySet, typedProperties)) {
@@ -107,15 +106,6 @@ public class SecurityPropertySetInfoFactory {
             this.seed = seed;
         }
     }
-
-    //TODO JP-6225
-    //should be removed when implementing this issue
-    private void changeToRequiredProperties(List<PropertyInfo> propertyInfoList) {
-        for (PropertyInfo propertyInfo : propertyInfoList) {
-            propertyInfo.required = true;
-        }
-    }
-
 }
 
 
