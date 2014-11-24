@@ -51,8 +51,8 @@ public class DefaultTaskOccurrenceLauncherTest {
 //        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
 //        when(serviceLocator.getJsonService()).thenReturn(jsonService);
 //        when(serviceLocator.getClock()).thenReturn(clock);
-        when(task1.createTaskOccurrence()).thenReturn(taskOccurrence1);
-        when(task2.createTaskOccurrence()).thenReturn(taskOccurrence2);
+        when(task1.createScheduledTaskOccurrence()).thenReturn(taskOccurrence1);
+        when(task2.createScheduledTaskOccurrence()).thenReturn(taskOccurrence2);
         when(task1.getDestination()).thenReturn(destination1);
         when(task2.getDestination()).thenReturn(destination2);
         when(destination1.message(SERIALIZED1)).thenReturn(builder1);

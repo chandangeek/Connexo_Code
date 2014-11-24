@@ -99,8 +99,14 @@ class RecurrentTaskImpl implements RecurrentTask {
         return nextExecution;
     }
 
-    TaskOccurrenceImpl createTaskOccurrence() {
+    TaskOccurrenceImpl createScheduledTaskOccurrence() {
         TaskOccurrenceImpl occurrence = TaskOccurrenceImpl.createScheduled(dataModel, this, nextExecution != null ? nextExecution : clock.instant());
+        occurrence.save();
+        return occurrence;
+    }
+
+    TaskOccurrenceImpl createAdHocTaskOccurrence() {
+        TaskOccurrenceImpl occurrence = TaskOccurrenceImpl.createAdHoc(dataModel, this, nextExecution != null ? nextExecution : clock.instant());
         occurrence.save();
         return occurrence;
     }
@@ -150,7 +156,7 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public void triggerNow() {
-        TaskOccurrenceImpl taskOccurrence = createTaskOccurrence();
+        TaskOccurrenceImpl taskOccurrence = createAdHocTaskOccurrence();
         enqueue(taskOccurrence);
     }
 
@@ -161,7 +167,7 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @TransactionRequired
     TaskOccurrenceImpl launchOccurrence() {
-        TaskOccurrenceImpl taskOccurrence = createTaskOccurrence();
+        TaskOccurrenceImpl taskOccurrence = createScheduledTaskOccurrence();
         String json = toJson(taskOccurrence);
         getDestination().message(json).send();
         updateNextExecution();

@@ -138,7 +138,7 @@ public class TaskServiceImplTest {
         final CountDownLatch jobEndedLatch = new CountDownLatch(1);
 
         when(dueTaskFetcher.dueTasks()).thenReturn(Arrays.asList(recurrentTask));
-        when(recurrentTask.createTaskOccurrence()).thenReturn(taskOccurrence);
+        when(recurrentTask.createScheduledTaskOccurrence()).thenReturn(taskOccurrence);
         when(recurrentTask.getDestination()).thenReturn(destination);
         when(destination.message(anyString())).thenReturn(messageBuilder);
         doAnswer(new Answer<TaskOccurrenceImpl>() {

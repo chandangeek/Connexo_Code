@@ -225,7 +225,7 @@ public class RecurrentTaskIT {
 
         long taskOccurrenceId;
         try (TransactionContext context = transactionService.getContext()) {
-            TaskOccurrence taskOccurrence = recurrentTask.createTaskOccurrence();
+            TaskOccurrence taskOccurrence = recurrentTask.createScheduledTaskOccurrence();
             Logger logger = Logger.getAnonymousLogger();
             logger.addHandler(taskOccurrence.createTaskLogHandler().asHandler());
             logger.log(Level.INFO, "   Coucou   ");

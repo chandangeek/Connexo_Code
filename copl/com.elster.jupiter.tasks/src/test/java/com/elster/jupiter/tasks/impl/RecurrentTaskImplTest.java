@@ -107,7 +107,7 @@ public class RecurrentTaskImplTest {
     public void testCreateTaskOccurrence() {
         recurrentTask.updateNextExecution();
 
-        TaskOccurrence taskOccurrence = recurrentTask.createTaskOccurrence();
+        TaskOccurrence taskOccurrence = recurrentTask.createScheduledTaskOccurrence();
 
         verify(taskOccurrenceFactory).persist(taskOccurrence);
         assertThat(taskOccurrence.getPayLoad()).isEqualTo(PAYLOAD);
