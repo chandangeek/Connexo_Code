@@ -24,6 +24,8 @@ public interface DataExportOccurrence {
 
     Instant getTriggerTime();
 
+    boolean wasScheduled();
+
     Long getId();
 
     List<? extends LogEntry> getLogs();
