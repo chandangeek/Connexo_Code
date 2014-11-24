@@ -89,7 +89,7 @@ public class IssueResource extends BaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam QueryParameters queryParams) {
         validateMandatory(params, START, LIMIT);
         Class<? extends IssueDataCollection> apiClass = getQueryApiClass(params);
@@ -104,7 +104,7 @@ public class IssueResource extends BaseResource {
     @GET
     @Path("/groupedlist")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getGroupedList(@BeanParam StandardParametersBean params) {
         validateMandatory(params, ISSUE_TYPE, START, LIMIT, FIELD);
         List<IssueGroup> resultList = Collections.<IssueGroup>emptyList();
@@ -128,7 +128,7 @@ public class IssueResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getIssueById(@PathParam(ID) long id) {
         Optional<IssueDataCollection> issue = getIssueDataCollectionService().findIssue(id);
         return issue
@@ -139,7 +139,7 @@ public class IssueResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}/comments")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getComments(@PathParam(ID) long id, @BeanParam StandardParametersBean params) {
         Condition condition = where("issueId").isEqualTo(id);
         Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
@@ -165,7 +165,7 @@ public class IssueResource extends BaseResource {
     @Path("/{" + ID + "}/actions")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getActions(@PathParam("id") long id) {
         Optional<IssueDataCollection> issueRef = getIssueDataCollectionService().findIssue(id);
         if (!issueRef.isPresent()) {
@@ -226,7 +226,7 @@ public class IssueResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}/actions/{" + KEY + "}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_ISSUE)
+    @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public Response getActionTypeById(@PathParam(KEY) long id){
         Optional<IssueActionType> actionTypeRef = getIssueActionService().findActionType(id);
         if (!actionTypeRef.isPresent()){
