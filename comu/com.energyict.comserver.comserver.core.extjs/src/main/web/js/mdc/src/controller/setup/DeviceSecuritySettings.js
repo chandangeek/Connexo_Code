@@ -232,6 +232,8 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         if (deviceSecuritySetting.properties().count()) {
                             if (deviceSecuritySetting.get('userHasViewPrivilege') && deviceSecuritySetting.get('userHasEditPrivilege')) {
                                 widget.down('#device-security-setting-show-value').setVisible(true);
+                                form.userHasEditPrivilege = true;
+                                form.userHasViewPrivilege = true;
                                 form.show();
                                 form.loadRecord(deviceSecuritySetting);
                                 me.getDeviceSecuritySettingDetailTitle().setVisible(true);
@@ -240,12 +242,16 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                                 //widget.down('#hideValueDeviceSecuritySetting').setVisible(false);
                             } else if (!deviceSecuritySetting.get('userHasViewPrivilege') && deviceSecuritySetting.get('userHasEditPrivilege')) {
                                 widget.down('#device-security-setting-show-value').setVisible(false);
+                                form.userHasEditPrivilege = true;
+                                form.userHasViewPrivilege = false;
                                 form.show();
                                 form.loadRecord(deviceSecuritySetting);
                                 me.getDeviceSecuritySettingDetailTitle().setVisible(true);
                             } else if (deviceSecuritySetting.get('userHasViewPrivilege') && !deviceSecuritySetting.get('userHasEditPrivilege')) {
                                 // only view
                                 widget.down('#device-security-setting-show-value').setVisible(false);
+                                form.userHasEditPrivilege = false;
+                                form.userHasViewPrivilege = true;
                                 form.isReadOnly = true;
                                 form.show();
                                 me.getRestoreAllButton().hide();
