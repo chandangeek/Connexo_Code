@@ -81,11 +81,13 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     {
                         xtype: 'open-data-collection-issues',
                         itemId: 'open-data-collection-issues',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue']),
                         router: me.router
                     },
                     {
                         xtype: 'communication-servers',
                         itemId: 'communication-servers',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
                         router: me.router
                     }
                 ]
@@ -95,6 +97,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                 margin: '50 0 0 0',
                 items: {
                     xtype: 'device-group-filter',
+                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
                     router: me.router
                 }
             },
@@ -120,10 +123,11 @@ Ext.define('Dsh.view.OperatorDashboard', {
                         router: me.router,
                         parent: 'connections',
                         buttonAlign: 'left',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
                         buttons: [{
                             text: Uni.I18n.translate('dashboard.widget.connections.link', 'DSH', 'View connections overview'),
                             ui: 'link',
-                            href: me.router.getRoute('workspace/connections').buildUrl(null, me.router.queryParams)
+                            href: typeof me.router.getRoute('workspace/connections') !== 'undefined' ? me.router.getRoute('workspace/connections').buildUrl(null, me.router.queryParams) : ''
                         }]
                     },
                     {
@@ -137,10 +141,11 @@ Ext.define('Dsh.view.OperatorDashboard', {
                             padding: '20px'
                         },
                         buttonAlign: 'left',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
                         buttons: [{
                             text: Uni.I18n.translate('dashboard.widget.communications.link', 'DSH', 'View communications overview'),
                             ui: 'link',
-                            href: me.router.getRoute('workspace/communications').buildUrl(null, me.router.queryParams)
+                            href: typeof me.router.getRoute('workspace/communications') !== 'undefined' ? me.router.getRoute('workspace/communications').buildUrl(null, me.router.queryParams) : ''
                         }]
                     }
                 ]
