@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 
@@ -42,7 +42,7 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
         while (comTaskExecutions.hasNext()) {
             ComTaskExecution comTaskExecution = comTaskExecutions.next();
             if (continueFetching(comTaskExecution)) {
-                this.add((ServerComTaskExecution) comTaskExecution);
+                this.add(comTaskExecution);
             } else {
                 break;
             }
@@ -77,7 +77,7 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
         return this.jobs.size() < this.maximumJobs;
     }
 
-    protected void add(ServerComTaskExecution comTaskExecution) {
+    protected void add(ComTaskExecution comTaskExecution) {
         ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) comTaskExecution.getConnectionTask();
         if (this.supportsSimultaneousConnections(connectionTask)) {
             this.addComTaskJob(comTaskExecution);
@@ -99,20 +99,20 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
 
     }
 
-    protected void addComTaskJob(ServerComTaskExecution scheduledComTask) {
+    protected void addComTaskJob(ComTaskExecution scheduledComTask) {
         this.jobs.add(new ComTaskExecutionJob(scheduledComTask));
     }
 
-    protected void addToGroup(ServerComTaskExecution comTaskExecution) {
+    protected void addToGroup(ComTaskExecution comTaskExecution) {
         ComTaskExecutionGroup group = this.getComTaskGroup(comTaskExecution);
         group.add(comTaskExecution);
     }
 
-    private ComTaskExecutionGroup getComTaskGroup(ServerComTaskExecution comTaskExecution) {
-        OutboundConnectionTask connectionTask = (OutboundConnectionTask) comTaskExecution.getConnectionTask();
+    private ComTaskExecutionGroup getComTaskGroup(ComTaskExecution comTaskExecution) {
+        ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask();
         ComTaskExecutionGroup group = this.groups.get(connectionTask.getId());
         if (group == null) {
-            group = new ComTaskExecutionGroup(connectionTask);
+            group = new ComTaskExecutionGroup((OutboundConnectionTask<?>) connectionTask);
             this.groups.put(connectionTask.getId(), group);
         }
         return group;

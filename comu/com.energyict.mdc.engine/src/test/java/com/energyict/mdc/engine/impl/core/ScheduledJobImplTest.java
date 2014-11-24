@@ -11,7 +11,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -214,7 +213,7 @@ public class ScheduledJobImplTest {
         ComTask comTask = createMockComTask();
         ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties = createMockProtocolDialectConfigurationProperties();
 
-        ServerComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
+        ComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
 
         ScheduledComTaskExecutionJob scheduledComTaskExecutionJob = new ScheduledComTaskExecutionJob(comPort, comServerDAO, this.deviceCommandExecutor, scheduledComTask, this.serviceProvider);
         scheduledComTaskExecutionJob.createExecutionContext();
@@ -248,9 +247,9 @@ public class ScheduledJobImplTest {
         ComTask comTask = createMockComTask();
         ProtocolDialectConfigurationProperties mockProtocolDialectConfigurationProperties = createMockProtocolDialectConfigurationProperties();
 
-        ServerComTaskExecution comTask1 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
-        ServerComTaskExecution comTask2 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
-        ServerComTaskExecution comTask3 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
+        ComTaskExecution comTask1 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
+        ComTaskExecution comTask2 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
+        ComTaskExecution comTask3 = createMockServerScheduledComTask(device, connectionTask, comTask, mockProtocolDialectConfigurationProperties);
 
         ScheduledComTaskExecutionGroup group = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, this.deviceCommandExecutor, connectionTask, this.serviceProvider);
         group.createExecutionContext();
@@ -320,7 +319,7 @@ public class ScheduledJobImplTest {
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
-        ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
+        ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
@@ -388,7 +387,7 @@ public class ScheduledJobImplTest {
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
-        ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
+        ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
@@ -448,7 +447,7 @@ public class ScheduledJobImplTest {
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
-        ServerComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
+        ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask(), protocolDialectConfigurationProperties);
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
@@ -491,8 +490,8 @@ public class ScheduledJobImplTest {
         });
     }
 
-    private ServerComTaskExecution createMockServerScheduledComTask(Device device, ConnectionTask connectionTask, ComTask comTask, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-        ManuallyScheduledComTaskExecution scheduledComTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ServerComTaskExecution.class));
+    private ComTaskExecution createMockServerScheduledComTask(Device device, ConnectionTask connectionTask, ComTask comTask, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        ManuallyScheduledComTaskExecution scheduledComTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ComTaskExecution.class));
         when(scheduledComTask.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(scheduledComTask.getDevice()).thenReturn(device);
         when(scheduledComTask.getConnectionTask()).thenReturn(connectionTask);
@@ -500,7 +499,7 @@ public class ScheduledJobImplTest {
         List<ProtocolTask> protocolTasks = comTask.getProtocolTasks();
         when(scheduledComTask.getProtocolTasks()).thenReturn(protocolTasks);
         when(scheduledComTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
-        return (ServerComTaskExecution) scheduledComTask;
+        return (ComTaskExecution) scheduledComTask;
     }
 
     private ProtocolDialectConfigurationProperties createMockProtocolDialectConfigurationProperties() {

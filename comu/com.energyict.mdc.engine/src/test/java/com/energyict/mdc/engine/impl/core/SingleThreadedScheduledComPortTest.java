@@ -12,7 +12,6 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -532,7 +531,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(comChannel);
-        List<ServerComTaskExecution> work = new ArrayList<>();
+        List<ComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.mockComTask(i + 1, this.serialConnectionTask1));
         }
@@ -573,7 +572,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(comChannel);
-        List<ServerComTaskExecution> work = new ArrayList<>();
+        List<ComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.mockComTask(i + 1, this.serialConnectionTask1));
         }
@@ -620,7 +619,7 @@ public class SingleThreadedScheduledComPortTest {
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         when(this.serialConnectionTask1.getCommunicationWindow()).thenReturn(comWindow);
-        List<ServerComTaskExecution> work = new ArrayList<>();
+        List<ComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.mockComTask(i + 1, this.serialConnectionTask1));
         }
@@ -669,7 +668,7 @@ public class SingleThreadedScheduledComPortTest {
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, this.hexService);
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         when(this.serialConnectionTask1.getCommunicationWindow()).thenReturn(comWindow);
-        List<ServerComTaskExecution> work = new ArrayList<>();
+        List<ComTaskExecution> work = new ArrayList<>();
         work.add(this.mockComTask(1, this.serialConnectionTask1));
         List<ComJob> jobs = this.toComJob(work);
         CountDownLatch stopLatch = new CountDownLatch(1);
@@ -702,7 +701,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyInt())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
-        List<ServerComTaskExecution> work = new ArrayList<>();
+        List<ComTaskExecution> work = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.mockComTask(i + 1, this.serialConnectionTask1));
         }
@@ -751,24 +750,24 @@ public class SingleThreadedScheduledComPortTest {
         return comPort;
     }
 
-    private ServerComTaskExecution mockComTask(long id, OutboundConnectionTask connectionTask) {
-        ManuallyScheduledComTaskExecution comTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ServerComTaskExecution.class));
+    private ComTaskExecution mockComTask(long id, OutboundConnectionTask connectionTask) {
+        ManuallyScheduledComTaskExecution comTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ComTaskExecution.class));
         when(comTask.getId()).thenReturn(id);
         when(comTask.getConnectionTask()).thenReturn(connectionTask);
         when(comTask.getDevice()).thenReturn(this.device);
         when(comTask.getComTasks()).thenReturn(Arrays.asList(this.comTask));
         when(comTask.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
-        return (ServerComTaskExecution) comTask;
+        return (ComTaskExecution) comTask;
     }
 
-    private ComJob toComJob(ServerComTaskExecution comTask) {
+    private ComJob toComJob(ComTaskExecution comTask) {
         return new ComTaskExecutionJob(comTask);
     }
 
-    private List<ComJob> toComJob(List<ServerComTaskExecution> serialComTasks) {
+    private List<ComJob> toComJob(List<ComTaskExecution> serialComTasks) {
         ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) serialComTasks.get(0).getConnectionTask();
         ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask);
-        for (ServerComTaskExecution comTask : serialComTasks) {
+        for (ComTaskExecution comTask : serialComTasks) {
             group.add(comTask);
         }
         List<ComJob> jobs = new ArrayList<>(1);

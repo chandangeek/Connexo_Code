@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 
@@ -19,14 +18,14 @@ import java.util.List;
 @XmlRootElement
 public class ComTaskExecutionJob implements ComJob {
 
-    private ServerComTaskExecution comTaskExecution;
+    private ComTaskExecution comTaskExecution;
 
     // For xml serialization purposes only
     public ComTaskExecutionJob () {
         super();
     }
 
-    public ComTaskExecutionJob (ServerComTaskExecution comTaskExecution) {
+    public ComTaskExecutionJob (ComTaskExecution comTaskExecution) {
         this();
         this.comTaskExecution = comTaskExecution;
     }

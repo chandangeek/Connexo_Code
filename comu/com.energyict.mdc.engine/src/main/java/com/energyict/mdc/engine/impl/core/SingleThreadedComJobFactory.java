@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 /**
@@ -27,7 +26,7 @@ public final class SingleThreadedComJobFactory extends GroupingComJobFactory {
     }
 
     @Override
-    protected void addComTaskJob (ServerComTaskExecution comTaskExecution) {
+    protected void addComTaskJob (ComTaskExecution comTaskExecution) {
         super.addComTaskJob(comTaskExecution);
         /* As soon as a single ComTaskExecutionJob is added we stop fetching
          * because a single threaded ComPort can only handle a single task at a time. */

@@ -12,7 +12,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -374,35 +373,35 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void executionStarted(final ComTaskExecution comTaskExecution, final ComPort comPort) {
         this.executeTransaction(() -> {
-            toServerComTaskExecution(comTaskExecution).executionStarted(comPort);
+            getCommunicationTaskService().executionStartedFor(comTaskExecution, comPort);
             return null;
         });
     }
 
     @Override
     public void executionCompleted(final ComTaskExecution comTaskExecution) {
-        this.toServerComTaskExecution(comTaskExecution).executionCompleted();
+//        this.toServerComTaskExecution(comTaskExecution).executionCompleted();
+        getCommunicationTaskService().executionCompletedFor(comTaskExecution);
     }
 
     @Override
     public void executionCompleted(final List<? extends ComTaskExecution> comTaskExecutions) {
         comTaskExecutions
                 .stream()
-                .map(this::toServerComTaskExecution)
-                .forEach(ServerComTaskExecution::executionCompleted);
+                .forEach(comTaskExecution -> getCommunicationTaskService().executionCompletedFor(comTaskExecution));
     }
 
     @Override
     public void executionFailed(final ComTaskExecution comTaskExecution) {
-        this.toServerComTaskExecution(comTaskExecution).executionFailed();
+//        this.toServerComTaskExecution(comTaskExecution).executionFailed();
+        getCommunicationTaskService().executionFailedFor(comTaskExecution);
     }
 
     @Override
     public void executionFailed(final List<? extends ComTaskExecution> comTaskExecutions) {
         comTaskExecutions
                 .stream()
-                .map(this::toServerComTaskExecution)
-                .forEach(ServerComTaskExecution::executionFailed);
+                .forEach(comTaskExecution -> getCommunicationTaskService().executionFailedFor(comTaskExecution));
     }
 
     @Override
@@ -609,11 +608,6 @@ public class ComServerDAOImpl implements ComServerDAO {
     private ScheduledConnectionTask toServerConnectionTask(ConnectionTask connectionTask) {
         return (ScheduledConnectionTask) connectionTask;
     }
-
-    private ServerComTaskExecution toServerComTaskExecution(ComTaskExecution scheduledComTask) {
-        return (ServerComTaskExecution) scheduledComTask;
-    }
-
 
     @Override
     public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {

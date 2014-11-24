@@ -5,7 +5,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
@@ -209,7 +208,7 @@ public class RescheduleBehaviorForAsapTest {
     }
 
     private ComTaskExecution getMockedComTaskExecution() {
-        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ServerComTaskExecution.class));
+        ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ComTaskExecution.class));
         when(comTaskExecution.getDevice()).thenReturn(device);
         ProtocolDialectConfigurationProperties mockedProtocolDialectProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(mockedProtocolDialectProperties.getTypedProperties()).thenReturn(TypedProperties.empty());

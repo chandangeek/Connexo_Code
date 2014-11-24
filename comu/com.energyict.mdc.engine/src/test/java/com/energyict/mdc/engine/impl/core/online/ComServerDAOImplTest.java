@@ -3,8 +3,8 @@ package com.energyict.mdc.engine.impl.core.online;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
@@ -58,7 +58,7 @@ public class ComServerDAOImplTest {
     @Mock
     private OutboundComPort comPort;
     @Mock
-    private ServerComTaskExecution scheduledComTask;
+    private ComTaskExecution scheduledComTask;
     @Mock
     private BaseDevice device;
     @Mock
@@ -207,7 +207,7 @@ public class ComServerDAOImplTest {
         this.comServerDAO.executionStarted(this.scheduledComTask, this.comPort);
 
         // Asserts
-        verify(this.scheduledComTask).executionStarted(this.comPort);
+        verify(this.communicationTaskService).executionStartedFor(this.scheduledComTask, this.comPort);
     }
 
     @Test
@@ -216,7 +216,7 @@ public class ComServerDAOImplTest {
         this.comServerDAO.executionCompleted(this.scheduledComTask);
 
         // Asserts
-        verify(this.scheduledComTask).executionCompleted();
+        verify(this.communicationTaskService).executionCompletedFor(this.scheduledComTask);
     }
 
     @Test
@@ -236,7 +236,7 @@ public class ComServerDAOImplTest {
         this.comServerDAO.executionFailed(this.scheduledComTask);
 
         // Asserts
-        verify(this.scheduledComTask).executionFailed();
+        verify(this.communicationTaskService).executionFailedFor(this.scheduledComTask);
     }
 
     public void testReleaseInterruptedComTasks() throws SQLException, BusinessException {
