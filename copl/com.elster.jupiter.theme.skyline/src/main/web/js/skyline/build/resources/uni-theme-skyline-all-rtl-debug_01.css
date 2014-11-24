@@ -16962,8 +16962,7 @@ a.x-color-picker-item:hover {
 }
 /* line 65, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Table.scss */
 .x-grid-row-over .x-grid-td {
-  color: white;
-  background-color: #8ec976;
+  background-color: #c9dbe3;
 }
 /* line 73, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/panel/Table.scss */
 .x-grid-row-selected .x-grid-td {

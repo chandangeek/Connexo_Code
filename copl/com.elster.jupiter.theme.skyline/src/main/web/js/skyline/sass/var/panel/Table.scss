@@ -27,8 +27,8 @@ $grid-row-cell-selected-border-color: $grid-row-cell-border-color !default;
 
 $grid-row-cell-alt-background-color: $color-white-2 !default;
 $grid-row-cell-over-border-style: solid !default;
-$grid-row-cell-over-color: $color-white !default;
-$grid-row-cell-over-background-color: lighten($grid-row-cell-selected-background-color, 10) !default;
+$grid-row-cell-over-color: $color-grey !default;
+$grid-row-cell-over-background-color: #c9dbe3 !default;
 $grid-row-cell-over-border-color: $grid-row-cell-border-color !default;
 
 $grid-row-cell-focus-border-color: #808080 !default;
