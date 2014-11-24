@@ -108,7 +108,7 @@ Ext.define('Uni.view.navigation.Menu', {
         var me = this,
             itemId = model.id;
 
-        this.getMenuContainer().items.items.forEach(function (item) {
+        me.getMenuContainer().items.items.forEach(function (item) {
             if (itemId === item.data.id) {
                 me.deselectAllMenuItems();
                 item.toggle(true, false);
