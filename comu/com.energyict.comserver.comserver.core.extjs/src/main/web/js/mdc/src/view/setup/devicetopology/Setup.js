@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
 
     requires: [
         'Mdc.view.setup.devicetopology.Grid',
-        'Mdc.view.setup.searchitems.SideFilter'
+        'Mdc.view.setup.devicetopology.SideFilter'
     ],
 
     stores: [
@@ -32,11 +32,7 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                 ]
             },
             {
-                xtype: 'search-side-filter',
-                title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
-                width: 285,
-                applyBtnText: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
-                cleatBtnText: Uni.I18n.translate('searchItems.reset', 'MDC', 'Reset')
+                xtype: 'topology-side-filter'
             }
         ];
 
