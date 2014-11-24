@@ -14,7 +14,7 @@ public class DeviceMessageInfo {
     public String trackingId;
     public DeviceMessageSpecInfo messageSpecification;
     public String category;
-    public String status;
+    public StatusInfo status;
     public Instant creationDate;
     public Instant releaseDate;
     public Instant sentDate;
@@ -27,4 +27,10 @@ public class DeviceMessageInfo {
 
     public DeviceMessageInfo() {
     }
+
+}
+
+class StatusInfo {
+    public String displayValue;
+    public String value;
 }

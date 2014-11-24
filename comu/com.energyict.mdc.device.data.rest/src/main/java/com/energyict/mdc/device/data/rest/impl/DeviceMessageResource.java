@@ -5,6 +5,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -59,7 +60,10 @@ public class DeviceMessageResource {
                 map(deviceMessageInfoFactory::asInfo).
                 collect(toList());
 
-        return PagedInfoList.asJson("deviceMessages", infos, queryParameters);
+        List<DeviceMessageInfo> infosInPage = ListPager.of(infos).from(queryParameters).find();
+
+        PagedInfoList deviceMessages = PagedInfoList.asJson("deviceMessages", infosInPage, queryParameters);
+        return deviceMessages;
     }
 
     @POST
