@@ -8,6 +8,6 @@ import com.elster.jupiter.nls.LocalizedException;
 public class DataExportException extends RuntimeException {
 
     public DataExportException(LocalizedException cause) {
-        super(cause);
+        super(cause.getMessage(), cause);
     }
 }

@@ -17,7 +17,7 @@ public class DataExportMessageHandlerFactory implements MessageHandlerFactory {
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new DataExportTaskExecutor(dataExportService, transactionService));
+        return taskService.createMessageHandler(new DataExportTaskExecutor(dataExportService, transactionService, dataExportService.getThesaurus()));
     }
 
     @Reference

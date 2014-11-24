@@ -232,6 +232,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         return dataModel.query(IDataExportOccurrence.class, IReadingTypeDataExportTask.class).select(Operator.EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
     }
 
+    @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
     private Optional<IReadingTypeDataExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(IReadingTypeDataExportTask.class).getUnique("recurrentTask", recurrentTask);
     }
