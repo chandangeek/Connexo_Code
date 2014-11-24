@@ -83,10 +83,10 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
-                    name: 'lastRun',
+                    name: 'lastRun_formatted'/*,
                     renderer: function (value) {
                         return value ? value : '-';
-                    }
+                    }*/
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.status', 'DES', 'Status'),
