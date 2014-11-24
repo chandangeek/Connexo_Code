@@ -43,23 +43,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 {
                     xtype: 'form',
                     border: false,
+                    width: '100%',
                     layout: {
                         type: 'column'
-//                align: 'stretch'
                     },
                     itemId: 'deviceCommunicationTaskHistoryPreviewForm',
-//            layout: {
-//                type: 'vbox',
-//                align: 'stretch'
-//            },
-//            items: [
-//                {
-//                    columnWidth: 0.50,
-//                    xtype: 'container',
-//                    layout: {
-//                        type: 'column'
-////                        align: 'stretch'
-//                    },
                     items: [
                         {
                             xtype: 'container',
@@ -183,23 +171,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 {
                     xtype: 'form',
                     border: false,
+                    width: '100%',
                     layout: {
                         type: 'column'
-//                align: 'stretch'
                     },
                     itemId: 'deviceConnectionHistoryPreviewForm',
-//            layout: {
-//                type: 'vbox',
-//                align: 'stretch'
-//            },
-//            items: [
-//                {
-//                    columnWidth: 0.50,
-//                    xtype: 'container',
-//                    layout: {
-//                        type: 'column'
-////                        align: 'stretch'
-//                    },
                     items: [
                         {
                             xtype: 'container',
