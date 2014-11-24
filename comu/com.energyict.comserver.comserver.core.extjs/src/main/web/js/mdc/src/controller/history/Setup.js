@@ -734,12 +734,14 @@ Ext.define('Mdc.controller.history.Setup', {
                 communicationschedules: {
                     title: 'Shared communication schedules',
                     route: 'communicationschedules',
+                    privileges: ['privilege.administrate.schedule','privilege.view.schedule'],
                     controller: 'Mdc.controller.setup.CommunicationSchedules',
                     action: 'showCommunicationSchedules',
                     items: {
                         create: {
                             title: 'Add shared communication schedule',
                             route: 'create',
+                            privileges: ['privilege.administrate.schedule'],
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
                             action: 'showCommunicationSchedulesEditView'
                         },
@@ -747,6 +749,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Edit shared communication schedule',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
+                            privileges: ['privilege.administrate.schedule'],
                             action: 'showCommunicationSchedulesEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadCommunicationSchedule', function (record) {
