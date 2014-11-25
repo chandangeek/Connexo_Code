@@ -43,12 +43,13 @@ public class DeviceMessageInfoFactory {
         info.messageSpecification.name = deviceMessage.getSpecification().getName();
 
         info.category = deviceMessage.getSpecification().getCategory().getName();
-        String marshaledStatus = MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus());
-        info.status = thesaurus.getString(marshaledStatus, marshaledStatus);
+        info.status = new StatusInfo();
+        info.status.value = MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus());
+        info.status.displayValue = thesaurus.getString(MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus()), MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus()));
         info.creationDate = deviceMessage.getCreationDate();
         info.releaseDate = deviceMessage.getReleaseDate();
         info.sentDate = deviceMessage.getSentDate().orElse(null);
-        info.user = deviceMessage.getUser().getName();
+        info.user = deviceMessage.getUser();
         info.errorMessage = deviceMessage.getProtocolInfo();
 
         Device device = (Device) deviceMessage.getDevice();

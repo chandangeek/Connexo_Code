@@ -8,8 +8,6 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
-import com.elster.jupiter.users.User;
-
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -54,6 +52,11 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -67,21 +70,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessageResourceTest.Necessity.Required;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 10/22/14.
@@ -114,7 +109,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.id")).isEqualTo("DEVICE_ACTIONS_DEMAND_RESET");
         assertThat(model.<String>get("$.deviceMessages[0].trackingId")).isEqualTo("T14");
         assertThat(model.<String>get("$.deviceMessages[0].category")).isEqualTo("DeviceMessageCategories.RESET");
-        assertThat(model.<String>get("$.deviceMessages[0].status")).isEqualTo("Pending");
+        assertThat(model.<String>get("$.deviceMessages[0].status.displayValue")).isEqualTo("Pending");
+        assertThat(model.<String>get("$.deviceMessages[0].status.value")).isEqualTo("CommandPending");
         assertThat(model.<Long>get("$.deviceMessages[0].releaseDate")).isEqualTo(created.plusSeconds(10).toEpochMilli());
         assertThat(model.<Long>get("$.deviceMessages[0].creationDate")).isEqualTo(created.toEpochMilli());
         assertThat(model.<Long>get("$.deviceMessages[0].sentDate")).isNull();
@@ -122,6 +118,32 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<String>get("$.deviceMessages[0].errorMessage")).isEqualTo("Error message");
 
         assertThat(model.<Long>get("$.deviceMessages[1].sentDate")).isEqualTo(sent.toEpochMilli());
+    }
+
+    @Test
+    public void testGetDeviceCommandsByPage() throws Exception {
+        Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
+        Instant sent = LocalDateTime.of(2014, 10, 1, 12, 0, 0).toInstant(ZoneOffset.UTC);
+
+        Device device = mock(Device.class);
+        DeviceMessage<Device> command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(10), null);
+        DeviceMessage<Device> command2 = mockCommand(device, 2L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.plusSeconds(20), null);
+        DeviceMessage<Device> command3 = mockCommand(device, 3L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.minusSeconds(10), null);
+        DeviceMessage<Device> command4 = mockCommand(device, 4L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", 3, "DeviceMessageCategories.RESET", created, created.minusSeconds(20), null);
+        when(device.getMessages()).thenReturn(Arrays.asList(command1,command2, command3, command4));
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
+        when(command1.getAttributes()).thenReturn(Collections.emptyList());
+
+        String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 2).queryParam("limit", 2).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+
+        assertThat(model.<Integer>get("$.total")).isEqualTo(4);
+        assertThat(model.<Integer>get("$.deviceMessages[0].id")).isEqualTo(3);
+        assertThat(model.<Integer>get("$.deviceMessages[1].id")).isEqualTo(4);
     }
 
     @Test
@@ -436,9 +458,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceMessage.getSentDate()).thenReturn(Optional.empty());
         when(deviceMessage.getId()).thenReturn(id);
         when(deviceMessage.getDevice()).thenReturn(device);
-        User user = mock(User.class);
-        when(user.getName()).thenReturn("username");
-        when(deviceMessage.getUser()).thenReturn(user);
+        when(deviceMessage.getUser()).thenReturn("username");
         return deviceMessage;
     }
 
@@ -496,9 +516,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(mock.getProtocolInfo()).thenReturn(errorMessage);
         when(mock.getStatus()).thenReturn(status);
         when(mock.getTrackingId()).thenReturn(trackingId);
-        User user = mock(User.class);
-        when(user.getName()).thenReturn(userName);
-        when(mock.getUser()).thenReturn(user);
+        when(mock.getUser()).thenReturn(userName);
         DeviceMessageSpec specification = mock(DeviceMessageSpec.class);
         DeviceMessageCategory category = mock(DeviceMessageCategory.class);
         when(category.getName()).thenReturn(categoryName);
