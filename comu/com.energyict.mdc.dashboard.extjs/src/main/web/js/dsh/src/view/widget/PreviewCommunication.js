@@ -48,14 +48,24 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.device', 'DSH', 'Device'),
                     name: 'device',
                     renderer: function (val) {
-                        return val ? '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : ''
+                        var res = '';
+                        if (val) {
+                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device'])
+                                ? res = '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : res = val.name;
+                        }
+                        return res;
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('communication.widget.details.deviceType', 'DSH', 'Device type'),
                     name: 'deviceType',
                     renderer: function (val) {
-                        return val ? '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>' : ''
+                        var res = '';
+                        if (val) {
+                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'])
+                                ? res = '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>' : res = val.name;
+                        }
+                        return res;
                     }
                 },
                 {
@@ -69,6 +79,9 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                             '">' +
                             val.config.name +
                             '</a>');
+                        if (res !== '' && !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'])) {
+                            res = val.config.name;
+                        }
                         return res
                     }
                 },

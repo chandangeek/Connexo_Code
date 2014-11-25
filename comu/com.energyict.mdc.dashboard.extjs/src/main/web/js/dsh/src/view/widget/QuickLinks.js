@@ -11,7 +11,9 @@ Ext.define('Dsh.view.widget.QuickLinks', {
                     '<h3>' + Uni.I18n.translate('overview.widget.quicklinks.title', 'DSH', 'Quick links') + '</h3>',
                 '<ul>',
                 '<tpl for=".">',
+                '<tpl if="href">',
                 '<li><a href="{href}">{link}</a></li>',
+                '</tpl>',
                 '</tpl>',
                 '</ul>',
                 '</div>'
