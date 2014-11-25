@@ -108,7 +108,7 @@ Ext.define('Uni.view.navigation.Menu', {
         var me = this,
             itemId = model.id;
 
-        this.getMenuContainer().items.items.forEach(function (item) {
+        me.getMenuContainer().items.items.forEach(function (item) {
             if (itemId === item.data.id) {
                 me.deselectAllMenuItems();
                 item.toggle(true, false);
@@ -171,7 +171,8 @@ Ext.define('Uni.view.navigation.Menu', {
     setCollapsedCookie: function (collapsed) {
         var me = this;
 
-        Ext.util.Cookies.set(me.getCollapsedCookieKey(), collapsed);
+        Ext.util.Cookies.set(me.getCollapsedCookieKey(), collapsed,
+            new Date(new Date().getTime() + 365.25 * 24 * 60 * 60 * 1000)); // Expires in a year.
     },
 
     getMenuContainer: function () {
