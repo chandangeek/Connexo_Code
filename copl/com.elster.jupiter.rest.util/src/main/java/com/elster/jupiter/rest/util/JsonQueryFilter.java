@@ -80,6 +80,14 @@ public class JsonQueryFilter {
         return filterProperties;
     }
 
+    public boolean hasFilters(){
+        return !getFilterProperties().isEmpty();
+    }
+
+    public boolean hasProperty(String name){
+        return getFilterProperties().get(name) != null;
+    }
+
     public <T> T getProperty(String name, Function<JsonNode, T> mapper){
         return mapper.apply(getFilterProperties().get(name));
     }
