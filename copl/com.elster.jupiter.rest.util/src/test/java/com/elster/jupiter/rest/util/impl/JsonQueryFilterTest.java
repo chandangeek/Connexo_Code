@@ -393,7 +393,7 @@ public class JsonQueryFilterTest extends FelixRestApplicationJerseyTest {
     @Test
     public void testNoExceptionForUnexisting() {
         assertThat(target("/filters/single/integer").request().get(Integer.class)).isEqualTo(null);
-        assertThat(target("/filters/list/integer").request().get(List.class)).hasSize(0);
+        assertThat(target("/filters/list/integer").request().get(List.class).size()).isZero();
     }
 
     @Test
