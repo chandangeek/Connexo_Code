@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 public class RelativeDate {
@@ -76,5 +82,37 @@ public class RelativeDate {
     private RelativeOperation getOperation(String operationString) {
         String[] operationParts = operationString.split(RelativeOperation.SEPARATOR);
         return new RelativeOperation(RelativeField.from(Integer.parseInt(operationParts[0])), RelativeOperator.from(operationParts[1]), Long.parseLong(operationParts[2]));
+    }
+
+    public static Collector<RelativeOperation, ArrayList<RelativeOperation>, RelativeDate> collect() {
+        return new Collector<RelativeOperation, ArrayList<RelativeOperation>, RelativeDate>() {
+            @Override
+            public Supplier<ArrayList<RelativeOperation>> supplier() {
+                return ArrayList::new;
+            }
+
+            @Override
+            public BiConsumer<ArrayList<RelativeOperation>, RelativeOperation> accumulator() {
+                return (list, op) -> list.add(op);
+            }
+
+            @Override
+            public BinaryOperator<ArrayList<RelativeOperation>> combiner() {
+                return (a, b) -> {
+                    a.addAll(b);
+                    return a;
+                };
+            }
+
+            @Override
+            public Function<ArrayList<RelativeOperation>, RelativeDate> finisher() {
+                return RelativeDate::new;
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return Collections.emptySet();
+            }
+        };
     }
 }

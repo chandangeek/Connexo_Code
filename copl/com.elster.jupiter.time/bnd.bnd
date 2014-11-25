@@ -1,4 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.time.impl, com.elster.jupiter.time.security
+Private-Package: com.elster.jupiter.time.impl,\
+	com.elster.jupiter.time.security
 Export-Package: com.elster.jupiter.time
