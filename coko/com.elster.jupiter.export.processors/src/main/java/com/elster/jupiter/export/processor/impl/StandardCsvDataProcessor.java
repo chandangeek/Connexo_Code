@@ -6,14 +6,12 @@ import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.readings.*;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -96,16 +94,14 @@ public class StandardCsvDataProcessor implements DataProcessor {
     @Override
     public Optional<Instant> processData(MeterReading data) {
         List<Reading> readings = data.getReadings();
-        Optional<Instant> latestProcessedTimestamp = readings.stream().map(Reading::getTimeStamp).max((t1, t2) -> t1.compareTo(t2));
+        Optional<Instant> latestProcessedTimestamp = readings.stream().map(Reading::getTimeStamp).max(Comparator.naturalOrder());
         readings.stream().forEach(this::writeReading);
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
         if (!intervalBlocks.isEmpty()) {
-            latestProcessedTimestamp = intervalBlocks.stream().flatMap(i -> i.getIntervals().stream()).map(IntervalReading::getTimeStamp).max((t1, t2) -> t1.compareTo(t2));
+            latestProcessedTimestamp = intervalBlocks.stream().flatMap(i -> i.getIntervals().stream()).map(IntervalReading::getTimeStamp).max(Comparator.naturalOrder());
             intervalBlocks.stream().forEach(block -> block.getIntervals().stream().forEach(this::writeReading));
         }
-        if(latestProcessedTimestamp.isPresent()) {
-            writeMainFile = true;
-        }
+        writeMainFile |= latestProcessedTimestamp.isPresent();
         return latestProcessedTimestamp;
     }
 
@@ -180,9 +176,9 @@ public class StandardCsvDataProcessor implements DataProcessor {
         ZonedDateTime date = ZonedDateTime.ofInstant(fileNameTimestamp, ZoneId.systemDefault());
         StringBuilder fileNameUpdated = new StringBuilder(prefix);
         if (!fileNameUpdated.toString().isEmpty()) {
-            fileNameUpdated.append("_");
+            fileNameUpdated.append('_');
         }
-        fileNameUpdated.append( date.format(formatter)).append(".").append(extension);
+        fileNameUpdated.append( date.format(formatter)).append('.').append(extension);
         return new File(fileNameUpdated.toString());
     }
 

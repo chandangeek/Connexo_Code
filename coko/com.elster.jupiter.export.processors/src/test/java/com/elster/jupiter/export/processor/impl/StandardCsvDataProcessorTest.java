@@ -16,8 +16,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -197,10 +195,10 @@ public class StandardCsvDataProcessorTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         // TODO correct ZoneId
         ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(1416783612449L), ZoneId.systemDefault());
-        StringBuilder fileName = new StringBuilder("MainFile").append("_").append(date.format(formatter)).append(".").append("csv");
+        StringBuilder fileName = new StringBuilder("MainFile").append('_').append(date.format(formatter)).append('.').append("csv");
         File file = new File(fileName.toString());
         assertThat(file.exists()).isTrue();
-        StringBuilder fileNameUpdated = new StringBuilder("UpdateFile").append("_").append(formatter.format(date)).append(".").append("csv");
+        StringBuilder fileNameUpdated = new StringBuilder("UpdateFile").append('_').append(formatter.format(date)).append('.').append("csv");
         File updatedFile = new File(fileNameUpdated.toString());
         assertThat(updatedFile.exists()).isTrue();
     }
