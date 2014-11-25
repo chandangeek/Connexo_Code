@@ -12,11 +12,11 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class},
         property = {"name=" + "APS" + ".console", "osgi.command.scope=jupiter",
@@ -94,6 +94,10 @@ public class AppServiceConsoleService {
     }
 
     public void create(String name, String cronString) {
+        create(name, cronString, false);
+    }
+
+    public void create(String name, String cronString, boolean active) {
         threadPrincipalService.set(new Principal() {
             @Override
             public String getName() {
@@ -101,7 +105,8 @@ public class AppServiceConsoleService {
             }
         });
         try (TransactionContext context = transactionService.getContext()) {
-            appService.createAppServer(name, cronExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new));
+            AppServer appServer = appService.createAppServer(name, cronExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new));
+            appServer.setRecurrentTaskActive(active);
             context.commit();
         } finally {
             threadPrincipalService.clear();
