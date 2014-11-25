@@ -152,6 +152,11 @@ public final class ChannelImpl implements ChannelContract {
         return getRecordSpecDefinition().toArray(reading, status);
     }
 
+    @Override
+    public void validateValues(BaseReading reading, Object[] values) {
+        getRecordSpecDefinition().validateValues(reading, values);
+    }
+
     private RecordSpecs getRecordSpecDefinition() {
         if (isRegular()) {
             return bulkQuantityReadingType.isPresent() ? RecordSpecs.BULKQUANTITYINTERVAL : RecordSpecs.SINGLEINTERVAL;

@@ -14,8 +14,9 @@ public enum MessageSeeds implements MessageSeed {
     READINGTYPE_IGNORED(2002, "readingtype.ignored" , "Ignored data for reading type {0} on meter {1} , since reading type is not defined int the system", Level.INFO),
     NOMETERACTIVATION(2003,"meter.nometeractivation","No meter activation fond for meter {0} on {1} " , Level.INFO),
     READINGTYPE_ADDED(2004, "readingtype.added", "Added reading type {0} for meter {1} ", Level.INFO),
-    CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST(2005, "meter.cannot.delete.with.activations", "Cannot delete meter {0} because meter activations are linked to the meter", Level.SEVERE);
-    
+    CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST(2005, "meter.cannot.delete.with.activations", "Cannot delete meter {0} because meter activations are linked to the meter", Level.SEVERE),
+    READING_TIMESTAMP_NOT_IN_MEASUREMENT_PERIOD(2006, "reading.timesatmp.not.in.measurement.period", "Measurement time should be in measurement period", Level.SEVERE);
+
     private final int number;
     private final String key;
     private final String defaultFormat;

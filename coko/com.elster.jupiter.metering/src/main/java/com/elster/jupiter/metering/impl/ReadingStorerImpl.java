@@ -34,6 +34,7 @@ public class ReadingStorerImpl implements ReadingStorer {
     @Override
     public void addReading(Channel channel, BaseReading reading, ProcessStatus status) {
         Object[] values = ((ChannelContract) channel).toArray(reading, status);
+        ((ChannelContract) channel).validateValues(reading, values);
         this.storer.add(((ChannelContract) channel).getTimeSeries(), reading.getTimeStamp(), values);
         addScope(channel, reading.getTimeStamp());
     }

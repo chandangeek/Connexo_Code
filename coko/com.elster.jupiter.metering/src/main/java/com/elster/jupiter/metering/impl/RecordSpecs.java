@@ -9,11 +9,13 @@ import static com.elster.jupiter.ids.FieldType.TEXT;
 import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 
 
 public enum RecordSpecs {
@@ -112,7 +114,20 @@ public enum RecordSpecs {
 			});
 			return result;
 		}
-	};
+
+        @Override
+        void validateValues(BaseReading reading, Object[] values) {
+            reading.getTimePeriod().ifPresent(range -> {
+                // We can't set error to the timestamp field because it is inactive for edit register
+                if (range.lowerEndpoint().isAfter(reading.getTimeStamp())){
+                    throw new LocalizedFieldValidationException(MessageSeeds.READING_TIMESTAMP_NOT_IN_MEASUREMENT_PERIOD, "interval.start");
+                }
+                if (range.upperEndpoint().isBefore(reading.getTimeStamp())){
+                    throw new LocalizedFieldValidationException(MessageSeeds.READING_TIMESTAMP_NOT_IN_MEASUREMENT_PERIOD, "interval.end");
+                }
+            });
+        }
+    };
 	  
 	private final String specName;
 	private final boolean interval;
@@ -138,7 +153,10 @@ public enum RecordSpecs {
 		recordSpec.persist();
 		return recordSpec;
 	}
-	  
+
+    void validateValues(BaseReading reading, Object[] values) {
+    }
+
 	abstract void addFieldSpecs(RecordSpec recordSpec);
 	
 	abstract Object[] toArray(BaseReading reading, ProcessStatus status);
