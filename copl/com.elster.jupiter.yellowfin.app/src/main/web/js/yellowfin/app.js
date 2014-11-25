@@ -5,7 +5,13 @@ Ext.onReady(function () {
         async: false,
         success: function(response){
             var data = Ext.JSON.decode(response.responseText);
-            var url = data.url +"/logon.i4?LoginWebserviceId=" +data.token+"&disablelogoff=true";
+            var url = data.url;
+            if(data.token == "LICENSE_BREACH"){
+                url = data.url +"?LOGIN";
+            }
+            else{
+                url = data.url +"/logon.i4?LoginWebserviceId=" +data.token+"&disablelogoff=true";
+            }
             window.location = url;
         },
         failure: function(response) {
