@@ -3,13 +3,13 @@ package com.elster.jupiter.metering;
 import java.time.Instant;
 import java.util.Optional;
 
-public interface ReadingQualityRecord extends com.elster.jupiter.metering.readings.ReadingQuality {
+import com.elster.jupiter.metering.readings.ReadingQuality;
+
+public interface ReadingQualityRecord extends ReadingQuality {
 
     Instant getTimestamp();
 
     Channel getChannel();
-
-    long getId();
 
     void setComment(String comment);
 

@@ -15,10 +15,25 @@ public class DataPurger {
 	}
 	
 	void purge() {
-		purgeConfiguration.getRegisterLimit().ifPresent(this::purgeRegisters);
+		purgeConfiguration.getRegisterLimit().ifPresent(this::purgeRegister);
+		purgeConfiguration.getIntervalLimit().ifPresent(this::purgeInterval);
+		purgeConfiguration.getDailyLimit().ifPresent(this::purgeDaily);
+		purgeConfiguration.getEventLimit().ifPresent(this::purgeEvents);
 	}
 	
-	void purgeRegisters(Instant limit) {
-		
+	void purgeRegister(Instant limit) {
+		meteringService.registerVaults().forEach(vault -> vault.purge(limit));
 	}
+	
+	void purgeInterval(Instant limit) {
+		meteringService.intervalVaults().forEach(vault -> vault.purge(limit));
+	}
+	
+	void purgeDaily(Instant limit) {
+		meteringService.dailyVaults().forEach(vault -> vault.purge(limit));
+	}
+	
+	void  purgeEvents(Instant limit) {
+	}
+	
 }

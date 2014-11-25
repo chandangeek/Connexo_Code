@@ -18,7 +18,6 @@ import javax.inject.Inject;
 
 public class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
-    private long id;
     private String comment;
     private long channelId;
     private Instant readingTimestamp;
@@ -113,11 +112,6 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     }
 
     @Override
-    public long getId() {
-        return id;
-    }
-
-    @Override
     public Optional<BaseReadingRecord> getBaseReadingRecord() {
         if (baseReadingRecord == null) {
             baseReadingRecord = getChannel().getReading(getReadingTimestamp());
@@ -126,7 +120,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     }
 
     public void save() {
-        if (id == 0) {
+        if (version == 0) {
             dataModel.mapper(ReadingQualityRecord.class).persist(this);
             eventService.postEvent(EventType.READING_QUALITY_CREATED.topic(), new LocalEventSource(this));
         } else {
