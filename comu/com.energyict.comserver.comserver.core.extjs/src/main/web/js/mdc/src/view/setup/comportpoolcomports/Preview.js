@@ -15,6 +15,7 @@ Ext.define('Mdc.view.setup.comportpoolcomports.Preview', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationInfrastructure'),
             itemId: 'actionButton',
             iconCls: 'x-uni-action-iconD',
             menu: {

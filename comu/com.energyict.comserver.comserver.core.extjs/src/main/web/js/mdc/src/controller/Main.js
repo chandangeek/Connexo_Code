@@ -169,11 +169,13 @@ Ext.define('Mdc.controller.Main', {
                 {
                     text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
                     href: '#/administration/comservers',
+                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
                     route: 'comservers'
                 },
                 {
                     text: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
                     href: '#/administration/comportpools',
+                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
                     route: 'comportpools'
                 },
                 {

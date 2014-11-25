@@ -440,18 +440,21 @@ Ext.define('Mdc.controller.history.Setup', {
                 comservers: {
                     title: 'Communication servers',
                     route: 'comservers',
+                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showComServers',
                     items: {
                         onlineadd: {
                             title: 'Add online communication server',
                             route: 'add/online',
+                            privileges: ['privilege.administrate.communicationInfrastructure'],
                             controller: 'Mdc.controller.setup.ComServerEdit',
                             action: 'showOnlineAddView'
                         },
                         edit: {
                             title: 'Edit communication server',
                             route: '{id}/edit',
+                            privileges: ['privilege.administrate.communicationInfrastructure'],
                             controller: 'Mdc.controller.setup.ComServerEdit',
                             action: 'showEditView',
                             callback: function (route) {
@@ -466,6 +469,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         detail: {
                             title: 'Overview',
                             route: '{id}',
+                            privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
                             controller: 'Mdc.controller.setup.ComServerOverview',
                             action: 'showOverview',
                             redirect: 'administration/comservers/detail/overview',
@@ -480,36 +484,42 @@ Ext.define('Mdc.controller.history.Setup', {
                                 overview: {
                                     title: 'Overview',
                                     route: 'overview',
+                                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
                                     controller: 'Mdc.controller.setup.ComServerOverview',
                                     action: 'showOverview'
                                 },
                                 edit: {
                                     title: 'Edit',
                                     route: 'edit_',
+                                    privileges: ['privilege.administrate.communicationInfrastructure'],
                                     controller: 'Mdc.controller.setup.ComServerEdit',
                                     action: 'showEditView'
                                 },
                                 comports: {
                                     title: 'Communication ports',
                                     route: 'comports',
+                                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
                                     controller: 'Mdc.controller.setup.ComServerComPortsView',
                                     action: 'showView',
                                     items: {
                                         addInbound: {
                                             title: 'Add inbound communication port',
                                             route: 'add/inbound',
+                                            privileges: ['privilege.administrate.communicationInfrastructure'],
                                             controller: 'Mdc.controller.setup.ComServerComPortsEdit',
                                             action: 'showAddInbound'
                                         },
                                         addOutbound: {
                                             title: 'Add outbound communication port',
                                             route: 'add/outbound',
+                                            privileges: ['privilege.administrate.communicationInfrastructure'],
                                             controller: 'Mdc.controller.setup.ComServerComPortsEdit',
                                             action: 'showAddOutbound',
                                             items: {
                                                 addComPortPool: {
                                                     title: 'Add communication port pool',
                                                     route: 'addPool',
+                                                    privileges: ['privilege.administrate.communicationInfrastructure'],
                                                     controller: 'Mdc.controller.setup.ComServerComPortsEdit',
                                                     action: 'showAddComPortPool'
                                                 }
@@ -518,6 +528,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                         edit: {
                                             title: 'Edit communication port',
                                             route: '{direction}/{comPortId}/edit',
+                                            privileges: ['privilege.administrate.communicationInfrastructure'],
                                             controller: 'Mdc.controller.setup.ComServerComPortsEdit',
                                             action: 'showEditView',
                                             callback: function (route) {
@@ -532,6 +543,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 addComPortPool: {
                                                     title: 'Add communication port pool',
                                                     route: 'addPool',
+                                                    privileges: ['privilege.administrate.communicationInfrastructure'],
                                                     controller: 'Mdc.controller.setup.ComServerComPortsEdit',
                                                     action: 'showAddComPortPool'
                                                 }
@@ -574,24 +586,28 @@ Ext.define('Mdc.controller.history.Setup', {
                 comportpools: {
                     title: 'Communication port pools',
                     route: 'comportpools',
+                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showComPortPools',
                     items: {
                         addinbound: {
                             title: Uni.I18n.translate('comPortPool.title.addInbound', 'MDC', 'Add inbound communication port pool'),
                             route: 'add/inbound',
+                            privileges: ['privilege.administrate.communicationInfrastructure'],
                             controller: 'Mdc.controller.setup.ComPortPoolEdit',
                             action: 'showInboundAddView'
                         },
                         addoutbound: {
                             title: Uni.I18n.translate('comPortPool.title.addOutbound', 'MDC', 'Add outbound communication port pool'),
                             route: 'add/outbound',
+                            privileges: ['privilege.administrate.communicationInfrastructure'],
                             controller: 'Mdc.controller.setup.ComPortPoolEdit',
                             action: 'showOutboundAddView'
                         },
                         edit: {
                             title: 'Edit communication port pool',
                             route: '{id}/edit',
+                            privileges: ['privilege.administrate.communicationInfrastructure'],
                             controller: 'Mdc.controller.setup.ComPortPoolEdit',
                             action: 'showEditView',
                             callback: function (route) {
@@ -606,6 +622,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         detail: {
                             title: 'Detail',
                             route: '{id}',
+                            privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
                             controller: 'Mdc.controller.setup.ComPortPoolOverview',
                             action: 'showOverview',
                             redirect: 'administration/comportpools/detail/overview',
@@ -620,24 +637,28 @@ Ext.define('Mdc.controller.history.Setup', {
                                 overview: {
                                     title: 'Overview',
                                     route: 'overview',
+                                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
                                     controller: 'Mdc.controller.setup.ComPortPoolOverview',
                                     action: 'showOverview'
                                 },
                                 edit: {
                                     title: 'Edit',
                                     route: 'edit_',
+                                    privileges: ['privilege.administrate.communicationInfrastructure'],
                                     controller: 'Mdc.controller.setup.ComPortPoolEdit',
                                     action: 'showEditView'
                                 },
                                 comports: {
                                     title: 'Communication ports',
                                     route: 'comports',
+                                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
                                     controller: 'Mdc.controller.setup.ComPortPoolComPortsView',
                                     action: 'showView',
                                     items: {
                                         add: {
                                             title: 'Add communication port',
                                             route: 'add',
+                                            privileges: ['privilege.administrate.communicationInfrastructure'],
                                             controller: 'Mdc.controller.setup.ComPortPoolComPortsView',
                                             action: 'showAddComPortView'
                                         }

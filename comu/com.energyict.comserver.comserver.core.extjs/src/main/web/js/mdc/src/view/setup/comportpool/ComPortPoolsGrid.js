@@ -46,6 +46,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
             {
                 itemId: 'actionColumn',
                 xtype: 'uni-actioncolumn',
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationInfrastructure'),
                 menu: {
                     xtype: 'comportpool-actionmenu',
                     itemId: 'comportpoolViewMenu'
@@ -66,6 +67,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
                     },
                     {
                         text: Uni.I18n.translate('comPortPool.addComPortPool', 'MDC', 'Add communication port pool'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationInfrastructure'),
                         menu: {
                             plain: true,
                             border: false,
