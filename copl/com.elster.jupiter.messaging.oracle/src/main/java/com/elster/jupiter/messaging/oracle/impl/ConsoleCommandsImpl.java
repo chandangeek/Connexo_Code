@@ -8,7 +8,6 @@ import com.elster.jupiter.security.thread.RunAs;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import java.util.Optional;
 import oracle.jdbc.aq.AQMessage;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -19,6 +18,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.io.PrintStream;
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,9 +26,10 @@ import java.util.logging.Logger;
  * MSG console commands
  */
 @Component(name = "com.elster.jupiter.messaging.commands", service = ConsoleCommandsImpl.class,
-        property = {"name=" + MessageService.COMPONENTNAME + "2", "osgi.command.scope=jupiter",
+        property = {"name=" + MessageService.COMPONENTNAME + "2", "osgi.command.scope=messagingoracle",
                 "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable",
-                "osgi.command.function=drain", "osgi.command.function=subscribe", "osgi.command.function=createQueue"})
+                "osgi.command.function=drain", "osgi.command.function=subscribe", "osgi.command.function=createQueue",
+                "osgi.command.function=destinations", "osgi.command.function=activate" })
 public class ConsoleCommandsImpl {
 
     private static final Logger LOGGER = Logger.getLogger(ConsoleCommandsImpl.class.getName());
@@ -145,5 +146,23 @@ public class ConsoleCommandsImpl {
                 }).run();
             }
         });
+    }
+
+    public void activate(String destinationName) {
+        DestinationSpec destinationSpec = messageService.getDestinationSpec(destinationName).orElseThrow(IllegalArgumentException::new);
+        threadPrincipalService.set(() -> "console");
+        try {
+            transactionService.execute(VoidTransaction.of(destinationSpec::activate));
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    public void destinations() {
+        ((MessageServiceImpl) messageService).getDataModel().mapper(DestinationSpec.class).find().stream()
+                .peek(dest -> System.out.println(dest.getName()))
+                .flatMap(dest -> dest.getSubscribers().stream())
+                .map(s -> "\t" + s.getName())
+                .forEach(System.out::println);
     }
 }

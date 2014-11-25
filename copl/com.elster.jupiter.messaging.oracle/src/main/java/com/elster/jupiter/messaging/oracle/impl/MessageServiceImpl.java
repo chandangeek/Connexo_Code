@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,6 +21,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Osgi Component class.
@@ -113,5 +113,9 @@ public class MessageServiceImpl implements MessageService, InstallService {
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(MessageService.COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    DataModel getDataModel() {
+        return dataModel;
     }
 }
