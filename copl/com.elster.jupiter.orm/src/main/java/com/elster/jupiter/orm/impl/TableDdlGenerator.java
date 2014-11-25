@@ -67,7 +67,11 @@ class TableDdlGenerator {
         }
         sb.append(")");
         if (table.isIndexOrganized() && dialect.hasIndexOrganizedTables()) {
-            sb.append(" organization index ");
+            sb.append(" organization index");
+            if (table.getIotCompressCount() > 0) {
+            	sb.append(" compress ");
+            	sb.append(table.getIotCompressCount());            	
+            }
         }
         return sb.toString();
     }
@@ -134,7 +138,7 @@ class TableDdlGenerator {
         builder.append(" ON ");
         builder.append(table.getQualifiedName());
         appendColumns(builder, index.getColumns(), false, false);
-        if (dialect.hasIndexCompression()) {
+        if (dialect.hasIndexCompression() && index.getCompress() > 0) {
             builder.append(" COMPRESS ");
             builder.append(index.getCompress());
         }

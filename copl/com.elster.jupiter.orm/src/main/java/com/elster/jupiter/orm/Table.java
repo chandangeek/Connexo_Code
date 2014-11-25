@@ -49,7 +49,8 @@ public interface Table<T> {
 
     void cache();
 
-    void makeIndexOrganized();
+    void indexOrganized(int compressCount);
+    
     // meta data api
     List<String> getDdl();
 

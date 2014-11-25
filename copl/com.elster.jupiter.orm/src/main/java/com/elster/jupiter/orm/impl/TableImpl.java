@@ -58,7 +58,7 @@ public class TableImpl<T> implements Table<T> {
 	private boolean cached;
     private boolean autoInstall = true;
 
-    private boolean indexOrganized;
+    private int indexOrganized = -1;
 	
 	// associations
 	private final Reference<DataModelImpl> dataModel = ValueReference.absent();
@@ -601,14 +601,24 @@ public class TableImpl<T> implements Table<T> {
     }
 
     @Override
-    public void makeIndexOrganized() {
-        indexOrganized = true;
+    public void indexOrganized(int compressCount) {
+    	if (compressCount < 0) {
+    		throw new IllegalArgumentException();
+    	}
+        this.indexOrganized = compressCount;
 
     }
 
+    public int getIotCompressCount() {
+    	if (indexOrganized < 0) {
+    		throw new IllegalStateException();
+    	}
+    	return indexOrganized;
+    }
+    
     @Override
     public boolean isIndexOrganized() {
-        return indexOrganized;
+        return indexOrganized >= 0;
     }
 
     public Optional<? extends T> getOptional(Object... primaryKeyValues) {

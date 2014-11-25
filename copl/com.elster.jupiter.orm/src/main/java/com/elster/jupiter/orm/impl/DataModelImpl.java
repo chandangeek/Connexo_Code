@@ -32,8 +32,6 @@ import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.RefAny;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
@@ -43,7 +41,6 @@ import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.Provider;
 
 
 public class DataModelImpl implements DataModel {
@@ -391,28 +388,6 @@ public class DataModelImpl implements DataModel {
 
     Module getModule() {
         return getOrmService().getModule(this);
-    }
-
-    Provider<? extends Reference<?>> getReferenceProvider() {
-        return new Provider<Reference<?>>() {
-
-            @Override
-            public Reference<?> get() {
-                return ValueReference.absent();
-            }
-
-        };
-    }
-
-    Provider<? extends List<?>> getListProvider() {
-        return new Provider<List<?>>() {
-
-            @Override
-            public List<?> get() {
-                return new ArrayList<>();
-            }
-
-        };
     }
 
     @Override
