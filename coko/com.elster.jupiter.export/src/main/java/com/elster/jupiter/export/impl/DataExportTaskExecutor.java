@@ -79,7 +79,6 @@ class DataExportTaskExecutor implements TaskExecutor {
         IReadingTypeDataExportTask task = occurrence.getTask();
         Set<IReadingTypeDataExportItem> activeItems;
         try (TransactionContext context = transactionService.getContext()) {
-            occurrence.start();
             activeItems = getActiveItems(task, occurrence);
 
             task.getExportItems().stream()
@@ -141,11 +140,11 @@ class DataExportTaskExecutor implements TaskExecutor {
     private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(IReadingTypeDataExportTask task, Meter meter) {
         return task.getReadingTypes().stream()
                 .map(r -> task.getExportItems().stream()
-                        .map(IReadingTypeDataExportItem.class::cast)
-                        .filter(item -> r.equals(item.getReadingType()))
-                        .filter(i -> i.getReadingContainer().is(meter))
-                        .findAny()
-                        .orElseGet(() -> task.addExportItem(meter, r))
+                                .map(IReadingTypeDataExportItem.class::cast)
+                                .filter(item -> r.equals(item.getReadingType()))
+                                .filter(i -> i.getReadingContainer().is(meter))
+                                .findAny()
+                                .orElseGet(() -> task.addExportItem(meter, r))
                 );
     }
 
