@@ -13,5 +13,6 @@ public class SummaryInfo {
     public long total;
     public FilterOption alias=FilterOption.currentStates; // this needs to be in JSON! do not remove
     public List<? super TaskSummaryCounterInfo> counters = new ArrayList<>();
+    public Long target;
 }
 

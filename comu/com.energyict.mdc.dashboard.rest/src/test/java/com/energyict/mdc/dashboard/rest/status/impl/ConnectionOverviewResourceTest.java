@@ -102,6 +102,8 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.kpi).isNull();
         assertThat(connectionOverviewInfo.deviceGroup).isNull();
+        
+        assertThat(connectionOverviewInfo.connectionSummary.target).isNull();
     }
 
     @Test
@@ -136,6 +138,8 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.breakdowns.get(0).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(1).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
         assertThat(connectionOverviewInfo.breakdowns.get(2).counters).isSortedAccordingTo(taskBreakdownInfoComparator);
+        
+        assertThat(connectionOverviewInfo.connectionSummary.target).isEqualTo(100L);
     }
 
     @Test
@@ -181,6 +185,8 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         assertThat(connectionOverviewInfo.kpi.series.get(2).data.get(56)).isEqualTo(BigDecimal.valueOf(10L));
         assertThat(connectionOverviewInfo.kpi.series.get(3).name).isEqualTo("Target");
         assertThat(connectionOverviewInfo.kpi.series.get(3).data.get(56)).isEqualTo(BigDecimal.valueOf(100L));
+        
+        assertThat(connectionOverviewInfo.connectionSummary.target).isEqualTo(100L);
     }
 
     private DataCollectionKpi mockDataCollectionKpi() {
