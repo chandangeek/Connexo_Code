@@ -41,6 +41,7 @@ Ext.define('Mdc.view.setup.comservercomports.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationInfrastructure'),
                 menu: {
                     xtype: 'comServerComPortsActionMenu'
                 }
@@ -61,6 +62,7 @@ Ext.define('Mdc.view.setup.comservercomports.Grid', {
                     xtype: 'button',
                     action: 'addComPort',
                     text: Uni.I18n.translate('comServerComPorts.add', 'MDC', 'Add communication port'),
+                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.communicationInfrastructure'),
                     menu: {
                         xtype: 'comServerComPortsAddMenu'
                     }
