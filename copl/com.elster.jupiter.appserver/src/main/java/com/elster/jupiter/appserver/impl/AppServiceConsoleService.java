@@ -16,9 +16,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class}, property = {"name=" + "APS" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport"}, immediate = true)
+@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class}, property = {"name=" + "APS" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport", "osgi.command.function=appServers", "osgi.command.function=identify"}, immediate = true)
 public class AppServiceConsoleService {
 
     private volatile AppService appService;
@@ -106,6 +108,23 @@ public class AppServiceConsoleService {
         } finally {
             threadPrincipalService.clear();
         }
+    }
+
+    public void appServers() {
+        appService.findAppServers().stream()
+                .peek(server -> System.out.println(server.getName() + " " + server.isRecurrentTaskActive()))
+                .flatMap(server -> server.getSubscriberExecutionSpecs().stream())
+                .map(se -> "\t" + se.getSubscriberSpec().getDestination().getName() + " " + se.getSubscriberSpec().getName() + " " + se.getThreadCount())
+                .forEach(System.out::println);
+    }
+
+    public void identify() {
+        appService.getAppServer()
+                .map(Arrays::asList).orElse(Collections.<AppServer>emptyList()).stream()
+                .peek(server -> System.out.println(server.getName() + " " + server.isRecurrentTaskActive()))
+                .flatMap(server -> server.getSubscriberExecutionSpecs().stream())
+                .map(se -> "\t" + se.getSubscriberSpec().getDestination().getName() + " " + se.getSubscriberSpec().getName() + " " + se.getThreadCount())
+                .forEach(System.out::println);
     }
 
     @Reference

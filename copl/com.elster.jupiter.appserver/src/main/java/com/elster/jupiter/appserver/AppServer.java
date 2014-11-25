@@ -18,4 +18,6 @@ public interface AppServer {
     void sendCommand(AppServerCommand command);
 
     void setRecurrentTaskActive(boolean recurrentTaskActive);
+
+    boolean isRecurrentTaskActive();
 }

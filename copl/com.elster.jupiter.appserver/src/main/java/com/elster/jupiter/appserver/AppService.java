@@ -16,5 +16,7 @@ public interface AppService {
 
     List<SubscriberExecutionSpec> getSubscriberExecutionSpecs();
 
+    List<AppServer> findAppServers();
+
     void stop();
 }

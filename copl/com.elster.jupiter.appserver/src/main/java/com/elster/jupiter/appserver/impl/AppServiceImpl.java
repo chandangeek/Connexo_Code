@@ -27,7 +27,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -42,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -251,6 +251,11 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     @Override
     public List<SubscriberExecutionSpec> getSubscriberExecutionSpecs() {
         return ImmutableList.copyOf(subscriberExecutionSpecs);
+    }
+
+    @Override
+    public List<AppServer> findAppServers() {
+        return dataModel.mapper(AppServer.class).find();
     }
 
     @Reference
