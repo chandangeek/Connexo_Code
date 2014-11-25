@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.Ranges.copy;
 
-public class DefaultItemExporter implements ItemExporter {
+class DefaultItemExporter implements ItemExporter {
 
     private final DataProcessor dataFormatter;
 

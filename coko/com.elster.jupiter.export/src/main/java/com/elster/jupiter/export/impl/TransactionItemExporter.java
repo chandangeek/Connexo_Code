@@ -7,7 +7,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 
-public class TransactionItemExporter implements ItemExporter {
+class TransactionItemExporter implements ItemExporter {
 
     private final ItemExporter decorated;
     private final TransactionService transactionService;

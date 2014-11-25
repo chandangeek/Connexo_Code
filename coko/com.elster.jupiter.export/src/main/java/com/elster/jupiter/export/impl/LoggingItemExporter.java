@@ -9,7 +9,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.logging.Logger;
 
-public class LoggingItemExporter implements ItemExporter {
+class LoggingItemExporter implements ItemExporter {
 
     private final ItemExporter decorated;
     private final Logger logger;
