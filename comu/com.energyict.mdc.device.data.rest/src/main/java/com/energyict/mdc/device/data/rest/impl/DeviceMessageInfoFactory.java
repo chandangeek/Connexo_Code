@@ -49,7 +49,7 @@ public class DeviceMessageInfoFactory {
         info.creationDate = deviceMessage.getCreationDate();
         info.releaseDate = deviceMessage.getReleaseDate();
         info.sentDate = deviceMessage.getSentDate().orElse(null);
-        info.user = deviceMessage.getUser().getName();
+        info.user = deviceMessage.getUser();
         info.errorMessage = deviceMessage.getProtocolInfo();
 
         Device device = (Device) deviceMessage.getDevice();

@@ -176,7 +176,7 @@ public class DeviceComTaskResource {
                                                      @PathParam("comTaskId") long comTaskId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ComTask comTask = this.taskService.findComTask(comTaskId).orElse(null);
-        if (comTask==null || device.getDeviceConfiguration().getComTaskEnablementFor(comTask)==null) {
+        if (comTask==null || !device.getDeviceConfiguration().getComTaskEnablementFor(comTask).isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
         }
         ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device);
@@ -188,7 +188,6 @@ public class DeviceComTaskResource {
             infos.add(comTaskExecutionSessionInfo);
         }
         return PagedInfoList.asJson("comTaskExecutionSessions", infos, queryParameters);
-
     }
 
     @GET
@@ -198,7 +197,7 @@ public class DeviceComTaskResource {
                                                                   @PathParam("comTaskId") long comTaskId, @PathParam("comTaskExecutionSessionId") Long comTaskExecutionSessionId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ComTask comTask = taskService.findComTask(comTaskId).orElse(null);
-        if (comTask==null || device.getDeviceConfiguration().getComTaskEnablementFor(comTask)==null) {
+        if (comTask==null || !device.getDeviceConfiguration().getComTaskEnablementFor(comTask).isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
         }
         ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device);
@@ -224,7 +223,7 @@ public class DeviceComTaskResource {
                                                      @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ComTask comTask = taskService.findComTask(comTaskId).orElse(null);
-        if (comTask==null || device.getDeviceConfiguration().getComTaskEnablementFor(comTask)==null) {
+        if (comTask==null || !device.getDeviceConfiguration().getComTaskEnablementFor(comTask).isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
         }
         ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device);
