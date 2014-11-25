@@ -20,26 +20,26 @@ $panel-header-sub-color: $color-grey !default;
 
 // Large UI
 $panel-large-header-font-family: $header-font-family !default;
-$panel-large-header-font-size: 60px !default;
-$panel-large-header-line-height: 48px !default;
+$panel-large-header-font-size: 24px !default;
+$panel-large-header-line-height: 36px !default;
 $panel-large-header-font-weight: normal !default;
 $panel-large-header-text-padding: 0 !default;
-$panel-large-header-padding: 0 0 16px 0 !default;
-$panel-large-header-sub-font-size: 30px !default;
+$panel-large-header-padding: 16px 0 12px 0 !default;
+$panel-large-header-sub-font-size: 14px !default;
 
 // Medium UI
 $panel-medium-header-font-family: $header-font-family !default;
-$panel-medium-header-font-size: 30px !default;
+$panel-medium-header-font-size: 24px !default;
 $panel-medium-header-font-weight: normal !default;
-$panel-medium-header-padding: 0 0 16px 0 !default;
-$panel-medium-header-sub-font-size: 20px !default;
+$panel-medium-header-padding: 8px 0 8px 0 !default;
+$panel-medium-header-sub-font-size: 14px !default;
 
 // Small UI
 $panel-small-header-font-family: $header-font-family !default;
-$panel-small-header-font-size: 21px !default;
+$panel-small-header-font-size: 14px !default;
 $panel-small-header-font-weight: normal !default;
-$panel-small-header-padding: 0 0 16px 0 !default;
-$panel-small-header-sub-font-size: 18px !default;
+$panel-small-header-padding: 8px 0 8px 0 !default;
+$panel-small-header-sub-font-size: 14px !default;
 
 // Frame UI
 $panel-frame-border-color: $color-grey-7 !default;

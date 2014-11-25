@@ -8,23 +8,36 @@ h1, h2, h3, h4, h5, h6 {
 
 h1, h2 {
     color: $heading-font-color-emphasis;
+    line-height: 36px;
 }
 
 h1 {
     font-size: $heading-font-size-h1;
 
-    margin: {
+    padding: {
         bottom: 16px;
-        top: 16px;
+        top: 12px;
     }
 }
 
 h2 {
     font-size: $heading-font-size-h2;
+
+    padding: {
+        bottom: 8px;
+        top: 8px;
+    }
 }
 
 h3 {
     font-size: $heading-font-size-h3;
+
+    line-height: 21px;
+
+    padding: {
+        bottom: 8px;
+        top: 8px;
+    }
 }
 
 h4 {

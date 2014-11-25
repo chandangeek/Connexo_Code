@@ -820,36 +820,42 @@ h1, h2, h3, h4, h5, h6 {
 /* line 9, ../../sass/src/Headings.scss */
 h1, h2 {
   color: #1e7d9e;
+  line-height: 36px;
 }
 
-/* line 13, ../../sass/src/Headings.scss */
+/* line 14, ../../sass/src/Headings.scss */
 h1 {
-  font-size: 60px;
-  margin-bottom: 16px;
-  margin-top: 16px;
+  font-size: 24px;
+  padding-bottom: 16px;
+  padding-top: 12px;
 }
 
-/* line 22, ../../sass/src/Headings.scss */
+/* line 23, ../../sass/src/Headings.scss */
 h2 {
-  font-size: 30px;
+  font-size: 24px;
+  padding-bottom: 8px;
+  padding-top: 8px;
 }
 
-/* line 26, ../../sass/src/Headings.scss */
+/* line 32, ../../sass/src/Headings.scss */
 h3 {
-  font-size: 20px;
+  font-size: 14px;
+  line-height: 21px;
+  padding-bottom: 8px;
+  padding-top: 8px;
 }
 
-/* line 30, ../../sass/src/Headings.scss */
+/* line 43, ../../sass/src/Headings.scss */
 h4 {
-  font-size: 18px;
+  font-size: 14px;
 }
 
-/* line 34, ../../sass/src/Headings.scss */
+/* line 47, ../../sass/src/Headings.scss */
 h5 {
-  font-size: 16px;
+  font-size: 14px;
 }
 
-/* line 38, ../../sass/src/Headings.scss */
+/* line 51, ../../sass/src/Headings.scss */
 h6 {
   font-size: 14px;
 }
@@ -1168,12 +1174,7 @@ h6 {
   /* Standard syntax */
 }
 /* line 58, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .uni-nav-appcenter,
-.x-container-navigationheader .nav-toggler,
-.x-container-navigationheader .notifications-anchor,
-.x-container-navigationheader .nav-help,
-.x-container-navigationheader .search-button,
-.x-container-navigationheader .user-menu {
+.x-container-navigationheader .uni-nav-appcenter, .x-container-navigationheader .nav-toggler, .x-container-navigationheader .notifications-anchor, .x-container-navigationheader .nav-help, .x-container-navigationheader .search-button, .x-container-navigationheader .user-menu {
   background: none;
   border: none;
   border-radius: 0;
@@ -1183,31 +1184,16 @@ h6 {
   padding: 0 4px;
 }
 /* line 9, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .uni-nav-appcenter .x-btn-button,
-.x-container-navigationheader .nav-toggler .x-btn-button,
-.x-container-navigationheader .notifications-anchor .x-btn-button,
-.x-container-navigationheader .nav-help .x-btn-button,
-.x-container-navigationheader .search-button .x-btn-button,
-.x-container-navigationheader .user-menu .x-btn-button {
+.x-container-navigationheader .uni-nav-appcenter .x-btn-button, .x-container-navigationheader .nav-toggler .x-btn-button, .x-container-navigationheader .notifications-anchor .x-btn-button, .x-container-navigationheader .nav-help .x-btn-button, .x-container-navigationheader .search-button .x-btn-button, .x-container-navigationheader .user-menu .x-btn-button {
   padding-right: 10px;
   padding-left: 10px;
 }
 /* line 15, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .uni-nav-appcenter .x-btn-button .x-btn-inner,
-.x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner,
-.x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner,
-.x-container-navigationheader .nav-help .x-btn-button .x-btn-inner,
-.x-container-navigationheader .search-button .x-btn-button .x-btn-inner,
-.x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
+.x-container-navigationheader .uni-nav-appcenter .x-btn-button .x-btn-inner, .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-inner, .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-inner, .x-container-navigationheader .nav-help .x-btn-button .x-btn-inner, .x-container-navigationheader .search-button .x-btn-button .x-btn-inner, .x-container-navigationheader .user-menu .x-btn-button .x-btn-inner {
   color: white;
 }
 /* line 19, ../../sass/src/button/TransparentButton.scss */
-.x-container-navigationheader .uni-nav-appcenter .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .search-button .x-btn-button .x-btn-glyph,
-.x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
+.x-container-navigationheader .uni-nav-appcenter .x-btn-button .x-btn-glyph, .x-container-navigationheader .nav-toggler .x-btn-button .x-btn-glyph, .x-container-navigationheader .notifications-anchor .x-btn-button .x-btn-glyph, .x-container-navigationheader .nav-help .x-btn-button .x-btn-glyph, .x-container-navigationheader .search-button .x-btn-button .x-btn-glyph, .x-container-navigationheader .user-menu .x-btn-button .x-btn-glyph {
   opacity: 1;
   height: auto;
   line-height: 36px;
@@ -1215,45 +1201,25 @@ h6 {
   margin-left: 10px;
 }
 /* line 61, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .uni-nav-appcenter .icon-user,
-.x-container-navigationheader .nav-toggler .icon-user,
-.x-container-navigationheader .notifications-anchor .icon-user,
-.x-container-navigationheader .nav-help .icon-user,
-.x-container-navigationheader .search-button .icon-user,
-.x-container-navigationheader .user-menu .icon-user {
+.x-container-navigationheader .uni-nav-appcenter .icon-user, .x-container-navigationheader .nav-toggler .icon-user, .x-container-navigationheader .notifications-anchor .icon-user, .x-container-navigationheader .nav-help .icon-user, .x-container-navigationheader .search-button .icon-user, .x-container-navigationheader .user-menu .icon-user {
   margin: 14px 16px;
   width: 20px;
   height: 20px;
 }
 /* line 67, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .uni-nav-appcenter .icon-search,
-.x-container-navigationheader .nav-toggler .icon-search,
-.x-container-navigationheader .notifications-anchor .icon-search,
-.x-container-navigationheader .nav-help .icon-search,
-.x-container-navigationheader .search-button .icon-search,
-.x-container-navigationheader .user-menu .icon-search {
+.x-container-navigationheader .uni-nav-appcenter .icon-search, .x-container-navigationheader .nav-toggler .icon-search, .x-container-navigationheader .notifications-anchor .icon-search, .x-container-navigationheader .nav-help .icon-search, .x-container-navigationheader .search-button .icon-search, .x-container-navigationheader .user-menu .icon-search {
   margin: 13px 2px;
   width: 22px;
   height: 23px;
 }
 /* line 73, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .uni-nav-appcenter .icon-appcenter,
-.x-container-navigationheader .nav-toggler .icon-appcenter,
-.x-container-navigationheader .notifications-anchor .icon-appcenter,
-.x-container-navigationheader .nav-help .icon-appcenter,
-.x-container-navigationheader .search-button .icon-appcenter,
-.x-container-navigationheader .user-menu .icon-appcenter {
+.x-container-navigationheader .uni-nav-appcenter .icon-appcenter, .x-container-navigationheader .nav-toggler .icon-appcenter, .x-container-navigationheader .notifications-anchor .icon-appcenter, .x-container-navigationheader .nav-help .icon-appcenter, .x-container-navigationheader .search-button .icon-appcenter, .x-container-navigationheader .user-menu .icon-appcenter {
   margin: 15px 8px;
   width: 20px;
   height: 18px;
 }
 /* line 79, ../../sass/src/container/NavigationHeader.scss */
-.x-container-navigationheader .uni-nav-appcenter:hover,
-.x-container-navigationheader .nav-toggler:hover,
-.x-container-navigationheader .notifications-anchor:hover,
-.x-container-navigationheader .nav-help:hover,
-.x-container-navigationheader .search-button:hover,
-.x-container-navigationheader .user-menu:hover {
+.x-container-navigationheader .uni-nav-appcenter:hover, .x-container-navigationheader .nav-toggler:hover, .x-container-navigationheader .notifications-anchor:hover, .x-container-navigationheader .nav-help:hover, .x-container-navigationheader .search-button:hover, .x-container-navigationheader .user-menu:hover {
   background-color: #71adc7;
 }
 /* line 85, ../../sass/src/container/NavigationHeader.scss */
