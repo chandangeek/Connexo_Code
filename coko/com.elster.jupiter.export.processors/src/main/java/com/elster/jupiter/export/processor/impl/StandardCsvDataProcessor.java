@@ -2,21 +2,22 @@ package com.elster.jupiter.export.processor.impl;
 
 import com.elster.jupiter.export.*;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.readings.*;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import org.joda.time.DateTime;
 
 import javax.inject.Inject;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -32,31 +33,30 @@ public class StandardCsvDataProcessor implements DataProcessor {
     private BufferedWriter writer;
     private File tempUpdatedFile;
     private BufferedWriter updatedWriter;
-    private String deviceMRID;
     private String readingType;
     private Instant fileNameTimestamp;
-    private Thesaurus thesaurus;
+    private ReadingContainer readingContainer;
+    private final Thesaurus thesaurus;
 
     @Inject
     public StandardCsvDataProcessor(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
-    public StandardCsvDataProcessor(List<DataExportProperty> properties) {
+    public StandardCsvDataProcessor(List<DataExportProperty> properties, Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
         Map<String, Object> propertyMap = getPropertiesMap(properties);
         if (propertyMap.containsKey(FormatterProperties.SEPARATOR.getKey())) {
             defineSeparator(propertyMap.get(FormatterProperties.SEPARATOR.getKey()).toString());
         } else {
             this.fileSeparator = ",";
         }
-        // TODO define proper way to check if main file is needed
-        if (propertyMap.containsKey(FormatterProperties.FILE_EXTENSION.getKey())) {
-            this.writeMainFile = true;
-            this.filePrefix = propertyMap.containsKey(FormatterProperties.FILENAME_PREFIX.getKey()) ?
-                    propertyMap.get(FormatterProperties.FILENAME_PREFIX.getKey()).toString() : "";
-            this.fileExtension = /*(propertyMap.containsKey(FormatterProperties.FILE_EXTENSION.getKey()) ?*/
-                    propertyMap.get(FormatterProperties.FILE_EXTENSION.getKey()).toString()/* : "csv")*/;
-        }
+
+        this.filePrefix = propertyMap.containsKey(FormatterProperties.FILENAME_PREFIX.getKey()) ?
+                propertyMap.get(FormatterProperties.FILENAME_PREFIX.getKey()).toString() : "";
+        this.fileExtension = (propertyMap.containsKey(FormatterProperties.FILE_EXTENSION.getKey()) ?
+                propertyMap.get(FormatterProperties.FILE_EXTENSION.getKey()).toString() : "csv");
+
         if (propertyMap.containsKey(FormatterProperties.UPDATE_IN_SEPARATE_FILE.getKey())) {
             this.updatedDataSeparateFile = Boolean.valueOf(propertyMap.get(FormatterProperties.UPDATE_IN_SEPARATE_FILE.getKey()).toString());
         }
@@ -72,62 +72,53 @@ public class StandardCsvDataProcessor implements DataProcessor {
     public void startExport(DataExportOccurrence dataExportOccurrence, Logger logger) {
         fileNameTimestamp = dataExportOccurrence.getTriggerTime();
         try {
-            if (writeMainFile) {
-                tempFile = File.createTempFile("tempfile", fileExtension);
-                writer = new BufferedWriter(new FileWriter(tempFile));
-            }
-            if (updatedDataSeparateFile) {
+            tempFile = File.createTempFile("tempfile", fileExtension);
+            writer = new BufferedWriter(new FileWriter(tempFile));
+        } catch (IOException ex) {
+            throw new FatalDataExportException(new FileIOException(ex, thesaurus));
+        }
+        if (updatedDataSeparateFile) {
+            try {
                 tempUpdatedFile = File.createTempFile("tempfileUpdate", updatedDataFileExtension);
                 updatedWriter = new BufferedWriter(new FileWriter(tempUpdatedFile));
+            } catch (IOException ex) {
+                throw new FatalDataExportException(new FileIOException(ex, thesaurus));
             }
-        } catch (IOException ex) {
-            throw new FatalDataExportException(ex);
         }
     }
 
     @Override
     public void startItem(ReadingTypeDataExportItem item) {
-        if (!(item.getReadingContainer() instanceof Meter)) {
-            throw new DataExportException(new LocalizedException(thesaurus, MessageSeeds.INVALID_READING_CONTAINER, new IllegalArgumentException()) {
-            });
-        }
-        Meter meter = Meter.class.cast(item.getReadingContainer());
-        deviceMRID = meter.getMRID();
+        readingContainer = item.getReadingContainer();
         readingType = item.getReadingType().getMRID();
     }
 
     @Override
     public Optional<Instant> processData(MeterReading data) {
-        Instant latestProcessedTimestamp = null;
-        if (!writeMainFile) {
-            return Optional.ofNullable(latestProcessedTimestamp);
-        }
         List<Reading> readings = data.getReadings();
+        Optional<Instant> latestProcessedTimestamp = readings.stream().map(Reading::getTimeStamp).max((t1, t2) -> t1.compareTo(t2));
+        readings.stream().forEach(this::writeReading);
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
-        if (!readings.isEmpty()) {
-            latestProcessedTimestamp = writeReadings(readings);
-        } else if (!intervalBlocks.isEmpty()) {
-            for (IntervalBlock block : intervalBlocks) {
-                latestProcessedTimestamp = writeReadings(block.getIntervals());
-            }
+        if (!intervalBlocks.isEmpty()) {
+            latestProcessedTimestamp = intervalBlocks.stream().flatMap(i -> i.getIntervals().stream()).map(IntervalReading::getTimeStamp).max((t1, t2) -> t1.compareTo(t2));
+            intervalBlocks.stream().forEach(block -> block.getIntervals().stream().forEach(this::writeReading));
         }
-        return Optional.ofNullable(latestProcessedTimestamp);
-    }
-
-    private Instant writeReadings(List<? extends BaseReading> readings) {
-        Instant latestProcessedTimestamp = null;
-        for (BaseReading reading : readings) {
-            latestProcessedTimestamp = writeReading(reading);
+        if(latestProcessedTimestamp.isPresent()) {
+            writeMainFile = true;
         }
         return latestProcessedTimestamp;
     }
 
-    private Instant writeReading(BaseReading reading) {
+    private void writeReading(BaseReading reading) {
+        Optional<Meter> meterOptional = readingContainer.getMeter(reading.getTimeStamp());
+        if (!meterOptional.isPresent()) {
+            throw new DataExportException(new LocalizedException(thesaurus, MessageSeeds.INVALID_READING_CONTAINER, new IllegalArgumentException()) {});
+        }
         try {
             Long timestamp = reading.getTimeStamp().toEpochMilli();
             writer.write(timestamp.toString());
             writer.write(fileSeparator);
-            writer.write(deviceMRID);
+            writer.write(meterOptional.get().getMRID());
             writer.write(fileSeparator);
             writer.write(readingType);
             writer.write(fileSeparator);
@@ -143,64 +134,56 @@ public class StandardCsvDataProcessor implements DataProcessor {
             writer.write(fileSeparator);
             writer.newLine();
         } catch (IOException ex) {
-            throw new FatalDataExportException(ex);
+            throw new FatalDataExportException(new FileIOException(ex, thesaurus));
         }
-        return reading.getTimeStamp();
     }
 
     @Override
     public Optional<Instant> processUpdatedData(MeterReading updatedData) {
-        return Optional.<Instant>empty();
+        return Optional.empty();
     }
 
     @Override
     public void endItem(ReadingTypeDataExportItem item) {
-        if (!(item.getReadingContainer() instanceof Meter)) {
-            throw new DataExportException(new LocalizedException(thesaurus, MessageSeeds.INVALID_READING_CONTAINER, new IllegalArgumentException()) {
-            });
-        }
-        Meter meter = Meter.class.cast(item.getReadingContainer());
-        if (!meter.getMRID().equals(deviceMRID) || !item.getReadingType().getMRID().equals(readingType)) {
+        if (!item.getReadingType().getMRID().equals(readingType)) {
             throw new IllegalArgumentException("ReadingTypeDataExportItems passed to startItem() and EndItem() methods are different");
         }
-        deviceMRID = null;
+        readingContainer = null;
         readingType = null;
     }
 
     @Override
     public void endExport() {
-        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-        // TODO what if file with the same name already exists?
-        Date date = new Date(fileNameTimestamp.toEpochMilli());
-        // TODO defile file location dir
         if (writeMainFile) {
-            StringBuilder fileName = new StringBuilder(filePrefix);
-            if (!fileName.toString().isEmpty()) {
-                fileName.append("_");
-            }
-            fileName.append(formatter.format(date)).append(".").append(fileExtension);
-            File file = new File(fileName.toString());
+            File file = createFile(filePrefix, fileExtension);
             try {
                 writer.close();
                 Files.copy(tempFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException ex) {
-                throw new FatalDataExportException(ex);
+                throw new FatalDataExportException(new FileIOException(ex, thesaurus));
             }
         }
         if (updatedDataSeparateFile) {
-            StringBuilder fileNameUpdated = new StringBuilder(updatedDataFilePrefix);
-            if (!fileNameUpdated.toString().isEmpty()) {
-                fileNameUpdated.append("_");
-            }
-            fileNameUpdated.append(formatter.format(date)).append(".").append(updatedDataFileExtension);
-            File updatedFile = new File(fileNameUpdated.toString());
+            File updatedFile = createFile(updatedDataFilePrefix, updatedDataFileExtension);
             try {
                 updatedWriter.close();
                 Files.copy(tempUpdatedFile.toPath(), updatedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException ex) {
-                throw new FatalDataExportException(ex);
+                throw new FatalDataExportException(new FileIOException(ex, thesaurus));
             }
         }
+    }
+
+    private File createFile(String prefix, String extension) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        // TODO correct ZoneId
+        ZonedDateTime date = ZonedDateTime.ofInstant(fileNameTimestamp, ZoneId.systemDefault());
+        StringBuilder fileNameUpdated = new StringBuilder(prefix);
+        if (!fileNameUpdated.toString().isEmpty()) {
+            fileNameUpdated.append("_");
+        }
+        fileNameUpdated.append( date.format(formatter)).append(".").append(extension);
+        return new File(fileNameUpdated.toString());
     }
 
     private Map<String, Object> getPropertiesMap(List<DataExportProperty> properties) {

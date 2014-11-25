@@ -3,7 +3,10 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -25,10 +28,16 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
     static final String NAME = "standardCsvDataProcessorFactory";
 
     private volatile PropertySpecService propertySpecService;
+    private volatile Thesaurus thesaurus;
 
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setThesaurus(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(NAME, Layer.DOMAIN);
     }
 
     @Override
@@ -45,7 +54,7 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
 
     @Override
     public DataProcessor createDataFormatter(List<DataExportProperty> properties) {
-        return new StandardCsvDataProcessor(properties);
+        return new StandardCsvDataProcessor(properties, thesaurus);
     }
 
     @Override

@@ -4,11 +4,9 @@ import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.*;
+import com.elster.jupiter.nls.Thesaurus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,10 +19,10 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -112,6 +110,15 @@ public class StandardCsvDataProcessorTest {
     @Mock
     IntervalReading intervalReading1;
 
+    @Mock
+    ReadingContainer readingContainer;
+
+    @Mock
+    ReadingContainer readingContainer1;
+
+    @Mock
+    private Thesaurus thesaurus;
+
     StandardCsvDataProcessor processor;
 
     @Before
@@ -129,12 +136,14 @@ public class StandardCsvDataProcessorTest {
         when(propertyPrefixUpdated.getValue()).thenReturn("UpdateFile");
         when(propertyUpdateSeparateFile.getName()).thenReturn("fileFormat.updatedData.separateFile");
         when(propertyUpdateSeparateFile.getValue()).thenReturn("true");
-        processor = Mockito.spy(new StandardCsvDataProcessor(properties));
+        processor = Mockito.spy(new StandardCsvDataProcessor(properties, thesaurus));
 
         when(dataExportOccurrence.getTriggerTime()).thenReturn(Instant.ofEpochMilli(1416783612449L));
 
-        when(item.getReadingContainer()).thenReturn(meter);
-        when(item1.getReadingContainer()).thenReturn(meter1);
+        when(item.getReadingContainer()).thenReturn(readingContainer);
+        when(readingContainer.getMeter(Instant.ofEpochMilli(1416783612449L))).thenReturn(Optional.of(meter));
+        when(item1.getReadingContainer()).thenReturn(readingContainer1);
+        when(readingContainer1.getMeter(Instant.ofEpochMilli(1416783612449L))).thenReturn(Optional.of(meter1));
         when(meter.getMRID()).thenReturn("DeviceMRID");
         when(meter1.getMRID()).thenReturn("AnotherDeviceMRID");
         when(item.getReadingType()).thenReturn(readingType);
@@ -146,10 +155,10 @@ public class StandardCsvDataProcessorTest {
         when(reading.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783612449L));
         when(reading.getValue()).thenReturn(BigDecimal.TEN);
 
-        when(reading1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783000449L));
+        when(reading1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783612449L));
         when(reading1.getValue()).thenReturn(BigDecimal.ONE);
 
-        when(reading2.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783999449L));
+        when(reading2.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783612449L));
         when(reading2.getValue()).thenReturn(BigDecimal.ZERO);
 
         when(dataLoadProfile.getReadings()).thenReturn(Arrays.asList());
@@ -157,9 +166,9 @@ public class StandardCsvDataProcessorTest {
 
         List<IntervalReading> intervals = Collections.unmodifiableList(Arrays.asList(intervalReading, intervalReading1));
         doReturn(intervals).when(intervalBlock).getIntervals();
-        when(intervalReading.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783777449L));
+        when(intervalReading.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783612449L));
         when(intervalReading.getValue()).thenReturn(BigDecimal.ONE);
-        when(intervalReading1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783888449L));
+        when(intervalReading1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783612449L));
         when(intervalReading1.getValue()).thenReturn(BigDecimal.TEN);
 
         List<? extends ReadingQuality> list = Collections.unmodifiableList(Arrays.asList(readingQuality, readingQuality1));
@@ -185,9 +194,10 @@ public class StandardCsvDataProcessorTest {
         processor.endItem(item1);
         processor.endExport();
 
-        DateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd_HH-mm-ss" );
-        Date date = new Date(1416783612449L);
-        StringBuilder fileName = new StringBuilder("MainFile").append("_").append(formatter.format(date)).append(".").append("csv");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        // TODO correct ZoneId
+        ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(1416783612449L), ZoneId.systemDefault());
+        StringBuilder fileName = new StringBuilder("MainFile").append("_").append(date.format(formatter)).append(".").append("csv");
         File file = new File(fileName.toString());
         assertThat(file.exists()).isTrue();
         StringBuilder fileNameUpdated = new StringBuilder("UpdateFile").append("_").append(formatter.format(date)).append(".").append("csv");
@@ -205,9 +215,10 @@ public class StandardCsvDataProcessorTest {
 
     @Test(expected = DataExportException.class)
     public void test() {
-        when(item.getReadingContainer()).thenReturn(meterActivation);
+        when(readingContainer.getMeter(Instant.ofEpochMilli(1416783612449L))).thenReturn(Optional.empty());
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
+        processor.processData(data);
     }
 
 }
