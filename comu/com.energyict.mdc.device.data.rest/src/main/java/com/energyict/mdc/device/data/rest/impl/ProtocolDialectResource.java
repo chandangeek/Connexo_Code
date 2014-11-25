@@ -39,7 +39,7 @@ public class ProtocolDialectResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_PROTOCOL)
+    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
     public PagedInfoList getProtocolDialects(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<ProtocolDialectConfigurationProperties> pagedDialectProtocols = ListPager.of(device.getProtocolDialects(), new ProtocolDialectComparator()).from(queryParameters).find();
@@ -50,7 +50,7 @@ public class ProtocolDialectResource {
     @GET
     @Path("/{protocolDialectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_PROTOCOL)
+    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
     public ProtocolDialectInfo getProtocolDialects(@PathParam("mRID") String mRID, @PathParam("protocolDialectId") long protocolDialectId, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(mRID, protocolDialectId);
