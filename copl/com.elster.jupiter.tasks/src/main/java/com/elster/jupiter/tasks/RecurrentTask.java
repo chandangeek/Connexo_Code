@@ -40,4 +40,10 @@ public interface RecurrentTask extends HasName {
     void setScheduleExpression(ScheduleExpression scheduleExpression);
 
     void triggerNow();
+    
+    /*
+     * Note that runNow has different transactional behavior as triggerNow or a normal scheduled execution
+     * When using runNow both execute and postExecute will be executed as part of the caller's transaction.
+     */
+    TaskOccurrence runNow(TaskExecutor executor);
 }
