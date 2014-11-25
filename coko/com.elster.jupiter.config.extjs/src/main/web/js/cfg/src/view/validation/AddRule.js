@@ -28,7 +28,8 @@ Ext.define('Cfg.view.validation.AddRule', {
 
     readingTypeIndex: 1,
 
-    content: [
+
+       content: [
         {
             xtype: 'panel',
             ui: 'large',
@@ -38,7 +39,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                     xtype: 'form',
                     itemId: 'addRuleForm',
                     padding: '10 10 0 10',
-                    width: 700,
                     layout: {
                         type: 'vbox'
                     },
@@ -88,56 +88,53 @@ Ext.define('Cfg.view.validation.AddRule', {
                             width: 600
                         },
                         {
-                            xtype: 'container',
-                            itemId: 'readingValuesTextFieldsContainer',
-                            layout: {
-                                type: 'vbox',
-                                align: 'stretch'
-                            },
+                            xtype: 'fieldcontainer',
+                            fieldLabel: Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading types'),
+                            itemId: 'readingTypesFieldContainer',
+                            required: true,
+                            msgTarget: 'under',
+                            labelWidth: 260,
+                            width: 1200,
                             items: [
                                 {
-                                    xtype: 'container',
-                                    layout: {
-                                        type: 'hbox'
-                                    },
+                                    xtype: 'panel',
+                                    width: 800,
                                     items: [
                                         {
-                                            xtype: 'textfield',
-                                            fieldLabel: Uni.I18n.translate('validation.readingTypes', 'CFG', 'Reading type(s)'),
-                                            labelAlign: 'right',
-                                            itemId: 'readingType1',
-                                            name: 'readingType1',
-                                            msgTarget: 'under',
-                                            labelWidth: 260,
-                                            maskRe: /^($|\S.*$)/,
-                                            required: true,
-                                            allowBlank: false,
-                                            validateOnChange: false,
-                                            validateOnBlur: false,
-                                            maxLength: 80,
-                                            enforceMaxLength: true,
-                                            width: 600,
-                                            margin: '0 0 5 0'
+                                            xtype: 'gridpanel',
+                                            itemId: 'readingTypesGridPanel',
+                                            store: 'ReadingTypesForRule',
+                                            hideHeaders: true,
+                                            padding: 0,
+                                            columns: [
+                                                {
+                                                    xtype: 'reading-type-column',
+                                                    dataIndex: 'readingType',
+                                                    flex: 1
+                                                },
+                                                {
+                                                    xtype: 'actioncolumn',
+                                                    iconCls: 'icon-delete',
+                                                    align: 'right'
+                                                }
+                                            ],
+                                            height: 220
+                                        }
+                                    ],
+                                    rbar: [
+                                        {
+                                            xtype: 'container',
+                                            items: [
+                                                {
+                                                    xtype: 'button',
+                                                    itemId: 'addReadingTypeButton',
+                                                    text: Uni.I18n.translate('validation.addReadingTypes', 'CFG', 'Add reading types'),
+                                                    ui: 'action',
+                                                    margin: '0 0 0 10'
+                                                }
+                                            ]
                                         }
                                     ]
-                                }
-
-                            ]
-
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            margin: '5 0 0 0',
-                            fieldLabel: '&nbsp',
-                            labelAlign: 'right',
-                            labelWidth: 260,
-                            layout: 'hbox',
-                            items: [
-                                {
-                                    text: '+ ' + Uni.I18n.translate('validation.addAnother', 'CFG', 'Add another'),
-                                    xtype: 'button',
-                                    action: 'addReadingTypeAction',
-                                    itemId: 'addReadingTypeAction'
                                 }
                             ]
                         },

@@ -65,6 +65,9 @@ Ext.define('Cfg.model.ValidationRule', {
             type: 'json',
             root: 'rules'
         },
+
+        timeout: 300000,
+
         buildUrl: function (request) {
             var me = this,
                 format = me.format,

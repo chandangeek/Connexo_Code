@@ -1,10 +1,9 @@
-Ext.define('Cfg.store.ReadingTypesForRule', {
+Ext.define('Cfg.store.AdaptedReadingTypes', {
     extend: 'Ext.data.Store',
-    autoLoad: false,
     model: 'Cfg.model.ReadingTypeForGrid',
-    storeId: 'ReadingTypesForRule',
+    storeId: 'AdaptedReadingTypes',
     requires: [
         'Cfg.model.ReadingTypeForGrid'
-    ]
+    ],
+    autoLoad: false
 });
-
