@@ -644,9 +644,7 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         when(mock.getProtocolInfo()).thenReturn(errorMessage);
         when(mock.getStatus()).thenReturn(status);
         when(mock.getTrackingId()).thenReturn(trackingId);
-        User user = mock(User.class);
-        when(user.getName()).thenReturn(userName);
-        when(mock.getUser()).thenReturn(user);
+        when(mock.getUser()).thenReturn(userName);
         DeviceMessageSpec specification = mock(DeviceMessageSpec.class);
         DeviceMessageCategory category = mock(DeviceMessageCategory.class);
         when(category.getName()).thenReturn(categoryName);

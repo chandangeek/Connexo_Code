@@ -464,8 +464,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceMessage.getId()).thenReturn(id);
         when(deviceMessage.getDevice()).thenReturn(device);
         User user = mock(User.class);
-        when(user.getName()).thenReturn("username");
-        when(deviceMessage.getUser()).thenReturn(user);
+        when(deviceMessage.getUser()).thenReturn("username");
         return deviceMessage;
     }
 
@@ -523,9 +522,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(mock.getProtocolInfo()).thenReturn(errorMessage);
         when(mock.getStatus()).thenReturn(status);
         when(mock.getTrackingId()).thenReturn(trackingId);
-        User user = mock(User.class);
-        when(user.getName()).thenReturn(userName);
-        when(mock.getUser()).thenReturn(user);
+        when(mock.getUser()).thenReturn(userName);
         DeviceMessageSpec specification = mock(DeviceMessageSpec.class);
         DeviceMessageCategory category = mock(DeviceMessageCategory.class);
         when(category.getName()).thenReturn(categoryName);
