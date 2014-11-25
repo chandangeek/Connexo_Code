@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -14,8 +14,6 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.nls.Thesaurus;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -68,7 +66,7 @@ public class ComTaskEnablementResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         ComTaskEnablement comTaskEnablement = findComTaskEnablementOrThrowException(deviceConfiguration, comTaskEnablementId);
 
-        return Response.status(Response.Status.OK).entity(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
+        return Response.ok(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
 
     @POST
@@ -98,10 +96,8 @@ public class ComTaskEnablementResource {
             ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = findProtocolDialectOrThrowException(deviceConfiguration, comTaskEnablementInfo.protocolDialectConfigurationProperties.id);
             comTaskEnablementBuilder.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
         }
-
-        comTaskEnablementBuilder.add();
-
-        return Response.status(Response.Status.CREATED).build();
+        ComTaskEnablement comTaskEnablement = comTaskEnablementBuilder.add();
+        return Response.status(Response.Status.CREATED).entity(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
 
     @PUT
@@ -129,7 +125,7 @@ public class ComTaskEnablementResource {
 
         comTaskEnablement.save();
 
-        return Response.status(Response.Status.OK).build();
+        return Response.ok(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
 
     @PUT
