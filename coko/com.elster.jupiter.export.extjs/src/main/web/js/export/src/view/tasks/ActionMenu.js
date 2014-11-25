@@ -27,6 +27,11 @@ Ext.define('Dxp.view.tasks.ActionMenu', {
             text: Uni.I18n.translate('general.viewLog', 'DES', 'View log'),
             action: 'viewLog',
             hidden: true
+        },
+        {
+            itemId: 'view-history',
+            text: Uni.I18n.translate('general.viewHistory', 'DES', 'View history'),
+            action: 'viewHistory'
         }
     ]
 });

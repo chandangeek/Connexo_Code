@@ -435,6 +435,9 @@ Ext.define('Dxp.controller.Tasks', {
             case 'viewLog':
                 route = 'administration/dataexporttasks/dataexporttask/history/occurrence';
                 break;
+            case 'viewHistory':
+                route = 'administration/dataexporttasks/dataexporttask/history';
+                break;
         }
 
         route && (route = router.getRoute(route));
