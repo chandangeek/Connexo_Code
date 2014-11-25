@@ -51,7 +51,10 @@ public class TimeDurationValueFactory extends AbstractValueFactory<TimeDuration>
             String value = (String) object;
             String[] valueAndUnit = value.split(VALUE_UNIT_SEPARATOR);
             int timeUnits = Integer.parseInt(valueAndUnit[0]);
-            int unit = Integer.parseInt(valueAndUnit[1]);
+            int unit = TimeDuration.TimeUnit.SECONDS.getCode();
+            if(valueAndUnit.length>1){
+                unit = Integer.parseInt(valueAndUnit[1]);
+            }
             return new TimeDuration(timeUnits, unit);
         }
     }
