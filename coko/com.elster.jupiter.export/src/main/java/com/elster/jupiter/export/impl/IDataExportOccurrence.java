@@ -16,8 +16,6 @@ interface IDataExportOccurrence extends DataExportOccurrence {
 
     IReadingTypeDataExportTask getTask();
 
-    void start();
-
     void end(DataExportStatus status);
 
     void end(DataExportStatus status, String message);

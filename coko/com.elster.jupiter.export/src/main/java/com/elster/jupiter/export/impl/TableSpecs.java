@@ -92,8 +92,6 @@ enum TableSpecs {
             table.map(DataExportOccurrenceImpl.class);
             Column taskOccurrence = table.column("TASKOCC").number().notNull().add();
             Column task = table.column("RTEXPORTTASK").number().notNull().add();
-            table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
-            table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
             table.addIntervalColumns("exportedDataInterval");
             table.column("INTERVALENDPTBEHAVIOUR").number().conversion(ColumnConversion.NUMBER2ENUM).map("exportedDataBoundaryType").add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();

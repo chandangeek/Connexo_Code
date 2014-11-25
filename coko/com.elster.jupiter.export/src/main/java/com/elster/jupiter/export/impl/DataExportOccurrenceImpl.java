@@ -22,8 +22,6 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
     private Reference<IReadingTypeDataExportTask> readingTask = ValueReference.absent();
-    private Instant startDate;
-    private Instant endDate;
     private Interval exportedDataInterval;
     private Interval.EndpointBehavior exportedDataBoundaryType;
     private DataExportStatus status = DataExportStatus.BUSY;
@@ -55,13 +53,13 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     }
 
     @Override
-    public Instant getStartDate() {
-        return startDate;
+    public Optional<Instant> getStartDate() {
+        return taskOccurrence.get().getStartDate();
     }
 
     @Override
     public Optional<Instant> getEndDate() {
-        return Optional.ofNullable(endDate);
+        return taskOccurrence.get().getEndDate();
     }
 
     @Override
@@ -97,11 +95,6 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     }
 
     @Override
-    public void start() {
-        startDate = clock.instant();
-    }
-
-    @Override
     public void end(DataExportStatus status) {
         end(status, null);
     }
@@ -109,7 +102,6 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     @Override
     public void end(DataExportStatus status, String message) {
         this.status = status;
-        this.endDate = clock.instant();
         this.failureReason = message;
         getTask().updateLastRun(getTriggerTime());
     }
