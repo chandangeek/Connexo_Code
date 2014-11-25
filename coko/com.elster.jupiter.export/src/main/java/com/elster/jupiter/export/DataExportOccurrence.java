@@ -12,7 +12,7 @@ public interface DataExportOccurrence {
 
     ReadingTypeDataExportTask getTask();
 
-    Instant getStartDate();
+    Optional<Instant> getStartDate();
 
     Optional<Instant> getEndDate();
 
