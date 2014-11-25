@@ -58,7 +58,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/breakdown")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getBreakdownValues() {
         return asJsonArrayObjectWithTranslation("breakdowns", "breakdown", BREAKDOWN_OPTION_ADAPTER.getClientSideValues());
     }
@@ -66,7 +66,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/taskstatus")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getTaskStatusValues() {
         return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", new TaskStatusAdapter().getClientSideValues());
     }
@@ -74,7 +74,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/comsessionsuccessindicators")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getComSessionSuccessIndicatorValues() {
         return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new ComSessionSuccessIndicatorAdapter().getClientSideValues());
     }
@@ -82,7 +82,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/connectiontasksuccessindicators")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getConnectionTaskSuccessIndicatorValues() {
         return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new ConnectionTaskSuccessIndicatorAdapter().getClientSideValues());
     }
@@ -90,7 +90,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/lifecyclestatus")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getLifecycleStatus() {
         return asJsonArrayObjectWithTranslation("lifecycleStatuses", "lifecycleStatus", new ConnectionTaskLifecycleStatusAdaptor().getClientSideValues());
     }
@@ -98,6 +98,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/completioncodes")
     @Produces("application/json")
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getCompletionCodes() {
         return asJsonArrayObjectWithTranslation("completionCodes", "completionCode", new CompletionCodeAdapter().getClientSideValues());
     }
@@ -105,6 +106,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/devicetypes")
     @Produces("application/json")
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getDeviceTypes() {
         return Response.ok(asInfoMap("deviceTypes", deviceConfigurationService.findAllDeviceTypes().find())).build();
     }
@@ -112,6 +114,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/comportpools")
     @Produces("application/json")
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getComPortPools() {
         return Response.ok(asInfoMap("comPortPools", engineModelService.findAllComPortPools())).build();
     }
@@ -119,12 +122,14 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/comtasks")
     @Produces("application/json")
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getComTasks() {
         return Response.ok(asInfoMap("comTasks", taskService.findAllComTasks())).build();
     }
 
     @GET
     @Path("/comschedules")
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     @Produces("application/json")
     public Object getComSchedules() {
         return Response.ok(asInfoMap("comSchedules", schedulingService.findAllSchedules())).build();
@@ -133,7 +138,7 @@ public class DashboardFieldResource extends FieldResource {
     @GET
     @Path("/connectiontypepluggableclasses")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getConnectionTypeValues() {
         return Response.ok(asInfoMap("connectiontypepluggableclasses", protocolPluggableService.findAllConnectionTypePluggableClasses())).build();
     }
