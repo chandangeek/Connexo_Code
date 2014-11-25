@@ -4,6 +4,10 @@ public interface YellowfinService {
     String COMPONENTNAME = "YFN";
 
     String getYellowfinUrl();
-    String login(String authentication);
-    boolean logout(String username, String password, String sessionId);
+
+    String login(String username);
+    boolean logout(String username);
+
+    boolean importContent(String filePath);
+
 }
