@@ -4,15 +4,27 @@ Ext.define('Dsh.view.widget.Summary', {
     requires: [ 'Dsh.view.widget.common.Bar' ],
     alias: 'widget.summary',
     itemId: 'summary',
-    wTitle: Uni.I18n.translate('overview.widget.summary.title', 'DSH', 'Summary'),
+    title: Uni.I18n.translate('overview.widget.summary.title', 'DSH', 'Summary'),
+    header: {
+        ui: 'small'
+    },
+    layout: 'hbox',
     initComponent: function () {
         var me = this;
+
         this.items = [
             {
-                html: '<h3>' + me.wTitle + '</h3>',
-                itemId: 'connection-summary-title-panel'
+                flex: 1,
+                xtype: 'container',
+                itemId: 'target-container',
+                layout: 'vbox',
+                style: {
+                    marginRight: '20px'
+                },
+                items: []
             },
             {
+                flex: 2,
                 xtype: 'dataview',
                 itemId: 'summary-dataview',
                 itemSelector: 'tbody.item',
@@ -63,11 +75,6 @@ Ext.define('Dsh.view.widget.Summary', {
                                 label: Math.round(!view.total ? 0 : record.get('count') * 100 / view.total) + '% (' + record.get('count') + ')'
                             });
                             bar.render(view.getEl().down('#bar-' + pos));
-//
-//                            var filter = me.router.filter.getWriteData(true, true);
-//                            filter[view.record.get('alias')] = record.get('id');
-//                            var href = me.router.getRoute('workspace/' + me.parent + '/details').buildUrl(null, {filter: filter});
-//                            view.getEl().down('.item-' + pos + ' > tr > td > a').set({ href: href });
                         });
                     }
                 }
@@ -76,17 +83,13 @@ Ext.define('Dsh.view.widget.Summary', {
         this.callParent(arguments);
     },
 
-    summaryTitleUpdate: function (total) {
-        var me = this,
-            title = me.down('#connection-summary-title-panel');
-        title.update('<h3>' + me.wTitle + ' (' + total + ')' + '</h3>')
-    },
-
     setRecord: function (record) {
         var me = this,
             view = me.down('#summary-dataview'),
-            title = me.down('#connection-summary-title-panel'),
-            total = record.get('total');
+            targetContainer = me.down('#target-container'),
+            total = record.get('total'),
+            target = record.get('target');
+
         view.total = total || 0;
         view.record = record;
 
@@ -99,7 +102,49 @@ Ext.define('Dsh.view.widget.Summary', {
             }
         });
 
+        if (target) {
+            targetContainer.show();
+            me.initKpi(record);
+        } else {
+            targetContainer.hide();
+        }
+
         view.bindStore(record.counters());
-        me.summaryTitleUpdate(total)
+        me.setTitle(Uni.I18n.translatePlural('overview.widget.' + me.parent + '.header', total, 'DSH', 'Summary ({0})'));
+    },
+
+    initKpi: function(record) {
+        var me = this,
+            targetContainer = me.down('#target-container'),
+            total = record.get('total'),
+            target = record.get('target'),
+            counters = record.counters();
+
+        var success = counters.getAt(counters.findBy(function(r){return r.get('name') === 'success'}));
+        var successRate = Math.round(!total ? 0 : success.get('count') * 100 / total);
+        var diff = successRate - target;
+        var direction = diff > 0 ? 'above' : 'below';
+
+        targetContainer.removeAll();
+        targetContainer.add([
+            {
+                xtype: 'bar',
+                threshold: record.get('target'),
+                margin: '10 0',
+                width: '100%',
+                limit: total,
+                total: total,
+                count: success.get('count')
+            },
+            {
+                cls: 'large',
+                html: '<h4>' + Uni.I18n.translatePlural('overview.widget.' + me.parent + '.label.success', successRate, 'DSH', '<b>{0}%</b> success') + '</h4>'
+            },
+            {
+                cls: direction,
+                html: Uni.I18n.translatePlural('overview.widget.' + me.parent + '.label.' + direction, Math.abs(diff), 'DSH', '<b>{0}%</b> ' + direction)
+            }
+        ]);
+
     }
 });

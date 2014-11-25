@@ -83,12 +83,6 @@ Ext.define('Dsh.view.OperatorDashboard', {
                         itemId: 'open-data-collection-issues',
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue']),
                         router: me.router
-                    },
-                    {
-                        xtype: 'communication-servers',
-                        itemId: 'communication-servers',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
-                        router: me.router
                     }
                 ]
             },
@@ -107,46 +101,58 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     type: 'hbox',
                     align: 'stretch'
                 },
-                defaults: {
-                    style: {
-                        marginRight: '20px',
-                        padding: '20px'
-                    },
-                    flex: 1
-                },
                 items: [
-
                     {
-                        xtype: 'summary',
-                        itemId: 'connection-summary',
-                        wTitle: Uni.I18n.translate('dashboard.widget.connections.title', 'DSH', 'Active connections'),
-                        router: me.router,
-                        parent: 'connections',
-                        buttonAlign: 'left',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
-                        buttons: [{
-                            text: Uni.I18n.translate('dashboard.widget.connections.link', 'DSH', 'View connections overview'),
-                            ui: 'link',
-                            href: typeof me.router.getRoute('workspace/connections') !== 'undefined' ? me.router.getRoute('workspace/connections').buildUrl(null, me.router.queryParams) : ''
-                        }]
+                        flex: 3,
+                        xtype: 'panel',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults: {
+                            style: {
+                                marginRight: '20px',
+                                padding: '20px'
+                            },
+                            flex: 1
+                        },
+                        items: [
+                            {
+                                xtype: 'summary',
+                                itemId: 'connection-summary',
+                                wTitle: Uni.I18n.translate('dashboard.widget.connections.title', 'DSH', 'Active connections'),
+                                router: me.router,
+                                parent: 'connections',
+                                buttonAlign: 'left',
+                                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
+                                buttons: [{
+                                    text: Uni.I18n.translate('dashboard.widget.connections.link', 'DSH', 'View connections overview'),
+                                    ui: 'link',
+                                    href: me.router.getRoute('workspace/connections').buildUrl(null, me.router.queryParams)
+                                }]
+                            },
+                            {
+                                xtype: 'summary',
+                                itemId: 'communication-summary',
+                                wTitle: Uni.I18n.translate('dashboard.widget.communications.title', 'DSH', 'Active communications'),
+                                parent: 'communications',
+                                router: me.router,
+                                buttonAlign: 'left',
+                                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
+                                buttons: [{
+                                    text: Uni.I18n.translate('dashboard.widget.communications.link', 'DSH', 'View communications overview'),
+                                    ui: 'link',
+                                    href: me.router.getRoute('workspace/communications').buildUrl(null, me.router.queryParams)
+                                }]
+                            }
+                        ]
                     },
                     {
-                        xtype: 'summary',
-                        itemId: 'communication-summary',
-                        wTitle: Uni.I18n.translate('dashboard.widget.communications.title', 'DSH', 'Active communications'),
-                        parent: 'communications',
-                        router: me.router,
-                        style: {
-                            marginRight: '20px',
-                            padding: '20px'
-                        },
-                        buttonAlign: 'left',
+                        flex: 1,
+                        xtype: 'communication-servers',
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
-                        buttons: [{
-                            text: Uni.I18n.translate('dashboard.widget.communications.link', 'DSH', 'View communications overview'),
-                            ui: 'link',
-                            href: typeof me.router.getRoute('workspace/communications') !== 'undefined' ? me.router.getRoute('workspace/communications').buildUrl(null, me.router.queryParams) : ''
-                        }]
+                        itemId: 'communication-servers',
+                        router: me.router
                     }
                 ]
             }

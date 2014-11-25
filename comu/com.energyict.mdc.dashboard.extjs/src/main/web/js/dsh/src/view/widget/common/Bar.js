@@ -23,6 +23,9 @@ Ext.define('Dsh.view.widget.common.Bar', {
                 '<div class="{baseCls}-fill" style="width: {limit}%;">',
                     '{track}',
                 '</div>',
+                '<tpl if="threshold">',
+                '<div class="threshold" style="left: {threshold}%;">',
+                '</tpl>',
             '<div>',
         '</tpl>'
     ],
@@ -32,7 +35,8 @@ Ext.define('Dsh.view.widget.common.Bar', {
         return {
             limit: !me.total ? 0 : Math.round(me.limit * 100 / me.total),
             label: me.label,
-            count: !me.limit ? 0 : Math.round(me.count * 100 / me.limit)
+            count: !me.limit ? 0 : Math.round(me.count * 100 / me.limit),
+            threshold: me.threshold
         }
     },
 
