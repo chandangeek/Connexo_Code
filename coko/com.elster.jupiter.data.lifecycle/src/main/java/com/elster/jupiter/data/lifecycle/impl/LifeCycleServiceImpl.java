@@ -124,10 +124,8 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 	}
 	
 	@Override
-	public void runNow() {
-		TaskExecutor executor = new LifeCycleTaskExecutor(this);
-		TaskOccurrence occurrence = getTask().createTaskOccurrence();
-		executor.execute(occurrence);
+	public TaskOccurrence runNow() {		
+		return getTask().runNow(new LifeCycleTaskExecutor(this));	
 	}
 
 	private Instant limit(Period period) {
