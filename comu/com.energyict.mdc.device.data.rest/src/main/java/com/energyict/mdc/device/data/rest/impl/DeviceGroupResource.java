@@ -28,6 +28,7 @@ import com.energyict.mdc.device.data.security.Privileges;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;

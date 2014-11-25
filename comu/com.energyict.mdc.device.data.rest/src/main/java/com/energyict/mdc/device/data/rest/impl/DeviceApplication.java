@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.favorites.FavoritesService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -40,6 +41,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,7 +52,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+
 import javax.ws.rs.core.Application;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -84,6 +88,7 @@ public class DeviceApplication extends Application implements InstallService {
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile Clock clock;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile FavoritesService favoritesService; 
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -222,6 +227,11 @@ public class DeviceApplication extends Application implements InstallService {
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
+    
+    @Reference
+    public void setFavouriteDevicesService(FavoritesService favoritesService) {
+        this.favoritesService = favoritesService;
+    }
 
     @Override
     public void install() {
@@ -303,6 +313,7 @@ public class DeviceApplication extends Application implements InstallService {
             bind(DeviceMessageSpecInfoFactory.class).to(DeviceMessageSpecInfoFactory.class);
             bind(taskService).to(TaskService.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
+            bind(favoritesService).to(FavoritesService.class);
         }
     }
 
