@@ -27,7 +27,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.model.DataExportTask',
         'Dxp.model.DataExportTaskHistory',
         'Dxp.model.AddDataExportTaskForm',
-        'Dxp.model.DataSource'
+        'Dxp.model.DataSource',
+        'Dxp.model.HistoryFilter'
     ],
     refs: [
         {
@@ -49,6 +50,18 @@ Ext.define('Dxp.controller.Tasks', {
         {
             ref: 'dataSourcesPage',
             selector: 'data-sources-setup'
+        },
+        {
+            ref: 'sideFilterForm',
+            selector: '#side-filter #filter-form'
+        },
+        {
+            ref: 'filterTopPanel',
+            selector: '#tasks-history-filter-top-panel'
+        },
+        {
+            ref: 'actionMenu',
+            selector: 'tasks-action-menu'
         }
     ],
     fromDetails: false,
@@ -94,6 +107,16 @@ Ext.define('Dxp.controller.Tasks', {
             },
             'tasks-action-menu': {
                 click: this.chooseAction
+            },
+            '#side-filter  button[action=applyfilter]': {
+                click: this.applyFilter
+            },
+            '#side-filter  button[action=clearfilter]': {
+                click: this.clearFilter
+            },
+            '#tasks-history-filter-top-panel': {
+                removeFilter: this.removeFilter,
+                clearAllFilters: this.clearFilter
             }
         });
     },
@@ -134,7 +157,62 @@ Ext.define('Dxp.controller.Tasks', {
         });
     },
 
-    showDataExportTaskHistory: function(currentTaskId) {
+    initFilter: function () {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            filter = router.filter;
+
+        me.getSideFilterForm().loadRecord(filter);
+        for (var f in filter.getData()) {
+            var name = '', exportPeriod;
+            switch (f) {
+                case 'startedOnFrom':
+                    name = Uni.I18n.translate('general.startedFrom', 'DES', 'Started from');
+                    break;
+                case 'startedOnTo':
+                    name = Uni.I18n.translate('general.startedTo', 'DES', 'Started to');
+                    break;
+                case 'finishedOnFrom':
+                    name = Uni.I18n.translate('general.finishedFrom', 'DES', 'Finished from');
+                    name = 'Finished from';
+                    break;
+                case 'finishedOnTo':
+                    name = Uni.I18n.translate('general.finishedTo', 'DES', 'Finished to');
+                    break;
+                case 'exportPeriodContains':
+                    name = Uni.I18n.translate('general.exportPeriodContains', 'DES', 'Export period contains');
+                    exportPeriod = true;
+                    break;
+            }
+            if (!Ext.isEmpty(filter.get(f))) {
+                me.getFilterTopPanel().setFilter(f, name, Ext.util.Format.date(new Date(filter.get(f)),
+                    ('D d M Y' + (exportPeriod ? '' : ' \\a\\t h:i A'))));
+            }
+        }
+        me.getFilterTopPanel().setVisible(true);
+    },
+
+    applyFilter: function () {
+        this.getSideFilterForm().updateRecord();
+        this.getSideFilterForm().getRecord().save();
+    },
+
+    clearFilter: function () {
+        this.getSideFilterForm().getForm().reset();
+        this.getFilterTopPanel().setVisible(false);
+        this.getSideFilterForm().getRecord().getProxy().destroy();
+    },
+
+    removeFilter: function (key) {
+        var router = this.getController('Uni.controller.history.Router'),
+            record = router.filter;
+        if (record) {
+            delete record.data[key];
+            record.save();
+        }
+    },
+
+    showDataExportTaskHistory: function (currentTaskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Dxp.store.DataExportTasksHistory'),
@@ -146,19 +224,26 @@ Ext.define('Dxp.controller.Tasks', {
 
         me.getApplication().fireEvent('changecontentevent', view);
         store.getProxy().setUrl(router.arguments);
+        me.initFilter();
         var grid = me.getHistory().down('tasks-history-grid');
 
-        Ext.Array.each(Ext.ComponentQuery.query('#view-log'), function (item) {
-            item.show();
+        Ext.Array.each(Ext.ComponentQuery.query('tasks-action-menu'), function (item) {
+            Ext.each(item.query(), function (menuitem) {
+                if (menuitem.action !== 'viewLog') {
+                    menuitem.setVisible(false);
+                } else {
+                    menuitem.setVisible(true);
+                }
+            });
         });
 
         taskModel.load(currentTaskId, {
             success: function (record) {
-                store.load(function(records, operation, success) {
-                    records.map(function(r){
+                store.load(function (records, operation, success) {
+                    records.map(function (r) {
                         r.set(Ext.apply({}, r.raw, record.raw));
+                        r.propertiesStore = record.propertiesStore;
                     });
-
                     me.showHistoryPreview(grid.getSelectionModel(), records[0]);
                 });
             }
@@ -172,11 +257,15 @@ Ext.define('Dxp.controller.Tasks', {
             previewForm = page.down('tasks-preview-form'),
             propertyForm = previewForm.down('property-form');
 
-        preview.setTitle(record.get('name'));
-        previewForm.loadRecord(record);
-        preview.down('tasks-action-menu').record = record;
-        if (record.properties() && record.properties().count()) {
-            propertyForm.loadRecord(record);
+        if (record) {
+            previewForm.down('displayfield[name=lastRun_formatted]').setVisible(false);
+            previewForm.down('displayfield[name=nextRun_formatted]').setVisible(false);
+            preview.setTitle(Ext.util.Format.date(new Date(record.get('startedOn')), 'D d M Y \\a\\t h:i A'));
+            previewForm.loadRecord(record);
+            preview.down('tasks-action-menu').record = record;
+            if (record.properties() && record.properties().count()) {
+                propertyForm.loadRecord(record);
+            }
         }
     },
 
@@ -391,7 +480,7 @@ Ext.define('Dxp.controller.Tasks', {
                     errorText = json.errors[0].msg;
                 }
                 //me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'), errorText);
-                if(!Ext.ComponentQuery.query('#remove-error-messagebox')[0])  {
+                if (!Ext.ComponentQuery.query('#remove-error-messagebox')[0]) {
                     Ext.widget('messagebox', {
                         itemId: 'remove-error-messagebox',
                         buttons: [
@@ -413,12 +502,13 @@ Ext.define('Dxp.controller.Tasks', {
                             }
                         ]
                     }).show({
-                        ui: 'notification-error',
-                        title: Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'),
-                        msg: errorText,
-                        icon: Ext.MessageBox.ERROR
-                    })
-                }}
+                            ui: 'notification-error',
+                            title: Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'),
+                            msg: errorText,
+                            icon: Ext.MessageBox.ERROR
+                        })
+                }
+            }
         });
     },
 

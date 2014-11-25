@@ -4,7 +4,9 @@ Ext.define('Dxp.view.tasks.History', {
     requires: [
         'Dxp.view.tasks.Menu',
         'Dxp.view.tasks.PreviewForm',
-        'Dxp.view.tasks.HistoryGrid'
+        'Dxp.view.tasks.HistoryGrid',
+        'Dxp.view.tasks.HistoryFilterForm',
+        'Uni.component.filter.view.FilterTopPanel'
     ],
 
     router: null,
@@ -25,6 +27,11 @@ Ext.define('Dxp.view.tasks.History', {
                         taskId: me.taskId,
                         router: me.router,
                         toggle: 1
+                    },
+                    {
+                        xtype: 'history-filter-form',
+                        itemId: 'side-filter',
+                        router: me.router
                     }
                 ]
             }
@@ -35,6 +42,10 @@ Ext.define('Dxp.view.tasks.History', {
             ui: 'large',
             title: Uni.I18n.translate('general.history', 'DES', 'History'),
             items: [
+                {
+                    xtype: 'filter-top-panel',
+                    itemId: 'tasks-history-filter-top-panel'
+                },
                 {
                     xtype: 'preview-container',
                     grid: {
@@ -64,7 +75,6 @@ Ext.define('Dxp.view.tasks.History', {
                 }
             ]
         };
-
         me.callParent(arguments);
     }
 });

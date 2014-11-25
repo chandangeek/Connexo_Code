@@ -48,6 +48,7 @@ Ext.define('Dxp.controller.history.Export', {
                                     route: 'history',
                                     controller: 'Dxp.controller.Tasks',
                                     action: 'showDataExportTaskHistory',
+                                    filter: 'Dxp.model.HistoryFilter',
                                     items: {
                                         occurrence: {
                                             title: Uni.I18n.translate('general.dataExportTaskLog', 'DES', 'Data export task log'),

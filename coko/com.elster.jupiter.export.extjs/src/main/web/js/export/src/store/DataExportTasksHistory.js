@@ -1,5 +1,5 @@
 Ext.define('Dxp.store.DataExportTasksHistory', {
-    extend: 'Ext.data.Store',
+    extend: 'Uni.data.store.Filterable',
     model: 'Dxp.model.DataExportTaskHistory',
     autoLoad: false,
 
@@ -10,9 +10,8 @@ Ext.define('Dxp.store.DataExportTasksHistory', {
             type: 'json',
             root: 'data'
         },
-
         setUrl: function (params) {
             this.url = this.urlTpl.replace('{taskId}', params.taskId);
         }
-    },
+    }
 });

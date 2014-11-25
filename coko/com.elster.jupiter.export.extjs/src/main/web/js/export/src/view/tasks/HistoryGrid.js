@@ -15,11 +15,13 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
         var me = this;
         me.columns = [
             {
-                xtype: 'datecolumn',
                 header: Uni.I18n.translate('general.startedOn', 'DES', 'Started On'),
                 dataIndex: 'startedOn',
-                format: 'D d M Y \\a\\t h:i a',
-                flex: 2
+                flex: 2,
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence').buildUrl({occurrenceId: record.get('id')});
+                    return '<a href="' + url + '">' + Ext.util.Format.date(new Date(value), 'D d M Y \\a\\t h:i A') + '</a>';
+                }
             },
             {
                 xtype: 'uni-grid-column-duration',
@@ -34,7 +36,10 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
             {
                 header: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
                 renderer: function (value, metaData, record) {
-                    return "From " + record.get('exportPeriodFrom') + ' to ' + record.get('exportPeriodTo')
+                    var exportPeriodFrom = new Date(record.get('exportPeriodFrom')),
+                        exportPeriodTo = new Date(record.get('exportPeriodTo'));
+                    return 'From ' + Ext.util.Format.date(exportPeriodFrom, 'D d M Y H:i:s') +
+                        ' to ' + Ext.util.Format.date(exportPeriodTo, 'D d M Y H:i:s');
                 },
                 flex: 3
             },
@@ -48,20 +53,21 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
         ];
 
         me.dockedItems = [
-            //{
-            //    xtype: 'pagingtoolbartop',
-            //    store: me.store,
-            //    dock: 'top',
-            //    displayMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.displayMsg', 'DES', '{0} - {1} of {2} data export tasks'),
-            //    displayMoreMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.displayMoreMsg', 'DES', '{0} - {1} of more than {2} data export tasks'),
-            //    emptyMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.emptyMsg', 'DES', 'There are no data export tasks to display'),
-            //},
-            //{
-            //    xtype: 'pagingtoolbarbottom',
-            //    store: me.store,
-            //    itemsPerPageMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbarbottom.itemsPerPage', 'DES', 'Data export tasks per page'),
-            //    dock: 'bottom'
-            //}
+            {
+                xtype: 'pagingtoolbartop',
+                store: me.store,
+                dock: 'top',
+                displayMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.displayMsg', 'DES', '{0} - {1} of {2} data export tasks'),
+                displayMoreMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.displayMoreMsg', 'DES', '{0} - {1} of more than {2} data export tasks'),
+                emptyMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbartop.emptyMsg', 'DES', 'There are no data export tasks to display')
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: me.store,
+                deferLoading: true,
+                itemsPerPageMsg: Uni.I18n.translate('dataExportTasks.pagingtoolbarbottom.itemsPerPage', 'DES', 'Data export tasks per page'),
+                dock: 'bottom'
+            }
         ];
 
         me.callParent(arguments);
