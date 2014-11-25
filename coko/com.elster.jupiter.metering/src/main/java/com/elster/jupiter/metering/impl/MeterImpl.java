@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -151,5 +152,15 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
     @Override
     public boolean is(ReadingContainer other) {
         return other instanceof Meter && ((Meter) other).getId() == getId();
+    }
+
+    @Override
+    public Optional<Meter> getMeter(Instant instant) {
+        return Optional.of(this);
+    }
+
+    @Override
+    public Optional<UsagePoint> getUsagePoint(Instant instant) {
+        return Optional.empty();
     }
 }

@@ -1,8 +1,10 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class MeterActivationsImpl implements ReadingContainer {
@@ -94,5 +97,21 @@ public class MeterActivationsImpl implements ReadingContainer {
     @Override
     public boolean is(ReadingContainer other) {
         return this == other;
+    }
+
+    @Override
+    public Optional<Meter> getMeter(Instant instant) {
+        return meterActivations.stream()
+                .filter(activation -> activation.getRange().contains(instant))
+                .findAny()
+                .flatMap(MeterActivationImpl::getMeter);
+    }
+
+    @Override
+    public Optional<UsagePoint> getUsagePoint(Instant instant) {
+        return meterActivations.stream()
+                .filter(activation -> activation.getRange().contains(instant))
+                .findAny()
+                .flatMap(MeterActivationImpl::getUsagePoint);
     }
 }

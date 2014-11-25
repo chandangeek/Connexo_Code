@@ -408,4 +408,13 @@ public class UsagePointImpl implements UsagePoint {
         return other instanceof UsagePoint && ((UsagePoint) other).getId() == getId();
     }
 
+    @Override
+    public Optional<Meter> getMeter(Instant instant) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<UsagePoint> getUsagePoint(Instant instant) {
+        return Optional.of(this);
+    }
 }

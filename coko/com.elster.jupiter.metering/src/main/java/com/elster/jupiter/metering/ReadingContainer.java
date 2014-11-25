@@ -4,6 +4,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface ReadingContainer {
@@ -13,4 +14,6 @@ public interface ReadingContainer {
 	List<? extends BaseReadingRecord> getReadingsOnOrBefore(Instant when, ReadingType readingType , int count);
     boolean hasData();
     boolean is(ReadingContainer other);
+    Optional<Meter> getMeter(Instant instant);
+    Optional<UsagePoint> getUsagePoint(Instant instant);
 }

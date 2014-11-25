@@ -227,4 +227,20 @@ public class MeterActivationImpl implements MeterActivation {
     public boolean is(ReadingContainer other) {
         return other instanceof MeterActivation && ((MeterActivation) other).getId() == getId();
     }
+
+    @Override
+    public Optional<Meter> getMeter(Instant instant) {
+        if (getRange().contains(instant)) {
+            return getMeter();
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<UsagePoint> getUsagePoint(Instant instant) {
+        if (getRange().contains(instant)) {
+            return getUsagePoint();
+        }
+        return Optional.empty();
+    }
 }
