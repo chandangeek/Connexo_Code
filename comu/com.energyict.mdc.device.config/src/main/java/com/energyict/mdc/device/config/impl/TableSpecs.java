@@ -351,8 +351,8 @@ public enum TableSpecs {
     DTC_PROTOCOLCONFIGPROPSATTR {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<ProtocolConfigurationProperty> table = dataModel.addTable(name(), ProtocolConfigurationProperty.class);
-            table.map(ProtocolConfigurationProperty.class);
+            Table<DeviceProtocolConfigurationProperty> table = dataModel.addTable(name(), DeviceProtocolConfigurationProperty.class);
+            table.map(DeviceProtocolConfigurationProperty.class);
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("VALUE").varChar().notNull().map("value").add();

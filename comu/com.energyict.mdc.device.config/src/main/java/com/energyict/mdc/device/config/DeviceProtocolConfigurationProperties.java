@@ -23,7 +23,7 @@ import com.elster.jupiter.properties.HasDynamicProperties;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-11-24 (09:03)
  */
-public interface ProtocolConfigurationProperties extends HasDynamicProperties {
+public interface DeviceProtocolConfigurationProperties extends HasDynamicProperties {
 
     public DeviceConfiguration getDeviceConfiguration();
 

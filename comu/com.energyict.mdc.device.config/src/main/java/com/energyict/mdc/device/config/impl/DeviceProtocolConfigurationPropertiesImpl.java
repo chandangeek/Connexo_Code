@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ProtocolConfigurationProperties;
+import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
@@ -13,20 +13,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Provides an implementation for the {@link ProtocolConfigurationProperties} interface.
- * Is in fact a wrapper around the List of {@link ProtocolConfigurationProperty}
+ * Provides an implementation for the {@link DeviceProtocolConfigurationProperties} interface.
+ * Is in fact a wrapper around the List of {@link DeviceProtocolConfigurationProperty}
  * that are actually owned by {@link DeviceConfigurationImpl} from an ORM point of view.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-11-24 (09:45)
  */
-public class ProtocolConfigurationPropertiesImpl implements ProtocolConfigurationProperties {
+public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocolConfigurationProperties {
 
     private final DeviceConfigurationImpl deviceConfiguration;
     private List<PropertySpec> propertySpecs;
     private TypedProperties properties;
 
-    public ProtocolConfigurationPropertiesImpl(DeviceConfigurationImpl deviceConfiguration) {
+    public DeviceProtocolConfigurationPropertiesImpl(DeviceConfigurationImpl deviceConfiguration) {
         super();
         this.deviceConfiguration = deviceConfiguration;
     }
@@ -68,7 +68,7 @@ public class ProtocolConfigurationPropertiesImpl implements ProtocolConfiguratio
 
     /**
      * Ensures that the {@link TypedProperties} are
-     * initialized from the List of {@link ProtocolConfigurationProperty}
+     * initialized from the List of {@link DeviceProtocolConfigurationProperty}
      * managed by the owning DeviceConfigurationImpl.
      */
     private void ensurePropertiesInitialized() {
@@ -86,7 +86,7 @@ public class ProtocolConfigurationPropertiesImpl implements ProtocolConfiguratio
         else {
             properties = TypedProperties.empty();
         }
-        for (ProtocolConfigurationProperty property : this.deviceConfiguration.getProtocolPropertyList()) {
+        for (DeviceProtocolConfigurationProperty property : this.deviceConfiguration.getProtocolPropertyList()) {
             ValueFactory<?> valueFactory = this.getPropertySpec(property.getName()).getValueFactory();
             properties.setProperty(property.getName(), valueFactory.fromStringValue(property.getValue()));
         }
@@ -137,7 +137,7 @@ public class ProtocolConfigurationPropertiesImpl implements ProtocolConfiguratio
     @SuppressWarnings("unchecked")
     private void addProperty(String name, Object value, PropertySpec propertySpec) {
         String stringValue = propertySpec.getValueFactory().toStringValue(value);
-        ProtocolConfigurationProperty property = ProtocolConfigurationProperty.forNameAndValue(name, stringValue, this.deviceConfiguration);
+        DeviceProtocolConfigurationProperty property = DeviceProtocolConfigurationProperty.forNameAndValue(name, stringValue, this.deviceConfiguration);
         this.deviceConfiguration.addProtocolProperty(property);
         this.properties.setProperty(name, value);
     }

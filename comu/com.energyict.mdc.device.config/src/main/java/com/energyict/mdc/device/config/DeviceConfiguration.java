@@ -145,8 +145,8 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
      * Gets the general protocol properties that have been specified on
      * this DeviceConfiguration level.
      *
-     * @return The {@link ProtocolConfigurationProperties}
+     * @return The {@link DeviceProtocolConfigurationProperties}
      */
-    public ProtocolConfigurationProperties getProtocolProperties();
+    public DeviceProtocolConfigurationProperties getDeviceProtocolProperties();
 
 }

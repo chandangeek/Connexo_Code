@@ -108,7 +108,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private Clock clock;
     private GatewayType gatewayType = GatewayType.NONE;
     @Valid
-    private List<ProtocolConfigurationProperty> protocolProperties = new ArrayList<>();
+    private List<DeviceProtocolConfigurationProperty> protocolProperties = new ArrayList<>();
     private ProtocolConfigurationPropertyChanges protocolConfigurationPropertyChanges = new ProtocolConfigurationPropertyChanges();
     private final Provider<LoadProfileSpecImpl> loadProfileSpecProvider;
     private final Provider<NumericalRegisterSpecImpl> numericalRegisterSpecProvider;
@@ -975,15 +975,15 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public ProtocolConfigurationProperties getProtocolProperties() {
-        return new ProtocolConfigurationPropertiesImpl(this);
+    public DeviceProtocolConfigurationProperties getDeviceProtocolProperties() {
+        return new DeviceProtocolConfigurationPropertiesImpl(this);
     }
 
-    List<ProtocolConfigurationProperty> getProtocolPropertyList() {
+    List<DeviceProtocolConfigurationProperty> getProtocolPropertyList() {
         return protocolProperties;
     }
 
-    void addProtocolProperty(ProtocolConfigurationProperty property) {
+    void addProtocolProperty(DeviceProtocolConfigurationProperty property) {
         this.protocolConfigurationPropertyChanges.addProtocolProperty(property);
     }
 
@@ -992,22 +992,22 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private class ProtocolConfigurationPropertyChanges {
-        private Map<String, ProtocolConfigurationProperty> newProperties = new HashMap<>();
-        private Map<String, ProtocolConfigurationProperty> obsoleteProperties = new HashMap<>();
+        private Map<String, DeviceProtocolConfigurationProperty> newProperties = new HashMap<>();
+        private Map<String, DeviceProtocolConfigurationProperty> obsoleteProperties = new HashMap<>();
 
-        private void addProtocolProperty(ProtocolConfigurationProperty property) {
+        private void addProtocolProperty(DeviceProtocolConfigurationProperty property) {
             this.newProperties.put(property.getName(), property);
         }
 
         private boolean removeProtocolProperty(String propertyName) {
-            ProtocolConfigurationProperty newProperty = this.newProperties.get(propertyName);
+            DeviceProtocolConfigurationProperty newProperty = this.newProperties.get(propertyName);
             if (newProperty != null) {
                 // Property was added before, revoke it
                 this.newProperties.remove(propertyName);
                 return true;
             }
             else {
-                Optional<ProtocolConfigurationProperty> existingProperty = this.findProperty(propertyName);
+                Optional<DeviceProtocolConfigurationProperty> existingProperty = this.findProperty(propertyName);
                 if (existingProperty.isPresent()) {
                     this.obsoleteProperties.put(propertyName, existingProperty.get());
                     return true;
@@ -1018,7 +1018,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             }
         }
 
-        private Optional<ProtocolConfigurationProperty> findProperty(String propertyName) {
+        private Optional<DeviceProtocolConfigurationProperty> findProperty(String propertyName) {
             return protocolProperties
                     .stream()
                     .filter(p -> p.getName().equals(propertyName))
