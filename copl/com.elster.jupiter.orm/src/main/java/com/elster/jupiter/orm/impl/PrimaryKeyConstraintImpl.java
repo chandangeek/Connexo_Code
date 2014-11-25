@@ -37,6 +37,11 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements Pri
     public boolean allowZero() {
         return allowZero;
     }
+    
+    @Override
+    void appendDdlTrailer(StringBuilder builder) {
+        getTable().intervalPartitionColumn().ifPresent( column -> builder.append(" USING INDEX LOCAL "));
+    }
 
     static class BuilderImpl implements PrimaryKeyConstraint.Builder {
         private final PrimaryKeyConstraintImpl constraint;
