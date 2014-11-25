@@ -19,8 +19,8 @@ import java.rmi.RemoteException;
 @Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
 public class YellowfinServiceImpl implements YellowfinService {
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
-    private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.ws_user";
-    private static final String YELLOWFIN_WEBSERVICES_PASSWORD = "com.elster.jupiter.yellowfin.ws_password";
+    private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.user";
+    private static final String YELLOWFIN_WEBSERVICES_PASSWORD = "com.elster.jupiter.yellowfin.password";
     private static final String DEFAULT_YELLOWFIN_URL = "http://localhost:8081";
 
     private String yellowfinHost;
