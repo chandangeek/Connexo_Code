@@ -15,7 +15,6 @@ Ext.define('Uni.grid.column.Action', {
         plain: true,
         items: []
     },
-    constructor: function (config) {
 
     constructor: function (config) {
         var me = this,
