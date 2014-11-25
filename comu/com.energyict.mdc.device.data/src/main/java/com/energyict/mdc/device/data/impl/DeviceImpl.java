@@ -772,7 +772,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     public TypedProperties getDeviceProtocolProperties() {
-        TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceProtocolPluggableClass().getProperties());
+        TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
         TypedProperties localProperties = getLocalProperties(this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs());
         properties.setAllProperties(localProperties);
         return properties;
