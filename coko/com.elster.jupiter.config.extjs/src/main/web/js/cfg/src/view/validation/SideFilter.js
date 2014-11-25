@@ -19,7 +19,8 @@ Ext.define('Cfg.view.validation.SideFilter', {
             },
             defaults: {
                 xtype: 'combobox',
-                labelAlign: 'top'
+                labelAlign: 'top',
+                labelPad: 0
             },
             items: [
                 {

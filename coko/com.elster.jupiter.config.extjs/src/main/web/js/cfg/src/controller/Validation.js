@@ -9,8 +9,8 @@ Ext.define('Cfg.controller.Validation', {
         'ReadingTypesToAddForRule',
         'Intervals',
         'TimeOfUse',
-        'AdaptedReadingTypes',
-        'ReadingTypesForRule'
+        'ReadingTypesForRule',
+        'AdaptedReadingTypes'
     ],
 
     requires: [
@@ -41,7 +41,8 @@ Ext.define('Cfg.controller.Validation', {
         'validation.RuleOverview',
         'validation.RuleSubMenu',
         'validation.RulePreviewContainerPanel',
-        'validation.AddReadingTypesToRuleSetup'
+        'validation.AddReadingTypesToRuleSetup',
+        'validation.AddReadingTypesBulk'
     ],
 
     refs: [
@@ -172,9 +173,10 @@ Ext.define('Cfg.controller.Validation', {
             record = form.getForm().getRecord(),
             readingTypes = [];
 
-        propertyForm.updateRecord();
+
 
         if (propertyForm.getRecord()) {
+            propertyForm.updateRecord();
             record.propertiesStore = propertyForm.getRecord().properties();
         }
 
@@ -214,7 +216,7 @@ Ext.define('Cfg.controller.Validation', {
             arrReadingTypes = [];
 
         var propertyForm = this.getAddRule().down('property-form');
-        propertyForm.updateRecord();
+
         if (form.isValid()) {
             var ruleSetId = this.getRuleSetIdFromHref() || me.ruleSetId,
                 record = me.formToModel();
@@ -236,6 +238,7 @@ Ext.define('Cfg.controller.Validation', {
             });
 
             if (propertyForm.getRecord()) {
+                propertyForm.updateRecord();
                 record.propertiesStore = propertyForm.getRecord().properties();
             }
 
@@ -354,7 +357,7 @@ Ext.define('Cfg.controller.Validation', {
     },
 
 
-    clearAllCombos: function() {
+    clearAllCombos: function () {
         var widget = this.getAddReadingTypesSetup(),
             unitOfMeasureCombo = widget.down('#unitsOfMeasureCombo'),
             intervalsCombo = widget.down('#intervalsCombo'),
@@ -419,24 +422,46 @@ Ext.define('Cfg.controller.Validation', {
 
     loadReadingTypes: function () {
         var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
             widget = this.getAddReadingTypesSetup(),
             readingTypeStore = Ext.create('Cfg.store.ReadingTypesToAddForRule'),
             unitOfMeasureCombo = widget.down('#unitsOfMeasureCombo'),
             intervalsCombo = widget.down('#intervalsCombo'),
             timeOfUseCombo = widget.down('#timeOfUseCombo'),
             readingTypeNameText = widget.down('#readingTypeNameTextField'),
-            adaptedReadingTypeStore = widget.down('#addReadingTypesGrid').getStore(),
+            adaptedReadingTypeStore = Ext.create('Cfg.store.AdaptedReadingTypes'),
             unitOfMeasureComboValue = unitOfMeasureCombo.getValue(),
             filter = widget.down('#filterReadingTypes'),
             filterBtns = Ext.ComponentQuery.query('#filterReadingTypes tag-button'),
-            grid = widget.down('#addReadingTypesGrid'),
+            bulkGridContainer = widget.down('#bulkReadingTypesContainer'),
             properties = [],
             unitOfMeasureRecord,
-            intervalsRecord;
+            intervalsRecord,
+            previewContainer;
 
-        widget.setLoading();
+        widget.setLoading(true);
 
-        grid.getSelectionGroupType().down('radiofield[inputValue=allItems]').setValue(true);
+        previewContainer = {
+            xtype: 'preview-container',
+            grid: {
+                itemId: 'addReadingTypesGrid',
+                xtype: 'addReadingTypesBulk',
+                store: 'AdaptedReadingTypes'
+            },
+            emptyComponent: {
+                xtype: 'no-items-found-panel',
+                margin: '0 0 20 0',
+                title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
+                reasons: [
+                    Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
+                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
+                    Uni.I18n.translate('validation.readingType.empty.list.item3', 'CFG', 'All reading types have been already added to rule.')
+                ]
+            }
+        }
+
+        bulkGridContainer.removeAll();
+
 
         Ext.each(filterBtns, function (btn) {
             btn.destroy();
@@ -469,7 +494,7 @@ Ext.define('Cfg.controller.Validation', {
             });
             filter.setFilter('name', 'Name', readingTypeNameText.getValue(), false);
         }
-        if (timeOfUseCombo.getValue()) {
+        if (!Ext.isEmpty(timeOfUseCombo.getValue())) {
             properties.push({
                 property: 'tou',
                 value: timeOfUseCombo.getValue()
@@ -478,17 +503,18 @@ Ext.define('Cfg.controller.Validation', {
         }
 
         readingTypeStore.getProxy().setExtraParam('filter', Ext.encode(properties));
-
+        bulkGridContainer.add(previewContainer);
+        adaptedReadingTypeStore = bulkGridContainer.down('#addReadingTypesGrid').getStore();
         readingTypeStore.load({
             callback: function () {
-                adaptedReadingTypeStore.removeAll();
                 this.each(function (record) {
                     if (!me.checkMridAlreadyAdded(me.validationRuleRecord.get('readingTypes'), record)) {
                         adaptedReadingTypeStore.add({readingType: record.getData()});
                     }
                 });
                 adaptedReadingTypeStore.fireEvent('load');
-                grid.fireEvent('selectionchange');
+                bulkGridContainer.down('#addReadingTypesGrid').fireEvent('selectionchange');
+
                 widget.setLoading(false);
                 if (adaptedReadingTypeStore.getCount() < 1) {
                     widget.down('#buttonsContainer button[name=add]').setDisabled(true);

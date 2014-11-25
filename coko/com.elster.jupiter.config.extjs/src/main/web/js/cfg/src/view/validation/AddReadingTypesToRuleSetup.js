@@ -6,8 +6,7 @@ Ext.define('Cfg.view.validation.AddReadingTypesToRuleSetup', {
 
     requires: [
         'Uni.component.filter.view.FilterTopPanel',
-        'Cfg.view.validation.SideFilter',
-        'Cfg.view.validation.AddReadingTypesBulk'
+        'Cfg.view.validation.SideFilter'
     ],
 
     side: [
@@ -35,21 +34,8 @@ Ext.define('Cfg.view.validation.AddReadingTypesToRuleSetup', {
                     emptyText: Uni.I18n.translate('general.none', 'CFG', 'None')
                 },
                 {
-                    xtype: 'preview-container',
-                    grid: {
-                        itemId: 'addReadingTypesGrid',
-                        xtype: 'addReadingTypesBulk'
-                    },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        margin: '0 0 20 0',
-                        title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
-                        reasons: [
-                            Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
-                            Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
-                            Uni.I18n.translate('validation.readingType.empty.list.item3', 'CFG', 'All reading types have been already added to rule.')
-                        ]
-                    }
+                    xtype: 'container',
+                    itemId: 'bulkReadingTypesContainer'
                 },
                 {
                     xtype: 'container',
