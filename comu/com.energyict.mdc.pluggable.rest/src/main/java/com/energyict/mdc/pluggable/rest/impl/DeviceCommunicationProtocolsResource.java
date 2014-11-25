@@ -54,7 +54,7 @@ public class DeviceCommunicationProtocolsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_PROTOCOL)
+    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
     public PagedInfoList getDeviceCommunicationProtocols(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
         List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = this.protocolPluggableService.findAllDeviceProtocolPluggableClasses().from(queryParameters).find();
         List<DeviceCommunicationProtocolInfo> deviceCommunicationProtocolInfos = new ArrayList<>(deviceProtocolPluggableClasses.size());
@@ -68,7 +68,7 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_PROTOCOL)
+    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
     public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@Context UriInfo uriInfo, @PathParam("id") long id) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = findDeviceProtocolPluggableClassOrThrowException(id);
         LicensedProtocol licensedProtocol = this.protocolPluggableService.findLicensedProtocolFor(deviceProtocolPluggableClass);
@@ -78,7 +78,7 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Path("/connectiontypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_PROTOCOL)
+    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
     public List<ConnectionTypeInfo> getAllConnectionTypes(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter queryFilter){
         return this.protocolPluggableService.findAllConnectionTypePluggableClasses().stream()
                 .map(p -> ConnectionTypeInfo.from(p, uriInfo, mdcPropertyUtils))
@@ -88,7 +88,7 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Path("/{deviceProtocolId}/connectiontypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_PROTOCOL)
+    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
     public List<ConnectionTypeInfo> getSupportedConnectionTypes(@PathParam("deviceProtocolId") long deviceProtocolId, @Context UriInfo uriInfo, @BeanParam JsonQueryFilter queryFilter){
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = findDeviceProtocolPluggableClassOrThrowException(deviceProtocolId);
         List<ConnectionType> supportedConnectionTypes = deviceProtocolPluggableClass.getDeviceProtocol().getSupportedConnectionTypes();
