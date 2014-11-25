@@ -32,6 +32,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -71,6 +73,16 @@ public class DeviceCommunicationProtocolsResource {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = findDeviceProtocolPluggableClassOrThrowException(id);
         LicensedProtocol licensedProtocol = this.protocolPluggableService.findLicensedProtocolFor(deviceProtocolPluggableClass);
         return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true, mdcPropertyUtils);
+    }
+
+    @GET
+    @Path("/connectiontypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_PROTOCOL)
+    public List<ConnectionTypeInfo> getAllConnectionTypes(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter queryFilter){
+        return this.protocolPluggableService.findAllConnectionTypePluggableClasses().stream()
+                .map(p -> ConnectionTypeInfo.from(p, uriInfo, mdcPropertyUtils))
+                .collect(Collectors.toList());
     }
 
     @GET
