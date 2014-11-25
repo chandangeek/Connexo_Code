@@ -7,6 +7,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.google.inject.AbstractModule;
@@ -153,4 +153,13 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 		meteringService.purge(purgeConfiguration);
 	}
 	
+	@Override
+	public List<LifeCycleCategory> getCategoriesAsOf(Instant instant) {
+		return getCategories().stream()
+			.map(LifeCycleCategoryImpl.class::cast)
+			.map(lifeCycleCategory -> lifeCycleCategory.asOf(instant))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.collect(Collectors.toList());
+	}
 }

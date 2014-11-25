@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.Period;
 import java.util.List;
 
 import org.junit.After;
@@ -86,7 +88,8 @@ public class LifeCycleServiceTest {
     }
 
 	@Test
-    public void testInstall()  {
+    public void test()  {
+		Instant afterInstall = Instant.now();
 		List<LifeCycleCategory> categories = lifeCycleService.getCategories();		
 		assertThat(categories).hasSize(LifeCycleCategoryKind.values().length);
 		for (LifeCycleCategory category : categories) {
@@ -94,6 +97,15 @@ public class LifeCycleServiceTest {
 		}
 		lifeCycleService.getTask();
 		injector.getInstance(TransactionService.class).execute(() -> { lifeCycleService.runNow(); return null; });
+		Period period = categories.get(0).getRetention();		
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}	
+		injector.getInstance(TransactionService.class).execute(() -> { categories.get(0).setRetentionDays(100); return null;});
+		assertThat(lifeCycleService.getCategories().get(0).getRetention()).isEqualTo(Period.ofDays(100));
+		assertThat(lifeCycleService.getCategoriesAsOf(afterInstall).get(0).getRetention()).isEqualTo(period);
 	}
 
 }
