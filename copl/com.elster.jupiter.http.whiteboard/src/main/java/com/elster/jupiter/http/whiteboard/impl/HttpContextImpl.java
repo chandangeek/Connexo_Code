@@ -1,32 +1,24 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
-import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.Resolver;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-
-import java.rmi.RemoteException;
-import java.util.Optional;
-
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.google.common.collect.ImmutableMap;
-import com.hof.mi.web.service.*;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpContext;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.rpc.ServiceException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class HttpContextImpl implements HttpContext {
@@ -123,9 +115,8 @@ public class HttpContextImpl implements HttpContext {
     }
 
 
-
-    private void logoutYellowfin(HttpServletRequest request) {
-        yellowfinService.logout("admin", "admin", "ddd");
+    private void logoutYellowfin(String userName) {
+        yellowfinService.logout(userName);
     }
 
 
@@ -168,9 +159,13 @@ public class HttpContextImpl implements HttpContext {
     private void clearSession(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
+            Optional<User> user =( Optional<User> )session.getAttribute("user");
+            if(user.isPresent()){
+                logoutYellowfin(user.get().getName());
+            }
             session.invalidate();
 
-            logoutYellowfin(request);
+
         }
     }
 
