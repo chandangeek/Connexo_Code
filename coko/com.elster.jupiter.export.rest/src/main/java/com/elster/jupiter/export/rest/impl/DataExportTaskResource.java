@@ -6,6 +6,8 @@ import com.elster.jupiter.export.rest.DataExportOccurrenceLogInfos;
 import com.elster.jupiter.export.rest.DataExportTaskHistoryInfos;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
 import com.elster.jupiter.export.rest.DataExportTaskInfos;
+import com.elster.jupiter.export.rest.DataSourceInfo;
+import com.elster.jupiter.export.rest.DataSourceInfos;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -15,6 +17,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -199,6 +202,18 @@ public class DataExportTaskResource {
         infos.total = queryParameters.determineTotal(occurrences.size());
         return infos;
     }
+
+    @GET
+    @Path("/{id}/datasources")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DataSourceInfos getDataSources(@PathParam("id") long id, @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
+        ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        List<? extends ReadingTypeDataExportItem> exportItems =
+            ListPager.of(task.getExportItems()).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+        return new DataSourceInfos(exportItems);
+    }
+
 
     @GET
     @Path("/{id}/history/{occurrenceId}")
