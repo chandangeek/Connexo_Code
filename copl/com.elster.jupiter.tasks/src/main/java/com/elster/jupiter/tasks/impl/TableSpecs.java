@@ -1,6 +1,7 @@
 package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
@@ -17,7 +18,7 @@ enum TableSpecs {
     TSK_RECURRENT_TASK {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<RecurrentTask> table = dataModel.addTable(name(), RecurrentTask.class);
+            Table<RecurrentTask> table = dataModel.addTable(name(), RecurrentTask.class);
             table.map(RecurrentTaskImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
@@ -33,12 +34,16 @@ enum TableSpecs {
     TSK_TASK_OCCURRENCE {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<TaskOccurrence> table = dataModel.addTable(name(), TaskOccurrence.class);
+            Table<TaskOccurrence> table = dataModel.addTable(name(), TaskOccurrence.class);
             table.map(TaskOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column recurrentIdColumn = table.column("RECURRENTTASKID").type("number").notNull().conversion(NUMBER2LONG).map("recurrentTaskId").add();
             table.column("TRIGGERTIME").type("number").conversion(NUMBER2INSTANT).map("triggerTime").add();
             table.column("SCHEDULED").bool().map("scheduled").add();
+            table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
+            table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
+            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
+
             table.foreignKey("TSK_FKOCCURRENCE_TASK").references(TSK_RECURRENT_TASK.name()).onDelete(DeleteRule.CASCADE).map("recurrentTask").on(recurrentIdColumn).add();
             table.primaryKey("TSK_PK_TASK_OCCURRENCE").on(idColumn).add();
         }
@@ -46,7 +51,7 @@ enum TableSpecs {
     TSK_TASK_LOG {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<TaskLogEntry> table = dataModel.addTable(name(), TaskLogEntry.class);
+            Table<TaskLogEntry> table = dataModel.addTable(name(), TaskLogEntry.class);
             table.map(TaskLogEntryImpl.class);
             Column taskOccurrenceColumn = table.column("TASKOCCURRENCE").number().notNull().conversion(NUMBER2LONG).add();
             Column position = table.column("POSITION").number().notNull().map("position").conversion(NUMBER2INT).add();
@@ -59,7 +64,7 @@ enum TableSpecs {
                     .map("taskOccurrence").reverseMap("logEntries").reverseMapOrder("position").composition().add();
         }
     };
-    
+
     abstract void addTo(DataModel dataModel);
 
 

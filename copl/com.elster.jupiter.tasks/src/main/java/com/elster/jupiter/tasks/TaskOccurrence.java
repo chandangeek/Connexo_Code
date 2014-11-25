@@ -4,6 +4,7 @@ import com.elster.jupiter.util.logging.LogEntryFinder;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface TaskOccurrence {
 
@@ -12,6 +13,12 @@ public interface TaskOccurrence {
     Instant getTriggerTime();
 
     RecurrentTask getRecurrentTask();
+
+    Optional<Instant> getStartDate();
+
+    Optional<Instant> getEndDate();
+
+    TaskStatus getStatus();
 
     void save();
 

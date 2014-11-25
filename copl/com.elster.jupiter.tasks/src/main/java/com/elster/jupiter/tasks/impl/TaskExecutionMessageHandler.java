@@ -29,16 +29,22 @@ class TaskExecutionMessageHandler implements MessageHandler {
     @Override
     public void process(Message message) {
         TaskOccurrenceImpl taskOccurrence = getTaskOccurrence(message);
+        taskOccurrence.start();
         taskExecutor.execute(taskOccurrence);
     }
 
     @Override
     public void onMessageDelete(Message message) {
         TaskOccurrenceImpl taskOccurrence = getTaskOccurrence(message);
-        taskExecutor.postExecute(taskOccurrence);
-        try (TransactionContext context = transactionService.getContext()) {
-            taskOccurrence.hasRun();
-            context.commit();
+        boolean successFullPost = false;
+        try {
+            taskExecutor.postExecute(taskOccurrence);
+            successFullPost = true;
+        } finally {
+            try (TransactionContext context = transactionService.getContext()) {
+                taskOccurrence.hasRun(successFullPost);
+                context.commit();
+            }
         }
     }
 

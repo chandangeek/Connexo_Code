@@ -5,15 +5,18 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogEntry;
 import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -25,16 +28,21 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     private RecurrentTask recurrentTask;
     private Instant triggerTime;
     private boolean scheduled = true;
+    private Instant startDate;
+    private Instant endDate;
+    private TaskStatus status = TaskStatus.NOT_EXECUTED_YET;
 
     private List<TaskLogEntry> logEntries = new ArrayList<>();
 
     private final DataModel dataModel;
+    private final Clock clock;
     private transient TaskLogEntryFinder taskLogEntryFinder;
 
     @Inject
-	TaskOccurrenceImpl(DataModel dataModel) {
+    TaskOccurrenceImpl(DataModel dataModel, Clock clock) {
         // for persistence
         this.dataModel = dataModel;
+        this.clock = clock;
     }
 
     static TaskOccurrenceImpl createScheduled(DataModel dataModel, RecurrentTask recurrentTask, Instant triggerTime) {
@@ -87,7 +95,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     @Override
     public LogEntryFinder getLogsFinder() {
         Condition condition = where("taskOccurrence").isEqualTo(this);
-        Order[] orders = new Order[] {Order.descending("timeStamp"), Order.ascending("position")};
+        Order[] orders = new Order[]{Order.descending("timeStamp"), Order.ascending("position")};
         return new TaskLogEntryFinder(dataModel.query(TaskLogEntry.class), condition, orders);
     }
 
@@ -117,6 +125,21 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         return scheduled;
     }
 
+    @Override
+    public Optional<Instant> getStartDate() {
+        return Optional.ofNullable(startDate);
+    }
+
+    @Override
+    public Optional<Instant> getEndDate() {
+        return Optional.ofNullable(endDate);
+    }
+
+    @Override
+    public TaskStatus getStatus() {
+        return status;
+    }
+
     TaskOccurrenceImpl init(RecurrentTask recurrentTask, Instant triggerTime) {
         this.recurrentTask = recurrentTask;
         this.recurrentTaskId = recurrentTask.getId();
@@ -124,8 +147,12 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         return this;
     }
 
-    void hasRun() {
-        ((RecurrentTaskImpl) getRecurrentTask()).updateLastRun(getTriggerTime());
+    void hasRun(boolean succesfull) {
+        if (!status.isFinal()) {
+            this.endDate = clock.instant();
+            ((RecurrentTaskImpl) getRecurrentTask()).updateLastRun(getTriggerTime());
+            this.status = succesfull ? this.status.success() : this.status.fail();
+        }
     }
 
     void log(Level level, Instant timestamp, String message) {
@@ -136,4 +163,10 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         return new TaskOccurrenceMessage(this);
     }
 
+    public void start() {
+        if (TaskStatus.NOT_EXECUTED_YET.equals(status)) {
+            this.startDate = clock.instant();
+            this.status = TaskStatus.BUSY;
+        }
+    }
 }

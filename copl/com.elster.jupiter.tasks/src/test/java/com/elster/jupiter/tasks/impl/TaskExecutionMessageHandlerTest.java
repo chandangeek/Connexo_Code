@@ -1,11 +1,11 @@
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import org.junit.After;
 import org.junit.Before;
@@ -17,8 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.sql.SQLException;
 import java.util.Optional;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TaskExecutionMessageHandlerTest {
@@ -44,12 +43,13 @@ public class TaskExecutionMessageHandlerTest {
     private SQLException sqlException;
     @Mock
     private DataModel dataModel;
-    @Mock
-    private TransactionService transactionService;
+
+    private TransactionVerifier transactionService;
 
     @Before
     public void setUp() {
 
+        transactionService = new TransactionVerifier(taskOccurrence, taskExecutor);
         taskExecutionMessageHandler = new TaskExecutionMessageHandler(dataModel, taskExecutor, jsonService, transactionService);
 
         when(message.getPayload()).thenReturn(PAYLOAD);
@@ -71,7 +71,30 @@ public class TaskExecutionMessageHandlerTest {
         taskExecutionMessageHandler.process(message);
 
         verify(taskExecutor).execute(taskOccurrence);
+        verify(taskOccurrence).start();
 
+    }
+
+    @Test
+    public void testOnMessageDelete() {
+
+        taskExecutionMessageHandler.onMessageDelete(message);
+
+        verify(taskExecutor, transactionService.notInTransaction()).postExecute(taskOccurrence);
+        verify(taskOccurrence, transactionService.inTransaction()).hasRun(true);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testOnMessageDeleteFailure() {
+
+        doThrow(new RuntimeException()).when(taskExecutor).postExecute(taskOccurrence);
+        try {
+            taskExecutionMessageHandler.onMessageDelete(message);
+        } finally {
+
+            verify(taskExecutor, transactionService.notInTransaction()).postExecute(taskOccurrence);
+            verify(taskOccurrence, transactionService.inTransaction()).hasRun(false);
+        }
     }
 
 }

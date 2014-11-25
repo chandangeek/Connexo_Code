@@ -70,7 +70,7 @@ public class RecurrentTaskImplTest {
         when(dataModel.getInstance(TaskOccurrenceImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new TaskOccurrenceImpl(dataModel);
+                return new TaskOccurrenceImpl(dataModel, clock);
             }
         });
         when(dataModel.mapper(TaskOccurrence.class)).thenReturn(taskOccurrenceFactory);
