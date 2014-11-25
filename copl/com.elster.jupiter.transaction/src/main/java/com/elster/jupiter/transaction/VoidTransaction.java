@@ -9,4 +9,13 @@ public abstract class VoidTransaction implements Transaction<Void> {
     }
 
     protected abstract void doPerform();
+
+    public static VoidTransaction of(Runnable runnable) {
+        return new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                runnable.run();
+            }
+        };
+    }
 }
