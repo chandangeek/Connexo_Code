@@ -1,27 +1,33 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LogBookTypeInfo;
-import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Path("/logbooktypes")
 public class LogBookTypeResource {
@@ -74,7 +80,7 @@ public class LogBookTypeResource {
     public Response addLogBookType(LogBookTypeInfo logbook) {
         LogBookType newLogbook = masterDataService.newLogBookType(logbook.name, logbook.obisCode);
         newLogbook.save();
-        return Response.status(Response.Status.CREATED).build();
+        return Response.status(Response.Status.CREATED).entity(LogBookTypeInfo.from(newLogbook)).build();
     }
 
     @PUT
@@ -91,7 +97,7 @@ public class LogBookTypeResource {
         editLogbook.setName(logbook.name);
         editLogbook.setObisCode(logbook.obisCode);
         editLogbook.save();
-        return Response.status(Response.Status.OK).build();
+        return Response.ok(LogBookTypeInfo.from(editLogbook)).build();
     }
 
     @DELETE
