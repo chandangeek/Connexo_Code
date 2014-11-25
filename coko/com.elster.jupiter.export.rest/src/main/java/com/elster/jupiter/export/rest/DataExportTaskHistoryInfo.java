@@ -25,7 +25,7 @@ public class DataExportTaskHistoryInfo {
     public DataExportTaskHistoryInfo (DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
         this.id = dataExportOccurrence.getId();
         this.trigger = "Scheduled";   // TODO replace with the actual value
-        this.startedOn = toLong(dataExportOccurrence.getStartDate());
+        this.startedOn = dataExportOccurrence.getStartDate().map(this::toLong).orElse(null);
         this.finishedOn = dataExportOccurrence.getEndDate().map(this::toLong).orElse(null);
         this.duration = calculateDuration(startedOn, finishedOn);
         this.status = getName(dataExportOccurrence.getStatus(), thesaurus);
