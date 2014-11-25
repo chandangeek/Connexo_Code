@@ -195,9 +195,11 @@ public class WhiteBoard {
     private void unregisterRestApplication(String application){
         try {
             ServiceReference<?>[] restApps = context.getAllServiceReferences(Application.class.getName(), "(app=" + application + ")");
-            for(ServiceReference<?> restApp : restApps){
-                if(restApp.getProperty("alias") != null){
-                    httpService.unregister("/api" + restApp.getProperty("alias").toString());
+            if(restApps != null){
+                for(ServiceReference<?> restApp : restApps){
+                    if(restApp.getProperty("alias") != null){
+                        httpService.unregister("/api" + restApp.getProperty("alias").toString());
+                    }
                 }
             }
         } catch (InvalidSyntaxException e) {
