@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                 itemId: 'registerDataEditForm',
                 defaults: {
                     labelWidth: 200,
-                    labelAlign: 'left'
+                    labelAlign: 'right'
                 },
                 items: [
                     {
@@ -127,13 +127,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                         xtype: 'fieldcontainer',
                         itemId: 'valueContainer',
                         fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
+                        required: true,
                         layout: 'hbox',
                         items: [
                             {
                                 xtype: 'textfield',
                                 name: 'value',
                                 maskRe: /[0-9\.]+/,
-                                itemId: 'valueTextField'
+                                itemId: 'valueTextField',
+                                allowBlank:false
                             },
                             {
                                 xtype: 'displayfield',
