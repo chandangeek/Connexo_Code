@@ -41,7 +41,11 @@ public class Dsmr40Properties extends Dsmr23Properties {
     }
 
     @ProtocolProperty
-    public boolean getForcedToReadCache() {
+    public boolean isForcedToReadCache() {
         return getBooleanProperty(PROPERTY_FORCED_TO_READ_CACHE, "0");
+    }
+
+    public int getForcedToReadCache() {
+        return getIntProperty(PROPERTY_FORCED_TO_READ_CACHE, "0");
     }
 }

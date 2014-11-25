@@ -5,13 +5,16 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.base.RTUCache;
+import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events.AM540EventProfile;
@@ -83,6 +86,28 @@ public class AM540 extends E350 {
             }
         } else {
             throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+        }
+    }
+
+    @Override
+    protected void checkCacheObjects() throws IOException {
+        int readCacheProperty = getProperties().getForcedToReadCache();
+        if (getCache() == null) {
+            setCache(new DLMSCache());
+        }
+        if ((((DLMSCache) getCache()).getObjectList() == null) || (readCacheProperty == 1)) {
+            if (readCacheProperty == 1) {
+                getLogger().info("ForcedToReadCache property is true, reading cache!");
+                requestConfiguration();
+                ((DLMSCache) getCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+            } else {
+                getLogger().info("Cache does not exist, using hardcoded copy of object list");
+                UniversalObject[] objectList = new AM540ObjectList().getObjectList();
+                ((DLMSCache) getCache()).saveObjectList(objectList);
+            }
+        } else {
+            getLogger().info("Cache exist, will not be read!");
+            getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getCache()).getObjectList());
         }
     }
 
