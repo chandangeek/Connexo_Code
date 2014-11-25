@@ -933,7 +933,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public void removeProperty(String name) {
+    public void removeProtocolProperty(String name) {
         for (DeviceProtocolProperty deviceProtocolProperty : deviceProperties) {
             if (deviceProtocolProperty.getName().equals(name)) {
                 this.deviceProperties.remove(deviceProtocolProperty);

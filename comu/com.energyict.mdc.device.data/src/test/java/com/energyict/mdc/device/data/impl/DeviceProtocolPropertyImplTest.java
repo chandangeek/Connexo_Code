@@ -125,7 +125,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.removeProperty(propertyName2);
+        reloadedDevice.removeProtocolProperty(propertyName2);
 
         Device deviceWithoutProperty2 = getReloadedDevice(reloadedDevice);
         assertThat(deviceWithoutProperty2.getDeviceProtocolProperties().getProperty(propertyName2)).isNull();
@@ -138,7 +138,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.removeProperty("UnknownProperty");
+        reloadedDevice.removeProtocolProperty("UnknownProperty");
 
         Device updatedDevice = getReloadedDevice(reloadedDevice);
         assertThat(updatedDevice.getDeviceProtocolProperties().localSize()).isZero();
