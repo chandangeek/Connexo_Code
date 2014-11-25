@@ -5,6 +5,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -39,6 +40,8 @@ public class TaskOccurrenceImplTest {
     private static final Instant instant2 = Instant.ofEpochMilli(124000);
     @Mock
     private DataMapper<RecurrentTask> mapper;
+    @Mock
+    private DataMapper<TaskOccurrence> occurrenceMapper;
 
     @Before
     public void setUp() {
@@ -46,6 +49,7 @@ public class TaskOccurrenceImplTest {
         when(dataModel.getInstance(TaskOccurrenceImpl.class)).thenAnswer(invocation -> new TaskOccurrenceImpl(dataModel, clock));
         when(dataModel.getInstance(TaskLogEntryImpl.class)).thenAnswer(invocation -> new TaskLogEntryImpl());
         when(dataModel.mapper(RecurrentTask.class)).thenReturn(mapper);
+        when(dataModel.mapper(TaskOccurrence.class)).thenReturn(occurrenceMapper);
 
         when(clock.instant()).thenReturn(now, instant2);
         recurrentTask = RecurrentTaskImpl.from(dataModel, NAME, mock(ScheduleExpression.class), mock(DestinationSpec.class), "payload");

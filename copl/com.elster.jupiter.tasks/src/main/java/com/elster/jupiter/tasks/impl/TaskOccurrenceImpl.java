@@ -152,6 +152,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
             this.endDate = clock.instant();
             ((RecurrentTaskImpl) getRecurrentTask()).updateLastRun(getTriggerTime());
             this.status = succesfull ? this.status.success() : this.status.fail();
+            save();
         }
     }
 
@@ -167,6 +168,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         if (TaskStatus.NOT_EXECUTED_YET.equals(status)) {
             this.startDate = clock.instant();
             this.status = TaskStatus.BUSY;
+            save();
         }
     }
 }

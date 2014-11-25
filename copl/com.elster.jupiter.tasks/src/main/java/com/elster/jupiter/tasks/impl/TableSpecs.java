@@ -42,7 +42,7 @@ enum TableSpecs {
             table.column("SCHEDULED").bool().map("scheduled").add();
             table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
             table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
-            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
+            table.column("STATUS").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
 
             table.foreignKey("TSK_FKOCCURRENCE_TASK").references(TSK_RECURRENT_TASK.name()).onDelete(DeleteRule.CASCADE).map("recurrentTask").on(recurrentIdColumn).add();
             table.primaryKey("TSK_PK_TASK_OCCURRENCE").on(idColumn).add();
