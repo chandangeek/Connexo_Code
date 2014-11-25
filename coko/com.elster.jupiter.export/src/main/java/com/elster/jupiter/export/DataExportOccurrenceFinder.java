@@ -38,6 +38,6 @@ public class DataExportOccurrenceFinder {
     }
 
     public List<? extends DataExportOccurrence> find() {
-        return queryExecutor.select(condition, order, true, null, start, start+limit);
+        return queryExecutor.select(condition, order, true, null, start+1, start+limit+1);
     }
 }
