@@ -298,6 +298,13 @@ public class MultiThreadedScheduledComPortTest {
         this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
         when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
+        when(comTask.getId()).thenAnswer(new Answer<Long>() {
+            long counter = 0;
+            @Override
+            public Long answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return counter++;
+            }
+        });
     }
 
     @After
@@ -802,7 +809,6 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
-    @Ignore // TODO fix it
     @Test(timeout = 7000)
     public void testConnectionFailureReschedulesTask() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
@@ -870,7 +876,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comTaskExecution.getDevice()).thenReturn(this.device);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
-        return (ComTaskExecution) comTaskExecution;
+        return comTaskExecution;
     }
 
     private ComJob toComJob(ComTaskExecution comTask) {

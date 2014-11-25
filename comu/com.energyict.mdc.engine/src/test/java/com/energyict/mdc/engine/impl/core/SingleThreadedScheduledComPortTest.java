@@ -265,6 +265,13 @@ public class SingleThreadedScheduledComPortTest {
         this.setupServiceProvider();
         EventPublisherImpl.setInstance(this.eventPublisher);
         when(this.eventPublisher.serviceProvider()).thenReturn(new ComServerEventServiceProviderAdapter());
+        when(comTask.getId()).thenAnswer(new Answer<Long>() {
+            long counter = 0;
+            @Override
+            public Long answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return counter++;
+            }
+        });
     }
 
     @After
@@ -522,8 +529,8 @@ public class SingleThreadedScheduledComPortTest {
         }
     }
 
-    @Ignore // TODO fix it
-    @Test(timeout = 7000)
+//    @Test(timeout = 7000)
+    @Test
     public void testExecuteTasksOneByOne() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOne");
@@ -563,7 +570,6 @@ public class SingleThreadedScheduledComPortTest {
         }
     }
 
-    @Ignore // TODO fix it
     @Test(timeout = 7000)
     public void testExecuteTasksOneByOneWithConnectionFailure() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
@@ -758,7 +764,7 @@ public class SingleThreadedScheduledComPortTest {
         when(comTask.getDevice()).thenReturn(this.device);
         when(comTask.getComTasks()).thenReturn(Arrays.asList(this.comTask));
         when(comTask.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
-        return (ComTaskExecution) comTask;
+        return comTask;
     }
 
     private ComJob toComJob(ComTaskExecution comTask) {
