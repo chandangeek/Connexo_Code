@@ -1,8 +1,21 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.ConnectionTaskFields;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceFields;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -26,26 +39,12 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
-import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 /**
@@ -55,7 +54,8 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-07 (14:28)
  */
-public enum TableSpecs {
+public enum
+        TableSpecs {
 
     DDC_DEVICE {
         @Override
@@ -425,6 +425,7 @@ public enum TableSpecs {
             Column successIndicator = table.column("SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).notNull().map(ComTaskExecutionSessionImpl.Fields.SUCCESS_INDICATOR.fieldName()).add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map(ComTaskExecutionSessionImpl.Fields.MODIFICATION_DATE.fieldName()).add();
             Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
+            Column comTask = table.column("COMTASK").number().notNull().add();
             table.column("HIGHESTPRIOCOMPLETIONCODE").number().conversion(NUMBER2ENUM).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_COMPLETION_CODE.fieldName()).add();
             table.column("HIGHESTPRIOERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map(ComTaskExecutionSessionImpl.Fields.HIGHEST_PRIORITY_ERROR_DESCRIPTION.fieldName()).add();
             table.foreignKey("FK_DDC_COMTSKEXECSESSION_SESS").
@@ -434,11 +435,17 @@ public enum TableSpecs {
                     map("comSession").
                     composition().
                     reverseMap("comTaskExecutionSessions").add();
-            table.foreignKey("FK_DDC_COMTASKSESSION_COMTASK").
+            table.foreignKey("FK_DDC_COMTASKSESSION_CTEXEC").
                     on(comTaskExecution).
                     references(DDC_COMTASKEXEC.name()).
                     onDelete(CASCADE).
                     map(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_COMTASKSESSION_COMTASK").
+                    on(comTask).
+                    references(TaskService.COMPONENT_NAME, "CTS_COMTASK").
+                    onDelete(CASCADE).
+                    map(ComTaskExecutionSessionImpl.Fields.COM_TASK.fieldName()).
                     add();
             table.foreignKey("FK_DDC_COMTSKEXECSESSION_STATS").
                     on(statistics).
@@ -452,8 +459,7 @@ public enum TableSpecs {
                     map(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).
                     add();
             table.primaryKey("PK_DDC_COMTASKEXECSESSION").on(id).add();
-//            table.index("DDC_CTES_CS_SUCCESS").on(session, successIndicator).compress(1).add();
-            table.index("DDC_CTES_CS_SUCCESS").on(session, successIndicator).add();
+            table.index("DDC_CTES_CS_SUCCESS").on(session, successIndicator).compress(1).add();
         }
     },
     ADD_LAST_SESSION_TO_COM_TASK_EXECUTION {
@@ -569,7 +575,7 @@ public enum TableSpecs {
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
             table.column("DEVICEMESSAGEID").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).notNull().add();
             table.column("STATUS").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).notNull().add();
-            Column user = table.column("USR").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("USR").varChar(SHORT_DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.USER.fieldName()).notNull().add();
             table.column("TRACKINGID").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.TRACKINGID.fieldName()).add();
             table.column("PROTOCOLINFO").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).add();
             table.column("CREATEDATE").number().map(DeviceMessageImpl.Fields.CREATIONDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
@@ -577,7 +583,6 @@ public enum TableSpecs {
             table.column("SENTDATE").number().map(DeviceMessageImpl.Fields.SENTDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.primaryKey("PK_DDC_DEVICEMESSAGE").on(id).add();
             table.foreignKey("FK_DDC_DEVMESSAGE_DEV").on(device).references(DDC_DEVICE.name()).map("device").reverseMap("deviceMessages").add();
-            table.foreignKey("FK_DDC_DEVMESSAGE_USR").on(user).references(UserService.COMPONENTNAME, "USR_USER").map("user").add();
         }
     },
 

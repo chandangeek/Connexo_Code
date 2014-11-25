@@ -436,4 +436,8 @@ public class InMemoryIntegrationPersistence {
     public ThreadPrincipalService getThreadPrincipalService() {
         return threadPrincipalService;
     }
+
+    public DeviceMessageSpecificationService getDeviceMessageSpecificationService() {
+        return deviceMessageSpecificationService;
+    }
 }

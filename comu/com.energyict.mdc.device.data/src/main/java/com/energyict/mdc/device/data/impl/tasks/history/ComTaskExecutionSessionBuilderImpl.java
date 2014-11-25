@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.LongCounter;
@@ -28,6 +29,7 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     private final LongCounter sentPackets = Counters.newStrictLongCounter();
     private final LongCounter receivedPackets = Counters.newStrictLongCounter();
     private final ComTaskExecution comTaskExecution;
+    private final ComTask comTask;
     private final Device device;
     private final Instant startDate;
     private Instant stopDate;
@@ -35,9 +37,10 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     private final ComSessionBuilder parentBuilder;
     private List<JournalEntryBuilder> journalEntryBuilders = new ArrayList<>();
 
-    ComTaskExecutionSessionBuilderImpl(ComSessionBuilder parentBuilder, ComTaskExecution comTaskExecution, Device device, Instant startDate) {
+    ComTaskExecutionSessionBuilderImpl(ComSessionBuilder parentBuilder, ComTaskExecution comTaskExecution, ComTask comTask, Device device, Instant startDate) {
         this.parentBuilder = parentBuilder;
         this.comTaskExecution = comTaskExecution;
+        this.comTask = comTask;
         this.device = device;
         this.startDate = startDate;
     }
@@ -74,7 +77,7 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     }
 
     ComTaskExecutionSession addTo(ComSessionImpl comSession) {
-        ComTaskExecutionSessionImpl comTaskExecutionSession = comSession.createComTaskExecutionSession(comTaskExecution, device, Range.closed(startDate, stopDate), successIndicator);
+        ComTaskExecutionSessionImpl comTaskExecutionSession = comSession.createComTaskExecutionSession(comTaskExecution, comTask, device, Range.closed(startDate, stopDate), successIndicator);
         for (JournalEntryBuilder journalEntryBuilder : journalEntryBuilders) {
             journalEntryBuilder.build(comTaskExecutionSession);
         }

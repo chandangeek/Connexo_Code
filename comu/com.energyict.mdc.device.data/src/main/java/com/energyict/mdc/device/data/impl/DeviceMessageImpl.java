@@ -8,7 +8,6 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidDeviceMessageStatusMove;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -22,10 +21,12 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -67,8 +68,8 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private Clock clock;
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.USER_IS_REQUIRED + "}")
-    private Reference<User> user = ValueReference.absent();
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.USER_IS_REQUIRED + "}")
+    private String user;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_IS_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
     private DeviceMessageId deviceMessageId;
@@ -98,7 +99,8 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     public DeviceMessageImpl initialize(Device device, DeviceMessageId deviceMessageId) {
         this.deviceMessageId = deviceMessageId;
         this.device.set(device);
-        this.user.set((User) this.threadPrincipalService.getPrincipal());
+        Principal principal = this.threadPrincipalService.getPrincipal();
+        this.user = principal != null ? principal.getName():null;
         this.creationDate = Instant.now();
         this.deviceMessageStatus = DeviceMessageStatus.WAITING;
         this.messageSpec = this.deviceMessageSpecificationService.findMessageSpecById(this.deviceMessageId.dbValue());
@@ -188,8 +190,8 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     }
 
     @Override
-    public User getUser() {
-        return user.orNull();
+    public String getUser() {
+        return user;
     }
 
     @Override

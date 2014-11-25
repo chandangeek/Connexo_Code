@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilde
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -52,8 +53,8 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         private final List<ComTaskExecutionSessionBuilderImpl> comTaskExecutions = new ArrayList<>();
 
         @Override
-        public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Instant startDate) {
-            ComTaskExecutionSessionBuilderImpl builder = new ComTaskExecutionSessionBuilderImpl(parentBuilder(), comTaskExecution, device, startDate);
+        public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Instant startDate) {
+            ComTaskExecutionSessionBuilderImpl builder = new ComTaskExecutionSessionBuilderImpl(parentBuilder(), comTaskExecution, comTask, device, startDate);
             comTaskExecutions.add(builder);
             return builder;
         }
@@ -209,8 +210,8 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     }
 
     @Override
-    public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Instant startDate) {
-        return state.addComTaskExecutionSession(comTaskExecution, device, startDate);
+    public ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Instant startDate) {
+        return state.addComTaskExecutionSession(comTaskExecution, comTask, device, startDate);
     }
 
     @Override

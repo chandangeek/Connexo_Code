@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.tasks.history;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.tasks.ComTask;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -35,7 +36,7 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     ComSessionBuilder addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
 
-    ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Instant startDate);
+    ComTaskExecutionSessionBuilder addComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Instant startDate);
 
     Optional<ComTaskExecutionSessionBuilder> findFor(ComTaskExecution comTaskExecution);
 

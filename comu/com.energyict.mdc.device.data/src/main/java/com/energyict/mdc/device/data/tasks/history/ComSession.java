@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
@@ -130,7 +131,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      */
     public boolean wasSuccessful ();
 
-    public ComTaskExecutionSession createComTaskExecutionSession(ComTaskExecution comTaskExecution, Device device, Range<Instant> interval, ComTaskExecutionSession.SuccessIndicator successIndicator);
+    public ComTaskExecutionSession createComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Range<Instant> interval, ComTaskExecutionSession.SuccessIndicator successIndicator);
 
     public ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
 

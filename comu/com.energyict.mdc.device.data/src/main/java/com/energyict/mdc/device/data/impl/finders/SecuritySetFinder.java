@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.finders;
 
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import java.util.Optional;
 
@@ -13,10 +13,10 @@ import java.util.Optional;
  */
 public class SecuritySetFinder implements CanFindByLongPrimaryKey<SecurityPropertySet> {
 
-    private final DataModel dataModel;
+    private final DeviceConfigurationService deviceConfigurationService;
 
-    public SecuritySetFinder(DataModel dataModel) {
-        this.dataModel = dataModel;
+    public SecuritySetFinder(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class SecuritySetFinder implements CanFindByLongPrimaryKey<SecurityProper
 
     @Override
     public Optional<SecurityPropertySet> findByPrimaryKey(long id) {
-        return this.dataModel.mapper(SecurityPropertySet.class).getUnique("id", id);
+        return this.deviceConfigurationService.findSecurityPropertySet(id);
     }
 
 }
