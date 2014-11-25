@@ -55,7 +55,7 @@
         <dependency>
             <groupId>com.yellowfin</groupId>
             <artifactId>yellowfin-ws</artifactId>
-            <version>1.0</version>
+            <version>7.1</version>
         </dependency>
 
         <dependency>
