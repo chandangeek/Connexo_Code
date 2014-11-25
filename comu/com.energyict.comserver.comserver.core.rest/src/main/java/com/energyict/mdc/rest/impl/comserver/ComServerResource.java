@@ -46,7 +46,7 @@ public class ComServerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public PagedInfoList getComServers(@BeanParam QueryParameters queryParameters) {
         List<ComServerInfo<?>> comServers = new ArrayList<>();
         List<ComServer> allComServers = this.getSortedComServers(queryParameters);
@@ -74,7 +74,7 @@ public class ComServerResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public ComServerInfo<?> getComServer(@PathParam("id") long id) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
         return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineModelService);
