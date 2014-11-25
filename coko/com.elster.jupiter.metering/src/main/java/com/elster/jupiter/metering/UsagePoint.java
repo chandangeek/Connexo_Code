@@ -61,5 +61,6 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
     void addDetail(UsagePointDetail usagePointDetail);
 
     UsagePointDetail terminateDetail(UsagePointDetail detail, Instant date);
-	
+
+    Optional<? extends MeterActivation> getMeterActivation(Instant when);
 }

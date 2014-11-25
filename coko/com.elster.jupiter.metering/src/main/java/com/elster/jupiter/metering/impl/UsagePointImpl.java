@@ -410,7 +410,14 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public Optional<Meter> getMeter(Instant instant) {
-        return Optional.empty();
+        return getMeterActivation(instant).flatMap(MeterActivation::getMeter);
+    }
+
+    @Override
+    public Optional<? extends MeterActivation> getMeterActivation(Instant when) {
+        return meterActivations.stream()
+                .filter(meterActivation -> meterActivation.isEffectiveAt(when))
+                .findFirst();
     }
 
     @Override

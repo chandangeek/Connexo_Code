@@ -161,6 +161,6 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
 
     @Override
     public Optional<UsagePoint> getUsagePoint(Instant instant) {
-        return Optional.empty();
+        return getMeterActivation(instant).flatMap(MeterActivation::getUsagePoint);
     }
 }
