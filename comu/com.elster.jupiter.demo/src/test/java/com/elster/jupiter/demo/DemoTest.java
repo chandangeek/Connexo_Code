@@ -28,12 +28,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
+import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -47,6 +46,9 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.io.impl.SerialIONoModemComponentServiceImpl;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
@@ -56,9 +58,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.protocols.mdc.channels.serial.SerialComponentService;
-import com.energyict.protocols.mdc.channels.serial.SerialComponentServiceImpl;
+import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.PropertySpecServiceDependency;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -67,7 +67,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -84,7 +83,6 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -108,9 +106,7 @@ public class DemoTest {
             License license = mockLicense();
             when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.of(license));
             bind(LicenseService.class).toInstance(licenseService);
-            bind(SerialComponentService.class).to(SerialComponentServiceImpl.class).in(Scopes.SINGLETON);
-
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+            bind(SerialComponentService.class).to(SerialIONoModemComponentServiceImpl.class).in(Scopes.SINGLETON);
             bind(LogService.class).toInstance(mock(LogService.class));
         }
 
@@ -151,6 +147,7 @@ public class DemoTest {
                 new KpiModule(),
                 new TaskModule(),
 
+                new MdcIOModule(),
                 new MdcCommonModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),

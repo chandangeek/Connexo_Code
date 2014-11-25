@@ -570,7 +570,7 @@ public class DemoServiceImpl implements DemoService {
     }
 
     private void addConnectionMethodToDeviceConfiguration(Store store, DeviceConfiguration configuration) {
-        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp");
+        ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp").get();
         configuration.getCommunicationConfiguration()
                 .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(60, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .comPortPool(store.getOutboundComPortPools().get(OUTBOUND_TCP_POOL_NAME))
@@ -643,10 +643,7 @@ public class DemoServiceImpl implements DemoService {
     private void createUserAndJoinAllGroups(String userName) {
         User user = userService.findUser(userName).orElse(null);
         if (user == null){
-            String pass = userName;
-            while (pass.length() < 4){
-                pass = pass + pass;
-            }
+            String pass = "admin";
             System.out.println("==> Creating new user: " + userName + " with password: " + pass);
             user = userService.createUser(userName, "");
             user.setPassword(pass);
