@@ -5,11 +5,13 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import javax.inject.Inject;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -158,6 +160,16 @@ class RecurrentTaskImpl implements RecurrentTask {
     public void triggerNow() {
         TaskOccurrenceImpl taskOccurrence = createAdHocTaskOccurrence();
         enqueue(taskOccurrence);
+    }
+    
+    @Override
+    public TaskOccurrenceImpl runNow(TaskExecutor executor) {
+    	TaskOccurrenceImpl taskOccurrence = createAdHocTaskOccurrence();
+    	executor.execute(taskOccurrence);
+    	executor.postExecute(taskOccurrence);
+    	taskOccurrence.hasRun();
+    	return taskOccurrence;
+    	
     }
 
     private void enqueue(TaskOccurrenceImpl taskOccurrence) {
