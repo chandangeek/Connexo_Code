@@ -1,6 +1,5 @@
 package com.elster.jupiter.bpm.rest;
 
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.json.JSONException;
 import org.json.JSONObject;
 
