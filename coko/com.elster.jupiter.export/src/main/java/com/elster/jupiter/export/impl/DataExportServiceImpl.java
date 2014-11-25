@@ -140,6 +140,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         return Arrays.asList(OrmService.COMPONENTNAME, TimeService.COMPONENT_NAME, MeteringService.COMPONENTNAME, TaskService.COMPONENTNAME, MeteringGroupsService.COMPONENTNAME, MessageService.COMPONENTNAME, NlsService.COMPONENTNAME);
     }
 
+    @Override
+    public List<IReadingTypeDataExportTask> findReadingTypeDataExportTasks() {
+        return dataModel.mapper(IReadingTypeDataExportTask.class).find();
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");

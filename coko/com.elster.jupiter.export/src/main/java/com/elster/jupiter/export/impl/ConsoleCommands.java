@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -23,7 +24,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.time.Instant;
 import java.util.Arrays;
 
-@Component(name = "com.elster.jupiter.export.console", service = ConsoleCommands.class, property = {"osgi.command.scope=export", "osgi.command.function=createExportTask"}, immediate = true)
+@Component(name = "com.elster.jupiter.export.console", service = ConsoleCommands.class, property = {"osgi.command.scope=export", "osgi.command.function=createDataExportTask", "osgi.command.function=dataProcessors", "osgi.command.function=dataExportTasks"}, immediate = true)
 public class ConsoleCommands {
 
     private volatile IDataExportService dataExportService;
@@ -55,6 +56,18 @@ public class ConsoleCommands {
         } finally {
             threadPrincipalService.clear();
         }
+    }
+
+    public void dataProcessors() {
+        dataExportService.getAvailableProcessors().stream()
+                .map(DataProcessorFactory::getName)
+                .forEach(System.out::println);
+    }
+
+    public void dataExportTasks() {
+        dataExportService.findReadingTypeDataExportTasks().stream()
+                .map(task -> task.getId() + " " + task.getName())
+                .forEach(System.out::println);
     }
 
     private EndDeviceGroup endDeviceGroup(long groupId) {
@@ -99,6 +112,7 @@ public class ConsoleCommands {
         this.meteringGroupsService = meteringGroupsService;
     }
 
+    @Reference
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         CompositeScheduleExpressionParser composite = new CompositeScheduleExpressionParser();
         composite.add(cronExpressionParser);

@@ -22,4 +22,5 @@ public interface DataExportService {
 
     List<DataProcessorFactory> getAvailableProcessors();
 
+    List<? extends ReadingTypeDataExportTask> findReadingTypeDataExportTasks();
 }
