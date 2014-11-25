@@ -159,9 +159,9 @@ public class HttpContextImpl implements HttpContext {
     private void clearSession(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
-            Optional<User> user =( Optional<User> )session.getAttribute("user");
-            if(user.isPresent()){
-                logoutYellowfin(user.get().getName());
+            User user =( User )session.getAttribute("user");
+            if(user!=null){
+                logoutYellowfin(user.getName());
             }
             session.invalidate();
 
