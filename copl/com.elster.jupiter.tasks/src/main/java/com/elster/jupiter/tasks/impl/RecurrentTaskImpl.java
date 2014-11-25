@@ -11,7 +11,6 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import javax.inject.Inject;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -37,7 +36,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private final JsonService jsonService;
 
     @Inject
-	RecurrentTaskImpl(DataModel dataModel, ScheduleExpressionParser scheduleExpressionParser, MessageService messageService, JsonService jsonService, Clock clock) {
+    RecurrentTaskImpl(DataModel dataModel, ScheduleExpressionParser scheduleExpressionParser, MessageService messageService, JsonService jsonService, Clock clock) {
         this.dataModel = dataModel;
         this.scheduleExpressionParser = scheduleExpressionParser;
         this.messageService = messageService;
@@ -161,15 +160,22 @@ class RecurrentTaskImpl implements RecurrentTask {
         TaskOccurrenceImpl taskOccurrence = createAdHocTaskOccurrence();
         enqueue(taskOccurrence);
     }
-    
+
     @Override
     public TaskOccurrenceImpl runNow(TaskExecutor executor) {
-    	TaskOccurrenceImpl taskOccurrence = createAdHocTaskOccurrence();
-    	executor.execute(taskOccurrence);
-    	executor.postExecute(taskOccurrence);
-    	taskOccurrence.hasRun();
-    	return taskOccurrence;
-    	
+        TaskOccurrenceImpl taskOccurrence = createAdHocTaskOccurrence();
+        taskOccurrence.start();
+        boolean success = false;
+        try {
+            executor.execute(taskOccurrence);
+            executor.postExecute(taskOccurrence);
+            success = true;
+        } finally {
+            taskOccurrence.hasRun(success);
+            taskOccurrence.save();
+        }
+        return taskOccurrence;
+
     }
 
     private void enqueue(TaskOccurrenceImpl taskOccurrence) {
