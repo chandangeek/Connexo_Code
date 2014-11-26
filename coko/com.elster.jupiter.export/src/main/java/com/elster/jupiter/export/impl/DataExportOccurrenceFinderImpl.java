@@ -2,7 +2,7 @@ package com.elster.jupiter.export.impl;
 
 
 import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.IDataExportOccurrenceFinder;
+import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
@@ -16,7 +16,7 @@ import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class DataExportOccurrenceFinderImpl implements IDataExportOccurrenceFinder {
+public class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     private QueryExecutor<TaskOccurrence> taskOccurrenceQuery;
     private QueryExecutor<DataExportOccurrence> queryExecutor;
     private Condition condition;
@@ -37,32 +37,32 @@ public class DataExportOccurrenceFinderImpl implements IDataExportOccurrenceFind
     }
 
     @Override
-    public IDataExportOccurrenceFinder setStart(Integer start) {
+    public DataExportOccurrenceFinder setStart(Integer start) {
         this.start = start;
         return this;
     }
 
     @Override
-    public IDataExportOccurrenceFinder setLimit(Integer limit) {
+    public DataExportOccurrenceFinder setLimit(Integer limit) {
         this.limit = limit;
         return this;
     }
 
 
     @Override
-    public IDataExportOccurrenceFinder withStartDateIn(Range<Instant> interval) {
+    public DataExportOccurrenceFinder withStartDateIn(Range<Instant> interval) {
         startDateCondition = where("startDate").in(interval);
         return this;
     }
 
     @Override
-    public IDataExportOccurrenceFinder withEndDateIn(Range<Instant> interval) {
+    public DataExportOccurrenceFinder withEndDateIn(Range<Instant> interval) {
         endDateCondition = where("endDate").in(interval);
         return this;
     }
 
     @Override
-    public IDataExportOccurrenceFinder withExportPeriodContaining(Instant timeStamp) {
+    public DataExportOccurrenceFinder withExportPeriodContaining(Instant timeStamp) {
         condition = condition.and(where("exportedDataInterval").isEffective(timeStamp));
         return this;
     }
