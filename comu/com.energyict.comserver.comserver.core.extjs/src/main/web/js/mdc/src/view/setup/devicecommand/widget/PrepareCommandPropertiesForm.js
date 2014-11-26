@@ -67,7 +67,6 @@ Ext.define('Mdc.view.setup.devicecommand.widget.PrepareCommandPropertiesForm', {
     },
 
     updateRecord: function() {
-        debugger;
         var me = this,
             raw = me.getFieldValues(),
             values = {},
