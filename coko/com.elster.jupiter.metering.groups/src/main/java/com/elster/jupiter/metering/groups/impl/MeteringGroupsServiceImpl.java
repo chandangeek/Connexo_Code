@@ -26,10 +26,10 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringGroupsService.class, InstallService.class}, property = "name=" + MeteringGroupsService.COMPONENTNAME, immediate = true)
 public class MeteringGroupsServiceImpl implements MeteringGroupsService, InstallService {
@@ -38,7 +38,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     private volatile MeteringService meteringService;
     private volatile QueryService queryService;
 
-    private volatile List<EndDeviceQueryProvider> endDeviceQueryProviders = new ArrayList<>();
+    private final List<EndDeviceQueryProvider> endDeviceQueryProviders = new CopyOnWriteArrayList<>();
 
     public MeteringGroupsServiceImpl() {
     }
