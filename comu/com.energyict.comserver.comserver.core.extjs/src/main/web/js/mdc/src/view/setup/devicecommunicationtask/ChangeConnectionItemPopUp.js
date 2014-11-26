@@ -83,6 +83,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                         xtype: 'combobox',
                         fieldLabel: Uni.I18n.translate('deviceCommunicationTask.connectionMethod', 'MDC', 'Connection method'),
                         name: 'name',
+                        itemId: 'connectionMethodCombo',
                         displayField: 'name',
                         store: this.store,
                         queryMode: 'local',
@@ -132,6 +133,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                         xtype: 'combobox',
                         fieldLabel: Uni.I18n.translate('deviceCommunicationTask.protocolDialect', 'MDC', 'Protocol dialect'),
                         name: 'name',
+                        itemId: 'protocolDialectCombo',
                         displayField: 'name',
                         store: this.store,
                         queryMode: 'local',
@@ -144,6 +146,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                 this.setTitle(Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.changeUrgencyOfDeviceComTask', 'MDC', 'Change urgency of {0}'),this.comTaskName));
                 this.down('#changeConnectionItemForm').add({
                     xtype: 'numberfield',
+                    itemId: 'urgencyCombo',
                     name: 'urgency',
                     fieldLabel: Uni.I18n.translate('deviceCommunicationTask.urgency', 'MDC', 'Urgency'),
                     value: this.init
