@@ -40,7 +40,7 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl implements Pri
     
     @Override
     void appendDdlTrailer(StringBuilder builder) {
-        getTable().intervalPartitionColumn().ifPresent( column -> builder.append(" USING INDEX LOCAL "));
+        getTable().partitionColumn().ifPresent( column -> builder.append(" USING INDEX LOCAL "));
     }
 
     static class BuilderImpl implements PrimaryKeyConstraint.Builder {

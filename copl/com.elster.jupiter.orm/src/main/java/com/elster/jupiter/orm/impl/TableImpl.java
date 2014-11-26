@@ -60,7 +60,7 @@ public class TableImpl<T> implements Table<T> {
 	private final List<TableConstraintImpl> constraints = new ArrayList<>();
 	private final List<IndexImpl> indexes = new ArrayList<>();
 	
-	private Optional<Column> intervalPartitionColumn = Optional.empty();
+	private Optional<Column> partitionColumn = Optional.empty();
 	private LifeCycleClass lifeCycleClass = LifeCycleClass.NONE;
 	
 	// mapping
@@ -891,11 +891,11 @@ public class TableImpl<T> implements Table<T> {
 	}
 
 	@Override
-	public void intervalPartitionOn(Column column) {
+	public void partitionOn(Column column) {
 		if (!getPrimaryKeyColumns().contains(column)) {
 			throw new IllegalArgumentException("Partitioning column must be part of primary key");
 		}
-		this.intervalPartitionColumn = Optional.of(column);
+		this.partitionColumn = Optional.of(column);
 	}
 	
 	@Override
@@ -903,12 +903,12 @@ public class TableImpl<T> implements Table<T> {
 		if (Objects.requireNonNull(lifeCycleClass) == LifeCycleClass.NONE) {
 			throw new IllegalArgumentException();
 		}
-		intervalPartitionOn(column);
+		partitionOn(column);
 		this.lifeCycleClass = lifeCycleClass;
 	}
 	
-	public Optional<Column> intervalPartitionColumn() {	
-		return intervalPartitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
+	public Optional<Column> partitionColumn() {	
+		return partitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
 	}
 	
 	@Override
@@ -919,11 +919,12 @@ public class TableImpl<T> implements Table<T> {
 	Optional<ForeignKeyConstraintImpl> refPartitionConstraint() {
 		return getForeignKeyConstraints().stream()
 			.filter(ForeignKeyConstraintImpl::isRefPartition)
-			.findFirst();
+			.findFirst()
+			.filter(constraint -> getDataModel().getSqlDialect().hasPartitioning());
 	}
 	
 	PartitionMethod getPartitionMethod() {
-		if (intervalPartitionColumn.isPresent()) {
+		if (partitionColumn.isPresent()) {
 			return (isIndexOrganized() || !getReverseConstraints().isEmpty()) ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;			
 		}
 		if (refPartitionConstraint().isPresent()) {

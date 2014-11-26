@@ -83,8 +83,8 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
     
     @Override
     public void visitInterval(StringBuilder sb) {
-    	sb.append("partition by range(");
-		sb.append(table.intervalPartitionColumn().get().getName());
+    	sb.append(" partition by range(");
+		sb.append(table.partitionColumn().get().getName());
 		sb.append(") interval (");
 		sb.append(PARTITIONSIZE);
 		sb.append(") (partition P0 values less than(0))");
@@ -92,26 +92,30 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
     
     @Override 
     public void visitReference(StringBuilder sb) {
-    	sb.append("partition by reference(");
+    	sb.append(" partition by reference(");
     	sb.append(table.refPartitionConstraint().get().getName());
     	sb.append(")");        		
     }
    
     @Override
     public void visitRange(StringBuilder sb) {
-    	sb.append("partition by range(");
-		sb.append(table.intervalPartitionColumn().get().getName());
-		sb.append(") (");
+    	sb.append(" partition by range(");
+		sb.append(table.partitionColumn().get().getName());
+		sb.append(") ");
 		long end = (System.currentTimeMillis() / PARTITIONSIZE) * PARTITIONSIZE;
-		for (i = 0 ; i < 12 ; i++) {
+		String separator = "(";
+		for (int i = 0 ; i < 12 ; i++) {
 			end += PARTITIONSIZE;
 			String name = "P" + Instant.ofEpochMilli(end).toString().replaceAll("-","").substring(0,8);
+			sb.append(separator);
 			sb.append(" partition ");
 			sb.append(name);
 			sb.append(" values less than(");
 			sb.append(end);
 			sb.append(")");
-			
+			separator = ",";
+		}
+		sb.append(")");
     }
     
     private String getJournalTableDdl(TableImpl<?> table) {

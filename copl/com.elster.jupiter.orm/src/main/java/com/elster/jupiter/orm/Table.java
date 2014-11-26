@@ -89,7 +89,7 @@ public interface Table<T> {
 
     boolean maps(Class<?> implementer);
     
-    void intervalPartitionOn(Column column);
+    void partitionOn(Column column);
     void autoPartitionOn(Column column, LifeCycleClass lifeCycleClass);
     
 	void dropJournal(Instant upTo, Logger logger);
