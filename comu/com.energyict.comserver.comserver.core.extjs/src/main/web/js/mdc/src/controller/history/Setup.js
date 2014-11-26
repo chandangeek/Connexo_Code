@@ -329,12 +329,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 protocols: {
                                                     title: 'Protocol dialects',
                                                     route: 'protocols',
+                                                    privileges: ['privilege.administrate.protocol','privilege.view.protocol'],
                                                     controller: 'Mdc.controller.setup.ProtocolDialects',
                                                     action: 'showProtocolDialectsView',
                                                     items: {
                                                         edit: {
                                                             title: 'Edit protocol dialect',
                                                             route: '{protocolDialectId}/edit',
+                                                            privileges: ['privilege.administrate.protocol'],
                                                             controller: 'Mdc.controller.setup.ProtocolDialects',
                                                             action: 'showProtocolDialectsEditView',
                                                             callback: function (route) {
@@ -558,12 +560,14 @@ Ext.define('Mdc.controller.history.Setup', {
                 devicecommunicationprotocols: {
                     title: 'Communication protocols',
                     route: 'devicecommunicationprotocols',
+                    privileges: ['privilege.administrate.protocol','privilege.view.protocol'],
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showDeviceCommunicationProtocols',
                     items: {
                         edit: {
                             title: 'Edit communication protocol',
                             route: '{id}/edit',
+                            privileges: ['privilege.administrate.protocol'],
                             controller: 'Mdc.controller.setup.DeviceCommunicationProtocols',
                             action: 'showDeviceCommunicationProtocolEditView',
                             callback: function (route) {

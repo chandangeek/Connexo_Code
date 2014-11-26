@@ -56,6 +56,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: Uni.I18n.translate('deviceconfigurationmenu.protocols', 'MDC', 'Protocol dialects'),
                 pressed: false,
                 itemId: 'protocolLink',
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.protocol','privilege.view.protocol']),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/protocols',
                 hrefTarget: '_self'
             },

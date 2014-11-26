@@ -48,6 +48,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         this.add({
             text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
             itemId: 'protocolLink',
+            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.protocol','privilege.view.protocol']),
             href: '#/devices/' + mRID + '/protocols',
             hrefTarget: '_self'
         });
@@ -66,6 +67,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         this.add({
             text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Data validation'),
             itemId: 'dataValidationLink',
+            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration']),
             href: '#/devices/' + mRID + '/datavalidation',
             hrefTarget: '_self'
         });
