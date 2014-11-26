@@ -29,6 +29,7 @@ import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
@@ -107,6 +108,15 @@ public class DataExportTaskResource {
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return new DataExportTaskInfo(fetchDataExportTask(id, securityContext), thesaurus);
+    }
+
+    @POST
+    @Path("/{id}/trigger")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
+    public Response triggerDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
+        transactionService.execute(VoidTransaction.of(() -> fetchDataExportTask(id, securityContext).triggerNow()));
+        return Response.status(Response.Status.OK).build();
     }
 
     @POST
