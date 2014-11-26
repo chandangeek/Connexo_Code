@@ -113,6 +113,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                                 xtype: 'reading-type-combo',
                                 name: 'readingType',
                                 itemId: 'readingTypeCombo',
+                                store: 'AvailableReadingTypesForRegisterType',
                                 disabled: true,
                                 required: true,
                                 allowBlank: false,

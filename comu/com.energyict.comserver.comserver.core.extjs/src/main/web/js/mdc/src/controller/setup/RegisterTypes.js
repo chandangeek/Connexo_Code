@@ -43,16 +43,14 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             unitOfMeasureCombo = me.getUnitOfMeasureCombo(),
             timeOfUseCombo = me.getTimeOfUseCombo(),
             readingTypeCombo = me.getReadingTypeCombo(),
-            readingTypeStore = Ext.create('Mdc.store.AvailableReadingTypesForRegisterType'),
+            readingTypeStore = readingTypeCombo.getStore(),
             readingHiddenDisplayField = editView.down('#noReadingAvailable');
 
-        readingTypeCombo.setValue(null);
         readingTypeCombo.disable();
-
+        readingTypeCombo.setValue(null);
 
         if (unitOfMeasureCombo.getValue() !== null && timeOfUseCombo.getValue() !== null) {
             editView.setLoading();
-            readingTypeCombo.bindStore(readingTypeStore);
             readingTypeStore.getProxy().setExtraParam('filter', Ext.encode([
                 {
                     property: 'unitOfMeasureId',
@@ -67,6 +65,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 callback: function () {
                     if (this.getCount()) {
                         readingTypeCombo.show();
+
                         readingHiddenDisplayField.hide();
                     } else {
                         readingTypeCombo.hide();
@@ -233,13 +232,13 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         var me = this,
             timeOfUseStore = Ext.create('Mdc.store.TimeOfUses'),
             unitOfMeasureStore = Ext.create('Mdc.store.UnitOfMeasures'),
-            readingTypeStore = Ext.create('Mdc.store.AvailableReadingTypesForRegisterType'),
             widget = Ext.widget('registerTypeEdit', {
                 edit: true,
                 unitOfMeasure: unitOfMeasureStore,
                 timeOfUse: timeOfUseStore,
                 returnLink: me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens()
-            });
+            }),
+            readingTypeStore;
         this.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.RegisterType').load(registerMapping, {
@@ -251,7 +250,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                             callback: function (store) {
                                 widget.down('form').loadRecord(registerType);
                                 widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + registerType.get('name') + '</h1>');
-                                widget.down('#readingTypeCombo').bindStore(readingTypeStore);
+                                readingTypeStore = widget.down('#readingTypeCombo').getStore();
                                 readingTypeStore.getProxy().setExtraParam('filter', Ext.encode([
                                     {
                                         property: 'unitOfMeasureId',
@@ -264,7 +263,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                                 ]));
                                 readingTypeStore.load({
                                     callback: function () {
-                                        widget.down('#readingTypeCombo').setValue(registerType.getReadingType().get('id'));
+                                        widget.down('#readingTypeCombo').setValue(registerType.getReadingType());
                                         widget.setLoading(false);
                                     }
                                 });
