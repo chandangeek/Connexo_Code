@@ -2,6 +2,7 @@ Ext.define('Dxp.view.datasources.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.data-sources-grid',
     store: 'Dxp.store.DataSources',
+    taskId: null,
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom'
@@ -32,6 +33,10 @@ Ext.define('Dxp.view.datasources.Grid', {
             {
                 header: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
                 dataIndex: 'lastRun',
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence').buildUrl({taskId: me.taskId, occurrenceId: record.get('occurrenceId')});
+                    return '<a href="' + url + '">' + value + '</a>';
+                },
                 flex: 1
             },
             {

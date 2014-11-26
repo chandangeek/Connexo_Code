@@ -36,7 +36,8 @@ Ext.define('Dxp.view.datasources.Setup', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'data-sources-grid'
+                        xtype: 'data-sources-grid',
+                        taskId: me.taskId
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
