@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
@@ -51,6 +52,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
@@ -369,4 +371,21 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     public void purge(PurgeConfiguration purgeConfiguration) {
     	new DataPurger(purgeConfiguration,this).purge();
     }
+    
+    List<Vault> registerVaults() {
+    	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.IRREGULARVAULTID)
+    			.map( vault -> Arrays.asList(vault))
+    			.orElse(Collections.emptyList());
+    }
+    
+    List<Vault> intervalVaults() {
+    	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.IRREGULARVAULTID)
+    			.map( vault -> Arrays.asList(vault))
+    			.orElse(Collections.emptyList());
+    }
+    
+    List<Vault> dailyVaults() {
+    	return Collections.emptyList();
+    }
+    
 }

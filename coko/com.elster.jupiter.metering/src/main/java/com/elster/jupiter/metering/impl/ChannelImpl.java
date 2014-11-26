@@ -51,8 +51,8 @@ import com.google.common.collect.Range;
 
 public final class ChannelImpl implements ChannelContract {
 
-    private static final int REGULARVAULTID = 1;
-    private static final int IRREGULARVAULTID = 2;
+    static final int REGULARVAULTID = 1;
+    static final int IRREGULARVAULTID = 2;
 
     // persistent fields
     private long id;
