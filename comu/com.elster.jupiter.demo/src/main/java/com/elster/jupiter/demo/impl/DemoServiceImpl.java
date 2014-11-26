@@ -49,22 +49,23 @@ import java.security.Principal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component(name = "com.elster.jupiter.demo", service = {DemoService.class, DemoServiceImpl.class}, property = {"osgi.command.scope=demo", "osgi.command.function=createDemoData", "osgi.command.function=createDemoUsers", "osgi.command.function=createValidationRules"}, immediate = true)
 public class DemoServiceImpl implements DemoService {
-    public static final String ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH = "Active Energy Import Tariff 1 (kWh)";
-    public static final String ACTIVE_ENERGY_IMPORT_TARIFF_1_WH = "Active Energy Import Tariff 1 (Wh)";
-    public static final String ACTIVE_ENERGY_IMPORT_TARIFF_2_K_WH = "Active Energy Import Tariff 2 (kWh)";
-    public static final String ACTIVE_ENERGY_IMPORT_TARIFF_2_WH = "Active Energy Import Tariff 2 (Wh)";
+    public static final String BULK_A_FORWARD_ALL_PHASES_TOU_1_K_WH = "Active Energy Import Tariff 1 (kWh)";
+    public static final String BULK_A_FORWARD_ALL_PHASES_TOU_1_WH = "Active Energy Import Tariff 1 (Wh)";
+    public static final String BULK_A_FORWARD_ALL_PHASES_TOU_2_K_WH = "Active Energy Import Tariff 2 (kWh)";
+    public static final String BULK_A_FORWARD_ALL_PHASES_TOU_2_WH = "Active Energy Import Tariff 2 (Wh)";
 
-    public static final String ACTIVE_ENERGY_EXPORT_TARIFF_1_K_WH = "Active Energy Export Tariff 1 (kWh)";
-    public static final String ACTIVE_ENERGY_EXPORT_TARIFF_1_WH = "Active Energy Export Tariff 1 (Wh)";
-    public static final String ACTIVE_ENERGY_EXPORT_TARIFF_2_K_WH = "Active Energy Export Tariff 2 (kWh)";
-    public static final String ACTIVE_ENERGY_EXPORT_TARIFF_2_WH = "Active Energy Export Tariff 2 (Wh)";
+    public static final String BULK_A_MINUS_ALL_PHASES_TOU_1_K_WH = "Active Energy Export Tariff 1 (kWh)";
+    public static final String BULK_A_REVERSE_ALL_PHASES_TOU_1_WH = "Active Energy Export Tariff 1 (Wh)";
+    public static final String BULK_A_REVERSE_ALL_PHASES_TOU_2_K_WH = "Active Energy Export Tariff 2 (kWh)";
+    public static final String BULK_A_REVERSE_ALL_PHASES_TOU_2_WH = "Active Energy Export Tariff 2 (Wh)";
 
-    public static final String ACTIVE_ENERGY_IMPORT_TOTAL_WH = "Active Energy Import Total (Wh)";
-    public static final String ACTIVE_ENERGY_EXPORT_TOTAL_WH = "Active Energy Export Total (Wh)";
+    public static final String BULK_A_FORWARD_ALL_PHASES_TOU_0_WH = "Active Energy Import Total (Wh)";
+    public static final String BULK_A_REVERSE_ALL_PHASES_TOU_0_WH = "Active Energy Export Total (Wh)";
 
     public static final String ALARM_REGISTER = "Alarm register";
     public static final String AMR_PROFILE_STATUS_CODE = "AMR Profile status code";
@@ -251,16 +252,16 @@ public class DemoServiceImpl implements DemoService {
 
     private void findRegisterTypes(Store store) {
         System.out.println("==> Finding Register Types...");
-        store.getRegisterTypes().put(ACTIVE_ENERGY_IMPORT_TARIFF_1_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0"));
-        store.getRegisterTypes().put(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0"));
-        store.getRegisterTypes().put(ACTIVE_ENERGY_IMPORT_TARIFF_2_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0"));
-        store.getRegisterTypes().put(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0"));
-        store.getRegisterTypes().put(ACTIVE_ENERGY_EXPORT_TARIFF_1_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0"));
-        store.getRegisterTypes().put(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0"));
-        store.getRegisterTypes().put(ACTIVE_ENERGY_EXPORT_TARIFF_2_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0"));
-        store.getRegisterTypes().put(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0"));
-        store.getRegisterTypes().put(ACTIVE_ENERGY_IMPORT_TOTAL_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"));
-        store.getRegisterTypes().put(ACTIVE_ENERGY_EXPORT_TOTAL_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(BULK_A_FORWARD_ALL_PHASES_TOU_1_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.3.72.0"));
+        store.getRegisterTypes().put(BULK_A_FORWARD_ALL_PHASES_TOU_1_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.1.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(BULK_A_FORWARD_ALL_PHASES_TOU_2_K_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.3.72.0"));
+        store.getRegisterTypes().put(BULK_A_FORWARD_ALL_PHASES_TOU_2_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.2.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(BULK_A_MINUS_ALL_PHASES_TOU_1_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.3.72.0"));
+        store.getRegisterTypes().put(BULK_A_REVERSE_ALL_PHASES_TOU_1_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.1.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(BULK_A_REVERSE_ALL_PHASES_TOU_2_K_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.3.72.0"));
+        store.getRegisterTypes().put(BULK_A_REVERSE_ALL_PHASES_TOU_2_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.2.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(BULK_A_FORWARD_ALL_PHASES_TOU_0_WH, findRegisterType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"));
+        store.getRegisterTypes().put(BULK_A_REVERSE_ALL_PHASES_TOU_0_WH, findRegisterType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"));
 
         store.getRegisterTypes().put(ACTIVE_FIRMWARE_VERSION, findOrCreateRegisterType("0.0.0.0.0.41.92.0.0.0.0.0.0.0.0.0.114.0", "1.0.0.2.8.255"));
         store.getRegisterTypes().put(AMR_PROFILE_STATUS_CODE, findOrCreateRegisterType("0.0.0.0.0.41.123.0.0.0.0.0.0.0.0.0.110.0", "0.0.96.10.2.255"));
@@ -299,24 +300,26 @@ public class DemoServiceImpl implements DemoService {
         System.out.println("==> Creating Load Profiles Types...");
 
         LoadProfileType dailyElectrisity = createLoadProfile(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY, "1.0.99.2.0.255", new TimeDuration(1, TimeDuration.TimeUnit.DAYS));
-        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
-        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
-        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
-        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        List<ReadingType> types = meteringService.getAvailableReadingTypes().stream().sorted(Comparator.comparing(ReadingType::getMRID)).collect(Collectors.toList());
+
+        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
+        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
+        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
+        dailyElectrisity.createChannelTypeForRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
         dailyElectrisity.save();
         store.getLoadProfileTypes().put(LOAD_PROFILE_TYPE_DAILY_ELECTRICITY, dailyElectrisity);
 
         LoadProfileType monthlyElectricity = createLoadProfile(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY, "0.0.98.1.0.255", new TimeDuration(1, TimeDuration.TimeUnit.MONTHS));
-        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
-        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
-        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
-        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
+        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
+        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
+        monthlyElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
         monthlyElectricity.save();
         store.getLoadProfileTypes().put(LOAD_PROFILE_TYPE_MONTHLY_ELECTRICITY, monthlyElectricity);
 
         LoadProfileType _15minElectricity = createLoadProfile(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY, "1.0.99.1.0.255", new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
-        _15minElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
-        _15minElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TOTAL_WH));
+        _15minElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_0_WH));
+        _15minElectricity.createChannelTypeForRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_0_WH));
         _15minElectricity.save();
         store.getLoadProfileTypes().put(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY, _15minElectricity);
     }
@@ -332,24 +335,24 @@ public class DemoServiceImpl implements DemoService {
 
         RegisterGroup defaultRegisterGroup = masterDataService.newRegisterGroup(REGISTER_GROUP_DEFAULT_GROUP);
         defaultRegisterGroup.save();
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TOTAL_WH));
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
-        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_0_WH));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_0_WH));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
+        defaultRegisterGroup.addRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
         store.getRegisterGroups().put(REGISTER_GROUP_DEFAULT_GROUP, defaultRegisterGroup);
 
         RegisterGroup tariff1 = masterDataService.newRegisterGroup(REGISTER_GROUP_TARIFF_1);
         tariff1.save();
-        tariff1.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
-        tariff1.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
+        tariff1.addRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
+        tariff1.addRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
         store.getRegisterGroups().put(REGISTER_GROUP_TARIFF_1, tariff1);
 
         RegisterGroup tariff2 = masterDataService.newRegisterGroup(REGISTER_GROUP_TARIFF_2);
         tariff2.save();
-        tariff2.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
-        tariff2.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        tariff2.addRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
+        tariff2.addRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
         store.getRegisterGroups().put(REGISTER_GROUP_TARIFF_2, tariff2);
 
         RegisterGroup deviceDataRegisterGroup = masterDataService.newRegisterGroup(REGISTER_GROUP_DEVICE_DATA);
@@ -445,12 +448,12 @@ public class DemoServiceImpl implements DemoService {
         System.out.println("==> Creating Create device types...");
         DeviceProtocolPluggableClass webRTUprotocol = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(WebRTUKP.class.getName()).get(0);
         DeviceType deviceType = deviceConfigurationService.newDeviceType(DEVICE_TYPES_NAMES[deviceTypeCount], webRTUprotocol);
-        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TOTAL_WH));
-        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_1_WH));
-        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_IMPORT_TARIFF_2_WH));
-        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TOTAL_WH));
-        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_1_WH));
-        deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_ENERGY_EXPORT_TARIFF_2_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_0_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_0_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_1_WH));
+        deviceType.addRegisterType(store.getRegisterTypes().get(BULK_A_REVERSE_ALL_PHASES_TOU_2_WH));
         deviceType.addRegisterType(store.getRegisterTypes().get(ALARM_REGISTER));
         deviceType.addRegisterType(store.getRegisterTypes().get(AMR_PROFILE_STATUS_CODE));
         deviceType.addRegisterType(store.getRegisterTypes().get(ACTIVE_FIRMWARE_VERSION));
@@ -476,9 +479,9 @@ public class DemoServiceImpl implements DemoService {
         configBuilder.isDirectlyAddressable(true);
 
         addRegisterSpecsToDeviceConfiguration(configBuilder, store,
-                ACTIVE_ENERGY_IMPORT_TOTAL_WH, ACTIVE_ENERGY_IMPORT_TARIFF_1_WH,
-                ACTIVE_ENERGY_IMPORT_TARIFF_2_WH, ACTIVE_ENERGY_EXPORT_TOTAL_WH,
-                ACTIVE_ENERGY_EXPORT_TARIFF_1_WH, ACTIVE_ENERGY_EXPORT_TARIFF_2_WH,
+                BULK_A_FORWARD_ALL_PHASES_TOU_0_WH, BULK_A_FORWARD_ALL_PHASES_TOU_1_WH,
+                BULK_A_FORWARD_ALL_PHASES_TOU_2_WH, BULK_A_REVERSE_ALL_PHASES_TOU_0_WH,
+                BULK_A_REVERSE_ALL_PHASES_TOU_1_WH, BULK_A_REVERSE_ALL_PHASES_TOU_2_WH,
                 ALARM_REGISTER, AMR_PROFILE_STATUS_CODE);
         configBuilder.newTextualRegisterSpec(store.getRegisterTypes().get(ACTIVE_FIRMWARE_VERSION));
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
@@ -545,7 +548,7 @@ public class DemoServiceImpl implements DemoService {
         configBuilder.gatewayType(GatewayType.HOME_AREA_NETWORK);
         configBuilder.isDirectlyAddressable(true);
         addRegisterSpecsToDeviceConfiguration(configBuilder, store,
-                ACTIVE_ENERGY_IMPORT_TOTAL_WH, ACTIVE_ENERGY_EXPORT_TOTAL_WH,
+                BULK_A_FORWARD_ALL_PHASES_TOU_0_WH, BULK_A_REVERSE_ALL_PHASES_TOU_0_WH,
                 ALARM_REGISTER, AMR_PROFILE_STATUS_CODE);
         configBuilder.newTextualRegisterSpec(store.getRegisterTypes().get(ACTIVE_FIRMWARE_VERSION));
         configBuilder.newLoadProfileSpec(store.getLoadProfileTypes().get(LOAD_PROFILE_TYPE_15_MIN_ELECTRICITY));
