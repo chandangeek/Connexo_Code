@@ -39,6 +39,8 @@ Ext.define('Uni.property.view.property.Base', {
     key: null,
     passwordAsTextComponent: false,
     emptyText: '',
+    userHasViewPrivilege: true,
+    userHasEditPrivilege: true,
 
     /**
      * @param {string|null} key
@@ -75,14 +77,18 @@ Ext.define('Uni.property.view.property.Base', {
      * @param {Uni.property.model.Property} property
      */
     initProperty: function (property) {
-        this.property = property;
+        var me = this;
+        me.property = property;
 
         if (property) {
-            this.key = property.get('key');
-            this.itemId = this.key;
+            me.key = property.get('key');
+            me.itemId = me.key;
 
-            if (this.isEdit) {
-                this.required = property.get('required');
+            if (me.isEdit) {
+                me.required = property.get('required');
+                if (me.required) {
+                    me.allowBlank = false
+                }
             }
         }
     },
@@ -204,7 +210,7 @@ Ext.define('Uni.property.view.property.Base', {
      */
     setValue: function (value) {
         if (this.isEdit) {
-            if (this.getProperty().get('hasValue')) {
+            if (this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
                 this.getField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
             } else {
                 this.getField().emptyText = '';
@@ -219,8 +225,8 @@ Ext.define('Uni.property.view.property.Base', {
         }
     },
 
-    getValue: function (value) {
-        return value;
+    getValue: function () {
+        return this.getField().getValue()
     },
 
     /**
@@ -281,11 +287,16 @@ Ext.define('Uni.property.view.property.Base', {
             field.on('change', function () {
                 me.getProperty().set('isInheritedOrDefaultValue', false);
                 me.updateResetButton();
+                if (field.getValue() === null || field.getValue() === '') {
+                    me.getProperty().set('hasValue', false);
+                    me.getProperty().set('propertyHasValue', false);
+                }
             });
             field.on('blur', function () {
                 if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
                     me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
                 }
+
             })
         }
         this.on('afterrender', function () {

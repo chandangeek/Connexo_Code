@@ -27,7 +27,8 @@ Ext.define('Uni.property.view.property.Number', {
             allowDecimals: allowDecimals,
             msgTarget: 'under',
             readOnly: me.isReadOnly,
-            inputType: me.inputType
+            inputType: me.inputType,
+            allowBlank: me.allowBlank
         };
     },
 
@@ -39,6 +40,11 @@ Ext.define('Uni.property.view.property.Number', {
     },
 
     getField: function () {
-        return this.down('numberfield');
+        var me = this;
+        if (me.isCombo()) {
+            return me.down('combobox')
+        } else {
+            return me.down('numberfield')
+        }
     }
 });

@@ -3,7 +3,7 @@
  */
 Ext.define('Uni.view.navigation.Menu', {
     extend: 'Ext.container.Container',
-    alias: 'widget.navigationMenu',
+    xtype: 'navigationMenu',
     ui: 'navigationmenu',
 
     layout: {
@@ -11,21 +11,71 @@ Ext.define('Uni.view.navigation.Menu', {
         align: 'stretch'
     },
 
-    defaults: {
-        xtype: 'button',
-        ui: 'menuitem',
-        hrefTarget: '_self',
-        toggleGroup: 'menu-items',
-        action: 'menu-main',
-        enableToggle: true,
-        allowDepress: false,
-        cls: 'menu-item',
-        tooltipType: 'title',
-        scale: 'large'
+    baseCollapsedCookieKey: '_nav_menu_collapsed',
+
+    initComponent: function () {
+        var me = this;
+
+        me.items = [
+            {
+                xtype: 'container',
+                flex: 1,
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                defaults: {
+                    xtype: 'button',
+                    ui: 'menuitem',
+                    hrefTarget: '_self',
+                    toggleGroup: 'menu-items',
+                    action: 'menu-main',
+                    enableToggle: true,
+                    allowDepress: false,
+                    tooltipType: 'title',
+                    iconAlign: 'top',
+                    scale: 'large'
+                }
+            },
+            {
+                xtype: 'container',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+                padding: '4px',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '&nbsp;',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'button',
+                        ui: 'toggle',
+                        itemId: 'toggle-button',
+                        toggleGroup: 'uni-navigation-menu-toggle-button',
+                        tooltipType: 'title',
+                        tooltip: Uni.I18n.translate('navigation.toggle.collapse', 'UNI', 'Collapse'),
+                        enableToggle: true,
+                        scale: 'large',
+                        toggleHandler: me.onToggleClick,
+                        pressed: Ext.util.Cookies.get(me.getCollapsedCookieKey()),
+                        scope: me
+                    }
+                ]
+            }
+        ];
+
+        me.callParent(arguments);
+
+        me.on('afterrender', function () {
+            me.setCollapsed(Ext.util.Cookies.get(me.getCollapsedCookieKey()) || false);
+        }, me);
     },
 
     removeAllMenuItems: function () {
-        this.removeAll();
+        this.getMenuContainer().removeAll();
     },
 
     addMenuItem: function (model) {
@@ -34,9 +84,9 @@ Ext.define('Uni.view.navigation.Menu', {
 
         // TODO Sort the buttons on their model's index value, instead of relying on insert.
         if (model.data.index === '' || model.data.index === null || model.data.index === undefined) {
-            this.add(item);
+            me.getMenuContainer().add(item);
         } else {
-            this.insert(model.data.index, item);
+            me.getMenuContainer().insert(model.data.index, item);
         }
     },
 
@@ -58,7 +108,7 @@ Ext.define('Uni.view.navigation.Menu', {
         var me = this,
             itemId = model.id;
 
-        this.items.items.forEach(function (item) {
+        me.getMenuContainer().items.items.forEach(function (item) {
             if (itemId === item.data.id) {
                 me.deselectAllMenuItems();
                 item.toggle(true, false);
@@ -67,8 +117,69 @@ Ext.define('Uni.view.navigation.Menu', {
     },
 
     deselectAllMenuItems: function () {
-        this.items.items.forEach(function (item) {
+        this.getMenuContainer().items.items.forEach(function (item) {
             item.toggle(false, false);
         });
+    },
+
+    onToggleClick: function (button, state) {
+        var me = this;
+        me.setCollapsed(state);
+    },
+
+    setCollapsed: function (collapsed) {
+        var me = this;
+
+        if (collapsed) {
+            me.collapseMenu();
+        } else {
+            me.expandMenu();
+        }
+
+        me.setCollapsedCookie(collapsed);
+    },
+
+    getCollapsedCookieKey: function () {
+        var me = this,
+            namespace = Uni.util.Application.getAppNamespace();
+
+        namespace = namespace.replace(/\s+/g, '-').toLowerCase();
+
+        return namespace + me.baseCollapsedCookieKey;
+    },
+
+    collapseMenu: function () {
+        var me = this;
+
+        me.getToggleButton().setTooltip(Uni.I18n.translate('navigation.toggle.expand', 'UNI', 'Expand'));
+
+        me.addCls('collapsed');
+        me.setWidth(48);
+        me.doLayout();
+    },
+
+    expandMenu: function () {
+        var me = this;
+
+        me.getToggleButton().setTooltip(Uni.I18n.translate('navigation.toggle.collapse', 'UNI', 'Collapse'));
+
+        me.removeCls('collapsed');
+        me.setWidth(null);
+        me.doLayout();
+    },
+
+    setCollapsedCookie: function (collapsed) {
+        var me = this;
+
+        Ext.util.Cookies.set(me.getCollapsedCookieKey(), collapsed,
+            new Date(new Date().getTime() + 365.25 * 24 * 60 * 60 * 1000)); // Expires in a year.
+    },
+
+    getMenuContainer: function () {
+        return this.down('container:first');
+    },
+
+    getToggleButton: function () {
+        return this.down('#toggle-button');
     }
 });

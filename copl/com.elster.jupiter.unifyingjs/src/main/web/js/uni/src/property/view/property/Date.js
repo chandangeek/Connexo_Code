@@ -19,7 +19,8 @@ Ext.define('Uni.property.view.property.Date', {
             width: me.width,
             required: me.required,
             readOnly: me.isReadOnly,
-            inputType: me.inputType
+            inputType: me.inputType,
+            allowBlank: me.allowBlank
         };
     },
 
@@ -39,13 +40,6 @@ Ext.define('Uni.property.view.property.Date', {
     },
 
     getValue: function (value) {
-        if (value !== null && value !== '') {
-            var newDate = new Date(value.getFullYear(), value.getMonth(), value.getDate(),
-                0, 0, 0, 0);
-            return newDate.getTime();
-        } else
-        {
-            return value;
-        }
+        return this.getField().getValue().getTime()
     }
 });

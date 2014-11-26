@@ -20,9 +20,11 @@ Ext.define('Uni.property.form.PropertyHydrator', {
             return false;
         }
         record.properties().each(function (property) {
+            var value,
+                propertyValue;
             if (property.get('isInheritedOrDefaultValue') === true) {
                 if (property.get('required') === true && property.get('hasDefaultValue')) {
-                    var value = me.falseAndZeroChecker(values[property.get('key')]);
+                    value = me.falseAndZeroChecker(values[property.get('key')]);
                     propertyValue = Ext.create('Uni.property.model.PropertyValue');
                     property.setPropertyValue(propertyValue);
                     propertyValue.set('value', value);
@@ -30,13 +32,15 @@ Ext.define('Uni.property.form.PropertyHydrator', {
                     property.setPropertyValue(null);
                 }
             } else {
-                var value = me.falseAndZeroChecker(values[property.get('key')]);
+                value = me.falseAndZeroChecker(values[property.get('key')]);
                 if (!property.raw['propertyValueInfo']) {
                     propertyValue = Ext.create('Uni.property.model.PropertyValue');
+                    propertyValue.set('value', value);
                     property.setPropertyValue(propertyValue);
                 }
-                var propertyValue = property.getPropertyValue();
+                propertyValue = property.getPropertyValue();
                 propertyValue.set('value', value);
+                propertyValue.set('propertyHasValue', property.get('hasValue'));
             }
 
         });

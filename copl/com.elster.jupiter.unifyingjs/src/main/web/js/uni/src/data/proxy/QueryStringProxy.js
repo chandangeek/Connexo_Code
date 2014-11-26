@@ -119,11 +119,9 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
             queryParams = {};
 
         operation.setStarted();
-
         var data = this.hydrator
             ? this.hydrator.extract(model)
             : this.writer.getRecordData(model);
-
         //todo: clean empty data!
         model.commit();
 

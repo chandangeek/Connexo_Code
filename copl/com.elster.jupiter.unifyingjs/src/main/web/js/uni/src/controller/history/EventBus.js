@@ -50,6 +50,12 @@ Ext.define('Uni.controller.history.EventBus', {
 
     onHistoryChange: function (token) {
         var queryStringIndex = token.indexOf('?');
+
+        if (typeof token === 'undefined' || token === null || token === '') {
+            token = this.getDefaultToken();
+            Ext.util.History.add(token);
+        }
+
         if (queryStringIndex > 0) {
             token = token.substring(0, queryStringIndex);
         }

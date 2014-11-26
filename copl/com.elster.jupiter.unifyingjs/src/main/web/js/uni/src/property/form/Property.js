@@ -42,6 +42,8 @@ Ext.define('Uni.property.form.Property', {
     inheritedValues: false,
     inputType: 'text',
     passwordAsTextComponent: false,
+    userHasEditPrivilege: true,
+    userHasViewPrivilege: true,
 
     /**
      * Loads record to the form.
@@ -54,10 +56,10 @@ Ext.define('Uni.property.form.Property', {
         this.callParent(arguments);
     },
 
-    loadRecordAsNotRequired: function(record){
+    loadRecordAsNotRequired: function (record) {
         var properties = record.properties();
-        _.each(properties.data.items,function(item){
-            item.set('required',false)
+        _.each(properties.data.items, function (item) {
+            item.set('required', false)
         });
         this.loadRecord(record);
     },
@@ -68,7 +70,7 @@ Ext.define('Uni.property.form.Property', {
      *
      * @param {MixedCollection} properties
      */
-    initProperties: function(properties) {
+    initProperties: function (properties) {
         var me = this;
         var registry = Uni.property.controller.Registry;
 
@@ -92,7 +94,9 @@ Ext.define('Uni.property.form.Property', {
                     isEdit: me.isEdit,
                     isReadOnly: me.isReadOnly,
                     inputType: me.inputType,
-                    passwordAsTextComponent: me.passwordAsTextComponent
+                    passwordAsTextComponent: me.passwordAsTextComponent,
+                    userHasEditPrivilege: me.userHasEditPrivilege,
+                    userHasViewPrivilege: me.userHasViewPrivilege
                 }));
 
                 me.add(field);
@@ -102,42 +106,41 @@ Ext.define('Uni.property.form.Property', {
         this.initialised = true;
     },
 
-    useInheritedValues: function() {
-        this.items.each(function(item){
+    useInheritedValues: function () {
+        this.items.each(function (item) {
             item.useInheritedValue();
         });
         this.inheritedValues = true;
     },
 
-    getFieldValues: function(dirtyOnly) {
+    getFieldValues: function (dirtyOnly) {
         var data = this.getValues(false, dirtyOnly, false, true);
         return this.unFlattenObj(data);
     },
 
-    updateRecord: function() {
+    updateRecord: function () {
+
         var me = this;
         var raw = me.getFieldValues();
         var values = {};
-        _.each(raw.properties || [], function(rawValue, key){
+
+        me.getRecord().properties().each(function (property) {
+            var key = property.get('key');
             var field = me.getPropertyField(key);
-            values[key] = field.getValue(rawValue);
+            values[key] = field.getValue(raw);
         });
 
         this.getForm().hydrator.hydrate(values, me.getRecord());
     },
 
-    unFlattenObj: function(object) {
-        return _(object).inject(function(result, value, keys) {
-            var current = result,
-                partitions = keys.split('.'),
-                limit = partitions.length - 1;
-
-            _(partitions).each(function(key, index) {
-                current = current[key] = (index == limit ? value : (current[key] || {}));
-            });
-
+    unFlattenObj: function (object) {
+        return _.reduce(object, function (result, value, key) {
+            var properties = key.split('.');
+            if (_.first(properties) == 'properties') {
+                result[_.first(properties)][_.rest(properties, 1).join('.')] = value;
+            }
             return result;
-        }, {});
+        }, {properties: {}});
     },
 
     /**
@@ -145,7 +148,7 @@ Ext.define('Uni.property.form.Property', {
      *
      * @param {MixedCollection} properties
      */
-    setProperties: function(properties) {
+    setProperties: function (properties) {
         var me = this;
 
         properties.each(function (property) {
@@ -160,20 +163,20 @@ Ext.define('Uni.property.form.Property', {
         });
     },
 
-    restoreAll: function() {
-        this.items.each(function(item){
+    restoreAll: function () {
+        this.items.each(function (item) {
             item.restoreDefault();
         })
     },
 
-    showValues: function() {
-        this.items.each(function(item) {
+    showValues: function () {
+        this.items.each(function (item) {
             item.showValue();
         })
     },
 
-    hideValues: function() {
-        this.items.each(function(item) {
+    hideValues: function () {
+        this.items.each(function (item) {
             item.hideValue();
         })
     },
@@ -183,7 +186,7 @@ Ext.define('Uni.property.form.Property', {
      * @param {string} key
      * @returns {Uni.property.view.property.Base}
      */
-    getPropertyField: function(key) {
+    getPropertyField: function (key) {
         return this.getComponent(key);
     }
 });

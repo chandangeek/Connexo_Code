@@ -16,7 +16,7 @@ Ext.define('Uni.grid.column.Action', {
         items: []
     },
 
-    constructor: function(config) {
+    constructor: function (config) {
         var me = this,
             cfg = Ext.apply({}, config);
 
@@ -34,7 +34,7 @@ Ext.define('Uni.grid.column.Action', {
         cfg.items = null;
         me.callParent([cfg]);
 
-        this.initMenu();
+        me.initMenu();
     },
 
     /**
@@ -45,7 +45,7 @@ Ext.define('Uni.grid.column.Action', {
             menuXtype = me.menu.xtype;
         menuXtype == null ? menuXtype = 'menu' : null;
         me.menu = Ext.widget(menuXtype, me.menu);
-        me.menu.on('click', function(menu, item, e, eOpts) {
+        me.menu.on('click', function (menu, item, e, eOpts) {
             me.fireEvent('menuclick', menu, item, e, eOpts);
             if (item.action && !Ext.isObject(item.action)) {
 
@@ -53,11 +53,24 @@ Ext.define('Uni.grid.column.Action', {
             }
         });
     },
+  
+    handler: function (grid, rowIndex, colIndex) {
+        var me = this,
+            record = grid.getStore().getAt(rowIndex),
+            cell = grid.getCellByPosition({row: rowIndex, column: colIndex}),
+            selectionModel = grid.getSelectionModel(),
+            selection = selectionModel.getSelection(),
+            selectedRecord;
 
-    handler: function(grid, rowIndex, colIndex) {
-        var me = this;
-        var record = grid.getStore().getAt(rowIndex);
-        var cell = grid.getCellByPosition({row: rowIndex, column: colIndex});
+        if (selection.length > 0) {
+            selectedRecord = selection[0];
+
+            if (grid.getStore().indexOf(selectedRecord) !== rowIndex) {
+                selectionModel.select(rowIndex);
+            }
+        } else if (selection.length === 0 && grid.getStore().getCount() > 0) {
+            selectionModel.select(rowIndex);
+        }
 
         if (me.menu.cell === cell) {
             me.menu.hide();
@@ -70,7 +83,7 @@ Ext.define('Uni.grid.column.Action', {
         }
 
         // this is for menu toggling, change the code below with accuracy!
-        me.menu.on('hide', function() {
+        me.menu.on('hide', function () {
             var actions = grid.getEl().query('.' + me.iconCls + ':hover');
             if (!actions.length) {
                 me.menu.cell = null;
