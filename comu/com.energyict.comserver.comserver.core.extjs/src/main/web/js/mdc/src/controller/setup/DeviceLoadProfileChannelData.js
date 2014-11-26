@@ -144,6 +144,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 widget.down('#deviceLoadProfileChannelSubMenuPanel').setParams(mRID, loadProfileId, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 viewport.setLoading(false);
+                Ext.getBody().mask( 'Loading...' );
                 widget.setLoading();
                 widget.down('#deviceLoadProfileChannelGraphViewBtn').setDisabled(!isTable);
                 widget.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(isTable);
@@ -155,6 +156,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                         }
                         widget.down('#deviceLoadProfileChannelGraphView').setVisible(!isTable);
                         widget.setLoading(false);
+                        Ext.getBody().unmask();
                     }
                 }, me);
                 if (Ext.isEmpty(router.filter.data.intervalStart)) {
