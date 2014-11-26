@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.conditions.Condition;
@@ -150,19 +151,19 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     @Override
     public DataExportOccurrenceFinder getOccurrencesFinder() {
         Condition condition = where("readingTask").isEqualTo(this);
-        Order order = Order.descending("startDate");
-        return new DataExportOccurrenceFinder(dataModel.query(DataExportOccurrence.class), condition, order);
+        Order order = Order.descending("taskocc");
+        return new DataExportOccurrenceFinder(dataModel.query(DataExportOccurrence.class), taskService.getTaskOccurrenceQueryExecutor(), condition, order);
     }
 
     @Override
     public Optional<? extends DataExportOccurrence> getLastOccurrence() {
-        return dataModel.query(DataExportOccurrence.class).select(Operator.EQUAL.compare("readingTask", this), new Order[]{Order.descending("startDate")},
+        return dataModel.query(DataExportOccurrence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("readingTask", this), new Order[]{Order.descending("taskocc")},
                 false, new String[]{}, 1, 1).stream().findAny();
     }
 
     @Override
     public Optional<? extends DataExportOccurrence> getOccurrence(Long id) {
-        return getOccurrences().stream().filter(occurrence -> occurrence.getId().equals(id)).findFirst();
+        return dataModel.mapper(DataExportOccurrenceImpl.class).getOptional(id).filter(occ -> this.getId() == occ.getTask().getId());
     }
 
     @Override
