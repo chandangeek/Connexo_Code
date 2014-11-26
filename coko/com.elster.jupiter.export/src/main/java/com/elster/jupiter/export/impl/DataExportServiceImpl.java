@@ -186,6 +186,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                 bind(TaskService.class).toInstance(taskService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(Thesaurus.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
                 bind(UserService.class).toInstance(userService);
             }
