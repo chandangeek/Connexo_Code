@@ -1,6 +1,8 @@
 package com.elster.jupiter.ids;
 
+import java.time.Instant;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public interface IdsService {
 	public static final String COMPONENTNAME = "IDS";
@@ -10,5 +12,7 @@ public interface IdsService {
 	Optional<TimeSeries> getTimeSeries(long id);
 	TimeSeriesDataStorer createStorer(boolean overrules);
 	Vault newVault(String component, long id, String name, int slotCount, int textSlotCount, boolean regular);	
-	RecordSpec newRecordSpec(String component , long id,String name);	
+	RecordSpec newRecordSpec(String component , long id,String name);
+	void extendTo(Instant instant, Logger logger);
 }
+ 

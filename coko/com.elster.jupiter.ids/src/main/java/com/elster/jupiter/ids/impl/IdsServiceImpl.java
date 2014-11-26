@@ -9,16 +9,21 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Optional;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class}, property = "name=" + IdsService.COMPONENTNAME)
 public class IdsServiceImpl implements IdsService, InstallService {
@@ -79,6 +84,17 @@ public class IdsServiceImpl implements IdsService, InstallService {
         return dataModel.getInstance(RecordSpecImpl.class).init(component, id, name);
     }
 
+    @Override
+    public void extendTo(Instant instant, Logger logger) {
+    	getVaults().stream()
+    		.filter(Vault::isActive)
+    		.forEach(vault -> vault.extendTo(instant,logger));    	
+    }
+    
+    List<VaultImpl> getVaults() {
+    	return dataModel.stream(VaultImpl.class).select();
+    }
+    
     @Reference
     public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "TimeSeries Data Store");
