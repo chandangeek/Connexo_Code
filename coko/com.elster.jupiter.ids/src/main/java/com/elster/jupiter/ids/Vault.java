@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 public interface Vault {
 	String getComponentName();
@@ -31,5 +32,5 @@ public interface Vault {
 	TimeSeries createIrregularTimeSeries(RecordSpec spec, ZoneId zoneId);
 	boolean isValidInstant(Instant instant);
 	void persist();
-	void purge(Instant instant);
+	void purge(Instant instant, Logger logger);
 }
