@@ -1,7 +1,12 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.IDataExportOccurrenceFinder;
+import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.rest.DataExportOccurrenceLogInfos;
 import com.elster.jupiter.export.rest.DataExportTaskHistoryInfos;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
@@ -24,16 +29,11 @@ import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import com.google.common.collect.Range;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -198,8 +198,8 @@ public class DataExportTaskResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         Map<String, Long> filter = getFilterMap(filterArray);
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
-        DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
-            .setStart(queryParameters.getStart())
+        IDataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
+                .setStart(queryParameters.getStart())
                 .setLimit(queryParameters.getLimit());
 
         if (filter.get("startedOnFrom") != null && filter.get("startedOnTo") != null) {
@@ -223,7 +223,7 @@ public class DataExportTaskResource {
     @Path("/{id}/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON)
     public DataExportOccurrenceLogInfos getDataExportTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
-                                                               @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
+                                                                 @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
         DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task, securityContext);
@@ -241,8 +241,8 @@ public class DataExportTaskResource {
 
     private Map<String, Long> getFilterMap(JSONArray filterArray) {
         Map<String, Long> filterMap = new HashMap<>();
-        if (filterArray!=null) {
-            for(int i = 0; i < filterArray.length(); i++) {
+        if (filterArray != null) {
+            for (int i = 0; i < filterArray.length(); i++) {
                 try {
                     JSONObject object = filterArray.getJSONObject(i);
                     filterMap.put(object.getString("property"), Long.valueOf(object.get("value").toString()));
