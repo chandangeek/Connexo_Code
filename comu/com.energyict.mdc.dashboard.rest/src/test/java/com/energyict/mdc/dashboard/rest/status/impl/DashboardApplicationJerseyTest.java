@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.favorites.FavoritesService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -17,9 +18,11 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
+
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -58,6 +61,8 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
     DataCollectionKpiService dataCollectionKpiService;
     @Mock
     MeteringGroupsService meteringGroupsService;
+    @Mock
+    FavoritesService favoritesService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -84,6 +89,7 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
         dashboardApplication.setDataCollectionKpiService(dataCollectionKpiService);
         dashboardApplication.setMeteringGroupsService(meteringGroupsService);
         dashboardApplication.setClock(Clock.fixed(LocalDateTime.of(2014, 10, 1, 16, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault()));
+        dashboardApplication.setFavoritesService(favoritesService);
         return dashboardApplication;
     }
 }
