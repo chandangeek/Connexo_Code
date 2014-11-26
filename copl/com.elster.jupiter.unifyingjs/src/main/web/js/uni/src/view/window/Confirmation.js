@@ -71,9 +71,11 @@ Ext.define('Uni.view.window.Confirmation', {
     },
 
     show: function (config) {
-        Ext.apply(config, {
-            icon: Ext.MessageBox.ERROR
-        });
+        if (!Ext.isDefined(config.icon)) {
+            Ext.apply(config, {
+                icon: Ext.MessageBox.ERROR
+            });
+        }
 
         this.callParent(arguments);
     }
