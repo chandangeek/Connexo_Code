@@ -8,20 +8,25 @@ import java.sql.Statement;
 import java.time.Instant;
 import java.util.logging.Logger;
 
+import com.elster.jupiter.orm.PartitionDropper;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 
-public class PartitionDropper {
+public class PartitionDropperImpl implements PartitionDropper {
 
 	private final DataModelImpl dataModel;
-	private String tableName;
+	private final String tableName;
+	private final Logger logger;
 	private Instant upTo;
-	private Logger logger;
 	
-	private PartitionDropper(DataModelImpl dataModel) {
+	
+	PartitionDropperImpl(DataModelImpl dataModel, String tableName, Logger logger) {
 		this.dataModel = dataModel;
+		this.tableName = tableName;
+		this.logger = logger;
 	}
 
-	void drop() {
+	public void drop(Instant instant) {
+		this.upTo = instant;
 		try {
 			dropPartitions();
 		} catch (SQLException ex) {
@@ -38,7 +43,7 @@ public class PartitionDropper {
 						String highValueString = resultSet.getString(2);
 						try {
 							long highValue = Long.parseLong(highValueString);
-							if (highValue <= upTo.toEpochMilli()) {
+							if (highValue > 0 && highValue <= upTo.toEpochMilli()) {
 								String partitionName = resultSet.getString(1);
 								dropPartition(tableName, partitionName, connection);
 								logger.info("Dropped partition " + partitionName + " from table " + tableName + " containing entries up to " + Instant.ofEpochMilli(highValue));
@@ -53,7 +58,7 @@ public class PartitionDropper {
 	}
 	
 	private String partitionQuerySql() {
-		return "select partition_name, high_value from user_tab_partitions where table_name = ? and interval = 'YES'";
+		return "select partition_name, high_value from user_tab_partitions where table_name = ?";
 	}
 	
 	private String dropPartitionSql(String tableName, String partitionName) {
@@ -72,30 +77,4 @@ public class PartitionDropper {
 		}
 	}
 	
-	static Builder of(DataModelImpl dataModel) {
-		return new Builder(dataModel);
-	}
-	
-	static class Builder {
-		private final PartitionDropper dropper;
-		
-		private Builder(DataModelImpl dataModel) {
-			this.dropper = new PartitionDropper(dataModel);
-		}
-		
-		Builder on(String tableName) {
-			dropper.tableName = tableName;
-			return this;
-		}
-		
-		Builder logger(Logger logger) {
-			dropper.logger = logger;
-			return this;
-		}
-		
-		void drop(Instant instant) {
-			dropper.upTo = instant;
-			dropper.drop();
-		}
-	}
 }

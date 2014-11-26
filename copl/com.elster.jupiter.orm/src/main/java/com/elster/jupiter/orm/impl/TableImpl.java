@@ -886,7 +886,7 @@ public class TableImpl<T> implements Table<T> {
 			// todo sql delete
 			return;
 		}
-		PartitionDropper.of(getDataModel()).on(tableName).logger(logger).drop(upTo);		
+		getDataModel().partitionDropper(tableName,logger).drop(upTo);		
 	}
 
 	@Override
@@ -905,6 +905,11 @@ public class TableImpl<T> implements Table<T> {
 	
 	public Optional<Column> intervalPartitionColumn() {	
 		return intervalPartitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
+	}
+	
+	@Override
+	public boolean hasAutoMaintenance() {
+		return autoPartitionMaintenance;
 	}
 
 }

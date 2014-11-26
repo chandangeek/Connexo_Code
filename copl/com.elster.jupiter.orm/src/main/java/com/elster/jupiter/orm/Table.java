@@ -95,5 +95,6 @@ public interface Table<T> {
 	void dropJournal(Instant upTo, Logger logger);
 	
 	void dropData(Instant upTo, Logger logger);
+	boolean hasAutoMaintenance();
 
 }

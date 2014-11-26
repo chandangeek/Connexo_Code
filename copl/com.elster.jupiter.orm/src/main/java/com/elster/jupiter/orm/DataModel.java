@@ -73,7 +73,10 @@ public interface DataModel {
     <T> DataMapper<T> getDataMapper(Class<T> api, String tableName);
     
     // Maintenance
-	void dropJournal(Instant upTo, Logger logger);  	
+	void dropJournal(Instant upTo, Logger logger);
+	void dropAuto(Instant upTo, Logger logger);
+	
+	PartitionDropper partitionDropper(String tableName, Logger logger);
     
 
 }
