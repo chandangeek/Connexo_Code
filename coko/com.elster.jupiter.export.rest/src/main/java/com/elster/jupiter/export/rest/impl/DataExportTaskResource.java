@@ -1,7 +1,12 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportOccurrenceFinder;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.rest.DataExportOccurrenceLogInfos;
 import com.elster.jupiter.export.rest.DataExportTaskHistoryInfos;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
@@ -27,6 +32,7 @@ import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.logging.LogEntry;
@@ -34,10 +40,21 @@ import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -47,9 +64,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -100,6 +114,15 @@ public class DataExportTaskResource {
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return new DataExportTaskInfo(fetchDataExportTask(id, securityContext), thesaurus);
+    }
+
+    @POST
+    @Path("/{id}/trigger")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
+    public Response triggerDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
+        transactionService.execute(VoidTransaction.of(() -> fetchDataExportTask(id, securityContext).triggerNow()));
+        return Response.status(Response.Status.OK).build();
     }
 
     @POST
