@@ -9,6 +9,7 @@ public interface ForeignKeyConstraint extends TableConstraint {
 	String getReverseCurrentFieldName();
 	boolean isComposition();
 	boolean isOneToOne();
+	boolean isRefPartition();
 	
 	interface Builder {
 		Builder on(Column ... columns);
@@ -22,6 +23,7 @@ public interface ForeignKeyConstraint extends TableConstraint {
 		Builder reverseMapOrder(String field);
 		Builder reverseMapCurrent(String field);
 		Builder composition();
+		Builder refPartition();
 		ForeignKeyConstraint add();		
 	}
 

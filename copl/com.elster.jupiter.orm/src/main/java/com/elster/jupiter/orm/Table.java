@@ -90,11 +90,11 @@ public interface Table<T> {
     boolean maps(Class<?> implementer);
     
     void intervalPartitionOn(Column column);
-    void autoPartitionOn(Column column);
+    void autoPartitionOn(Column column, LifeCycleClass lifeCycleClass);
     
 	void dropJournal(Instant upTo, Logger logger);
 	
 	void dropData(Instant upTo, Logger logger);
-	boolean hasAutoMaintenance();
+	LifeCycleClass lifeCycleClass();
 
 }

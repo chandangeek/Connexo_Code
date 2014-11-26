@@ -22,7 +22,28 @@ public enum SqlDialect {
 			return false;
 		}
     }, 
-    ORACLE {
+    ORACLE_EE {
+    	@Override
+    	public String rowId() {
+    		return "ROWID";
+    	}
+    	
+    	@Override
+    	public boolean hasPartitioning() {
+    		return true;
+    	}
+
+		@Override
+		public boolean hasIndexOrganizedTables() {
+			return true;
+		}
+
+		@Override
+		public boolean hasIndexCompression() {
+			return true;
+		}
+    },
+    ORACLE_SE {
     	@Override
     	public String rowId() {
     		return "ROWID";

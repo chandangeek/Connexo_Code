@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,8 +11,9 @@ import java.util.Set;
 
 import com.elster.jupiter.orm.SqlDialect;
 
-class TableDdlGenerator {
-
+class TableDdlGenerator implements PartitionMethod.Visitor {
+	
+	private final static long PARTITIONSIZE = 86400L * 30L * 1000L;
     private final TableImpl<?> table;
     private final SqlDialect dialect;
     private List<String> ddl;
@@ -19,7 +21,7 @@ class TableDdlGenerator {
 
     TableDdlGenerator(TableImpl<?> table, SqlDialect dialect) {
         this.table = table;
-        this.dialect = dialect;
+        this.dialect = dialect;        
     }
 
     List<String> getDdl() {
@@ -73,9 +75,45 @@ class TableDdlGenerator {
             	sb.append(table.getIotCompressCount());            	
             }
         }
-        return sb.toString();
+        if (dialect.hasPartitioning()) {
+        	table.getPartitionMethod().visit(this,sb);
+        }
+        return sb.toString();        
     }
-
+    
+    @Override
+    public void visitInterval(StringBuilder sb) {
+    	sb.append("partition by range(");
+		sb.append(table.intervalPartitionColumn().get().getName());
+		sb.append(") interval (");
+		sb.append(PARTITIONSIZE);
+		sb.append(") (partition P0 values less than(0))");
+	}
+    
+    @Override 
+    public void visitReference(StringBuilder sb) {
+    	sb.append("partition by reference(");
+    	sb.append(table.refPartitionConstraint().get().getName());
+    	sb.append(")");        		
+    }
+   
+    @Override
+    public void visitRange(StringBuilder sb) {
+    	sb.append("partition by range(");
+		sb.append(table.intervalPartitionColumn().get().getName());
+		sb.append(") (");
+		long end = (System.currentTimeMillis() / PARTITIONSIZE) * PARTITIONSIZE;
+		for (i = 0 ; i < 12 ; i++) {
+			end += PARTITIONSIZE;
+			String name = "P" + Instant.ofEpochMilli(end).toString().replaceAll("-","").substring(0,8);
+			sb.append(" partition ");
+			sb.append(name);
+			sb.append(" values less than(");
+			sb.append(end);
+			sb.append(")");
+			
+    }
+    
     private String getJournalTableDdl(TableImpl<?> table) {
         StringBuilder sb = new StringBuilder("create table ");
         sb.append(table.getQualifiedName(table.getJournalTableName()));

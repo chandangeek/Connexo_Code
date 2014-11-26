@@ -25,6 +25,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.FieldType;
 import com.elster.jupiter.orm.IllegalTableMappingException;
+import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
@@ -60,7 +61,7 @@ public class TableImpl<T> implements Table<T> {
 	private final List<IndexImpl> indexes = new ArrayList<>();
 	
 	private Optional<Column> intervalPartitionColumn = Optional.empty();
-	private boolean autoPartitionMaintenance = false;
+	private LifeCycleClass lifeCycleClass = LifeCycleClass.NONE;
 	
 	// mapping
 	private DataMapperType<T> mapperType;
@@ -886,7 +887,7 @@ public class TableImpl<T> implements Table<T> {
 			// todo sql delete
 			return;
 		}
-		getDataModel().partitionDropper(tableName,logger).drop(upTo);		
+		getDataModel().dataDropper(tableName,logger).drop(upTo);		
 	}
 
 	@Override
@@ -898,9 +899,12 @@ public class TableImpl<T> implements Table<T> {
 	}
 	
 	@Override
-	public void autoPartitionOn(Column column) {
+	public void autoPartitionOn(Column column, LifeCycleClass lifeCycleClass) {
+		if (Objects.requireNonNull(lifeCycleClass) == LifeCycleClass.NONE) {
+			throw new IllegalArgumentException();
+		}
 		intervalPartitionOn(column);
-		this.autoPartitionMaintenance = true;
+		this.lifeCycleClass = lifeCycleClass;
 	}
 	
 	public Optional<Column> intervalPartitionColumn() {	
@@ -908,10 +912,25 @@ public class TableImpl<T> implements Table<T> {
 	}
 	
 	@Override
-	public boolean hasAutoMaintenance() {
-		return autoPartitionMaintenance;
+	public LifeCycleClass lifeCycleClass() {
+		return lifeCycleClass;
 	}
 
+	Optional<ForeignKeyConstraintImpl> refPartitionConstraint() {
+		return getForeignKeyConstraints().stream()
+			.filter(ForeignKeyConstraintImpl::isRefPartition)
+			.findFirst();
+	}
+	
+	PartitionMethod getPartitionMethod() {
+		if (intervalPartitionColumn.isPresent()) {
+			return (isIndexOrganized() || !getReverseConstraints().isEmpty()) ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;			
+		}
+		if (refPartitionConstraint().isPresent()) {
+			return PartitionMethod.REFERENCE;			
+		}
+		return PartitionMethod.NONE;
+	}
 }
 
 

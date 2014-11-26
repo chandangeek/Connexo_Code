@@ -74,9 +74,6 @@ public interface DataModel {
     
     // Maintenance
 	void dropJournal(Instant upTo, Logger logger);
-	void dropAuto(Instant upTo, Logger logger);
-	
-	PartitionDropper partitionDropper(String tableName, Logger logger);
-    
-
+	void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger);	
+	DataDropper dataDropper(String tableName, Logger logger);
 }

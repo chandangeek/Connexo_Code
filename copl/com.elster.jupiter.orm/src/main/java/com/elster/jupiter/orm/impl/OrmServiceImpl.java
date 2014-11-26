@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TransactionRequiredException;
@@ -303,7 +304,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
 	}
     
 	@Override
-	public void dropAuto(Instant upTo, Logger logger) {
-		dataModels.values().forEach(dataModel -> dataModel.dropAuto(upTo, logger));
+	public void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger) {
+		dataModels.values().forEach(dataModel -> dataModel.dropAuto(lifeCycleClass, upTo, logger));
 	}
 }
