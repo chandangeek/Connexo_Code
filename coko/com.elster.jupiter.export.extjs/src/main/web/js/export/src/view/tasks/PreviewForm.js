@@ -85,10 +85,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
-                        name: 'lastRun_formatted'/*,
-                     renderer: function (value) {
-                     return value ? value : '-';
-                     }*/
+                        name: 'lastRun_formatted'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.status', 'DES', 'Status'),
@@ -96,17 +93,21 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),
-                        name: 'startedOn',
-                        renderer: function (value) {
-                            return moment(value).isValid() ? Ext.util.Format.date(new Date(value), 'D d M Y \\a\\t h:i A') : '-';
-                        }
+                        name: 'startedOn'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.finishedOn', 'DES', 'Finished on'),
-                        name: 'finishedOn',
-                        renderer: function (value) {
-                            return moment(value).isValid() ? Ext.util.Format.date(new Date(value), 'D d M Y \\a\\t h:i A') : '-';
-                        }
+                        name: 'finishedOn'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),
+                        name: 'startedOn_formatted',
+                        hidden: true
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.finishedOn', 'DES', 'Finished on'),
+                        name: 'finishedOn_formatted',
+                        hidden: true
                     },
                     {
                         xtype: 'uni-form-field-duration',
