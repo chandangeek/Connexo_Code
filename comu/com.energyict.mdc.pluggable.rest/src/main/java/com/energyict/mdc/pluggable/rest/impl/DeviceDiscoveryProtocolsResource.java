@@ -36,7 +36,7 @@ public class DeviceDiscoveryProtocolsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_PROTOCOL)
+    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
     public DeviceDiscoveryProtocolsInfo getDeviceDiscoveryProtocols() {
         DeviceDiscoveryProtocolsInfo deviceDiscoveryProtocolsInfo = new DeviceDiscoveryProtocolsInfo();
         deviceDiscoveryProtocolsInfo.deviceDiscoveryProtocolInfos =
@@ -51,7 +51,7 @@ public class DeviceDiscoveryProtocolsResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_PROTOCOL)
+    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
     public DeviceDiscoveryProtocolInfo getDeviceDiscoveryProtocol(@PathParam("id") long id) {
         return new DeviceDiscoveryProtocolInfo(this.findDeviceProtocolPluggableClassOrThrowException(id));
     }
