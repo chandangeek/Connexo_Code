@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -60,6 +62,7 @@ public class CommunicationResource {
 
     @GET
     @Consumes("application/json")
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Response getCommunications(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         ComTaskExecutionFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
         if (queryParameters.getStart() == null || queryParameters.getLimit() == null) {

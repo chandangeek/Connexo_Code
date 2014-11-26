@@ -14,11 +14,15 @@ import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
+
+import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import javax.inject.Inject;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
@@ -65,6 +69,12 @@ public class ConnectionOverviewInfoFactory {
             TemporalAmount frequency = dataCollectionKpiOptional.get().connectionSetupKpiCalculationIntervalLength().get();
             Interval intervalByPeriod = kpiScoreFactory.getIntervalByPeriod(frequency);
             List<DataCollectionKpiScore> kpiScores = dataCollectionKpiOptional.get().getConnectionSetupKpiScores(intervalByPeriod);
+            if (!kpiScores.isEmpty()) {
+                BigDecimal currentTarget = kpiScores.get(kpiScores.size() - 1).getTarget();
+                if (currentTarget != null) {
+                    info.connectionSummary.target = currentTarget.longValue();
+                }
+            }
             info.kpi = kpiScoreFactory.getKpiAsInfo(frequency, kpiScores, intervalByPeriod);
         }
         info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());

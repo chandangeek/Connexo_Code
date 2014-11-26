@@ -45,7 +45,7 @@ public class ConnectionHeatMapResource {
     @GET
     @Consumes("application/json")
     @Produces("application/json")
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public ConnectionHeatMapInfo getConnectionHeatMap(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
         if (!jsonQueryFilter.getFilterProperties().containsKey("breakdown")) {
             throw new WebApplicationException("Missing breakdown", Response.Status.BAD_REQUEST);

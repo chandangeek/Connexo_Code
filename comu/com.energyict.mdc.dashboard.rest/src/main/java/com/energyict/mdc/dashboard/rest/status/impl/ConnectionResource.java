@@ -75,7 +75,7 @@ public class ConnectionResource {
     @GET
     @Path("/connectiontypepluggableclasses")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getConnectionTypeValues() {
         List<IdWithNameInfo> names = new ArrayList<>();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : this.protocolPluggableService.findAllConnectionTypePluggableClasses()) {
@@ -89,7 +89,7 @@ public class ConnectionResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
         if (queryParameters.getStart() == null || queryParameters.getLimit() == null) {
@@ -194,7 +194,7 @@ public class ConnectionResource {
     @GET
     @Path("/{connectionId}/latestcommunications")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public PagedInfoList getCommunications(@PathParam("connectionId") long connectionId, @BeanParam QueryParameters queryParameters) {
         ConnectionTask connectionTask =
                 connectionTaskService

@@ -14,10 +14,13 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.CompletionCodeAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
+
+import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import javax.inject.Inject;
 
 /**
@@ -93,8 +96,13 @@ public class CommunicationOverviewInfoFactory {
         if (dataCollectionKpiOptional.isPresent() &&  dataCollectionKpiOptional.get().calculatesComTaskExecutionKpi()) {
             TemporalAmount frequency = dataCollectionKpiOptional.get().comTaskExecutionKpiCalculationIntervalLength().get();
             Interval intervalByPeriod = kpiScoreFactory.getIntervalByPeriod(frequency);
-            List<DataCollectionKpiScore> kpiScores = dataCollectionKpiOptional.get().getComTaskExecutionKpiScores(intervalByPeriod);
-
+            List<DataCollectionKpiScore> kpiScores = dataCollectionKpiOptional.get().getComTaskExecutionKpiScores(intervalByPeriod);            
+            if (!kpiScores.isEmpty()) {
+                BigDecimal currentTarget = kpiScores.get(kpiScores.size() - 1).getTarget();
+                if (currentTarget != null) {
+                    info.communicationSummary.target = currentTarget.longValue();
+                }
+            }
             info.kpi = kpiScoreFactory.getKpiAsInfo(frequency, kpiScores, intervalByPeriod);
         }
         info.deviceGroup = new DeviceGroupFilterInfo(queryEndDeviceGroup.getId(), queryEndDeviceGroup.getName());
