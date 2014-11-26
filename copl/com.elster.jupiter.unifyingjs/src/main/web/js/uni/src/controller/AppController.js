@@ -30,6 +30,13 @@ Ext.define('Uni.controller.AppController', {
     applicationTitle: 'Connexo',
 
     /**
+     * @cfg {String} applicationKey
+     *
+     * The key to be used for licensing the application.
+     */
+    applicationKey: 'SYS',
+
+    /**
      * @cfg {String} defaultToken
      *
      * The default history token the application needs to use.
@@ -64,18 +71,19 @@ Ext.define('Uni.controller.AppController', {
     init: function () {
 
         var me = this;
-        if (Uni.Auth.hasAnyPrivilege(me.privileges)){
-            me.initCrossroads();
+        me.initCrossroads();
 
-            me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
-            me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
-            me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
-            me.getApplication().on('changecontentevent', me.showContent, me);
-            me.getApplication().on('sessionexpired', me.redirectToLogin, me);
-
+        me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
+        me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
+        me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
+        me.getApplication().on('changecontentevent', me.showContent, me);
+        me.getApplication().on('sessionexpired', me.redirectToLogin, me);
+        if (Uni.Auth.hasAnyPrivilege(me.privileges)) {
+            me.checkLicenseStatus();
             me.loadControllers();
-            me.callParent(arguments);
+            me.showLicenseGraced();
         }
+        me.callParent(arguments);
     },
 
     /**
@@ -103,6 +111,58 @@ Ext.define('Uni.controller.AppController', {
         this.getContentPanel().removeAll();
         this.getContentPanel().add(widget);
         this.getContentPanel().doComponentLayout();
+    },
+
+    checkLicenseStatus: function () {
+        var me = this;
+        if (typeof me.applicationKey !== 'undefined' && me.applicationKey !== 'SYS'){
+            Ext.Ajax.request({
+                url: '/api/apps/apps/status/'+me.applicationKey,
+                method: 'GET',
+                async: false,
+                success: function(response){
+                    me.licenseStatus = response.responseText;
+                    if (me.licenseStatus === 'EXPIRED') {
+                        me.controllers = [];
+                        me.getController('Uni.controller.Navigation').searchEnabled  = false;
+                    }
+                },
+                failure: function(response) {
+                    me.licenseStatus = 'NO_LICENSE';
+                }
+            });
+        }
+    },
+
+    showLicenseGraced : function () {
+        if (!isNaN(this.licenseStatus) && !Ext.state.Manager.get('licenseGraced')) {
+            Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+            Ext.state.Manager.set('licenseGraced', 'Y');
+            var config = {
+                title: Uni.I18n.translate('error.license', 'UNI', 'License'),
+                msg: Uni.I18n.translate('error.license.graced', 'UNI', 'The system is currently running on a license that has a grace period. You have {0} day(s) remaining.', [this.licenseStatus]),
+                modal: false,
+                ui: 'message-error',
+                icon: Ext.MessageBox.ERROR
+            };
+
+            var box = Ext.create('Ext.window.MessageBox', {
+                buttons: [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
+                        action: 'close',
+                        name: 'close',
+                        ui: 'action',
+                        handler: function () {
+                            box.close();
+                        }
+                    }
+                ]
+            });
+
+            box.show(config);
+        }
     },
 
     redirectToLogin: function () {

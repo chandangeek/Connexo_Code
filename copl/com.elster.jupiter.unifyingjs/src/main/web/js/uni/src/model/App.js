@@ -27,12 +27,13 @@ Ext.define('Uni.model.App', {
                     || fullPath.indexOf(record.data.url, 0) === 0;
             }
         },
+        'isExternal',
         {
-            name: 'isExternal',
+            name: 'is3External',
             persist: false,
             convert: function (value, record) {
                 var url = record.get('url');
-                return url.indexOf('http') === 0;
+                return (url.indexOf('http') === 0);
             }
         }
     ]

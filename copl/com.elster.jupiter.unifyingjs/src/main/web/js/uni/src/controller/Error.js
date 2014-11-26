@@ -10,7 +10,8 @@ Ext.define('Uni.controller.Error', {
     requires: [
         'Uni.view.error.Window',
         'Ext.ux.window.Notification',
-        'Uni.view.error.NotFound'
+        'Uni.view.error.NotFound',
+        'Uni.view.error.Launch'
     ],
 
     config: {
@@ -23,6 +24,12 @@ Ext.define('Uni.controller.Error', {
             route: 'error/notfound',
             controller: 'Uni.controller.Error',
             action:'showPageNotFound'
+        },
+        launch: {
+            title: Uni.I18n.translate('error.errorLaunch', 'UNI', 'Application error'),
+            route: 'error/launch',
+            controller: 'Uni.controller.Error',
+            action:'showErrorLaunch'
         }
     },
 
@@ -186,5 +193,10 @@ Ext.define('Uni.controller.Error', {
     showPageNotFound: function () {
         var widget = Ext.widget('errorNotFound');
         this.getApplication().fireEvent('changecontentevent', widget);
+    },
+    showErrorLaunch: function () {
+        var widget = Ext.widget('errorLaunch');
+        this.getApplication().fireEvent('changecontentevent', widget);
     }
+
 });
