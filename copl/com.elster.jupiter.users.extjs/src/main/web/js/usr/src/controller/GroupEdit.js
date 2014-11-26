@@ -54,8 +54,8 @@ Ext.define('Usr.controller.GroupEdit', {
             'groupEdit #applicationList button[action = privilegesFullControl]': {
                 click: this.systemFullControl
             },
-            'groupEdit #featureList': {
-                beforecellmousedown: this.displayPermissionsMenu
+            'groupEdit #featureList uni-actioncolumn': {
+                beforeshow:this.displayPermissionsMenu
             }
         });
     },
@@ -383,12 +383,12 @@ Ext.define('Usr.controller.GroupEdit', {
         );
     },
 
-    displayPermissionsMenu: function (grid, td, cellIndex, record, tr, rowIndex) {
+    displayPermissionsMenu: function (grid, cell, colIndex, rowIndex, record) {
         var lastColumn = grid.panel.columns.length - 1,
             privileges = record.privileges().data.items;
 
 
-        if (cellIndex == lastColumn) {
+        if (colIndex == lastColumn) {
             var menu = grid.panel.columns[lastColumn].menu;
             menu.removeAll();
 
