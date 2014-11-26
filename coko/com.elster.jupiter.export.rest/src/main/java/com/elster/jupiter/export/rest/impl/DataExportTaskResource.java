@@ -1,7 +1,12 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportOccurrenceFinder;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.rest.DataExportOccurrenceLogInfos;
 import com.elster.jupiter.export.rest.DataExportTaskHistoryInfos;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
@@ -24,17 +29,27 @@ import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.google.common.collect.Range;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -44,11 +59,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/dataexporttask")
 public class DataExportTaskResource {
@@ -190,8 +200,17 @@ public class DataExportTaskResource {
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
             .setStart(queryParameters.getStart())
-            .setLimit(queryParameters.getLimit())
-            .with(getOccurrenceCondition(filter));
+                .setLimit(queryParameters.getLimit());
+
+        if (filter.get("startedOnFrom") != null && filter.get("startedOnTo") != null) {
+            occurrencesFinder.withStartDateIn(Range.closed(Instant.ofEpochMilli(filter.get("startedOnFrom")), Instant.ofEpochMilli(filter.get("startedOnTo"))));
+        }
+        if (filter.get("finishedOnFrom") != null && filter.get("finishedOnTo") != null) {
+            occurrencesFinder.withEndDateIn(Range.closed(Instant.ofEpochMilli(filter.get("startedOnFrom")), Instant.ofEpochMilli(filter.get("startedOnTo"))));
+        }
+        if (filter.get("exportPeriodContains") != null) {
+            occurrencesFinder.withExportPeriodContaining(Instant.ofEpochMilli(filter.get("exportPeriodContains")));
+        }
 
         List<? extends DataExportOccurrence> occurrences = occurrencesFinder.find();
 
@@ -219,20 +238,7 @@ public class DataExportTaskResource {
         return infos;
     }
 
-    private Condition getOccurrenceCondition(Map<String, Long> filter) {
-        Condition condition = Condition.TRUE;
 
-        if(filter.get("startedOnFrom") != null && filter.get("startedOnTo")!= null) {
-            condition = condition.and(where("startDate").inClosed(Interval.of(Instant.ofEpochMilli(filter.get("startedOnFrom")), Instant.ofEpochMilli(filter.get("startedOnTo")))));
-        }
-        if(filter.get("finishedOnFrom") != null && filter.get("finishedOnTo")!= null) {
-            condition = condition.and(where("endDate").inClosed(Interval.of(Instant.ofEpochMilli(filter.get("finishedOnFrom")), Instant.ofEpochMilli(filter.get("finishedOnTo")))));
-        }
-        if(filter.get("exportPeriodContains") != null) {
-            condition = condition.and(where("exportedDataInterval").isEffective(Instant.ofEpochMilli(filter.get("exportPeriodContains"))));
-        }
-        return condition;
-    }
 
     private Map<String, Long> getFilterMap(JSONArray filterArray) {
         Map<String, Long> filterMap = new HashMap<>();
