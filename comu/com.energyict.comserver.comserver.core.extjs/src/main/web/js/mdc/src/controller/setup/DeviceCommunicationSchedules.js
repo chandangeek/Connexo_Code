@@ -85,6 +85,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             success: function (device) {
                 var widget = Ext.widget('deviceCommunicationScheduleSetup', {device: device});
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
 
                 var scheduleStore = me.getDeviceSchedulesStore();
