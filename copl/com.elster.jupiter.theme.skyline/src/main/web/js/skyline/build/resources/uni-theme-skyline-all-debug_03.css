@@ -399,7 +399,6 @@
 
 /* line 531, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-active-small-over {
-  border-color: #5897b3;
   background-image: none;
   background-color: #7ec162;
 }
@@ -1325,7 +1324,6 @@
 
 /* line 531, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-non-completed-small-over {
-  border-color: #5897b3;
   background-image: none;
   background-color: #777777;
 }
@@ -1788,7 +1786,6 @@
 
 /* line 531, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-active-small-over {
-  border-color: #5897b3;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
@@ -2260,7 +2257,6 @@
 
 /* line 531, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-completed-small-over {
-  border-color: #5897b3;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
@@ -2732,7 +2728,6 @@
 
 /* line 531, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-step-label-non-completed-small-over {
-  border-color: #5897b3;
   background-image: none;
   background-color: rgba(0, 0, 0, 0);
 }
