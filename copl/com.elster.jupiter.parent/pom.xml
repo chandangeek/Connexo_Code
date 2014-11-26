@@ -578,6 +578,9 @@
                 <module>../com.elster.jupiter.validation</module>
                 <module>../com.elster.jupiter.validators</module>
                 <module>../com.elster.jupiter.validation.rest</module>
+                <module>../com.elster.jupiter.yellowfin</module>
+                <module>../com.elster.jupiter.yellowfin.rest</module>
+                <module>../com.elster.jupiter.yellowfin.app</module>
             </modules>
         </profile>
         <profile>
