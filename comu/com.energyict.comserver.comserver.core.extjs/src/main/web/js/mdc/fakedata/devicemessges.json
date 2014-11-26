@@ -1,0 +1,23 @@
+{
+    "total": 1,
+    "deviceMessages": [
+        {
+            "id": 1,
+            "trackingId": "T14",
+            "messageSpecification": {
+                "name": "do delete rule",
+                "id": "DO_DELETE"
+            },
+            "category": "DeviceMessageCategories.RESET",
+            "status": "Pending",
+            "creationDate": 1412162553000,
+            "releaseDate": 1412162563000,
+            "sentDate": null,
+            "user": "Jeff",
+            "errorMessage": "Error message",
+            "willBePickedUpByComTask": false,
+            "willBePickedUpByPlannedComTask": false,
+            "properties": []
+        }
+    ]
+}

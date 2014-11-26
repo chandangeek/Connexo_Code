@@ -1,0 +1,395 @@
+Ext.define("Mdc.controller.setup.DeviceCommands", {
+    extend: 'Ext.app.Controller',
+    requires: [
+        'Uni.view.window.Acknowledgement',
+        'Uni.view.window.Confirmation'
+    ],
+
+    views: [
+        'Mdc.view.setup.devicecommand.DeviceCommandsSetup',
+        'Mdc.view.setup.devicecommand.DeviceCommandPreview',
+        'Mdc.view.setup.devicecommand.DeviceCommandPreviewForm',
+        'Mdc.view.setup.devicecommand.DeviceCommandAdd',
+        'Mdc.view.setup.devicecommand.widget.ChangeReleaseDateWindow'
+    ],
+
+    stores: [
+        'Mdc.store.DeviceCommands',
+        'Mdc.store.DeviceMessageCategories'
+    ],
+
+    models: [
+        'Mdc.model.DeviceMessageSpec',
+        'Mdc.model.DeviceCommand',
+        'Mdc.model.DeviceMessageCategory'
+    ],
+
+    refs: [
+        {
+            ref: 'commandCombo',
+            selector: '#device-command-add-form combobox[name=command]'
+        },
+        {
+            ref: 'previewPanel',
+            selector: '#deviceCommandPreview'
+        },
+        {
+            ref: 'previewCommandForm',
+            selector: '#deviceCommandPreview deviceCommandPreviewForm'
+        },
+        {
+            ref: 'previewPropertiesPanel',
+            selector: '#deviceCommandPreview #previewPropertiesPanel'
+        },
+        {
+            ref: 'previewPropertiesHeader',
+            selector: '#deviceCommandPreview #previewPropertiesHeader'
+        },
+        {
+            ref: 'previewPropertiesForm',
+            selector: '#deviceCommandPreview #previewPropertiesPanel property-form'
+        },
+        {
+            ref: 'addPropertyForm',
+            selector: '#device-command-add-panel #device-command-add-property-form'
+        },
+        {
+            ref: 'addPropertyHeader',
+            selector: '#device-command-add-property-header'
+        },
+        {
+            ref: 'addCommandForm',
+            selector: '#device-command-add-form'
+        },
+        {
+            ref: 'addCommandPanel',
+            selector: '#device-command-add-panel'
+        },
+        {
+            ref: 'previewActionBtn',
+            selector: '#commandsPreviewActionButton'
+        },
+        {
+            ref: 'actionMenu',
+            selector: '#deviceCommandPreview #device-command-action-menu'
+        },
+        {
+            ref: 'deviceCommandsGrid',
+            selector: '#deviceCommandsGrid'
+        }
+    ],
+
+    init: function () {
+        this.control({
+            '#deviceCommandsGrid': {
+                selectionchange: this.selectCommand
+            },
+            '#device-command-add-form combobox[name=commandCategory]': {
+                select: this.msgCategoryChange
+            },
+            '#device-command-add-form combobox[name=command]': {
+                select: this.commandChange
+            },
+            '#device-command-add-panel button[action=add]': {
+                click: this.addCommand
+            },
+            '#device-command-add-panel button[action=cancel]': {
+                click: this.cancelClick
+            },
+            '#deviceAddCommandButton': {
+                click: this.navigateAdd
+            },
+            '#device-command-action-menu': {
+                click: this.selectAction
+            },
+            '#deviceCommandsGrid #commands-action-column': {
+                mouseup: this.actionClick
+            }
+        })
+    },
+
+
+    actionClick: function (g, colEl, rowIndex, colIndex, e, record) {
+        var me = this,
+            grid = me.getDeviceCommandsGrid(),
+            column = grid.columns[6];
+        column.menu = me.configureMenu(record, grid.device, true)
+    },
+
+    configureMenu: function (record, device, destroyOnHide) {
+        var mRID = device.get('mRID'),
+            items = [],
+            status = record.get('status');
+        if (status.value == 'CommandWaiting' || status.value == 'CommandPending') {
+            items.push({
+                    text: Uni.I18n.translate('deviceCommand.actionMenu.trigger', 'MDC', 'Trigger now'),
+                    action: 'trigger'
+                }, {
+                    text: Uni.I18n.translate('deviceCommand.actionMenu.changeReleaseDate', 'MDC', 'Change release date'),
+                    action: 'changeReleaseDate'
+                },
+                {
+                    text: Uni.I18n.translate('deviceCommand.actionMenu.revoke', 'MDC', 'Revoke'),
+                    action: 'revoke'
+                })
+        }
+        return Ext.widget({
+            mRID: mRID,
+            record: record,
+            device: device,
+            xtype: 'menu',
+            itemId: 'device-command-action-menu',
+            plain: true,
+            border: false,
+            shadow: false,
+            items: items,
+            listeners: {
+                hide: {
+                    fn: function () {
+                        if (destroyOnHide === true) {
+                            this.destroy()
+                        }
+                    }
+                }
+            }
+        });
+    },
+
+    selectAction: function (menu, item) {
+        var me = this;
+        switch (item.action) {
+            case 'trigger':
+                me.actionTriggerCommand(menu);
+                break;
+            case 'changeReleaseDate':
+                me.changeReleaseDate(menu.record, menu.device);
+                break;
+            case 'revoke':
+                me.revokeCommand(menu.record, menu.device);
+                break;
+        }
+    },
+
+    actionTriggerCommand: function (menu) {
+        var me = this,
+            record = menu.record,
+            comTaskId = record.get('preferredComTask').id,
+            mRID = menu.mRID;
+        me.showTriggerConfirmation(mRID, comTaskId)
+    },
+
+    showTriggerConfirmation: function (mRID, comTaskId) {
+        var me = this;
+        Ext.widget('confirmation-window', {
+            confirmText: Uni.I18n.translate('deviceCommand.overview.trigger', 'MDC', 'Trigger'),
+            confirmBtnUi: 'action'
+        }).show({
+            closable: false,
+            icon: '',
+            fn: function (btnId) {
+                if (btnId == 'confirm') {
+                    var store = me.getStore('Mdc.store.DeviceCommands');
+                    me.triggerCommand(mRID, comTaskId)
+                }
+            },
+            msg: Uni.I18n.translate('deviceCommand.overview.triggerMsg', 'MDC', 'Would you like to trigger command now?'),
+            title: Uni.I18n.translate('deviceCommand.action.trigger', 'MDC', 'Trigger command')
+        });
+    },
+
+    triggerCommand: function (mRID, comTaskId) {
+        var me = this;
+        Ext.Ajax.request({
+            url: '/api/ddr/devices/' + mRID + '/comtasks/' + comTaskId + '/runnow',
+            method: 'PUT',
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.triggerSuccess', 'MDC', 'Command triggered'));
+            }
+        })
+    },
+
+    revokeCommand: function (record, device) {
+        var me = this,
+            mRID = device.get('mRID'),
+            title = Uni.I18n.translate('deviceCommand.overview.revoke', 'MDC', 'Revoke') + " '" + record.get('command').name + "'?";
+        Ext.create('Uni.view.window.Confirmation', {
+            confirmText: Uni.I18n.translate('deviceCommand.overview.revoke', 'MDC', 'Revoke')
+        }).show({
+            msg: Uni.I18n.translate('deviceCommand.overview.revokeMsg', 'MDC', 'This command will no longer be able to send'),
+            title: title,
+            closable: false,
+            fn: function (btnId) {
+                if (btnId == 'confirm') {
+                    record.destroy({
+                        url: '/api/ddr/devices/' + mRID + '/devicemessages/',
+                        success: function () {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
+                            me.getDeviceCommandsGrid().getStore().load()
+                        }
+                    });
+                }
+            }
+        });
+    },
+
+
+    changeReleaseDate: function (record, device) {
+        var me = this,
+            title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', 'Change release date of command') + " '" + record.get('command').name + "' ";
+        Ext.widget('device-command-change-release-date', {
+            title: title,
+            record: record,
+            listeners: {
+                save: {
+                    fn: function (newDate, record, oldDate) {
+                        record.data.releaseDate = newDate;
+                        record.save({
+                            url: me.getStore('Mdc.store.DeviceCommands').getProxy().url,
+                            callback: function (records, operation, success) {
+                                if (success) {
+                                    var store = me.getStore('Mdc.store.DeviceCommands');
+                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.changeReleaseDate.success', 'MDC', 'Release date changed'))
+                                } else {
+                                    record.set('releaseDate', oldDate);
+                                    me.getDeviceCommandsGrid().refresh()
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }).show();
+    },
+
+    showOverview: function (mrid) {
+        var me = this;
+        Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
+            success: function (device) {
+                me.getStore('Mdc.store.DeviceCommands').setMrid(device.get('mRID'));
+                widget = Ext.widget('deviceCommandsSetup', {
+                    device: device
+                });
+                me.getApplication().fireEvent('loadDevice', device);
+                me.getApplication().fireEvent('changecontentevent', widget);
+            }
+        });
+
+    },
+
+    showAddOverview: function (mrid) {
+        var me = this,
+            catStore = me.getStore('Mdc.store.DeviceMessageCategories');
+        Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
+            success: function (device) {
+                me.getStore('Mdc.store.DeviceCommands').setMrid(device.get('mRID'));
+                widget = Ext.widget('device-command-add', {
+                    device: device
+                });
+                if (mrid) {
+                    catStore.setMrid(mrid);
+                    catStore.load()
+                }
+                me.getApplication().fireEvent('loadDevice', device);
+                me.getApplication().fireEvent('changecontentevent', widget);
+            }
+        });
+    },
+
+    navigateAdd: function (btn) {
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('devices/device/commands/add').forward({mRID: btn.mRID});
+    },
+
+    cancelClick: function (btn) {
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('devices/device/commands').forward({mRID: btn.mRID});
+    },
+
+    selectCommand: function (grid, selected) {
+        var me = this,
+            record = selected[0],
+            previewForm = me.getPreviewCommandForm(),
+            previewPanel = me.getPreviewPanel(),
+            actionsButton = me.getPreviewActionBtn(),
+            previewPropertiesForm = me.getPreviewPropertiesForm(),
+            previewPropertiesHeader = me.getPreviewPropertiesHeader(),
+            device = me.getDeviceCommandsGrid().device,
+            title;
+        if (record) {
+            title = record.get('command').name;
+            previewForm.loadRecord(record);
+            previewPanel.setTitle(title);
+            previewPropertiesForm.loadRecord(record);
+            actionsButton.menu = me.configureMenu(record, device, false);
+            if (!Ext.isEmpty(record.get('properties'))) {
+                previewPropertiesHeader.update('<h3>' +  Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}?', [title]) + '</h3>');
+                previewPropertiesHeader.show()
+            } else {
+                previewPropertiesHeader.hide()
+            }
+        }
+    },
+
+    msgCategoryChange: function (combo, records) {
+        var me = this,
+            cat = records[0];
+        if (Ext.isDefined(cat)) {
+            me.getCommandCombo().bindStore(cat.deviceMessageSpecs());
+        }
+    },
+
+    commandChange: function (combo, records) {
+        var me = this,
+            command = records[0],
+            propertyHeader = me.getAddPropertyHeader();
+        if (command) {
+            me.getAddPropertyForm().loadRecord(command);
+            if (command.properties() && (command.properties().getCount() > 0)) {
+                propertyHeader.show();
+                propertyHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', '{0} attributes', [command.get('name')]) + '</h3>');
+            } else {
+                propertyHeader.hide()
+            }
+            if (!command.get('willBePickedUpByComTask')) {
+                combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'))
+            }
+            if (!command.get('willBePickedUpByPlannedComTask')) {
+                combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned to execute.'))
+            }
+        }
+    },
+
+    addCommand: function (btn) {
+        var me = this,
+            propertyForm = me.getAddPropertyForm(),
+            commandForm = me.getAddCommandForm();
+        if (commandForm.isValid() && (propertyForm && propertyForm.isValid())) {
+            propertyForm.updateRecord();
+            var record = propertyForm.getRecord(),
+                releaseDate = commandForm.getValues().releaseDate,
+                messageSpecification;
+            if (!Ext.isEmpty(record.get('id'))) {
+                messageSpecification = {id: record.get('id')}
+            }
+            if (Ext.isEmpty(releaseDate)) {
+                releaseDate = new Date().getTime();
+            }
+            record.set('id', '');
+            releaseDate && record.set('releaseDate', releaseDate);
+            messageSpecification && record.set('messageSpecification', messageSpecification);
+            record.save({
+                url: '/api/ddr/devices/' + btn.mRID + '/devicemessages',
+                method: 'POST',
+                success: function (record, operation) {
+                    if (operation.success) {
+                        var router = me.getController('Uni.controller.history.Router'),
+                            response = Ext.JSON.decode(operation.response.responseText);
+                        router.getRoute('devices/device/commands').forward();
+                        me.showTriggerConfirmation(btn.mRID, response['preferredComTask'].id)
+                    }
+                }
+            });
+        }
+    }
+})
+;

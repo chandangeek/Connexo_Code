@@ -73,6 +73,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.SecuritySettings',
         'Mdc.controller.setup.SetupOverview',
         'Mdc.controller.setup.ValidationRuleSets',
+        'Mdc.controller.setup.DeviceCommands',
         'Mdc.controller.setup.Messages',
         'Mdc.controller.setup.DeviceCommunicationTaskHistory',
         'Mdc.controller.setup.DeviceConnectionHistory',

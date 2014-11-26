@@ -64,6 +64,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             hrefTarget: '_self'
         });
         this.add({
+            text: Uni.I18n.translate('devicemenu.commands', 'MDC', 'Commands'),
+            itemId: 'deviceCommands',
+            href: '#/devices/' + mRID + '/commands',
+            hrefTarget: '_self'
+        });
+        this.add({
             text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Data validation'),
             itemId: 'dataValidationLink',
             href: '#/devices/' + mRID + '/datavalidation',

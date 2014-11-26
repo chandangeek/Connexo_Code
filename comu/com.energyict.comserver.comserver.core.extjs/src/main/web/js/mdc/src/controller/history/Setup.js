@@ -829,6 +829,22 @@ Ext.define('Mdc.controller.history.Setup', {
                         return this;
                     },
                     items: {
+                        commands: {
+                            title: 'Commands',
+                            route: 'commands',
+                            controller: 'Mdc.controller.setup.DeviceCommands',
+                            privileges: ['privilege.administrate.device', 'privilege.view.device'],
+                            action: 'showOverview',
+                            items: {
+                                add: {
+                                    title: 'Add command',
+                                    route: 'add',
+                                    controller: 'Mdc.controller.setup.DeviceCommands',
+                                    privileges: ['privilege.administrate.device', 'privilege.view.device'],
+                                    action: 'showAddOverview'
+                                }
+                            }
+                        },
                         //protocol dialects routes
                         protocols: {
                             title: 'Protocol dialects',
