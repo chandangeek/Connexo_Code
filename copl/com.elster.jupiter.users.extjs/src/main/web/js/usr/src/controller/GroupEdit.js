@@ -103,13 +103,12 @@ Ext.define('Usr.controller.GroupEdit', {
         widget.setLoading(true);
         panel.setTitle(title);
         if(record.get('id') == 1) {
+            panel.down('[itemId=alertmessagerole]').hidden = false;
             panel.down('[name=name]').disable();
             panel.down('[itemId=privilegesNoAccess]').hidden = true;
             panel.down('[itemId=privilegesFullControl]').hidden = true;
             panel.down('[itemId = applicationList]').columns[2].hidden = true;
             panel.down('[itemId = featureList]').columns[3].hidden = true;
-
-
         }
         var name = '',
             previousPermissions = '';

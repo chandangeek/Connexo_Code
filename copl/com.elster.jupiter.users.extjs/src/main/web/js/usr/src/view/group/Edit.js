@@ -8,7 +8,8 @@ Ext.define('Usr.view.group.Edit', {
         'Ext.button.Button',
         'Usr.view.group.privilege.ApplicationList',
         'Usr.view.group.privilege.FeatureList',
-        'Uni.util.Hydrator'
+        'Uni.util.Hydrator',
+        'Uni.util.FormInfoMessage'
     ],
 
     edit: false,
@@ -44,6 +45,15 @@ Ext.define('Usr.view.group.Edit', {
                             labelWidth: 250
                         },
                         items: [
+                            {
+                                xtype: 'uni-form-info-message',
+                                itemId: 'alertmessagerole',
+                                title: Uni.I18n.translate('group.cannot.edit.title', 'USR', 'This role cannot be changed.'),
+                                text:Uni.I18n.translate('group.cannot.edit.message', 'USR', 'Only the description is editable.'),
+                                hidden: true
+
+                            },
+
                             {
                                 name: 'name',
                                 fieldLabel: Uni.I18n.translate('group.name', 'USR', 'Name'),

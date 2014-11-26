@@ -59,6 +59,9 @@ Ext.define('Usr.controller.UserEdit', {
             success: function (user) {
                 var title = Uni.I18n.translate('user.edit', 'USR', 'Edit');
                 panel.setTitle(title + ' \'' + user.get('authenticationName') + '\'');
+                if (user.get('authenticationName') == "admin") {
+                    panel.down('[itemId=alertmessageuser]').show();
+                }
 
                 panel.down('[name=authenticationName]').disable();
                 panel.down('[name=domain]').disable();
@@ -69,7 +72,7 @@ Ext.define('Usr.controller.UserEdit', {
                     Ext.ModelManager.getModel('Usr.model.UserDirectory').load(user.get('domain'), {
                         callback: function (domain) {
                             if (!domain.get('manageGroupsInternal')||(user.get('authenticationName') == "admin")) {
-                                    panel.down('[itemId=selectRoles]').disable();
+                                panel.down('[itemId=selectRoles]').disable();
                             }
 
                             widget.setLoading(false);
