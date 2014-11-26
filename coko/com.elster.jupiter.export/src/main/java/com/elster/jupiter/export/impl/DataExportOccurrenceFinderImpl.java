@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
@@ -17,23 +18,18 @@ import java.util.List;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
-    private QueryExecutor<TaskOccurrence> taskOccurrenceQuery;
-    private QueryExecutor<DataExportOccurrence> queryExecutor;
-    private Condition condition;
-    private Order[] order;
+    private DataModel dataModel;
+    private Condition condition ;
+    private Order order;
     private Integer start;
     private Integer limit;
-    private Condition startDateCondition;
-    private Condition endDateCondition;
-
+    
     public DataExportOccurrenceFinderImpl() {
     }
 
-    public DataExportOccurrenceFinderImpl(QueryExecutor<DataExportOccurrence> queryExecutor, QueryExecutor<TaskOccurrence> taskOccurrenceQuery, Condition condition, Order order) {
-        this.queryExecutor = queryExecutor;
-        this.taskOccurrenceQuery = taskOccurrenceQuery;
+    public DataExportOccurrenceFinderImpl(DataModel dataModel, Condition condition, Order order) {
         this.condition = condition;
-        this.order = new Order[]{order};
+        this.order = order;
     }
 
     @Override
@@ -51,13 +47,13 @@ public class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinde
 
     @Override
     public DataExportOccurrenceFinder withStartDateIn(Range<Instant> interval) {
-        startDateCondition = where("startDate").in(interval);
+        this.condition = this.condition.and(where("taskOccurrence.startDate").in(interval));
         return this;
     }
 
     @Override
     public DataExportOccurrenceFinder withEndDateIn(Range<Instant> interval) {
-        endDateCondition = where("endDate").in(interval);
+    	this.condition = this.condition.and(where("taskOccurence.endDate").in(interval));
         return this;
     }
 
@@ -69,18 +65,19 @@ public class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinde
 
     @Override
     public List<? extends DataExportOccurrence> find() {
-        if (startDateCondition != null || endDateCondition != null) {
-            Condition taskOccurrenceCondition = Condition.TRUE;
-            if (startDateCondition != null) {
-                taskOccurrenceCondition = taskOccurrenceCondition.and(startDateCondition);
-            }
-            if (endDateCondition != null) {
-                taskOccurrenceCondition = taskOccurrenceCondition.and(endDateCondition);
-            }
-            Subquery idQuery = taskOccurrenceQuery.asSubquery(taskOccurrenceCondition, "ID");
-            condition = condition.and(ListOperator.IN.contains(idQuery, "taskOccurrence"));
-
-        }
-        return queryExecutor.select(condition, order, true, null, start + 1, start + limit + 1);
+    	return dataModel.stream(DataExportOccurrence.class)
+    		.join(TaskOccurrence.class)
+    		.filter(condition)
+    		.sorted(order)
+    		.skip(start)
+    		.limit(limit)
+    		.select();
     }
+    
+    // documentation only
+    public List<? extends DataExportOccurrence> findOldSyntax() {
+    	return dataModel.query(DataExportOccurrence.class, TaskOccurrence.class)
+    			.select(condition, new Order[] {order}, true, null, start + 1, start + limit);     		
+    }
+
 }

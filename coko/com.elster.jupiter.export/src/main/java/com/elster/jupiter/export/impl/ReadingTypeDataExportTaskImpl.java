@@ -152,7 +152,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     public DataExportOccurrenceFinder getOccurrencesFinder() {
         Condition condition = where("readingTask").isEqualTo(this);
         Order order = Order.descending("taskocc");
-        return new DataExportOccurrenceFinderImpl(dataModel.query(DataExportOccurrence.class), taskService.getTaskOccurrenceQueryExecutor(), condition, order);
+        return new DataExportOccurrenceFinderImpl(dataModel, condition, order);
     }
 
     @Override
