@@ -162,46 +162,51 @@ Ext.define('Mdc.controller.Main', {
             ]
         });
 
-        var deviceCommunicationItem = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
-            portal: 'administration',
-            route: 'devicecommunication',
-            items: [
-                {
-                    text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
-                    href: '#/administration/comservers',
-                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
-                    route: 'comservers'
-                },
-                {
-                    text: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
-                    href: '#/administration/comportpools',
-                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
-                    route: 'comportpools'
-                },
-                {
-                    text: Uni.I18n.translate('general.deviceComProtocols', 'MDC', 'Communication protocols'),
-                    href: '#/administration/devicecommunicationprotocols',
-                    route: 'devicecommunicationprotocols'
-                },
-                {
-                    text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Shared communication schedules'),
-                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.schedule','privilege.view.schedule']),
-                    href: '#/administration/communicationschedules',
-                    route: 'communicationschedules'
-                },
-                {
-                    text: Uni.I18n.translate('registerConfig.communicationTasks', 'MDC', 'Communication tasks'),
-                    href: '#/administration/communicationtasks',
-                    route: 'communicationtasks'
-                }
-            ]
-        });
-
-        Uni.store.PortalItems.add(
-            deviceManagementItem,
-            deviceCommunicationItem
-        );
+        var deviceCommunicationItem = null;
+        if (Uni.Auth.hasAnyPrivilege([['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure',
+                                    'privilege.administrate.protocol','privilege.view.protocol',
+                                    'privilege.administrate.schedule','privilege.view.schedule']])) {
+            deviceCommunicationItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.deviceCommunication', 'MDC', 'Device communication'),
+                portal: 'administration',
+                route: 'devicecommunication',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
+                        href: '#/administration/comservers',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
+                        route: 'comservers'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
+                        href: '#/administration/comportpools',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
+                        route: 'comportpools'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.deviceComProtocols', 'MDC', 'Communication protocols'),
+                        href: '#/administration/devicecommunicationprotocols',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.protocol','privilege.view.protocol']),
+                        route: 'devicecommunicationprotocols'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.comSchedules', 'MDC', 'Shared communication schedules'),
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.schedule','privilege.view.schedule']),
+                        href: '#/administration/communicationschedules',
+                        route: 'communicationschedules'
+                    },
+                    {
+                        text: Uni.I18n.translate('registerConfig.communicationTasks', 'MDC', 'Communication tasks'),
+                        href: '#/administration/communicationtasks',
+                        route: 'communicationtasks'
+                    }
+                ]
+            });
+        }
+        if (deviceCommunicationItem !== null) {
+            Uni.store.PortalItems.add(deviceCommunicationItem);
+        }
+        Uni.store.PortalItems.add(deviceManagementItem);
 
         this.getApplication().fireEvent('cfginitialized');
     }
