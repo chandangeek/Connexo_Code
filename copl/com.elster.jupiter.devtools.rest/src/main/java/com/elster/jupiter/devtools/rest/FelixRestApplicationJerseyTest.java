@@ -9,6 +9,7 @@ import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -120,6 +121,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
     protected final void configureClient(ClientConfig config) {
         config.register(JacksonFeature.class); // client side JSON processing
         config.register(ObjectMapperProvider.class);
+        config.register(MultiPartFeature.class);
         super.configureClient(config);
     }
 
