@@ -101,58 +101,8 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             },
             '#device-command-action-menu': {
                 click: this.selectAction
-            },
-            '#deviceCommandsGrid #commands-action-column': {
-                mouseup: this.actionClick
             }
         })
-    },
-
-
-    actionClick: function (g, colEl, rowIndex, colIndex, e, record) {
-        var me = this,
-            grid = me.getDeviceCommandsGrid(),
-            column = grid.columns[6];
-        column.menu = me.configureMenu(record, grid.device, true)
-    },
-
-    configureMenu: function (record, device, destroyOnHide) {
-        var mRID = device.get('mRID'),
-            items = [],
-            status = record.get('status');
-        if (status.value == 'CommandWaiting' || status.value == 'CommandPending') {
-            items.push({
-                    text: Uni.I18n.translate('deviceCommand.actionMenu.trigger', 'MDC', 'Trigger now'),
-                    action: 'trigger'
-                }, {
-                    text: Uni.I18n.translate('deviceCommand.actionMenu.changeReleaseDate', 'MDC', 'Change release date'),
-                    action: 'changeReleaseDate'
-                },
-                {
-                    text: Uni.I18n.translate('deviceCommand.actionMenu.revoke', 'MDC', 'Revoke'),
-                    action: 'revoke'
-                })
-        }
-        return Ext.widget({
-            mRID: mRID,
-            record: record,
-            device: device,
-            xtype: 'menu',
-            itemId: 'device-command-action-menu',
-            plain: true,
-            border: false,
-            shadow: false,
-            items: items,
-            listeners: {
-                hide: {
-                    fn: function () {
-                        if (destroyOnHide === true) {
-                            this.destroy()
-                        }
-                    }
-                }
-            }
-        });
     },
 
     selectAction: function (menu, item) {
@@ -313,16 +263,24 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             actionsButton = me.getPreviewActionBtn(),
             previewPropertiesForm = me.getPreviewPropertiesForm(),
             previewPropertiesHeader = me.getPreviewPropertiesHeader(),
-            device = me.getDeviceCommandsGrid().device,
-            title;
+            device = me.getDeviceCommandsGrid().device;
         if (record) {
-            title = record.get('command').name;
-            previewForm.loadRecord(record);
+            var status = record.get('status').value,
+                title = record.get('command').name,
+                actionClmn = me.getDeviceCommandsGrid().down('uni-actioncolumn');
             previewPanel.setTitle(title);
+            previewForm.loadRecord(record);
             previewPropertiesForm.loadRecord(record);
-            actionsButton.menu = me.configureMenu(record, device, false);
+            if (status == 'CommandWaiting' || status == 'CommandPending') {
+                actionsButton.show();
+                actionsButton.menu.device = device;
+                actionsButton.menu.record = record;
+                actionClmn.menu.device = device;
+            } else {
+                actionsButton.hide()
+            }
             if (!Ext.isEmpty(record.get('properties'))) {
-                previewPropertiesHeader.update('<h3>' +  Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}?', [title]) + '</h3>');
+                previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}?', [title]) + '</h3>');
                 previewPropertiesHeader.show()
             } else {
                 previewPropertiesHeader.hide()
@@ -334,6 +292,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         var me = this,
             cat = records[0];
         if (Ext.isDefined(cat)) {
+            me.getCommandCombo().clearValue();
             me.getCommandCombo().bindStore(cat.deviceMessageSpecs());
         }
     },
@@ -370,9 +329,6 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 messageSpecification;
             if (!Ext.isEmpty(record.get('id'))) {
                 messageSpecification = {id: record.get('id')}
-            }
-            if (Ext.isEmpty(releaseDate)) {
-                releaseDate = new Date().getTime();
             }
             record.set('id', '');
             releaseDate && record.set('releaseDate', releaseDate);

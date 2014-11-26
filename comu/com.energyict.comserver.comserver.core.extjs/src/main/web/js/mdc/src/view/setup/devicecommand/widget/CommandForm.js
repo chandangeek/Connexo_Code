@@ -53,6 +53,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
 
     initComponent: function () {
         this.callParent(arguments);
+        this.down('dateTimeField[name=releaseDate]').setValue(new Date().getTime())
     }
 });
 

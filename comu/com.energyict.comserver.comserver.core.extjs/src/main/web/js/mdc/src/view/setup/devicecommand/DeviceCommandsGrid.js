@@ -1,5 +1,8 @@
 Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
     extend: 'Ext.grid.Panel',
+    requires: [
+        'Mdc.view.setup.devicecommand.widget.ActionMenu'
+    ],
     alias: 'widget.deviceCommandsGrid',
     device: null,
     initComponent: function () {
@@ -73,7 +76,16 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
-                itemId: 'commands-action-column'
+                itemId: 'commands-action-column',
+                menu: {
+                    xtype: 'device-command-action-menu'
+                },
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    var status = record.get('status').value;
+                    if (status !== 'CommandWaiting' && status !== 'CommandPending' ) {
+                        return true
+                    }
+                }
             }
         ];
         me.dockedItems = [
@@ -100,7 +112,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 itemsPerPageMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Commands per page')
             }
         ];
- //       me.on('afterrender', me.addTooltip);
+        me.on('afterrender', me.addTooltip);
         me.callParent(arguments);
     },
 

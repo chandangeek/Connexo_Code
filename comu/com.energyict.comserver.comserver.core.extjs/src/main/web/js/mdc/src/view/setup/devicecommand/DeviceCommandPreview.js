@@ -3,19 +3,27 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreview', {
     alias: 'widget.deviceCommandPreview',
     requires: [
         'Mdc.view.setup.devicecommand.DeviceCommandPreviewForm',
-        'Uni.property.form.Property'
+        'Uni.property.form.Property',
+        'Mdc.view.setup.devicecommand.widget.ActionMenu'
     ],
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
     frame: true,
+    header: {
+        height: 37
+    },
     tools: [
         {
             xtype: 'button',
             itemId: 'commandsPreviewActionButton',
             text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
-            iconCls: 'x-uni-action-iconD'
+            iconCls: 'x-uni-action-iconD',
+            hidden: true,
+            menu: {
+                xtype: 'device-command-action-menu'
+            }
         }
     ],
     items: [
