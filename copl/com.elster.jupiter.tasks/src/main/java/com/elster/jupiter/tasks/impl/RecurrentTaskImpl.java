@@ -6,6 +6,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
+import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
@@ -197,6 +200,12 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public Optional<Instant> getLastRun() {
         return Optional.ofNullable(lastRun);
+    }
+
+    @Override
+    public Optional<? extends TaskOccurrence> getLastOccurrence() {
+        return dataModel.query(TaskOccurrence.class).select(Operator.EQUAL.compare("recurrentTaskId", this.getId()), new Order[]{Order.descending("triggerTime")},
+                false, new String[]{}, 1, 1).stream().findAny();
     }
 
     void updateLastRun(Instant triggerTime) {

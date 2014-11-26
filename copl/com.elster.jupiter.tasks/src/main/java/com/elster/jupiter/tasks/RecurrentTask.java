@@ -46,4 +46,6 @@ public interface RecurrentTask extends HasName {
      * When using runNow both execute and postExecute will be executed as part of the caller's transaction.
      */
     TaskOccurrence runNow(TaskExecutor executor);
+
+    Optional<? extends TaskOccurrence> getLastOccurrence();
 }
