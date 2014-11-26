@@ -2,10 +2,10 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.IDataExportOccurrenceFinder;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -149,10 +149,10 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public DataExportOccurrenceFinder getOccurrencesFinder() {
+    public IDataExportOccurrenceFinder getOccurrencesFinder() {
         Condition condition = where("readingTask").isEqualTo(this);
         Order order = Order.descending("taskocc");
-        return new DataExportOccurrenceFinder(dataModel.query(DataExportOccurrence.class), taskService.getTaskOccurrenceQueryExecutor(), condition, order);
+        return new DataExportOccurrenceFinderImpl(dataModel.query(DataExportOccurrence.class), taskService.getTaskOccurrenceQueryExecutor(), condition, order);
     }
 
     @Override

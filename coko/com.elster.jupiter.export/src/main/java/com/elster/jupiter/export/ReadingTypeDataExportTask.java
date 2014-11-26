@@ -35,7 +35,7 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     List<? extends DataExportOccurrence> getOccurrences();
 
-    DataExportOccurrenceFinder getOccurrencesFinder();
+    IDataExportOccurrenceFinder getOccurrencesFinder();
 
     DataExportStrategy getStrategy();
 
