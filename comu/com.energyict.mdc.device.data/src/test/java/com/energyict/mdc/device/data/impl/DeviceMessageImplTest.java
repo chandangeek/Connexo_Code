@@ -248,7 +248,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
         assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
-        assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.CANCELED);
+        assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.REVOKED);
     }
 
     @Test
@@ -295,7 +295,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
         assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
-        assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.CANCELED);
+        assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.REVOKED);
     }
 
     @Test
@@ -340,14 +340,14 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT + "}")
-    public void updateReleaseDateWithStatusCanceledTest() {
+    public void updateReleaseDateWithStatusRevokedTest() {
         Instant myReleaseInstant = initializeClockWithCurrentAfterReleaseInstant();
         Instant updatedReleaseDate = myReleaseInstant.plusSeconds(132L);
 
         Device device = createSimpleDeviceWithName("updateReleaseDateWithStatusCanceledTest", "updateReleaseDateWithStatusCanceledTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
-        ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.CANCELED);
+        ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.REVOKED);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -360,13 +360,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_INVALID_REVOKE + "}")
-    public void revokeWithStatusCanceledTest() {
+    public void revokeWithStatusRevokedTest() {
         Instant myReleaseInstant = initializeClockWithCurrentAfterReleaseInstant();
 
         Device device = createSimpleDeviceWithName("revokeWithStatusConfirmedTest", "revokeWithStatusConfirmedTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
-        ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.CANCELED);
+        ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.REVOKED);
         deviceMessage.save();
 
         Device reloadedDevice = getReloadedDevice(device);
