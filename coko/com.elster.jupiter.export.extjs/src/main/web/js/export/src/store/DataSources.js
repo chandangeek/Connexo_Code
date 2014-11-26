@@ -1,17 +1,18 @@
 Ext.define('Dxp.store.DataSources', {
     extend: 'Ext.data.Store',
     model: 'Dxp.model.DataSource',
-    data: [
-        {mRID: 'GT656956', status: 'Active', serialNumber: '1856542-123', readingType: 'A+ all phases (kWh)', lastRun: '1206561250', lastExportedData: '1416111250'}
-    ]
+    autoLoad: false,
 
-   /* proxy: {
+    proxy: {
         type: 'rest',
-        url: '/api/export/datasources',
+        urlTpl: '/api/export/dataexporttask/{taskId}/datasources',
         reader: {
             type: 'json',
             root: 'dataSources'
+        },
+        setUrl: function (params) {
+            this.url = this.urlTpl.replace('{taskId}', params.taskId);
         }
-    }*/
+    }
 });
 

@@ -1,7 +1,17 @@
 Ext.define('Dxp.model.DataSource', {
     extend: 'Ext.data.Model',
     fields: [
-        'mRID', 'status', 'serialNumber', 'readingType',
+        'mRID', 'active', 'serialNumber', 'readingType',
+        {
+            name: 'active',
+            mapping: function (data) {
+                if (data.active) {
+                    return Uni.I18n.translate('general.active', 'DES', 'Active');
+                } else {
+                    return Uni.I18n.translate('general.inactive', 'DES', 'Inactive');
+                }
+            }
+        },
         {
             name: 'lastRun',
             mapping: function (data) {
@@ -9,9 +19,9 @@ Ext.define('Dxp.model.DataSource', {
             }
         },
         {
-            name: 'lastExportedData',
+            name: 'lastExportedDate',
             mapping: function (data) {
-                return moment(data.lastExportedData).format('ddd, DD MMM YYYY HH:mm:ss');
+                return moment(data.lastExportedDate).format('ddd, DD MMM YYYY HH:mm:ss');
             }
         }
     ]

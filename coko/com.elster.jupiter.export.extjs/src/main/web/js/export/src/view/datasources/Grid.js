@@ -16,7 +16,7 @@ Ext.define('Dxp.view.datasources.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.deviceStatus', 'DES', 'Device status'),
-                dataIndex: 'status',
+                dataIndex: 'active',
                 flex: 1
             },
             {
@@ -35,13 +35,13 @@ Ext.define('Dxp.view.datasources.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.lastExportedData', 'DES', 'Last exported data'),
-                dataIndex: 'lastExportedData',
+                header: Uni.I18n.translate('general.lastExportedDate', 'DES', 'Last exported date'),
+                dataIndex: 'lastExportedDate',
                 flex: 1
             }
         ];
 
-     /*   me.dockedItems = [
+        me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
@@ -56,7 +56,7 @@ Ext.define('Dxp.view.datasources.Grid', {
                 itemsPerPageMsg: Uni.I18n.translate('dataSources.pagingtoolbarbottom.itemsPerPage', 'DES', 'Data sources per page'),
                 dock: 'bottom'
             }
-        ];*/
+        ];
 
         me.callParent(arguments);
     }
