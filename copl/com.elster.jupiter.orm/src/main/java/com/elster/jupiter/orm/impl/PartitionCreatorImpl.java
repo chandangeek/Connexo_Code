@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Comparator;
 import java.util.logging.Logger;
 
@@ -31,16 +30,16 @@ public class PartitionCreatorImpl implements PartitionCreator {
 		this.logger = logger;
 	}
 
-	public void create(Instant instant) {
+	public Instant create(Instant instant) {
 		this.upTo = instant;
 		try {
-			createPartitions();
+			return createPartitions();
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
-	private void createPartitions() throws SQLException {
+	private Instant createPartitions() throws SQLException {
 		List<Long> highValues = new ArrayList<>();
 		try (Connection connection = dataModel.getConnection(false)) {
 			try(PreparedStatement statement = connection.prepareStatement(partitionQuerySql())) {
@@ -50,29 +49,31 @@ public class PartitionCreatorImpl implements PartitionCreator {
 						String highValueString = resultSet.getString(2);
 						try {
 							long highValue = Long.parseLong(highValueString);
-							if (highValue > upTo.toEpochMilli()) {
-								return;
-							}
 							if (highValue > 0) {
 								highValues.add(highValue);
 							}
 							
 						} catch (NumberFormatException ex) {
 							// if highValue is not a number , we can not manage this table
-							return;
+							throw new RuntimeException(
+								"Invalid high value: " + 
+								highValueString + 
+								" for table " + 
+								tableName + 
+								" and partition " + 
+								resultSet.getString(1));
 						}
 					}
 				}
 			}
-			Optional<Long> high = highValues.stream().max(Comparator.naturalOrder());
-			if (!high.isPresent()) {
-				return;
+			long high = highValues.stream()
+				.max(Comparator.naturalOrder())
+				.orElseThrow(() -> new RuntimeException("No partitions found for table " + tableName)); 
+			while (high < upTo.getEpochSecond()) {
+				high += PARTITIONSIZE;
+				createPartition(connection, high);
 			}
-			long end = high.get() + PARTITIONSIZE;
-			while (end < upTo.getEpochSecond()) {
-				createPartition(connection, end);
-				end += PARTITIONSIZE;
-			}
+			return Instant.ofEpochMilli(high);
 		}
 	}
 	
