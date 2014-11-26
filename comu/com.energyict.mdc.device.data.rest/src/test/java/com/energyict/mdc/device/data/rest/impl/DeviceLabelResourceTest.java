@@ -22,7 +22,6 @@ import com.elster.jupiter.favorites.DeviceLabel;
 import com.elster.jupiter.favorites.LabelCategory;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
@@ -80,11 +79,11 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         when(favoritesService.getDeviceLabels(meter, null)).thenReturn(deviceLabels);
         DeviceLabel label1 = mock(DeviceLabel.class);
         DeviceLabel label2 = mock(DeviceLabel.class);
-        when(label1.getComment()).thenReturn("Comment");
+        when(label1.getComment()).thenReturn("Comment1");
         when(label1.getCreationDate()).thenReturn(now);
         when(label1.getLabelCategory()).thenReturn(category);
         
-        when(label2.getComment()).thenReturn("Comment");
+        when(label2.getComment()).thenReturn("Comment2");
         when(label2.getCreationDate()).thenReturn(now.minusMillis(100));
         when(label2.getLabelCategory()).thenReturn(category);
                 
@@ -96,11 +95,15 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<List<DeviceLabelInfo>>get("$.deviceLabels")).hasSize(2);
-        assertThat(jsonModel.<List<Long>>get("$.deviceLabels[*].creationDate")).isSortedAccordingTo((i1, i2) -> Long.compare(i2, i1));
         assertThat(jsonModel.<String>get("$.deviceLabels[0].category.id")).isEqualTo("mycategory");
         assertThat(jsonModel.<String>get("$.deviceLabels[0].category.name")).isEqualTo("mycategory");
-        assertThat(jsonModel.<String>get("$.deviceLabels[0].comment")).isEqualTo("Comment");
+        assertThat(jsonModel.<String>get("$.deviceLabels[0].comment")).isEqualTo("Comment1");
         assertThat(jsonModel.<Long>get("$.deviceLabels[0].creationDate")).isEqualTo(now.toEpochMilli());
+
+        assertThat(jsonModel.<String>get("$.deviceLabels[1].category.id")).isEqualTo("mycategory");
+        assertThat(jsonModel.<String>get("$.deviceLabels[1].category.name")).isEqualTo("mycategory");
+        assertThat(jsonModel.<String>get("$.deviceLabels[1].comment")).isEqualTo("Comment2");
+        assertThat(jsonModel.<Long>get("$.deviceLabels[1].creationDate")).isEqualTo(now.minusMillis(100).toEpochMilli());
     }
     
     @Test
