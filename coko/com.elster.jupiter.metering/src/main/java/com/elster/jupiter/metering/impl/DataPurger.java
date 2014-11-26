@@ -23,18 +23,22 @@ public class DataPurger {
 	}
 	
 	private void purgeRegister(Instant limit) {
+		logger().info("Removing register readings up to " + limit);
 		meteringService.registerVaults().forEach(vault -> vault.purge(limit, logger()));
 	}
 	
 	private void purgeInterval(Instant limit) {
+		logger().info("Removing interval data up to " + limit);
 		meteringService.intervalVaults().forEach(vault -> vault.purge(limit, logger()));
 	}
 	
 	private void purgeDaily(Instant limit) {
+		logger().info("Removing daily and monthly readings data up to " + limit);
 		meteringService.dailyVaults().forEach(vault -> vault.purge(limit, logger()));
 	}
 	
 	private void  purgeEvents(Instant limit) {
+		logger().info("Removing device events up to " + limit);
 	}
 	
 	private Logger logger() {

@@ -338,6 +338,7 @@ public enum TableSpecs {
             table.column("DEVICEEVENTTYPE").varChar(80).map("deviceEventType").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_ENDDEVICEEVENTRECORD").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn).add();
+            table.partitionOn(createdDateTimeColumn);
             table.foreignKey("MTR_FK_EVENT_ENDDEVICE").on(endDeviceColumn).references(MTR_ENDDEVICE.name()).onDelete(DeleteRule.CASCADE).map("endDevice").add();
             table.foreignKey("MTR_FK_EVENT_EVENTTYPE").on(eventTypeColumn).references(TableSpecs.MTR_ENDDEVICEEVENTTYPE.name()).onDelete(DeleteRule.RESTRICT).map("eventType").add();
         }
@@ -354,7 +355,7 @@ public enum TableSpecs {
             table.column("DETAIL_VALUE").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("value").add();
             table.primaryKey("MTR_PK_ENDDEVICEEVENTDETAIL").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn, keyColumn).add();
             table.foreignKey("MTR_FK_ENDDEVICEEVENT_DETAIL").on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn).references(MTR_ENDDEVICEEVENTRECORD.name())
-                    .onDelete(DeleteRule.CASCADE).map("eventRecord").reverseMap("detailRecords").composition().add();
+                    .onDelete(DeleteRule.CASCADE).map("eventRecord").reverseMap("detailRecords").composition().refPartition().add();
         }
     },
 
