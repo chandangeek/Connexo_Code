@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
@@ -112,7 +113,7 @@ public final class ReadingTypeGenerator {
                 Root.DELTA_A_REVERSE_PHASE_A,
                 Root.BULK_A_FORWARD_PHASE_A,
                 Root.BULK_A_REVERSE_PHASE_A);
-        Generator gen = new TimeAttributeGenerator(new TimeOfUseGenerator(new MetricMultiplierGenerator(true)));
+        Generator gen = new TimeAttributeGenerator(new TimeOfUseGenerator(new MacroPeriodGenerator(new MetricMultiplierGenerator(true))));
         generate(gen, templatesGroup);
 
         templatesGroup = Arrays.asList(Root.DELTA_A_NET_ALL_PHASES, Root.DELTA_DAILY_A_NET_ALL_PHASES, Root.DELTA_MONTHLY_A_NET_ALL_PHASES);
@@ -310,7 +311,8 @@ public final class ReadingTypeGenerator {
                     FlowDirection.Q2,
                     FlowDirection.Q3,
                     FlowDirection.Q4),
-                    writable);
+                    writable
+            );
         }
 
         private FlowDirectionGenerator(boolean writable) {
@@ -320,6 +322,31 @@ public final class ReadingTypeGenerator {
         @Override
         protected void generateInternal(FlowDirection elem, Root readingTypeTemplate, List<ReadingTypeImpl> readingTypes) {
             String code = readingTypeTemplate.builder.flow(elem).code();
+            String name = readingTypeTemplate.name;
+            this.write(code, name, readingTypes);
+        }
+    }
+
+    private class MacroPeriodGenerator extends AbstractIterativeGenerator<MacroPeriod> {
+        public MacroPeriodGenerator() {
+            this(null, false);
+        }
+
+        public MacroPeriodGenerator(Generator next) {
+            this(next, false);
+        }
+
+        public MacroPeriodGenerator(boolean writable) {
+            this(null, writable);
+        }
+
+        public MacroPeriodGenerator(Generator next, boolean writable) {
+            super(next, Arrays.asList(MacroPeriod.NOTAPPLICABLE, MacroPeriod.DAILY, MacroPeriod.MONTHLY), writable);
+        }
+
+        @Override
+        protected void generateInternal(MacroPeriod elem, Root readingTypeTemplate, List<ReadingTypeImpl> readingTypes) {
+            String code = readingTypeTemplate.builder.period(elem).code();
             String name = readingTypeTemplate.name;
             this.write(code, name, readingTypes);
         }
