@@ -107,8 +107,8 @@ public class AM540 extends E350 {
             }
         } else {
             getLogger().info("Cache exist, will not be read!");
-            getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getCache()).getObjectList());
         }
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getCache()).getObjectList());
     }
 
     @Override
