@@ -924,7 +924,7 @@ public class TableImpl<T> implements Table<T> {
 	}
 	
 	PartitionMethod getPartitionMethod() {
-		if (partitionColumn.isPresent()) {
+		if (partitionColumn().isPresent()) {
 			return (isIndexOrganized() || !getReverseConstraints().isEmpty()) ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;			
 		}
 		if (refPartitionConstraint().isPresent()) {

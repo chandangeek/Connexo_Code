@@ -8,7 +8,6 @@ import javax.validation.ValidatorFactory;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -73,7 +72,6 @@ public interface DataModel {
     <T> DataMapper<T> getDataMapper(Class<T> api, String tableName);
     
     // Maintenance
-	void dropJournal(Instant upTo, Logger logger);
-	void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger);	
 	DataDropper dataDropper(String tableName, Logger logger);
+	PartitionCreator partitionCreator(String tableName, Logger logger);
 }

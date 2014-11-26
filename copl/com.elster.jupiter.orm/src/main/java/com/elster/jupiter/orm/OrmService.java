@@ -42,5 +42,6 @@ public interface OrmService {
     
     void dropJournal(Instant upTo, Logger logger);
 	void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger);
+	void createPartitions(Instant upTo, Logger logger);
     	
 }

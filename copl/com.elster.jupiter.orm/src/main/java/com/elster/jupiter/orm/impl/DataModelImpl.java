@@ -28,6 +28,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.DataDropper;
+import com.elster.jupiter.orm.PartitionCreator;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.SqlDialect;
@@ -403,7 +404,7 @@ public class DataModelImpl implements DataModel {
         try {
             messageInterpolator = injector.getInstance(MessageInterpolator.class);
         } catch (ConfigurationException e) {
-            LOGGER.log(Level.WARNING, "DataModal " + name + " has no registered a MessageInterpolator. Validation messages will not be translated.", e);
+            LOGGER.log(Level.WARNING, "DataModel " + name + " has no registered a MessageInterpolator. Validation messages will not be translated.", e);
         }
         if (messageInterpolator == null) {
             messageInterpolator = new MessageInterpolator() {
@@ -472,22 +473,31 @@ public class DataModelImpl implements DataModel {
         }
     }
 
-	@Override
 	public void dropJournal(Instant upTo, Logger logger) {
 		getTables().forEach(table -> table.dropJournal(upTo, logger));
 	}
 
-	@Override
 	public void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger) {
 		getTables().stream()
 			.filter(table -> table.lifeCycleClass() == lifeCycleClass)
 			.forEach(table -> table.dropData(upTo, logger));
 	}
+	
+	public void createPartitions(Instant upTo, Logger logger) {
+		getTables().stream()
+			.filter(table -> table.getPartitionMethod() == PartitionMethod.RANGE)
+			.forEach(table -> partitionCreator(table.getName(), logger).create(upTo));
+	}
+
 
 	@Override
 	public DataDropper dataDropper(String tableName, Logger logger) {
 		return new DataDropperImpl(this, tableName, logger);
 	}
 
+	@Override
+	public PartitionCreator partitionCreator(String tableName, Logger logger) {
+		return new PartitionCreatorImpl(this, tableName, logger);
+	}
 
 }

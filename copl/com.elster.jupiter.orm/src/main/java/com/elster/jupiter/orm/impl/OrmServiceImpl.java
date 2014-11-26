@@ -307,4 +307,9 @@ public class OrmServiceImpl implements OrmService, InstallService {
 	public void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger) {
 		dataModels.values().forEach(dataModel -> dataModel.dropAuto(lifeCycleClass, upTo, logger));
 	}
+	
+	@Override
+	public void createPartitions(Instant upTo, Logger logger) {
+		dataModels.values().forEach(dataModel -> dataModel.createPartitions(upTo, logger));
+	}
 }
