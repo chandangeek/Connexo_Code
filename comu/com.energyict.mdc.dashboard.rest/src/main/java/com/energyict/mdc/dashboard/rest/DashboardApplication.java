@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest;
 
+import com.elster.jupiter.favorites.FavoritesService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -33,8 +34,10 @@ import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
+import com.energyict.mdc.dashboard.rest.status.impl.FavoriteDeviceGroupResource;
 import com.energyict.mdc.dashboard.rest.status.impl.IssuesResource;
 import com.energyict.mdc.dashboard.rest.status.impl.KpiScoreFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.LabeledDeviceResource;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.dashboard.rest.status.impl.OverviewFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.SummaryInfoFactory;
@@ -50,11 +53,13 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -90,6 +95,7 @@ public class DashboardApplication extends Application implements InstallService 
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile IssueService issueService;
     private volatile IssueDataCollectionService issueDataCollectionService;
+    private volatile FavoritesService favoritesService;
     private Clock clock = Clock.systemDefaultZone();
 
     @Reference
@@ -172,6 +178,11 @@ public class DashboardApplication extends Application implements InstallService 
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
+    
+    @Reference
+    public void setFavoritesService(FavoritesService favoritesService) {
+        this.favoritesService = favoritesService;
+    }
 
     // Only for testing purposes
     public void setClock(Clock clock) {
@@ -197,7 +208,9 @@ public class DashboardApplication extends Application implements InstallService 
                 CommunicationOverviewResource.class,
                 CommunicationHeatMapResource.class,
                 DeviceConfigurationService.class, // This service is here intentionally: needed for the ComServerStatusResource apparently: this will create an osgi warning: A provider com.energyict.mdc.device.config.DeviceConfigurationService registered in SERVER runtime does not implement any provider interfaces applicable in the SERVER runtime. Due to constraint configuration problems the provider com.energyict.mdc.device.config.DeviceConfigurationService will be ignored.
-                IssuesResource.class
+                IssuesResource.class,
+                LabeledDeviceResource.class,
+                FavoriteDeviceGroupResource.class
         );
     }
 
@@ -252,6 +265,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(KpiScoreFactory.class).to(KpiScoreFactory.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
+            bind(favoritesService).to(FavoritesService.class);
             bind(clock).to(Clock.class);
         }
     }

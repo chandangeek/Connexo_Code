@@ -1,0 +1,66 @@
+package com.energyict.mdc.dashboard.rest.status.impl;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+
+import com.elster.jupiter.favorites.DeviceLabel;
+import com.elster.jupiter.favorites.FavoritesService;
+import com.elster.jupiter.favorites.LabelCategory;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.security.Privileges;
+
+
+@Path("/mylabeleddevices")
+public class LabeledDeviceResource {
+    
+    private final DeviceService deviceService;
+    private final FavoritesService favoritesService;
+    private final ExceptionFactory exceptionFactory;
+    
+    @Inject
+    public LabeledDeviceResource(DeviceService deviceService, FavoritesService favoritesService, ExceptionFactory exceptionFactory) {
+        this.deviceService = deviceService;
+        this.favoritesService = favoritesService;
+        this.exceptionFactory = exceptionFactory;
+    }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.VIEW_DEVICE)
+    public Response getLabeledDevices(@QueryParam("category") String categoryId, @BeanParam QueryParameters queryParameters, @Context SecurityContext context) {
+        if (Checks.is(categoryId).emptyOrOnlyWhiteSpace()) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        User user = (User) context.getUserPrincipal();
+        Optional<LabelCategory> category = favoritesService.findLabelCategory(categoryId);
+        if (!category.isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_LABEL_CATEGORY, categoryId);
+        }
+        List<DeviceLabel> devices = favoritesService.getDeviceLabelsOfCategory(user, category.get());
+        List<DeviceWithLabelInfo> infos = devices.stream()
+                .map(d -> DeviceWithLabelInfo.asInfo(d, deviceService))
+                .sorted((d1, d2) -> d2.deviceLabelInfo.creationDate.compareTo(d1.deviceLabelInfo.creationDate))//descending order
+                .collect(Collectors.toList());
+        return Response.ok(PagedInfoList.asJson("myLabeledDevices", infos, queryParameters)).build();
+    }
+}

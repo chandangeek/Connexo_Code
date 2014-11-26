@@ -58,6 +58,7 @@ public enum MessageSeeds implements MessageSeed {
     TARGET(50, "Target", "Target"),
     NO_SUCH_END_DEVICE_GROUP(51, "NoSuchEndDeviceGroup", "No query end device group exists with id ''{0}''"),
     NO_SUCH_CONNECTION_TASK(52, "NoSuchConnectionTask", "No connection task with id {0}"),
+    NO_SUCH_LABEL_CATEGORY(53, "NoSuchLabelCategory", "No such label category with key {0}")
     ;
 
     private final int number;
