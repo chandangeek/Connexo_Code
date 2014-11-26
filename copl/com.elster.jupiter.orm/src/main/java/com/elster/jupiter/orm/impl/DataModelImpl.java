@@ -26,6 +26,7 @@ import oracle.jdbc.OracleConnection;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.PartitionDropper;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.SqlDialect;
@@ -468,6 +469,18 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public void dropJournal(Instant upTo, Logger logger) {
 		getTables().forEach(table -> table.dropJournal(upTo, logger));
+	}
+
+	@Override
+	public void dropAuto(Instant upTo, Logger logger) {
+		getTables().stream()
+			.filter(Table::hasAutoMaintenance)
+			.forEach(table -> table.dropData(upTo, logger));
+	}
+
+	@Override
+	public PartitionDropper partitionDropper(String tableName, Logger logger) {
+		return new PartitionDropperImpl(this, tableName, logger);
 	}
 
 

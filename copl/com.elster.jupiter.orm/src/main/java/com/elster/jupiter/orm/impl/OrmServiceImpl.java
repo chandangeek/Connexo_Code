@@ -302,4 +302,8 @@ public class OrmServiceImpl implements OrmService, InstallService {
 		dataModels.values().forEach(dataModel -> dataModel.dropJournal(upTo, logger));
 	}
     
+	@Override
+	public void dropAuto(Instant upTo, Logger logger) {
+		dataModels.values().forEach(dataModel -> dataModel.dropAuto(upTo, logger));
+	}
 }
