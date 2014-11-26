@@ -287,15 +287,16 @@ public enum TableSpecs {
             Table<ReadingQualityRecord> table = dataModel.addTable(name(), ReadingQualityRecord.class);
             table.map(ReadingQualityRecordImpl.class);
             table.setJournalTableName("MTR_READINGQUALITYJRNL");
+            Column idColumn = table.addAutoIdColumn();
             Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).map("channelId").add();
             Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2INSTANT).map("readingTimestamp").add();
             Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
             table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
             table.column("COMMENTS").type("varchar(4000)").map("comment").add();
-            table.primaryKey("MTR_PK_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn).add();
-            table.intervalPartitionOn(timestampColumn);
-            table.foreignKey("MTR_FK_RQ_CHANNEL").references(MTR_CHANNEL.name()).onDelete(DeleteRule.RESTRICT).map("channel").on(channelColumn).add();            
+            table.primaryKey("MTR_PK_READINGQUALITY").on(idColumn).add();
+            table.foreignKey("MTR_FK_RQ_CHANNEL").references(MTR_CHANNEL.name()).onDelete(DeleteRule.RESTRICT).map("channel").on(channelColumn).add();
+            table.unique("MTR_U_READINGQUALITY").on(channelColumn, timestampColumn, typeColumn).add();
         }
     },
     MTR_ENDDEVICEEVENTTYPE {
