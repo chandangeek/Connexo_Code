@@ -29,7 +29,7 @@ class LoggingItemExporter implements ItemExporter {
             return range;
         } catch (DataExportException e) {
             MessageSeeds.ITEM_FAILED.log(logger, thesaurus, item);
-            return null;
+            throw e;
         } catch (FatalDataExportException e) {
             MessageSeeds.ITEM_FATALLY_FAILED.log(logger, thesaurus, item);
             throw e;

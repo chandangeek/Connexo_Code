@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataProcessor;
@@ -129,7 +130,11 @@ class DataExportTaskExecutor implements TaskExecutor {
 
     private void doProcess(ItemExporter itemExporter, DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
         item.setLastRun(occurrence.getTriggerTime());
-        itemExporter.exportItem(occurrence, item);
+        try {
+            itemExporter.exportItem(occurrence, item);
+        } catch (DataExportException e) {
+            // not fatal, we continue.
+        }
     }
 
     private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(IReadingTypeDataExportTask task, Meter meter) {
