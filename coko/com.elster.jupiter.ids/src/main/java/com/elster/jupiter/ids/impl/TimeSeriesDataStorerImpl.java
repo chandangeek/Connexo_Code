@@ -6,6 +6,7 @@ import com.elster.jupiter.ids.StorerStats;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -34,10 +35,12 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
     private final StorerStatsImpl stats = new StorerStatsImpl();
     private final DataModel dataModel;
     private final Clock clock;
+    private final Thesaurus thesaurus;
 
-    public TimeSeriesDataStorerImpl(DataModel dataModel, Clock clock, boolean overrules) {
+    public TimeSeriesDataStorerImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, boolean overrules) {
         this.dataModel = dataModel;
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.overrules = overrules;
     }
 
@@ -49,7 +52,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
     @Override
     public void add(TimeSeries timeSeries, Instant timeStamp, Object... values) {
         if (!timeSeries.isValidInstant(timeStamp)) {
-            throw new IllegalArgumentException();
+            throw new MeasurementTimeIsNotValidExcecption(this.thesaurus);
         }
         if (values.length != timeSeries.getRecordSpec().getFieldSpecs().size()) {
             throw new IllegalArgumentException();

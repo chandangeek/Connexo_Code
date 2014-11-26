@@ -2,6 +2,7 @@ package com.elster.jupiter.ids;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -44,6 +45,7 @@ public class IdsCrudTest {
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+
         }
     }
 
@@ -54,6 +56,7 @@ public class IdsCrudTest {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
+                new NlsModule(),
                 new OrmModule(),
                 new UtilModule(),
                 new ThreadSecurityModule(),

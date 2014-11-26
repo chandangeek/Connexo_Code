@@ -5,6 +5,11 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -20,19 +25,21 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
-@Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class}, property = "name=" + IdsService.COMPONENTNAME)
-public class IdsServiceImpl implements IdsService, InstallService {
+@Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + IdsService.COMPONENTNAME)
+public class IdsServiceImpl implements IdsService, InstallService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
+    private Thesaurus thesaurus;
 
     public IdsServiceImpl() {
     }
 
     @Inject
-    public IdsServiceImpl(Clock clock, OrmService ormService) {
+    public IdsServiceImpl(Clock clock, OrmService ormService, NlsService nlsService) {
         setClock(clock);
         setOrmService(ormService);
+        setNlsService(nlsService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -56,7 +63,7 @@ public class IdsServiceImpl implements IdsService, InstallService {
 
     @Override
     public TimeSeriesDataStorer createStorer(boolean overrules) {
-        return new TimeSeriesDataStorerImpl(dataModel, clock, overrules);
+        return new TimeSeriesDataStorerImpl(dataModel, clock, thesaurus, overrules);
     }
 
     @Override
@@ -92,6 +99,11 @@ public class IdsServiceImpl implements IdsService, InstallService {
         this.clock = clock;
     }
 
+    @Reference
+    public final void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer());
+    }
+
     @Activate
     public final void activate() {
         dataModel.register(getModule());
@@ -104,7 +116,23 @@ public class IdsServiceImpl implements IdsService, InstallService {
                 this.bind(DataModel.class).toInstance(dataModel);
                 this.bind(IdsService.class).toInstance(IdsServiceImpl.this);
                 this.bind(Clock.class).toInstance(clock);
+                this.bind(Thesaurus.class).toInstance(thesaurus);
             }
         };
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }

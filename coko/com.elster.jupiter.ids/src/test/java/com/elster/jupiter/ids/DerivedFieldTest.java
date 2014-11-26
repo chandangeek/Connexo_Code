@@ -2,6 +2,7 @@ package com.elster.jupiter.ids;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -51,17 +52,18 @@ public class DerivedFieldTest {
     @BeforeClass
     public static void setUp() throws SQLException {
         injector = Guice.createInjector(
-        			new MockModule(), 
-        			inMemoryBootstrapModule,  
-        			new OrmModule(),
-        			new UtilModule(), 
-        			new ThreadSecurityModule(), 
-        			new PubSubModule(), 
-        			new IdsModule(),
-        			new TransactionModule());
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-        	injector.getInstance(IdsService.class);
-        	ctx.commit();
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new NlsModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new IdsModule(),
+                new TransactionModule());
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(IdsService.class);
+            ctx.commit();
         }
     }
 
