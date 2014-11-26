@@ -33,6 +33,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     private String reverseOrderFieldName;
     private String reverseCurrentFieldName;
     private boolean composition;
+    private boolean refPartitioned;
 
     private final Reference<TableImpl<?>> referencedTable = ValueReference.absent();
 
@@ -151,6 +152,11 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
         return false;
     }
 
+    @Override
+    public boolean isRefPartition() {
+    	return refPartitioned;
+    }
+    
     @Override
     void validate() {
         super.validate();
@@ -408,6 +414,12 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
         public Builder composition() {
             constraint.composition = true;
             return this;
+        }
+        
+        @Override
+        public Builder refPartition() {
+        	constraint.refPartitioned = true;
+        	return this;
         }
 
         @Override

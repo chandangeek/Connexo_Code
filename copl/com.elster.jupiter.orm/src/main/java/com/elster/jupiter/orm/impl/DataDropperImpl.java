@@ -8,10 +8,10 @@ import java.sql.Statement;
 import java.time.Instant;
 import java.util.logging.Logger;
 
-import com.elster.jupiter.orm.PartitionDropper;
+import com.elster.jupiter.orm.DataDropper;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 
-public class PartitionDropperImpl implements PartitionDropper {
+public class DataDropperImpl implements DataDropper {
 
 	private final DataModelImpl dataModel;
 	private final String tableName;
@@ -19,7 +19,7 @@ public class PartitionDropperImpl implements PartitionDropper {
 	private Instant upTo;
 	
 	
-	PartitionDropperImpl(DataModelImpl dataModel, String tableName, Logger logger) {
+	DataDropperImpl(DataModelImpl dataModel, String tableName, Logger logger) {
 		this.dataModel = dataModel;
 		this.tableName = tableName;
 		this.logger = logger;

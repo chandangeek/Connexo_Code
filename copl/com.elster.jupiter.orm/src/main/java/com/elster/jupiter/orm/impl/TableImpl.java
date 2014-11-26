@@ -25,6 +25,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.FieldType;
 import com.elster.jupiter.orm.IllegalTableMappingException;
+import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
@@ -59,8 +60,8 @@ public class TableImpl<T> implements Table<T> {
 	private final List<TableConstraintImpl> constraints = new ArrayList<>();
 	private final List<IndexImpl> indexes = new ArrayList<>();
 	
-	private Optional<Column> intervalPartitionColumn = Optional.empty();
-	private boolean autoPartitionMaintenance = false;
+	private Optional<Column> partitionColumn = Optional.empty();
+	private LifeCycleClass lifeCycleClass = LifeCycleClass.NONE;
 	
 	// mapping
 	private DataMapperType<T> mapperType;
@@ -886,32 +887,51 @@ public class TableImpl<T> implements Table<T> {
 			// todo sql delete
 			return;
 		}
-		getDataModel().partitionDropper(tableName,logger).drop(upTo);		
+		getDataModel().dataDropper(tableName,logger).drop(upTo);		
 	}
 
 	@Override
-	public void intervalPartitionOn(Column column) {
+	public void partitionOn(Column column) {
 		if (!getPrimaryKeyColumns().contains(column)) {
 			throw new IllegalArgumentException("Partitioning column must be part of primary key");
 		}
-		this.intervalPartitionColumn = Optional.of(column);
+		this.partitionColumn = Optional.of(column);
 	}
 	
 	@Override
-	public void autoPartitionOn(Column column) {
-		intervalPartitionOn(column);
-		this.autoPartitionMaintenance = true;
+	public void autoPartitionOn(Column column, LifeCycleClass lifeCycleClass) {
+		if (Objects.requireNonNull(lifeCycleClass) == LifeCycleClass.NONE) {
+			throw new IllegalArgumentException();
+		}
+		partitionOn(column);
+		this.lifeCycleClass = lifeCycleClass;
 	}
 	
-	public Optional<Column> intervalPartitionColumn() {	
-		return intervalPartitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
+	public Optional<Column> partitionColumn() {	
+		return partitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
 	}
 	
 	@Override
-	public boolean hasAutoMaintenance() {
-		return autoPartitionMaintenance;
+	public LifeCycleClass lifeCycleClass() {
+		return lifeCycleClass;
 	}
 
+	Optional<ForeignKeyConstraintImpl> refPartitionConstraint() {
+		return getForeignKeyConstraints().stream()
+			.filter(ForeignKeyConstraintImpl::isRefPartition)
+			.findFirst()
+			.filter(constraint -> getDataModel().getSqlDialect().hasPartitioning());
+	}
+	
+	PartitionMethod getPartitionMethod() {
+		if (partitionColumn.isPresent()) {
+			return (isIndexOrganized() || !getReverseConstraints().isEmpty()) ? PartitionMethod.RANGE : PartitionMethod.INTERVAL;			
+		}
+		if (refPartitionConstraint().isPresent()) {
+			return PartitionMethod.REFERENCE;			
+		}
+		return PartitionMethod.NONE;
+	}
 }
 
 

@@ -25,8 +25,9 @@ import javax.validation.ValidatorFactory;
 import oracle.jdbc.OracleConnection;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.PartitionDropper;
+import com.elster.jupiter.orm.DataDropper;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.SqlDialect;
@@ -244,7 +245,12 @@ public class DataModelImpl implements DataModel {
     public SqlDialect getSqlDialect() {
         try (Connection connection = getConnection(false)) {
             if (connection.isWrapperFor(OracleConnection.class)) {
-                return SqlDialect.ORACLE;
+            	String product = connection.getMetaData().getDatabaseProductVersion();
+            	if (product.contains("Partitioning")) {
+            		return SqlDialect.ORACLE_EE;
+            	} else {
+            		return SqlDialect.ORACLE_SE;
+            	}
             }
             return SqlDialect.H2;
         } catch (SQLException e) {
@@ -472,15 +478,15 @@ public class DataModelImpl implements DataModel {
 	}
 
 	@Override
-	public void dropAuto(Instant upTo, Logger logger) {
+	public void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger) {
 		getTables().stream()
-			.filter(Table::hasAutoMaintenance)
+			.filter(table -> table.lifeCycleClass() == lifeCycleClass)
 			.forEach(table -> table.dropData(upTo, logger));
 	}
 
 	@Override
-	public PartitionDropper partitionDropper(String tableName, Logger logger) {
-		return new PartitionDropperImpl(this, tableName, logger);
+	public DataDropper dataDropper(String tableName, Logger logger) {
+		return new DataDropperImpl(this, tableName, logger);
 	}
 
 

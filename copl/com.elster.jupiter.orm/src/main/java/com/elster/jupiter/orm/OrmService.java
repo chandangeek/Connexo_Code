@@ -41,7 +41,6 @@ public interface OrmService {
     // maintenance
     
     void dropJournal(Instant upTo, Logger logger);
-    
-    void dropAuto(Instant upTo, Logger logger);
+	void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger);
     	
 }
