@@ -228,6 +228,6 @@ public class AM540 extends E350 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2014-09-11 16:58:05 +0200 (do, 11 sep 2014) $";
+        return "$Date$";
     }
 }
