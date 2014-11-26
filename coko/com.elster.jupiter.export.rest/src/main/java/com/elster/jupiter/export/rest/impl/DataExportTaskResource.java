@@ -2,10 +2,10 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.IDataExportOccurrenceFinder;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.rest.DataExportOccurrenceLogInfos;
 import com.elster.jupiter.export.rest.DataExportTaskHistoryInfos;
@@ -198,7 +198,7 @@ public class DataExportTaskResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         Map<String, Long> filter = getFilterMap(filterArray);
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
-        IDataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
+        DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
                 .setStart(queryParameters.getStart())
                 .setLimit(queryParameters.getLimit());
 

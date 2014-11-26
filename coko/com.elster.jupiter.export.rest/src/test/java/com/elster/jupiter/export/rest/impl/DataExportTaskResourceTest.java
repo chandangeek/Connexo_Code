@@ -3,10 +3,10 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.IDataExportOccurrenceFinder;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
 import com.elster.jupiter.export.rest.DataExportTaskInfos;
@@ -58,7 +58,7 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
     private DataExportService dataExportService;
     private DataExportTaskBuilder builder = initBuilderStub();
     @Mock
-    private IDataExportOccurrenceFinder finder;
+    private DataExportOccurrenceFinder finder;
     @Mock
     private MeteringService meteringService;
     @Mock
