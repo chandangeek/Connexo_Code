@@ -26,6 +26,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -143,6 +144,9 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 		Instant instant = limit(getCategory(LifeCycleCategoryKind.JOURNAL).getRetention());
 		logger.info("Removing journals up to " + instant);	
 		ormService.dropJournal(instant,logger);		
+		instant = limit(getCategory(LifeCycleCategoryKind.LOGGING).getRetention());
+		logger.info("Removing logging up to " + instant);
+		ormService.dropAuto(LifeCycleClass.LOGGING, instant, logger);
 		PurgeConfiguration purgeConfiguration = PurgeConfiguration.builder()
 				.registerLimit(limit(getCategory(LifeCycleCategoryKind.REGISTER).getRetention()))
 				.intervalLimit(limit(getCategory(LifeCycleCategoryKind.INTERVAL).getRetention()))
