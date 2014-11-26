@@ -10,7 +10,7 @@ public class MessageStatusAdapter extends MapBasedXmlAdapter<DeviceMessageStatus
 
     public MessageStatusAdapter() {
         register("",null);
-        register(MessageSeeds.COMMAND_CANCELED.getKey(),DeviceMessageStatus.CANCELED);
+        register(MessageSeeds.COMMAND_REVOKED.getKey(),DeviceMessageStatus.REVOKED);
         register(MessageSeeds.COMMAND_CONFIRMED.getKey(),DeviceMessageStatus.CONFIRMED);
         register(MessageSeeds.COMMAND_FAILED.getKey(),DeviceMessageStatus.FAILED);
         register(MessageSeeds.COMMAND_IN_DOUBT.getKey(),DeviceMessageStatus.INDOUBT);

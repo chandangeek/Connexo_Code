@@ -454,7 +454,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.CONTACTOR_OPEN.dbValue())).thenReturn(Optional.of(deviceMessageSpec));
         DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getSpecification()).thenReturn(deviceMessageSpec);
-        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CANCELED);
+        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.REVOKED);
         when(deviceMessage.getSentDate()).thenReturn(Optional.empty());
         when(deviceMessage.getId()).thenReturn(id);
         when(deviceMessage.getDevice()).thenReturn(device);
