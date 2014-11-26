@@ -6,7 +6,8 @@ Ext.define('Usr.view.user.Edit', {
         'Usr.store.Groups',
         'Uni.view.form.CheckboxGroup',
         'Ext.button.Button',
-        'Uni.util.Hydrator'
+        'Uni.util.Hydrator',
+        'Uni.util.FormInfoMessage'
     ],
 
     initComponent: function () {
@@ -33,6 +34,14 @@ Ext.define('Usr.view.user.Edit', {
                             labelWidth: 250
                         },
                         items: [
+                            {
+                                xtype: 'uni-form-info-message',
+                                itemId: 'alertmessageuser',
+                                title: Uni.I18n.translate('user.cannot.edit.title', 'USR', 'This user cannot be changed.'),
+                                text:Uni.I18n.translate('user.cannot.edit.message', 'USR', 'Only the description is editable.'),
+                                hidden: true
+
+                            },
                             {
                                 name: 'authenticationName',
                                 fieldLabel: Uni.I18n.translate('user.name', 'USR', 'Name')
