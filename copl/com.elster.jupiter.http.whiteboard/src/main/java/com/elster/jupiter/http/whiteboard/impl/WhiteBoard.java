@@ -179,6 +179,15 @@ public class WhiteBoard extends Application implements BinderProvider {
         }
     }
 
+    boolean isAppLicensed(String app){
+        Optional<License> license = licenseService.getLicenseForApplication(app);
+        if(license.isPresent() && (license.get().getStatus().equals(License.Status.ACTIVE) || license.get().getGracePeriodInDays() > 0)){
+            return true;
+        }
+
+        return false;
+    }
+
     String getAlias(String name) {
         return "/apps" + (name.startsWith("/") ? name : "/" + name);
     }

@@ -116,7 +116,9 @@ public class HttpContextImpl implements HttpContext {
 
 
     private void logoutYellowfin(String userName) {
-        yellowfinService.logout(userName);
+        if(whiteboard.isAppLicensed("YFN")){
+            yellowfinService.logout(userName);
+        }
     }
 
 
