@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import java.time.Instant;
+import java.util.logging.Logger;
 
 import com.elster.jupiter.metering.PurgeConfiguration;
 
@@ -21,19 +22,22 @@ public class DataPurger {
 		purgeConfiguration.getEventLimit().ifPresent(this::purgeEvents);
 	}
 	
-	void purgeRegister(Instant limit) {
-		meteringService.registerVaults().forEach(vault -> vault.purge(limit));
+	private void purgeRegister(Instant limit) {
+		meteringService.registerVaults().forEach(vault -> vault.purge(limit, logger()));
 	}
 	
-	void purgeInterval(Instant limit) {
-		meteringService.intervalVaults().forEach(vault -> vault.purge(limit));
+	private void purgeInterval(Instant limit) {
+		meteringService.intervalVaults().forEach(vault -> vault.purge(limit, logger()));
 	}
 	
-	void purgeDaily(Instant limit) {
-		meteringService.dailyVaults().forEach(vault -> vault.purge(limit));
+	private void purgeDaily(Instant limit) {
+		meteringService.dailyVaults().forEach(vault -> vault.purge(limit, logger()));
 	}
 	
-	void  purgeEvents(Instant limit) {
+	private void  purgeEvents(Instant limit) {
 	}
 	
+	private Logger logger() {
+		return purgeConfiguration.getLogger();
+	}
 }
