@@ -1,6 +1,7 @@
 package com.elster.jupiter.tasks;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -16,7 +17,7 @@ public interface TaskService {
     MessageHandler createMessageHandler(TaskExecutor taskExecutor);
 
     Optional<RecurrentTask> getRecurrentTask(long id);
-    
+
     Optional<RecurrentTask> getRecurrentTask(String name);
 
     Optional<TaskOccurrence> getOccurrence(Long id);
@@ -26,4 +27,6 @@ public interface TaskService {
     void launch();
 
     boolean isLaunched();
+
+    QueryExecutor<TaskOccurrence> getTaskOccurrenceQueryExecutor();
 }

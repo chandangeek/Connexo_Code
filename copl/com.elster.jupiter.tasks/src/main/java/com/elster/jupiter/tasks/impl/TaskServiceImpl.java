@@ -5,6 +5,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
@@ -126,6 +127,11 @@ public class TaskServiceImpl implements TaskService, InstallService {
     @Override
     public Optional<RecurrentTask> getRecurrentTask(long id) {
         return dataModel.mapper(RecurrentTask.class).getOptional(id);
+    }
+
+    @Override
+    public QueryExecutor<TaskOccurrence> getTaskOccurrenceQueryExecutor() {
+        return dataModel.query(TaskOccurrence.class);
     }
 
     @Override
