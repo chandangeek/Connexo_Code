@@ -5,6 +5,15 @@
   position: relative;
   display: inline;
 
+  .threshold {
+    position: absolute;
+    border-style: solid;
+    border-width: 6px 6px 0 6px;
+    margin-left: -3px;
+    top: -6px;
+    border-color: #007bff transparent transparent transparent;
+  }
+
   .x-bar-label {
     position: absolute;
     right: 100%;
