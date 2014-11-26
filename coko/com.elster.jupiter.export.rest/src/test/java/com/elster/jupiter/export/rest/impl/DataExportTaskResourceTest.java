@@ -22,6 +22,7 @@ import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Never;
 import org.junit.After;
@@ -45,8 +46,7 @@ import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
 
@@ -100,6 +100,7 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
 
     @Before
     public void setUpMocks() {
+        when(transactionService.execute(any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
         doReturn(query).when(dataExportService).getReadingTypeDataExportTaskQuery();
         doReturn(restQuery).when(restQueryService).wrap(query);
         doReturn(Arrays.asList(readingTypeDataExportTask)).when(restQuery).select(any(), any());
@@ -136,6 +137,16 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
         DataExportTaskInfos infos = response1.readEntity(DataExportTaskInfos.class);
         assertThat(infos.total).isEqualTo(1);
         assertThat(infos.dataExportTasks).hasSize(1);
+    }
+
+    @Test
+    public void triggerTaskTest() {
+        DataExportTaskInfo info = new DataExportTaskInfo();
+
+        Response response1 = target("/dataexporttask/"+TASK_ID+"/trigger").request().post(Entity.json(null));
+        assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        verify(readingTypeDataExportTask).triggerNow();
     }
 
 

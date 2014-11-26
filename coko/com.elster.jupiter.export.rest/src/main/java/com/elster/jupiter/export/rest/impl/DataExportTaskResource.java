@@ -1,12 +1,7 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.DataExportOccurrenceFinder;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportStatus;
-import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
+import com.elster.jupiter.export.*;
 import com.elster.jupiter.export.rest.DataExportOccurrenceLogInfos;
 import com.elster.jupiter.export.rest.DataExportTaskHistoryInfos;
 import com.elster.jupiter.export.rest.DataExportTaskInfo;
@@ -29,11 +24,16 @@ import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import com.google.common.collect.Range;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -237,7 +237,6 @@ public class DataExportTaskResource {
         infos.total = queryParameters.determineTotal(occurrences.size());
         return infos;
     }
-
 
 
     private Map<String, Long> getFilterMap(JSONArray filterArray) {
