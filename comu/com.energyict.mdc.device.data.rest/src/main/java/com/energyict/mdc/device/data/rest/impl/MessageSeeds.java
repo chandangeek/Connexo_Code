@@ -184,7 +184,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_MESSAGE(213, "NoSuchMessage", "No such device message exists on the device" ),
     NOT_DEFINED_YET(214, "NotDefinedYet", "(not defined yet)"),
     AS_SOON_AS_POSSIBLE(215, "asSoonAsPossible", "As soon as possible"),
-    MINIMIZE_CONNECTIONS(216, "minimizeConnections", "Minimize connections")
+    MINIMIZE_CONNECTIONS(216, "minimizeConnections", "Minimize connections"),
+    MDC_LABEL_CATEGORY_FAVORITES(217, "mdc.label.category.favorites", "Favorites"),
+    NO_SUCH_LABEL_CATEGORY(218, "NoSuchLabelCategory", "No such label category"),
+    NO_SUCH_DEVICE_LABEL(219, "NoSuchDeviceLabel", "No such device label of category ''{0}'' on a device {1}")
     ;
 
 

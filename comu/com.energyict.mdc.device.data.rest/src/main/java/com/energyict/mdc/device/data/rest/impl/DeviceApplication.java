@@ -115,7 +115,8 @@ public class DeviceApplication extends Application implements InstallService {
                 SecurityPropertySetResource.class,
                 ConnectionMethodResource.class,
                 ComSessionResource.class,
-                DeviceMessageResource.class
+                DeviceMessageResource.class,
+                DeviceLabelResource.class
         );
     }
 
@@ -229,7 +230,7 @@ public class DeviceApplication extends Application implements InstallService {
     }
     
     @Reference
-    public void setFavouriteDevicesService(FavoritesService favoritesService) {
+    public void setFavoritesService(FavoritesService favoritesService) {
         this.favoritesService = favoritesService;
     }
 
@@ -238,6 +239,7 @@ public class DeviceApplication extends Application implements InstallService {
         Installer installer = new Installer();
         installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
         createTranslations();
+        createLabelCategories();
     }
 
     @Override
@@ -268,6 +270,14 @@ public class DeviceApplication extends Application implements InstallService {
             }
 
             thesaurus.addTranslations(translations.values());
+        } catch (Exception e) {
+            logger.severe(e.getMessage());
+        }
+    }
+    
+    private void createLabelCategories() {
+        try {
+            favoritesService.createLabelCategory(MessageSeeds.MDC_LABEL_CATEGORY_FAVORITES.getKey());
         } catch (Exception e) {
             logger.severe(e.getMessage());
         }

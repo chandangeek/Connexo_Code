@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.favorites.FavoritesService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -20,8 +21,11 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import java.time.Clock;
+
 import javax.ws.rs.core.Application;
+
 import org.mockito.Mock;
 
 /**
@@ -66,6 +70,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     CommunicationTaskService communicationTaskService;
     @Mock
     PropertySpecService propertySpecService;
+    @Mock
+    FavoritesService favoritesService;
 
 
     @Override
@@ -96,6 +102,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setTaskService(taskService);
         application.setCommunicationTaskService(communicationTaskService);
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        application.setFavoritesService(favoritesService);
         return application;
     }
 }

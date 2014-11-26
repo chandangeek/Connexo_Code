@@ -1,24 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.favorites.FavoritesService;
-import com.elster.jupiter.favorites.DeviceLabel;
-import com.elster.jupiter.favorites.LabelCategory;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.Batch;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
-import com.energyict.mdc.device.data.rest.FlaggedInfo;
-
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -27,6 +8,17 @@ import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.imp.Batch;
+import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -49,12 +41,12 @@ public class DeviceInfo {
     public Boolean hasRegisters;
     public Boolean hasLogBooks;
     public Boolean hasLoadProfiles;
-    public FlaggedInfo flaggedInfo;
+    public DeviceLabelInfo deviceLabelInfo;
     
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, DeviceService deviceService, IssueService issueService, MeteringService meteringService, FavoritesService favoritesService, User user) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, DeviceService deviceService, IssueService issueService) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
@@ -82,28 +74,8 @@ public class DeviceInfo {
         deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
         deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
-        deviceInfo.flaggedInfo = getFlaggedDeviceInfo(device, meteringService, favoritesService, user);
         
         return deviceInfo;
-    }
-
-    private static FlaggedInfo getFlaggedDeviceInfo(Device device, MeteringService meteringService, FavoritesService favoritesService, User user) {
-        FlaggedInfo flaggedInfo = null;
-        Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
-        if (amrSystem.isPresent()) {
-            Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(device.getId()));
-            Optional<LabelCategory> favoriteCategory = favoritesService.findLabelCategory("mdc.labelcategory.favorite");
-            if (meter.isPresent() && favoriteCategory.isPresent()) {
-                Optional<DeviceLabel> deviceLabel = favoritesService.findDeviceLabel(meter.get(), user, favoriteCategory.get());
-                if (deviceLabel.isPresent()) {
-                    flaggedInfo = new FlaggedInfo();
-                    flaggedInfo.status = true;
-                    flaggedInfo.comment = deviceLabel.get().getComment();
-                    flaggedInfo.flaggedDate = deviceLabel.get().getCreationDate();
-                }
-            }
-        }
-        return flaggedInfo;
     }
 
     public static DeviceInfo from(Device device) {

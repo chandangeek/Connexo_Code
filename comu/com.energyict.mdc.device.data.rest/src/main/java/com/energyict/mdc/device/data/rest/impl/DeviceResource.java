@@ -1,15 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 
-import com.elster.jupiter.favorites.DeviceLabel;
-import com.elster.jupiter.favorites.FavoritesService;
-import com.elster.jupiter.favorites.LabelCategory;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
@@ -25,7 +17,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.TopologyTimeline;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
-import com.energyict.mdc.device.data.rest.FlaggedInfo;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -50,7 +41,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -72,8 +62,6 @@ public class DeviceResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final IssueService issueService;
-    private final MeteringService meteringService;
-    private final FavoritesService favoritesService;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
     private final Provider<LogBookResource> logBookResourceProvider;
@@ -85,6 +73,7 @@ public class DeviceResource {
     private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<DeviceMessageResource> deviceCommandResourceProvider;
+    private final Provider<DeviceLabelResource> deviceLabelResourceProvider;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
@@ -96,8 +85,6 @@ public class DeviceResource {
             DeviceService deviceService,
             DeviceConfigurationService deviceConfigurationService,
             IssueService issueService,
-            MeteringService meteringService,
-            FavoritesService favoritesService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileResource> loadProfileResourceProvider,
             Provider<LogBookResource> logBookResourceProvider,
@@ -111,15 +98,14 @@ public class DeviceResource {
             DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
             DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory,
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
-            Provider<ConnectionMethodResource> connectionMethodResourceProvider) {
+            Provider<ConnectionMethodResource> connectionMethodResourceProvider,
+            Provider<DeviceLabelResource> deviceLabelResourceProvider) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
         this.deviceService = deviceService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.issueService = issueService;
-        this.meteringService = meteringService;
-        this.favoritesService = favoritesService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileResourceProvider = loadProfileResourceProvider;
         this.logBookResourceProvider = logBookResourceProvider;
@@ -131,6 +117,7 @@ public class DeviceResource {
         this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
         this.deviceCommandResourceProvider = deviceCommandResourceProvider;
+        this.deviceLabelResourceProvider = deviceLabelResourceProvider;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
@@ -172,30 +159,7 @@ public class DeviceResource {
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
 
         this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
-        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, deviceService, issueService, meteringService, favoritesService, (User) securityContext.getUserPrincipal());
-    }
-    
-    @PUT
-    @Path("/{mRID}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
-    public DeviceInfo setOrUnsetFlaggedDevice(@PathParam("mRID") String id, FlaggedInfo flaggedDeviceInfo, @Context SecurityContext securityContext) {
-        User user = (User) securityContext.getUserPrincipal();
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
-        Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(device.getId()));
-        Optional<LabelCategory> labelCategory = favoritesService.findLabelCategory("mdc.labelcategory.favorite");
-        
-        if (flaggedDeviceInfo.status) {
-            favoritesService.findOrCreateDeviceLabel(meter.get(), user, labelCategory.get(), flaggedDeviceInfo.comment);
-        } else {
-            Optional<DeviceLabel> deviceLabel = favoritesService.findDeviceLabel(meter.get(), user, labelCategory.get());
-            if (deviceLabel.isPresent()) {
-                favoritesService.removeDeviceLabel(deviceLabel.get());
-            }
-        }
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService, meteringService, favoritesService, user);
+        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, deviceService, issueService);
     }
 
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device){
@@ -223,7 +187,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService, meteringService, favoritesService, (User) securityContext.getUserPrincipal());
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService);
     }
 
     /**
@@ -317,7 +281,11 @@ public class DeviceResource {
     public SecurityPropertySetResource getSecurityPropertySetResource() {
         return securityPropertySetResourceProvider.get();
     }
-
+    
+    @Path("/{mRID}/devicelabels")
+    public DeviceLabelResource getDeviceLabelResource() {
+        return deviceLabelResourceProvider.get();
+    }
 
     @GET
     @Path("/{mRID}/topology/communication")
