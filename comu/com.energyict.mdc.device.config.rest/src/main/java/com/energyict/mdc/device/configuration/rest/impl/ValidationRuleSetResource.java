@@ -52,7 +52,7 @@ public class ValidationRuleSetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public Response getValidationsRuleSets(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -71,7 +71,7 @@ public class ValidationRuleSetResource {
     @DELETE
     @Path("/{validationRuleSetId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response deleteValidationRuleSetFromDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,

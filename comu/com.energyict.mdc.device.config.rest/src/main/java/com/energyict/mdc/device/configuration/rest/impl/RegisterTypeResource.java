@@ -57,7 +57,7 @@ public class RegisterTypeResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getRegisterTypes(@BeanParam QueryParameters queryParameters) {
         List<RegisterType> registerTypes = this.masterDataService.findAllRegisterTypes().from(queryParameters).find();
         List<RegisterTypeInfo> registerTypeInfos = new ArrayList<>();
@@ -70,7 +70,7 @@ public class RegisterTypeResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public RegisterTypeInfo getRegisterType(@PathParam("id") long id) {
         RegisterType registerType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
         return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);

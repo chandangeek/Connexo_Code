@@ -45,7 +45,7 @@ public class RegisterGroupResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getRegisterGroups(@BeanParam QueryParameters queryParameters) {
         List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups().from(queryParameters).find();
         List<RegisterGroupInfo> registerGroupInfos = new ArrayList<>();
@@ -59,7 +59,7 @@ public class RegisterGroupResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public RegisterGroupInfo getRegisterGroup(@PathParam("id") long id) {
         return new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
     }
@@ -67,7 +67,7 @@ public class RegisterGroupResource {
     @GET
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
         List<RegisterTypeInfo> registerTypeInfos = registerGroupInfo.registerTypes;

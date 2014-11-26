@@ -68,7 +68,7 @@ public class ConnectionMethodResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                               @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                               @BeanParam QueryParameters queryParameters,
@@ -107,7 +107,7 @@ public class ConnectionMethodResource {
     @GET
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public ConnectionMethodInfo<?> getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                                         @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                                         @PathParam("connectionMethodId") long connectionMethodId,
