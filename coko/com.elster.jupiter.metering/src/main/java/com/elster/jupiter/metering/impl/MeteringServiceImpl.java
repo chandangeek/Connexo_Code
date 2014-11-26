@@ -387,4 +387,5 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     List<Vault> dailyVaults() {
     	return Collections.emptyList();
     }
+    
 }
