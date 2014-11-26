@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
-import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -14,7 +13,7 @@ import java.util.Optional;
  * The lifecycle of a DeviceMessage is as following:
  * <ol>
  * <li>{@link DeviceMessageStatus#WAITING}</li>
- * <li>{@link DeviceMessageStatus#PENDING} or {@link DeviceMessageStatus#CANCELED}</li>
+ * <li>{@link DeviceMessageStatus#PENDING} or {@link DeviceMessageStatus#REVOKED}</li>
  * <li>{@link DeviceMessageStatus#SENT}</li>
  * <li>{@link DeviceMessageStatus#CONFIRMED}, {@link DeviceMessageStatus#FAILED} or {@link DeviceMessageStatus#INDOUBT}</li>
  * </ol>

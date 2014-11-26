@@ -25,7 +25,7 @@ public enum DeviceMessageStatus {
 
         @Override
         Set<DeviceMessageStatus> successors() {
-            return EnumSet.of(PENDING, CANCELED);
+            return EnumSet.of(PENDING, REVOKED);
         }
     },
 
@@ -42,14 +42,14 @@ public enum DeviceMessageStatus {
 
         @Override
         Set<DeviceMessageStatus> successors() {
-            return EnumSet.of(CANCELED, CONFIRMED, FAILED, INDOUBT, SENT);
+            return EnumSet.of(REVOKED, CONFIRMED, FAILED, INDOUBT, SENT);
         }
     },
 
     /**
      * Applies to a device message that was canceled by the user.
      */
-    CANCELED {
+    REVOKED {
         @Override
         Set<DeviceMessageStatus> predecessors() {
             return EnumSet.of(WAITING, PENDING);
