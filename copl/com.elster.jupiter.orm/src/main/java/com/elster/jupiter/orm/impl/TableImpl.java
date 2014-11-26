@@ -10,11 +10,6 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2NOW;
 import static com.elster.jupiter.util.Checks.is;
 
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -33,7 +28,6 @@ import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnMapping;
@@ -57,7 +51,6 @@ public class TableImpl<T> implements Table<T> {
 	private String journalTableName;
 	private boolean cached;
     private boolean autoInstall = true;
-
     private int indexOrganized = -1;
 	
 	// associations
@@ -65,6 +58,9 @@ public class TableImpl<T> implements Table<T> {
 	private final List<ColumnImpl> columns = new ArrayList<>();
 	private final List<TableConstraintImpl> constraints = new ArrayList<>();
 	private final List<IndexImpl> indexes = new ArrayList<>();
+	
+	private Optional<Column> intervalPartitionColumn = Optional.empty();
+	private boolean autoPartitionMaintenance = false;
 	
 	// mapping
 	private DataMapperType<T> mapperType;
@@ -877,58 +873,38 @@ public class TableImpl<T> implements Table<T> {
 		if (getJournalTableName() == null) {
 			return;
 		}
+		drop(getJournalTableName(), upTo, logger);
+	}
+
+	@Override
+	public void dropData(Instant upTo, Logger logger) {
+		drop(getName(),upTo, logger);		
+	}
+
+	private void drop(String tableName, Instant upTo, Logger logger) {		
 		if (!getDataModel().getSqlDialect().hasPartitioning()) {
 			// todo sql delete
 			return;
 		}
-		try {
-			doDropJournal(upTo, logger);
-		} catch (SQLException ex) {
-			throw new UnderlyingSQLFailedException(ex);
+		PartitionDropper.of(getDataModel()).on(tableName).logger(logger).drop(upTo);		
+	}
+
+	@Override
+	public void intervalPartitionOn(Column column) {
+		if (!getPrimaryKeyColumns().contains(column)) {
+			throw new IllegalArgumentException("Partitioning column must be part of primary key");
 		}
+		this.intervalPartitionColumn = Optional.of(column);
 	}
 	
-	private void doDropJournal(Instant upTo, Logger logger) throws SQLException {
-		try (Connection connection = getDataModel().getConnection(false)) {
-			try(PreparedStatement statement = connection.prepareStatement(partitionQuerySql())) {
-				statement.setString(1, getJournalTableName().toUpperCase());
-				try (ResultSet resultSet = statement.executeQuery()) {		
-					while (resultSet.next()) {
-						String highValueString = resultSet.getString(2);
-						try {
-							long highValue = Long.parseLong(highValueString);
-							if (highValue <= upTo.toEpochMilli()) {
-								String partitionName = resultSet.getString(1);
-								dropPartition(partitionName, connection);
-								logger.info("Dropped partition " + partitionName + " from table " + getJournalTableName() + " containing entries up to " + Instant.ofEpochMilli(highValue));
-							}
-						} catch (NumberFormatException ex) {
-							// if highValue is not a number , ignore partition
-						}
-					}
-				}
-			}
-		}		
+	@Override
+	public void autoPartitionOn(Column column) {
+		intervalPartitionOn(column);
+		this.autoPartitionMaintenance = true;
 	}
 	
-	private String partitionQuerySql() {
-		return "select partition_name, high_value from user_tab_partitions where table_name = ? and interval = 'YES'";
-	}
-	
-	private String dropPartitionSql(String partitionName) {
-		return new StringBuilder("ALTER TABLE ")
-			.append(getJournalTableName())
-			.append(" DROP PARTITION ")
-			.append(partitionName)
-			.append(" UPDATE GLOBAL INDEXES")
-			.toString();
-	}
-	
-	
-	private void dropPartition(String name, Connection connection) throws SQLException {
-		try (Statement statement = connection.createStatement()) {
-			statement.executeUpdate(dropPartitionSql(name));
-		}
+	public Optional<Column> intervalPartitionColumn() {	
+		return intervalPartitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
 	}
 
 }
