@@ -418,7 +418,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
         
         @Override
         public Builder refPartition() {
-        	constraint.refPartitioned = false;
+        	constraint.refPartitioned = true;
         	return this;
         }
 
