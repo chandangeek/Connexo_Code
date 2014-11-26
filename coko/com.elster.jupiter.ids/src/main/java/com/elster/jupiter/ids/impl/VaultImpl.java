@@ -556,9 +556,9 @@ public class VaultImpl implements Vault {
     @Override
     public void purge(Instant instant, Logger logger) {
     	if (isPartitioned()) {
-    		dataModel.partitionDropper(getTableName(), logger).drop(instant);
+    		dataModel.dataDropper(getTableName(), logger).drop(instant);
         	if (hasJournal()) {
-        		dataModel.partitionDropper(getJournalTableName(), logger).drop(instant);
+        		dataModel.dataDropper(getJournalTableName(), logger).drop(instant);
         	}
     	}
     	if (instant.isAfter(minTime)) {
