@@ -130,13 +130,19 @@ Ext.define('Idc.view.workspace.issues.AssignForm', {
         assigneeCombo.emptyText = hint;
         switch (value) {
             case 'USER' :
-                assigneeCombo.bindStore('Idc.store.UserList');
+                var userStore = Ext.getStore('Idc.store.UserList');
+                assigneeCombo.bindStore(userStore);
+                assigneeCombo.store.load();
                 break;
             case 'GROUP' :
-                assigneeCombo.bindStore('Idc.store.UserGroupList');
+                var groupStore = Ext.getStore('Idc.store.UserGroupList');
+                assigneeCombo.bindStore(groupStore);
+                assigneeCombo.store.load();
                 break;
             case 'ROLE' :
-                assigneeCombo.bindStore('Idc.store.UserRoleList');
+                var roleStore = Ext.getStore('Idc.store.UserRoleList');
+                assigneeCombo.bindStore(roleStore);
+                assigneeCombo.store.load();
                 break;
         }
         assigneeCombo.clearValue();

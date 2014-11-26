@@ -1,7 +1,7 @@
 Ext.define('Idc.store.UserGroupList', {
     extend: 'Ext.data.Store',
     model: 'Idc.model.UserGroupList',
-    autoLoad: true,
+    autoLoad: false,
 
     proxy: {
         type: 'rest',

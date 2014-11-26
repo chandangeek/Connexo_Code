@@ -1,7 +1,7 @@
 Ext.define('Idc.store.UserRoleList', {
     extend: 'Ext.data.Store',
     model: 'Idc.model.UserRoleList',
-    autoLoad: true,
+    autoLoad: false,
 
     proxy: {
         type: 'rest',
