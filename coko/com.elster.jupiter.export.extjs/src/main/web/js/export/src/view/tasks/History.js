@@ -54,19 +54,9 @@ Ext.define('Dxp.view.tasks.History', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('dataExportTasks.empty.title', 'DES', 'No data export tasks found'),
+                        title: Uni.I18n.translate('dataExportTasksHistory.empty.title', 'DES', 'No data export history found'),
                         reasons: [
-                            Uni.I18n.translate('dataExportTasks.empty.list.item1', 'DES', 'No data export tasks have been defined yet.'),
-                            Uni.I18n.translate('dataExportTasks.empty.list.item2', 'DES', 'Data export tasks exist, but you do not have permission to view them.'),
-                            Uni.I18n.translate('dataExportTasks.empty.list.item3', 'DES', 'The filter is too narrow.')
-                        ],
-                        stepItems: [
-                            {
-                                text: Uni.I18n.translate('general.addDataExportTask', 'DES', 'Add data export task'),
-                                privileges:['privilege.administrate.dataExportTask'],
-                                ui: 'action',
-                                href: '#/administration/dataexporttasks/add'
-                            }
+                            Uni.I18n.translate('dataExportTasksHistory.empty.list.item1', 'DES', 'There is no history available for this data export task.')
                         ]
                     },
                     previewComponent: {

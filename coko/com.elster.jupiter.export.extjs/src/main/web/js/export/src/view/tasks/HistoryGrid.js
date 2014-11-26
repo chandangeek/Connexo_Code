@@ -16,17 +16,17 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.startedOn', 'DES', 'Started On'),
-                dataIndex: 'startedOn',
-                flex: 2,
+                dataIndex: 'startedOn_formatted',
+                flex: 3,
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence').buildUrl({occurrenceId: record.get('id')});
-                    return '<a href="' + url + '">' + Ext.util.Format.date(new Date(value), 'D d M Y \\a\\t h:i A') + '</a>';
+                    return '<a href="' + url + '">' + value + '</a>';
                 }
             },
             {
                 xtype: 'uni-grid-column-duration',
                 dataIndex: 'duration',
-                flex: 1
+                flex: 3
             },
             {
                 header: Uni.I18n.translate('general.status', 'DES', 'Status'),
@@ -35,12 +35,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
             },
             {
                 header: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
-                renderer: function (value, metaData, record) {
-                    var exportPeriodFrom = new Date(record.get('exportPeriodFrom')),
-                        exportPeriodTo = new Date(record.get('exportPeriodTo'));
-                    return 'From ' + Ext.util.Format.date(exportPeriodFrom, 'D d M Y H:i:s') +
-                        ' to ' + Ext.util.Format.date(exportPeriodTo, 'D d M Y H:i:s');
-                },
+                dataIndex: 'exportPeriod_range',
                 flex: 3
             },
             {
@@ -48,7 +43,8 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 menu: {
                     xtype: 'tasks-action-menu',
                     itemId: 'tasks-action-menu'
-                }
+                },
+                flex: 1
             }
         ];
 

@@ -265,9 +265,13 @@ Ext.define('Dxp.controller.Tasks', {
             propertyForm = previewForm.down('property-form');
 
         if (record) {
+            preview.setTitle(record.get('startedOn_formatted'));
             previewForm.down('displayfield[name=lastRun_formatted]').setVisible(false);
             previewForm.down('displayfield[name=nextRun_formatted]').setVisible(false);
-            preview.setTitle(Ext.util.Format.date(new Date(record.get('startedOn')), 'D d M Y \\a\\t h:i A'));
+            previewForm.down('displayfield[name=startedOn]').setVisible(false);
+            previewForm.down('displayfield[name=finishedOn]').setVisible(false);
+            previewForm.down('displayfield[name=startedOn_formatted]').setVisible(true);
+            previewForm.down('displayfield[name=finishedOn_formatted]').setVisible(true);
             previewForm.loadRecord(record);
             preview.down('tasks-action-menu').record = record;
             if (record.properties() && record.properties().count()) {
@@ -444,6 +448,9 @@ Ext.define('Dxp.controller.Tasks', {
                 break;
             case 'viewLog':
                 route = 'administration/dataexporttasks/dataexporttask/history/occurrence';
+                break;
+            case 'viewHistory':
+                route = 'administration/dataexporttasks/dataexporttask/history';
                 break;
             case 'run':
                 me.runTask(menu.record);
