@@ -98,12 +98,13 @@ public class WhereClauseBuilder implements Visitor {
 		builder.openBracket();
 		String separator = "" ;
 		for (String fieldName : membership.getFieldNames()) {
-			ColumnAndAlias columnAndAlias = root.getColumnAndAliasForField(fieldName);
-			if (columnAndAlias == null) {
-				throw new IllegalArgumentException("Invalid field: " + fieldName);
-			}
-			builder.append(separator);
-			builder.append(columnAndAlias.toString());
+            List<ColumnAndAlias> columnAndAliases = root.getColumnAndAliases(fieldName);
+            if (columnAndAliases.isEmpty() || columnAndAliases.size() > 1) {
+                throw new IllegalArgumentException("Invalid field: " + fieldName);
+            }
+            ColumnAndAlias columnAndAlias = columnAndAliases.get(0);
+            builder.append(separator);
+            builder.append(columnAndAlias.toString());
 			separator = ", ";
 		}
 		builder.closeBracketSpace();

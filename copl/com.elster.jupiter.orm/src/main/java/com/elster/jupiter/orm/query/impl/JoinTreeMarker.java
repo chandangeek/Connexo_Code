@@ -1,8 +1,20 @@
 package com.elster.jupiter.orm.query.impl;
 
-import java.util.List;
+import com.elster.jupiter.util.conditions.And;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Constant;
+import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.Effective;
+import com.elster.jupiter.util.conditions.Exists;
+import com.elster.jupiter.util.conditions.FragmentExpression;
+import com.elster.jupiter.util.conditions.Membership;
+import com.elster.jupiter.util.conditions.Not;
+import com.elster.jupiter.util.conditions.Or;
+import com.elster.jupiter.util.conditions.Text;
+import com.elster.jupiter.util.conditions.Visitor;
 
-import com.elster.jupiter.util.conditions.*;
+import java.util.List;
 
 public class JoinTreeMarker implements Visitor {
 	
@@ -65,11 +77,8 @@ public class JoinTreeMarker implements Visitor {
 	@Override
 	public void visitMembership(Membership membership) {
 		for (String fieldName : membership.getFieldNames()) {
-			ColumnAndAlias columnAndAlias = root.getColumnAndAliasForField(fieldName);
-			if (columnAndAlias == null) {
-				throw new IllegalArgumentException("Invalid field: " + fieldName);
-			}
-		}
+            markAndTest(fieldName);
+        }
 	}
 
 	@Override
