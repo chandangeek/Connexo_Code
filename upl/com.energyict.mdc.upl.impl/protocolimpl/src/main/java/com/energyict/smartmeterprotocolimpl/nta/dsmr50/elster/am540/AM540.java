@@ -56,12 +56,11 @@ public class AM540 extends E350 {
 
     @Override
     public Object getCache() {
-        if (dlmsCache != null && dlmsCache instanceof AM540Cache) {
-            ((AM540Cache) this.dlmsCache).setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
-            return this.dlmsCache;
-        } else {
-            return new AM540Cache();
+        if (dlmsCache == null || !(dlmsCache instanceof AM540Cache)) {
+            this.dlmsCache = new AM540Cache();
         }
+        ((AM540Cache) this.dlmsCache).setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
+        return dlmsCache;
     }
 
     @Override
@@ -93,7 +92,7 @@ public class AM540 extends E350 {
     protected void checkCacheObjects() throws IOException {
         int readCacheProperty = getProperties().getForcedToReadCache();
         if (getCache() == null) {
-            setCache(new DLMSCache());
+            setCache(new AM540Cache());
         }
         if ((((DLMSCache) getCache()).getObjectList() == null) || (readCacheProperty == 1)) {
             if (readCacheProperty == 1) {
