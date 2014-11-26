@@ -1,9 +1,11 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.export.CannotDeleteWhileBusyException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -11,6 +13,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -49,6 +52,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
     private final MeteringService meteringService;
+    private final Thesaurus thesaurus;
 
     private long id;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -79,11 +83,12 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     private transient Instant nextExecution;
 
     @Inject
-    ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService, MeteringService meteringService) {
+    ReadingTypeDataExportTaskImpl(DataModel dataModel, TaskService taskService, IDataExportService dataExportService, MeteringService meteringService, Thesaurus thesaurus) {
         this.taskService = taskService;
         this.dataModel = dataModel;
         this.dataExportService = dataExportService;
         this.meteringService = meteringService;
+        this.thesaurus = thesaurus;
     }
 
     static ReadingTypeDataExportTaskImpl from(DataModel dataModel, String name, RelativePeriod exportPeriod, String dataProcessor, ScheduleExpression scheduleExpression, EndDeviceGroup endDeviceGroup, Instant nextExecution) {
@@ -156,8 +161,8 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public Optional<? extends DataExportOccurrence> getLastOccurrence() {
-        return dataModel.query(DataExportOccurrence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("readingTask", this), new Order[]{Order.descending("taskocc")},
+    public Optional<IDataExportOccurrence> getLastOccurrence() {
+        return dataModel.query(IDataExportOccurrence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("readingTask", this), new Order[]{Order.descending("taskocc")},
                 false, new String[]{}, 1, 1).stream().findAny();
     }
 
@@ -196,10 +201,39 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     @Override
     public void delete() {
+        if (id == 0) {
+            return;
+        }
+        if (!canBeDeleted()) {
+            throw new CannotDeleteWhileBusy();
+        }
         dataModel.remove(this);
         if (recurrentTask.isPresent()) {
             recurrentTask.get().delete();
         }
+    }
+
+    @Override
+    public boolean canBeDeleted() {
+        return !hasUnfinishedOccurrences();
+    }
+
+    private boolean hasUnfinishedOccurrences() {
+        return hasBusyOccurrence() || hasQueuedMessages();
+    }
+
+    private boolean hasBusyOccurrence() {
+        return getLastOccurrence()
+                    .map(DataExportOccurrence::getStatus)
+                    .orElse(DataExportStatus.SUCCESS)
+                    .equals(DataExportStatus.BUSY);
+    }
+
+    private boolean hasQueuedMessages() {
+        return getLastOccurrence()
+                    .map(IDataExportOccurrence::getTaskOccurrence)
+                    .map(taskOccurrence -> taskOccurrence.equals(recurrentTask.get().getLastOccurrence().orElse(null)))
+                    .orElse(false);
     }
 
     @Override
@@ -411,5 +445,11 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
         save();
+    }
+
+    private class CannotDeleteWhileBusy extends CannotDeleteWhileBusyException {
+        public CannotDeleteWhileBusy() {
+            super(ReadingTypeDataExportTaskImpl.this.thesaurus, MessageSeeds.CANNOT_DELETE_WHILE_RUNNING, ReadingTypeDataExportTaskImpl.this);
+        }
     }
 }

@@ -6,7 +6,6 @@ import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.FatalDataExportException;
-import com.elster.jupiter.export.NoSuchDataProcessorException;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.nls.Thesaurus;
@@ -123,9 +122,11 @@ class DataExportTaskExecutor implements TaskExecutor {
     }
 
     private DataProcessor getDataProcessor(IReadingTypeDataExportTask task) {
-        DataProcessorFactory dataProcessorFactory = dataExportService.getDataProcessorFactory(task.getDataFormatter()).orElseThrow(NoSuchDataProcessorException::new);
+        return getDataProcessorFactory(task.getDataFormatter()).createDataFormatter(task.getDataExportProperties());
+    }
 
-        return dataProcessorFactory.createDataFormatter(task.getDataExportProperties());
+    private DataProcessorFactory getDataProcessorFactory(String dataFormatter) {
+        return dataExportService.getDataProcessorFactory(dataFormatter).orElseThrow(() -> new NoSuchDataProcessor(thesaurus ,dataFormatter));
     }
 
     private void doProcess(ItemExporter itemExporter, DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {

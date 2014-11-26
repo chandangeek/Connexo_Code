@@ -130,4 +130,9 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     public boolean wasScheduled() {
         return taskOccurrence.get().wasScheduled();
     }
+
+    @Override
+    public TaskOccurrence getTaskOccurrence() {
+        return taskOccurrence.get();
+    }
 }

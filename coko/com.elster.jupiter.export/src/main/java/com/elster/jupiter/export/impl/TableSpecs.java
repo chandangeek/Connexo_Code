@@ -2,7 +2,6 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
@@ -105,7 +104,7 @@ enum TableSpecs {
 
         }
     },
-    DES_RTDATAEXPORTITEM(ReadingTypeDataExportItem.class) {
+    DES_RTDATAEXPORTITEM(IReadingTypeDataExportItem.class) {
         @Override
         void describeTable(Table table) {
             table.map(ReadingTypeDataExportItemImpl.class);

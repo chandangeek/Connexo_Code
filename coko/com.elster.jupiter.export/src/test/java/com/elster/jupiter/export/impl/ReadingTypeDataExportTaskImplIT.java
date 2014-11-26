@@ -77,6 +77,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.time.RelativeField.*;
@@ -401,6 +402,32 @@ public class ReadingTypeDataExportTaskImplIT {
         ReadingTypeDataExportItem exportItem = readingTypeDataExportItems.get(0);
         assertThat(exportItem.isActive()).isFalse();
     }
+
+    @Test
+    @Ignore // generated query does not work on H2 DB : Karel will look into it
+    public void testGetLastOccurrence() throws Exception {
+        ReadingTypeDataExportTask exportTask = createAndSaveTask();
+
+        Optional<? extends ReadingTypeDataExportTask> found = dataExportService.findExportTask(exportTask.getId());
+        ReadingTypeDataExportTaskImpl task = (ReadingTypeDataExportTaskImpl) found.get();
+
+        RecurrentTask recurrentTask = task.getRecurrentTask();
+        IDataExportOccurrence dataExportOccurrence = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            for (int i = 0; i < 3; i++) {
+                TimeUnit.MILLISECONDS.sleep(5);
+                recurrentTask.triggerNow();
+
+                TaskOccurrence last = recurrentTask.getLastOccurrence().get();
+                dataExportOccurrence = dataExportService.createExportOccurrence(last);
+                dataExportOccurrence.persist();
+            }
+            context.commit();
+        }
+        Optional<IDataExportOccurrence> lastOccurrence = task.getLastOccurrence();
+        assertThat(lastOccurrence).isPresent().contains(dataExportOccurrence);
+    }
+
 
     private ReadingTypeDataExportTaskImpl createDataExportTask() {
         ReadingTypeDataExportTaskImpl exportTask;

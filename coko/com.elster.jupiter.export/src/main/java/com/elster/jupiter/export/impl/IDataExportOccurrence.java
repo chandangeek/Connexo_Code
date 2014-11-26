@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.tasks.TaskOccurrence;
 
 /**
  * Copyrights EnergyICT
@@ -15,6 +16,8 @@ interface IDataExportOccurrence extends DataExportOccurrence {
     void update();
 
     IReadingTypeDataExportTask getTask();
+
+    TaskOccurrence getTaskOccurrence();
 
     void end(DataExportStatus status);
 

@@ -45,6 +45,8 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     void delete();
 
+    boolean canBeDeleted();
+
     boolean isActive();
 
     String getDataFormatter();
