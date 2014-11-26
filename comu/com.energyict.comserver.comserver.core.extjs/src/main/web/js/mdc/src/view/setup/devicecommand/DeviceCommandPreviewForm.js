@@ -1,0 +1,106 @@
+Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
+    extend: 'Ext.form.Panel',
+    alias: 'widget.deviceCommandPreviewForm',
+    layout: {
+        type: 'column'
+    },
+    items: [
+        {
+            columnWidth: 0.5,
+            defaults: {
+                xtype: 'displayfield',
+                labelWidth: 200
+            },
+            items: [
+                {
+                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdName', 'MDC', 'Command name'),
+                    name: 'messageSpecification',
+                    renderer: function (val) {
+                        return val ? val.name : ''
+                    }
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdCategory', 'MDC', 'Command category'),
+                    name: 'category',
+                    renderer: function (val) {
+                        return val ? val : ''
+                    }
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdStatus', 'MDC', 'Status'),
+                    name: 'status',
+                    renderer: function (val) {
+                        return val.displayValue ? val.displayValue : ''
+                    }
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdTrackingId', 'MDC', 'Tracking ID'),
+                    name: 'trackingId',
+                    renderer: function (val) {
+                        return val ? val : ''
+                    }
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdErrorMsg', 'MDC', 'Error message'),
+                    name: 'errorMessage',
+                    renderer: function (val) {
+                        return val ? val : ''
+                    }
+                }
+            ]
+        },
+        {
+            columnWidth: 0.5,
+            defaults: {
+                xtype: 'displayfield',
+                labelWidth: 200
+            },
+            items: [
+                {
+                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created By'),
+                    name: 'user',
+                    renderer: function (val) {
+                        return val ? val : ''
+                    }
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdCreationDate', 'MDC', 'Creation date'),
+                    name: 'creationDate',
+                    renderer: function (val) {
+                        var res = "";
+                        if (val) {
+                            var date = new Date(val);
+                            res =  Ext.Date.format(date, 'd/m/Y H:i')
+                        }
+                        return res;
+                    }
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('deviceCommands.view.releaseDate', 'MDC', 'Release date'),
+                    name: 'releaseDate',
+                    renderer: function (val) {
+                        var res = "";
+                        if (val) {
+                            var date = new Date(val);
+                            res =  Ext.Date.format(date, 'd/m/Y H:i')
+                        }
+                        return res;
+                    }
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('deviceCommands.view.sentDate', 'MDC', 'Sent date'),
+                    name: 'sentDate',
+                    renderer: function (val) {
+                        var res = "";
+                        if (val) {
+                            var date = new Date(val);
+                            res =  Ext.Date.format(date, 'd/m/Y H:i')
+                        }
+                        return res;
+                    }
+                }
+            ]
+        }
+    ]
+});
+

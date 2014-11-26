@@ -124,6 +124,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 viewport.setLoading(false);
+                Ext.getBody().mask( 'Loading...' );
                 widget.setLoading();
                 widget.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!isTable);
                 widget.down('#deviceLoadProfilesTableViewBtn').setDisabled(isTable);
@@ -137,6 +138,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                         }
                         widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
                         widget.setLoading(false);
+                        Ext.getBody().unmask();
                     }
                 }, me);
                 if (Ext.isEmpty(router.filter.data.intervalStart)) {

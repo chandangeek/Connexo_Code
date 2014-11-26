@@ -29,6 +29,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsSetup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('comPortPool.addComPortPool', 'MDC', 'Add communication port pool'),
+                                privileges: ['privilege.administrate.communicationInfrastructure'],
                                 menu: {
                                     plain: true,
                                     border: false,

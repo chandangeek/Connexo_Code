@@ -15,6 +15,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
             iconCls: 'x-uni-action-iconD',
+            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.protocol'),
             menu: {
                 xtype: 'protocol-dialect-action-menu'
             }

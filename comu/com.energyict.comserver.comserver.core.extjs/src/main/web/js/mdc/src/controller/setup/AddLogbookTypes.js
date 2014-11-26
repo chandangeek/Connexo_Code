@@ -16,7 +16,6 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
     ],
 
     init: function () {
-
         this.control({
             'add-logbook-types grid': {
                 selectionchange: this.hideLogbookTypesErrorPanel
