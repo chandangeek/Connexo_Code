@@ -4,7 +4,6 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.rest.DataExportOccurrenceLogInfos;
@@ -163,7 +162,7 @@ public class DataExportTaskResource {
     public Response removeDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
 
-        if (task.getLastOccurrence().isPresent() && DataExportStatus.BUSY.equals(task.getLastOccurrence().get().getStatus())) {
+        if (!task.canBeDeleted()) {
             throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
         }
         try (TransactionContext context = transactionService.getContext()) {
