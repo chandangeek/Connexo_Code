@@ -1,7 +1,8 @@
 package com.elster.jupiter.bpm.rest;
 
 import com.elster.jupiter.bpm.rest.impl.DateConvertor;
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
