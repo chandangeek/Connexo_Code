@@ -58,13 +58,19 @@ $ui-body-background-color: $panel-filter-background-color
         }
 
         .#{$prefix}panel-header-text-container-large {
-            line-height: 36px;
+            line-height: 75px;
         }
 
         .#{$prefix}panel-header-text-container-medium {
             line-height: 36px;
         }
     }
+}
+
+.#{$prefix}panel-header-tile-horizontal,
+.#{$prefix}panel-header-large-horizontal,
+.#{$prefix}panel-header-medium-horizontal {
+  padding-bottom: 8px !important;
 }
 
 // Large
