@@ -2,14 +2,16 @@ package com.elster.jupiter.users.rest;
 
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
