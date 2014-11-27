@@ -1,7 +1,6 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.export.rest.MeterGroupInfos;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.QueryParameters;

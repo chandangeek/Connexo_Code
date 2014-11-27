@@ -2,7 +2,6 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataProcessorFactory;
-import com.elster.jupiter.export.rest.ProcessorInfos;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 

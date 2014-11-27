@@ -6,10 +6,6 @@ import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
-import com.elster.jupiter.export.rest.DataExportOccurrenceLogInfos;
-import com.elster.jupiter.export.rest.DataExportTaskHistoryInfos;
-import com.elster.jupiter.export.rest.DataExportTaskInfo;
-import com.elster.jupiter.export.rest.DataExportTaskInfos;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -169,7 +165,7 @@ public class DataExportTaskResource {
             task.delete();
             context.commit();
         } catch (UnderlyingSQLFailedException | CommitException ex) {
-            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_SQL_EXCEPTION, "status", thesaurus.getStringBeyondComponent(task.getName(), task.getName()));
+            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_SQL_EXCEPTION, "status", task.getName());
         }
         return Response.status(Response.Status.OK).build();
     }

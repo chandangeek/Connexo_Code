@@ -1,4 +1,4 @@
-package com.elster.jupiter.export.rest;
+package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.time.Never;
