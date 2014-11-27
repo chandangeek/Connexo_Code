@@ -280,6 +280,11 @@ public class FieldResource {
         public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
             return key;
         }
+
+        @Override
+        public Thesaurus join(Thesaurus thesaurus) {
+            return this;
+        }
     }
 
 }
