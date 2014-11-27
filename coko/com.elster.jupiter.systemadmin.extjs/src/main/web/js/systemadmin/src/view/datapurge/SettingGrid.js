@@ -11,6 +11,7 @@ Ext.define('Sam.view.datapurge.SettingGrid', {
         }
     ],
     forceFit: true,
+    showButtons: true,
     router: null,
 
     columns: [
@@ -44,19 +45,21 @@ Ext.define('Sam.view.datapurge.SettingGrid', {
     initComponent: function () {
         var me = this;
 
-        me.bbar = [
-            {
-                itemId: 'data-purge-settings-save-button',
-                text: Uni.I18n.translate('general.save', 'SAM', 'Save'),
-                ui: 'action'
-            },
-            {
-                itemId: 'data-purge-settings-cancel-button',
-                text: Uni.I18n.translate('general.cancel', 'SAM', 'Cancel'),
-                ui: 'link',
-                href: me.router.getRoute('administration').buildUrl()
-            }
-        ];
+        if (me.showButtons) {
+            me.bbar = [
+                {
+                    itemId: 'data-purge-settings-save-button',
+                    text: Uni.I18n.translate('general.save', 'SAM', 'Save'),
+                    ui: 'action'
+                },
+                {
+                    itemId: 'data-purge-settings-cancel-button',
+                    text: Uni.I18n.translate('general.cancel', 'SAM', 'Cancel'),
+                    ui: 'link',
+                    href: me.router.getRoute('administration').buildUrl()
+                }
+            ];
+        }
 
         me.callParent(arguments);
     }

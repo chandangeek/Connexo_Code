@@ -11,7 +11,9 @@ Ext.define('Sam.controller.Main', {
         'Sam.controller.history.Administration',
         'Sam.controller.licensing.Licenses',
         'Sam.controller.licensing.Upload',
-        'Sam.controller.datapurge.Settings'
+        'Sam.controller.datapurge.Settings',
+        'Sam.controller.datapurge.History',
+        'Sam.controller.datapurge.Log'
     ],
 
     stores: [
@@ -74,6 +76,10 @@ Ext.define('Sam.controller.Main', {
                         {
                             text: Uni.I18n.translate('datapurge.settings.title', 'SAM', 'Data purge settings'),
                             href: router.getRoute('administration/datapurgesettings').buildUrl()
+                        },
+                        {
+                            text: Uni.I18n.translate('datapurge.history.breadcrumb', 'SAM', 'Data purge history'),
+                            href: router.getRoute('administration/datapurgehistory').buildUrl()
                         }
                     ]
                 })
