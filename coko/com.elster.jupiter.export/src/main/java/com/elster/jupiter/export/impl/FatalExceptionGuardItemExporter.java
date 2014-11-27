@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.google.common.collect.Range;
@@ -18,6 +19,8 @@ public class FatalExceptionGuardItemExporter implements ItemExporter {
     public Range<Instant> exportItem(DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
         try {
             return decorated.exportItem(occurrence, item);
+        } catch (DataExportException | FatalDataExportException e) {
+            throw e;
         } catch (RuntimeException e) {
             throw new FatalDataExportException(e);
         }
