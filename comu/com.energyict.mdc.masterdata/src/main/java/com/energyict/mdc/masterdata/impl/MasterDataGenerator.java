@@ -162,7 +162,7 @@ public class MasterDataGenerator {
                 }
 
             } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                LOGGER.log(Level.FINEST, e.getMessage(), e);
             }
         }
         return measurementTypes;
