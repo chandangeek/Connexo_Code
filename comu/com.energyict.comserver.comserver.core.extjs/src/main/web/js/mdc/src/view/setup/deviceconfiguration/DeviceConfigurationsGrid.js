@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
                 menu: {
                     xtype: 'device-configuration-action-menu'
                 }
@@ -58,6 +59,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsGrid', {
                     },
                     {
                         text: Uni.I18n.translate('deviceconfiguration.createDeviceConfiguration', 'MDC', 'Add device configuration'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
                         itemId: 'createDeviceConfiguration',
                         xtype: 'button',
                         action: 'createDeviceConfiguration'
