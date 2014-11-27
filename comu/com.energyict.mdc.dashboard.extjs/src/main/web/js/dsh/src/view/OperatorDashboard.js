@@ -128,7 +128,8 @@ Ext.define('Dsh.view.OperatorDashboard', {
                                 buttons: [{
                                     text: Uni.I18n.translate('dashboard.widget.connections.link', 'DSH', 'View connections overview'),
                                     ui: 'link',
-                                    href: me.router.getRoute('workspace/connections').buildUrl(null, me.router.queryParams)
+                                    href: typeof me.router.getRoute('workspace/connections') !== 'undefined'
+                                        ? me.router.getRoute('workspace/connections').buildUrl(null, me.router.queryParams) : ''
                                 }]
                             },
                             {
@@ -142,7 +143,8 @@ Ext.define('Dsh.view.OperatorDashboard', {
                                 buttons: [{
                                     text: Uni.I18n.translate('dashboard.widget.communications.link', 'DSH', 'View communications overview'),
                                     ui: 'link',
-                                    href: me.router.getRoute('workspace/communications').buildUrl(null, me.router.queryParams)
+                                    href: typeof me.router.getRoute('workspace/communications') !== 'undefined'
+                                        ? me.router.getRoute('workspace/communications').buildUrl(null, me.router.queryParams) : ''
                                 }]
                             }
                         ]
