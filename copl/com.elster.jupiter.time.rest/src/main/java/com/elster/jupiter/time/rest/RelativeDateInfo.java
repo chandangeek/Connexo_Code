@@ -4,7 +4,7 @@ import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativeOperation;
 import com.elster.jupiter.time.RelativeOperator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
