@@ -111,24 +111,26 @@ public class StandardCsvDataProcessor implements DataProcessor {
             throw new DataExportException(new LocalizedException(thesaurus, MessageSeeds.INVALID_READING_CONTAINER, new IllegalArgumentException()) {});
         }
         try {
-            Long timestamp = reading.getTimeStamp().toEpochMilli();
-            writer.write(timestamp.toString());
-            writer.write(fileSeparator);
-            writer.write(meterOptional.get().getMRID());
-            writer.write(fileSeparator);
-            writer.write(readingType);
-            writer.write(fileSeparator);
-            writer.write(reading.getValue().toString());
-            writer.write(fileSeparator);
-            List<? extends ReadingQuality> readingQualities = reading.getReadingQualities();
-            //TODO handle readingQualities properly
-            for (ReadingQuality readingQuality : readingQualities) {
-                //ReadingQualityRecord record = ReadingQualityRecord.class.cast(readingQuality);
-                writer.write(readingQuality.getTypeCode());
-                writer.write("-");
+            if (reading.getValue() != null) {
+                Long timestamp = reading.getTimeStamp().toEpochMilli();
+                writer.write(timestamp.toString());
+                writer.write(fileSeparator);
+                writer.write(meterOptional.get().getMRID());
+                writer.write(fileSeparator);
+                writer.write(readingType);
+                writer.write(fileSeparator);
+                writer.write(reading.getValue().toString());
+                writer.write(fileSeparator);
+                List<? extends ReadingQuality> readingQualities = reading.getReadingQualities();
+                //TODO handle readingQualities properly
+                for (ReadingQuality readingQuality : readingQualities) {
+                    //ReadingQualityRecord record = ReadingQualityRecord.class.cast(readingQuality);
+                    writer.write(readingQuality.getTypeCode());
+                    writer.write("-");
+                }
+                writer.write(fileSeparator);
+                writer.newLine();
             }
-            writer.write(fileSeparator);
-            writer.newLine();
         } catch (IOException ex) {
             throw new FatalDataExportException(new FileIOException(ex, thesaurus));
         }
