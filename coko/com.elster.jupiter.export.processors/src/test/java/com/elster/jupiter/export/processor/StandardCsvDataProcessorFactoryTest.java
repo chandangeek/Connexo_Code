@@ -20,7 +20,7 @@ public class StandardCsvDataProcessorFactoryTest {
         factory.setPropertySpecService(new PropertySpecServiceImpl());
 
         List<PropertySpec<?>> properties = factory.getProperties();
-        assertThat(properties).hasSize(6);
+        assertThat(properties).hasSize(3);
 
         // Order IS important
         PropertySpec<?> property = properties.get(0);
@@ -33,7 +33,7 @@ public class StandardCsvDataProcessorFactoryTest {
         assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
         assertThat(property.getPossibleValues().getDefault()).isEqualTo("csv");
         assertThat(property.getPossibleValues().isExhaustive()).isFalse();
-        property = properties.get(2);
+       /* property = properties.get(2);
         assertThat(property.getName()).isEqualTo("fileFormat.updatedData.separateFile");
         assertThat(property.isRequired()).isFalse();
         assertThat(property.getValueFactory()).isInstanceOf(BooleanFactory.class);
@@ -46,8 +46,8 @@ public class StandardCsvDataProcessorFactoryTest {
         assertThat(property.isRequired()).isFalse();
         assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
         assertThat(property.getPossibleValues().getDefault()).isEqualTo("csv");
-        assertThat(property.getPossibleValues().isExhaustive()).isFalse();
-        property = properties.get(5);
+        assertThat(property.getPossibleValues().isExhaustive()).isFalse();*/
+        property = properties.get(2);
         assertThat(property.getName()).isEqualTo("formatterProperties.separator");
         assertThat(property.isRequired()).isTrue();
         assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);

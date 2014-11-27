@@ -45,9 +45,9 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
         List<PropertySpec<?>> propertySpecs = new ArrayList<>();
         propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.FILENAME_PREFIX.getKey(), true, null));
         propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.FILE_EXTENSION.getKey(), false, "csv"));
-        propertySpecs.add(propertySpecService.basicPropertySpec(FormatterProperties.UPDATE_IN_SEPARATE_FILE.getKey(), false, new BooleanFactory()));
+/*        propertySpecs.add(propertySpecService.basicPropertySpec(FormatterProperties.UPDATE_IN_SEPARATE_FILE.getKey(), false, new BooleanFactory()));
         propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.UPDATE_FILE_PREFIX.getKey(), false, null));
-        propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.UPDATE_FILE_EXTENSION.getKey(), false, "csv"));
+        propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.UPDATE_FILE_EXTENSION.getKey(), false, "csv"));*/
         propertySpecs.add(propertySpecService.stringPropertySpecWithValues(FormatterProperties.SEPARATOR.getKey(), true, "comma", "semicolon"));
         return propertySpecs;
     }
@@ -69,10 +69,10 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
                 checkInvalidChars((String) property.getValue(), FormatterProperties.FILENAME_PREFIX.getKey());
             } else if (property.getName().equals(FormatterProperties.FILE_EXTENSION.getKey())) {
                 checkInvalidChars((String) property.getValue(), FormatterProperties.FILE_EXTENSION.getKey());
-            } else if (property.getName().equals(FormatterProperties.UPDATE_FILE_PREFIX.getKey())) {
+/*            } else if (property.getName().equals(FormatterProperties.UPDATE_FILE_PREFIX.getKey())) {
                 checkInvalidChars((String) property.getValue(), FormatterProperties.UPDATE_FILE_PREFIX.getKey());
             } else if (property.getName().equals(FormatterProperties.UPDATE_FILE_EXTENSION.getKey())) {
-                checkInvalidChars((String) property.getValue(), FormatterProperties.UPDATE_FILE_EXTENSION.getKey());
+                checkInvalidChars((String) property.getValue(), FormatterProperties.UPDATE_FILE_EXTENSION.getKey());*/
             }
         }
     }
