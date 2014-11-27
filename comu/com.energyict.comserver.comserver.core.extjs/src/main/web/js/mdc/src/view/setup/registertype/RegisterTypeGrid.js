@@ -59,6 +59,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeGrid', {
                         },
                         {
                             text: Uni.I18n.translate('registerType.addRegisterType', 'MDC', 'Add register type'),
+                            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
                             itemId: 'createRegisterType',
                             xtype: 'button',
                             action: 'createRegisterType'

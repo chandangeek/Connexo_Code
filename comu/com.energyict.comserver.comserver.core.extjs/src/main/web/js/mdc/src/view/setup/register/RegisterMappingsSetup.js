@@ -55,6 +55,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('registerMapping.addRegisterMapping', 'MDC', 'Add register types'),
+                                    privileges: ['privilege.administrate.deviceConfiguration'],
                                     itemId: 'addRegisterMappingBtn',
                                     action: 'addRegisterMapping'
                                 }

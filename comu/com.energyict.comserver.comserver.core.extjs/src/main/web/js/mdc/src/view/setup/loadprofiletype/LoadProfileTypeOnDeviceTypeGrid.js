@@ -52,6 +52,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeGrid', {
                 '->',
                 {
                     text: Uni.I18n.translate('loadProfileTypes.add.loadprofileTypes', 'MDC', 'Add load profile types'),
+                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
                     itemId: 'addLoadProfileType',
                     xtype: 'button',
                     action: 'addloadprofiletypeaction',
