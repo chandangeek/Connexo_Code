@@ -11,7 +11,7 @@ import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Organization;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 public final class OrganizationImpl extends PartyImpl implements Organization {
 
@@ -64,6 +64,6 @@ public final class OrganizationImpl extends PartyImpl implements Organization {
     
     @Override
     public String toString() {
-    	return Objects.toStringHelper(this).add("id",getId()).add("mRID", getMRID()).add("name",getName()).toString();
+    	return MoreObjects.toStringHelper(this).add("id",getId()).add("mRID", getMRID()).add("name",getName()).toString();
     }
 }
