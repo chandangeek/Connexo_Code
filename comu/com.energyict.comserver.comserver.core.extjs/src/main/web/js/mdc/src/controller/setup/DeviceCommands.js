@@ -223,7 +223,6 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 me.getApplication().fireEvent('changecontentevent', widget);
             }
         });
-
     },
 
     showAddOverview: function (mrid) {
@@ -276,11 +275,12 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 actionsButton.menu.device = device;
                 actionsButton.menu.record = record;
                 actionClmn.menu.device = device;
+                actionClmn.menu.mRID = device.get('mRID');
             } else {
                 actionsButton.hide()
             }
             if (!Ext.isEmpty(record.get('properties'))) {
-                previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}?', [title]) + '</h3>');
+                previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', [title]) + '</h3>');
                 previewPropertiesHeader.show()
             } else {
                 previewPropertiesHeader.hide()
@@ -305,7 +305,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             me.getAddPropertyForm().loadRecord(command);
             if (command.properties() && (command.properties().getCount() > 0)) {
                 propertyHeader.show();
-                propertyHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', '{0} attributes', [command.get('name')]) + '</h3>');
+                propertyHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', [command.get('name')]) + '</h3>');
             } else {
                 propertyHeader.hide()
             }
