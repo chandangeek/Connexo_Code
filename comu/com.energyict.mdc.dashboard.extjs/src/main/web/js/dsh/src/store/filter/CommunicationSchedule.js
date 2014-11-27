@@ -1,7 +1,7 @@
 Ext.define('Dsh.store.filter.CommunicationSchedule', {
     extend: 'Ext.data.Store',
     fields: ['id', 'name'],
-    autoLoad: true,
+    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '/api/dsr/field/comschedules',
