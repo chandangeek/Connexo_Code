@@ -17,7 +17,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
             {
                 header: Uni.I18n.translate('general.startedOn', 'DES', 'Started On'),
                 dataIndex: 'startedOn_formatted',
-                flex: 3,
+                flex: 2,
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence').buildUrl({occurrenceId: record.get('id')});
                     return '<a href="' + url + '">' + value + '</a>';
@@ -26,25 +26,28 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
             {
                 xtype: 'uni-grid-column-duration',
                 dataIndex: 'duration',
-                flex: 3
+                shortFormat: true,
+                textAlign: 'center',
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('general.status', 'DES', 'Status'),
                 dataIndex: 'status',
+                textAlign: 'center',
                 flex: 1
             },
             {
                 header: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
                 dataIndex: 'exportPeriod_range',
-                flex: 3
+                width: 400
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 100,
                 menu: {
                     xtype: 'tasks-action-menu',
                     itemId: 'tasks-action-menu'
-                },
-                flex: 1
+                }
             }
         ];
 
