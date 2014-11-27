@@ -4,12 +4,9 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Subquery;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -19,15 +16,16 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     private DataModel dataModel;
-    private Condition condition ;
+    private Condition condition;
     private Order order;
     private Integer start;
     private Integer limit;
-    
+
     public DataExportOccurrenceFinderImpl() {
     }
 
     public DataExportOccurrenceFinderImpl(DataModel dataModel, Condition condition, Order order) {
+        this.dataModel = dataModel;
         this.condition = condition;
         this.order = order;
     }
@@ -53,7 +51,7 @@ public class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinde
 
     @Override
     public DataExportOccurrenceFinder withEndDateIn(Range<Instant> interval) {
-    	this.condition = this.condition.and(where("taskOccurence.endDate").in(interval));
+        this.condition = this.condition.and(where("taskOccurence.endDate").in(interval));
         return this;
     }
 
@@ -65,19 +63,19 @@ public class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinde
 
     @Override
     public List<? extends DataExportOccurrence> find() {
-    	return dataModel.stream(DataExportOccurrence.class)
-    		.join(TaskOccurrence.class)
-    		.filter(condition)
-    		.sorted(order)
-    		.skip(start)
-    		.limit(limit)
-    		.select();
+        return dataModel.stream(DataExportOccurrence.class)
+                .join(TaskOccurrence.class)
+                .filter(condition)
+                .sorted(order)
+                .skip(start)
+                .limit(limit)
+                .select();
     }
-    
+
     // documentation only
     public List<? extends DataExportOccurrence> findOldSyntax() {
-    	return dataModel.query(DataExportOccurrence.class, TaskOccurrence.class)
-    			.select(condition, new Order[] {order}, true, null, start + 1, start + limit);     		
+        return dataModel.query(DataExportOccurrence.class, TaskOccurrence.class)
+                .select(condition, new Order[]{order}, true, null, start + 1, start + limit);
     }
 
 }
