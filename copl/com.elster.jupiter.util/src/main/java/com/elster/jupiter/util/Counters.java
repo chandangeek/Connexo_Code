@@ -1,8 +1,5 @@
 package com.elster.jupiter.util;
 
-import net.jcip.annotations.NotThreadSafe;
-import net.jcip.annotations.ThreadSafe;
-
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -10,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Factory for Counter implementations
  *
  */
-@NotThreadSafe
+
 public enum Counters {
     ; // empty enum to disallow instantiation
 
@@ -137,7 +134,7 @@ public enum Counters {
     /**
      * Simple implementation that directly manipulates an int total.
      */
-    @NotThreadSafe
+   
     private static class SimpleCounter implements Counter {
         private int total;
 
@@ -173,7 +170,7 @@ public enum Counters {
     * @author Rudi Vankeirsbilck (rudi)
     * @since 2012-07-19 (13:38)
     */
-    @ThreadSafe
+    
     private static class AtomicCounter implements Counter {
 
         private AtomicInteger total = new AtomicInteger();
@@ -203,7 +200,7 @@ public enum Counters {
     /**
      * Simple implementation that directly manipulates an int total.
      */
-    @NotThreadSafe
+    
     private static class SimpleLongCounter implements LongCounter {
         private long total;
 
@@ -239,7 +236,7 @@ public enum Counters {
      * @author Rudi Vankeirsbilck (rudi)
      * @since 2012-07-19 (13:38)
      */
-    @ThreadSafe
+  
     private static class AtomicLongCounter implements LongCounter {
 
         private AtomicLong total = new AtomicLong();

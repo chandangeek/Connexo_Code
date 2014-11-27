@@ -1,9 +1,9 @@
 package com.elster.jupiter.util.json;
 
 import com.google.common.collect.ImmutableList;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 import java.io.Reader;

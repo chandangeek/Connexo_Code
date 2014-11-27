@@ -497,7 +497,7 @@ public class IntervalTest extends EqualsContractTest {
     }
 
     private BooleanAssert assertCommutative(Interval other) {
-        return assertThat(interval.overlaps(other)).isEqualTo(other.overlaps(interval));
+        return (BooleanAssert) assertThat(interval.overlaps(other)).isEqualTo(other.overlaps(interval));
     }
 
     private void assertToNotOverlap(Interval other) {
