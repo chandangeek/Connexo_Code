@@ -7,7 +7,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 
-public class FatalExceptionGuardItemExporter implements ItemExporter {
+class FatalExceptionGuardItemExporter implements ItemExporter {
 
     private final ItemExporter decorated;
 
