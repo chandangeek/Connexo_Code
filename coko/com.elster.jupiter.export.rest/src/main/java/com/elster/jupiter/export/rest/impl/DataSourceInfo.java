@@ -1,13 +1,11 @@
-package com.elster.jupiter.export.rest;
+package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingContainer;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 /**

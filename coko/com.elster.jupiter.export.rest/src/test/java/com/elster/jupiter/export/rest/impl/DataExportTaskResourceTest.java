@@ -83,6 +83,7 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
 
     @Override
     protected Application getApplication() {
+        when(thesaurus.join(any())).thenReturn(thesaurus);
         DataExportApplication application = new DataExportApplication();
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);

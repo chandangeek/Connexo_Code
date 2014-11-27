@@ -1,7 +1,6 @@
-package com.elster.jupiter.export.rest;
+package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ReadingTypeDataExportTask;
 
 import java.util.ArrayList;
 import java.util.List;

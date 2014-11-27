@@ -7,7 +7,6 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
-import com.elster.jupiter.export.rest.DataSourceInfos;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
