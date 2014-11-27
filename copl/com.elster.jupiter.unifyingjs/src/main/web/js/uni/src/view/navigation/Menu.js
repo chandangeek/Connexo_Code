@@ -6,6 +6,10 @@ Ext.define('Uni.view.navigation.Menu', {
     xtype: 'navigationMenu',
     ui: 'navigationmenu',
 
+    requires: [
+        'Uni.util.Application'
+    ],
+
     layout: {
         type: 'vbox',
         align: 'stretch'
