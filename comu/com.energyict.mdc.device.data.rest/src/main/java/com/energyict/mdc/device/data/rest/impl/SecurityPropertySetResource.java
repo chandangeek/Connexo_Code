@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -13,12 +14,14 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -27,10 +30,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 
 /**
  * Handles SecurityPropertySets on devices
@@ -81,37 +81,40 @@ public class SecurityPropertySetResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
         //TypedProperties typedProperties = TypedProperties.empty();
-        boolean status = true;
-        TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
-        for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
-            Object newPropertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, securityPropertySetInfo.properties);
-            if (newPropertyValue != null) {
-                // propertySpec.validateValue(newPropertyValue);
-                typedProperties.setProperty(propertySpec.getName(), newPropertyValue);
-            } else {
-                if (!propertyHasValue(propertySpec, securityPropertySetInfo.properties)) {
-                    typedProperties.removeProperty(propertySpec.getName());
-                    status = false;
+        if (securityPropertySet.currentUserIsAllowedToEditDeviceProperties()) {
+            boolean status = true;
+            TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
+            for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
+                Object newPropertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, securityPropertySetInfo.properties);
+                if (newPropertyValue != null) {
+                    // propertySpec.validateValue(newPropertyValue);
+                    typedProperties.setProperty(propertySpec.getName(), newPropertyValue);
+                } else {
+                    if (!propertyHasValue(propertySpec, securityPropertySetInfo.properties)) {
+                        typedProperties.removeProperty(propertySpec.getName());
+                        status = false;
+                    }
                 }
-
             }
-        }
 
-        if (status) {
-            device.setSecurityProperties(securityPropertySet, typedProperties);
-        } else {
-            if (securityPropertySetInfo.saveAsIncomplete) {
+            if (status) {
                 device.setSecurityProperties(securityPropertySet, typedProperties);
             } else {
-                throw new LocalizedFieldValidationException(MessageSeeds.INCOMPLETE, "status");
+                if (securityPropertySetInfo.saveAsIncomplete) {
+                    device.setSecurityProperties(securityPropertySet, typedProperties);
+                } else {
+                    throw new LocalizedFieldValidationException(MessageSeeds.INCOMPLETE, "status");
+                }
             }
+
+            // Reload
+            device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+            securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
+            return Response.ok(securityPropertySetInfoFactory.asInfo(device, uriInfo, securityPropertySet)).build();
         }
-
-        // Reload
-        device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
-
-        return Response.ok(securityPropertySetInfoFactory.asInfo(device, uriInfo, securityPropertySet)).build();
+        else {
+            throw exceptionFactory.newException(MessageSeeds.UPDATE_SECURITY_PROPERTY_SET_NOT_ALLOWED);
+        }
     }
 
     private SecurityPropertySet getSecurityPropertySetOrThrowException(long securityPropertySetId, Device device) {

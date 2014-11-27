@@ -184,7 +184,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_MESSAGE(213, "NoSuchMessage", "No such device message exists on the device" ),
     NOT_DEFINED_YET(214, "NotDefinedYet", "(not defined yet)"),
     AS_SOON_AS_POSSIBLE(215, "asSoonAsPossible", "As soon as possible"),
-    MINIMIZE_CONNECTIONS(216, "minimizeConnections", "Minimize connections")
+    MINIMIZE_CONNECTIONS(216, "minimizeConnections", "Minimize connections"),
+    UPDATE_SECURITY_PROPERTY_SET_NOT_ALLOWED(217, "UpdateSecurityPropertySetNotAllowed", "Update security property set not allowed")
     ;
 
 

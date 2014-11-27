@@ -89,7 +89,6 @@ public class DeviceMessageInfoFactory {
                 info.properties
                 );
 
-
         return info;
     }
 
