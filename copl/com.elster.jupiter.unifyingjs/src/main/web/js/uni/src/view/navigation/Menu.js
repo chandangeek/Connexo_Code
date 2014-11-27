@@ -64,7 +64,7 @@ Ext.define('Uni.view.navigation.Menu', {
                         enableToggle: true,
                         scale: 'large',
                         toggleHandler: me.onToggleClick,
-                        pressed: Ext.util.Cookies.get(me.getCollapsedCookieKey()),
+                        pressed: JSON.parse(Ext.util.Cookies.get(me.getCollapsedCookieKey())),
                         scope: me
                     }
                 ]
@@ -74,7 +74,7 @@ Ext.define('Uni.view.navigation.Menu', {
         me.callParent(arguments);
 
         me.on('afterrender', function () {
-            me.setCollapsed(Ext.util.Cookies.get(me.getCollapsedCookieKey()) || false);
+            me.setCollapsed(JSON.parse(Ext.util.Cookies.get(me.getCollapsedCookieKey())) || false);
         }, me);
     },
 

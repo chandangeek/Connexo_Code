@@ -76,10 +76,12 @@ Ext.define('Uni.grid.column.Action', {
             me.menu.hide();
             me.menu.cell = null;
         } else {
-            cell.addCls('active');
-            me.menu.record = record;
-            me.menu.showBy(cell);
-            me.menu.cell = cell;
+            if(me.fireEvent('beforeshow', grid, cell, colIndex, rowIndex, record)) {
+                cell.addCls('active');
+                me.menu.record = record;
+                me.menu.showBy(cell);
+                me.menu.cell = cell;
+            }
         }
 
         // this is for menu toggling, change the code below with accuracy!
