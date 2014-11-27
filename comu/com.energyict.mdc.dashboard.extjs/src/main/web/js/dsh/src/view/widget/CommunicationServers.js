@@ -56,7 +56,8 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
             {
                 text: Uni.I18n.translate('overview.widget.communicationServers.viewAll', 'DSH', 'View all'),
                 ui: 'link',
-                href: router.getRoute('administration/comservers').buildUrl()
+                href: typeof router.getRoute('administration/comservers') !== 'undefined'
+                    ? router.getRoute('administration/comservers').buildUrl() : ''
             }
         ];
         this.callParent(arguments);
