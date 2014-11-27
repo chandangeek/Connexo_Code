@@ -1,7 +1,7 @@
 package com.elster.jupiter.issue.rest.response;
 
 import com.elster.jupiter.issue.share.entity.IssueType;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IssueTypeInfo {

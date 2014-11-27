@@ -2,7 +2,7 @@ package com.elster.jupiter.issue.rest.response.cep;
 
 import com.elster.jupiter.issue.share.entity.ActionParameter;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.HashMap;
 import java.util.Map;
