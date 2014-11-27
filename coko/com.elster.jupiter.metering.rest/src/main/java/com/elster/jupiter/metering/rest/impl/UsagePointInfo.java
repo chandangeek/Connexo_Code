@@ -8,10 +8,13 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
+
 import java.time.Clock;
+
 import com.elster.jupiter.util.units.Quantity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Optional;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
