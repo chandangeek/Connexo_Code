@@ -170,7 +170,8 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             closable: false,
             fn: function (btnId) {
                 if (btnId == 'confirm') {
-                    record.destroy({
+                    record.set('status', {value: 'CommandRevoked'});
+                    record.save({
                         url: '/api/ddr/devices/' + mRID + '/devicemessages/',
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
@@ -198,10 +199,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                             callback: function (records, operation, success) {
                                 if (success) {
                                     var store = me.getStore('Mdc.store.DeviceCommands');
-                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.changeReleaseDate.success', 'MDC', 'Release date changed'))
+                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.changeReleaseDate.success', 'MDC', 'Release date changed'));
+                                    me.getDeviceCommandsGrid().getStore().load()
                                 } else {
                                     record.set('releaseDate', oldDate);
-                                    me.getDeviceCommandsGrid().refresh()
+                                    me.getDeviceCommandsGrid().refresh();
                                 }
                             }
                         });
@@ -333,6 +335,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             record.set('id', '');
             releaseDate && record.set('releaseDate', releaseDate);
             messageSpecification && record.set('messageSpecification', messageSpecification);
+            record.set('status', null);
             record.save({
                 url: '/api/ddr/devices/' + btn.mRID + '/devicemessages',
                 method: 'POST',

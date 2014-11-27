@@ -109,7 +109,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('deviceCommunicationProtocols.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Commands per page')
+                itemsPerPageMsg: Uni.I18n.translate('deviceCommands.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Commands per page')
             }
         ];
         me.on('afterrender', me.addTooltip);
