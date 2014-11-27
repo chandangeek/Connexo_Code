@@ -282,18 +282,18 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor, transactionService.inTransaction(3)).startItem(newItem);
         verify(dataProcessor, transactionService.inTransaction(3)).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
         verify(dataProcessor, transactionService.inTransaction(3)).endItem(newItem);
-        verify(dataProcessor, transactionService.inTransaction(4)).startItem(existingItem);
-        verify(dataProcessor, transactionService.inTransaction(4)).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
-        verify(dataProcessor, transactionService.inTransaction(4)).endItem(existingItem);
+        verify(dataProcessor, transactionService.inTransaction(5)).startItem(existingItem);
+        verify(dataProcessor, transactionService.inTransaction(5)).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor, transactionService.inTransaction(5)).endItem(existingItem);
         verify(dataProcessor, transactionService.notInTransaction()).endExport();
 
-        verify(newItem, transactionService.inTransaction(5)).update();
-        verify(existingItem, transactionService.inTransaction(5)).update();
+        verify(newItem, transactionService.inTransaction(7)).update();
+        verify(existingItem, transactionService.inTransaction(7)).update();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
+        transactionService.assertThatTransaction(7).wasCommitted();
     }
 
     @Test
@@ -373,9 +373,9 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted();
 
     }
 
@@ -404,9 +404,9 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted();
 
     }
 
@@ -460,9 +460,9 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted();
     }
 
     @Test
@@ -490,9 +490,9 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted();
     }
 
     @Test
@@ -545,9 +545,9 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted();
     }
 
     @Test
@@ -575,9 +575,9 @@ public class DataExportTaskExecutorTest {
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted();
     }
 
     @Test

@@ -29,7 +29,7 @@ class LoggingItemExporter implements ItemExporter {
     public Range<Instant> exportItem(DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
         try {
             Range<Instant> range = decorated.exportItem(occurrence, item);
-            MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.log(logger, thesaurus, item, range);
+            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.log(logger, thesaurus, item, range)));
             return range;
         } catch (DataExportException e) {
             transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_FAILED.log(logger, thesaurus, e.getCause(), item)));
