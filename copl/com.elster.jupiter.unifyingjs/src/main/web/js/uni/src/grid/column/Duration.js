@@ -10,6 +10,7 @@ Ext.define('Uni.grid.column.Duration', {
     ],
 
     header: Uni.I18n.translate('grid.column.duration.header', 'UNI', 'Duration'),
+    shortFormat: false,
 
     /**
      * @cfg usesSeconds
@@ -23,7 +24,7 @@ Ext.define('Uni.grid.column.Duration', {
         var me = metaData.column;
         if (!isNaN(value)) {
             value = me.usesSeconds ? value * 1000 : value;
-            return Uni.util.String.formatDuration(parseInt(value, 10));
+            return Uni.util.String.formatDuration(parseInt(value, 10), me.shortFormat);
         }
 
         return value;
