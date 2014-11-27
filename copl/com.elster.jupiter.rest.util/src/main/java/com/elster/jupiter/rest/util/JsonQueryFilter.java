@@ -2,12 +2,13 @@ package com.elster.jupiter.rest.util;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.ws.rs.QueryParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,11 +21,11 @@ import java.util.function.Function;
 public class JsonQueryFilter {
     private static final String PROPERTY = "property";
     private static final String VALUE = "value";
-    private static final Function<JsonNode, String> AS_STRING = node -> node != null ? node.getTextValue() : null;
+    private static final Function<JsonNode, String> AS_STRING = node -> node != null ? node.textValue() : null;
     private static final Function<JsonNode, String> AS_JSON_STRING = node -> node != null && !node.isNull() ? node.toString() : null;
     private static final Function<JsonNode, Integer> AS_INT = node -> {
         if (node != null){
-            Number number = node.getNumberValue();
+            Number number = node.numberValue();
             if (number != null){
                 return number.intValue();
             }
@@ -33,7 +34,7 @@ public class JsonQueryFilter {
     };
     private static final Function<JsonNode, Long> AS_LONG = node -> {
         if (node != null){
-            Number number = node.getNumberValue();
+            Number number = node.numberValue();
             if (number != null){
                 return number.longValue();
             }
@@ -43,7 +44,7 @@ public class JsonQueryFilter {
     private static final Function<JsonNode, Boolean> AS_BOOLEAN = node -> node != null ? node.asBoolean() : null;
     private static final Function<JsonNode, Instant> AS_INSTANT = node -> {
         if (node != null){
-            Number number = node.getNumberValue();
+            Number number = node.numberValue();
             if (number != null){
                 return Instant.ofEpochMilli(number.longValue());
             }
@@ -59,7 +60,7 @@ public class JsonQueryFilter {
                 JsonNode node = new ObjectMapper().readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
                 if (node != null && node.isArray()) {
                     for (JsonNode singleFilter : node) {
-                        filterProperties.put(singleFilter.get(PROPERTY).getTextValue(), singleFilter.get(VALUE));
+                        filterProperties.put(singleFilter.get(PROPERTY).textValue(), singleFilter.get(VALUE));
                     }
                 }
             }
