@@ -45,7 +45,7 @@ public class ColumnConversionTest {
 	public void testTimestamp2Date() {
 		Instant instant = Instant.ofEpochMilli(110);
 		assertThat(ColumnConversionImpl.TIMESTAMP2INSTANT.convert("110")).isEqualTo(instant);
-		assertThat(ColumnConversionImpl.TIMESTAMP2INSTANT.convertToDb(instant)).isEqualTo(new java.sql.Date(110));
+		assertThat(ColumnConversionImpl.TIMESTAMP2INSTANT.convertToDb(instant)).isEqualTo(new java.sql.Timestamp(110));
 		try {
 			when(rs.getTimestamp(anyInt())).thenReturn(new java.sql.Timestamp(110));
 			assertThat(ColumnConversionImpl.TIMESTAMP2INSTANT.convertFromDb(rs,5)).isEqualTo(instant);
