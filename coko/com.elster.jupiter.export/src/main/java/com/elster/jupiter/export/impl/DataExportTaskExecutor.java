@@ -93,13 +93,14 @@ class DataExportTaskExecutor implements TaskExecutor {
         DataProcessor dataFormatter = getDataProcessor(task);
 
         DefaultItemExporter defaultItemExporter = new DefaultItemExporter(dataFormatter);
-        LoggingItemExporter loggingItemExporter = new LoggingItemExporter(thesaurus, logger, defaultItemExporter);
-        ItemExporter itemExporter = new TransactionItemExporter(transactionService, loggingItemExporter);
+        FatalExceptionGuardItemExporter exceptionGuardItemExporter = new FatalExceptionGuardItemExporter(defaultItemExporter);
+        ItemExporter itemExporter = new TransactionItemExporter(transactionService, exceptionGuardItemExporter);
+        LoggingItemExporter loggingItemExporter = new LoggingItemExporter(thesaurus, transactionService, logger, itemExporter);
 
         try {
             dataFormatter.startExport(occurrence, logger);
 
-            activeItems.forEach(item -> doProcess(itemExporter, occurrence, item));
+            activeItems.forEach(item -> doProcess(loggingItemExporter, occurrence, item));
 
             dataFormatter.endExport();
         } catch (RuntimeException e) {

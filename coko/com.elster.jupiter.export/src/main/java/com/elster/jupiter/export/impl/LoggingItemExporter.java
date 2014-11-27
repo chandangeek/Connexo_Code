@@ -4,6 +4,8 @@ import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -14,8 +16,10 @@ class LoggingItemExporter implements ItemExporter {
     private final ItemExporter decorated;
     private final Logger logger;
     private final Thesaurus thesaurus;
+    private final TransactionService transactionService;
 
-    public LoggingItemExporter(Thesaurus thesaurus, Logger logger, ItemExporter decorated) {
+    public LoggingItemExporter(Thesaurus thesaurus, TransactionService transactionService, Logger logger, ItemExporter decorated) {
+        this.transactionService = transactionService;
         this.logger = logger;
         this.decorated = decorated;
         this.thesaurus = thesaurus;
@@ -28,10 +32,10 @@ class LoggingItemExporter implements ItemExporter {
             MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.log(logger, thesaurus, item, range);
             return range;
         } catch (DataExportException e) {
-            MessageSeeds.ITEM_FAILED.log(logger, thesaurus, item);
+            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_FAILED.log(logger, thesaurus, e.getCause(), item)));
             throw e;
         } catch (FatalDataExportException e) {
-            MessageSeeds.ITEM_FATALLY_FAILED.log(logger, thesaurus, item);
+            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_FATALLY_FAILED.log(logger, thesaurus, e.getCause(), item)));
             throw e;
         }
     }
