@@ -39,7 +39,7 @@ public class DataPurger {
 	
 	private void  purgeEvents(Instant limit) {
 		logger().info("Removing device events up to " + limit);
-		meteringService.getDataModel().dataDropper(TableSpecs.MTR_ENDDEVICEEVENTRECORD.name(),logger()).drop(limit);
+		//meteringService.getDataModel().dataDropper(TableSpecs.MTR_ENDDEVICEEVENTRECORD.name(),logger()).drop(limit);
 	}
 	
 	private Logger logger() {

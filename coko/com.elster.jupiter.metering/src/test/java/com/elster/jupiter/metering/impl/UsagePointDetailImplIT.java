@@ -98,7 +98,7 @@ public class UsagePointDetailImplIT {
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
-                new TransactionModule(true),
+                new TransactionModule(false),
                 new NlsModule()
         );
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
