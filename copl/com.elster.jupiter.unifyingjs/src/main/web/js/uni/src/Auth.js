@@ -24,14 +24,25 @@ Ext.define('Uni.Auth', {
     },
 
     hasAnyPrivilege: function (privileges) {
+        var result = false;
         if (Ext.isArray(privileges)) {
             for (var i = 0; i < privileges.length; i++) {
                 var privilege = privileges[i];
-                if (this.hasPrivilege(privilege)) {
-                    return true;
+                if (Ext.isArray(privilege)) {
+                    result = false;
+                    for (var j = 0; j < privilege.length; j++) {
+                        result = result || this.hasPrivilege(privilege[j]);
+                    }
+                    if (!result) {
+                        return result;
+                    }
+                } else {
+                    if (this.hasPrivilege(privilege)) {
+                        return true;
+                    }
                 }
             }
         }
-        return false;
+        return result;
     }
 });
