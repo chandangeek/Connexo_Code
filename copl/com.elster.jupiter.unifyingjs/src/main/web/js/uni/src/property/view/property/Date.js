@@ -39,7 +39,7 @@ Ext.define('Uni.property.view.property.Date', {
         this.callParent([value]);
     },
 
-    getValue: function (value) {
+    getValue: function () {
         return this.getField().getValue().getTime()
     }
 });
