@@ -30,7 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-class ThesaurusImpl implements Thesaurus {
+class ThesaurusImpl implements IThesaurus {
 
     private static final Pattern VALIDATION_KEY = Pattern.compile("^\\{(.*)\\}$");
 
@@ -112,7 +112,7 @@ class ThesaurusImpl implements Thesaurus {
         return translations.get(key).translate(locale).orElse(defaultMessage);
     }
 
-    Locale getLocale() {
+    public Locale getLocale() {
         return threadPrincipalService.getLocale();
     }
 
@@ -209,6 +209,14 @@ class ThesaurusImpl implements Thesaurus {
             key = matcher.group(1);
         }
         return MessageFormat.format(getString(locale, key, key), context.getValidatedValue());
+    }
+
+    @Override
+    public Thesaurus join(Thesaurus thesaurus) {
+        if (thesaurus instanceof CompositeThesaurus) {
+            return thesaurus.join(this);
+        }
+        return new CompositeThesaurus(threadPrincipalService, this, thesaurus);
     }
 
     private String translate(NlsKeyImpl nlsKey) {

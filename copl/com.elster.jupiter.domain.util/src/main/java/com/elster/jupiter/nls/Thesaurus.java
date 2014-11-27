@@ -40,4 +40,5 @@ public interface Thesaurus extends MessageInterpolator {
 
     Map<String, String> getTranslations();
 
+    Thesaurus join(Thesaurus thesaurus);
 }

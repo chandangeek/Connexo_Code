@@ -16,9 +16,9 @@ final class NlsMessageFormatImpl implements NlsMessageFormat {
     private final int number;
     private final Level level;
     private final NlsString message;
-    private final ThesaurusImpl thesaurus;
+    private final IThesaurus thesaurus;
 
-    NlsMessageFormatImpl(ThesaurusImpl thesaurus, int number, NlsString message, Level level) {
+    NlsMessageFormatImpl(IThesaurus thesaurus, int number, NlsString message, Level level) {
         this.thesaurus = thesaurus;
         this.number = number;
         this.message = message;
