@@ -57,6 +57,7 @@ public class DataExportTaskResourceTest extends FelixRestApplicationJerseyTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataExportService dataExportService;
     private DataExportTaskBuilder builder = initBuilderStub();
+    @Mock
     private DataExportOccurrenceFinder finder;
     @Mock
     private MeteringService meteringService;

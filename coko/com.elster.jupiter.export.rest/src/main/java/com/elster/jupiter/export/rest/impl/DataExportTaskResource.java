@@ -4,7 +4,6 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
@@ -34,13 +33,12 @@ import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.google.common.collect.Range;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,8 +63,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/dataexporttask")
 public class DataExportTaskResource {
@@ -170,7 +166,7 @@ public class DataExportTaskResource {
     public Response removeDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
 
-        if (task.getLastOccurrence().isPresent() && DataExportStatus.BUSY.equals(task.getLastOccurrence().get().getStatus())) {
+        if (!task.canBeDeleted()) {
             throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
         }
         try (TransactionContext context = transactionService.getContext()) {
@@ -216,9 +212,18 @@ public class DataExportTaskResource {
         Map<String, Long> filter = getFilterMap(filterArray);
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
-            .setStart(queryParameters.getStart())
-            .setLimit(queryParameters.getLimit())
-            .with(getOccurrenceCondition(filter));
+                .setStart(queryParameters.getStart())
+                .setLimit(queryParameters.getLimit());
+
+        if (filter.get("startedOnFrom") != null && filter.get("startedOnTo") != null) {
+            occurrencesFinder.withStartDateIn(Range.closed(Instant.ofEpochMilli(filter.get("startedOnFrom")), Instant.ofEpochMilli(filter.get("startedOnTo"))));
+        }
+        if (filter.get("finishedOnFrom") != null && filter.get("finishedOnTo") != null) {
+            occurrencesFinder.withEndDateIn(Range.closed(Instant.ofEpochMilli(filter.get("startedOnFrom")), Instant.ofEpochMilli(filter.get("startedOnTo"))));
+        }
+        if (filter.get("exportPeriodContains") != null) {
+            occurrencesFinder.withExportPeriodContaining(Instant.ofEpochMilli(filter.get("exportPeriodContains")));
+        }
 
         List<? extends DataExportOccurrence> occurrences = occurrencesFinder.find();
 
@@ -243,7 +248,7 @@ public class DataExportTaskResource {
     @Path("/{id}/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON)
     public DataExportOccurrenceLogInfos getDataExportTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
-                                                               @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
+                                                                 @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
         DataExportOccurrence occurrence = fetchDataExportOccurrence(occurrenceId, task, securityContext);
@@ -258,25 +263,11 @@ public class DataExportTaskResource {
         return infos;
     }
 
-    private Condition getOccurrenceCondition(Map<String, Long> filter) {
-        Condition condition = Condition.TRUE;
-
-        if(filter.get("startedOnFrom") != null && filter.get("startedOnTo")!= null) {
-            condition = condition.and(where("startDate").inClosed(Interval.of(Instant.ofEpochMilli(filter.get("startedOnFrom")), Instant.ofEpochMilli(filter.get("startedOnTo")))));
-        }
-        if(filter.get("finishedOnFrom") != null && filter.get("finishedOnTo")!= null) {
-            condition = condition.and(where("endDate").inClosed(Interval.of(Instant.ofEpochMilli(filter.get("finishedOnFrom")), Instant.ofEpochMilli(filter.get("finishedOnTo")))));
-        }
-        if(filter.get("exportPeriodContains") != null) {
-            condition = condition.and(where("exportedDataInterval").isEffective(Instant.ofEpochMilli(filter.get("exportPeriodContains"))));
-        }
-        return condition;
-    }
 
     private Map<String, Long> getFilterMap(JSONArray filterArray) {
         Map<String, Long> filterMap = new HashMap<>();
-        if (filterArray!=null) {
-            for(int i = 0; i < filterArray.length(); i++) {
+        if (filterArray != null) {
+            for (int i = 0; i < filterArray.length(); i++) {
                 try {
                     JSONObject object = filterArray.getJSONObject(i);
                     filterMap.put(object.getString("property"), Long.valueOf(object.get("value").toString()));
