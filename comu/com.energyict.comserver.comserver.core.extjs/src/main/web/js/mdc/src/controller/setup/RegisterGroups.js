@@ -97,12 +97,11 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             this.getRegisterTypeGrid().store.load({
                 callback: function (store) {
                     if(this.totalCount > 0){
-                        me.getRegisterGroupPreviewTitle().update('<b>' + Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + registerGroups[0].get('name') + '</b><br>' +
-                            Ext.String.format(Uni.I18n.translate('registerGroup.previewCount', 'MDC', '{0} register types'), this.totalCount));
+                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of {0}', [registerGroups[0].get('name')]));
                         me.getRegisterTypeGrid().getSelectionModel().doSelect(0);
                     }
                     else{
-                        me.getRegisterGroupPreviewTitle().update('<b>' + Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + registerGroups[0].get('name') + '</b>');
+                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of {0}', [registerGroups[0].get('name')]));
                     }
                     me.getRegisterTypeEmptyGrid().setVisible(true);
                 }

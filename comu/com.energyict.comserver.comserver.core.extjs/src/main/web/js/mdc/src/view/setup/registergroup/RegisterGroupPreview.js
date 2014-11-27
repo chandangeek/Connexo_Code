@@ -3,7 +3,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
     border: true,
     alias: 'widget.registerGroupPreview',
     itemId: 'registerGroupPreview',
-
+    title: Uni.I18n.translate('registerGroup.previewTitle', 'MDC', 'Selected register group preview'),
+    ui: 'medium',
     requires: [
         'Mdc.model.RegisterGroup',
         'Mdc.view.setup.registergroup.RegisterGroupActionMenu',
@@ -29,20 +30,6 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                     align: 'stretch'
                 },
                 tbar: [
-                    {
-                        xtype: 'component',
-                        html: '<b>' + Uni.I18n.translate('registerGroup.previewTitle', 'MDC', 'Selected register group preview') + '</b>',
-                        itemId: 'registerGroupPreviewTitle'
-                    },
-                    '->',
-                    {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-                        iconCls: 'x-uni-action-iconD',
-                        menu: {
-                            xtype: 'register-group-action-menu'
-                        }
-                    }
                 ],
                 items: [
                     {
@@ -50,7 +37,16 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                         itemId: 'registerTypeEmptyGrid',
                         grid: {
                             xtype: 'registerTypeGrid',
-                            withPaging: false,
+                            withPaging: true,
+                            topPagging: {
+                                xtype: 'pagingtoolbartop',
+                                store: 'AvailableRegisterTypesForRegisterGroup',
+                                dock: 'top',
+                                displayMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register types'),
+                                displayMoreMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register types'),
+                                emptyMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display')
+                            },
+                            bottomPagging: false,
                             withActions: false,
                             store: 'AvailableRegisterTypesForRegisterGroup',
                             maxHeight: 650
