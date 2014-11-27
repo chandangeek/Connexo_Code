@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.rest;
 
+import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.metering.Meter;
@@ -20,8 +21,13 @@ public class DataSourceInfo {
     public String readingType;
     public Long lastRun;
     public Long lastExportedDate;
+    public Long occurrenceId;
 
     public DataSourceInfo(ReadingTypeDataExportItem item) {
+            Optional<? extends DataExportOccurrence> dataExportOccurrenceOptional = item.getTask().getLastOccurrence();
+            if (dataExportOccurrenceOptional.isPresent()) {
+                occurrenceId = dataExportOccurrenceOptional.get().getId();
+            }
             active = item.isActive();
             ReadingContainer readingContainer = item.getReadingContainer();
             if (readingContainer instanceof Meter) {
