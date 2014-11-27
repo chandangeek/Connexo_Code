@@ -1,28 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -52,6 +29,27 @@ import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + ValidationService.COMPONENTNAME, immediate = true)
 public class ValidationServiceImpl implements ValidationService, InstallService {
@@ -59,12 +57,13 @@ public class ValidationServiceImpl implements ValidationService, InstallService 
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile Clock clock;
-    private volatile List<ValidatorFactory> validatorFactories = new ArrayList<>();
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
-    private volatile List<ValidationRuleSetResolver> ruleSetResolvers = new ArrayList<>();
     private volatile UserService userService;
+
+    private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
+    private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
 
     public ValidationServiceImpl() {
     }
