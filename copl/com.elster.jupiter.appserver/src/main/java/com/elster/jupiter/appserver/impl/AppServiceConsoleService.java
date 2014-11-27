@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class}, property = {"name=" + "APS" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport", "osgi.command.function=appServers", "osgi.command.function=identify"}, immediate = true)
+@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class}, property = {"name=" + "APS" + ".console", "osgi.command.scope=appserver", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport", "osgi.command.function=appServers", "osgi.command.function=identify"}, immediate = true)
 public class AppServiceConsoleService {
 
     private volatile AppService appService;
