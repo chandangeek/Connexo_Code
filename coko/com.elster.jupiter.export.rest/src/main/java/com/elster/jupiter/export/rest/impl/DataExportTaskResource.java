@@ -97,7 +97,7 @@ public class DataExportTaskResource {
     private List<? extends ReadingTypeDataExportTask> queryTasks(QueryParameters queryParameters) {
         Query<? extends ReadingTypeDataExportTask> query = dataExportService.getReadingTypeDataExportTaskQuery();
         RestQuery<? extends ReadingTypeDataExportTask> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters, Order.ascending("lastRun"));
+        return restQuery.select(queryParameters, Order.descending("lastRun"));
     }
 
     @GET
