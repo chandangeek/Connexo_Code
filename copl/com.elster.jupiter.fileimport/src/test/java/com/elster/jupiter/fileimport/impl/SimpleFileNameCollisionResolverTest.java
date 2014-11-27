@@ -39,21 +39,21 @@ public class SimpleFileNameCollisionResolverTest {
 
     @Test
     public void testNoConflict() {
-        assertThat(resolver.resolve(path)).isEqualTo(path);
+        assertThat((Object) resolver.resolve(path)).isEqualTo(path);
     }
 
     @Test
     public void testConflictOnce() {
         when(fileSystem.exists(any(Path.class))).thenReturn(true, false);
 
-        assertThat(resolver.resolve(path)).isEqualTo(Paths.get("/dir/test1.txt"));
+        assertThat((Object) resolver.resolve(path)).isEqualTo(Paths.get("/dir/test1.txt"));
     }
 
     @Test
     public void testConflictMoreThanOnce() {
         when(fileSystem.exists(any(Path.class))).thenReturn(true, true, true, false);
 
-        assertThat(resolver.resolve(path)).isEqualTo(Paths.get("/dir/test3.txt"));
+        assertThat((Object) resolver.resolve(path)).isEqualTo(Paths.get("/dir/test3.txt"));
     }
 
 }
