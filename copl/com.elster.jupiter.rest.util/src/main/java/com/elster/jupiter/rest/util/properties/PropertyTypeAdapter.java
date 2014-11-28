@@ -5,15 +5,15 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 /**
  * Not a real adapter. Serialization is delegated to JAckson anyway, but deserialization is skipped.
  */
-public class PropertyTypeAdapter extends XmlAdapter<Object, PropertyType> {
+public class PropertyTypeAdapter extends XmlAdapter<String, PropertyType> {
 
     @Override
-    public PropertyType unmarshal(Object v) throws Exception {
+    public PropertyType unmarshal(String v) throws Exception {
         return null; // we don't deserialize
     }
 
     @Override
-    public Object marshal(PropertyType v) throws Exception {
-        return v;
+    public String marshal(PropertyType v) throws Exception {
+        return v.toString();
     }
 }
