@@ -11,7 +11,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Person;
 
-import static com.google.common.base.Objects.toStringHelper;
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 public final class PersonImpl extends PartyImpl implements Person {
 

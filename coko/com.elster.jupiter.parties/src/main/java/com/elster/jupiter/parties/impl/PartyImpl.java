@@ -1,7 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
 import static com.elster.jupiter.domain.util.Save.action;
-import static com.google.common.base.Objects.toStringHelper;
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 import java.time.Instant;
 import java.util.ArrayList;
