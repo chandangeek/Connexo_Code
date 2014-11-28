@@ -89,8 +89,6 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
                             );
                         }
                     });
-                } else if (state === 'cancel') {
-                    this.close();
                 }
             }
         });

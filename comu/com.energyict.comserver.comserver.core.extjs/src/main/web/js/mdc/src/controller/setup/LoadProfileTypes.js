@@ -86,7 +86,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             widget = me.getSetupPage();
 
         if (state === 'confirm') {
-            this.close();
             widget.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
             model.destroy({
                 callback: function (model, operation, success) {
@@ -108,8 +107,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                     }
                 }
             });
-        } else if (state === 'cancel') {
-            this.close();
         }
     },
 

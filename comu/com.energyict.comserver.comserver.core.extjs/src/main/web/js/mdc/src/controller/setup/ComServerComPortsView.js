@@ -272,11 +272,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
-                        this.close();
                         me.deleteComPort(record);
                         break;
                     case 'cancel':
-                        this.close();
                         break;
                 }
             }

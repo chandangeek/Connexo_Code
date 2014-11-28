@@ -83,7 +83,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
 
         if (state === 'confirm') {
-            this.close();
             Ext.Ajax.request({
                 url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/loadprofiletypes/' + lastSelected.getData().id,
                 method: 'DELETE',
@@ -104,8 +103,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                     }
                 }
             });
-        } else if (state === 'cancel') {
-            this.close();
         }
     },
 
