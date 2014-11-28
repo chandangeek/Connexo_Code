@@ -19,4 +19,8 @@
     .#{$prefix}grid-row-over & {
         background-image: url('images/grid/masterActionsHighlight.png');
     }
+
+  &.#{$prefix}item-disabled {
+    cursor: default !important;
+  }
 }
