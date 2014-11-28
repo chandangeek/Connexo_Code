@@ -25,6 +25,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
@@ -106,12 +107,18 @@ public class DeviceGroupResource {
             LinkedHashMap filter = (LinkedHashMap) deviceGroupInfo.filter;
             String mRID = (String) filter.get("mRID");
             if ((mRID != null) && (!"".equals(mRID))) {
-                condition = condition.and(where("mRID").isEqualTo(mRID));
+                mRID = replaceRegularExpression(mRID);
+                condition = !isRegularExpression(mRID)
+                        ? condition.and(where("mRID").isEqualTo(mRID))
+                        : condition.and(where("mRID").like(mRID));
             }
 
             String serialNumber = (String) filter.get("serialNumber");
             if ((serialNumber != null) && (!"".equals(serialNumber))) {
-                condition = condition.and(where("serialNumber").isEqualTo(serialNumber));
+                serialNumber = replaceRegularExpression(serialNumber);
+                condition = !isRegularExpression(serialNumber)
+                        ? condition.and(where("serialNumber").isEqualTo(serialNumber))
+                        : condition.and(where("serialNumber").like(serialNumber));
             }
 
 
@@ -182,6 +189,34 @@ public class DeviceGroupResource {
 
 
         return Response.ok().build();
+    }
+
+    private boolean isRegularExpression(String value) {
+        if (value.contains("*")) {
+            return true;
+        }
+        if (value.contains("?")) {
+            return true;
+        }
+        if (value.contains("%")) {
+            return true;
+        }
+        return false;
+    }
+
+    private String replaceRegularExpression(String value) {
+        if (value.contains("*")) {
+            value = value.replaceAll("\\*","%");
+            return value;
+        }
+        if (value.contains("?")) {
+            value = value.replaceAll("\\?","_");
+            return value;
+        }
+        if (value.contains("%")) {
+            return value;
+        }
+        return value;
     }
 
 
