@@ -24,9 +24,10 @@ public class SimpleConditionOperation extends ConditionOperation {
     }
 
     public SimpleConditionOperation(Comparison comparison) {
+        operator = comparison.getOperator().getSymbol();
         fieldName = comparison.getFieldName();
-        if (Operator.EQUAL != comparison.getOperator()) {
-            throw new UnsupportedOperationException("Only EQUAL operator is supported.");
+        if ((Operator.EQUAL != comparison.getOperator()) && (Operator.LIKE != comparison.getOperator())) {
+            throw new UnsupportedOperationException("Only EQUAL and LIKE operator are supported.");
         }
         values = Arrays.copyOf(comparison.getValues(), comparison.getValues().length);
         for (Object value : values) {
@@ -43,7 +44,13 @@ public class SimpleConditionOperation extends ConditionOperation {
 
     @Override
     public Condition toCondition(Condition... conditions) {
-        return Operator.EQUAL.compare(fieldName, values);
+        if (operator.equals(Operator.EQUAL.getSymbol())) {
+            return Operator.EQUAL.compare(fieldName, values);
+        } else if (operator.equals(Operator.LIKE.getSymbol())) {
+            return Operator.LIKE.compare(fieldName, values);
+        } else {
+            throw new UnsupportedOperationException("Only EQUAL and LIKE operator are supported.");
+        }
     }
 
     public String getFieldName() {
