@@ -85,7 +85,7 @@ public class DeviceLabelResource {
         LabelCategory category = findLabelCategoryOrThrowException(categoryId);
         Optional<DeviceLabel> deviceLabel = favoritesService.findDeviceLabel(endDevice, user, category);
         if (!deviceLabel.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_LABEL, category.getTranlatedName());
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_LABEL, category.getTranlatedName(), device.getmRID());
         }
         favoritesService.removeDeviceLabel(deviceLabel.get());
         return Response.ok().build();
