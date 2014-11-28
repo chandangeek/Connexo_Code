@@ -2,6 +2,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.users.User;
@@ -47,11 +48,11 @@ public class IssuesResource {
         Condition condition;
         List<OpenIssueDataCollection> issues;
         MyOpenIssuesInfo myOpenIssuesInfo = new MyOpenIssuesInfo();
+        IssueStatus openStatus = issueService.findStatus(IssueStatus.OPEN).get();
 
         // Get unassigned issues
         query = issueDataCollectionService.query(OpenIssueDataCollection.class, OpenIssue.class);
-        condition = Condition.TRUE;
-        condition = condition.and(where("baseIssue.assigneeType").isNull());
+        condition = where("baseIssue.assigneeType").isNull().and(where("baseIssue.status").isEqualTo(openStatus));
         issues = query.select(condition);
 
         myOpenIssuesInfo.unassignedIssues = new IssuesCollectionInfo();
@@ -65,8 +66,7 @@ public class IssuesResource {
 
         // Get assigned to me issues
         query = issueDataCollectionService.query(OpenIssueDataCollection.class, OpenIssue.class);
-        condition = Condition.TRUE;
-        condition = condition.and(where("baseIssue.user").isEqualTo(user));
+        condition = Condition.TRUE.and(where("baseIssue.user").isEqualTo(user)).and(where("baseIssue.status").isEqualTo(openStatus));
         issues = query.select(condition, Order.ascending("baseIssue.dueDate"));
 
         myOpenIssuesInfo.assignedToMeIssues = new IssuesCollectionInfo();
