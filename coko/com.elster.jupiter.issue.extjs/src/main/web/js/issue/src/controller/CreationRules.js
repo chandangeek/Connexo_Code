@@ -98,11 +98,9 @@ Ext.define('Isu.controller.CreationRules', {
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
-                        this.close();
                         me.deleteRule(rule);
                         break;
                     case 'cancel':
-                        this.close();
                         break;
                 }
             }
