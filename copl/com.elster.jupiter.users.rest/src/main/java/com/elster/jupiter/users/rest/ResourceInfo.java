@@ -2,9 +2,10 @@ package com.elster.jupiter.users.rest;
 
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
