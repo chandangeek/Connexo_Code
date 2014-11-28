@@ -44,9 +44,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 allitemsadd: this.onAllMeasurementTypesAdd,
                 selecteditemsadd: this.onSelectedMeasurementTypesAdd
             },
-            'load-profile-type-edit #measurement-types-grid actioncolumn': {
-                click: this.removeMeasurementType
-            },
             'load-profile-type-edit #load-profile-type-edit-form #save-load-profile-type-button': {
                 click: this.saveLoadProfileType
             }
@@ -327,10 +324,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         measurementTypesGrid.setVisible(!all);
         page.down('#all-measurement-types').setVisible(all);
         page.down('#all-measurement-types-field').setValue(all);
-    },
-
-    removeMeasurementType: function (grid, index, id, row, event, record) {
-        grid.getStore().remove(record);
     },
 
     saveLoadProfileType: function () {
