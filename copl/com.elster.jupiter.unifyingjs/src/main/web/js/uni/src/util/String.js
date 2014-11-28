@@ -12,7 +12,7 @@ Ext.define('Uni.util.String', {
      * @param millis
      * @returns {string}
      */
-    formatDuration: function (millis) {
+    formatDuration: function (millis, shortFormat) {
         var duration = moment.duration(millis),
             format = '',
             hours,
@@ -21,13 +21,17 @@ Ext.define('Uni.util.String', {
 
         if (duration.asHours() > 1) {
             hours = Math.floor(duration.asHours()); // Avoids rounding errors.
-            format += Uni.I18n.translatePlural('general.time.hours', hours, 'UNI', '{0} hours');
+            format += shortFormat ?
+                Uni.I18n.translatePlural('general.time.hours_short', hours, 'UNI', '{0}h') :
+                Uni.I18n.translatePlural('general.time.hours', hours, 'UNI', '{0} hours');
             format += ' ';
         }
 
         if (duration.asMinutes() > 1) {
             minutes = duration.minutes();
-            format += Uni.I18n.translatePlural('general.time.minutes', minutes, 'UNI', '{0} minutes');
+            format += shortFormat ?
+                Uni.I18n.translatePlural('general.time.minutes_short', minutes, 'UNI', '{0}m') :
+                Uni.I18n.translatePlural('general.time.minutes', minutes, 'UNI', '{0} minutes');
             format += ' ';
         }
 
@@ -38,7 +42,9 @@ Ext.define('Uni.util.String', {
             seconds = 1;
         }
 
-        format += Uni.I18n.translatePlural('general.time.seconds', seconds, 'UNI', '{0} seconds');
+        format += shortFormat ?
+            Uni.I18n.translatePlural('general.time.seconds_short', seconds, 'UNI', '{0}s') :
+            Uni.I18n.translatePlural('general.time.seconds', seconds, 'UNI', '{0} seconds');
 
         return format;
     }
