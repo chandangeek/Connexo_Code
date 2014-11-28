@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
@@ -22,8 +23,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
-
-import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  * Created by bvn on 9/18/14.
