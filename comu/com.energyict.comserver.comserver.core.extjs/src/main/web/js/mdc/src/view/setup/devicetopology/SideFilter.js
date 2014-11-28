@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.devicetopology.SideFilter', {
     title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
     width: 285,
     applyBtnText: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
-    cleatBtnText: Uni.I18n.translate('searchItems.reset', 'MDC', 'Reset'),
+    cleatBtnText: Uni.I18n.translate('general.clearAll', 'MDC', 'Clear all'),
 
 
     ui: 'medium',

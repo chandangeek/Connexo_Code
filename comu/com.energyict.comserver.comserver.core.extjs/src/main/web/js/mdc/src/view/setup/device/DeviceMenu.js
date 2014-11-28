@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         this.add({
             text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
             itemId: 'protocolLink',
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.protocol','privilege.view.protocol']),
+            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.protocol', 'privilege.view.protocol']),
             href: '#/devices/' + mRID + '/protocols',
             hrefTarget: '_self'
         });
@@ -70,13 +70,15 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             href: '#/devices/' + mRID + '/commands',
             hrefTarget: '_self'
         });
-        this.add({
-            text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Data validation'),
-            itemId: 'dataValidationLink',
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration']),
-            href: '#/devices/' + mRID + '/datavalidation',
-            hrefTarget: '_self'
-        });
+        if (this.device.get('hasLogBooks') || this.device.get('hasLoadProfiles') || this.device.get('hasRegisters')) {
+            this.add({
+                text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Data validation'),
+                itemId: 'dataValidationLink',
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration']),
+                href: '#/devices/' + mRID + '/datavalidation',
+                hrefTarget: '_self'
+            });
+        }
         this.add({
             text: Uni.I18n.translate('devicemenu.security', 'MDC', 'Security settings'),
             itemId: 'securitySettingLink',
