@@ -47,7 +47,6 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public Long comServer_id;
     public String comServerName;
     public Integer numberOfSimultaneousConnections = Integer.valueOf(0);
-    public Instant modificationDate;
     public Integer ringCount;
     public Integer maximumNumberOfDialErrors;
     public TimeDurationInfo connectTimeout;
@@ -90,7 +89,6 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
         this.comServerName = comPort.getComServer() != null ? comPort.getComServer().getName():null;
         this.comPortType = comPort.getComPortType();
         this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
-        this.modificationDate = comPort.getModificationDate();
     }
 
     protected void writeTo(T source,EngineModelService engineModelService) {
