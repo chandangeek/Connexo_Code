@@ -14,13 +14,15 @@ import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.assertj.core.data.MapEntry;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
