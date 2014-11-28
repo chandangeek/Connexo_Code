@@ -86,7 +86,7 @@ Ext.define('Uni.grid.column.Action', {
 
         // this is for menu toggling, change the code below with accuracy!
         me.menu.on('hide', function () {
-            var actions = grid.getEl().query('.' + me.iconCls + ':hover');
+            var actions = grid.getEl().query(me.iconCls + ':hover');
             if (!actions.length) {
                 me.menu.cell = null;
             }
