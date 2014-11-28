@@ -93,17 +93,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             'button[action=showAddComPortPoolPage]': {
                 click: this.navigateAddPool
             },
-            'outboundportcomportpools actioncolumn': {
-                click: this.removePool
+            'outboundportcomportpools gridview': {
+                refresh: this.updatePoolCount
             },
             '#addComPortPoolToComPort #createEditButton': {
                 click: this.addComportPool
             },
             '#addComPortPoolToComPort #cancelLink': {
                 click: this.cancelAddPool
-            },
-            'outboundportcomportpools': {
-                afterrender: this.updatePoolCount
             },
             'addComPortPool add-com-port-pools-grid': {
                 allitemsadd: this.onAllComPortPoolsAdd,
@@ -113,8 +110,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
 
     },
 
-    updatePoolCount: function (grid) {
-        var store = grid.getStore(),
+    updatePoolCount: function (gridview) {
+        var grid = gridview.up('gridpanel');
+            store = grid.getStore(),
             countMsg = grid.down('#comPortPoolsCount'),
             count = store.getCount();
         if (count == 1) {
@@ -123,11 +121,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             count ? countMsg.update(count + ' ' + Uni.I18n.translate('comServerComPorts.addPools.count', 'MDC', ' communication port pools')) :
                 countMsg.update(Uni.I18n.translate('comServerComPorts.addPools.noPools', 'MDC', 'No communication port pools'));
         }
-    },
-
-    removePool: function (grid, el, index) {
-        grid.getStore().removeAt(index, 1);
-        this.updatePoolCount(grid.up('panel'))
     },
 
     onAllComPortPoolsAdd: function () {

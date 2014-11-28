@@ -13,8 +13,16 @@ Ext.define('Mdc.view.setup.comservercomports.ComPortPoolsGrid', {
         },
         {
             xtype: 'actioncolumn',
-            iconCls: 'icon-delete',
-            align: 'right'
+            align: 'right',
+            items: [
+                {
+                    iconCls: 'icon-delete',
+                    handler: function (grid, rowIndex) {
+                        grid.getStore().removeAt(rowIndex);
+                        grid.refresh();
+                    }
+                }
+            ]
         }
     ],
     height: 220,
