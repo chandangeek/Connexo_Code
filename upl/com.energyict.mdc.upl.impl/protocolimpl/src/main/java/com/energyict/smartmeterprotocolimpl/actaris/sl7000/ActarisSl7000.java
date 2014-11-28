@@ -247,7 +247,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
     public StoredValues getStoredValues() {
         if (storedValues == null) {
-            storedValues = new StoredValuesImpl(getDlmsSession().getCosemObjectFactory());
+            storedValues = new StoredValuesImpl(this);
         }
         return storedValues;
     }

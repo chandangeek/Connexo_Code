@@ -1,7 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -12,6 +20,7 @@ import java.util.List;
 
 public class StoredValuesImpl implements StoredValues {
 
+    private static final ObisCode MAXIMUM_DEMAND_BASE_OBIS = ObisCode.fromString("1.1.0.6.0.255");
     private static ObisCode OBIS_NUMBER_OF_AVAILABLE_HISTORICAL_SETS = ObisCode.fromString("0.0.0.1.1.255");
     
     private static final int EOB_STATUS=0;
@@ -19,18 +28,21 @@ public class StoredValuesImpl implements StoredValues {
     private static final int ENERGY_RATES=2;
     private static final int MAXIMUM_DEMANDS=3;
     private static final int MD_RANGE=24; // 48 entries. ObisCode followed by struct, 24 times = 48 entries in the datacontainer
-    private static final int CUMULATIVE_DEMAND=51; // unused for the moment...
-    
-    
-    CosemObjectFactory cof;
-    ProtocolLink protocolLink;
-    ProfileGeneric profileGeneric=null;
+    private static final int CUMULATIVE_DEMAND=51;
+
+
+    private CosemObjectFactory cof;
+    private ProtocolLink protocolLink;
+    private ActarisSl7000 meterProtocol;
+    private ProfileGeneric profileGeneric=null;
+    private MaximumDemandRegisterProfileMapper maximumDemandRegisterProfileMapper;
     
     List billingSets=new ArrayList();
-    
+
     /** Creates a new instance of StoredValues */
-    public StoredValuesImpl(CosemObjectFactory cof) {
-        this.cof=cof;
+    public StoredValuesImpl(ActarisSl7000 meterProtocol) {
+        this.meterProtocol = meterProtocol;
+        this.cof= meterProtocol.getDlmsSession().getCosemObjectFactory();
         protocolLink = cof.getProtocolLink();
     }
 
@@ -71,6 +83,14 @@ public class StoredValuesImpl implements StoredValues {
         historicalValue.setBillingDate(billingSet.getBillingDate());
 
         ObisCode registerObisCode= ProtocolTools.setObisCodeField(obisCode, 5, (byte) 0xFF);
+        if (isMaximumDemandRegister(registerObisCode)) {
+            ObisCode profileGenericForRegister = getMaximumDemandRegisterProfileMapper().getProfileGenericForRegister(registerObisCode);
+            registerObisCode =
+                    profileGenericForRegister != null
+                            ? profileGenericForRegister
+                            : registerObisCode; // If no profile generic could be found, then fall back to original obis
+        }
+
         BillingValue billingValue = billingSet.find(registerObisCode);
         ExtendedRegister extendedRegister = cof.getExtendedRegister(obisCode);
         extendedRegister.setValue(billingValue.getValue());
@@ -80,12 +100,16 @@ public class StoredValuesImpl implements StoredValues {
         
         return historicalValue;
     }
-    
+
+    private boolean isMaximumDemandRegister(ObisCode registerObisCode) {
+        ObisCode obis = ProtocolTools.setObisCodeField(registerObisCode, 2, (byte) 0);
+        obis = ProtocolTools.setObisCodeField(obis, 4, (byte) 0);
+        return obis.equals(MAXIMUM_DEMAND_BASE_OBIS);
+    }
+
     public ProfileGeneric getProfileGeneric() {
         return profileGeneric;
     }
-    
-
 
     //********************************************************************************************
     // Private methods to parse the datacontainer
@@ -98,7 +122,7 @@ public class StoredValuesImpl implements StoredValues {
             billingSet.addBillingValues(getBillingValues(billingSetId, index++, dc)); // total energy
             billingSet.addBillingValues(getBillingValues(billingSetId, index++, dc)); // energy rates
             billingSet.addBillingValues(getAllMaximumDemands(billingSetId, index, dc)); // maximum demands
-//            billingSet.addBillingValues(getAllCumulativeDemands(billingSetId, CUMULATIVE_DEMAND, dc)); // cumulative demand
+//            billingSet.addBillingValues(getAllCumulativeDemands(billingSetId, CUMULATIVE_DEMAND, dc)); // cumulative demand - at the moment not used
             index = 52;
             billingSet.addBillingValue(getBillingValue(billingSetId, index++, dc)); // minimum PF
             billingSet.addBillingValue(getAveragePF(billingSetId, index, dc)); // average PF        //Seems to be a bug: the average PF is not inside a structure, but occupies position 53, 54, 55
@@ -221,5 +245,12 @@ public class StoredValuesImpl implements StoredValues {
             }
         }
         return billingValues;
+    }
+
+    public MaximumDemandRegisterProfileMapper getMaximumDemandRegisterProfileMapper() {
+        if (maximumDemandRegisterProfileMapper == null) {
+            maximumDemandRegisterProfileMapper = new MaximumDemandRegisterProfileMapper(meterProtocol);
+        }
+        return maximumDemandRegisterProfileMapper;
     }
 }

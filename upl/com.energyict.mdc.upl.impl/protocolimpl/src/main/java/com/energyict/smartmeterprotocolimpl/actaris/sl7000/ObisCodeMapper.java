@@ -35,6 +35,7 @@ public class ObisCodeMapper {
 
     ActarisSl7000 meterProtocol;
     RegisterProfileMapper registerProfileMapper;
+    MaximumDemandRegisterProfileMapper maximumDemandRegisterProfileMapper;
 
     /** Creates a new instance of ObisCodeMapper */
     public ObisCodeMapper(ActarisSl7000 meterProtocol) {
@@ -112,12 +113,21 @@ public class ObisCodeMapper {
         }
 
         /**
-         * Demand/electricity related registers are mapped in a registerProfile.
-         * Instead of reading out each demand/electricity registers separately, they can be read out in group
+         * Maximum demand registers can not be read out direct, instead they are mapped in a registerProfile!
+         * Instead of reading out each maximum demand register separately, they must always be read out from a profile object
+         * E.g.: read a profile generic buffer containing info about all maximum demand registers
+         */
+        if (getMaximumDemandRegisterProfileMapper().getProfileGenericForRegister(register) != null) {
+            return getMaximumDemandRegisterProfileMapper().getRegister(register);
+        }
+
+        /**
+         * Optionally, all demand/electricity related registers are mapped in a registerProfile.
+         * Instead of reading out each demand/electricity registers separately (which should be possible anyway), they can also be read out in group
          * E.g.: read a profile generic buffer containing info about all demand/energy registers
          *
          */
-        if (((SL7000Properties)meterProtocol.getProperties()).useRegisterProfile() && getRegisterProfileMapper().getProfileGenericForRegister(register) != -1) {
+        if (meterProtocol.getProperties().useRegisterProfile() && getRegisterProfileMapper().getProfileGenericForRegister(register) != -1) {
             return getRegisterProfileMapper().getRegister(register);
         }
 
@@ -210,5 +220,12 @@ public class ObisCodeMapper {
             registerProfileMapper = new RegisterProfileMapper(meterProtocol);
         }
         return registerProfileMapper;
+    }
+
+    public MaximumDemandRegisterProfileMapper getMaximumDemandRegisterProfileMapper() {
+        if (maximumDemandRegisterProfileMapper == null) {
+            maximumDemandRegisterProfileMapper = new MaximumDemandRegisterProfileMapper(meterProtocol);
+        }
+        return maximumDemandRegisterProfileMapper;
     }
 }

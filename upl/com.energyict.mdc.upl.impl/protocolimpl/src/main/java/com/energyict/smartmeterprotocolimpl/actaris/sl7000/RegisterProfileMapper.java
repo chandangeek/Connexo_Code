@@ -10,7 +10,6 @@ import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,7 +21,6 @@ import java.util.List;
 public class RegisterProfileMapper {
 
     final ObisCode ALLDEMANDS_PROFILE = ObisCode.fromString("0.0.98.133.5.255");
-    final ObisCode ALLMAXIMUMDEMANDS_PROFILE = ObisCode.fromString("0.0.98.133.6.255");
     final ObisCode ALLCUMULATIVEMAXDEMANDS_PROFILE = ObisCode.fromString("0.0.98.133.90.255");
     final ObisCode ALLENERGYRATES_PROFILE = ObisCode.fromString("255.255.98.133.1.255");
     final ObisCode ALLTOTALENERGIES_PROFILE = ObisCode.fromString("255.255.98.133.2.255");
@@ -41,13 +39,11 @@ public class RegisterProfileMapper {
             case 0:
                 return getRegister(register, 0);
             case 1:
-                return getAllMaximumDemandRegister(register);
-            case 2:
                 return getAllCumulativeMaximumDemandRegister(register);
+            case 2:
+                return getRegister(register, 2);
             case 3:
                 return getRegister(register, 3);
-            case 4:
-                return getRegister(register, 4);
             default:
                 return null;
         }
@@ -60,16 +56,6 @@ public class RegisterProfileMapper {
         long value = buffer.getRoot().getStructure(0).getStructure(channelIndex).getValue(1);
         ScalerUnit scalerUnit = new ScalerUnit(buffer.getRoot().getStructure(0).getStructure(channelIndex).getStructure(2).getInteger(0), buffer.getRoot().getStructure(0).getStructure(channelIndex).getStructure(2).getInteger(1));
         return new RegisterValue(register, new Quantity(value, scalerUnit.getEisUnit()));
-    }
-
-    private RegisterValue getAllMaximumDemandRegister(Register register) throws IOException {
-        DataContainer buffer = getProfileGenerics()[1].getBuffer();
-        int channelIndex = getChannelIndexForRegister(getProfileGenerics()[1], register.getObisCode());
-
-        long value = buffer.getRoot().getStructure(0).getStructure(channelIndex + 1).getStructure(0).getValue(0);
-        ScalerUnit scalerUnit = new ScalerUnit(buffer.getRoot().getStructure(0).getStructure(channelIndex + 1).getStructure(0).getStructure(1).getInteger(0), buffer.getRoot().getStructure(0).getStructure(channelIndex + 1).getStructure(0).getStructure(1).getInteger(1));
-        Date date = buffer.getRoot().getStructure(0).getStructure(channelIndex + 1).getStructure(0).getOctetString(2).toDate(meterProtocol.getTimeZone());
-        return new RegisterValue(register, new Quantity(value, scalerUnit.getEisUnit()), date);
     }
 
     private RegisterValue getAllCumulativeMaximumDemandRegister(Register register) throws IOException {
@@ -120,12 +106,11 @@ public class RegisterProfileMapper {
 
     public ProfileGeneric[] getProfileGenerics() throws IOException {
         if (profileGenerics == null) {
-            profileGenerics = new ProfileGeneric[5];
+            profileGenerics = new ProfileGeneric[4];
             profileGenerics[0] = meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(ALLDEMANDS_PROFILE);
-            profileGenerics[1] = meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(ALLMAXIMUMDEMANDS_PROFILE);
-            profileGenerics[2] = meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(ALLCUMULATIVEMAXDEMANDS_PROFILE);
-            profileGenerics[3] = meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(ALLENERGYRATES_PROFILE);
-            profileGenerics[4] = meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(ALLTOTALENERGIES_PROFILE);
+            profileGenerics[1] = meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(ALLCUMULATIVEMAXDEMANDS_PROFILE);
+            profileGenerics[2] = meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(ALLENERGYRATES_PROFILE);
+            profileGenerics[3] = meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(ALLTOTALENERGIES_PROFILE);
         }
         return profileGenerics;
     }
