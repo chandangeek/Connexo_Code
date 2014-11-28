@@ -147,15 +147,8 @@ Ext.define('Cfg.controller.Validation', {
 
             '#addReadingTypesToRuleSetup #buttonsContainer button[name=add]': {
                 click: this.addReadingTypesToGrid
-            },
-            '#addRule #readingTypesGridPanel actioncolumn': {
-                click: this.removeReadingType
             }
         });
-    },
-
-    removeReadingType: function (grid, index, id, row, event, record) {
-        grid.getStore().remove(record);
     },
 
     showAddReadingGrid: function () {

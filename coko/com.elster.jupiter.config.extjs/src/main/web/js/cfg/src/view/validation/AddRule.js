@@ -29,7 +29,7 @@ Ext.define('Cfg.view.validation.AddRule', {
     readingTypeIndex: 1,
 
 
-       content: [
+    content: [
         {
             xtype: 'panel',
             ui: 'large',
@@ -114,8 +114,15 @@ Ext.define('Cfg.view.validation.AddRule', {
                                                 },
                                                 {
                                                     xtype: 'actioncolumn',
-                                                    iconCls: 'icon-delete',
-                                                    align: 'right'
+                                                    align: 'right',
+                                                    items: [
+                                                        {
+                                                            iconCls: 'icon-delete',
+                                                            handler: function (grid, rowIndex) {
+                                                                grid.getStore().removeAt(rowIndex);
+                                                            }
+                                                        }
+                                                    ]
                                                 }
                                             ],
                                             height: 220
