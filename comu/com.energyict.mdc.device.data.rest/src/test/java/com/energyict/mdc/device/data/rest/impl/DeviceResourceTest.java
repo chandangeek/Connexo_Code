@@ -802,7 +802,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'intervalStart','value':2},{'property':'intervalEnd','value':1}]").request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B'property':'intervalStart','value':2%7D,%7B'property':'intervalEnd','value':1%7D]").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -815,7 +815,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'domain','value':'100500'}]").request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B'property':'domain','value':'100500'%7D]").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -828,7 +828,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'subDomain','value':'100500'}]").request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B'property':'subDomain','value':'100500'%7D]").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -841,7 +841,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[{'property':'eventOrAction','value':'100500'}]").request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B'property':'eventOrAction','value':'100500'%7D]").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -885,11 +885,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> (String) invocation.getArguments()[1]);
 
         Map<?, ?> response = target("/devices/mrid/logbooks/1/data")
-                .queryParam("filter", "[{'property':'intervalStart','value':1},"
+                .queryParam("filter", ("[{'property':'intervalStart','value':1},"
                         + "{'property':'intervalEnd','value':2},"
                         + "{'property':'domain','value':'BATTERY'},"
                         + "{'property':'subDomain','value':'ACCESS'},"
-                        + "{'property':'eventOrAction','value':'ACTIVATED'}]").request().get(Map.class);
+                        + "{'property':'eventOrAction','value':'ACTIVATED'}]").replace("{","%7B").replace("}","%7D")).request().get(Map.class);
 
         assertThat(response.get("total")).isEqualTo(1);
 
