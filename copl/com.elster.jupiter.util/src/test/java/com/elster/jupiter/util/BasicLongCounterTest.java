@@ -1,6 +1,5 @@
 package com.elster.jupiter.util;
 
-import net.jcip.annotations.ThreadSafe;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -20,8 +19,7 @@ public abstract class BasicLongCounterTest {
     abstract boolean allowsNegativeTotals();
 
     boolean isThreadSafe() {
-        LongCounter counter = newLongCounter();
-        return counter.getClass().getAnnotation(ThreadSafe.class) != null;
+    	return false;
     }
 
     @Test
