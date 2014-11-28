@@ -64,11 +64,7 @@
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.tasks</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>net.jcip</groupId>
-      <artifactId>jcip-annotations</artifactId>
-    </dependency>
+    </dependency>    
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>

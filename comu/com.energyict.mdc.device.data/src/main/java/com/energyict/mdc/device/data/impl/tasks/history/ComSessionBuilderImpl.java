@@ -18,7 +18,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.LongCounter;
-import net.jcip.annotations.NotThreadSafe;
 
 import java.lang.reflect.Proxy;
 import java.time.Duration;
@@ -34,7 +33,7 @@ import java.util.Optional;
  * Date: 28/04/2014
  * Time: 17:19
  */
-@NotThreadSafe
+
 public class ComSessionBuilderImpl implements ComSessionBuilder {
     private class UnderConstruction implements ComSessionBuilder {
 
