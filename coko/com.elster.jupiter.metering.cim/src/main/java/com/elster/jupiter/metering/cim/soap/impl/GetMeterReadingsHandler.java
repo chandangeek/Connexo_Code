@@ -29,8 +29,6 @@ import java.util.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
-import net.jcip.annotations.NotThreadSafe;
-
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
 
@@ -42,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@NotThreadSafe
 public class GetMeterReadingsHandler implements GetMeterReadingsPort {
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final MeteringService meteringService;

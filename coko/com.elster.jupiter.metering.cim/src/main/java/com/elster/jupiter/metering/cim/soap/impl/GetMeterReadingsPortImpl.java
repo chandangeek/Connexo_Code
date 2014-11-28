@@ -10,12 +10,10 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import java.time.Clock;
-import net.jcip.annotations.ThreadSafe;
 
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
 
-@ThreadSafe
 class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final MeteringService meteringService;
