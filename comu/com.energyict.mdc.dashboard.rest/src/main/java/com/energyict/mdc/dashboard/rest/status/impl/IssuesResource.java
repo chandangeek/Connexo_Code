@@ -8,7 +8,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 
@@ -41,7 +40,7 @@ public class IssuesResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
+    @RolesAllowed({com.elster.jupiter.issue.security.Privileges.VIEW_ISSUE, com.elster.jupiter.issue.security.Privileges.ASSIGN_ISSUE, com.elster.jupiter.issue.security.Privileges.CLOSE_ISSUE, com.elster.jupiter.issue.security.Privileges.COMMENT_ISSUE, com.elster.jupiter.issue.security.Privileges.ACTION_ISSUE})
     public Response getIssues(@Context SecurityContext context) {
         User user = (User) context.getUserPrincipal();
         Query<OpenIssueDataCollection> query;

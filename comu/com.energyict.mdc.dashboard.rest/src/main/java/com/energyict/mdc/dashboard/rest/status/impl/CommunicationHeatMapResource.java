@@ -7,6 +7,9 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.dashboard.DashboardService;
+import com.energyict.mdc.engine.model.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -38,6 +41,7 @@ public class CommunicationHeatMapResource {
      */
     @GET
     @Produces("application/json")
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public CommunicationHeatMapInfo getConnectionHeatMap(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
         if (jsonQueryFilter.getProperty(Constants.DEVICE_GROUP) != null) {
             Optional<QueryEndDeviceGroup> deviceGroupOptional = meteringGroupService.findQueryEndDeviceGroup(jsonQueryFilter.getProperty(Constants.DEVICE_GROUP, new LongAdapter()));

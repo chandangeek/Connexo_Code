@@ -55,6 +55,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
 
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
+        assertThat(jsonModel.<Integer>get("$.communicationSummary.target")).isNull();
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Failed')].count[0]")).isEqualTo(56);
@@ -94,6 +95,7 @@ public class CommunicationOverviewResourceTest extends DashboardApplicationJerse
 
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.total")).isEqualTo(169);
+        assertThat(jsonModel.<Integer>get("$.communicationSummary.target")).isEqualTo(100);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Success')].count[0]")).isEqualTo(15);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Ongoing')].count[0]")).isEqualTo(98);
         assertThat(jsonModel.<Integer>get("$.communicationSummary.counters[?(@.displayName=='Failed')].count[0]")).isEqualTo(56);
