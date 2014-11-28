@@ -15,6 +15,7 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.impl.MessageSeeds;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
@@ -42,7 +43,7 @@ public class MdcPropertyUtils {
         for (PropertySpec<?> propertySpec : propertySpecs) {
             PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, showValue, withPrivileges);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
-            PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType);
+            PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType, null);
             PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
             propertyInfoList.add(propertyInfo);
         }
@@ -53,7 +54,19 @@ public class MdcPropertyUtils {
         for (PropertySpec<?> propertySpec : propertySpecs) {
             PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, true, false);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
-            PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType);
+            PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType, null);
+            PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
+            propertyInfoList.add(propertyInfo);
+        }
+        return propertyInfoList;
+    }
+
+    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, Device device) {
+        List<PropertyInfo> propertyInfoList = new ArrayList<>();
+        for (PropertySpec<?> propertySpec : propertySpecs) {
+            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, true, false);
+            SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
+            PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType, device);
             PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
             propertyInfoList.add(propertyInfo);
         }
@@ -88,8 +101,8 @@ public class MdcPropertyUtils {
         }
     }
 
-    private PropertyTypeInfo getPropertyTypeInfo(UriInfo uriInfo, PropertySpec<?> propertySpec, SimplePropertyType simplePropertyType) {
-        return new PropertyTypeInfo(simplePropertyType, getPropertyValidationRule(propertySpec), getPredefinedPropertyValueInfo(propertySpec), getReferenceUri(uriInfo, propertySpec, simplePropertyType));
+    private PropertyTypeInfo getPropertyTypeInfo(UriInfo uriInfo, PropertySpec<?> propertySpec, SimplePropertyType simplePropertyType, Device device) {
+        return new PropertyTypeInfo(simplePropertyType, getPropertyValidationRule(propertySpec), getPredefinedPropertyValueInfo(propertySpec, simplePropertyType, device), getReferenceUri(uriInfo, propertySpec, simplePropertyType));
     }
 
     private URI getReferenceUri(final UriInfo uriInfo, PropertySpec<?> propertySpec, SimplePropertyType simplePropertyType) {
@@ -121,27 +134,45 @@ public class MdcPropertyUtils {
         return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getPropertyValue(propertySpec.getName()));
     }
 
-    private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec<?> propertySpec) {
-        PropertySpecPossibleValues<?> possibleValues = propertySpec.getPossibleValues();
-        if (possibleValues == null) {
-            return null;
-        } else {
-            if (possibleValues.getAllValues().size() <= 1) {
-                // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
-                return null;
-            } else {
-                Object[] possibleObjects = new Object[possibleValues.getAllValues().size()];
-                for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
-                    possibleObjects[i] = MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getAllValues().get(i));
-                }
-                PropertySelectionMode selectionMode = PropertySelectionMode.COMBOBOX;
 
-                return new PredefinedPropertyValuesInfo<>(
-                        possibleObjects,
-                        selectionMode,
-                        propertySpec.getPossibleValues().isExhaustive());
+    private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec<?> propertySpec, SimplePropertyType simplePropertyType, Device device) {
+        List<?> possibleValues = null;
+        boolean isExchaustive = true;
+        if (device != null) {
+            if (simplePropertyType.equals(SimplePropertyType.LOADPROFILE)) {
+                possibleValues = device.getLoadProfiles();
+            } else if (simplePropertyType.equals(SimplePropertyType.LOGBOOK)) {
+                possibleValues = device.getLogBooks();
+            } else if (simplePropertyType.equals(SimplePropertyType.REGISTER)) {
+                possibleValues = device.getRegisters();
             }
         }
+
+        if (propertySpec.getPossibleValues() != null) {
+            possibleValues = propertySpec.getPossibleValues().getAllValues();
+            isExchaustive = propertySpec.getPossibleValues().isExhaustive();
+        }
+
+        if (possibleValues == null) {
+            return null;
+        }
+
+       // if (possibleValues.size() <= 1) {
+            // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
+         //   return null;
+       // } else {
+            Object[] possibleObjects = new Object[possibleValues.size()];
+            for (int i = 0; i < possibleValues.size(); i++) {
+                possibleObjects[i] = MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.get(i));
+            }
+            PropertySelectionMode selectionMode = PropertySelectionMode.COMBOBOX;
+
+            return new PredefinedPropertyValuesInfo<>(
+                    possibleObjects,
+                    selectionMode,
+                    isExchaustive);
+        //}
+
     }
 
     private <T> Object getDefaultValue(PropertySpec<T> propertySpec) {
@@ -160,7 +191,7 @@ public class MdcPropertyUtils {
     public Object findPropertyValue(PropertySpec<?> propertySpec, PropertyInfo[] propertyInfos) {
         for (PropertyInfo propertyInfo : propertyInfos) {
             if (propertyInfo.key.equals(propertySpec.getName())) {
-                if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue()!= null && !propertyInfo.getPropertyValueInfo().getValue().equals("")) {
+                if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().getValue() != null && !propertyInfo.getPropertyValueInfo().getValue().equals("")) {
                     return convertPropertyInfoValueToPropertyValue(propertySpec, propertyInfo.getPropertyValueInfo().getValue());
                 } else {
                     return null;
@@ -172,17 +203,17 @@ public class MdcPropertyUtils {
 
     private Object convertPropertyInfoValueToPropertyValue(PropertySpec<?> propertySpec, Object value) {
         //SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
-        if (propertySpec.getValueFactory().getValueType() == Password.class){
+        if (propertySpec.getValueFactory().getValueType() == Password.class) {
             return new Password(value.toString());
-        } else if (propertySpec.getValueFactory().getValueType() == Date.class){
-            return new Date((long)value);
+        } else if (propertySpec.getValueFactory().getValueType() == Date.class) {
+            return new Date((long) value);
         } else if (propertySpec.getValueFactory().getValueType() == TimeDuration.class) {
             Integer count = (Integer) ((LinkedHashMap<String, Object>) value).get("count");
             String timeUnit = (String) ((LinkedHashMap<String, Object>) value).get("timeUnit");
             if (!TimeDuration.isValidTimeUnitDescription(timeUnit)) {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, propertySpec.getName());
             }
-            return new TimeDuration(""+count+" "+timeUnit);
+            return new TimeDuration("" + count + " " + timeUnit);
         } else if (propertySpec.getValueFactory().getValueType() == String.class) {
             return value;
         } else if (propertySpec.getValueFactory().getValueType() == Boolean.class) {
