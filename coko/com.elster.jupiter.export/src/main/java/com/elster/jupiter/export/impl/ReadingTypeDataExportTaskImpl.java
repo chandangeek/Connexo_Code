@@ -157,7 +157,7 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     public DataExportOccurrenceFinder getOccurrencesFinder() {
         Condition condition = where("readingTask").isEqualTo(this);
         Order order = Order.descending("taskocc");
-        return new DataExportOccurrenceFinderImpl(dataModel.query(DataExportOccurrence.class), taskService.getTaskOccurrenceQueryExecutor(), condition, order);
+        return new DataExportOccurrenceFinderImpl(dataModel, condition, order);
     }
 
     @Override
@@ -230,10 +230,13 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     private boolean hasQueuedMessages() {
-        return getLastOccurrence()
-                    .map(IDataExportOccurrence::getTaskOccurrence)
-                    .map(taskOccurrence -> taskOccurrence.equals(recurrentTask.get().getLastOccurrence().orElse(null)))
-                    .orElse(false);
+        Optional<? extends TaskOccurrence> lastOccurrence = recurrentTask.get().getLastOccurrence();
+        Optional<IDataExportOccurrence> lastDataExportOccurrence = getLastOccurrence();
+        return lastOccurrence.isPresent() &&
+                lastDataExportOccurrence.map(IDataExportOccurrence::getTaskOccurrence)
+                .map(TaskOccurrence::getId)
+                .map(i -> !i.equals(lastOccurrence.get().getId()))
+                .orElse(true);
     }
 
     @Override
