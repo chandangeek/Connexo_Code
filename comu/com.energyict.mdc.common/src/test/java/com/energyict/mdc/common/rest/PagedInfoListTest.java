@@ -2,8 +2,10 @@ package com.energyict.mdc.common.rest;
 
 import java.util.Arrays;
 import java.util.List;
-import org.codehaus.jackson.map.ObjectMapper;
+
 import org.junit.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -1,7 +1,7 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.util.time.Interval;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by bvn on 8/6/14.
