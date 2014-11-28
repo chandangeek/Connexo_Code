@@ -35,6 +35,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('registerGroup.add', 'MDC', 'Add register group'),
+                                privileges: ['privilege.administrate.deviceConfiguration'],
                                 action: 'createRegisterGroup'
                             }
                         ]

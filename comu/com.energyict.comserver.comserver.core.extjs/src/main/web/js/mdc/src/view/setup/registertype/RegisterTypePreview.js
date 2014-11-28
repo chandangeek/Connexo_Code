@@ -103,6 +103,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
                     iconCls: 'x-uni-action-iconD',
                     menu: {
                         xtype: 'register-type-action-menu'

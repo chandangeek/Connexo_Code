@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
                 items: 'Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu'
             }
         ]
