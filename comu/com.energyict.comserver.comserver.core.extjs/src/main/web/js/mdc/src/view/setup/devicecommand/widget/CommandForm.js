@@ -2,7 +2,8 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.device-command-add-form',
     requires: [
-        'Mdc.widget.DateTimeField'
+        'Mdc.widget.DateTimeField',
+        'Uni.form.field.DateTime'
     ],
     layout: {
         type: 'vbox',
@@ -35,25 +36,31 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
             queryMode: 'local'
         },
         {
-            xtype: 'dateTimeField',
+            xtype: 'date-time',
             name: 'releaseDate',
+            itemId: 'releaseDate',
+            layout: 'hbox',
             required: true,
             fieldLabel: Uni.I18n.translate('deviceCommand.add.releaseDate', 'MDC', 'Release date'),
-            dateCfg: {
+            dateConfig: {
                 width: 155
             },
-            hourCfg: {
+            hoursConfig: {
                 width: 60
             },
-            minuteCfg: {
+            minutesConfig: {
                 width: 60
+            },
+            dateTimeSeparatorConfig: {
+                html: Uni.I18n.translate('deviceCommand.add.at', 'MDC', 'at'),
+                margin: '0 10 0 10'
             }
         }
     ],
 
     initComponent: function () {
         this.callParent(arguments);
-        this.down('dateTimeField[name=releaseDate]').setValue(new Date().getTime())
+        this.down('date-time[name=releaseDate]').setValue(new Date().getTime())
     }
 });
 

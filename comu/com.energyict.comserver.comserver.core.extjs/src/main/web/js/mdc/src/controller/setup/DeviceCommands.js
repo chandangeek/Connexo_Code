@@ -154,6 +154,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             method: 'PUT',
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.triggerSuccess', 'MDC', 'Command triggered'));
+                me.getDeviceCommandsGrid().getStore().load()
             }
         })
     },
