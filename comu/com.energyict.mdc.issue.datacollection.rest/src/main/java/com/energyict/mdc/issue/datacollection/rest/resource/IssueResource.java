@@ -239,6 +239,7 @@ public class IssueResource extends BaseResource {
     @PUT
     @Path("/{" + ID + "}/actions/{" + KEY + "}")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ACTION_ISSUE)
     public Response performAction(@PathParam(ID) long id, PerformActionRequest request) {
         Optional<IssueDataCollection> issueRef = getIssueDataCollectionService().findIssue(id);
