@@ -110,7 +110,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     TaskOccurrenceImpl createAdHocTaskOccurrence() {
-        TaskOccurrenceImpl occurrence = TaskOccurrenceImpl.createAdHoc(dataModel, this, nextExecution != null ? nextExecution : clock.instant());
+        TaskOccurrenceImpl occurrence = TaskOccurrenceImpl.createAdHoc(dataModel, this, clock.instant());
         occurrence.save();
         return occurrence;
     }
@@ -191,7 +191,9 @@ class RecurrentTaskImpl implements RecurrentTask {
         TaskOccurrenceImpl taskOccurrence = createScheduledTaskOccurrence();
         String json = toJson(taskOccurrence);
         getDestination().message(json).send();
-        updateNextExecution();
+        if (taskOccurrence.wasScheduled()) {
+            updateNextExecution();
+        }
         save();
         return taskOccurrence;
     }
