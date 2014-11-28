@@ -46,8 +46,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                         fieldLabel: 'Interval',
                         name: 'timeDuration',
                         renderer: function (value) {
-                            var intervalRecord = value ? Ext.getStore('Intervals').getById(value.id) : null;
-
+                            var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);
                             return intervalRecord ? intervalRecord.get('name') : '';
                         }
                     }

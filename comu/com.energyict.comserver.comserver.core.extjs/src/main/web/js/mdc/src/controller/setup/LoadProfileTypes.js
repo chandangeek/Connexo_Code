@@ -204,43 +204,37 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
     showLoadProfileTypes: function () {
         var me = this,
-            loadProfileTypesStore = me.getStore('Mdc.store.LoadProfileTypes'),
+            preloader = Ext.create('Ext.container.Container'),
             widget;
 
-        var showPage = function () {
+        me.getApplication().fireEvent('changecontentevent', preloader);
+        preloader.setLoading(true);
+
+        Uni.util.Common.loadNecessaryStores([
+            'Mdc.store.Intervals'
+        ], function () {
             widget = Ext.widget('loadProfileTypeSetup', {
                 config: {
                     gridStore: me.store
                 }
             });
-            me.getStore('Mdc.store.Intervals').load({
-                callback: function () {
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                    me.selectedMeasurementTypesStore.removeAll();
-                    me.temporallyFormValues = null;
-                    me.loadProfileAction = null;
-                    Ext.Array.each(Ext.ComponentQuery.query('[action=editloadprofiletype]'), function (item) {
-                        item.clearListeners();
-                        item.on('click', function () {
-                            me.editRecord();
-                        });
-                    });
-                    Ext.Array.each(Ext.ComponentQuery.query('[action=deleteloadprofiletype]'), function (item) {
-                        item.clearListeners();
-                        item.on('click', function () {
-                            me.showConfirmationPanel();
-                        });
-                    });
-                }
+            me.getApplication().fireEvent('changecontentevent', widget);
+            me.selectedMeasurementTypesStore.removeAll();
+            me.temporallyFormValues = null;
+            me.loadProfileAction = null;
+            Ext.Array.each(Ext.ComponentQuery.query('[action=editloadprofiletype]'), function (item) {
+                item.clearListeners();
+                item.on('click', function () {
+                    me.editRecord();
+                });
             });
-
-        };
-
-        if (loadProfileTypesStore.getCount()) {
-            showPage();
-        } else {
-            loadProfileTypesStore.load(showPage);
-        }
+            Ext.Array.each(Ext.ComponentQuery.query('[action=deleteloadprofiletype]'), function (item) {
+                item.clearListeners();
+                item.on('click', function () {
+                    me.showConfirmationPanel();
+                });
+            });
+        }, false);
     },
 
     showEdit: function (id) {

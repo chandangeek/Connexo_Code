@@ -14,12 +14,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     requires: [
         'Mdc.store.AvailableRegisterTypesForDeviceConfiguration',
         'Mdc.store.RegisterTypesOfDevicetype',
-        'Mdc.store.Intervals'
+        'Uni.util.Common'
     ],
 
 
     stores: [
-        'Intervals',
+        'Mdc.store.Intervals',
         'Mdc.store.LoadProfileTypes',
         'Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration',
         'Mdc.store.LoadProfileConfigurationsOnDeviceConfigurationAvailable'
@@ -277,18 +277,27 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
 
     showDeviceConfigurationLoadProfilesView: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
+            preloader = Ext.create('Ext.container.Container'),
             widget;
+
+        me.getApplication().fireEvent('changecontentevent', preloader);
+        preloader.setLoading(true);
 
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         me.store.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
-        widget = Ext.widget('loadProfileConfigurationSetup', {
-            config: {
-                gridStore: me.store,
-                deviceTypeId: deviceTypeId,
-                deviceConfigurationId: deviceConfigurationId
-            }
-        });
+        Uni.util.Common.loadNecessaryStores([
+            'Mdc.store.Intervals'
+        ], function () {
+            widget = Ext.widget('loadProfileConfigurationSetup', {
+                config: {
+                    gridStore: me.store,
+                    deviceTypeId: deviceTypeId,
+                    deviceConfigurationId: deviceConfigurationId
+                }
+            });
+            me.getApplication().fireEvent('changecontentevent', widget);
+        }, false);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -299,7 +308,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().fireEvent('changecontentevent', widget);
+
                     }
                 });
             }
