@@ -46,6 +46,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(mdcAmrSystem));
         when(mdcAmrSystem.findMeter("100")).thenReturn(Optional.of(meter));
         when(category.getName()).thenReturn("mycategory");
+        when(category.getTranlatedName()).thenReturn("My category");
         when(favoritesService.findLabelCategory("mycategory")).thenReturn(Optional.of(category));
     }
     
@@ -96,12 +97,12 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<List<DeviceLabelInfo>>get("$.deviceLabels")).hasSize(2);
         assertThat(jsonModel.<String>get("$.deviceLabels[0].category.id")).isEqualTo("mycategory");
-        assertThat(jsonModel.<String>get("$.deviceLabels[0].category.name")).isEqualTo("mycategory");
+        assertThat(jsonModel.<String>get("$.deviceLabels[0].category.name")).isEqualTo("My category");
         assertThat(jsonModel.<String>get("$.deviceLabels[0].comment")).isEqualTo("Comment1");
         assertThat(jsonModel.<Long>get("$.deviceLabels[0].creationDate")).isEqualTo(now.toEpochMilli());
 
         assertThat(jsonModel.<String>get("$.deviceLabels[1].category.id")).isEqualTo("mycategory");
-        assertThat(jsonModel.<String>get("$.deviceLabels[1].category.name")).isEqualTo("mycategory");
+        assertThat(jsonModel.<String>get("$.deviceLabels[1].category.name")).isEqualTo("My category");
         assertThat(jsonModel.<String>get("$.deviceLabels[1].comment")).isEqualTo("Comment2");
         assertThat(jsonModel.<Long>get("$.deviceLabels[1].creationDate")).isEqualTo(now.minusMillis(100).toEpochMilli());
     }

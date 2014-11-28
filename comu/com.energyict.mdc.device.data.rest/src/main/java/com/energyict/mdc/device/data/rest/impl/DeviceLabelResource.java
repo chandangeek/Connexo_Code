@@ -27,7 +27,6 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -41,15 +40,13 @@ public class DeviceLabelResource {
     private final MeteringService meteringService;
     private final ResourceHelper resourceHelper;
     private final FavoritesService favoritesService;
-    private final Thesaurus thesaurus;
     private final ExceptionFactory exceptionFactory;
     
     @Inject
-    public DeviceLabelResource(ResourceHelper resourceHelper, FavoritesService favoritesService, MeteringService meteringService, Thesaurus thesaurus, ExceptionFactory exceptionFactory) {
+    public DeviceLabelResource(ResourceHelper resourceHelper, FavoritesService favoritesService, MeteringService meteringService, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.favoritesService = favoritesService;
         this.meteringService = meteringService;
-        this.thesaurus = thesaurus;
         this.exceptionFactory = exceptionFactory;
     }
     
@@ -61,7 +58,7 @@ public class DeviceLabelResource {
         User user = (User) securityContext.getUserPrincipal();
         EndDevice endDevice = findEndDeviceOrThrowException(device);
         List<DeviceLabel> deviceLabels = favoritesService.getDeviceLabels(endDevice, user);
-        return PagedInfoList.asJson("deviceLabels", deviceLabels.stream().map(dl -> new DeviceLabelInfo(dl, thesaurus)).collect(Collectors.toList()), queryParameters);
+        return PagedInfoList.asJson("deviceLabels", deviceLabels.stream().map(DeviceLabelInfo::new).collect(Collectors.toList()), queryParameters);
     }
 
     @POST
@@ -74,7 +71,7 @@ public class DeviceLabelResource {
         EndDevice endDevice = findEndDeviceOrThrowException(device);
         LabelCategory category = findLabelCategoryOrThrowException(deviceLabelInfo.category.id.toString());
         DeviceLabel deviceLabel = favoritesService.findOrCreateDeviceLabel(endDevice, user, category, deviceLabelInfo.comment);
-        return Response.ok(new DeviceLabelInfo(deviceLabel, thesaurus)).build();
+        return Response.ok(new DeviceLabelInfo(deviceLabel)).build();
     }
 
     @Path("/{categoryId}")
@@ -88,7 +85,7 @@ public class DeviceLabelResource {
         LabelCategory category = findLabelCategoryOrThrowException(categoryId);
         Optional<DeviceLabel> deviceLabel = favoritesService.findDeviceLabel(endDevice, user, category);
         if (!deviceLabel.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_LABEL, thesaurus.getString(category.getName(), category.getName()), device.getmRID());
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_LABEL, category.getTranlatedName());
         }
         favoritesService.removeDeviceLabel(deviceLabel.get());
         return Response.ok().build();
@@ -96,18 +93,12 @@ public class DeviceLabelResource {
 
     private LabelCategory findLabelCategoryOrThrowException(String categoryId) {
         Optional<LabelCategory> category = favoritesService.findLabelCategory(categoryId);
-        if (!category.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_LABEL_CATEGORY);
-        }
-        return category.get();
+        return category.orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_LABEL_CATEGORY));
     }
 
     private EndDevice findEndDeviceOrThrowException(Device device) {
         Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
         Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(device.getId()));
-        if (!meter.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, device.getmRID());
-        }
-        return meter.get();
+        return meter.orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, device.getmRID()));
     }
 }
