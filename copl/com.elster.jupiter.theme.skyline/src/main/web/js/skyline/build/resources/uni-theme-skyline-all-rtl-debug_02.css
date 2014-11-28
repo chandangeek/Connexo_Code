@@ -891,6 +891,10 @@ h6 {
 .x-grid-row-selected .uni-actioncolumn-gear, .x-grid-row-focused .uni-actioncolumn-gear, .x-grid-row-over .uni-actioncolumn-gear {
   background-image: url("images/grid/masterActionsHighlight.png");
 }
+/* line 23, ../../sass/src/grid/ActionColumn.scss */
+.uni-actioncolumn-gear.x-item-disabled {
+  cursor: default !important;
+}
 
 /* line 4, ../../sass/src/grid/DefaultColumn.scss */
 .x-grid-row-selected .uni-default-column-icon.default,
@@ -15095,9 +15099,4 @@ a:hover, a.x-btn:hover {
 /* line 315, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-btn-sort-medium-tl {
   background-position: 0 -10px;
-}
-
-/* line 319, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-btn-sort-medium-tr {
-  background-position: right -15px;
 }

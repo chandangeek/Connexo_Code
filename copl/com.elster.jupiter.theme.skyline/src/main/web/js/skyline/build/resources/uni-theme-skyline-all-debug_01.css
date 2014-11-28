@@ -23472,6 +23472,10 @@ h6 {
 .x-grid-row-selected .uni-actioncolumn-gear, .x-grid-row-focused .uni-actioncolumn-gear, .x-grid-row-over .uni-actioncolumn-gear {
   background-image: url("images/grid/masterActionsHighlight.png");
 }
+/* line 23, ../../sass/src/grid/ActionColumn.scss */
+.uni-actioncolumn-gear.x-item-disabled {
+  cursor: default !important;
+}
 
 /* line 4, ../../sass/src/grid/DefaultColumn.scss */
 .x-grid-row-selected .uni-default-column-icon.default,
