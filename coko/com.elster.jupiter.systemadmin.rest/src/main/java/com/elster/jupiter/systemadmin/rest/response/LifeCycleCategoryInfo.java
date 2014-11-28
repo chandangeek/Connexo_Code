@@ -1,7 +1,7 @@
 package com.elster.jupiter.systemadmin.rest.response;
 
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LifeCycleCategoryInfo {
