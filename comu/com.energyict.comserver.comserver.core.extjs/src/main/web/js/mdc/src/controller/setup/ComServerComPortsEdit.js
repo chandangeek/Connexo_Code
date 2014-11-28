@@ -257,7 +257,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             }
             record.set('modemInitStrings', modemInit);
             ids && (record.set('outboundComPortPoolIds', ids));
-            record.set('modificationDate',null);
             record.save({
                 callback: function (records, operation, success) {
                     if (success) {

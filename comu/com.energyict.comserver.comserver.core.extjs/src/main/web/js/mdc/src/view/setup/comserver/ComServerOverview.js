@@ -65,12 +65,33 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
                             name: 'comServerType'
                         },
                         {
+                            fieldLabel: Uni.I18n.translate('comserver.preview.status', 'MDC', 'Status'),
+                            name: 'active',
+                            renderer: function (val) {
+                                val ? val = 'Active' : val = 'Inactive';
+                                return val;
+                            }
+                        },
+                        {
                             fieldLabel: Uni.I18n.translate('comserver.preview.serverLogLevel', 'MDC', 'Server log level'),
                             name: 'serverLogLevel'
+                        },
+
+                        {
+                            fieldLabel: Uni.I18n.translate('comserver.preview.communicationLogLevel', 'MDC', 'Communication log level'),
+                            name: 'communicationLogLevel'
                         },
                         {
                             fieldLabel: Uni.I18n.translate('comserver.preview.changesInterPollDelay', 'MDC', 'Changes inter poll delay'),
                             name: 'changesInterPollDelay',
+                            renderer: function (val) {
+                                val ? val = val.count + ' ' + val.timeUnit : null;
+                                return val;
+                            }
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('comserver.preview.shedulingInterPollDelay', 'MDC', 'Sheduling inter poll delay'),
+                            name: 'schedulingInterPollDelay',
                             renderer: function (val) {
                                 val ? val = val.count + ' ' + val.timeUnit : null;
                                 return val;
@@ -87,26 +108,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
                         {
                             fieldLabel: Uni.I18n.translate('comserver.preview.storeTaskQueuePriority', 'MDC', 'Store task queue priority'),
                             name: 'storeTaskThreadPriority'
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('comserver.preview.status', 'MDC', 'Status'),
-                            name: 'active',
-                            renderer: function (val) {
-                                val ? val = 'Active' : val = 'Inactive';
-                                return val;
-                            }
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('comserver.preview.communicationLogLevel', 'MDC', 'Communication log level'),
-                            name: 'communicationLogLevel'
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('comserver.preview.shedulingInterPollDelay', 'MDC', 'Sheduling inter poll delay'),
-                            name: 'schedulingInterPollDelay',
-                            renderer: function (val) {
-                                val ? val = val.count + ' ' + val.timeUnit : null;
-                                return val;
-                            }
                         },
                         {
                             fieldLabel: Uni.I18n.translate('comserver.preview.communicationPortsLabel', 'MDC', 'Communication ports'),
