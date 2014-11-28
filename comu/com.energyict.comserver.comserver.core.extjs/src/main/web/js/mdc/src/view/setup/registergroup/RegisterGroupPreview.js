@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                                 emptyMsg: Uni.I18n.translate('registerTypes.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register types to display')
                             },
                             bottomPagging: false,
-                            withActions: false,
+                            withActions: true,
                             store: 'AvailableRegisterTypesForRegisterGroup',
                             maxHeight: 650
                         },
@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupPreview', {
                     },
                     {
                         xtype: 'registerTypePreview',
-                        withActions: false
+                        withActions: true
                     }
                 ]
             }
