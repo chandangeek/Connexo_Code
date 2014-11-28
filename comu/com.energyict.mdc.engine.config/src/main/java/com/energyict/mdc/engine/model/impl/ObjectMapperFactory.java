@@ -1,9 +1,10 @@
 package com.energyict.mdc.engine.model.impl;
 
-import org.codehaus.jackson.map.AnnotationIntrospector;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 /**
  * Provides factory services for the jackson ObjectMapper class.
@@ -15,9 +16,9 @@ public final class ObjectMapperFactory {
 
     public static ObjectMapper newMapper () {
         ObjectMapper mapper = new ObjectMapper();
-        AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
-        mapper.setDeserializationConfig(mapper.getDeserializationConfig().withAnnotationIntrospector(introspector));
-        mapper.setDeserializationConfig(mapper.getDeserializationConfig().with(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT));
+        AnnotationIntrospector introspector = new JacksonAnnotationIntrospector();
+        mapper.setAnnotationIntrospector(introspector);
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         return mapper;
     }
 
