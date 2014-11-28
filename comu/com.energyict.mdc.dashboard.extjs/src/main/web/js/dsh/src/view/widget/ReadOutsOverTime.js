@@ -112,6 +112,19 @@ Ext.define('Dsh.view.widget.ReadOutsOverTime', {
                     enabled: false
                 },
                 tooltip: {
+                    positioner: function (labelWidth, labelHeight, point){
+                        var yValue,
+                            additionalY;
+
+                        if (point.plotY < 0) {
+                            additionalY = 0;
+                        } else {
+                            additionalY = point.plotY;
+                        }
+
+                        yValue = point.plotY > labelHeight ? point.plotY - labelHeight: additionalY + labelHeight/2;
+                        return {x: point.plotX, y: yValue}
+                    },
                     valueSuffix: '%'
                 },
                 plotOptions: {

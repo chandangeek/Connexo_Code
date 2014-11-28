@@ -29,6 +29,34 @@ Ext.define('Dsh.view.widget.HeatMap', {
         me.chart.series[0].yAxis.update({categories: categories}, false);
     },
 
+    findBorders: function (store) {
+        var x = 0,
+            y = 0,
+            max = 0,
+            totalCount = 0;
+
+
+        store.each(function (rec) {
+            Ext.each(rec.data.data, function (item) {
+                var count = item.count,
+                    value = (count == 0 ? count.toString() : count);
+
+                totalCount += parseInt(value);
+                max = max < parseInt(value) ? parseInt(value) : max;
+
+                // color of first column is green
+                if (y === 0) {
+                    value = -value;
+                }
+
+                ++y;
+            });
+            y = 0;
+            ++x;
+        });
+        return { max: max, total: totalCount};
+    },
+
     storeToHighchartData: function (store) {
         var data = [],
             x = 0,
@@ -38,6 +66,12 @@ Ext.define('Dsh.view.widget.HeatMap', {
             Ext.each(rec.data.data, function (item) {
                 var count = item.count,
                     value = (count == 0 ? count.toString() : count);
+
+                // color of first column is green
+                if (y === 0) {
+                    value = -value;
+                }
+
                 data.push([y, x, value]);
                 ++y;
             });
@@ -133,8 +167,8 @@ Ext.define('Dsh.view.widget.HeatMap', {
             if (store.count() && cmp) {
                 me.show();
                 cmp.setHeight(store.count() * 100);
-                me.renderChart(cmp.getEl().down('.x-panel-body').dom);
-                me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : 'Device types');
+                me.renderChart(cmp.getEl().down('.x-panel-body').dom, me.findBorders(store));
+                me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : 'Device type');
                 cmp.doLayout();
             } else {
                 me.hide();
@@ -145,8 +179,9 @@ Ext.define('Dsh.view.widget.HeatMap', {
         store.load();
     },
 
-    renderChart: function (container) {
+    renderChart: function (container, borders) {
         var me = this;
+
         var width = container.offsetWidth;
         this.chart = new Highcharts.Chart({
             chart: {
@@ -178,20 +213,37 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 }
             },
             colorAxis: {
-                min: 0,
-                minColor: '#FFFFFF',
-                maxColor: Highcharts.getOptions().colors[0]
+                stops: [
+                    [0, '#70BB51'],
+                    [0.5, '#ffffff'],
+                    [1, '#EB5642']
+                ],
+                min: -borders.max,
+                max: borders.max
             },
             legend: {
-                align: 'right',
-                layout: 'vertical',
-                verticalAlign: 'top',
-                symbolHeight: 250
+                enabled: false
             },
             tooltip: {
+                useHTML: true,
+
                 formatter: function () {
-                    return '<b>' + this.series.xAxis.categories[this.point.x] + '</b><br><b>' +
-                        this.series.yAxis.categories[this.point.y] + '</b><br><b>' + this.point.value + '</b>';
+                    var s = '<table><tbody>';
+                    s += '<tr>'
+                    s += '<td style="padding-right: 10px; text-align: right">Count</td>';
+                    s += '<td style="padding-right: 1px; text-align: left"><b>' + Math.abs(this.point.value) + '</b></td>';
+                    s += '</tr>'
+                    s += '<tr>'
+                    s += '<td style="padding-right: 10px; text-align: right">' + me.chart.options.yAxis[0].title.text + '</td>';
+                    s += '<td style="padding-right: 1px; text-align: left"><b>' + this.series.yAxis.categories[this.point.y] + '</b></td>';
+                    s += '</tr>'
+                    s += '<tr>'
+                    s += '<td style="padding-right: 10px; text-align: right">' + me.chart.options.xAxis[0].title.text + '</td>';
+                    s += '<td style="padding-right: 1px; text-align: left"><b>' + this.series.xAxis.categories[this.point.x] + '</b></td>';
+                    s += '</tr>'
+                    s += '</tbody></table>';
+
+                    return s
                 }
             },
             series: [
@@ -200,10 +252,21 @@ Ext.define('Dsh.view.widget.HeatMap', {
                     borderWidth: 1,
                     dataLabels: {
                         enabled: true,
-                        color: 'black',
                         style: {
-                            textShadow: 'none',
-                            HcTextStroke: null
+                            color: 'black',
+                            fontWeight: 'normal',
+                            fontSize: 12,
+                            HcTextStroke: '0px rgba(0, 0, 0, 0.5)'
+
+                        },
+                        formatter: function () {
+                            if (this.point.value > 0) {
+                                return '<b>' + ((this.point.value / borders.total) * 100).toFixed(1) + '%</b>';
+                            } else if (this.point.value < 0) {
+                                return ((Math.abs(this.point.value) / borders.total) * 100).toFixed(1) + '%';
+                            } else {
+                                return '0%';
+                            }
                         }
                     },
                     states: {
