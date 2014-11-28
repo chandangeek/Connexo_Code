@@ -6,16 +6,16 @@ import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.Register;
-
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Range;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Set;

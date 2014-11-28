@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BulkRequestInfo {
