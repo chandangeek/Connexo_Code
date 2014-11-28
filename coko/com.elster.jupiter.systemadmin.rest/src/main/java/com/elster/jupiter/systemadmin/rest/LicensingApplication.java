@@ -1,30 +1,37 @@
 package com.elster.jupiter.systemadmin.rest;
 
-import java.util.Set;
-
-import javax.ws.rs.core.Application;
-
-import org.glassfish.hk2.utilities.Binder;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
+import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.systemadmin.rest.resource.DataPurgeResource;
 import com.elster.jupiter.systemadmin.rest.resource.LicenseResource;
+import com.elster.jupiter.systemadmin.rest.resource.MessageSeeds;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.validation.MessageInterpolator;
+import javax.ws.rs.core.Application;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component(name = "com.elster.jupiter.systemadmin.rest", service = Application.class, immediate = true, property = {"alias=/lic", "app=SYS", "name=" + LicensingApplication.COMPONENT_NAME})
-public class LicensingApplication extends Application implements BinderProvider {
+public class LicensingApplication extends Application implements TranslationKeyProvider {
     public static final String COMPONENT_NAME = "LIC";
 
     private volatile TransactionService transactionService;
@@ -32,34 +39,17 @@ public class LicensingApplication extends Application implements BinderProvider 
     private volatile UserService userService;
     private volatile LicenseService licenseService;
     private volatile NlsService nlsService;
+    private volatile LifeCycleService lifeCycleService;
+    private volatile TaskService taskService;
+    private volatile Thesaurus thesaurus;
 
-    @Override
-    public Binder getBinder() {
-        return new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(licenseService).to(LicenseService.class);
-                bind(userService).to(UserService.class);
-                bind(transactionService).to(TransactionService.class);
-                bind(restQueryService).to(RestQueryService.class);
-                bind(nlsService).to(NlsService.class);
-            }
-        };
-    }
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(LicenseResource.class,
+                DataPurgeResource.class,
                 MultiPartFeature.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedExceptionMapper.class);
-    }
-
-    @Activate
-    public void activate() {
-    }
-
-    @Deactivate
-    public void deactivate() {
     }
 
     @Reference
@@ -83,5 +73,54 @@ public class LicensingApplication extends Application implements BinderProvider 
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer());
+    }
+
+    @Reference
+    public void setLifeCycleService(LifeCycleService lifeCycleService) {
+        this.lifeCycleService = lifeCycleService;
+    }
+    
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Override
+    public Set<Object> getSingletons() {
+        Set<Object> hashSet = new HashSet<>();
+        hashSet.addAll(super.getSingletons());
+        hashSet.add(new HK2Binder());
+        return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    class HK2Binder extends AbstractBinder {
+        @Override
+        protected void configure() {
+            bind(licenseService).to(LicenseService.class);
+            bind(userService).to(UserService.class);
+            bind(transactionService).to(TransactionService.class);
+            bind(restQueryService).to(RestQueryService.class);
+            bind(nlsService).to(NlsService.class);
+            bind(lifeCycleService).to(LifeCycleService.class);
+            bind(taskService).to(TaskService.class);
+            bind(thesaurus).to(Thesaurus.class);
+            bind(thesaurus).to(MessageInterpolator.class);
+        }
     }
 }

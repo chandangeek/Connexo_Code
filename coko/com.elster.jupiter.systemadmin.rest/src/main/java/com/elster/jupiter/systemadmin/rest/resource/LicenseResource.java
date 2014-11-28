@@ -7,17 +7,25 @@ import com.elster.jupiter.systemadmin.rest.response.LicenseInfo;
 import com.elster.jupiter.systemadmin.rest.response.LicenseListInfo;
 import com.elster.jupiter.systemadmin.rest.response.RootEntity;
 import com.elster.jupiter.systemadmin.rest.transations.UploadLicenseTransaction;
-import java.util.Optional;
-import org.glassfish.jersey.media.multipart.*;
-
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.*;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.security.SignedObject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Path("/license")
 public class LicenseResource extends BaseResource {

@@ -1,10 +1,10 @@
 package com.elster.jupiter.systemadmin.rest.response;
 
-import java.util.Map;
-import java.util.Set;
-
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.NlsService;
+
+import java.util.Map;
+import java.util.Set;
 
 public class LicenseInfo extends LicenseShortInfo {
 
