@@ -7,11 +7,13 @@ import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.model.OnlineComServer;
-import org.codehaus.jackson.map.AnnotationIntrospector;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+
 import org.eclipse.jetty.websocket.WebSocket;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,12 +81,11 @@ public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
         Map<String, Object> parameters = this.extractQueryParameters(jsonQuery);
         StringWriter writer = new StringWriter();
         ObjectMapper mapper = new ObjectMapper();
-        AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
-        mapper.setDeserializationConfig(mapper.getDeserializationConfig().withAnnotationIntrospector(introspector));
-        mapper.setSerializationConfig(mapper.getSerializationConfig().withAnnotationIntrospector(introspector));
-        mapper.setSerializationConfig(mapper.getSerializationConfig().with(SerializationConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS));
-        mapper.setSerializationConfig(mapper.getSerializationConfig().without(SerializationConfig.Feature.AUTO_DETECT_GETTERS));
-        mapper.setSerializationConfig(mapper.getSerializationConfig().withSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY));
+        AnnotationIntrospector introspector = new JaxbAnnotationIntrospector(mapper.getTypeFactory());
+        mapper.setAnnotationIntrospector(introspector);
+        mapper.enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS);
+        mapper.disable(MapperFeature.AUTO_DETECT_GETTERS);
+        mapper.setSerializationInclusion(Include.NON_EMPTY);
         Object queryResultValue = queryMethod.execute(parameters, new ComServerDAOImpl(ServiceProvider.instance.get()));
         mapper.writeValue(
                 writer,

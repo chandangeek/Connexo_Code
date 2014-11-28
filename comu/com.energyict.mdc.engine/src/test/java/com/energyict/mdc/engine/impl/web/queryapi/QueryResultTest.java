@@ -1,11 +1,11 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
-import org.codehaus.jackson.map.ObjectMapper;
-
 import java.io.IOException;
 import java.io.StringWriter;
 
 import org.junit.*;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
