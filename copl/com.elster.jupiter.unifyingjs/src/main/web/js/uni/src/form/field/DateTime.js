@@ -197,7 +197,9 @@ Ext.define('Uni.form.field.DateTime', {
 
     markInvalid: function (fields) {
         this.eachItem(function (field) {
-            field.markInvalid('');
+            if (_.isFunction(field.markInvalid)) {
+                field.markInvalid('');
+            }
         });
         this.items.items[0].markInvalid(fields);
     },
