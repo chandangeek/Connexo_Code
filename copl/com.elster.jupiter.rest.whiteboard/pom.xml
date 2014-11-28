@@ -28,7 +28,7 @@
 
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>           
         </dependency>
 
         <dependency>
@@ -68,5 +68,6 @@
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
         </dependency>
-    </dependencies>
+        
+	</dependencies>
 </project>
