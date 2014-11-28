@@ -40,6 +40,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
                             {
                                 text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
                                 action: 'addloadprofiletypeaction',
+                                privileges: ['privilege.administrate.deviceConfiguration'],
                                 href: '#/administration/loadprofiletypes/create'
                             }
                         ]
