@@ -31,7 +31,7 @@ public class FavoriteDeviceGroupResourceTest extends DashboardApplicationJerseyT
         groups.add(mockFavoriteDeviceGroup(mockEndDeviceGroup(2L, "MDC: 2", "End device group 2", false)));
         groups.add(mockFavoriteDeviceGroup(mockEndDeviceGroup(3L, "MDC: 3", "End device group 3", true)));
         
-        String response = target("/favouritedevicegroups").request().get(String.class);
+        String response = target("/favoritedevicegroups").request().get(String.class);
         
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(3);
@@ -56,7 +56,7 @@ public class FavoriteDeviceGroupResourceTest extends DashboardApplicationJerseyT
         allGroups.add(mockEndDeviceGroup(2L, "MDC: 2", "End device group 2", false));
         allGroups.add(mockEndDeviceGroup(3L, "MDC: 3", "End device group 3", true));
         
-        String response = target("/favouritedevicegroups").queryParam("includeAllGroups", true).request().get(String.class);
+        String response = target("/favoritedevicegroups").queryParam("includeAllGroups", true).request().get(String.class);
         
         JsonModel model = JsonModel.model(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(3);
@@ -80,7 +80,7 @@ public class FavoriteDeviceGroupResourceTest extends DashboardApplicationJerseyT
         when(favoritesService.getFavoriteDeviceGroups(null)).thenReturn(Arrays.asList(favoriteDeviceGroup2, favoriteDeviceGroup3));
         when(meteringGroupsService.findEndDeviceGroup(1L)).thenReturn(Optional.of(endDeviceGroup));
         
-        Response response = target("/favouritedevicegroups").request().put(Entity.entity(selectionInfo, MediaType.APPLICATION_JSON));
+        Response response = target("/favoritedevicegroups").request().put(Entity.entity(selectionInfo, MediaType.APPLICATION_JSON));
         
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         

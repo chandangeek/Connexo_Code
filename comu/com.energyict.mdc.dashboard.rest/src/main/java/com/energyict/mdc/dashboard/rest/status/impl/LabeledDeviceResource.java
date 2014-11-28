@@ -25,22 +25,21 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 
 
 @Path("/mylabeleddevices")
 public class LabeledDeviceResource {
     
-    private final DeviceService deviceService;
     private final FavoritesService favoritesService;
     private final ExceptionFactory exceptionFactory;
+    private final DeviceWithLabelInfoFactory deviceWithLabelInfoFactory;
     
     @Inject
-    public LabeledDeviceResource(DeviceService deviceService, FavoritesService favoritesService, ExceptionFactory exceptionFactory) {
-        this.deviceService = deviceService;
+    public LabeledDeviceResource(FavoritesService favoritesService, ExceptionFactory exceptionFactory, DeviceWithLabelInfoFactory deviceWithLabelInfoFactory) {
         this.favoritesService = favoritesService;
         this.exceptionFactory = exceptionFactory;
+        this.deviceWithLabelInfoFactory = deviceWithLabelInfoFactory;
     }
 
     @GET
@@ -58,7 +57,7 @@ public class LabeledDeviceResource {
         }
         List<DeviceLabel> devices = favoritesService.getDeviceLabelsOfCategory(user, category.get());
         List<DeviceWithLabelInfo> infos = devices.stream()
-                .map(d -> DeviceWithLabelInfo.asInfo(d, deviceService))
+                .map(deviceWithLabelInfoFactory::asInfo)
                 .sorted((d1, d2) -> d2.deviceLabelInfo.creationDate.compareTo(d1.deviceLabelInfo.creationDate))//descending order
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.asJson("myLabeledDevices", infos, queryParameters)).build();

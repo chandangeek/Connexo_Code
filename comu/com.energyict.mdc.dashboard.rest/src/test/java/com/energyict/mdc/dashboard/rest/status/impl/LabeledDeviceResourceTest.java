@@ -46,6 +46,7 @@ public class LabeledDeviceResourceTest extends DashboardApplicationJerseyTest {
     @Test
     public void testGetLabeledDevices() {
         when(category.getName()).thenReturn("mycategory");
+        when(category.getTranlatedName()).thenReturn("My category");
         when(favoritesService.findLabelCategory("mycategory")).thenReturn(Optional.of(category));
         List<DeviceLabel> deviceLabels = new ArrayList<>();
         when(favoritesService.getDeviceLabelsOfCategory(null, category)).thenReturn(deviceLabels);
@@ -66,7 +67,8 @@ public class LabeledDeviceResourceTest extends DashboardApplicationJerseyTest {
         assertThat(model.<List<String>>get("$.myLabeledDevices[*].deviceTypeName")).containsExactly("Elster AS700", "Elster AS1440", "Elster AS1440");
         
         assertThat(model.<List<String>>get("$.myLabeledDevices[*].deviceLabelInfo.comment")).containsExactly("Favorite device 200", "Favorite device 100", "Favorite device 300");
-        assertThat(model.<List<String>>get("$.myLabeledDevices[*].deviceLabelInfo.category.id")).containsExactly(category.getName(), category.getName(), category.getName());
+        assertThat(model.<List<String>>get("$.myLabeledDevices[*].deviceLabelInfo.category.id")).containsExactly("mycategory", "mycategory", "mycategory");
+        assertThat(model.<List<String>>get("$.myLabeledDevices[*].deviceLabelInfo.category.name")).containsExactly("My category", "My category", "My category");
         assertThat(model.<List<Long>>get("$.myLabeledDevices[*].deviceLabelInfo.creationDate")).containsExactly(now.toEpochMilli(), now.minusMillis(100).toEpochMilli(), now.minusMillis(300).toEpochMilli());
     }
     

@@ -34,6 +34,7 @@ import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
+import com.energyict.mdc.dashboard.rest.status.impl.DeviceWithLabelInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.FavoriteDeviceGroupResource;
 import com.energyict.mdc.dashboard.rest.status.impl.IssuesResource;
 import com.energyict.mdc.dashboard.rest.status.impl.KpiScoreFactory;
@@ -267,6 +268,7 @@ public class DashboardApplication extends Application implements InstallService 
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(favoritesService).to(FavoritesService.class);
             bind(clock).to(Clock.class);
+            bind(DeviceWithLabelInfoFactory.class).to(DeviceWithLabelInfoFactory.class);
         }
     }
 

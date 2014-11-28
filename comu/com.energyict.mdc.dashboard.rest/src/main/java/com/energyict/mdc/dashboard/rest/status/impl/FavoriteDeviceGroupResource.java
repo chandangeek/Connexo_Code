@@ -32,7 +32,7 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.data.security.Privileges;
 
-@Path("/favouritedevicegroups")
+@Path("/favoritedevicegroups")
 public class FavoriteDeviceGroupResource {
     
     private final MeteringGroupsService meteringGroupsService;
