@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -79,7 +79,7 @@
         </dependency>
         <dependency>
             <groupId>javax.annotation</groupId>
-            <artifactId>jsr250-api</artifactId>
+            <artifactId>javax.annotation-api</artifactId>
         </dependency>
     </dependencies>
 </project>
