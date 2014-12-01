@@ -1,7 +1,7 @@
 Ext.define('Dxp.model.DataSource', {
     extend: 'Ext.data.Model',
     fields: [
-        'mRID', 'active', 'serialNumber', 'readingType',
+        'mRID', 'active', 'serialNumber', 'readingType', 'occurrenceId',
         {
             name: 'active',
             mapping: function (data) {
