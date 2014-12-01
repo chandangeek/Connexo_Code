@@ -15,13 +15,17 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import java.time.Clock;
+
 import javax.ws.rs.core.Application;
+
 import org.mockito.Mock;
 
 /**
@@ -66,6 +70,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     CommunicationTaskService communicationTaskService;
     @Mock
     PropertySpecService propertySpecService;
+    @Mock
+    FavoritesService favoritesService;
 
 
     @Override
@@ -96,6 +102,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setTaskService(taskService);
         application.setCommunicationTaskService(communicationTaskService);
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        application.setFavoritesService(favoritesService);
         return application;
     }
 }

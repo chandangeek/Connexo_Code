@@ -9,7 +9,6 @@ import java.text.MessageFormat;
 import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
-
     NO_SUCH_DEVICE(14, "noSuchDevice", "No device with mrId {0}"),
     DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
     NO_SUCH_PARTIAL_CONNECTION_TASK(16, "NoSuchPartialConnectionTask", "No such connection method on device config"),
@@ -185,7 +184,10 @@ public enum MessageSeeds implements MessageSeed {
     NOT_DEFINED_YET(214, "NotDefinedYet", "(not defined yet)"),
     AS_SOON_AS_POSSIBLE(215, "asSoonAsPossible", "As soon as possible"),
     MINIMIZE_CONNECTIONS(216, "minimizeConnections", "Minimize connections"),
-    UPDATE_SECURITY_PROPERTY_SET_NOT_ALLOWED(217, "UpdateSecurityPropertySetNotAllowed", "Update security property set not allowed")
+    UPDATE_SECURITY_PROPERTY_SET_NOT_ALLOWED(217, "UpdateSecurityPropertySetNotAllowed", "Update security property set not allowed"),
+    MDC_LABEL_CATEGORY_FAVORITES(218, "mdc.label.category.favorites", "Favorites"),
+    NO_SUCH_LABEL_CATEGORY(219, "NoSuchLabelCategory", "No such label category"),
+    NO_SUCH_DEVICE_LABEL(220, "NoSuchDeviceLabel", "No such device label of category ''{0}'' on a device {1}")
     ;
 
 
