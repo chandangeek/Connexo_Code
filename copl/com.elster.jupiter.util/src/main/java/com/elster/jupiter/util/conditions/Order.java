@@ -9,6 +9,7 @@ public final class Order {
 	private final String name;
 	private final boolean ascending;
 	private String function;
+	private NullStrategy nullStrategy = NullStrategy.NONE;
 	
 	private Order(String name, boolean ascending) {
 		this.name = name;
@@ -41,11 +42,25 @@ public final class Order {
 	}
 	
 	public String getClause(String resolvedField) {
+		return getBaseClause(resolvedField) + nullStrategy.getClause();
+	}
+	
+	private String getBaseClause(String resolvedField) {
 		if (function == null) {
 			return resolvedField + " " + ordering();
 		} else {
 			return function + "(" + resolvedField + ")" + " " + ordering();
  		}
+	}
+	
+	public Order nullsFirst() {
+		this.nullStrategy = NullStrategy.NULLSFIRST;
+		return this;
+	}
+	
+	public Order nullsLast() {
+		this.nullStrategy = NullStrategy.NULLSLAST;
+		return this;
 	}
 	
 	public  static Order ascending(String name) {
@@ -76,6 +91,22 @@ public final class Order {
 			result[i+1] = Order.ascending(orders[i]);
 		}
 		return result;
+	}
+	
+	private enum NullStrategy {
+		NONE (""),
+		NULLSFIRST ("NULLS FIRST"),
+		NULLSLAST ("NULLS LAST");
+		
+		private final String clause;
+		
+		private NullStrategy(String clause) {
+			this.clause = clause;
+		}
+		
+		String getClause() {
+			return " " + clause + " ";
+		}
 	}
 	
 }
