@@ -9,7 +9,9 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -72,7 +74,8 @@ public class DeviceConfigFieldResource extends FieldResource{
     @GET
     @Path("/connectionStrategy")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
-    public Object getConnectionStrategies() {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> getConnectionStrategies() {
         return asJsonArrayObjectWithTranslation("connectionStrategies", "connectionStrategy", new ConnectionStrategyAdapter().getClientSideValues());
     }
 }
