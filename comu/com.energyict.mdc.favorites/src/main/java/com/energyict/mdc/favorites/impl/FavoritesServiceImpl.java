@@ -3,9 +3,7 @@ package com.energyict.mdc.favorites.impl;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,8 +20,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -31,7 +27,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.favorites.DeviceLabel;
@@ -128,11 +123,10 @@ public class FavoritesServiceImpl implements FavoritesService, InstallService, T
     }
     
     @Override
-    public LabelCategory createLabelCategory(String name, MessageSeed seed) {
+    public LabelCategory createLabelCategory(String name) {
         LabelCategoryImpl labelCategory = dataModel.getInstance(LabelCategoryImpl.class);
-        labelCategory.init(name, seed);
+        labelCategory.init(name);
         Save.CREATE.save(dataModel, labelCategory);
-        installEntityTranslation(seed);
         return labelCategory;
     }
     
@@ -207,19 +201,5 @@ public class FavoritesServiceImpl implements FavoritesService, InstallService, T
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
-    }
-    
-    private void installEntityTranslation(MessageSeed seed) {
-        if (seed == null){
-            throw new IllegalArgumentException("Translation for the new entity can't be null");
-        }
-        if (thesaurus.getTranslations().get(seed.getKey()) == null) {
-            try {
-                SimpleNlsKey nlsKey = SimpleNlsKey.key(getComponentName(), getLayer(), seed.getKey()).defaultMessage(seed.getDefaultFormat());
-                thesaurus.addTranslations(Collections.singletonList(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, seed.getDefaultFormat())));
-            } catch (Exception ex) {
-                LOGGER.warning("Unable to setup translation for: key = " + seed.getKey() + ", value = " + seed.getDefaultFormat());
-            }
-        }
     }
 }

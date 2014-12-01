@@ -198,7 +198,7 @@ public class FavoritesServiceImplTest {
             deviceService = injector.getInstance(DeviceService.class);
             favoritesService = injector.getInstance(FavoritesService.class);
             
-            labelCategory = favoritesService.createLabelCategory("test.label.category", LABEL_CATEGORY);
+            labelCategory = favoritesService.createLabelCategory("test.label.category");
             
             user = userService.createUser("user", "user descr");
             user1 = userService.createUser("user1", "user1 descr");
@@ -264,7 +264,7 @@ public class FavoritesServiceImplTest {
     @Test
     public void testCreateLabelCategory() {
         try (TransactionContext context = getTransactionService().getContext()) {
-            favoritesService.createLabelCategory("category_name", LABEL_CATEGORY);
+            favoritesService.createLabelCategory("category_name");
 
             Optional<LabelCategory> category = favoritesService.findLabelCategory("wrond name");
             assertThat(category.isPresent()).isFalse();
@@ -272,7 +272,6 @@ public class FavoritesServiceImplTest {
             category = favoritesService.findLabelCategory("category_name");
             assertThat(category.isPresent()).isTrue();
             assertThat(category.get().getName()).isEqualTo("category_name");
-            assertThat(category.get().getTranlatedName()).isEqualTo("Favorites");
         }
     }
     
@@ -280,7 +279,7 @@ public class FavoritesServiceImplTest {
     @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.CAN_NOT_BE_EMPTY + "}", property = "name", strict = false)
     public void testCreateLabelCategoryWithNullName() {
         try (TransactionContext context = getTransactionService().getContext()) {
-            favoritesService.createLabelCategory(null, LABEL_CATEGORY);
+            favoritesService.createLabelCategory(null);
         }
     }
     
@@ -288,7 +287,7 @@ public class FavoritesServiceImplTest {
     @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}", property = "name", strict = false)
     public void testCreateLabelCategoryWithEmptyName() {
         try (TransactionContext context = getTransactionService().getContext()) {
-            favoritesService.createLabelCategory("", LABEL_CATEGORY);
+            favoritesService.createLabelCategory("");
         }
     }
     
@@ -296,7 +295,7 @@ public class FavoritesServiceImplTest {
     @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}", property = "name", strict = false)
     public void testCreateLabelCategoryWithTooLongName() {
         try (TransactionContext context = getTransactionService().getContext()) {
-            favoritesService.createLabelCategory("1234567890123456789012345678901234567890123456789012345678901234567890123456789021", LABEL_CATEGORY);
+            favoritesService.createLabelCategory("1234567890123456789012345678901234567890123456789012345678901234567890123456789021");
         }
     }
     
@@ -304,8 +303,8 @@ public class FavoritesServiceImplTest {
     @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.DUPLICATE_LABEL_CATEGORY + "}", property = "name", strict = false)
     public void testDuplicateLabelCategory() {
         try (TransactionContext context = getTransactionService().getContext()) {
-            favoritesService.createLabelCategory("category_name", LABEL_CATEGORY);
-            favoritesService.createLabelCategory("category_name", LABEL_CATEGORY);
+            favoritesService.createLabelCategory("category_name");
+            favoritesService.createLabelCategory("category_name");
         }
     }
 

@@ -33,7 +33,6 @@ public enum TableSpecs {
             table.map(LabelCategoryImpl.class);
     
             Column name = table.column("NAME").varChar().notNull().map("name").add();
-            table.column("TRANSLATIONKEY").varChar().map("translationKey").add();
     
             table.primaryKey("FAV_PK_LABELCATEGORY").on(name).add();
         }

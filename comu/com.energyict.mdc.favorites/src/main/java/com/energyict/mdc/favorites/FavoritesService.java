@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 
 public interface FavoritesService {
@@ -19,7 +18,7 @@ public interface FavoritesService {
     
     Optional<LabelCategory> findLabelCategory(String name);
     
-    LabelCategory createLabelCategory(String name, MessageSeed messageSeed);
+    LabelCategory createLabelCategory(String name);
     
     /*
      * Device labels
