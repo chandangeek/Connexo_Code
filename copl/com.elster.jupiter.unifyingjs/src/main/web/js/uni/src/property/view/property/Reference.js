@@ -42,7 +42,6 @@ Ext.define('Uni.property.view.property.Reference', {
     },
 
     getValue: function () {
-        debugger;
         return this.getField().getValue();
     },
 
