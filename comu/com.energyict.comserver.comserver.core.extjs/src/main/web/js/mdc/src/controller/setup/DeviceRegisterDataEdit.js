@@ -14,7 +14,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
 
     refs: [
         {ref: 'deviceregisterreportgrid', selector: '#deviceregisterreportgrid'},
-        {ref: 'deviceregisterreportedit', selector: '#deviceregisterreportedit'}
+        {ref: 'deviceregisterreportedit', selector: '#deviceregisterreportedit'},
+        {ref: 'registerDataEditForm', selector: '#registerDataEditForm'}
     ],
 
     init: function () {
@@ -27,42 +28,42 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             'menu menuitem[action=removeData]': {
                 click: me.removeDeviceRegisterData
             },
-            '#addEditButton[action=addRegisterDataAction]':{
+            '#addEditButton[action=addRegisterDataAction]': {
                 click: me.addRegisterData
             },
-            '#addEditButton[action=editRegisterDataAction]':{
+            '#addEditButton[action=editRegisterDataAction]': {
                 click: me.editRegisterData
             }
         });
     },
 
-    addRegisterData: function() {
+    addRegisterData: function () {
         var me = this;
 
         me.setPreLoader(me.getDeviceregisterreportedit(), Uni.I18n.translate('device.registerData.creating', 'MDC', 'Creating register data'));
         me.updateRegisterData('add');
     },
 
-    editRegisterData: function() {
+    editRegisterData: function () {
         var me = this;
 
         me.setPreLoader(me.getDeviceregisterreportedit(), Uni.I18n.translate('device.registerData.updating', 'MDC', 'Updating register data'));
         me.updateRegisterData('edit');
     },
 
-    updateRegisterData: function(operation) {
+    updateRegisterData: function (operation) {
         var me = this,
             form = me.getDeviceregisterreportedit().down('#registerDataEditForm');
         if (form.isValid()) {
             me.hideErrorPanel();
-            me[operation + 'RegisterDataRecord'](form.getValues(), {operation : operation});
+            me[operation + 'RegisterDataRecord'](form.getValues(), {operation: operation});
         } else {
             me.clearPreLoader();
             me.showErrorPanel();
         }
     },
 
-    editRegisterDataRecord: function(values, cfg) {
+    editRegisterDataRecord: function (values, cfg) {
         var me = this,
             record = me.getDeviceregisterreportedit().down('#registerDataEditForm').getRecord();
         me.updateRecord(record, values, Ext.apply({
@@ -70,7 +71,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         }, cfg));
     },
 
-    addRegisterDataRecord: function(values, cfg) {
+    addRegisterDataRecord: function (values, cfg) {
         var me = this,
             registerType = me.getDeviceregisterreportedit().registerType,
             record = me.getReadingModelInstanceByType(registerType);
@@ -79,7 +80,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         }, cfg));
     },
 
-    removeDeviceRegisterData: function() {
+    removeDeviceRegisterData: function () {
         var me = this,
             grid = me.getDeviceregisterreportgrid(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
@@ -95,7 +96,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         });
     },
 
-    removeDeviceRegisterDataRecord: function(btn, text, cfg) {
+    removeDeviceRegisterDataRecord: function (btn, text, cfg) {
         if (btn === 'confirm') {
             var me = cfg.config.me,
                 readingToDelete = cfg.config.readingToDelete,
@@ -106,7 +107,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             readingToDelete.getProxy().extraParams = ({mRID: router.arguments.mRID, registerId: router.arguments.registerId});
             readingToDelete.destroy({
                 callback: function (record, operation) {
-                    if(operation.wasSuccessful()) {
+                    if (operation.wasSuccessful()) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.registerData.removed', 'MDC', 'Register data successfully removed'));
                         router.getRoute('devices/device/registers/register/data').forward();
                         dataStore.load();
@@ -116,20 +117,20 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         }
     },
 
-    getReadingTypePrefix: function(type) {
-        if(!Ext.isEmpty(type)) {
+    getReadingTypePrefix: function (type) {
+        if (!Ext.isEmpty(type)) {
             return (type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
         }
         return 'RegisterData';
     },
 
-    getReadingModelClassByType: function(type) {
+    getReadingModelClassByType: function (type) {
         var me = this;
 
         return ('Mdc.model.' + me.getReadingTypePrefix(type));
     },
 
-    getReadingModelInstanceByType: function(type) {
+    getReadingModelInstanceByType: function (type) {
         var me = this,
             modelClass = me.getReadingModelClassByType(type),
             record = Ext.create(modelClass);
@@ -139,7 +140,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         return record;
     },
 
-    updateRecord: function(record, values, cfg) {
+    updateRecord: function (record, values, cfg) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
@@ -151,34 +152,44 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
                     router.getRoute('devices/device/registers/register/data').forward();
                 },
-                callback: function() {
+                failure: function (record, resp) {
+                    var response = resp.response;
+                    if (response.status == 400) {
+                        var responseText = Ext.decode(response.responseText, true);
+                        if (responseText && responseText.errors) {
+                            me.getRegisterDataEditForm().getForm().markInvalid(responseText.errors);
+                            me.showErrorPanel();
+                        }
+                    }
+                },
+                callback: function () {
                     me.clearPreLoader();
                 }
             });
         }
     },
 
-    setRecordValues: function(record, values) {
-        if(!Ext.isEmpty(values.value)) {
+    setRecordValues: function (record, values) {
+        if (!Ext.isEmpty(values.value)) {
             record.set("value", values.value);
         }
         record.set("timeStamp", values.timeStamp);
 
-        if(record.get("type") == 'billing') {
-            record.set("interval", {start: values.intervalStart, end: values.intervalEnd})
+        if (record.get("type") == 'billing') {
+            record.set("interval", {start: values['interval.start'], end: values['interval.end']});
         }
     },
 
-    editDeviceRegisterConfigurationDataHistory: function() {
+    editDeviceRegisterConfigurationDataHistory: function () {
         var me = this,
             grid = me.getDeviceregisterreportgrid(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected(),
             router = me.getController('Uni.controller.history.Router');
 
-        router.getRoute('devices/device/registers/register/data/edit').forward({timestamp:lastSelected.getData().timeStamp});
+        router.getRoute('devices/device/registers/register/data/edit').forward({timestamp: lastSelected.getData().timeStamp});
     },
 
-    showDeviceRegisterConfigurationDataEditView: function(mRID, registerId, timestamp) {
+    showDeviceRegisterConfigurationDataEditView: function (mRID, registerId, timestamp) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             router = me.getController('Uni.controller.history.Router');
@@ -194,7 +205,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                         model = Ext.ModelManager.getModel(me.getReadingModelClassByType(register.get('type')));
                         model.getProxy().extraParams = ({mRID: mRID, registerId: registerId});
                         model.load(timestamp, {
-                            success: function(reading) {
+                            success: function (reading) {
                                 var type = register.get('type');
                                 var widget = Ext.widget('deviceregisterreportedit-' + type, {
                                     edit: true,
@@ -218,7 +229,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         });
     },
 
-    showDeviceRegisterConfigurationDataAddView: function(mRID, registerId) {
+    showDeviceRegisterConfigurationDataAddView: function (mRID, registerId) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             router = me.getController('Uni.controller.history.Router');
@@ -251,7 +262,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         });
     },
 
-    setPreLoader: function(target, message) {
+    setPreLoader: function (target, message) {
         var me = this;
         me.preloader = Ext.create('Ext.LoadMask', {
             msg: message,
@@ -260,15 +271,15 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         me.preloader.show();
     },
 
-    clearPreLoader: function() {
+    clearPreLoader: function () {
         var me = this;
-        if(!Ext.isEmpty(me.preloader)) {
+        if (!Ext.isEmpty(me.preloader)) {
             me.preloader.destroy();
             me.preloader = null;
         }
     },
 
-    showErrorPanel: function() {
+    showErrorPanel: function () {
         var me = this,
             formErrorsPlaceHolder = me.getDeviceregisterreportedit().down('#registerDataEditForm #registerDataEditFormErrors');
 
@@ -280,7 +291,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         formErrorsPlaceHolder.show();
     },
 
-    hideErrorPanel: function() {
+    hideErrorPanel: function () {
         var me = this,
             formErrorsPlaceHolder = me.getDeviceregisterreportedit().down('#registerDataEditForm #registerDataEditFormErrors');
 

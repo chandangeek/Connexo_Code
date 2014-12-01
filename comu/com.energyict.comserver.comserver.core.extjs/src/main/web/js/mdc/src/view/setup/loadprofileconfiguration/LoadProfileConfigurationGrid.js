@@ -32,9 +32,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
                 header: 'Interval',
                 dataIndex: 'timeDuration',
                 renderer: function (value) {
-                    var intervalRecord = Ext.getStore('Intervals').getById(value.id);
-
-                    return intervalRecord.get('name');
+                    var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);
+                    return intervalRecord ? intervalRecord.get('name') : '';
                 },
                 flex: 1
             },

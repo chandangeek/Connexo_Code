@@ -99,7 +99,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                             {
                                 xtype: 'date-time',
                                 itemId: 'intervalStartField',
-                                name: 'intervalStart',
+                                name: 'interval.start',
                                 layout: 'hbox',
                                 getRawValue: true
                             }
@@ -117,7 +117,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                             {
                                 xtype: 'date-time',
                                 itemId: 'intervalEndField',
-                                name: 'intervalEnd',
+                                name: 'interval.end',
                                 layout: 'hbox',
                                 getRawValue: true
                             }

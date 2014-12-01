@@ -76,8 +76,15 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                                 },
                                 {
                                     xtype: 'actioncolumn',
-                                    iconCls: 'icon-delete',
-                                    align: 'right'
+                                    align: 'right',
+                                    items: [
+                                        {
+                                            iconCls: 'icon-delete',
+                                            handler: function (grid, rowIndex) {
+                                                grid.getStore().removeAt(rowIndex);
+                                            }
+                                        }
+                                    ]
                                 }
                             ],
                             height: 220

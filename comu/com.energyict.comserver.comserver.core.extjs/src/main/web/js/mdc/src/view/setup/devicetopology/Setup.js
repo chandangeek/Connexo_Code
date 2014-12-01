@@ -47,7 +47,8 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                     itemId: 'topFilterDeviceTopology',
                     margin: '0 0 20 0',
                     name: 'filter',
-                    emptyText: Uni.I18n.translate('general.none', 'CFG', 'None')
+                    emptyText: Uni.I18n.translate('general.none', 'CFG', 'None'),
+                    hidden: true
                 },
                 {
                     xtype: 'preview-container',

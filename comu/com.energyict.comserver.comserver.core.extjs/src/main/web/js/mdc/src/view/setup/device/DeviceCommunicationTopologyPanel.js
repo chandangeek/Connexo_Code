@@ -76,7 +76,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
 
             showFullTopologyLink = {
                 xtype: 'container',
-                html: '<a href="' + me.router.getRoute('devices/device/topology').buildUrl({mRID: me.router.arguments.mRID}) + '">' + Uni.I18n.translate('deviceCommunicationTopology.showFullTopology', 'MDC', 'Show full topology') + '</a>'
+                html: '<a href="' + me.router.getRoute('devices/device/topology').buildUrl({mRID: me.router.arguments.mRID}) + '">' + Uni.I18n.translate('deviceCommunicationTopology.showFullCommunicationTopology', 'MDC', 'Show full communication topology') + '</a>'
             };
 
             me.setTitle(Uni.I18n.translate('deviceCommunicationTopology.communicationTopologyTitleRecentlyAdded', 'MDC', 'Communication topology: most recently added'));

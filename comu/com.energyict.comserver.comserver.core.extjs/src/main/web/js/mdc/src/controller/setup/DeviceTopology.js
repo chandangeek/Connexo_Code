@@ -41,15 +41,26 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
         });
     },
 
+    checkFilterIsEmpty: function () {
+        var router = this.getController('Uni.controller.history.Router'),
+            filter = router.filter;
+
+        return Ext.isEmpty(filter.get('configuration')) && Ext.isEmpty(filter.get('sn')) && Ext.isEmpty(filter.get('mrid')) && Ext.isEmpty(filter.get('type'))
+    },
+
     clearAllFilters: function () {
+        if (!this.checkFilterIsEmpty()) {
+            this.getDeviceTopology().down('#deviceTopologyGrid').getStore().removeAll();
+        }
         this.getSideFilterForm().getRecord().getProxy().destroy();
-        this.getDeviceTopology().down('#deviceTopologyGrid').getStore().removeAll();
+
     },
 
     searchClick: function () {
+        this.getDeviceTopology().down('#deviceTopologyGrid').getStore().removeAll();
         this.getSideFilterForm().updateRecord();
         this.getSideFilterForm().getRecord().save();
-        this.getDeviceTopology().down('#deviceTopologyGrid').getStore().removeAll();
+
     },
 
     removeFilter: function (key) {
@@ -173,6 +184,7 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
         });
 
         filter.setFilter(itemId, fieldLabel, filterValue, false);
+        filter.show();
         return properties;
     },
 

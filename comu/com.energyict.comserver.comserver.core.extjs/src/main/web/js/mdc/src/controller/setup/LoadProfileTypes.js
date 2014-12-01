@@ -44,9 +44,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 allitemsadd: this.onAllMeasurementTypesAdd,
                 selecteditemsadd: this.onSelectedMeasurementTypesAdd
             },
-            'load-profile-type-edit #measurement-types-grid actioncolumn': {
-                click: this.removeMeasurementType
-            },
             'load-profile-type-edit #load-profile-type-edit-form #save-load-profile-type-button': {
                 click: this.saveLoadProfileType
             }
@@ -201,43 +198,37 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
     showLoadProfileTypes: function () {
         var me = this,
-            loadProfileTypesStore = me.getStore('Mdc.store.LoadProfileTypes'),
+            preloader = Ext.create('Ext.container.Container'),
             widget;
 
-        var showPage = function () {
+        me.getApplication().fireEvent('changecontentevent', preloader);
+        preloader.setLoading(true);
+
+        Uni.util.Common.loadNecessaryStores([
+            'Mdc.store.Intervals'
+        ], function () {
             widget = Ext.widget('loadProfileTypeSetup', {
                 config: {
                     gridStore: me.store
                 }
             });
-            me.getStore('Mdc.store.Intervals').load({
-                callback: function () {
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                    me.selectedMeasurementTypesStore.removeAll();
-                    me.temporallyFormValues = null;
-                    me.loadProfileAction = null;
-                    Ext.Array.each(Ext.ComponentQuery.query('[action=editloadprofiletype]'), function (item) {
-                        item.clearListeners();
-                        item.on('click', function () {
-                            me.editRecord();
-                        });
-                    });
-                    Ext.Array.each(Ext.ComponentQuery.query('[action=deleteloadprofiletype]'), function (item) {
-                        item.clearListeners();
-                        item.on('click', function () {
-                            me.showConfirmationPanel();
-                        });
-                    });
-                }
+            me.getApplication().fireEvent('changecontentevent', widget);
+            me.selectedMeasurementTypesStore.removeAll();
+            me.temporallyFormValues = null;
+            me.loadProfileAction = null;
+            Ext.Array.each(Ext.ComponentQuery.query('[action=editloadprofiletype]'), function (item) {
+                item.clearListeners();
+                item.on('click', function () {
+                    me.editRecord();
+                });
             });
-
-        };
-
-        if (loadProfileTypesStore.getCount()) {
-            showPage();
-        } else {
-            loadProfileTypesStore.load(showPage);
-        }
+            Ext.Array.each(Ext.ComponentQuery.query('[action=deleteloadprofiletype]'), function (item) {
+                item.clearListeners();
+                item.on('click', function () {
+                    me.showConfirmationPanel();
+                });
+            });
+        }, false);
     },
 
     showEdit: function (id) {
@@ -330,10 +321,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         measurementTypesGrid.setVisible(!all);
         page.down('#all-measurement-types').setVisible(all);
         page.down('#all-measurement-types-field').setValue(all);
-    },
-
-    removeMeasurementType: function (grid, index, id, row, event, record) {
-        grid.getStore().remove(record);
     },
 
     saveLoadProfileType: function () {

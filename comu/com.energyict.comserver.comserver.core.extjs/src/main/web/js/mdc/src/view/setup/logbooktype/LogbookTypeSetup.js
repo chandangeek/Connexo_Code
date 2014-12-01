@@ -32,6 +32,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeSetup', {
                             {
                                 //itemId: 'logbookTypeCreateActionButton',
                                 text: Uni.I18n.translate('logbooktype.add', 'MDC', 'Add logbook type'),
+                                privileges: ['privilege.administrate.deviceConfiguration'],
                                 action: 'createLogbookType'
                                 //href: '#/administration/logbooktypes/create'
                             }
