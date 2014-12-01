@@ -31,6 +31,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -47,13 +48,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @Path("/devices")
 public class DeviceResource {
@@ -78,6 +72,7 @@ public class DeviceResource {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
+    private final Provider<DevicePropertyResource> devicePropertyResourceProvider;
 
     @Inject
     public DeviceResource(
@@ -99,7 +94,8 @@ public class DeviceResource {
             DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
             DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory,
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
-            Provider<ConnectionMethodResource> connectionMethodResourceProvider) {
+            Provider<ConnectionMethodResource> connectionMethodResourceProvider,
+            Provider<DevicePropertyResource> devicePropertyResourceProvider) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
@@ -120,6 +116,7 @@ public class DeviceResource {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
+        this.devicePropertyResourceProvider = devicePropertyResourceProvider;
     }
 
 
@@ -279,6 +276,12 @@ public class DeviceResource {
     @Path("/{mRID}/securityproperties")
     public SecurityPropertySetResource getSecurityPropertySetResource() {
         return securityPropertySetResourceProvider.get();
+    }
+
+    @Path("/{mRID}/deviceproperties")
+    public DevicePropertyResource getDevicePropertyResource(@PathParam("mRID") String mRID) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        return devicePropertyResourceProvider.get().init(device);
     }
 
 

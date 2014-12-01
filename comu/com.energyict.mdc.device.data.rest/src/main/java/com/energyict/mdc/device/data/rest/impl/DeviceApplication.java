@@ -110,7 +110,8 @@ public class DeviceApplication extends Application implements InstallService {
                 SecurityPropertySetResource.class,
                 ConnectionMethodResource.class,
                 ComSessionResource.class,
-                DeviceMessageResource.class
+                DeviceMessageResource.class,
+                DevicePropertyResource.class
         );
     }
 
