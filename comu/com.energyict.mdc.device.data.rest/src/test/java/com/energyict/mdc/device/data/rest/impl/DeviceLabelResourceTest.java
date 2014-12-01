@@ -39,7 +39,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         when(device.getId()).thenReturn(100L);
         when(device.getmRID()).thenReturn("1");
         when(category.getName()).thenReturn("mycategory");
-        when(category.getTranlatedName()).thenReturn("My category");
+        when(thesaurus.getString("mycategory", "mycategory")).thenReturn("My category");
         when(favoritesService.findLabelCategory("mycategory")).thenReturn(Optional.of(category));
     }
     

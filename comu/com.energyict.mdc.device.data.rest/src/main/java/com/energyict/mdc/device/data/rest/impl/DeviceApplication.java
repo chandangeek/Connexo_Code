@@ -278,7 +278,7 @@ public class DeviceApplication extends Application implements InstallService {
     
     private void createLabelCategories() {
         try {
-            favoritesService.createLabelCategory(MessageSeeds.MDC_LABEL_CATEGORY_FAVORITES.getKey(), MessageSeeds.MDC_LABEL_CATEGORY_FAVORITES);
+            favoritesService.createLabelCategory(MessageSeeds.MDC_LABEL_CATEGORY_FAVORITES.getKey());
         } catch (Exception e) {
             logger.severe(e.getMessage());
         }

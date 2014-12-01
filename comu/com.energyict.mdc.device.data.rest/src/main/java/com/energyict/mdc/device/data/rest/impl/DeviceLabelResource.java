@@ -19,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -35,12 +36,14 @@ public class DeviceLabelResource {
     private final ResourceHelper resourceHelper;
     private final FavoritesService favoritesService;
     private final ExceptionFactory exceptionFactory;
+    private final Thesaurus thesaurus;
     
     @Inject
-    public DeviceLabelResource(ResourceHelper resourceHelper, FavoritesService favoritesService, ExceptionFactory exceptionFactory) {
+    public DeviceLabelResource(ResourceHelper resourceHelper, FavoritesService favoritesService, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.favoritesService = favoritesService;
         this.exceptionFactory = exceptionFactory;
+        this.thesaurus = thesaurus;
     }
     
     @GET
@@ -50,7 +53,7 @@ public class DeviceLabelResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         User user = (User) securityContext.getUserPrincipal();
         List<DeviceLabel> deviceLabels = favoritesService.getDeviceLabels(device, user);
-        return PagedInfoList.asJson("deviceLabels", deviceLabels.stream().map(DeviceLabelInfo::new).collect(Collectors.toList()), queryParameters);
+        return PagedInfoList.asJson("deviceLabels", deviceLabels.stream().map(dl -> new DeviceLabelInfo(dl, thesaurus)).collect(Collectors.toList()), queryParameters);
     }
 
     @POST
@@ -62,11 +65,12 @@ public class DeviceLabelResource {
         User user = (User) securityContext.getUserPrincipal();
         LabelCategory category = findLabelCategoryOrThrowException(deviceLabelInfo.category.id.toString());
         DeviceLabel deviceLabel = favoritesService.findOrCreateDeviceLabel(device, user, category, deviceLabelInfo.comment);
-        return Response.ok(new DeviceLabelInfo(deviceLabel)).build();
+        return Response.ok(new DeviceLabelInfo(deviceLabel, thesaurus)).build();
     }
 
     @Path("/{categoryId}")
     @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response deleteDeviceLabel(@PathParam("mRID") String id, @PathParam("categoryId") String categoryId, @Context SecurityContext securityContext) {
@@ -75,7 +79,7 @@ public class DeviceLabelResource {
         LabelCategory category = findLabelCategoryOrThrowException(categoryId);
         Optional<DeviceLabel> deviceLabel = favoritesService.findDeviceLabel(device, user, category);
         if (!deviceLabel.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_LABEL, category.getTranlatedName(), device.getmRID());
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_LABEL, thesaurus.getString(category.getName(), category.getName()), device.getmRID());
         }
         favoritesService.removeDeviceLabel(deviceLabel.get());
         return Response.ok().build();
