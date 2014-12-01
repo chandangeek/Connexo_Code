@@ -2,8 +2,8 @@ package com.energyict.mdc.device.data.rest;
 
 import java.time.Instant;
 
-import com.elster.jupiter.favorites.DeviceLabel;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.favorites.DeviceLabel;
 
 public class DeviceLabelInfo {
 

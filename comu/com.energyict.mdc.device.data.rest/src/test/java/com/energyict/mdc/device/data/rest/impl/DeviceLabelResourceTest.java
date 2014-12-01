@@ -18,23 +18,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import com.elster.jupiter.favorites.DeviceLabel;
-import com.elster.jupiter.favorites.LabelCategory;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
+import com.energyict.mdc.favorites.DeviceLabel;
+import com.energyict.mdc.favorites.LabelCategory;
 import com.jayway.jsonpath.JsonModel;
 
 public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest {
     
     @Mock
     Device device;
-    @Mock
-    Meter meter;
-    @Mock
-    AmrSystem mdcAmrSystem;
     @Mock
     LabelCategory category;
     
@@ -43,28 +37,16 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         super.setUp();
         when(deviceService.findByUniqueMrid("1")).thenReturn(device);
         when(device.getId()).thenReturn(100L);
-        when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(mdcAmrSystem));
-        when(mdcAmrSystem.findMeter("100")).thenReturn(Optional.of(meter));
+        when(device.getmRID()).thenReturn("1");
         when(category.getName()).thenReturn("mycategory");
         when(category.getTranlatedName()).thenReturn("My category");
         when(favoritesService.findLabelCategory("mycategory")).thenReturn(Optional.of(category));
     }
     
     @Test
-    public void testGetDeviceLabelsEndDeviceNotFound() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(device);
-        when(device.getId()).thenReturn(1L);
-        when(mdcAmrSystem.findMeter("1")).thenReturn(Optional.empty());
-        
-        Response response = target("/devices/1/devicelabels").request().get();
-        
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-    }
-    
-    @Test
     public void testNoDeviceLabels() {
         List<DeviceLabel> deviceLabels = new ArrayList<>();
-        when(favoritesService.getDeviceLabels(meter, null)).thenReturn(deviceLabels);
+        when(favoritesService.getDeviceLabels(device, null)).thenReturn(deviceLabels);
         
         String response = target("/devices/1/devicelabels").request().get(String.class);
         
@@ -77,7 +59,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         Instant now = Instant.now();
         
         List<DeviceLabel> deviceLabels = new ArrayList<>();
-        when(favoritesService.getDeviceLabels(meter, null)).thenReturn(deviceLabels);
+        when(favoritesService.getDeviceLabels(device, null)).thenReturn(deviceLabels);
         DeviceLabel label1 = mock(DeviceLabel.class);
         DeviceLabel label2 = mock(DeviceLabel.class);
         when(label1.getComment()).thenReturn("Comment1");
@@ -114,7 +96,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         when(label.getComment()).thenReturn("My comment");
         when(label.getCreationDate()).thenReturn(now);
         when(label.getLabelCategory()).thenReturn(category);
-        when(favoritesService.findOrCreateDeviceLabel(meter, null, category, "My comment")).thenReturn(label);
+        when(favoritesService.findOrCreateDeviceLabel(device, null, category, "My comment")).thenReturn(label);
         
         DeviceLabelInfo info = new DeviceLabelInfo();
         info.category = new IdWithNameInfo("mycategory", null);
@@ -142,7 +124,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
     @Test
     public void testDeleteDeviceLabel() {
         DeviceLabel label = mock(DeviceLabel.class);
-        when(favoritesService.findDeviceLabel(meter, null, category)).thenReturn(Optional.of(label));
+        when(favoritesService.findDeviceLabel(device, null, category)).thenReturn(Optional.of(label));
         
         Response response = target("/devices/1/devicelabels/mycategory").request().delete();
         
@@ -152,7 +134,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
     
     @Test
     public void testDeleteDeviceLabelNotFound() {
-        when(favoritesService.findDeviceLabel(meter, null, category)).thenReturn(Optional.empty());
+        when(favoritesService.findDeviceLabel(device, null, category)).thenReturn(Optional.empty());
         
         Response response = target("/devices/1/devicelabels/mycategory").request().delete();
         
