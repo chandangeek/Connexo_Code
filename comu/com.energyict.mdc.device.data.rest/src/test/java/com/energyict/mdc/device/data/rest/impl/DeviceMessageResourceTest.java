@@ -399,18 +399,31 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testDeleteDeviceMessage() throws Exception {
-        Device device = mock(Device.class);
+        Device device = mockDevice();
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
+        DeviceMessageSpec deviceMessageSpecification = mock(DeviceMessageSpec.class);
+        when(deviceMessageSpecification.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
+        DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
+        when(deviceMessageCategory.getName()).thenReturn("category");
+        when(deviceMessageSpecification.getCategory()).thenReturn(deviceMessageCategory);
         DeviceMessage msg1 = mock(DeviceMessage.class);
         when(msg1.getId()).thenReturn(1L);
-        DeviceMessage msg2 = mock(DeviceMessage.class);
-        when(msg2.getId()).thenReturn(2L);
+        when(msg1.getSpecification()).thenReturn(deviceMessageSpecification);
+        DeviceMessage msg2 = mockCommand(device, 2L, DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE, "spec", "error", DeviceMessageStatus.REVOKED, "tracker", "admin", 1, "bulk", null, null, null);
         DeviceMessage msg3 = mock(DeviceMessage.class);
         when(msg3.getId()).thenReturn(3L);
+        when(msg3.getSpecification()).thenReturn(deviceMessageSpecification);
+        when(msg3.getSpecification()).thenReturn(deviceMessageSpecification);
         when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
-        Response response = target("/devices/ZABF010000080004/devicemessages/2").request().delete();
+        when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
+        when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
+        DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
+        deviceMessageInfo.status=new StatusInfo();
+        deviceMessageInfo.status.value=MessageStatusAdapter.REVOKED;
+        Response response = target("/devices/ZABF010000080004/devicemessages/2").request().put(Entity.json(deviceMessageInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(msg2, times(1)).revoke();
+        verify(msg2, times(1)).save();
     }
 
     @Test
@@ -425,7 +438,6 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
 
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
-        deviceMessageInfo.releaseDate=Instant.now();
 
         Response response = target("/devices/ZABF010000080004/devicemessages/3").request().put(Entity.json(deviceMessageInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

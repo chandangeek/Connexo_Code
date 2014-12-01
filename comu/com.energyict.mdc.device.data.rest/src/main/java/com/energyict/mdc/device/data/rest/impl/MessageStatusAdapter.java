@@ -8,9 +8,11 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
  */
 public class MessageStatusAdapter extends MapBasedXmlAdapter<DeviceMessageStatus> {
 
+    public static final String REVOKED = MessageSeeds.COMMAND_REVOKED.getKey();
+
     public MessageStatusAdapter() {
         register("",null);
-        register(MessageSeeds.COMMAND_REVOKED.getKey(),DeviceMessageStatus.REVOKED);
+        register(REVOKED,DeviceMessageStatus.REVOKED);
         register(MessageSeeds.COMMAND_CONFIRMED.getKey(),DeviceMessageStatus.CONFIRMED);
         register(MessageSeeds.COMMAND_FAILED.getKey(),DeviceMessageStatus.FAILED);
         register(MessageSeeds.COMMAND_IN_DOUBT.getKey(),DeviceMessageStatus.INDOUBT);
