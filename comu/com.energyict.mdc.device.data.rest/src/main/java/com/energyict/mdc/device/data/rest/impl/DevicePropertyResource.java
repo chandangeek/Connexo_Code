@@ -7,6 +7,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import java.util.List;
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -21,6 +22,7 @@ public class DevicePropertyResource {
 
     private Device device;
 
+    @Inject
     public DevicePropertyResource(MdcPropertyUtils mdcPropertyUtils) {
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
