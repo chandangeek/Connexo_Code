@@ -156,7 +156,9 @@ Ext.define('Dxp.controller.Tasks', {
                 actionsMenu.down('#view-details').hide();
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 detailsForm.loadRecord(record);
-                view.down('#run').show();
+                if (record.get('status') !== 'Busy') {
+                    view.down('#run').show();
+                }
                 if (record.properties() && record.properties().count()) {
                     propertyForm.loadRecord(record);
                 }
@@ -417,6 +419,15 @@ Ext.define('Dxp.controller.Tasks', {
             previewForm = page.down('tasks-preview-form'),
             propertyForm = previewForm.down('property-form');
 
+        if (record.get('status') === 'Busy') {
+            Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
+                item.hide();
+            });
+        } else {
+            Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
+                item.show();
+            });
+        }
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
         preview.down('tasks-action-menu').record = record;
@@ -472,34 +483,6 @@ Ext.define('Dxp.controller.Tasks', {
 
         confirmationWindow.add(
             {
-                xtype: 'fieldcontainer',
-                layout: 'hbox',
-                items: [
-                    {
-                        xtype: 'label',
-                        text: Uni.I18n.translate('general.runDataExportTask', 'DES', 'Run data export task'),
-                        style: {
-                            'font-weight': 'normal'
-                        }
-                    },
-                    {
-                        xtype: 'radiogroup',
-                        itemId: 'run-radio',
-                        columns: 1,
-                        defaults: {
-                            name: 'runDataExportTask'
-                        },
-                        items: [
-                            {
-                                boxLabel: Uni.I18n.translate('general.now', 'DES', 'Now'),
-                                inputValue: true,
-                                checked: true
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
                 xtype: 'panel',
                 itemId: 'date-errors',
                 hidden: true,
@@ -512,9 +495,8 @@ Ext.define('Dxp.controller.Tasks', {
         );
 
         confirmationWindow.show({
-            msg: '',
-            title: Uni.I18n.translate('general.runDataExportTask', 'DES', 'Run data export task') + ' ' + record.data.name + '?',
-            width: 450
+            msg: Uni.I18n.translate('dataExportTasks.runMsg', 'DES', 'The data export task will be queued to run at the earliest possible time.'),
+            title: Uni.I18n.translate('general.runDataExportTask', 'DES', 'Run data export task') + ' ' + record.data.name + '?'
         });
     },
 
