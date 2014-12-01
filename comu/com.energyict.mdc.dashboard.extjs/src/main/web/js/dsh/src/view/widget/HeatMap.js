@@ -44,11 +44,6 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 totalCount += parseInt(value);
                 max = max < parseInt(value) ? parseInt(value) : max;
 
-                // color of first column is green
-                if (y === 0) {
-                    value = -value;
-                }
-
                 ++y;
             });
             y = 0;
@@ -228,9 +223,21 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 useHTML: true,
 
                 formatter: function () {
-                    var s = '<table><tbody>';
+                    var label,
+                        s;
+
+                    switch (me.parent) {
+                        case 'connections':
+                            label = Uni.I18n.translate('overview.widget.summary.connections', 'DSH', 'connections');
+                            break;
+                        case 'communications':
+                            label = Uni.I18n.translate('overview.widget.summary.communications', 'DSH', 'communications');
+                            break;
+                    }
+
+                    s = '<table><tbody>'
                     s += '<tr>'
-                    s += '<td style="padding-right: 10px; text-align: right">Count</td>';
+                    s += '<td style="padding-right: 10px; text-align: right">' +  Uni.I18n.translate('overview.widget.summary.numberOf', 'DSH', 'Number of') + ' ' + label + '</td>';
                     s += '<td style="padding-right: 1px; text-align: left"><b>' + Math.abs(this.point.value) + '</b></td>';
                     s += '</tr>'
                     s += '<tr>'
