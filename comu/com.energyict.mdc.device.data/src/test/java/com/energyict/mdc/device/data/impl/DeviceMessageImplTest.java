@@ -153,8 +153,10 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.USER_IS_REQUIRED + "}")
-    public void createWithoutEmptyUserTest() {
-        Device device = createSimpleDeviceWithName("createWithoutEmptyUserTest", "createWithoutEmptyUserTest");
+    public void createWithEmptyUserTest() {
+        Instant releaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
+
+        Device device = createSimpleDeviceWithName("createWithEmptyUserTest", "createWithEmptyUserTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
 
         ThreadPrincipalService mockedThreadPrincipalService = mock(ThreadPrincipalService.class);
@@ -164,6 +166,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         DeviceMessageImpl deviceMessage = new DeviceMessageImpl(inMemoryPersistence.getDataModel(), inMemoryPersistence.getEventService(), inMemoryPersistence.getThesaurus(), mockedThreadPrincipalService, inMemoryPersistence.getDeviceMessageSpecificationService(), inMemoryPersistence.getClock());
 
         deviceMessage.initialize(device, contactorClose);
+        deviceMessage.setReleaseDate(releaseInstant);
 
         deviceMessage.save();
     }
@@ -184,6 +187,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED + "}")
     public void createWithoutReleaseDateTest() {
         Device device = createSimpleDeviceWithName("createWithoutReleaseDateTest", "createWithoutReleaseDateTest");
 
@@ -192,16 +196,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         device.newDeviceMessage(contactorClose).setReleaseDate(null).add();
-
-        Device reloadedDevice = getReloadedDevice(device);
-
-        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
-        assertThat(messages).hasSize(1);
-        DeviceMessage<Device> deviceMessage1 = messages.get(0);
-        assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
-        assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
-        assertThat(deviceMessage1.getReleaseDate()).isNull();
-        assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
     }
 
     @Test
@@ -211,12 +205,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("updateWithReleaseDateInWaitingTest", "updateWithReleaseDateInWaitingTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        device.newDeviceMessage(contactorClose).add();
+        device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
 
         Device reloadedDevice = getReloadedDevice(device);
         List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
         DeviceMessage<Device> deviceMessage = messages.get(0);
-        deviceMessage.setReleaseDate(myReleaseInstant);
+        Instant newReleaseDate = myReleaseInstant.plusSeconds(1000L);
+        deviceMessage.setReleaseDate(newReleaseDate);
         deviceMessage.save();
 
         Device finalReloadedDevice = getReloadedDevice(device);
@@ -225,17 +220,17 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
         assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
         assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
-        assertThat(deviceMessage1.getReleaseDate()).isEqualTo(myReleaseInstant);
+        assertThat(deviceMessage1.getReleaseDate()).isEqualTo(newReleaseDate);
     }
 
     @Test
     @Transactional
     public void revokeWithStatusWaitingTest() {
-        initializeClockWithCurrentBeforeReleaseInstant();
+        Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
 
         Device device = createSimpleDeviceWithName("revokeWithStatusWaitingTest", "revokeWithStatusWaitingTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        device.newDeviceMessage(contactorClose).add();
+        device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
 
         Device reloadedDevice = getReloadedDevice(device);
         List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
@@ -258,12 +253,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         Device device = createSimpleDeviceWithName("updateWithReleaseDateInPendingTest", "updateWithReleaseDateInPendingTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        device.newDeviceMessage(contactorClose).add();
+        device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
 
         Device reloadedDevice = getReloadedDevice(device);
         List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
         DeviceMessage<Device> deviceMessage = messages.get(0);
-        deviceMessage.setReleaseDate(myReleaseInstant);
+        Instant newReleaseDate = myReleaseInstant.plusSeconds(2L);
+        deviceMessage.setReleaseDate(newReleaseDate);
         deviceMessage.save();
 
         Device finalReloadedDevice = getReloadedDevice(device);
@@ -272,7 +268,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
         assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
         assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.PENDING);
-        assertThat(deviceMessage1.getReleaseDate()).isEqualTo(myReleaseInstant);
+        assertThat(deviceMessage1.getReleaseDate()).isEqualTo(newReleaseDate);
     }
 
     @Test
@@ -497,18 +493,18 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_USER_NOT_ALLOWED + "}")
     public void updateReleaseDateWithAUserWhichHasNotGotTheCorrectPrivilegeTest() {
-        Instant myReleaseInstant = initializeClockWithCurrentAfterReleaseInstant();
+        Instant initialReleaseDate = initializeClockWithCurrentAfterReleaseInstant();
 
         Device device = createSimpleDeviceWithName("updateReleaseDateWithAUserWhichHasNotGotTheCorrectPrivilegeTest", "updateWithReleaseDateInWaitingTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
-        device.newDeviceMessage(contactorClose).add();
+        device.newDeviceMessage(contactorClose).setReleaseDate(initialReleaseDate).add();
 
         createAndSetPrincipleForUserWithLimitedPrivileges();
 
         Device reloadedDevice = getReloadedDevice(device);
         List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
         DeviceMessage<Device> deviceMessage = messages.get(0);
-        deviceMessage.setReleaseDate(myReleaseInstant);
+        deviceMessage.setReleaseDate(initialReleaseDate.plusSeconds(1230L));
         deviceMessage.save();
     }
 

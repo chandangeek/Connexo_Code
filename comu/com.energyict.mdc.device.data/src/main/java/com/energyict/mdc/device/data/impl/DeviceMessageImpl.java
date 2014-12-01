@@ -78,6 +78,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private RevokeChecker revokeChecker;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CREATE_DATE_IS_REQUIRED + "}")
     private Instant creationDate;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED + "}")
     private Instant releaseDate;
     @ValidReleaseDateUpdate(groups = {Save.Create.class, Save.Update.class})
     private ReleaseDateUpdater releaseDateUpdater;

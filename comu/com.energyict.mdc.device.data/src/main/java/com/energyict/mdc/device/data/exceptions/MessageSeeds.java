@@ -91,6 +91,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT(2061, Keys.DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT, "You can not update the release date after the command has been sent", Level.SEVERE),
     DEVICE_MESSAGE_STATUS_INVALID_MOVE(2062, Keys.DEVICE_MESSAGE_STATUS_INVALID_MOVE, "You can not move a device message from status {0} to {1}", Level.SEVERE),
     DEVICE_MESSAGE_INVALID_REVOKE(2063, Keys.DEVICE_MESSAGE_INVALID_REVOKE, "You can not revoke this command anymore", Level.SEVERE),
+    RELEASE_DATE_IS_REQUIRED(2064, Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED, "The release date is required for a device message", Level.SEVERE),
     ;
 
     private final int number;
@@ -213,6 +214,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT = "deviceMessage.releaseDate.update.sent";
         public static final String DEVICE_MESSAGE_STATUS_INVALID_MOVE = "deviceMessage.status.invalid.move";
         public static final String DEVICE_MESSAGE_INVALID_REVOKE = "deviceMessage.revoke.invalid.status";
+        public static final String DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED = "releaseDateIsRequired.deviceMessage";
     }
 
 }
