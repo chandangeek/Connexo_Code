@@ -500,6 +500,7 @@
         <module>../com.energyict.mdc.device.config</module>
         <module>../com.energyict.mdc.device.config.rest</module>
         <module>../com.energyict.mdc.device.data</module>
+        <module>../com.energyict.mdc.favorites</module>
         <module>../com.energyict.mdc.device.data.rest</module>
         <module>../com.energyict.mdc.device.data.imp</module>
         <module>../com.energyict.mdc.device.data.imp.rest</module>
