@@ -75,12 +75,12 @@ public class LifeCycleServiceTest {
     			new PartyModule(),
     			new MeteringModule(),
     			new DataLifeCycleModule()
-				);
-	        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-	        	lifeCycleService = injector.getInstance(LifeCycleService.class);
-	        	ctx.commit();
-	        }
-	    }
+		);
+		try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+			lifeCycleService = injector.getInstance(LifeCycleService.class);
+			ctx.commit();
+		}
+	}
 
 	@After
 	public void tearDown() throws SQLException {

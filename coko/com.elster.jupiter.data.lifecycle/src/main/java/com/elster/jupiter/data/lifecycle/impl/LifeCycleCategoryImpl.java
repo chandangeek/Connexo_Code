@@ -70,7 +70,7 @@ public class LifeCycleCategoryImpl implements LifeCycleCategory {
 	
 	@Override
 	public String getTranslationKey() {
-    	return "data.lifecycle.category." + kind.name();
+    	return MessageSeeds.Constants.DATA_LIFECYCLE_CATEGORY_NAME_PREFIX + kind.name();
 	}
 	
 	Optional<LifeCycleCategory> asOf(Instant instant) {

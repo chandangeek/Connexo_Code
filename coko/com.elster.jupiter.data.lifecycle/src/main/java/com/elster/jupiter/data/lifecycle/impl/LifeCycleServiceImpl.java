@@ -1,5 +1,29 @@
 package com.elster.jupiter.data.lifecycle.impl;
 
+import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
+import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
+import com.elster.jupiter.data.lifecycle.LifeCycleService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.PurgeConfiguration;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LifeCycleClass;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.tasks.TaskService;
+import com.google.inject.AbstractModule;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
@@ -11,31 +35,8 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
-import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
-import com.elster.jupiter.data.lifecycle.LifeCycleService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.PurgeConfiguration;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.LifeCycleClass;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.tasks.TaskService;
-import com.google.inject.AbstractModule;
-
-@Component(name="com.elster.jupiter.data.lifecycle", property = "name=" + LifeCycleService.COMPONENTNAME)
-public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
+@Component(name="com.elster.jupiter.data.lifecycle", property = "name=" + LifeCycleService.COMPONENTNAME, service = {LifeCycleService.class, TranslationKeyProvider.class, InstallService.class})
+public class LifeCycleServiceImpl implements LifeCycleService, InstallService, TranslationKeyProvider {
 	
 	private volatile OrmService ormService;
 	private volatile DataModel dataModel;
@@ -56,6 +57,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 		setTaskService(taskService);
 		setMeteringService(meteringService);
 		setClock(clock);
+		activate();
 		if (!dataModel.isInstalled()) {
 			install();
 		}
@@ -64,7 +66,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 	@Override
 	public void install() {		
 		dataModel.install(true, true);
-		new Installer(dataModel, thesaurus, messageService , taskService).install();
+		new Installer(dataModel, messageService, taskService).install();
 	}
 	
 	@Override
@@ -79,14 +81,18 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 		for (TableSpecs table : TableSpecs.values()) {
 			table.addTo(dataModel);
 		}
-		dataModel.register(new AbstractModule() {			
+	}
+
+	@Activate
+	public void activate(){
+		dataModel.register(new AbstractModule() {
 			@Override
 			protected void configure() {
 				bind(DataModel.class).toInstance(dataModel);
+				bind(Thesaurus.class).toInstance(thesaurus);
 			}
 		});
 	}
-	
 	@Reference
 	public void setNlsService(NlsService nlsService) {
 		this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
@@ -165,5 +171,20 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService {
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(Collectors.toList());
+	}
+
+	@Override
+	public String getComponentName() {
+		return LifeCycleService.COMPONENTNAME;
+	}
+
+	@Override
+	public Layer getLayer() {
+		return Layer.DOMAIN;
+	}
+
+	@Override
+	public List<TranslationKey> getKeys() {
+		return Arrays.asList(MessageSeeds.values());
 	}
 }
