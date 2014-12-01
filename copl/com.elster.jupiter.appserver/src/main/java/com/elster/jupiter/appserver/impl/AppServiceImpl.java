@@ -36,6 +36,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,6 +77,27 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
     private List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
     private SubscriberSpec allServerSubscriberSpec;
     private final List<Runnable> deactivateTasks = new ArrayList<>();
+
+    public AppServiceImpl() {
+    }
+
+    @Inject
+    AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService, CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService, UserService userService, BundleContext bundleContext) {
+        setOrmService(ormService);
+        setNlsService(nlsService);
+        setTransactionService(transactionService);
+        setMessageService(messageService);
+        setCronExpressionParser(cronExpressionParser);
+        setJsonService(jsonService);
+        setFileImportService(fileImportService);
+        setTaskService(taskService);
+        setUserService(userService);
+
+        if (!dataModel.isInstalled()) {
+            install();
+        }
+        activate(bundleContext);
+    }
 
     @Activate
     public void activate(BundleContext context) {

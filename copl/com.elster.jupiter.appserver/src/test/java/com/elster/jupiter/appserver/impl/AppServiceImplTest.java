@@ -27,9 +27,9 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import java.util.Optional;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
@@ -48,6 +48,7 @@ import org.osgi.framework.BundleException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
@@ -69,6 +70,8 @@ public class AppServiceImplTest {
 
     private CountDownLatch arrivalLatch = new CountDownLatch(1); // latch that mocking can count down on when they arrive at the point that verifications may begin
 
+    @Mock
+    private BundleContext bundleContext;
     @Mock
     private OrmService ormService;
     @Mock
@@ -121,6 +124,7 @@ public class AppServiceImplTest {
     public void setUp() throws SQLException {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
+        when(dataModel.isInstalled()).thenReturn(true);
         when(dataModel.mapper(AppServer.class)).thenReturn(appServerFactory);
         when(dataModel.mapper(ImportScheduleOnAppServer.class)).thenReturn(importScheduleOnAppServerFactory);
         when(dataModel.isInstalled()).thenReturn(true);
@@ -141,16 +145,7 @@ public class AppServiceImplTest {
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
 
-        appService = new AppServiceImpl();
-
-        appService.setMessageService(messageService);
-        appService.setOrmService(ormService);
-        appService.setTransactionService(transactionService);
-        appService.setUserService(userService);
-        appService.setTaskService(taskService);
-        appService.setFileImportService(fileImportService);
-        appService.setJsonService(jsonService);
-        appService.setNlsService(nlsService);
+        appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(), jsonService, fileImportService, taskService, userService, bundleContext);
     }
 
     @SuppressWarnings("unchecked")
