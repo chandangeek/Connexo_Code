@@ -8,7 +8,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
 
 import javax.validation.constraints.Size;
-
 import java.lang.reflect.Field;
 import java.security.Principal;
 import java.sql.PreparedStatement;
@@ -193,7 +192,11 @@ public class ColumnImpl implements Column {
         }
         Enum<?>[] enumConstants = (Enum<?>[]) getType().getEnumConstants();
         if (value instanceof Integer) {
-            return enumConstants[(Integer) value];
+            try {
+                return enumConstants[(Integer) value];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new RuntimeException(" Table : " + getTable().getName() + " Column : " + this.getName() + " illegal value " + value + " for enum " + getType().getName(), e);
+            }
         } else {
             for (Enum<?> each : enumConstants) {
                 if (each.name().equals(value)) {
