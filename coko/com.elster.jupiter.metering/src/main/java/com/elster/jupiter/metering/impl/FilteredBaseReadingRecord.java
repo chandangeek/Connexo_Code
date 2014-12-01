@@ -93,7 +93,7 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
 
     @Override
     public Optional<Range<Instant>> getTimePeriod() {
-        return Optional.empty();
+        return filtered.getTimePeriod();
     }
 
     @Override
