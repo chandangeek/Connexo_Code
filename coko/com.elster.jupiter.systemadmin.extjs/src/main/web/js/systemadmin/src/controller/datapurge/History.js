@@ -44,7 +44,7 @@ Ext.define('Sam.controller.datapurge.History', {
             xtype: 'button',
             ui: 'tag',
             text: Uni.I18n.translate('datapurge.history.startedon', 'SAM', 'Started on'),
-            iconCls: 'x-btn-sort-item-asc'
+            iconCls: 'x-btn-sort-item-desc'
         });
     },
 

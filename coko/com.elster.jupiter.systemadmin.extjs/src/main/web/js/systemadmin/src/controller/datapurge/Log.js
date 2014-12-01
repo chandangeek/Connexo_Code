@@ -42,7 +42,7 @@ Ext.define('Sam.controller.datapurge.Log', {
             xtype: 'button',
             ui: 'tag',
             text: Uni.I18n.translate('datapurge.log.timestamp', 'SAM', 'Timestamp'),
-            iconCls: 'x-btn-sort-item-asc'
+            iconCls: 'x-btn-sort-item-desc'
         });
     }
 });
