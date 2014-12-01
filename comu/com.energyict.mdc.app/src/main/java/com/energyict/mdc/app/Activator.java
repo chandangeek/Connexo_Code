@@ -3,6 +3,7 @@ package com.energyict.mdc.app;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
+import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -14,7 +15,7 @@ public class Activator implements BundleActivator {
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/mdc";
 
     public static final String APP_KEY = "MDC";
-    public static final String APP_NAME = "Connexo Multi Sense";
+    public static final String APP_NAME = "MultiSense";
     public static final String APP_ICON = "connexo";
 
     private volatile ServiceRegistration<App> registration;
