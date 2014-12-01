@@ -20,10 +20,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class}, property = {"name=" + "APS" + ".console", "osgi.command.scope=appserver", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport", "osgi.command.function=appServers", "osgi.command.function=identify"}, immediate = true)
+@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class}, property = {"name=" + "APS" + ".console", "osgi.command.scope=appserver", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport", "osgi.command.function=appServers", "osgi.command.function=identify", "osgi.command.function=stopAppServer", "osgi.command.function=become"}, immediate = true)
 public class AppServiceConsoleService {
 
-    private volatile AppService appService;
+    private volatile IAppService appService;
     private volatile TransactionService transactionService;
     private volatile MessageService messageService;
     private volatile FileImportService fileImportService;
@@ -87,7 +87,7 @@ public class AppServiceConsoleService {
     }
 
     private DataModel getDataModel() {
-        return ((AppServiceImpl) appService).getDataModel();
+        return appService.getDataModel();
     }
 
     public void create(String name, String cronString) {
@@ -127,9 +127,18 @@ public class AppServiceConsoleService {
                 .forEach(System.out::println);
     }
 
+    public void stopAppServer() {
+        appService.stopAppServer();
+    }
+
+    public void become(String appServerName) {
+        appService.stopAppServer();
+        appService.startAsAppServer(appServerName);
+    }
+
     @Reference
     public void setAppService(AppService appService) {
-        this.appService = appService;
+        this.appService = (IAppService) appService;
     }
 
     @Reference

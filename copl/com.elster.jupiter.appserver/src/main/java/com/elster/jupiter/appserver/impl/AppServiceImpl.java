@@ -50,7 +50,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
-public class AppServiceImpl implements InstallService, AppService, Subscriber {
+public class AppServiceImpl implements InstallService, IAppService, Subscriber {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
@@ -137,6 +137,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     private void launchTaskService() {
         if (appServer.isRecurrentTaskActive()) {
             getTaskService().launch();
+            deactivateTasks.add(() -> getTaskService().shutDown());
         }
     }
 
@@ -195,9 +196,7 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     @Deactivate
     public void deactivate() {
         this.context = null;
-        for (Runnable deactivateTask : deactivateTasks) {
-            deactivateTask.run();
-        }
+        stopAppServer();
     }
 
     @Reference
@@ -226,6 +225,21 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "USR", "MSG", "NLS");
+    }
+
+    @Override
+    public void stopAppServer() {
+        for (Runnable deactivateTask : deactivateTasks) {
+            deactivateTask.run();
+        }
+        appServer = null;
+        subscriberExecutionSpecs = Collections.emptyList();
+        deactivateTasks.clear();
+    }
+
+    @Override
+    public void startAsAppServer(String appServerName) {
+        activateAs(appServerName);
     }
 
     @Reference
@@ -339,10 +353,9 @@ public class AppServiceImpl implements InstallService, AppService, Subscriber {
                 });
         stoppingThread.start();
         Thread.currentThread().interrupt();
-
     }
 
-    DataModel getDataModel() {
+    public DataModel getDataModel() {
         return dataModel;
     }
 }
