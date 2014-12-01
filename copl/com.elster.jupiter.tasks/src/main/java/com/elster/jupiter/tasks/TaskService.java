@@ -28,5 +28,7 @@ public interface TaskService {
 
     boolean isLaunched();
 
+    void shutDown();
+
     QueryExecutor<TaskOccurrence> getTaskOccurrenceQueryExecutor();
 }

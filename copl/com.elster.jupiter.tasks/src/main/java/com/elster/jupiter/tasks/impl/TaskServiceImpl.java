@@ -95,6 +95,10 @@ public class TaskServiceImpl implements TaskService, InstallService {
 
     @Deactivate
     public void deactivate() {
+        doShutDown();
+    }
+
+    private void doShutDown() {
         if (schedulerThread != null) {
             schedulerThread.interrupt();
             try {
@@ -102,6 +106,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
+            schedulerThread = null;
         }
     }
 
@@ -159,6 +164,11 @@ public class TaskServiceImpl implements TaskService, InstallService {
         schedulerThread = new Thread(taskScheduler);
         schedulerThread.setName("SchedulerThread");
         schedulerThread.start();
+    }
+
+    @Override
+    public void shutDown() {
+        doShutDown();
     }
 
     @Override
