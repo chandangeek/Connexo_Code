@@ -70,7 +70,7 @@ public class DataPurgeResource {
     @Path("/lifecycle/categories")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLifeCycleCategories() {
-        return Response.ok(ListInfo.from(lifeCycleService.getCategories(), LifeCycleCategoryInfo::new)).build();
+        return Response.ok(ListInfo.from(lifeCycleService.getCategories(),  getCategoryInfoMapper())).build();
     }
 
     @PUT
@@ -87,7 +87,7 @@ public class DataPurgeResource {
                 context.commit();
             }
         }
-        return Response.ok(ListInfo.from(lifeCycleService.getCategories(), LifeCycleCategoryInfo::new)).build();
+        return Response.ok(ListInfo.from(lifeCycleService.getCategories(), getCategoryInfoMapper())).build();
     }
 
     @PUT
@@ -103,7 +103,7 @@ public class DataPurgeResource {
             }
             context.commit();
         }
-        return Response.ok(ListInfo.from(lifeCycleService.getCategories(), LifeCycleCategoryInfo::new)).build();
+        return Response.ok(ListInfo.from(lifeCycleService.getCategories(), getCategoryInfoMapper())).build();
     }
 
     @GET
@@ -138,7 +138,7 @@ public class DataPurgeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPurgeHistory(@PathParam("id") long id) {
         Instant triggerTime = getTaskOccurenceOrThrowException(id).getTriggerTime();
-        return Response.ok(ListInfo.from(lifeCycleService.getCategoriesAsOf(triggerTime), LifeCycleCategoryInfo::new)).build();
+        return Response.ok(ListInfo.from(lifeCycleService.getCategoriesAsOf(triggerTime), getCategoryInfoMapper())).build();
     }
 
     @GET
@@ -157,5 +157,9 @@ public class DataPurgeResource {
             throw new EntityNotFound(thesaurus, MessageSeeds.PURGE_HISTORY_DOES_NOT_EXIST, id);
         }
         return occurrenceRef.get();
+    }
+
+    private Function<LifeCycleCategory, LifeCycleCategoryInfo> getCategoryInfoMapper(){
+        return c -> new LifeCycleCategoryInfo(c, thesaurus);
     }
 }

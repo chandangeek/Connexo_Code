@@ -12,6 +12,9 @@ import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
 public class LicensingApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     @Mock
     RestQueryService restQueryService;
@@ -27,6 +30,12 @@ public class LicensingApplicationJerseyTest extends FelixRestApplicationJerseyTe
     @Override
     protected MessageSeed[] getMessageSeeds() {
         return MessageSeeds.values();
+    }
+
+    @Override
+    public void setupMocks() {
+        super.setupMocks();
+        when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenAnswer(invocationOnMock -> (String) invocationOnMock.getArguments()[1]);
     }
 
     @Override
