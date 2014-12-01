@@ -1,0 +1,4 @@
+-classpath: target/classes 
+-dsannotations: *
+Export-Package: com.energyict.mdc.favorites
+Private-Package: com.energyict.mdc.favorites.impl
