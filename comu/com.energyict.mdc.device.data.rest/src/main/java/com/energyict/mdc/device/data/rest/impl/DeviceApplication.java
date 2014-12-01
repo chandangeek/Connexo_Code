@@ -32,6 +32,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;

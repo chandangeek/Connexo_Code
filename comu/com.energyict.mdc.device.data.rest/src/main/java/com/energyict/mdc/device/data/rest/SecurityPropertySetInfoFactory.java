@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.rest.impl;
+package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
@@ -9,6 +9,8 @@ import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
+import com.energyict.mdc.device.data.rest.impl.SecurityPropertySetInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 

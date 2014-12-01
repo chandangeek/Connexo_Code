@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.TopologyTimeline;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.Instant;
 import java.util.Comparator;

@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.FlagsReading;
 import com.energyict.mdc.device.data.Register;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 import java.util.Date;

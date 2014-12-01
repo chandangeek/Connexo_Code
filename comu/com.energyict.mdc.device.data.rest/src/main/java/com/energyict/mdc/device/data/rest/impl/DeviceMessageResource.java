@@ -18,7 +18,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -99,23 +98,15 @@ public class DeviceMessageResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceMessage<?> deviceMessage = findDeviceMessageOrThrowException(device, deviceMessageId);
         deviceMessage.setReleaseDate(deviceMessageInfo.releaseDate);
+        if (deviceMessageInfo.status!=null && MessageStatusAdapter.REVOKED.equals(deviceMessageInfo.status.value)) {
+            deviceMessage.revoke();
+        }
         deviceMessage.save();
 
         // refresh and return
         device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         deviceMessage = findDeviceMessageOrThrowException(device, deviceMessageId);
         return deviceMessageInfoFactory.asInfo(deviceMessage);
-    }
-
-    @DELETE
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("{deviceMessageId}")
-    public Response deleteDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        DeviceMessage<?> deviceMessage = findDeviceMessageOrThrowException(device, deviceMessageId);
-        deviceMessage.revoke();
-        deviceMessage.save();
-        return Response.status(Response.Status.OK).build();
     }
 
     private DeviceMessage<?> findDeviceMessageOrThrowException(Device device, long deviceMessageId) {

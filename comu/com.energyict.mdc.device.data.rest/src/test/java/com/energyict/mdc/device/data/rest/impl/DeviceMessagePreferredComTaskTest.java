@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -21,6 +20,9 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -30,14 +32,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.Progress.OnHold;
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.Progress.Planned;
-import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.RunMode.AdHoc;
-import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.RunMode.ManuallyScheduled;
-import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.RunMode.SharedScheduled;
+import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.RunMode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
