@@ -6,9 +6,11 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import com.jayway.jsonpath.JsonModel;
+
 import org.junit.Test;
 
 import javax.ws.rs.core.Application;
+
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Arrays;

@@ -4,7 +4,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
-import org.codehaus.jackson.map.JsonMappingException;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * When an JavaXmlBasedAdapter fails to convert JSON into a valid object, an exception thrown. This mapper will convert
