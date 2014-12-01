@@ -16,9 +16,9 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Test;
 
-import com.elster.jupiter.favorites.FavoriteDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.dashboard.rest.status.impl.FavoriteDeviceGroupInfo.SelectionInfo;
+import com.energyict.mdc.favorites.FavoriteDeviceGroup;
 import com.jayway.jsonpath.JsonModel;
 
 public class FavoriteDeviceGroupResourceTest extends DashboardApplicationJerseyTest {

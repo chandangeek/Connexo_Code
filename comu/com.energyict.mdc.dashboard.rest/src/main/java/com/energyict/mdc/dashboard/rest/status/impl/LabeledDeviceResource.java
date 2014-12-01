@@ -17,15 +17,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
-import com.elster.jupiter.favorites.DeviceLabel;
-import com.elster.jupiter.favorites.FavoritesService;
-import com.elster.jupiter.favorites.LabelCategory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.favorites.DeviceLabel;
+import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.favorites.LabelCategory;
 
 
 @Path("/mylabeleddevices")
@@ -33,13 +33,11 @@ public class LabeledDeviceResource {
     
     private final FavoritesService favoritesService;
     private final ExceptionFactory exceptionFactory;
-    private final DeviceWithLabelInfoFactory deviceWithLabelInfoFactory;
     
     @Inject
-    public LabeledDeviceResource(FavoritesService favoritesService, ExceptionFactory exceptionFactory, DeviceWithLabelInfoFactory deviceWithLabelInfoFactory) {
+    public LabeledDeviceResource(FavoritesService favoritesService, ExceptionFactory exceptionFactory) {
         this.favoritesService = favoritesService;
         this.exceptionFactory = exceptionFactory;
-        this.deviceWithLabelInfoFactory = deviceWithLabelInfoFactory;
     }
 
     @GET
@@ -57,7 +55,7 @@ public class LabeledDeviceResource {
         }
         List<DeviceLabel> devices = favoritesService.getDeviceLabelsOfCategory(user, category.get());
         List<DeviceWithLabelInfo> infos = devices.stream()
-                .map(deviceWithLabelInfoFactory::asInfo)
+                .map(DeviceWithLabelInfo::new)
                 .sorted((d1, d2) -> d2.deviceLabelInfo.creationDate.compareTo(d1.deviceLabelInfo.creationDate))//descending order
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.asJson("myLabeledDevices", infos, queryParameters)).build();

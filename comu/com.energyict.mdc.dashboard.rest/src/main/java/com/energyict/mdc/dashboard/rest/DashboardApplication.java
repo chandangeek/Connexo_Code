@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest;
 
-import com.elster.jupiter.favorites.FavoritesService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -34,7 +33,6 @@ import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
-import com.energyict.mdc.dashboard.rest.status.impl.DeviceWithLabelInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.FavoriteDeviceGroupResource;
 import com.energyict.mdc.dashboard.rest.status.impl.IssuesResource;
 import com.energyict.mdc.dashboard.rest.status.impl.KpiScoreFactory;
@@ -49,6 +47,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.status.StatusService;
+import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -268,7 +267,6 @@ public class DashboardApplication extends Application implements InstallService 
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(favoritesService).to(FavoritesService.class);
             bind(clock).to(Clock.class);
-            bind(DeviceWithLabelInfoFactory.class).to(DeviceWithLabelInfoFactory.class);
         }
     }
 

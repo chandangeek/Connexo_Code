@@ -14,13 +14,10 @@ import javax.ws.rs.core.Response;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import com.elster.jupiter.favorites.DeviceLabel;
-import com.elster.jupiter.favorites.LabelCategory;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.KnownAmrSystem;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.favorites.DeviceLabel;
+import com.energyict.mdc.favorites.LabelCategory;
 import com.jayway.jsonpath.JsonModel;
 
 public class LabeledDeviceResourceTest extends DashboardApplicationJerseyTest {
@@ -46,7 +43,6 @@ public class LabeledDeviceResourceTest extends DashboardApplicationJerseyTest {
     @Test
     public void testGetLabeledDevices() {
         when(category.getName()).thenReturn("mycategory");
-        when(category.getTranlatedName()).thenReturn("My category");
         when(favoritesService.findLabelCategory("mycategory")).thenReturn(Optional.of(category));
         List<DeviceLabel> deviceLabels = new ArrayList<>();
         when(favoritesService.getDeviceLabelsOfCategory(null, category)).thenReturn(deviceLabels);
@@ -68,17 +64,11 @@ public class LabeledDeviceResourceTest extends DashboardApplicationJerseyTest {
         
         assertThat(model.<List<String>>get("$.myLabeledDevices[*].deviceLabelInfo.comment")).containsExactly("Favorite device 200", "Favorite device 100", "Favorite device 300");
         assertThat(model.<List<String>>get("$.myLabeledDevices[*].deviceLabelInfo.category.id")).containsExactly("mycategory", "mycategory", "mycategory");
-        assertThat(model.<List<String>>get("$.myLabeledDevices[*].deviceLabelInfo.category.name")).containsExactly("My category", "My category", "My category");
         assertThat(model.<List<Long>>get("$.myLabeledDevices[*].deviceLabelInfo.creationDate")).containsExactly(now.toEpochMilli(), now.minusMillis(100).toEpochMilli(), now.minusMillis(300).toEpochMilli());
     }
     
     private DeviceLabel mockDeviceLabel(Long deviceId, String deviceMRID, String serialNumber, String deviceTypeName, Instant creationDate, String comment) {
         DeviceLabel deviceLabel = mock(DeviceLabel.class);
-        EndDevice endDevice = mock(EndDevice.class);
-        AmrSystem amrSystem = mock(AmrSystem.class);
-        when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
-        when(endDevice.getAmrSystem()).thenReturn(amrSystem);
-        when(endDevice.getAmrId()).thenReturn(deviceId.toString());
         
         Device device = mock(Device.class);
         when(deviceService.findDeviceById(deviceId)).thenReturn(device);
@@ -88,7 +78,7 @@ public class LabeledDeviceResourceTest extends DashboardApplicationJerseyTest {
         when(deviceType.getName()).thenReturn(deviceTypeName);
         when(device.getDeviceType()).thenReturn(deviceType);
         
-        when(deviceLabel.getEndDevice()).thenReturn(endDevice);
+        when(deviceLabel.getDevice()).thenReturn(device);
         when(deviceLabel.getLabelCategory()).thenReturn(category);
         when(deviceLabel.getCreationDate()).thenReturn(creationDate);
         when(deviceLabel.getComment()).thenReturn(comment);

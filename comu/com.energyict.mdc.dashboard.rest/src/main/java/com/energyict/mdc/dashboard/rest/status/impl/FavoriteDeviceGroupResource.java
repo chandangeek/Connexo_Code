@@ -23,14 +23,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
-import com.elster.jupiter.favorites.FavoriteDeviceGroup;
-import com.elster.jupiter.favorites.FavoritesService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.favorites.FavoriteDeviceGroup;
+import com.energyict.mdc.favorites.FavoritesService;
 
 @Path("/favoritedevicegroups")
 public class FavoriteDeviceGroupResource {
