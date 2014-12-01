@@ -8,7 +8,7 @@ Ext.define('Uni.grid.column.Action', {
     header: 'Actions',
     width: 100,
     align: 'left',
-    iconCls: 'x-uni-action-icon',
+    iconCls: ' uni-actioncolumn-gear',
 
     menu: {
         defaultAlign: 'tr-br?',
@@ -86,7 +86,7 @@ Ext.define('Uni.grid.column.Action', {
 
         // this is for menu toggling, change the code below with accuracy!
         me.menu.on('hide', function () {
-            var actions = grid.getEl().query('.' + me.iconCls + ':hover');
+            var actions = grid.getEl().query(me.iconCls + ':hover');
             if (!actions.length) {
                 me.menu.cell = null;
             }

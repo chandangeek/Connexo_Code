@@ -61,6 +61,8 @@ Ext.define('Uni.form.field.DateTime', {
      */
     minutesConfig: null,
 
+    dateTimeSeparatorConfig: null,
+
     initComponent: function () {
         var me = this,
             dateField = {
@@ -91,6 +93,11 @@ Ext.define('Uni.form.field.DateTime', {
             separator = {
                 xtype: 'component',
                 html: ':',
+                margin: '0 5 0 5'
+            },
+            dateTimeSeparator = {
+                xtype: 'component',
+                html: '',
                 margin: '0 5 0 5'
             },
             container = {
@@ -127,8 +134,9 @@ Ext.define('Uni.form.field.DateTime', {
         Ext.apply(hoursField, me.hoursConfig);
         Ext.apply(minutesField, me.minutesConfig);
         Ext.apply(separator, me.separatorConfig);
+        Ext.apply(dateTimeSeparator, me.dateTimeSeparatorConfig);
 
-        container.items = [hoursField, separator, minutesField];
+        container.items = [dateTimeSeparator, hoursField, separator, minutesField];
         me.items = [dateField, container];
 
         me.callParent(arguments);
@@ -197,7 +205,9 @@ Ext.define('Uni.form.field.DateTime', {
 
     markInvalid: function (fields) {
         this.eachItem(function (field) {
-            field.markInvalid('');
+            if (_.isFunction(field.markInvalid)) {
+                field.markInvalid('');
+            }
         });
         this.items.items[0].markInvalid(fields);
     },
