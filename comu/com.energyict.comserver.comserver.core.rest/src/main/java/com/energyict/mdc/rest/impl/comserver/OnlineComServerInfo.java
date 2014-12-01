@@ -3,10 +3,12 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OnlineComServer;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.util.Optional;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.List;
 
 @XmlRootElement

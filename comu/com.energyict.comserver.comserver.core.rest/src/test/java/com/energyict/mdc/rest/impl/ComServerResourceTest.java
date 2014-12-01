@@ -22,6 +22,8 @@ import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
 import com.energyict.mdc.io.SerialPortConfiguration;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,12 +32,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
 import org.assertj.core.data.MapEntry;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
