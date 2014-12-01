@@ -65,8 +65,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         var widget;
 
         if (!this.getStore('Isu.store.Clipboard').get('issuesCreationRuleState')) {
-            this.getController('Uni.controller.history.Router').getRoute('administration/creationrules/add').forward();
-            return
+            this.getStore('Isu.store.Clipboard').set('issuesCreationRuleState', Ext.create('Isu.model.CreationRule'));
         }
 
         widget = Ext.widget('issues-creation-rules-edit-action');
