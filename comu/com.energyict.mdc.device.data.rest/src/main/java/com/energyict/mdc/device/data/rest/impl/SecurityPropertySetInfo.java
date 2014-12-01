@@ -3,8 +3,9 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 public class SecurityPropertySetInfo {
 
