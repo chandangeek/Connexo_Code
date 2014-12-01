@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -12,6 +13,7 @@ import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -98,6 +100,8 @@ public class ReadingTypeDataExportTaskImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
+
+            bind (FileImportService.class).toInstance(fileImportService);
         }
     }
 
@@ -127,6 +131,8 @@ public class ReadingTypeDataExportTaskImplIT {
     private DataProcessor dataProcessor;
     @Mock
     private PropertySpec propertySpec;
+    @Mock
+    private FileImportService fileImportService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private DataExportServiceImpl dataExportService;
@@ -179,7 +185,8 @@ public class ReadingTypeDataExportTaskImplIT {
                 new ExportModule(),
                 new TimeModule(),
                 new TaskModule(),
-                new MeteringGroupsModule()
+                new MeteringGroupsModule(),
+                new AppServiceModule()
         );
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {

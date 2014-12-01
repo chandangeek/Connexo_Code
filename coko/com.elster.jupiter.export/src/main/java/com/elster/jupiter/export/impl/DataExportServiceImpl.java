@@ -1,5 +1,7 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.export.DataExportService;
@@ -33,6 +35,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,6 +57,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
     private volatile UserService userService;
+    private volatile AppService appService;
 
     private List<DataProcessorFactory> dataProcessorFactories = new CopyOnWriteArrayList<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
@@ -63,7 +67,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -74,6 +78,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setQueryService(queryService);
         setClock(clock);
         setUserService(userService);
+        setAppService(appService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -227,6 +232,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         this.queryService = queryService;
     }
 
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
+    }
+
     @Override
     public IDataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence) {
         IReadingTypeDataExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
@@ -236,6 +246,18 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public Optional<IDataExportOccurrence> findDataExportOccurrence(TaskOccurrence occurrence) {
         return dataModel.query(IDataExportOccurrence.class, IReadingTypeDataExportTask.class).select(Operator.EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
+    }
+
+    @Override
+    public void setExportDirectory(AppServer appServer, Path path) {
+        DirectoryForAppServer directoryForAppServer = dataModel.mapper(DirectoryForAppServer.class).getOptional(appServer.getName()).orElseGet(() -> DirectoryForAppServer.from(dataModel, appServer));
+        directoryForAppServer.setPath(path);
+        directoryForAppServer.save();
+    }
+
+    @Override
+    public Optional<Path> getExportDirectory(AppServer appServer) {
+        return dataModel.mapper(DirectoryForAppServer.class).getOptional(appServer.getName()).flatMap(DirectoryForAppServer::getPath);
     }
 
     @Override

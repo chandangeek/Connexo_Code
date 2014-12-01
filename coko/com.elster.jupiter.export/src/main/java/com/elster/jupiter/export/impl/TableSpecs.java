@@ -13,6 +13,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 enum TableSpecs {
@@ -120,6 +121,18 @@ enum TableSpecs {
             table.primaryKey("DES_PK_RTEXPITEM").on(idColumn).add();
             table.foreignKey("DES_FK_RTEXPITEM_TASK").on(task).references(DES_RTDATAEXPORTTASK.name()).onDelete(DeleteRule.CASCADE)
                     .map("task").reverseMap("exportItems").composition().add();
+        }
+    },
+    DES_DIR4APPSERVER(DirectoryForAppServer.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(DirectoryForAppServer.class);
+
+            Column idColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().add();
+            table.column("PATH").varChar(DESCRIPTION_LENGTH).map("pathString").add();
+
+            table.primaryKey("DES_PK_DIR4APPSERVER").on(idColumn).add();
+            table.foreignKey("DES_FK_DIR4APPSERVER_APS").on(idColumn).references("APS", "APS_APPSERVER").map("appServer").add();
         }
     };
 

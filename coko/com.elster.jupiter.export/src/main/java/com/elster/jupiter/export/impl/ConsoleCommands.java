@@ -1,5 +1,7 @@
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataProcessorFactory;
@@ -13,6 +15,7 @@ import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
@@ -21,10 +24,13 @@ import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.export.console", service = ConsoleCommands.class, property = {"osgi.command.scope=export", "osgi.command.function=createDataExportTask", "osgi.command.function=dataProcessors", "osgi.command.function=dataExportTasks"}, immediate = true)
+@Component(name = "com.elster.jupiter.export.console", service = ConsoleCommands.class, property = {"osgi.command.scope=export", "osgi.command.function=createDataExportTask", "osgi.command.function=dataProcessors", "osgi.command.function=dataExportTasks", "osgi.command.function=setDefaultExportDir", "osgi.command.function=getDefaultExportDir"}, immediate = true)
 public class ConsoleCommands {
 
     private volatile IDataExportService dataExportService;
@@ -34,6 +40,7 @@ public class ConsoleCommands {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile AppService appService;
 
     public void createDataExportTask(String name, String dataProcessor, String exportPeriodName, long nextExecution, String scheduleExpression, long groupId, String... readingTypes) {
         threadPrincipalService.set(() -> "console");
@@ -68,6 +75,19 @@ public class ConsoleCommands {
         dataExportService.findReadingTypeDataExportTasks().stream()
                 .map(task -> task.getId() + " " + task.getName())
                 .forEach(System.out::println);
+    }
+
+    public void setDefaultExportDir(String path) {
+        AppServer appServer = appService.getAppServer().orElseThrow(() -> new RuntimeException("Cannot set default export dir for anonymous."));
+
+        transactionService.execute(VoidTransaction.of(() -> dataExportService.setExportDirectory(appServer, Paths.get(path).toAbsolutePath())));
+    }
+
+    public void getDefaultExportDir() {
+        AppServer appServer = appService.getAppServer().orElseThrow(() -> new RuntimeException("Cannot set default export dir for anonymous."));
+
+        Optional<Path> exportDirectory = dataExportService.getExportDirectory(appServer);
+        System.out.println(exportDirectory.orElse(Paths.get("").toAbsolutePath().normalize()));
     }
 
     private EndDeviceGroup endDeviceGroup(long groupId) {
@@ -119,5 +139,10 @@ public class ConsoleCommands {
         composite.add(new TemporalExpressionParser());
         composite.add(Never.NEVER);
         this.scheduleExpressionParser = composite;
+    }
+
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
     }
 }
