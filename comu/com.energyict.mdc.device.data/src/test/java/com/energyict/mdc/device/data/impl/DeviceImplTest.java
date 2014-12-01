@@ -1263,6 +1263,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    @Ignore // H2 can't handle the SQL queries
     public void testGetSortedPhysicalGatewayReferences() {
         Device gateway = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "gateway", "physGateway");
         gateway.save();
@@ -1304,6 +1305,7 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    @Ignore // H2 can't handle the SQL queries
     public void testGetSortedCommunicationGatewayReference() {
         Device gateway = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "gateway", "commGateway");
         gateway.save();

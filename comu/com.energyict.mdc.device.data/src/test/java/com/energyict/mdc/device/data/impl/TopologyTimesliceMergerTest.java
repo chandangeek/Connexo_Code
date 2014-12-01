@@ -1,13 +1,15 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
-
+import com.google.common.collect.Range;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.google.common.collect.Range;
 import org.joda.time.DateMidnight;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -190,6 +193,25 @@ public class TopologyTimesliceMergerTest {
             }
         }
     }
+
+    @Test
+    public void testMergeTwoHalfClosedHalfOpenSlices() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        SimpleTopologyTimesliceImpl timeslice1 = new SimpleTopologyTimesliceImpl(device1, Interval.startAt(now.toInstant(ZoneOffset.UTC)));
+        SimpleTopologyTimesliceImpl timeslice2 = new SimpleTopologyTimesliceImpl(device2, Interval.startAt(now.minusDays(1).toInstant(ZoneOffset.UTC)));
+        TopologyTimelineImpl.merge(Arrays.asList(timeslice1, timeslice2));
+    }
+
+    @Test
+    public void testMergeThreeHalfClosedHalfOpenSlices() throws Exception {
+        Device device3 = mock(Device.class);
+        LocalDateTime now = LocalDateTime.now();
+        SimpleTopologyTimesliceImpl timeslice1 = new SimpleTopologyTimesliceImpl(device1, Interval.of(now.toInstant(ZoneOffset.UTC), now.plusWeeks(1).toInstant(ZoneOffset.UTC)));
+        SimpleTopologyTimesliceImpl timeslice2 = new SimpleTopologyTimesliceImpl(device2, Interval.of(now.minusDays(1).toInstant(ZoneOffset.UTC), now.plusWeeks(1).toInstant(ZoneOffset.UTC)));
+        SimpleTopologyTimesliceImpl timeslice3 = new SimpleTopologyTimesliceImpl(device3, Interval.of(now.minusDays(1).toInstant(ZoneOffset.UTC), now.plusWeeks(1).toInstant(ZoneOffset.UTC)));
+        TopologyTimelineImpl.merge(Arrays.asList(timeslice1, timeslice2, timeslice3));
+    }
+
 
     @Test
     public void testAddEntryWithIntervalThatOverlapsAtStart () {

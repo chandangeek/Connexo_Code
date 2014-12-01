@@ -205,7 +205,12 @@ public class TopologyTimesliceMerger {
         @Override
         protected boolean matches(CompleteTopologyTimesliceImpl newEntry) {
             Range<Instant> myPeriod = myEntry().getPeriod();
-            return Range.open(lowerEndpoint(myPeriod), upperEndpoint(myPeriod)).encloses(newEntry.getPeriod());
+            Instant lowerEndpoint = lowerEndpoint(myPeriod);
+            Instant upperEndpoint = upperEndpoint(myPeriod);
+            if (lowerEndpoint.equals(upperEndpoint)) {
+                return Range.closed(lowerEndpoint, upperEndpoint).encloses(newEntry.getPeriod());
+            }
+            return Range.open(lowerEndpoint, upperEndpoint).encloses(newEntry.getPeriod());
         }
 
         @Override
@@ -327,7 +332,7 @@ public class TopologyTimesliceMerger {
         @Override
         protected void merge(CompleteTopologyTimesliceImpl newEntry) {
             this.removeEntry(myEntry());
-            if (myEntry().getPeriod().contains(newEntry.getPeriod().upperEndpoint())) {
+            if (myEntry().getPeriod().contains(upperEndpoint(newEntry.getPeriod()))) {
                 this.addEntry(
                         new CompleteTopologyTimesliceImpl(
                                 this.fromStartToStart(newEntry.getPeriod(), myEntry().getPeriod()),

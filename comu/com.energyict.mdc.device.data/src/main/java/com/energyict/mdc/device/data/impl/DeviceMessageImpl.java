@@ -220,7 +220,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     @Override
     public void revoke() {
         this.revokeChecker = new RevokeChecker(deviceMessageStatus);
-        this.deviceMessageStatus = DeviceMessageStatus.CANCELED;
+        this.deviceMessageStatus = DeviceMessageStatus.REVOKED;
     }
 
     public <T> void addProperty(String key, T value) {
@@ -288,7 +288,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         }
 
         public boolean isRevokeAllowed(){
-            return initialStatus.isPredecessorOf(DeviceMessageStatus.CANCELED);
+            return initialStatus.isPredecessorOf(DeviceMessageStatus.REVOKED);
         }
     }
 }
