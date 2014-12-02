@@ -14,7 +14,7 @@ Ext.define('Mdc.controller.setup.Devices', {
     ],
 
     stores: [
-        'Mdc.store.AvailableDeviceTypes',
+        'AvailableDeviceTypes',
         'AvailableDeviceConfigurations'
     ],
 
