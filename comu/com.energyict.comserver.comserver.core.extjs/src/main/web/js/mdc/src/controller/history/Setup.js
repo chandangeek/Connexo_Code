@@ -255,24 +255,28 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 securitysettings: {
                                                     title: 'Security settings',
                                                     route: 'securitysettings',
+                                                    privileges: ['privilege.administrate.deviceSecurity','privilege.view.deviceSecurity'],
                                                     controller: 'Mdc.controller.setup.SecuritySettings',
                                                     action: 'showSecuritySettings',
                                                     items: {
                                                         create: {
                                                             title: 'Add security setting',
                                                             route: 'create',
+                                                            privileges: ['privilege.administrate.deviceSecurity'],
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showSecuritySettingsCreateView'
                                                         },
                                                         edit: {
                                                             title: 'Edit security setting',
                                                             route: '{securitySettingId}/edit',
+                                                            privileges: ['privilege.administrate.deviceSecurity'],
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showSecuritySettingsEditView'
                                                         },
                                                         executionLevels: {
                                                             title: 'Add privileges',
                                                             route: '{securitySettingId}/privileges/add',
+                                                            privileges: ['privilege.administrate.deviceSecurity'],
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showAddExecutionLevelsView'
                                                         }

@@ -37,8 +37,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         this.getApplication().fireEvent('changecontentevent', widget);
     },
     showComPortPools: function () {
-        var widget = Ext.widget('comPortPoolsSetup');
-        this.getApplication().fireEvent('changecontentevent', widget);
+        this.getStore('Mdc.store.ComPortPools').getProxy().extraParams = {};
+        this.getApplication().fireEvent('changecontentevent', Ext.widget('comPortPoolsSetup'));
     },
     showRegisterMappings: function () {
         var widget = Ext.widget('registerMappingsSetup');
