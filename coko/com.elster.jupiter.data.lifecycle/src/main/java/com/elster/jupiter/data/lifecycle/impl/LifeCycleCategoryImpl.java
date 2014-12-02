@@ -78,10 +78,8 @@ public class LifeCycleCategoryImpl implements LifeCycleCategory {
 			return Optional.of(this);
 			
 		} 
-		return dataModel.mapper(LifeCycleCategoryImpl.class).getJournal(kind).stream()
-			.filter(journalEntry -> !instant.isBefore(journalEntry.get().modTime))
-			.map(journalEntry -> journalEntry.get())
-			.findFirst();
+		return dataModel.mapper(LifeCycleCategoryImpl.class).getJournalEntry(instant, kind)
+			.map(journalEntry -> journalEntry.get());			
 	}
 	
 	@Override
