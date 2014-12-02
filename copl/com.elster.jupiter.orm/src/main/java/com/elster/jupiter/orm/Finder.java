@@ -2,6 +2,7 @@ package com.elster.jupiter.orm;
 
 import com.elster.jupiter.util.conditions.Order;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,6 +66,7 @@ public interface Finder<T> extends BasicQuery<T> {
      * Find journal entries for a primary key
      */
     List<JournalEntry<T>> getJournal(Object... values);
+	Optional<JournalEntry<T>> getJournalEntry(Instant instant, Object... values);
 
     /**
      * Find object where fieldName equals value

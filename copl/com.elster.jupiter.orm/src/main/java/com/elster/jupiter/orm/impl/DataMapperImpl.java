@@ -11,6 +11,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -506,5 +507,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	
 	public DataModelImpl getDataModel() {
 		return getTable().getDataModel();
+	}
+	
+	@Override
+	public Optional<JournalEntry<T>> getJournalEntry (Instant instant, Object... values)  {		
+		return getJournal(values).stream()
+			.filter(journalEntry -> instant.isBefore(journalEntry.getJournalTime()))
+			.reduce( (previous, current) -> current);					
 	}
 }
