@@ -993,9 +993,9 @@ Ext.define('Mdc.controller.history.Setup', {
                             items: {
                                 register: {
                                     route: '{registerId}',
-                                    controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
+                                    controller: 'Mdc.controller.setup.DeviceRegisterTab',
                                     privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
-                                    action: 'showDeviceRegisterConfigurationDetailsView',
+                                    action: 'initTabDeviceRegisterConfigurationDetailsView',
                                     callback: function (route) {
                                         this.getApplication().on('loadRegisterConfiguration', function (record) {
                                             route.setTitle(record.get('name'));
@@ -1008,9 +1008,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                         data: {
                                             title: 'Register data',
                                             route: 'data',
-                                            controller: 'Mdc.controller.setup.DeviceRegisterData',
+                                            controller: 'Mdc.controller.setup.DeviceRegisterTab',
                                             privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
-                                            action: 'showDeviceRegisterDataView',
+                                            action: 'initTabShowDeviceRegisterDataView',
                                             filter: 'Mdc.model.RegisterDataFilter',
                                             items: {
                                                 create: {

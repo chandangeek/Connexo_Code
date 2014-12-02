@@ -29,11 +29,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
                         tbar: [
                             {
                                 xtype: 'component',
-                                html: '<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>',
-                                itemId: 'deviceRegisterDetailTitle'
-                            },
-                            {
-                                xtype: 'component',
                                 flex: 1
                             },
                             '->',

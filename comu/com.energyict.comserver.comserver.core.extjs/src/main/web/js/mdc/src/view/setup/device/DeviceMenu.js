@@ -99,6 +99,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
     },
 
     toggleByItemId: function (toggleId) {
+        debugger;
         var cls = this.selectedCls;
         var item = this.down('#' + toggleId);
         if (item.hasCls(cls)) {

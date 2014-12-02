@@ -26,7 +26,5 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Menu', {
                 hrefTarget: '_self'
             }
         );
-
-        me.toggleMenuItem(me.toggle);
     }
 });
