@@ -21,18 +21,18 @@ import javax.ws.rs.core.Response;
 /**
  * Created by bvn on 12/1/14.
  */
-public class DevicePropertyResource {
+public class DeviceProtocolPropertyResource {
 
     private final MdcPropertyUtils mdcPropertyUtils;
 
     private Device device;
 
     @Inject
-    public DevicePropertyResource(MdcPropertyUtils mdcPropertyUtils) {
+    public DeviceProtocolPropertyResource(MdcPropertyUtils mdcPropertyUtils) {
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-    DevicePropertyResource init(Device device) {
+    DeviceProtocolPropertyResource with(Device device) {
         this.device=device;
         return this;
     }
@@ -43,7 +43,7 @@ public class DevicePropertyResource {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
         List <PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs() ,deviceProperties);
         Collections.sort(propertyInfos, (o1, o2) -> o1.key.compareToIgnoreCase(o2.key));
-        return PagedInfoList.asJson("deviceProperties", propertyInfos, queryParameters);
+        return PagedInfoList.asJson("deviceProtocolProperties", propertyInfos, queryParameters);
     }
 
     @PUT
@@ -59,6 +59,7 @@ public class DevicePropertyResource {
                 device.setProtocolProperty(propertySpec.getName(), value);
             }
         }
+        device.save();
         return Response.ok().build();
     }
 }

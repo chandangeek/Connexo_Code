@@ -72,7 +72,7 @@ public class DeviceResource {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
-    private final Provider<DevicePropertyResource> devicePropertyResourceProvider;
+    private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
 
     @Inject
     public DeviceResource(
@@ -95,7 +95,7 @@ public class DeviceResource {
             DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory,
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
-            Provider<DevicePropertyResource> devicePropertyResourceProvider) {
+            Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
@@ -279,9 +279,9 @@ public class DeviceResource {
     }
 
     @Path("/{mRID}/deviceprotocolproperties")
-    public DevicePropertyResource getDevicePropertyResource(@PathParam("mRID") String mRID) {
+    public DeviceProtocolPropertyResource getDevicePropertyResource(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        return devicePropertyResourceProvider.get().init(device);
+        return devicePropertyResourceProvider.get().with(device);
     }
 
 
