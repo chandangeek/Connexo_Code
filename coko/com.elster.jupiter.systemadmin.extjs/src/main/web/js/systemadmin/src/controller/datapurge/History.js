@@ -55,7 +55,7 @@ Ext.define('Sam.controller.datapurge.History', {
     showDetails: function (selectionModel, record) {
         var categoriesStore = this.getStore('Sam.store.DataPurgeHistoryCategories');
 
-        this.getDetailsView().setTitle(Uni.I18n.formatDate('datapurge.history.startedon.dateFormat', record.get('startDate'), 'SAM', 'D d M Y \\a\\t h:i A'));
+        this.getDetailsView().setTitle(Uni.I18n.formatDate('datapurge.history.startedon.dateFormat', record.get('startDate'), 'SAM', 'D, d M Y \\a\\t h:i:s'));
         categoriesStore.getProxy().setUrl(record.getId());
         categoriesStore.load();
     }
