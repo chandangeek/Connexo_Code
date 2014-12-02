@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.energyict.mdc.common.*;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.*;
@@ -1005,7 +1006,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Optional<AmrSystem> getMdcAmrSystem() {
-        return this.meteringService.findAmrSystem(1);
+        return this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
     }
 
     List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval) {
@@ -1071,12 +1072,11 @@ public class DeviceImpl implements Device, CanLock {
         return Lists.reverse(loadProfileReadings);
     }
 
-    List<EndDeviceEventRecord> getLogBookDeviceEventsByFilter(LogBook logBook, EndDeviceEventRecordFilterSpecification filter) {
+    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter){
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                filter.logBookId = logBook.getId();
                 return meter.get().getDeviceEventsByFilter(filter);
             }
         }
