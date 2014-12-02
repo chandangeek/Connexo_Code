@@ -44,5 +44,9 @@ Ext.define('Sam.controller.datapurge.Log', {
             text: Uni.I18n.translate('datapurge.log.timestamp', 'SAM', 'Timestamp'),
             iconCls: 'x-btn-sort-item-desc'
         });
+        me.getSortingToolbar().getClearButton().disable();
+        me.getSortingToolbar().on('afterlayout', function () {
+            this.getClearButton().disable();
+        });
     }
 });
