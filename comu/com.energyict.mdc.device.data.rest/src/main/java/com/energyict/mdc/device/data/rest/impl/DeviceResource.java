@@ -278,7 +278,7 @@ public class DeviceResource {
         return securityPropertySetResourceProvider.get();
     }
 
-    @Path("/{mRID}/deviceproperties")
+    @Path("/{mRID}/deviceprotocolproperties")
     public DevicePropertyResource getDevicePropertyResource(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         return devicePropertyResourceProvider.get().init(device);
