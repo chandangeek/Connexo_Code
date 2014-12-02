@@ -31,6 +31,13 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.jayway.jsonpath.JsonModel;
+import org.joda.time.DateTime;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+
+import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -39,18 +46,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.ws.rs.core.Response;
-import org.joda.time.DateTime;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link com.energyict.mdc.dashboard.rest.status.ComServerStatusResource} component.
@@ -139,7 +138,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         ConnectionTypePluggableClass connectionType2 = mock(ConnectionTypePluggableClass.class);
         when(protocolPluggableService.findConnectionTypePluggableClass(2002)).thenReturn(Optional.of(connectionType2));
 
-        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("connectionTypes", Arrays.asList("2001", "2002"))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        Map<String, Object> map = target("/connections").queryParam("filter", ExtjsFilter.filter("connectionTypes", Arrays.asList(2001l, 2002l))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
@@ -306,7 +305,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfFailedTasks")).isEqualTo(401);
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfIncompleteTasks")).isEqualTo(3);
         assertThat(jsonModel.<Long>get("$.connectionTasks[0].startDateTime")).isEqualTo(1412771995000L);
-        assertThat(jsonModel.<Long>get("$.connectionTasks[0].endDateTime")).isEqualTo(endDate.with(ChronoField.MILLI_OF_SECOND,0).toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.connectionTasks[0].endDateTime")).isEqualTo(endDate.with(ChronoField.MILLI_OF_SECOND, 0).toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].duration.count")).isEqualTo(3600);
         assertThat(jsonModel.<String>get("$.connectionTasks[0].duration.timeUnit")).isEqualTo("seconds");
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].comServer.id")).isEqualTo(1212);
@@ -438,7 +437,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTaskService.findConnectionTask(30L)).thenReturn(Optional.<ConnectionTask>of(connectionTask));
         ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
-        String response = target("/connections/"+connectionTaskId+"/latestcommunications").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        String response = target("/connections/" + connectionTaskId + "/latestcommunications").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
 

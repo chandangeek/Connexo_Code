@@ -3,11 +3,11 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
-import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.engine.model.security.Privileges;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -45,15 +45,15 @@ public class ConnectionHeatMapResource {
     @GET
     @Consumes("application/json")
     @Produces("application/json")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public ConnectionHeatMapInfo getConnectionHeatMap(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
-        if (!jsonQueryFilter.getFilterProperties().containsKey("breakdown")) {
+        if (!jsonQueryFilter.hasProperty("breakdown")) {
             throw new WebApplicationException("Missing breakdown", Response.Status.BAD_REQUEST);
         }
         HeatMapBreakdownOption breakdown = jsonQueryFilter.getProperty("breakdown", new BreakdownOptionAdapter());
 
-        if (jsonQueryFilter.getProperty(Constants.DEVICE_GROUP)!=null) {
-            Optional<QueryEndDeviceGroup> deviceGroupOptional = meteringGroupService.findQueryEndDeviceGroup(jsonQueryFilter.getProperty(Constants.DEVICE_GROUP, new LongAdapter()));
+        if (jsonQueryFilter.hasProperty(Constants.DEVICE_GROUP)) {
+            Optional<QueryEndDeviceGroup> deviceGroupOptional = meteringGroupService.findQueryEndDeviceGroup(jsonQueryFilter.getLong(Constants.DEVICE_GROUP));
             return deviceGroupOptional
                     .map(g -> {
                         switch (breakdown) {
@@ -72,13 +72,13 @@ public class ConnectionHeatMapResource {
 
         switch (breakdown) {
             case connectionTypes:
-                return new ConnectionHeatMapInfo(dashboardService.getConnectionTypeHeatMap(),breakdown,thesaurus);
+                return new ConnectionHeatMapInfo(dashboardService.getConnectionTypeHeatMap(), breakdown, thesaurus);
             case deviceTypes:
-                return new ConnectionHeatMapInfo(dashboardService.getConnectionsDeviceTypeHeatMap(),breakdown,thesaurus);
+                return new ConnectionHeatMapInfo(dashboardService.getConnectionsDeviceTypeHeatMap(), breakdown, thesaurus);
             case comPortPools:
-                return new ConnectionHeatMapInfo(dashboardService.getConnectionsComPortPoolHeatMap(),breakdown,thesaurus);
+                return new ConnectionHeatMapInfo(dashboardService.getConnectionsComPortPoolHeatMap(), breakdown, thesaurus);
             default:
-                throw new WebApplicationException("Invalid breakdown: "+breakdown, Response.Status.BAD_REQUEST);
+                throw new WebApplicationException("Invalid breakdown: " + breakdown, Response.Status.BAD_REQUEST);
 
         }
 
