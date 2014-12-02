@@ -21,7 +21,7 @@ public class PropertyValueInfo<T> {
     public T inheritedValue;
     public T defaultValue;
     public T value;
-    public boolean propertyHasValue;
+    public Boolean propertyHasValue;
 
     /**
      * Default constructor 4 JSON deserialization
@@ -29,7 +29,7 @@ public class PropertyValueInfo<T> {
     public PropertyValueInfo() {
     }
 
-    public PropertyValueInfo(T value, T inheritedValue, T defaultValue, boolean propertyHasValue) {
+    public PropertyValueInfo(T value, T inheritedValue, T defaultValue, Boolean propertyHasValue) {
         this.value = value;
         this.inheritedValue = inheritedValue;
         this.defaultValue = defaultValue;
@@ -40,7 +40,7 @@ public class PropertyValueInfo<T> {
         this.propertyHasValue = propertyHasValue;
     }
     
-    public PropertyValueInfo(T value, T defaultValue, boolean propertyHasValue) {
+    public PropertyValueInfo(T value, T defaultValue, Boolean propertyHasValue) {
         this(value, null, defaultValue, propertyHasValue);
     }
 
