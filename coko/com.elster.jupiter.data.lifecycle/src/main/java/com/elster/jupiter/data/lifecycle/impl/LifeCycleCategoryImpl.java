@@ -73,14 +73,22 @@ public class LifeCycleCategoryImpl implements LifeCycleCategory {
     	return MessageSeeds.Constants.DATA_LIFECYCLE_CATEGORY_NAME_PREFIX + kind.name();
 	}
 	
-	Optional<LifeCycleCategory> asOf(Instant instant) {
+	Optional<LifeCycleCategoryImpl> asOf(Instant instant) {
 		if (!instant.isBefore(modTime)) {
 			return Optional.of(this);
 			
 		} 
-		return dataModel.mapper(LifeCycleCategory.class).getJournal(kind).stream()
-			.filter(journalEntry -> !instant.isBefore(journalEntry.getJournalTime()))
+		System.out.println("Instant " + instant);
+		return dataModel.mapper(LifeCycleCategoryImpl.class).getJournal(kind).stream()
+			.peek(journalEntry -> System.out.println("Journal" + journalEntry.getJournalTime()))
+			.filter(journalEntry -> !instant.isBefore(journalEntry.get().modTime))
+			.peek( f -> System.out.println("Found"))
 			.map(journalEntry -> journalEntry.get())
 			.findFirst();
+	}
+	
+	@Override
+	public String toString() {
+		return "" + this.getName() + " (Retention: " + getRetention() + ")";
 	}
 }

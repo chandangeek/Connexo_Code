@@ -106,6 +106,7 @@ public class LifeCycleServiceTest {
 		injector.getInstance(TransactionService.class).execute(() -> { categories.get(0).setRetentionDays(100); return null;});
 		assertThat(lifeCycleService.getCategories().get(0).getRetention()).isEqualTo(Period.ofDays(100));
 		assertThat(lifeCycleService.getCategoriesAsOf(afterInstall).get(0).getRetention()).isEqualTo(period);
+		assertThat(lifeCycleService.getCategoriesAsOf(afterInstall).size()).isEqualTo(lifeCycleService.getCategories().size());
 	}
 
 }
