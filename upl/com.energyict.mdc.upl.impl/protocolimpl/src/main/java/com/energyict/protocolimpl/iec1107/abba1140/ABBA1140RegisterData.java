@@ -1,55 +1,65 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.*;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.EndOfBillingEventLog;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.InternalBatteryEventLog;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.MainCoverEventLog;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.MeterErrorEventLog;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.PhaseFailureEventLog;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.PowerFailEventLog;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.ReverserunEventLog;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.TerminalCoverEventLog;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.TransientEventLog;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 
 /** @author  Koen */
 
 abstract public class ABBA1140RegisterData {
     
-    final static int ABBA_STRING=0;
-    final static int ABBA_DATE=1;
-    final static int ABBA_NUMBER=2;
-    final static int ABBA_LONG=3;
-    final static int ABBA_BYTEARRAY=4;
-    final static int ABBA_QUANTITY=5;
-    final static int ABBA_INTEGER=6;
-    final static int ABBA_64BITFIELD=7;
-    final static int ABBA_BIGDECIMAL=8;
-    final static int ABBA_HEX=9;
-    final static int ABBA_HEX_LE=10;
-    final static int ABBA_MD=11;
-    final static int ABBA_CMD=12;
-    final static int ABBA_HISTORICALVALUES=13;
-    final static int ABBA_REGISTER=14;
-    final static int ABBA_HISTORICALEVENTS=15;
-    final static int ABBA_SYSTEMSTATUS=16;
-    final static int ABBA_TARIFFSOURCES=17;
-    final static int ABBA_HISTORICALDISPLAYSCALINGS=18;
-    final static int ABBA_MDSOURCES=19;
-    final static int ABBA_CUSTDEFREGCONFIG=20;
-    final static int ABBA_INSTANTANEOUSVALUES=21;
-    final static int ABBA_INTEGRATION_PERIOD=22;
-    final static int ABBA_LOAD_PROFILE_BY_DATE=23;
-    final static int ABBA_LOAD_PROFILE_CONFIG=24;
+    public final static int ABBA_STRING=0;
+    public final static int ABBA_DATE=1;
+    public final static int ABBA_NUMBER=2;
+    public final static int ABBA_LONG=3;
+    public final static int ABBA_BYTEARRAY=4;
+    public final static int ABBA_QUANTITY=5;
+    public final static int ABBA_INTEGER=6;
+    public final static int ABBA_64BITFIELD=7;
+    public final static int ABBA_BIGDECIMAL=8;
+    public final static int ABBA_HEX=9;
+    public final static int ABBA_HEX_LE=10;
+    public final static int ABBA_MD=11;
+    public final static int ABBA_CMD=12;
+    public final static int ABBA_HISTORICALVALUES=13;
+    public final static int ABBA_REGISTER=14;
+    public final static int ABBA_HISTORICALEVENTS=15;
+    public final static int ABBA_SYSTEMSTATUS=16;
+    public final static int ABBA_TARIFFSOURCES=17;
+    public final static int ABBA_HISTORICALDISPLAYSCALINGS=18;
+    public final static int ABBA_MDSOURCES=19;
+    public final static int ABBA_CUSTDEFREGCONFIG=20;
+    public final static int ABBA_INSTANTANEOUSVALUES=21;
+    public final static int ABBA_INTEGRATION_PERIOD=22;
+    public final static int ABBA_LOAD_PROFILE_BY_DATE=23;
+    public final static int ABBA_LOAD_PROFILE_CONFIG=24;
 
-    final static int ABBA_TERMINALCOVEREVENTLOG=29;
-    final static int ABBA_MAINCOVEREVENTLOG=30;
-    final static int ABBA_PHASEFAILUREEVENTLOG=31;
-    final static int ABBA_REVERSERUNEVENTLOG=32;
-    final static int ABBA_POWEREFAILEVENTLOG=33;
-    final static int ABBA_TRANSIENTEVENTLOG=34;
-    final static int ABBA_ENDOFBILLINGEVENTLOG=35;
-    final static int ABBA_METERERROREVENTLOG=36;
-	final static int ABBA_INTERNALBATTERYEVENTLOG = 37;
+    public final static int ABBA_TERMINALCOVEREVENTLOG=29;
+    public final static int ABBA_MAINCOVEREVENTLOG=30;
+    public final static int ABBA_PHASEFAILUREEVENTLOG=31;
+    public final static int ABBA_REVERSERUNEVENTLOG=32;
+    public final static int ABBA_POWEREFAILEVENTLOG=33;
+    public final static int ABBA_TRANSIENTEVENTLOG=34;
+    public final static int ABBA_ENDOFBILLINGEVENTLOG=35;
+    public final static int ABBA_METERERROREVENTLOG=36;
+    public final static int ABBA_INTERNALBATTERYEVENTLOG = 37;
+    public final static int ABBA_NET_CONSUMPTION = 38;
     
     abstract protected Unit getUnit();
     abstract protected int getType();
@@ -285,6 +295,10 @@ abstract public class ABBA1140RegisterData {
                 	return o;
                 }
 
+                case ABBA_NET_CONSUMPTION: {
+                    return new MainRegister(parseNetConsumption(data));
+                }
+
                 default:
                     throw new IOException("ABBA1140RegisterData, parse , unknown type " + getType());
             }
@@ -311,6 +325,17 @@ abstract public class ABBA1140RegisterData {
         if (getLength() > 8) throw new IOException("ABBA1140RegisterData, parseQuantity, datalength should not exceed 8!");
         BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
         return new Quantity(bd,getUnit());
+    }
+
+    private Quantity parseNetConsumption(byte[] data) throws IOException,NumberFormatException {
+        if (getLength() > 8) throw new IOException("ABBA1140RegisterData, parseQuantity, datalength should not exceed 8!");
+        BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLongLE(data,getOffset(),getLength()))));
+        double d = bd.doubleValue();        //If necessary, convert to negative number
+        if (d > 5 * (Math.pow(10, 15))) {
+            d = Math.pow(10, 16) - d;
+            d = -d;
+        }
+        return new Quantity(BigDecimal.valueOf(d),getUnit());
     }
     
     private Long parseBitfield(byte[] data) throws IOException {

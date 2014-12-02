@@ -9,6 +9,7 @@ package com.energyict.protocolimpl.iec1107.abba1140;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,29 +31,18 @@ public class LoadProfileConfigRegister {
     private ArrayList register = new ArrayList();
     private ArrayList channelInfo = new ArrayList();
     
-    private boolean importWh = false;
-    private boolean exportWh = false;
-    private boolean q1Varh = false;
-    private boolean q2Varh = false;
-    private boolean q3Varh = false;
-    private boolean q4Varh = false;
-    private boolean vah1 = false;
-    private boolean vah2 = false;
-    private boolean customerDefined1 = false;
-    private boolean customerDefined2 = false;    
-    
     /** Creates new LoadProfileConfigRegister */
-    LoadProfileConfigRegister(ABBA1140RegisterFactory rFactory, byte[] data) throws IOException {
-        
+    public LoadProfileConfigRegister(ABBA1140RegisterFactory rFactory, byte[] data) throws IOException {
+
         this.rFactory = rFactory;
         this.channelMask = data;
         
-        init();      
-        
+        init();
+
     }
     
-    LoadProfileConfigRegister(ABBA1140RegisterFactory rFactory, int data ) throws IOException {
-        
+    public LoadProfileConfigRegister(ABBA1140RegisterFactory rFactory, int data ) throws IOException {
+
         this.rFactory = rFactory;
         byte b1 = (byte)((data&0xFF00)>>8);
         byte b2 = (byte)(data&0x00FF);
@@ -60,7 +50,7 @@ public class LoadProfileConfigRegister {
         this.channelMask = ba;
         
         init();
-        
+
     }
     
     private void init( ) throws IOException {
@@ -68,7 +58,6 @@ public class LoadProfileConfigRegister {
         int i = 0;
         
         if( ( channelMask[1] & 0x01 ) > 0 ) {
-            importWh = true;
             ABBA1140Register r = rFactory.getCummMainImport();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
@@ -77,7 +66,6 @@ public class LoadProfileConfigRegister {
         }
         
         if( ( channelMask[1] & 0x02 ) > 0 ) {
-            exportWh = true;
             ABBA1140Register r = rFactory.getCummMainExport();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
@@ -86,7 +74,6 @@ public class LoadProfileConfigRegister {
         }        
         
         if( ( channelMask[1] & 0x04 ) > 0 ) {
-            q1Varh = true;
             ABBA1140Register r =  rFactory.getCummMainQ1();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
@@ -95,7 +82,6 @@ public class LoadProfileConfigRegister {
         }
         
         if( ( channelMask[1] & 0x08 ) > 0 ) {
-            q2Varh = true;
             ABBA1140Register r = rFactory.getCummMainQ2();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
@@ -104,7 +90,6 @@ public class LoadProfileConfigRegister {
         }
         
         if( ( channelMask[1] & 0x10 ) > 0 ) {
-            q3Varh = true;
             ABBA1140Register r = rFactory.getCummMainQ3();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
@@ -113,7 +98,6 @@ public class LoadProfileConfigRegister {
         }
         
         if( ( channelMask[1] & 0x20 ) > 0 ) {
-            q4Varh = true;
             ABBA1140Register r = rFactory.getCummMainQ4();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
@@ -122,7 +106,6 @@ public class LoadProfileConfigRegister {
         }
         
         if( ( channelMask[1] & 0x40 ) > 0 ) {
-            vah1 = true;
             ABBA1140Register r = rFactory.getCummMainVAImport();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
@@ -131,7 +114,6 @@ public class LoadProfileConfigRegister {
         }
         
         if( ( channelMask[1] & 0x80 ) > 0 ) {
-            vah2 = true;
             ABBA1140Register r = rFactory.getCummMainVAExport();
             register.add( r );
             Unit u = r.getUnit().getFlowUnit();
@@ -140,7 +122,6 @@ public class LoadProfileConfigRegister {
         }
         
         if( ( channelMask[0] & 0x40 ) > 0 ) {
-            customerDefined1 = true;
             ABBA1140Register r = rFactory.getCummMainCustDef1();
             register.add( r );
             CustDefRegConfig cd = (CustDefRegConfig)rFactory.getRegister(rFactory.getCustDefRegConfig());
@@ -150,7 +131,6 @@ public class LoadProfileConfigRegister {
         }
         
         if( ( channelMask[0] & 0x80 ) > 0 ) {
-            customerDefined2 = true;
             ABBA1140Register r = rFactory.getCummMainCustDef2();
             register.add( r );
             CustDefRegConfig cd = (CustDefRegConfig)rFactory.getRegister(rFactory.getCustDefRegConfig());
@@ -158,63 +138,21 @@ public class LoadProfileConfigRegister {
             channelInfo.add( new ChannelInfo( i, "ELSTERA1140_channel_"+ i, unit ) );
             i = i + 1;
         }
-        
     }
 
-    int getNumberRegisters() {
+    public int getNumberRegisters() {
         return register.size();
     }
     
     public Collection getRegisters(){
         return register;
-    } 
-
-    boolean isImportWh() {
-        return importWh;
     }
 
-    boolean isExportWh() {
-        return exportWh;
-    }
-
-    boolean isQ1Varh() {
-        return q1Varh;
-    }
-
-    boolean isQ2Varh() {
-        return q2Varh;
-    }
-
-    boolean isQ3Varh() {
-        return q3Varh;
-    }
-
-    boolean isQ4Varh() {
-        return q4Varh;
-    }
-
-    boolean isVah1() {
-        return vah1;
-    }
-
-    boolean isVah2() {
-        return vah2;
-    }
-
-    boolean isCustomerDefined1() {
-        return customerDefined1;
-    }
-
-    boolean isCustomerDefined2() {
-        return customerDefined2;
-    }
-    
-    
-    int getChannelMask(){
+    public int getChannelMask(){
         int x = (0x00FF00&(channelMask[0]<<8))|channelMask[1];
         return x;
     }
-    
+
     Collection toChannelInfo() throws IOException {
         return channelInfo;
     }
@@ -247,5 +185,22 @@ public class LoadProfileConfigRegister {
         rslt.append( "]" );
         return rslt.toString();
     }
-    
+
+    public byte[] getChannelMasks() {
+        return this.channelMask;
+    }
+
+
+    public ArrayList getChannelInfo() {
+        return channelInfo;
+    }
+
+    public ArrayList getRegister() {
+        return register;
+    }
+
+    public ABBA1140RegisterFactory getRegisterFactory() {
+        return rFactory;
+    }
+
 }

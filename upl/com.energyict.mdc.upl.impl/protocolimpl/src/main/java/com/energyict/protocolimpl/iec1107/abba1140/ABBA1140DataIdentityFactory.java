@@ -106,6 +106,7 @@ public class ABBA1140DataIdentityFactory {
         add("798", 16,ABBA1140DataIdentity.NOT_STREAMEABLE);
         add("795", 8,ABBA1140DataIdentity.NOT_STREAMEABLE);
         add("861", 7,ABBA1140DataIdentity.NOT_STREAMEABLE);
+        add("506", 8, ABBA1140DataIdentity.NOT_STREAMEABLE);
         add("507", 128,ABBA1140DataIdentity.NOT_STREAMEABLE);
         add("509", 36,ABBA1140DataIdentity.NOT_STREAMEABLE);
         add("510", 144,ABBA1140DataIdentity.NOT_STREAMEABLE);

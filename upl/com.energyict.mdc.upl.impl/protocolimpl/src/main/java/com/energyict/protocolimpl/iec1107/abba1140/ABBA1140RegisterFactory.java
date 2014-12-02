@@ -43,6 +43,7 @@ public class ABBA1140RegisterFactory {
     private ABBA1140Register cummMainVAExport;
     private ABBA1140Register cummMainVAImport;
     private ABBA1140Register cummulativeMaximumDemand;
+    private ABBA1140Register netConsumption;
     private ABBA1140Register cummulativeRegisters;
     private ABBA1140Register cumulativeMaximumDemand0;
     private ABBA1140Register cumulativeMaximumDemand1;
@@ -89,7 +90,8 @@ public class ABBA1140RegisterFactory {
     private ABBA1140Register timeOfUse6;
     private ABBA1140Register timeOfUse7;
 	private ABBA1140Register loadProfileDSTConfig;
-	
+
+	protected ObisCodeMapper obisCodeMapper;
 	private ABBA1140Register terminalCoverEventLog;
 	private ABBA1140Register mainCoverEventLog;
 	private ABBA1140Register phaseFailureEventLog;
@@ -123,16 +125,16 @@ public class ABBA1140RegisterFactory {
     protected ABBA1140DataIdentityFactory getABBA1140DataIdentityFactory() {
         return dataIdentityFactory;
     }
-    
-    protected ProtocolLink getProtocolLink() {
+
+    public ProtocolLink getProtocolLink() {
         return protocolLink;
     }
     
-    protected Map getRegisters() {
+    public Map getRegisters() {
         return registers;
     }
     
-    DataType getDataType(){
+    public DataType getDataType(){
         return dataType;
     }
     
@@ -190,6 +192,10 @@ public class ABBA1140RegisterFactory {
 
     public ABBA1140Register getCummulativeMaximumDemand() {
         return cummulativeMaximumDemand;
+    }
+
+    public ABBA1140Register getNetConsumption() {
+        return netConsumption;
     }
 
     public ABBA1140Register getCummulativeRegisters() {
@@ -382,7 +388,8 @@ public class ABBA1140RegisterFactory {
         serialNumber = cr("798", "SerialNumber", ABBA1140RegisterData.ABBA_STRING,0, -1,null );
         schemeID = cr("795", "SchemeID", ABBA1140RegisterData.ABBA_STRING,0,8, null );
         timeDate = cr("861", "TimeDate", ABBA1140RegisterData.ABBA_DATE,0,-1, null, ABBA1140Register.WRITEABLE, ABBA1140Register.NOT_CACHED);
-        
+
+        netConsumption = cr("506", "NetConsumption", ABBA1140RegisterData.ABBA_NET_CONSUMPTION, 0, 8, mWh);
         cummulativeRegisters = cr("507", "CummulativeRegisters", ABBA1140RegisterData.ABBA_BYTEARRAY,0,-1, null );
         
         cummMainImport = cr("507", "CummMainImport", ABBA1140RegisterData.ABBA_REGISTER,0,8,mWh);
@@ -593,10 +600,9 @@ public class ABBA1140RegisterFactory {
     }
     
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        ObisCodeMapper ocm = new ObisCodeMapper(this);
-        return ocm.getRegisterValue(obisCode);
+        return getObisCodeMapper().getRegisterValue(obisCode);
     }
-    
+
     public byte[] getRegisterRawData(String name,int dataLength) throws IOException {
         try {
             ABBA1140Register register = findRegister(name);
@@ -686,4 +692,11 @@ public class ABBA1140RegisterFactory {
 	public ABBA1140Register getInternalBatteryEventLog() {
 		return internalBatteryEventLog;
 	}
+
+    protected ObisCodeMapper getObisCodeMapper() {
+        if (this.obisCodeMapper == null) {
+            this.obisCodeMapper = new ObisCodeMapper(this);
+        }
+        return this.obisCodeMapper;
+    }
 }

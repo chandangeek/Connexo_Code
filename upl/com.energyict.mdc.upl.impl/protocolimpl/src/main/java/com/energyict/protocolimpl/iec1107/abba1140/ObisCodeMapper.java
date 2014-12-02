@@ -31,7 +31,7 @@ public class ObisCodeMapper {
 	private ABBA1140RegisterFactory rFactory;
     
     /** Creates a new instance of ObisCodeMapping */
-    ObisCodeMapper(ABBA1140RegisterFactory abba1140RegisterFactory) {
+    public ObisCodeMapper(ABBA1140RegisterFactory abba1140RegisterFactory) {
         this.rFactory=abba1140RegisterFactory;
     }
     
@@ -166,6 +166,21 @@ public class ObisCodeMapper {
                 return registerValue;
             } else {
                 return new RegisterInfo("BillingCounter");
+            }
+        } else if (obisCode.toString().startsWith("1.0.130.8.0.")) { // Net Consumption
+            if (obisCode.getF() != 255) {
+                String msg = "Problems retrieving " + obisCode.toString() + ": Net consumption can not be read as billing value";
+                getRFactory().getProtocolLink().getLogger().log(Level.INFO, msg);
+                throw new NoSuchRegisterException(msg);
+            }
+
+            if (read) {
+                unit = EnergyTypeCode.getUnitFromObisCCode(obisCode.getC(), true);
+                MainRegister mr = (MainRegister) getRFactory().getRegister("NetConsumption");
+                mr.setQuantity(new Quantity(mr.getQuantity().getAmount(), unit));
+                return mr.toRegisterValue(obisCode);
+            } else {
+                return new RegisterInfo("Net consumption");
             }
         }
         

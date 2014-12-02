@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
+import com.energyict.protocol.Calculate;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
-
-import com.energyict.protocol.Calculate;
-import com.energyict.protocol.ProtocolUtils;
 
 /** @author  Koen */
 
@@ -25,34 +25,36 @@ public class ABBA1140ProfileEntry {
     static public final int FORCEDENDOFDEMAND=0xE9;
     // when last packet does not contain 64 (normal mode) or 256 (DS mode) bytes
     static public final int ENDOFDATA=0xFF;
-    
-    ABBA1140RegisterFactory registerFactory;
-    ByteArrayInputStream bai;
-    int nrOfChannels;
-    boolean isValue = false;
-    long date;
-    int type;
-    long[] values = new long[4];
-    int status;
-    int integrationPeriod;
-    boolean isDst;
-    int channelMask;
-    LoadProfileConfigRegister loadProfileConfigRegister;
-    List intervalValues = null;
-    
-    ABBA1140ProfileEntry( ABBA1140RegisterFactory registerFactory, ByteArrayInputStream bai, int nrOfChannels)
+    private final boolean useExtendedProfileStatus;
+
+    protected ABBA1140RegisterFactory registerFactory;
+    protected ByteArrayInputStream bai;
+    protected int nrOfChannels;
+    protected boolean isValue = false;
+    protected long date;
+    protected int type;
+    protected long[] values = new long[8];
+    protected int status;
+    protected int extendedStatus;
+    protected int integrationPeriod;
+    protected boolean isDst;
+    protected int channelMask;
+    protected LoadProfileConfigRegister loadProfileConfigRegister;
+    protected List intervalValues = null;
+
+    public ABBA1140ProfileEntry( ABBA1140RegisterFactory registerFactory, ByteArrayInputStream bai, int nrOfChannels, boolean useExtendedProfileStatus)
     throws IOException {
         
         this.registerFactory = registerFactory;
         this.bai = bai;
         this.nrOfChannels = nrOfChannels;
-        date = 0;
-    
+        this.date = 0;
+        this.useExtendedProfileStatus = useExtendedProfileStatus;
+
         init();
-        
     }
     
-    void init( )  throws IOException {
+    private void init( )  throws IOException {
         // 1 byte
         type = ProtocolUtils.getVal(bai);
         
@@ -79,11 +81,16 @@ public class ABBA1140ProfileEntry {
         } else {
             /** If it is not a marker, it is profile data.
              * This means it starts with status */
-            status = type;
+            if (useExtendedProfileStatus) {
+                extendedStatus = ProtocolUtils.getVal(bai);
+                status = ProtocolUtils.getVal(bai);
+            } else {
+                status = type;
+            }
             isValue = true;
-            for (int i=0;i<nrOfChannels;i++) {
-                long val = (int)Long.parseLong(Long.toHexString(ProtocolUtils.getLong(bai,3)));
-                values[i] = (val/10) * Calculate.exp(val%10);
+            for (int i = 0; i < nrOfChannels; i++) {
+                long val = (int) Long.parseLong(Long.toHexString(ProtocolUtils.getLong(bai, 3)));
+                values[i] = (val / 10) * Calculate.exp(val % 10);
             }
         }
     }
@@ -115,7 +122,11 @@ public class ABBA1140ProfileEntry {
     protected int getStatus() {
         return status;
     }
-    
+
+    protected int getExtendedStatus() {
+        return extendedStatus;
+    }
+
     protected long[] getValues() {
         return  values;
     }
@@ -125,21 +136,21 @@ public class ABBA1140ProfileEntry {
     }
     
     
-    boolean isMarker() {
+    protected boolean isMarker() {
         return ((type == POWERUP) || (type == CONFIGURATIONCHANGE) || (type == POWERDOWN) ||
                 (type == NEWDAY) || (type == TIMECHANGE) || (type == DAYLIGHTSAVING) ||
                 (type == LOADPROFILECLEARED) || (type == FORCEDENDOFDEMAND) || (type == ENDOFDATA));
     }
     
-    boolean isNewDay() {
+    protected boolean isNewDay() {
         return type == NEWDAY;
     }
     
-    boolean isConfigurationChange(){
+    protected boolean isConfigurationChange(){
         return type == CONFIGURATIONCHANGE;
     }
     
-    boolean isEndOfData(){
+    protected boolean isEndOfData(){
         return type == ENDOFDATA;
     }
     
@@ -148,6 +159,9 @@ public class ABBA1140ProfileEntry {
         if (!isMarker()) {
             strBuff.append("Demanddata:\n");
             strBuff.append("   Status: 0x"+Integer.toHexString(status)+"\n");
+            if (useExtendedProfileStatus) {
+                strBuff.append("   ExtendedStatus: 0x" + Integer.toHexString(extendedStatus) + "\n");
+            }
             for(int i=0;i<values.length;i++) {
                 strBuff.append("   Channel "+i+": "+values[i]+"\n");
             }

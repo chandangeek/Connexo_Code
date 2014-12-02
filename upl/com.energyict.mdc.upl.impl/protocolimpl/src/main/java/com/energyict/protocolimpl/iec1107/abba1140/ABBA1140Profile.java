@@ -1,5 +1,13 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.AbstractEventLog;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,14 +19,6 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.AbstractEventLog;
 
 /**
  * As example a new A1140 meter with intervals of half an hour.
@@ -57,7 +57,7 @@ public class ABBA1140Profile {
     private static final int DEBUG=0;
     
     private final ABBA1140RegisterFactory rFactory;
-    private final ProtocolLink protocolLink;
+    private final ABBA1140 meterProtocol;
     private final TimeZone adjustedTimeZone;
     // configuration of the meter
     private LoadProfileConfigRegister meterConfig;
@@ -65,14 +65,14 @@ public class ABBA1140Profile {
     /** integration period in seconds */
     private int integrationPeriod;
     
-    ABBA1140Profile(ProtocolLink protocolLink,ABBA1140RegisterFactory abba1140RegisterFactory) throws IOException {
-        this.protocolLink = protocolLink;
+    public ABBA1140Profile(ABBA1140 meterProtocol,ABBA1140RegisterFactory abba1140RegisterFactory) throws IOException {
+        this.meterProtocol = meterProtocol;
         this.rFactory = abba1140RegisterFactory;
         long val = ((Long)rFactory.getRegister("LoadProfileDSTConfig")).longValue();
         if ((val&0x01)==0)
-        	adjustedTimeZone = ProtocolUtils.getWinterTimeZone(protocolLink.getTimeZone());
+        	adjustedTimeZone = ProtocolUtils.getWinterTimeZone(meterProtocol.getTimeZone());
         else
-        	adjustedTimeZone = protocolLink.getTimeZone();
+        	adjustedTimeZone = meterProtocol.getTimeZone();
     }
     
     /** Retrieve the load profile between from and to date.
@@ -85,11 +85,11 @@ public class ABBA1140Profile {
      */
     ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         
-        Logger l = protocolLink.getLogger();
+        Logger l = meterProtocol.getLogger();
         if( l.isLoggable( Level.INFO ) ) {
             String msg = "getProfileData(Date " + from + ", Date "
                     + to + ", boolean " + includeEvents + ")";
-            protocolLink.getLogger().info( msg );
+            meterProtocol.getLogger().info( msg );
         }
         
         if (to.getTime() < from.getTime())
@@ -103,7 +103,7 @@ public class ABBA1140Profile {
         /* by writing the dates in register 554 */
         LoadProfileReadByDate lpbd = new LoadProfileReadByDate(from, to);
         rFactory.setRegister("LoadProfileReadByDate", lpbd );
-        
+
         if( DEBUG > 0 )
             System.out.println( "Inquiring meter for " + lpbd );
         
@@ -116,7 +116,7 @@ public class ABBA1140Profile {
 //        long nrOfDaysToRetrieve = ((tostd/ONEDAY) - (fromstd/ONEDAY)) + 1;
 //
 //        rFactory.setRegister("LoadProfileSet",new Long(nrOfDaysToRetrieve));
-        
+
         return doGetProfileData(includeEvents, from);
     }
     
@@ -127,10 +127,10 @@ public class ABBA1140Profile {
      */
     ProfileData getProfileData(boolean includeEvents) throws IOException {
         
-        Logger l = protocolLink.getLogger();
+        Logger l = meterProtocol.getLogger();
         if( l.isLoggable( Level.INFO ) ) {
             String msg = "getProfileData( boolean " + includeEvents + ")";
-            protocolLink.getLogger().info( msg );
+            meterProtocol.getLogger().info( msg );
         }
         
         /* by writing the value FFFF to register 551, the complete load profile is read */
@@ -141,7 +141,7 @@ public class ABBA1140Profile {
     
     private ProfileData doGetProfileData( boolean includeEvents, Date from ) throws IOException {
         byte[] data;
-        if (protocolLink.isIEC1107Compatible()) {
+        if (meterProtocol.isIEC1107Compatible()) {
             long nrOfBlocks = ((Long)rFactory.getRegister("LoadProfile64Blocks")).longValue();
             data = rFactory.getRegisterRawData("LoadProfile", (int)nrOfBlocks*64);
         } else {
@@ -149,7 +149,7 @@ public class ABBA1140Profile {
             data = rFactory.getRegisterRawDataStream("LoadProfile",(int)nrOfBlocks);
         }
         
-        ProfileData profileData = parse(new ByteArrayInputStream(data), protocolLink.getNumberOfChannels());
+        ProfileData profileData = parse(new ByteArrayInputStream(data), meterProtocol.getNumberOfChannels());
         
         if( includeEvents ) {
             HistoricalEventRegister her = (HistoricalEventRegister)
@@ -217,7 +217,7 @@ public class ABBA1140Profile {
     	}
     	catch(IOException e) {
     		e.printStackTrace();
-    		protocolLink.getLogger().info("No "+reg.getName()+" available");
+    		meterProtocol.getLogger().info("No "+reg.getName()+" available");
     	}
     	catch(NullPointerException e) {
     		e.printStackTrace();
@@ -252,7 +252,7 @@ public class ABBA1140Profile {
             profileData.addChannel( (ChannelInfo)i.next() );
         
         // profile data must start with e4
-        current = new ABBA1140ProfileEntry(rFactory,bai,nrOfChannels);
+        current = createNewAbba1140ProfileEntry(bai, nrOfChannels);
         if ((current.getType()) == ABBA1140ProfileEntry.NEWDAY) {
             e4Config = current.getLoadProfileConfig();
             e4Integration = current.getIntegrationPeriod();
@@ -272,7 +272,7 @@ public class ABBA1140Profile {
         // parse datastream & build profiledata
         while(bai.available() > 0) {
             
-            current = new ABBA1140ProfileEntry(rFactory,bai, e4Config.getNumberRegisters() );
+            current = createNewAbba1140ProfileEntry(bai, e4Config.getNumberRegisters());
             
             if( current.getType() == ABBA1140ProfileEntry.TIMECHANGE ) {
                 interval = new Interval( createDate(current.getTime()) );
@@ -340,7 +340,7 @@ public class ABBA1140Profile {
                         "Invalid interval: (" + interval.endTime + ") "
                         + "current meter conf. " + meterConfig.toShortString() 
                         + " interval conf. " + e4Config.toShortString();
-                    protocolLink.getLogger().info( msg );
+                    meterProtocol.getLogger().info( msg );
                 }
             }
             
@@ -353,7 +353,11 @@ public class ABBA1140Profile {
         
         return profileData;
     }
-    
+
+    protected ABBA1140ProfileEntry createNewAbba1140ProfileEntry(ByteArrayInputStream bai, int nrOfChannels) throws IOException {
+        return new ABBA1140ProfileEntry(rFactory,bai,nrOfChannels, meterProtocol.useExtendedProfileStatus());
+    }
+
     private void addEventToProfile(ProfileData profileData, ABBA1140ProfileEntry profileEntry) {
         if (profileEntry.isMarker()) {
             int eiCode = -1;
@@ -408,6 +412,9 @@ public class ABBA1140Profile {
     private static final int CT_RATIO_CHANGE = 0x10;
     private static final int REVERSE_RUN=0x20;
     private static final int PHASE_FAILURE=0x40;
+
+    private static final int MAIN_COVER_TAMPER_EVENT = 0x02;
+    private static final int TERMINAL_COVER_TAMPER_EVENT = 0x01;
     
     /** IntervalMap:
      * Creates and manages all the Interval objects.  
@@ -530,6 +537,7 @@ public class ABBA1140Profile {
             if( entries.size() > 0 ){
                 ABBA1140ProfileEntry profileEntry = (ABBA1140ProfileEntry) entries.get(0);
                 int status = profileEntry.getStatus();
+                int extendedStatus = profileEntry.getExtendedStatus();
                 
                 IntervalData intervalData = new IntervalData(endTime);
                 
@@ -547,6 +555,11 @@ public class ABBA1140Profile {
                     intervalData.addEiStatus(IntervalStateBits.REVERSERUN);
                 if ((status & PHASE_FAILURE) == PHASE_FAILURE)
                     intervalData.addEiStatus(IntervalStateBits.PHASEFAILURE);
+
+                if ((extendedStatus & MAIN_COVER_TAMPER_EVENT) == MAIN_COVER_TAMPER_EVENT)
+                    intervalData.addEiStatus(IntervalStateBits.OTHER);
+                if ((extendedStatus & TERMINAL_COVER_TAMPER_EVENT) == TERMINAL_COVER_TAMPER_EVENT)
+                    intervalData.addEiStatus(IntervalStateBits.OTHER);
                 
                 long [] temp = new long [profileEntry.getValues().length];
                 System.arraycopy(profileEntry.getValues(),0, temp, 0, temp.length  );
@@ -567,7 +580,7 @@ public class ABBA1140Profile {
                     String msg = 
                         "Merging Interval [" + startTime + ", " + endTime + ", " 
                         + entries.size() + "] ";
-                    protocolLink.getLogger().info( msg );
+                    meterProtocol.getLogger().info( msg );
                     intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
                 }
                 
@@ -600,4 +613,7 @@ public class ABBA1140Profile {
 		return adjustedTimeZone;
 	}
 
+    public ABBA1140RegisterFactory getrFactory() {
+        return rFactory;
+    }
 }

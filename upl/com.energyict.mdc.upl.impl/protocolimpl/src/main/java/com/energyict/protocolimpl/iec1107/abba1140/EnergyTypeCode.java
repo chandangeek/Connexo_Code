@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.NoSuchRegisterException;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**@author  Koen */
 
@@ -25,7 +25,8 @@ public class EnergyTypeCode {
         list.add(new EnergyTypeCode(7,Unit.get(BaseUnit.VOLTAMPEREHOUR,-3),10,"export apparent"));  
         
         list.add(new EnergyTypeCode(14,Unit.get(BaseUnit.COUNT,0),128,"customer defined 1"));  
-        list.add(new EnergyTypeCode(15,Unit.get(BaseUnit.COUNT,0),129,"customer defined 2"));  
+        list.add(new EnergyTypeCode(15,Unit.get(BaseUnit.COUNT,0),129,"customer defined 2"));
+        list.add(new EnergyTypeCode(-1,Unit.get(BaseUnit.WATTHOUR,-3),130,"active import net consumption"));
     }
     
     int regSource;
