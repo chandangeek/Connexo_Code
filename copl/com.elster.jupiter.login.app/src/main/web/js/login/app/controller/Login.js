@@ -141,6 +141,7 @@ Ext.define('Login.controller.Login', {
         Ext.Ajax.request({
             url: '/apps/login/index.html',
             method: 'GET',
+            disableCaching: true,
             params: {
                 logout: 'true'
             },
