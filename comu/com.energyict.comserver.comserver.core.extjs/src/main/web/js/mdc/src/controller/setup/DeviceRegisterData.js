@@ -114,7 +114,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {mRID: mRID, registerId: registerId});
                         me.getRegisterFilter().setTitle(register.get('name'));
                         if (type === 'billing' || type === 'numerical') {
-                            debugger;
                             me.getRegisterFilter().show();
                             if (Ext.isEmpty(router.filter.data.onlyNonSuspect)) {
                                 viewOnlySuspects = (router.queryParams.onlySuspect === 'true');

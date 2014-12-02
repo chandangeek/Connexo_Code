@@ -127,7 +127,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                         var type = register.get('type');
                         var widget = Ext.widget('tabbedDeviceRegisterView',{device: device, router: me.getController('Uni.controller.history.Router')});
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        debugger;
                         widget.down('#deviceRegisterDetailTitle').update('<h2>' + register.get('name') +' </h2>');
 
                         var config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID: mRID, registerId: registerId, router: me.getController('Uni.controller.history.Router')});

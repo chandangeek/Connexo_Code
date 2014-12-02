@@ -42,7 +42,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
     },
 
     changeTab: function (tabPanel,tab) {
-        debugger;
         if(!this.veto) {
             var router = this.getController('Uni.controller.history.Router'),
                 routeParams = router.arguments,
