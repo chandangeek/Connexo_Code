@@ -16,13 +16,8 @@ import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
-
-import java.time.Clock;
-import java.time.Instant;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -30,10 +25,11 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.ValidationProviderResolver;
-
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,8 +51,6 @@ public class OrmServiceImpl implements OrmService, InstallService {
     private volatile ValidationProviderResolver validationProviderResolver;
     private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<>());
     private volatile SchemaInfoProvider schemaInfoProvider;
-
-    private final Set<String> processedTables = new HashSet<>();
 
     public OrmServiceImpl() {
     }
@@ -266,20 +260,21 @@ public class OrmServiceImpl implements OrmService, InstallService {
     public DataModelImpl getUpgradeDataModel(DataModel model) {
         DataModelImpl existingDataModel = newDataModel("UPG", "Upgrade  of " + model.getName());
         DataModel existingTablesDataModel = getExistingTablesDataModel();
-        processedTables.clear();
+
+        Set<String> processedTables = new HashSet<>();
         if (existingTablesDataModel != null) {
             for (Table<?> table : model.getTables()) {
                 Optional<ExistingTable> existingJournalTable = Optional.empty();
                 if (table.hasJournal()) {
                     existingJournalTable = existingTablesDataModel.mapper(ExistingTable.class).getEager(table.getJournalTableName());
                 }
-                addTableToExistingModel(existingDataModel, existingTablesDataModel, table.getName(), (existingJournalTable.isPresent() ? existingJournalTable.get().getName() : null));
+                addTableToExistingModel(existingDataModel, existingTablesDataModel, table.getName(), (existingJournalTable.isPresent() ? existingJournalTable.get().getName() : null), processedTables);
             }
         }
         return existingDataModel;
     }
 
-    private void addTableToExistingModel(DataModelImpl existingModel, DataModel databaseTablesModel, String tableName, String journalTableName) {
+    private void addTableToExistingModel(DataModelImpl existingModel, DataModel databaseTablesModel, String tableName, String journalTableName, Set<String> processedTables) {
         if (processedTables.add(tableName)) {
             Optional<ExistingTable> existingTable = databaseTablesModel.mapper(ExistingTable.class).getEager(tableName);
             if (existingTable.isPresent()) {
@@ -289,7 +284,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
                     if (existingConstraint.isForeignKey()) {
                         String referencedTableName = existingConstraint.getReferencedTableName();
                         if (!tableName.equalsIgnoreCase(referencedTableName) && existingModel.getTable(referencedTableName) == null) {
-                            addTableToExistingModel(existingModel, databaseTablesModel, referencedTableName, null);
+                            addTableToExistingModel(existingModel, databaseTablesModel, referencedTableName, null, processedTables);
                         }
                     }
                 }
