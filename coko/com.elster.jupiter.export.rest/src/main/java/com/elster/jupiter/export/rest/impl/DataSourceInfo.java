@@ -2,8 +2,6 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingContainer;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -22,29 +20,24 @@ public class DataSourceInfo {
     public Long occurrenceId;
 
     public DataSourceInfo(ReadingTypeDataExportItem item) {
-            Optional<? extends DataExportOccurrence> dataExportOccurrenceOptional = item.getTask().getLastOccurrence();
-            if (dataExportOccurrenceOptional.isPresent()) {
-                occurrenceId = dataExportOccurrenceOptional.get().getId();
-            }
-            active = item.isActive();
-            ReadingContainer readingContainer = item.getReadingContainer();
-            if (readingContainer instanceof Meter) {
-                Meter meter = (Meter) readingContainer;
-                mRID = meter.getMRID();
-                serialNumber = meter.getSerialNumber();
-            }
+        occurrenceId = item.getLastOccurrence().map(DataExportOccurrence::getId).orElse(null);
+        active = item.isActive();
 
-            readingType = item.getReadingType().getAliasName();
-
-            Optional<Instant> lastRunOptional = item.getLastRun();
-            if (lastRunOptional.isPresent()) {
-                lastRun = lastRunOptional.get().toEpochMilli();
-            }
-
-            Optional<Instant> lastExportedDateOptional = item.getLastExportedDate();
-            if (lastExportedDateOptional.isPresent()) {
-                lastExportedDate = lastExportedDateOptional.get().toEpochMilli();
-            }
-
+        Optional<Instant> lastRunOptional = item.getLastRun();
+        if (lastRunOptional.isPresent()) {
+            lastRun = lastRunOptional.get().toEpochMilli();
+        }
+        item.getLastRun().ifPresent(instant -> {
+            item.getReadingContainer().getMeter(instant)
+                    .ifPresent(meter -> {
+                        mRID = meter.getMRID();
+                        serialNumber = meter.getSerialNumber();
+                    });
+            lastRun = instant.toEpochMilli();
+        });
+        readingType = item.getReadingType().getAliasName();
+        item.getLastExportedDate().ifPresent(instant -> {
+            lastExportedDate = instant.toEpochMilli();
+        });
     }
 }
