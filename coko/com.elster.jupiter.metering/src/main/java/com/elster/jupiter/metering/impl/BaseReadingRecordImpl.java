@@ -131,7 +131,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
 
     @Override
     public Optional<Range<Instant>> getTimePeriod() {
-        return Optional.empty();
+        return channel.getTimePeriod(this, entry.getValues());
     }
     
     public List<? extends ReadingQualityRecord> getReadingQualities() {

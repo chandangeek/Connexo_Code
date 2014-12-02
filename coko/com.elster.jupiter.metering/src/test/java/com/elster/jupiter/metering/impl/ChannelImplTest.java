@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
@@ -345,6 +346,55 @@ public class ChannelImplTest extends EqualsContractTest {
                 LocalDateTime.of(2014, 6, 5, 0, 0).toInstant(ZoneOffset.UTC));
         channel.validateValues(reading, null);
         // no exception
+    }
+
+
+    @Test
+    public void testGetTimePeriodForNumericalRegister() {
+        readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1, "Numerical");
+        channel = createChannel().init(meterActivation, ImmutableList.of(readingType1));
+
+        ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), LocalDateTime.of(2014, 6, 4, 12, 0).toInstant(ZoneOffset.UTC));
+        Object[] values = channel.toArray(reading, new ProcessStatus(0));
+
+        Optional<Range<Instant>> period = ((ChannelImpl) channel).getTimePeriod(reading, values);
+        assertThat(period.isPresent()).isFalse();
+    }
+
+    @Test
+    public void testGetTimePeriodForBillingRegister() {
+        readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
+        channel = createChannel().init(meterActivation, ImmutableList.of(readingType1));
+
+        ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), LocalDateTime.of(2014, 6, 4, 12, 0).toInstant(ZoneOffset.UTC));
+        Instant start = LocalDateTime.of(2014, 6, 3, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant end = LocalDateTime.of(2014, 6, 5, 0, 0).toInstant(ZoneOffset.UTC);
+        reading.setTimePeriod(start, end);
+        Object[] values = channel.toArray(reading, new ProcessStatus(0));
+
+        Optional<Range<Instant>> period = ((ChannelImpl) channel).getTimePeriod(reading, values);
+        assertThat(period.isPresent()).isTrue();
+        assertThat(period.get().lowerEndpoint()).isEqualTo(start);
+        assertThat(period.get().upperEndpoint()).isEqualTo(end);
+    }
+
+    @Test
+    public void testGetTimePeriodForCorruptedReading() {
+        readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
+        channel = createChannel().init(meterActivation, ImmutableList.of(readingType1));
+        ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), LocalDateTime.of(2014, 6, 4, 12, 0).toInstant(ZoneOffset.UTC));
+        Object[] values = channel.toArray(reading, new ProcessStatus(0));
+
+        Optional<Range<Instant>> period = ((ChannelImpl) channel).getTimePeriod(null, values);
+        assertThat(period.isPresent()).isFalse();
+    }
+
+    @Test
+    public void testGetTimePeriodForCorruptedValues() {
+        readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
+        channel = createChannel().init(meterActivation, ImmutableList.of(readingType1));
+        Optional<Range<Instant>> period = ((ChannelImpl) channel).getTimePeriod(null, new Object[]{});
+        assertThat(period.isPresent()).isFalse();
     }
 
     private void simulateSavedChannel() {

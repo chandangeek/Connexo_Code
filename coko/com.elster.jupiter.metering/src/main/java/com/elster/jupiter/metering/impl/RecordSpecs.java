@@ -16,6 +16,10 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.google.common.collect.Range;
+
+import java.time.Instant;
+import java.util.Optional;
 
 
 public enum RecordSpecs {
@@ -127,6 +131,18 @@ public enum RecordSpecs {
                 }
             });
         }
+
+        @Override
+        public Optional<Range<Instant>> getTimePeriod(BaseReading reading, Object[] values) {
+            if (values != null && values.length == 5){
+                Instant start = (Instant) values[3];
+                Instant end = (Instant) values[4];
+                if (start != null && end != null){
+                    return Optional.of(Range.openClosed(start, end));
+                }
+            }
+            return Optional.empty();
+        }
     };
 	  
 	private final String specName;
@@ -160,7 +176,11 @@ public enum RecordSpecs {
 	abstract void addFieldSpecs(RecordSpec recordSpec);
 	
 	abstract Object[] toArray(BaseReading reading, ProcessStatus status);
-	
+
+    public Optional<Range<Instant>> getTimePeriod(BaseReading reading, Object[] values) {
+        return Optional.empty();
+    }
+
 	final RecordSpec get(IdsService idsService) {
 		return idsService.getRecordSpec(MeteringService.COMPONENTNAME, ordinal()+1).get();
 	}
