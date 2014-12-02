@@ -6,8 +6,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.orm.associations.Effectivity;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -264,6 +262,7 @@ public class DeviceValidationResource {
             meter = meterRef.get();
         } else {
             meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
+            meter.setSerialNumber(device.getSerialNumber());
             meter.save();
         }
         return meter;

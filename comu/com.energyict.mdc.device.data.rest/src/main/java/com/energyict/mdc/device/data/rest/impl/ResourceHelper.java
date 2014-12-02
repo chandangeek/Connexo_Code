@@ -1,5 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.device.data.Channel;
@@ -8,14 +14,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.conditions.Condition;
-import com.google.common.collect.ImmutableMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -25,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -176,6 +173,7 @@ public class ResourceHelper {
         Meter meter;
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
         meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
+        meter.setSerialNumber(device.getSerialNumber());
         meter.save();
         return meter;
     }
