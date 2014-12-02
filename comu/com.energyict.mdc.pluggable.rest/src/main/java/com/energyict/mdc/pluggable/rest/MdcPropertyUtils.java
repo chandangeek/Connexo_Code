@@ -1,7 +1,6 @@
 package com.energyict.mdc.pluggable.rest;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -12,13 +11,13 @@ import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValidationRule;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.pluggable.rest.impl.MessageSeeds;
 import com.energyict.mdc.pluggable.rest.impl.properties.MdcPropertyReferenceInfoFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
-
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.ArrayList;
@@ -28,6 +27,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import javax.ws.rs.core.UriInfo;
 
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITHOUT_PRIVILEGES;
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.SHOW_VALUES;
+
 /**
  * Serves as a utility class to create proper PropertyInfo objects for a set of Properties
  * and their corresponding PropertySpecs
@@ -35,12 +38,12 @@ import javax.ws.rs.core.UriInfo;
 public class MdcPropertyUtils {
 
     public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
-        convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList, true, false);
+        convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList, SHOW_VALUES, WITHOUT_PRIVILEGES);
     }
 
-    public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList, boolean showValue, boolean withPrivileges) {
+    public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList, ValueVisibility showValue, PrivilegePresence privilegePresence) {
         for (PropertySpec<?> propertySpec : propertySpecs) {
-            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, showValue, withPrivileges);
+            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, showValue, privilegePresence);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType);
             PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
@@ -51,7 +54,7 @@ public class MdcPropertyUtils {
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties) {
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
         for (PropertySpec<?> propertySpec : propertySpecs) {
-            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, true, false);
+            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, SHOW_VALUES, WITHOUT_PRIVILEGES);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType);
             PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
@@ -60,21 +63,21 @@ public class MdcPropertyUtils {
         return propertyInfoList;
     }
 
-    private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec<?> propertySpec, boolean showValue, boolean withPrivileges) {
+    private PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec<?> propertySpec, ValueVisibility valueVisibility, PrivilegePresence privilegePresence) {
         Object propertyValue = getPropertyValue(properties, propertySpec);
-        boolean propertyHasValue = true;
+        Boolean propertyHasValue = true;
         Object inheritedProperty = getInheritedProperty(properties, propertySpec);
         Object defaultValue = getDefaultValue(propertySpec);
         if ((propertyValue == null || propertyValue.equals("")) && (inheritedProperty == null || inheritedProperty.equals("")) && (defaultValue == null || defaultValue.equals(""))) {
             propertyHasValue = false;
         }
-        if (!showValue) {
+        if (HIDE_VALUES.equals(valueVisibility)) {
             propertyValue = null;
             inheritedProperty = null;
             defaultValue = null;
         }
-        if (!withPrivileges) {
-            propertyHasValue = false;
+        if (WITHOUT_PRIVILEGES.equals(privilegePresence)) {
+            propertyHasValue = null;
         }
         return new PropertyValueInfo<>(propertyValue, inheritedProperty, defaultValue, propertyHasValue);
     }
@@ -204,4 +207,11 @@ public class MdcPropertyUtils {
         return getPropertyValue(inheritedProperties, propertySpec);
     }
 
+    public enum ValueVisibility {
+        SHOW_VALUES, HIDE_VALUES
+    }
+
+    public enum PrivilegePresence {
+        WITH_PRIVILEGES, WITHOUT_PRIVILEGES
+    }
 }
