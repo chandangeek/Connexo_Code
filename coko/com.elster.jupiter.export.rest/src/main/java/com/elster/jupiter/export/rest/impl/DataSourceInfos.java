@@ -10,11 +10,13 @@ import java.util.List;
  */
 public class DataSourceInfos {
 
+    public int total;
     public List<DataSourceInfo> dataSources = new ArrayList<DataSourceInfo>();
 
     public DataSourceInfos(List<? extends ReadingTypeDataExportItem> exportItems) {
         for (ReadingTypeDataExportItem item : exportItems) {
             dataSources.add(new DataSourceInfo(item));
+            total++;
         }
     }
 }
