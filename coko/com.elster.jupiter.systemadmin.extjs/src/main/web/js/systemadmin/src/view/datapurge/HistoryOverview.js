@@ -16,7 +16,7 @@ Ext.define('Sam.view.datapurge.HistoryOverview', {
 
         me.content = [
             {
-                title: Uni.I18n.translate('datapurge.history.title', 'SAM', 'History'),
+                title: Uni.I18n.translate('datapurge.history.title', 'SAM', 'Data purge history'),
                 ui: 'large',
                 items: [
                     {
