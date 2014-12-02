@@ -28,4 +28,6 @@ public interface EndDevice extends IdentifiedObject {
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range);
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes);
     List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
+
+    void setSerialNumber(String serialNumber);
 }

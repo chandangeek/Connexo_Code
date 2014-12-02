@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.elster.jupiter.util.conditions.Where.*;
-
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
@@ -17,11 +15,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.inject.Provider;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> implements EndDevice {
 	static final Map<String, Class<? extends EndDevice>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends EndDevice>>of(EndDevice.TYPE_IDENTIFIER, EndDeviceImpl.class, Meter.TYPE_IDENTIFIER, MeterImpl.class);
@@ -177,8 +176,13 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
         Condition condition = inRange(filter.range).and(where("logBookId").isEqualTo(filter.logBookId)).and(where("eventType.mRID").matches(regExp.toString(), "i"));
         return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(condition, Order.descending("createdDateTime"));
     }
-    
-    private Condition inRange(Range<Instant> range) {    
+
+    @Override
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    private Condition inRange(Range<Instant> range) {
         return where("endDevice").isEqualTo(this).and(where("createdDateTime").in(range));
     }
 
