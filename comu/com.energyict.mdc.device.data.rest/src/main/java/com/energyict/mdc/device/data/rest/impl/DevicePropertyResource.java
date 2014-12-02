@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.PagedInfoList;
@@ -10,9 +11,12 @@ import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * Created by bvn on 12/1/14.
@@ -38,7 +42,23 @@ public class DevicePropertyResource {
     public PagedInfoList getDeviceProperties(@BeanParam QueryParameters queryParameters) {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
         List <PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs() ,deviceProperties);
-        Collections.sort(propertyInfos, (o1, o2) -> o1.key.compareTo(o2.key));
+        Collections.sort(propertyInfos, (o1, o2) -> o1.key.compareToIgnoreCase(o2.key));
         return PagedInfoList.asJson("deviceProperties", propertyInfos, queryParameters);
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateDeviceProperties(List<PropertyInfo> propertyInfos) {
+        List<PropertySpec> propertySpecs = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs();
+        for (PropertySpec propertySpec : propertySpecs) {
+            Object value = mdcPropertyUtils.findPropertyValue(propertySpec, propertyInfos);
+            if (value == null || "".equals(value)) {
+                device.removeProtocolProperty(propertySpec.getName());
+            } else {
+                device.setProtocolProperty(propertySpec.getName(), value);
+            }
+        }
+        return Response.ok().build();
     }
 }
