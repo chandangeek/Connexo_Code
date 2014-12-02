@@ -23,4 +23,6 @@ public interface ReadingTypeDataExportItem {
     Optional<Instant> getLastExportedDate();
 
     boolean isActive();
+
+    Optional<? extends DataExportOccurrence> getLastOccurrence();
 }

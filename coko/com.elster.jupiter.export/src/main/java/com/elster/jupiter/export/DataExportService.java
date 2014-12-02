@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +26,8 @@ public interface DataExportService {
     List<DataProcessorFactory> getAvailableProcessors();
 
     List<? extends ReadingTypeDataExportTask> findReadingTypeDataExportTasks();
+
+    Optional<? extends DataExportOccurrence> findDataExportOccurrence(ReadingTypeDataExportTask task, Instant triggerTime);
 
     void setExportDirectory(AppServer appServer, Path path);
 

@@ -1,6 +1,8 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ReadingTypeDataExportTask;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -22,6 +24,7 @@ import java.util.Optional;
 public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem {
 
     private final MeteringService meteringService;
+    private final DataExportService dataExportService;
 
     private long id;
     private Instant lastRun;
@@ -36,8 +39,9 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
 
 
     @Inject
-    public ReadingTypeDataExportItemImpl(MeteringService meteringService, DataModel model) {
+    public ReadingTypeDataExportItemImpl(MeteringService meteringService, IDataExportService dataExportService, DataModel model) {
         this.meteringService = meteringService;
+        this.dataExportService = dataExportService;
         dataModel = model;
     }
 
@@ -109,5 +113,10 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     @Override
     public boolean isActive() {
         return active;
+    }
+
+    @Override
+    public Optional<? extends DataExportOccurrence> getLastOccurrence() {
+        return getLastRun().flatMap(trigger -> dataExportService.findDataExportOccurrence(getTask(), trigger));
     }
 }

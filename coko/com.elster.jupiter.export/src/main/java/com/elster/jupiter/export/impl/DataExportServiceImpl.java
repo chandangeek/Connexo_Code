@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -246,6 +247,14 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public Optional<IDataExportOccurrence> findDataExportOccurrence(TaskOccurrence occurrence) {
         return dataModel.query(IDataExportOccurrence.class, IReadingTypeDataExportTask.class).select(Operator.EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
+    }
+
+    @Override
+    public Optional<IDataExportOccurrence> findDataExportOccurrence(ReadingTypeDataExportTask task, Instant triggerTime) {
+        return dataModel.stream(IDataExportOccurrence.class).join(TaskOccurrence.class).join(IReadingTypeDataExportTask.class)
+                .filter(Operator.EQUAL.compare("readingTask", task))
+                .filter(Operator.EQUAL.compare("taskOccurrence.triggerTime", triggerTime))
+                .findFirst();
     }
 
     @Override
