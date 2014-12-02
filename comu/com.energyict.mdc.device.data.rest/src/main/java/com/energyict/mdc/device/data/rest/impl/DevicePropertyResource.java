@@ -6,11 +6,12 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -27,16 +28,17 @@ public class DevicePropertyResource {
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-    public DevicePropertyResource init(Device device) {
+    DevicePropertyResource init(Device device) {
         this.device=device;
         return this;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getDeviceProperties(@Context QueryParameters queryParameters) {
+    public PagedInfoList getDeviceProperties(@BeanParam QueryParameters queryParameters) {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
         List <PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs() ,deviceProperties);
+        Collections.sort(propertyInfos, (o1, o2) -> o1.key.compareTo(o2.key));
         return PagedInfoList.asJson("deviceProperties", propertyInfos, queryParameters);
     }
 }
