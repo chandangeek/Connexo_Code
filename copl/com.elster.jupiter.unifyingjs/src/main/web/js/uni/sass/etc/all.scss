@@ -407,3 +407,12 @@ TODO Move this into a separate button UI.
   height: 13px;
   width: 13px;
 }
+
+.x-btn .device-flag {
+  background-image: url('/apps/sky/resources/images/shared/Not-validated.png');
+  height: 13px;
+  width: 13px;
+}
+.x-btn.x-btn-pressed .device-flag {
+  background-image: url('/apps/sky/resources/images/shared/Suspect.png');
+}
