@@ -6,7 +6,9 @@ Ext.define('YellowfinApp.controller.Main', {
     applicationTitle: 'Reports',
     privileges: [],
     defaultToken:"#/error/launch",
-    controllers: [],
+    controllers: [
+        'Yfn.controller.YellowfinReportsController',
+        'Yfn.controller.history.YellowfinReports'],
 
     init: function () {
         var router = this.getController('Uni.controller.history.Router');
@@ -15,6 +17,9 @@ Ext.define('YellowfinApp.controller.Main', {
             redirect: this.defaultToken.slice(2, this.defaultToken.length),
             route: ''
         });
+        var me = this,
+            historian = me.getController('Yfn.controller.history.YellowfinReports'); // Forces route registration.
+
 
         this.callParent(arguments);
 
