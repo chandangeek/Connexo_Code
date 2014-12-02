@@ -187,7 +187,8 @@ public enum MessageSeeds implements MessageSeed {
     UPDATE_SECURITY_PROPERTY_SET_NOT_ALLOWED(217, "UpdateSecurityPropertySetNotAllowed", "Update security property set not allowed"),
     MDC_LABEL_CATEGORY_FAVORITES(218, "mdc.label.category.favorites", "Favorites"),
     NO_SUCH_LABEL_CATEGORY(219, "NoSuchLabelCategory", "No such label category"),
-    NO_SUCH_DEVICE_LABEL(220, "NoSuchDeviceLabel", "No such device label of category ''{0}'' on a device {1}")
+    NO_SUCH_DEVICE_LABEL(220, "NoSuchDeviceLabel", "No such device label of category ''{0}'' on a device {1}"),
+    NO_SUCH_CHANNEL_ON_DEVICE(221, "NoSuchChannelOnDevice", "Device {0} has no channel {1}")
     ;
 
 

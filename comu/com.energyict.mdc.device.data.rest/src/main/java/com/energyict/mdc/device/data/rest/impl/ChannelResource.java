@@ -4,6 +4,7 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -22,6 +23,7 @@ import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -56,45 +58,26 @@ import static com.elster.jupiter.util.streams.Predicates.not;
  * Created by bvn on 9/5/14.
  */
 public class ChannelResource {
-    private static final Comparator<Channel> CHANNEL_COMPARATOR_BY_NAME = new ChannelComparator();
-
+    private final Provider<ChannelResourceHelper> channelHelper;
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
     private final Clock clock;
 
     @Inject
-    public ChannelResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus, Clock clock) {
+    public ChannelResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus, Clock clock, Provider<ChannelResourceHelper> channelHelper) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.thesaurus = thesaurus;
         this.clock = clock;
+        this.channelHelper = channelHelper;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannels(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @BeanParam QueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
-        List<Channel> channelsPage = ListPager.of(loadProfile.getChannels(), CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
-
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        for (Channel channel : channelsPage) {
-            ChannelInfo channelInfo = ChannelInfo.from(channel);
-            addValidationInfo(channel, channelInfo);
-            channelInfos.add(channelInfo);
-        }
-        return Response.ok(PagedInfoList.asJson("channels", channelInfos, queryParameters)).build();
-    }
-
-    private void addValidationInfo(Channel channel, ChannelInfo channelInfo) {
-        List<DataValidationStatus> states =
-                channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), lastMonth());
-        channelInfo.validationInfo = new DetailedValidationInfo(isValidationActive(channel), states, lastChecked(channel));
-        if (states.isEmpty()) {
-            channelInfo.validationInfo.dataValidated = channel.getDevice().forValidation().allDataValidated(channel, clock.instant());
-        }
+        return channelHelper.get().getChannels(mrid, (d -> resourceHelper.findLoadProfileOrThrowException(d, loadProfileId).getChannels()), queryParameters);
     }
 
     @GET
@@ -102,25 +85,7 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public Response getChannel(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
-        Channel channel = doGetChannel(mrid, loadProfileId, channelId);
-        ChannelInfo channelInfo = ChannelInfo.from(channel);
-        addValidationInfo(channel, channelInfo);
-        return Response.ok(channelInfo).build();
-    }
-
-    private boolean isValidationActive(Channel channel) {
-        return channel.getDevice().forValidation().isValidationActive(channel, clock.instant());
-    }
-
-    private Date lastChecked(Channel channel) {
-        Optional<Instant> optional = channel.getDevice().forValidation().getLastChecked(channel);
-        return optional.map(Date::from).orElse(null);
-    }
-
-    private Range<Instant> lastMonth() {
-        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
-        ZonedDateTime start = end.minusMonths(1);
-        return Range.openClosed(start.toInstant(), end.toInstant());
+        return channelHelper.get().getChannel(() -> doGetChannel(mrid, loadProfileId, channelId));
     }
 
     @GET
@@ -221,16 +186,8 @@ public class ChannelResource {
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION)
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
-        ValidationStatusInfo deviceValidationStatusInfo = determineStatus(channel);
+        ValidationStatusInfo deviceValidationStatusInfo = channelHelper.get().determineStatus(channel);
         return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
-    }
-
-    private ValidationStatusInfo determineStatus(Channel channel) {
-        return new ValidationStatusInfo(isValidationActive(channel), lastChecked(channel), hasData(channel));
-    }
-
-    private boolean hasData(Channel channel) {
-        return channel.getDevice().forValidation().hasData(channel);
     }
 
     @Path("{channelid}/validate")

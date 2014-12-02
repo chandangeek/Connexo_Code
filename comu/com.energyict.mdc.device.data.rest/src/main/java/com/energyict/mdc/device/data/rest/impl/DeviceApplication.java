@@ -112,6 +112,7 @@ public class DeviceApplication extends Application implements InstallService {
                 LogBookResource.class,
                 DeviceFieldResource.class,
                 ChannelResource.class,
+                ChannelsOnDeviceResource.class,
                 DeviceGroupResource.class,
                 SecurityPropertySetResource.class,
                 ConnectionMethodResource.class,
@@ -296,6 +297,7 @@ public class DeviceApplication extends Application implements InstallService {
             bind(transactionService).to(TransactionService.class);
             bind(issueService).to(IssueService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(ChannelResourceHelper.class).to(ChannelResourceHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
