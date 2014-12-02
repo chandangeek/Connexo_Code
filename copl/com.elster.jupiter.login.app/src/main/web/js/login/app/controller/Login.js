@@ -64,13 +64,12 @@ Ext.define('Login.controller.Login', {
             form = this.getLoginForm(),
             data = form.getValues();
 
-        this.hideLoginError();
+        me.hideLoginError();
 
         var unencodedToken = data.username + ':' + data.password;
         var encodedToken = 'Basic ' + Login.controller.Base64.encode(unencodedToken);
 
-        var loginMask = new Ext.LoadMask(Ext.getBody(), {msg: 'Verifying credentials...'});
-        loginMask.show();
+        me.getLoginViewport().mask('Verifying credentials...');
 
         Ext.Ajax.request({
             url: '/apps/login/index.html',
@@ -86,7 +85,9 @@ Ext.define('Login.controller.Login', {
                 me.loginNOK();
             },
             callback: function () {
-                loginMask.hide();
+                if (typeof me.getLoginViewport() !== 'undefined') {
+                    me.getLoginViewport().unmask();
+                }
             }
         });
     },
