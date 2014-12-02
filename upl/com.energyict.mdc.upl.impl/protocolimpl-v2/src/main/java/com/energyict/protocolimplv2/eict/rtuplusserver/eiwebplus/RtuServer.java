@@ -213,7 +213,7 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT RTU+Server EIWebPlus";
+        return "EnergyICT RTU+Server EIWebPlus V2";
     }
 
     @Override
