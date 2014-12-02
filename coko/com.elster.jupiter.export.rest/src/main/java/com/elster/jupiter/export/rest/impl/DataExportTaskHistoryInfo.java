@@ -3,6 +3,9 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -27,7 +30,11 @@ public class DataExportTaskHistoryInfo {
 
     public DataExportTaskHistoryInfo (DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
         this.id = dataExportOccurrence.getId();
+
         this.trigger = (dataExportOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
+        if (dataExportOccurrence.wasScheduled()) {
+            this.trigger = this.trigger + " (" + this.getScheduledTriggerDescription(dataExportOccurrence, thesaurus) + ")";
+        }
         this.startedOn = dataExportOccurrence.getStartDate().map(this::toLong).orElse(null);
         this.finishedOn = dataExportOccurrence.getEndDate().map(this::toLong).orElse(null);
         this.duration = calculateDuration(startedOn, finishedOn);
@@ -52,5 +59,48 @@ public class DataExportTaskHistoryInfo {
 
     private static String getName(DataExportStatus status, Thesaurus thesaurus) {
         return thesaurus.getStringBeyondComponent(status.toString(), status.toString());
+    }
+
+    private String getScheduledTriggerDescription(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
+        ScheduleExpression scheduleExpression = dataExportOccurrence.getTask().getScheduleExpression();
+        TimeDuration every = ((TemporalExpression) scheduleExpression).getEvery();
+        int count = every.getCount();
+        TimeDuration.TimeUnit unit = every.getTimeUnit();
+        String everyTranslation = thesaurus.getStringBeyondComponent("every", "Every");
+
+        String unitTranslation = unit.getDescription();
+        if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getStringBeyondComponent("day", "day");
+            } else {
+                unitTranslation = thesaurus.getStringBeyondComponent("days", "days");
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getStringBeyondComponent("week", "week");
+            } else {
+                unitTranslation = thesaurus.getStringBeyondComponent("weeks", "weeks");
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getStringBeyondComponent("month", "month");
+            } else {
+                unitTranslation = thesaurus.getStringBeyondComponent("months", "months");
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getStringBeyondComponent("year", "year");
+            } else {
+                unitTranslation = thesaurus.getStringBeyondComponent("years", "years");
+            }
+        }
+         if (count == 1) {
+             return everyTranslation + " " + unitTranslation;
+         } else {
+             return everyTranslation + " " + count + " " + unitTranslation;
+         }
     }
 }
