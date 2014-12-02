@@ -14,7 +14,7 @@ Ext.define('Dxp.view.datasources.Setup', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('general.dataExportTask', 'DES', 'Data export task'),
+                title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
                 ui: 'medium',
                 items: [
                     {
