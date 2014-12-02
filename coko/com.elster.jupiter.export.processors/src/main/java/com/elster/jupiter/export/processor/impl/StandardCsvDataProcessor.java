@@ -1,5 +1,7 @@
 package com.elster.jupiter.export.processor.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.*;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -9,8 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -20,29 +21,42 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class StandardCsvDataProcessor implements DataProcessor {
+
+    private final DataExportService dataExportService;
+    private final AppService appService;
+
+    private Path tempDirectory;
     private String fileSeparator;
     private String filePrefix;
     private String fileExtension;
+    private String path;
     private boolean writeMainFile;
     private boolean updatedDataSeparateFile;
     private String updatedDataFilePrefix;
     private String updatedDataFileExtension;
-    private File tempFile;
+    private Path tempFile;
     private BufferedWriter writer;
-    private File tempUpdatedFile;
+    private Path tempUpdatedFile;
     private BufferedWriter updatedWriter;
     private String readingType;
     private Instant fileNameTimestamp;
     private ReadingContainer readingContainer;
     private final Thesaurus thesaurus;
+    private FileSystem fileSystem;
 
     @Inject
-    public StandardCsvDataProcessor(Thesaurus thesaurus) {
+    public StandardCsvDataProcessor(DataExportService dataExportService, AppService appService, Thesaurus thesaurus) {
+        this.dataExportService = dataExportService;
+        this.appService = appService;
         this.thesaurus = thesaurus;
     }
 
-    public StandardCsvDataProcessor(List<DataExportProperty> properties, Thesaurus thesaurus) {
+    public StandardCsvDataProcessor(DataExportService dataExportService, AppService appService, List<DataExportProperty> properties, Thesaurus thesaurus, FileSystem fileSystem, Path tempDirectory) {
+        this.dataExportService = dataExportService;
+        this.appService = appService;
         this.thesaurus = thesaurus;
+        this.fileSystem = fileSystem;
+        this.tempDirectory = tempDirectory;
         Map<String, Object> propertyMap = getPropertiesMap(properties);
         if (propertyMap.containsKey(FormatterProperties.SEPARATOR.getKey())) {
             defineSeparator(propertyMap.get(FormatterProperties.SEPARATOR.getKey()).toString());
@@ -50,35 +64,36 @@ public class StandardCsvDataProcessor implements DataProcessor {
             this.fileSeparator = ",";
         }
 
-        this.filePrefix = propertyMap.containsKey(FormatterProperties.FILENAME_PREFIX.getKey()) ?
-                propertyMap.get(FormatterProperties.FILENAME_PREFIX.getKey()).toString() : "";
-        this.fileExtension = (propertyMap.containsKey(FormatterProperties.FILE_EXTENSION.getKey()) ?
-                propertyMap.get(FormatterProperties.FILE_EXTENSION.getKey()).toString() : "csv");
+        this.filePrefix = getStringProperty(propertyMap, FormatterProperties.FILENAME_PREFIX.getKey(), "");
+        this.fileExtension = getStringProperty(propertyMap, FormatterProperties.FILE_EXTENSION.getKey(), "csv");
+        this.path = getStringProperty(propertyMap, FormatterProperties.FILE_PATH.getKey(), "");
 
         if (propertyMap.containsKey(FormatterProperties.UPDATE_IN_SEPARATE_FILE.getKey())) {
             this.updatedDataSeparateFile = Boolean.valueOf(propertyMap.get(FormatterProperties.UPDATE_IN_SEPARATE_FILE.getKey()).toString());
         }
         if (this.updatedDataSeparateFile) {
-            this.updatedDataFilePrefix = propertyMap.containsKey(FormatterProperties.UPDATE_FILE_PREFIX.getKey()) ?
-                    propertyMap.get(FormatterProperties.UPDATE_FILE_PREFIX.getKey()).toString() : "";
-            this.updatedDataFileExtension = (propertyMap.containsKey(FormatterProperties.UPDATE_FILE_EXTENSION.getKey()) ?
-                    propertyMap.get(FormatterProperties.UPDATE_FILE_EXTENSION.getKey()).toString() : "csv");
+            this.updatedDataFilePrefix = getStringProperty(propertyMap, FormatterProperties.UPDATE_FILE_PREFIX.getKey(), "");
+            this.updatedDataFileExtension = (getStringProperty(propertyMap, FormatterProperties.UPDATE_FILE_EXTENSION.getKey(), "csv"));
         }
+    }
+
+    private String getStringProperty(Map<String, Object> propertyMap, String key, String defaultValue) {
+        return propertyMap.containsKey(key) ? propertyMap.get(key).toString() : defaultValue;
     }
 
     @Override
     public void startExport(DataExportOccurrence dataExportOccurrence, Logger logger) {
         fileNameTimestamp = dataExportOccurrence.getTriggerTime();
         try {
-            tempFile = File.createTempFile("tempfile", fileExtension);
-            writer = new BufferedWriter(new FileWriter(tempFile));
+            tempFile = Files.createTempFile(tempDirectory, "tempfile", null);
+            writer = Files.newBufferedWriter(tempFile);
         } catch (IOException ex) {
             throw new FatalDataExportException(new FileIOException(ex, thesaurus));
         }
         if (updatedDataSeparateFile) {
             try {
-                tempUpdatedFile = File.createTempFile("tempfileUpdate", updatedDataFileExtension);
-                updatedWriter = new BufferedWriter(new FileWriter(tempUpdatedFile));
+                tempUpdatedFile = Files.createTempFile(tempDirectory, "tempfileUpdate", updatedDataFileExtension);
+                updatedWriter = Files.newBufferedWriter(tempUpdatedFile);
             } catch (IOException ex) {
                 throw new FatalDataExportException(new FileIOException(ex, thesaurus));
             }
@@ -153,26 +168,31 @@ public class StandardCsvDataProcessor implements DataProcessor {
     @Override
     public void endExport() {
         if (writeMainFile) {
-            File file = createFile(filePrefix, fileExtension);
+            Path file = ensuringDirectoryExists(createFile(filePrefix, fileExtension));
             try {
                 writer.close();
-                Files.copy(tempFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(tempFile, file, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException ex) {
                 throw new FatalDataExportException(new FileIOException(ex, thesaurus));
             }
         }
         if (updatedDataSeparateFile) {
-            File updatedFile = createFile(updatedDataFilePrefix, updatedDataFileExtension);
+            Path updatedFile = ensuringDirectoryExists(createFile(updatedDataFilePrefix, updatedDataFileExtension));
             try {
                 updatedWriter.close();
-                Files.copy(tempUpdatedFile.toPath(), updatedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(tempUpdatedFile, updatedFile, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException ex) {
                 throw new FatalDataExportException(new FileIOException(ex, thesaurus));
             }
         }
     }
 
-    private File createFile(String prefix, String extension) {
+    private Path getDefaultExportDir() {
+        AppServer appServer = appService.getAppServer().orElseThrow(IllegalStateException::new);
+        return dataExportService.getExportDirectory(appServer).orElseGet(() -> fileSystem.getPath("").toAbsolutePath());
+    }
+
+    private Path createFile(String prefix, String extension) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         // TODO correct ZoneId
         ZonedDateTime date = ZonedDateTime.ofInstant(fileNameTimestamp, ZoneId.systemDefault());
@@ -181,7 +201,21 @@ public class StandardCsvDataProcessor implements DataProcessor {
             fileNameUpdated.append('_');
         }
         fileNameUpdated.append( date.format(formatter)).append('.').append(extension);
-        return new File(fileNameUpdated.toString());
+
+        Path path = fileSystem.getPath(this.path);
+        if (path.isAbsolute()) {
+            return path.resolve(fileNameUpdated.toString());
+        }
+        return getDefaultExportDir().resolve(path).resolve(fileNameUpdated.toString());
+    }
+
+    private Path ensuringDirectoryExists(Path path) {
+        try {
+            Files.createDirectories(path.getParent());
+        } catch (IOException e) {
+            throw new FatalDataExportException(new FileIOException(e, thesaurus));
+        }
+        return path;
     }
 
     private Map<String, Object> getPropertiesMap(List<DataExportProperty> properties) {

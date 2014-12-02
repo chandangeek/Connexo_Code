@@ -1,18 +1,21 @@
 package com.elster.jupiter.export.processor.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +31,8 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
     static final String NAME = "standardCsvDataProcessorFactory";
 
     private volatile PropertySpecService propertySpecService;
+    private volatile DataExportService dataExportService;
+    private volatile AppService appService;
     private volatile Thesaurus thesaurus;
 
     @Reference
@@ -40,6 +45,16 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
         this.thesaurus = nlsService.getThesaurus(NAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setDataExportService(DataExportService dataExportService) {
+        this.dataExportService = dataExportService;
+    }
+
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
+    }
+
     @Override
     public List<PropertySpec<?>> getProperties() {
         List<PropertySpec<?>> propertySpecs = new ArrayList<>();
@@ -49,12 +64,17 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
         propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.UPDATE_FILE_PREFIX.getKey(), false, null));
         propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.UPDATE_FILE_EXTENSION.getKey(), false, "csv"));*/
         propertySpecs.add(propertySpecService.stringPropertySpecWithValues(FormatterProperties.SEPARATOR.getKey(), true, "comma", "semicolon"));
+        propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.FILE_PATH.getKey(), false, null));
         return propertySpecs;
     }
 
     @Override
     public DataProcessor createDataFormatter(List<DataExportProperty> properties) {
-        return new StandardCsvDataProcessor(properties, thesaurus);
+        return new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, FileSystems.getDefault(), getTempDir());
+    }
+
+    private Path getTempDir() {
+        return FileSystems.getDefault().getPath(System.getProperty("java.io.tmpdir"));
     }
 
     @Override
@@ -66,14 +86,25 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
     public void validateProperties(List<DataExportProperty> properties) {
         for (DataExportProperty property : properties) {
             if (property.getName().equals(FormatterProperties.FILENAME_PREFIX.getKey())) {
-                checkInvalidChars((String) property.getValue(), FormatterProperties.FILENAME_PREFIX.getKey());
+                String string = (String) property.getValue();
+                checkInvalidChars(string, FormatterProperties.FILENAME_PREFIX.getKey());
+                checkIsRelativePath(string, FormatterProperties.FILENAME_PREFIX.getKey());
             } else if (property.getName().equals(FormatterProperties.FILE_EXTENSION.getKey())) {
                 checkInvalidChars((String) property.getValue(), FormatterProperties.FILE_EXTENSION.getKey());
+            } else if (property.getName().equals(FormatterProperties.FILE_PATH.getKey())) {
+                checkInvalidChars((String) property.getValue(), FormatterProperties.FILE_PATH.getKey());
 /*            } else if (property.getName().equals(FormatterProperties.UPDATE_FILE_PREFIX.getKey())) {
                 checkInvalidChars((String) property.getValue(), FormatterProperties.UPDATE_FILE_PREFIX.getKey());
             } else if (property.getName().equals(FormatterProperties.UPDATE_FILE_EXTENSION.getKey())) {
                 checkInvalidChars((String) property.getValue(), FormatterProperties.UPDATE_FILE_EXTENSION.getKey());*/
             }
+        }
+    }
+
+    private void checkIsRelativePath(String value, String fieldName) {
+        Path path = FileSystems.getDefault().getPath(value);
+        if (path.isAbsolute()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.ABSOLUTE_PATH_NOT_ALLOWED, "properties." + fieldName);
         }
     }
 

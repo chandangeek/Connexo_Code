@@ -9,9 +9,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
-    INVALIDCHARS_EXCEPTION(2, Keys.INVALIDCHARS_EXCEPTION, "*?\" <> and | are not allowed.", Level.SEVERE),
-    INVALID_READING_CONTAINER(3, Keys.INVALID_READING_CONTAINER, "Reading container is not a Meter", Level.WARNING),
-    FILE_IO(4, Keys.FILE_IO, "Failure while doing IO on file {0}", Level.SEVERE);
+    INVALIDCHARS_EXCEPTION(1001, Keys.INVALIDCHARS_EXCEPTION, "*?\" <> and | are not allowed.", Level.SEVERE),
+    INVALID_READING_CONTAINER(1002, Keys.INVALID_READING_CONTAINER, "Reading container is not a Meter", Level.WARNING),
+    FILE_IO(1003, Keys.FILE_IO, "Failure while doing IO on file {0}", Level.SEVERE),
+    ABSOLUTE_PATH_NOT_ALLOWED(1004, Keys.ABSOLUTE_PATH, "Absolute path is not allowed here", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -65,6 +66,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALIDCHARS_EXCEPTION = "InvalidChars";
         public static final String INVALID_READING_CONTAINER = "InvalidReadingContainer";
         public static final String FILE_IO = "file.io.failure";
+        public static final String ABSOLUTE_PATH = "path.absolute.disallowed";
     }
 }
 

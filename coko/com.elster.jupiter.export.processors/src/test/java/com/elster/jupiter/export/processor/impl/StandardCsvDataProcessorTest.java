@@ -1,127 +1,122 @@
 package com.elster.jupiter.export.processor.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.readings.*;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.IntervalBlock;
+import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StandardCsvDataProcessorTest {
+
+    public static final long EPOCH_MILLI = 1416783612449L;
+    @Rule
+    public TestRule timeZone = Using.timeZoneOfMcMurdo();
+
+    @Mock
+    private DataExportService dataExportService;
+
+    @Mock
+    private AppService appService;
 
     @Mock
     DataExportOccurrence dataExportOccurrence;
 
     @Mock
-    ReadingTypeDataExportItem item;
+    ReadingTypeDataExportItem item, item1;
 
     @Mock
-    ReadingTypeDataExportItem item1;
+    MeterReading data, dataLoadProfile;
 
     @Mock
-    MeterReading data;
-
-    @Mock
-    MeterReading dataLoadProfile;
-
-    @Mock
-    Meter meter;
-
-    @Mock
-    Meter meter1;
+    Meter meter, meter1;
 
     @Mock
     MeterActivation meterActivation;
 
     @Mock
-    ReadingType readingType;
-
-    @Mock
-    ReadingType readingType1;
+    ReadingType readingType, readingType1;
 
     @Mock
     Logger logger;
 
     @Mock
-    Reading reading;
-
-    @Mock
-    Reading reading1;
-
-    @Mock
-    Reading reading2;
+    Reading reading, reading1, reading2;
 
     @Mock
     IntervalBlock intervalBlock;
 
     @Mock
-    DataExportProperty propertyExtension;
+    DataExportProperty propertyExtension, propertyPrefix, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile, property, propertyPath;
 
     @Mock
-    DataExportProperty propertyPrefix;
+    ReadingQualityRecord readingQuality, readingQuality1;
 
     @Mock
-    DataExportProperty propertySeparator;
+    IntervalReading intervalReading, intervalReading1;
 
     @Mock
-    DataExportProperty propertyExtensionUpdated;
-
-    @Mock
-    DataExportProperty propertyPrefixUpdated;
-
-    @Mock
-    DataExportProperty propertyUpdateSeparateFile;
-
-    @Mock
-    DataExportProperty property;
-
-    @Mock
-    ReadingQualityRecord readingQuality;
-
-    @Mock
-    ReadingQualityRecord readingQuality1;
-
-    @Mock
-    IntervalReading intervalReading;
-
-    @Mock
-    IntervalReading intervalReading1;
-
-    @Mock
-    ReadingContainer readingContainer;
-
-    @Mock
-    ReadingContainer readingContainer1;
+    ReadingContainer readingContainer, readingContainer1;
 
     @Mock
     private Thesaurus thesaurus;
 
+    @Mock
+    private AppServer appServer;
+
+
+    private FileSystem fileSystem;
+
     StandardCsvDataProcessor processor;
+    private List<DataExportProperty> properties;
+    private Path tempDirectory;
 
     @Before
-    public void setUp() {
-        List<DataExportProperty> properties = Arrays.asList(propertyPrefix, propertyExtension, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile);
+    public void setUp() throws IOException {
+        fileSystem = Jimfs.newFileSystem(Configuration.windows());
+        Path root = fileSystem.getRootDirectories().iterator().next();
+        tempDirectory = Files.createTempDirectory(root, "tmp");
+
+        properties = Arrays.asList(propertyPrefix, propertyExtension, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile, propertyPath);
         when(propertyExtension.getName()).thenReturn("fileFormat.fileExtension");
         when(propertyExtension.getValue()).thenReturn("csv");
         when(propertyPrefix.getName()).thenReturn("fileFormat.filenamePrefix");
@@ -134,14 +129,15 @@ public class StandardCsvDataProcessorTest {
         when(propertyPrefixUpdated.getValue()).thenReturn("UpdateFile");
         when(propertyUpdateSeparateFile.getName()).thenReturn("fileFormat.updatedData.separateFile");
         when(propertyUpdateSeparateFile.getValue()).thenReturn("true");
-        processor = Mockito.spy(new StandardCsvDataProcessor(properties, thesaurus));
+        when(propertyPath.getName()).thenReturn("fileFormat.path");
+        when(propertyPath.getValue()).thenReturn("c:\\export");
 
-        when(dataExportOccurrence.getTriggerTime()).thenReturn(Instant.ofEpochMilli(1416783612449L));
+        when(dataExportOccurrence.getTriggerTime()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
 
         when(item.getReadingContainer()).thenReturn(readingContainer);
-        when(readingContainer.getMeter(Instant.ofEpochMilli(1416783612449L))).thenReturn(Optional.of(meter));
+        when(readingContainer.getMeter(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(Optional.of(meter));
         when(item1.getReadingContainer()).thenReturn(readingContainer1);
-        when(readingContainer1.getMeter(Instant.ofEpochMilli(1416783612449L))).thenReturn(Optional.of(meter1));
+        when(readingContainer1.getMeter(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(Optional.of(meter1));
         when(meter.getMRID()).thenReturn("DeviceMRID");
         when(meter1.getMRID()).thenReturn("AnotherDeviceMRID");
         when(item.getReadingType()).thenReturn(readingType);
@@ -150,13 +146,13 @@ public class StandardCsvDataProcessorTest {
         when(readingType1.getMRID()).thenReturn("0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1");
 
         when(data.getReadings()).thenReturn(Arrays.asList(reading, reading1, reading2));
-        when(reading.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783612449L));
+        when(reading.getTimeStamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
         when(reading.getValue()).thenReturn(BigDecimal.TEN);
 
-        when(reading1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783612449L));
+        when(reading1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
         when(reading1.getValue()).thenReturn(BigDecimal.ONE);
 
-        when(reading2.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783612449L));
+        when(reading2.getTimeStamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
         when(reading2.getValue()).thenReturn(BigDecimal.ZERO);
 
         when(dataLoadProfile.getReadings()).thenReturn(Arrays.asList());
@@ -164,9 +160,9 @@ public class StandardCsvDataProcessorTest {
 
         List<IntervalReading> intervals = Collections.unmodifiableList(Arrays.asList(intervalReading, intervalReading1));
         doReturn(intervals).when(intervalBlock).getIntervals();
-        when(intervalReading.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783612449L));
+        when(intervalReading.getTimeStamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
         when(intervalReading.getValue()).thenReturn(BigDecimal.ONE);
-        when(intervalReading1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1416783612449L));
+        when(intervalReading1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
         when(intervalReading1.getValue()).thenReturn(BigDecimal.TEN);
 
         List<? extends ReadingQuality> list = Collections.unmodifiableList(Arrays.asList(readingQuality, readingQuality1));
@@ -178,11 +174,51 @@ public class StandardCsvDataProcessorTest {
 
         doReturn(list).when(intervalReading).getReadingQualities();
         doReturn(Arrays.asList()).when(intervalReading1).getReadingQualities();
+
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(dataExportService.getExportDirectory(appServer)).thenReturn(Optional.of(fileSystem.getPath("c:\\appserver\\export")));
     }
 
+    @Test
+    public  void testExportToCsvWithAbsolutePath() {
+        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory);
+
+        runExport();
+
+        Path file = fileSystem.getPath("c:\\export", "MainFile_2014-11-24_12-00-12.csv");
+        assertThat(Files.exists(file)).isTrue();
+        Path updatedFile = fileSystem.getPath("c:\\export", "UpdateFile_2014-11-24_12-00-12.csv");
+        assertThat(Files.exists(updatedFile)).isTrue();
+
+    }
 
     @Test
-    public  void testExportToCsv() {
+    public  void testExportToCsvWithRelativePath() {
+        when(propertyPath.getValue()).thenReturn("dailies");
+        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory);
+
+        runExport();
+
+        Path file = fileSystem.getPath("c:\\appserver\\export", "dailies", "MainFile_2014-11-24_12-00-12.csv");
+        assertThat(Files.exists(file)).isTrue();
+        Path updatedFile = fileSystem.getPath("c:\\appserver\\export", "dailies", "UpdateFile_2014-11-24_12-00-12.csv");
+        assertThat(Files.exists(updatedFile)).isTrue();
+    }
+
+    @Test
+    public  void testExportToCsvWithoutPath() {
+        properties = Arrays.asList(propertyPrefix, propertyExtension, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile);
+        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory);
+
+        runExport();
+
+        Path file = fileSystem.getPath("c:\\appserver\\export", "MainFile_2014-11-24_12-00-12.csv");
+        assertThat(Files.exists(file)).isTrue();
+        Path updatedFile = fileSystem.getPath("c:\\appserver\\export", "UpdateFile_2014-11-24_12-00-12.csv");
+        assertThat(Files.exists(updatedFile)).isTrue();
+    }
+
+    private void runExport() {
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
         processor.processData(data);
@@ -191,20 +227,12 @@ public class StandardCsvDataProcessorTest {
         processor.processData(dataLoadProfile);
         processor.endItem(item1);
         processor.endExport();
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-        // TODO correct ZoneId
-        ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(1416783612449L), ZoneId.systemDefault());
-        StringBuilder fileName = new StringBuilder("MainFile").append('_').append(date.format(formatter)).append('.').append("csv");
-        File file = new File(fileName.toString());
-        assertThat(file.exists()).isTrue();
-        StringBuilder fileNameUpdated = new StringBuilder("UpdateFile").append('_').append(formatter.format(date)).append('.').append("csv");
-        File updatedFile = new File(fileNameUpdated.toString());
-        assertThat(updatedFile.exists()).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIllegalArgumentException() {
+        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory);
+
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
         processor.processData(data);
@@ -212,8 +240,10 @@ public class StandardCsvDataProcessorTest {
     }
 
     @Test(expected = DataExportException.class)
-    public void test() {
-        when(readingContainer.getMeter(Instant.ofEpochMilli(1416783612449L))).thenReturn(Optional.empty());
+    public void testNoMeter() {
+        when(readingContainer.getMeter(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(Optional.empty());
+        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory);
+
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
         processor.processData(data);

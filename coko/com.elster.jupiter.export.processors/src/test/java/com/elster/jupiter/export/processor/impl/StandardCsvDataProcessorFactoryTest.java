@@ -1,7 +1,5 @@
-package com.elster.jupiter.export.processor;
+package com.elster.jupiter.export.processor.impl;
 
-import com.elster.jupiter.export.processor.impl.StandardCsvDataProcessorFactory;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
@@ -20,7 +18,7 @@ public class StandardCsvDataProcessorFactoryTest {
         factory.setPropertySpecService(new PropertySpecServiceImpl());
 
         List<PropertySpec<?>> properties = factory.getProperties();
-        assertThat(properties).hasSize(3);
+        assertThat(properties).hasSize(4);
 
         // Order IS important
         PropertySpec<?> property = properties.get(0);
@@ -55,5 +53,11 @@ public class StandardCsvDataProcessorFactoryTest {
         List<String> allValues = (List<String>) property.getPossibleValues().getAllValues();
         assertThat(allValues).hasSize(2);
         assertThat(allValues).containsExactly("comma", "semicolon");
+        property = properties.stream()
+                .filter(a -> a.getName().equals("fileFormat.path"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("PropertySpecs did not contain a property named fileFormat.path"));
+        assertThat(property.isRequired()).isFalse();
+        assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
     }
 }
