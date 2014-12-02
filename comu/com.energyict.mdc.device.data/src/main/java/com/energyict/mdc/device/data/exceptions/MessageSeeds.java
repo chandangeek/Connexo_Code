@@ -50,7 +50,7 @@ public enum MessageSeeds implements MessageSeed {
     OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW(2017, Keys.OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY, "The offset of the next execution scheduling specifications within a week or month, once calculated back to a daily offset is not within the communication window", Level.SEVERE),
     DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(2018, Keys.PHYSICAL_GATEWAY_STILL_IN_USE, "You can not remove device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
     DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(2019, Keys.COMMUNICATION_GATEWAY_STILL_IN_USE, "You can not remove device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
-    DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST(2020, Keys.INFOTYPE_DOESNT_EXIST, "The intotype for property value '{0}' does not exist.", Level.SEVERE),
+    DEVICE_PROPERTY_INFO_TYPE_DOESNT_EXIST(2020, Keys.INFOTYPE_DOESNT_EXIST, "The infotype for property value '{0}' does not exist.", Level.SEVERE),
     DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL(2021, Keys.PROPERTY_NOT_ON_DEVICE_PROTOCOL, "The property '{0}' is not defined by the device protocol '{1}' of device '{2}'", Level.SEVERE),
     PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED(2022, Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY, "The protocol dialect configuration properties are required to add device protocol dialect properties", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC(2023, Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY, "The protocol dialect ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
