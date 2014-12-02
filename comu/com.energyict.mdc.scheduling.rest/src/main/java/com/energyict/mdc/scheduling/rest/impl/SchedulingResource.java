@@ -1,14 +1,10 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-
-import java.time.Clock;
-import java.time.Instant;
-
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.rest.BooleanAdapter;
 import com.energyict.mdc.common.rest.IdListBuilder;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -17,13 +13,11 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.security.Privileges;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -39,7 +33,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -48,6 +42,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -71,25 +66,25 @@ public class SchedulingResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE,Privileges.VIEW_SCHEDULE})
+    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE, Privileges.VIEW_SCHEDULE})
     public PagedInfoList getSchedules(@BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
-        String mrid = queryFilter.getFilterProperties().get("mrid") != null ? queryFilter.<String>getProperty("mrid") : null;
-        boolean available = queryFilter.getFilterProperties().get("available") != null ? queryFilter.<Boolean>getProperty("available") : false;
+        String mrid = queryFilter.hasProperty("mrid") ? queryFilter.getString("mrid") : null;
+        boolean available = queryFilter.hasProperty("available") ? queryFilter.getBoolean("available") : false;
         List<ComSchedule> comSchedules = new ArrayList<>();
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(clock.getZone()));
         if (mrid != null && available) {
             Device device = deviceService.findByUniqueMrid(mrid);
             List<ComSchedule> possibleComSchedules = schedulingService.findAllSchedules(calendar).from(queryParameters).find();
-            if(possibleComSchedules.size()==0){
+            if (possibleComSchedules.size() == 0) {
 //                throw new WebApplicationException(MessageSeeds.NO_SHARED_SCHEDULES_DEFINED, Response.Status.NOT_FOUND);
             }
             List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
             List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
-            if(comTaskEnablements.size()==0){
+            if (comTaskEnablements.size() == 0) {
 //                throw new WebApplicationException(MessageSeeds.NO_COMTASKS_DEFINED_ON_CONFIGURATION, Response.Status.NOT_FOUND);
             }
-            for(ComSchedule comSchedule:possibleComSchedules){
-                if(isValidComSchedule(comSchedule, comTaskExecutions, comTaskEnablements)){
+            for (ComSchedule comSchedule : possibleComSchedules) {
+                if (isValidComSchedule(comSchedule, comTaskExecutions, comTaskEnablements)) {
                     comSchedules.add(comSchedule);
                 }
             }
@@ -204,7 +199,7 @@ public class SchedulingResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE,Privileges.VIEW_SCHEDULE})
+    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE, Privileges.VIEW_SCHEDULE})
     public ComScheduleInfo getSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         return ComScheduleInfo.from(comSchedule, isInUse(comSchedule));
@@ -291,10 +286,10 @@ public class SchedulingResource {
     @GET
     @Path("/{id}/comTasks")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE,Privileges.VIEW_SCHEDULE})
+    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE, Privileges.VIEW_SCHEDULE})
     public Response getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
-        if (queryFilter.getFilterProperties().containsKey("available") && queryFilter.getProperty("available", new BooleanAdapter())) {
+        if (queryFilter.hasProperty("available") && queryFilter.getBoolean("available")) {
             return Response.ok().entity(ComTaskInfo.from(getAvailableComTasksExcludingAlreadyAssigned(comSchedule))).build();
         } else {
             return Response.ok().entity(ComTaskInfo.from(comSchedule.getComTasks())).build();
