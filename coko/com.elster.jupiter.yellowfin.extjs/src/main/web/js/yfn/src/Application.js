@@ -1,0 +1,25 @@
+Ext.define('Yfn.Application', {
+    name: 'Yfn',
+
+    extend: 'Ext.app.Application',
+
+    requires: [
+        'Yfn.controller.Main'
+    ],
+
+    views: [
+    ],
+
+    controllers: [
+        'Yfn.controller.Main'
+    ],
+
+    stores: [
+        // Stores are required through their controllers.
+    ],
+
+    launch: function () {
+        // Removes the loading indicator.
+        Ext.fly('appLoadingWrapper').destroy();
+    }
+});
