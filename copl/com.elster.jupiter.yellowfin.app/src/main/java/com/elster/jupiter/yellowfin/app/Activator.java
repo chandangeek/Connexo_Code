@@ -12,7 +12,7 @@ import org.osgi.framework.ServiceRegistration;
 public class Activator implements BundleActivator {
 
     public static final String APP_KEY = "YFN";
-    public static final String APP_NAME = "Connexo Facts";
+    public static final String APP_NAME = "Facts";
     public static final String APP_ICON = "connexo";
 
     public static final String HTTP_RESOURCE_ALIAS = "/reports";
