@@ -16,11 +16,15 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.TimeZone;
 
-@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class}, property = {"name=" + "APS" + ".console", "osgi.command.scope=appserver", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport", "osgi.command.function=appServers", "osgi.command.function=identify", "osgi.command.function=stopAppServer", "osgi.command.function=become"}, immediate = true)
+@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class}, property = {"name=" + "APS" + ".console", "osgi.command.scope=appserver", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport", "osgi.command.function=appServers", "osgi.command.function=identify", "osgi.command.function=stopAppServer", "osgi.command.function=become", "osgi.command.function=setLocale", "osgi.command.function=setTimeZone", "osgi.command.function=getLocale", "osgi.command.function=getLocales", "osgi.command.function=getTimeZone", "osgi.command.function=getTimeZones"}, immediate = true)
 public class AppServiceConsoleService {
 
     private volatile IAppService appService;
@@ -134,6 +138,51 @@ public class AppServiceConsoleService {
     public void become(String appServerName) {
         appService.stopAppServer();
         appService.startAsAppServer(appServerName);
+    }
+
+    public void setLocale(String language) {
+        Locale.setDefault(new Locale(language));
+        System.out.println(Locale.getDefault());
+    }
+
+    public void setLocale(String language, String country) {
+        Locale.setDefault(new Locale(language, country));
+        System.out.println(Locale.getDefault());
+    }
+
+    public void setLocale(String language, String country, String variant) {
+        Locale.setDefault(new Locale(language, country, variant));
+        System.out.println(Locale.getDefault());
+    }
+
+    public void setTimeZone(String zone) {
+        ZoneId zoneId = ZoneId.of(zone);
+        TimeZone.setDefault(TimeZone.getTimeZone(zoneId));
+        System.out.println("Time zone is set to " + ZoneId.systemDefault());
+        System.out.println("Current time is " + ZonedDateTime.now());
+    }
+
+    public void getLocale() {
+        System.out.println(Locale.getDefault());
+    }
+
+    public void getLocales() {
+        Arrays.stream(Locale.getAvailableLocales())
+                .map(Locale::toString)
+                .sorted()
+                .forEach(System.out::println);
+    }
+
+    public void getTimeZone() {
+        System.out.println("Time zone is set to " + ZoneId.systemDefault());
+        System.out.println("Current time is " + ZonedDateTime.now());
+    }
+
+    public void getTimeZones() {
+        ZoneId.getAvailableZoneIds().stream()
+                .map(Object::toString)
+                .sorted()
+                .forEach(System.out::println);
     }
 
     @Reference
