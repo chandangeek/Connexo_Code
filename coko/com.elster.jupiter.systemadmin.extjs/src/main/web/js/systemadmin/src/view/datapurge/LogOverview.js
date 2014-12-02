@@ -16,7 +16,7 @@ Ext.define('Sam.view.datapurge.LogOverview', {
 
         me.content = [
             {
-                title: Uni.I18n.translate('datapurge.log.title', 'SAM', 'Log'),
+                title: Uni.I18n.translate('datapurge.log.breadcrumb', 'SAM', 'Data purge log'),
                 ui: 'large',
                 items: [
                     {

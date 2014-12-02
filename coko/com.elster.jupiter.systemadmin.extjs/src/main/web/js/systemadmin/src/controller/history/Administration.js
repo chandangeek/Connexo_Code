@@ -45,7 +45,7 @@ Ext.define('Sam.controller.history.Administration', {
                     action: 'showOverview',
                     items: {
                         log: {
-                            title: Uni.I18n.translate('datapurge.log.title', 'SAM', 'Data purge log'),
+                            title: Uni.I18n.translate('datapurge.log.breadcrumb', 'SAM', 'Data purge log'),
                             route: '{historyId}/log',
                             controller: 'Sam.controller.datapurge.Log',
                             action: 'showOverview'
