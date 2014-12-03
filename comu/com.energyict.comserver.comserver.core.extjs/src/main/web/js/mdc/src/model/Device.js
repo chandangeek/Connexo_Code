@@ -1,10 +1,8 @@
 Ext.define('Mdc.model.Device', {
     extend: 'Ext.data.Model',
-    requires: [
-
-    ],
+    requires: ['Mdc.model.DeviceLabel'],
     fields: [
-        {name: 'id',type:'number',useNull:true},
+        {name: 'id', type: 'number', useNull: true},
         {name: 'mRID', type: 'string', useNull: true},
         {name: 'serialNumber', type: 'string', useNull: true},
         {name: 'deviceTypeId', type: 'number', useNull: true},
@@ -20,16 +18,29 @@ Ext.define('Mdc.model.Device', {
         {name: 'creationTime', dateFormat: 'time', type: 'date', useNull: true},
         {name: 'hasLoadProfiles', type: 'boolean'},
         {name: 'hasLogBooks', type: 'boolean'},
-        {name: 'hasRegisters',  type: 'boolean'}
+        {name: 'hasRegisters', type: 'boolean'}
     ],
 
     associations: [
-            {name: 'slaveDevices', type: 'hasMany', model: 'Mdc.model.Device', associationKey: 'slaveDevices', foreignKey: 'slaveDevices',
-                getTypeDiscriminator: function (node) {
-                    return 'Mdc.model.Device';
-                }
+        {
+            name: 'slaveDevices',
+            type: 'hasMany',
+            model: 'Mdc.model.Device',
+            associationKey: 'slaveDevices',
+            foreignKey: 'slaveDevices',
+            getTypeDiscriminator: function (node) {
+                return 'Mdc.model.Device';
             }
-        ],
+        },
+        {
+            name: 'labels',
+            type: 'hasMany',
+            model: 'Mdc.model.DeviceLabel',
+            associationKey: 'labels',
+            remoteFilter: true
+        }
+    ],
+
 
     proxy: {
         type: 'rest',
