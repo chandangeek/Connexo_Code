@@ -192,7 +192,7 @@ public class DataModelTest {
 		PartyServiceImpl partyService = (PartyServiceImpl) getPartyService();
 		DataModel dataModel = partyService.getDataModel();
 		dataModel.query(PartyInRole.class, Party.class);
-		Optional<PartyInRole> optional = dataModel.stream(PartyInRole.class).join(PartyImpl.class).sorted(Order.ascending("name")).findFirst();
+		Optional<PartyInRole> optional = dataModel.stream(PartyInRole.class).join(PartyImpl.class).sorted(Order.ascending("name").nullsFirst()).findFirst();
 		assertThat(optional).isNotNull();
     }
 }
