@@ -14,6 +14,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -133,6 +134,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
     }
 
     @Test
+    @Ignore
     public void checkRestMethods() throws IOException {
         ClassPath classPath = ClassPath.from(this.getClass().getClassLoader());
         String packageName = this.getClass().getPackage().getName();
