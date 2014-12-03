@@ -38,7 +38,7 @@ enum TableSpecs {
             table.map(TaskOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column recurrentIdColumn = table.column("RECURRENTTASKID").type("number").notNull().conversion(NUMBER2LONG).map("recurrentTaskId").add();
-            table.column("TRIGGERTIME").type("number").conversion(NUMBER2INSTANT).map("triggerTime").add();
+            Column trigger = table.column("TRIGGERTIME").type("number").conversion(NUMBER2INSTANT).map("triggerTime").add();
             table.column("SCHEDULED").bool().map("scheduled").add();
             table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
             table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
@@ -46,6 +46,7 @@ enum TableSpecs {
 
             table.foreignKey("TSK_FKOCCURRENCE_TASK").references(TSK_RECURRENT_TASK.name()).onDelete(DeleteRule.CASCADE).map("recurrentTask").on(recurrentIdColumn).add();
             table.primaryKey("TSK_PK_TASK_OCCURRENCE").on(idColumn).add();
+            table.partitionOn(trigger);
         }
     },
     TSK_TASK_LOG {
@@ -61,7 +62,7 @@ enum TableSpecs {
             table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
             table.primaryKey("TSK_PK_LOG_ENTRY").on(taskOccurrenceColumn, position).add();
             table.foreignKey("TSK_FKTASKLOG_OCCURRENCE").references(TSK_TASK_OCCURRENCE.name()).on(taskOccurrenceColumn).onDelete(DeleteRule.CASCADE)
-                    .map("taskOccurrence").reverseMap("logEntries").reverseMapOrder("position").composition().add();
+                    .map("taskOccurrence").reverseMap("logEntries").reverseMapOrder("position").composition().refPartition().add();
         }
     };
 
