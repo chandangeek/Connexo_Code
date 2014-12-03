@@ -6,10 +6,9 @@ Ext.define('Mdc.view.setup.devicelogbooks.Overview', {
         'Mdc.view.setup.devicelogbooks.SubMenuPanel',
         'Mdc.view.setup.devicelogbooks.PreviewForm'
     ],
-
-    mRID: null,
+    toggleId: null,
     router: null,
-
+    device: null,
     content: {
         xtype: 'deviceLogbooksPreviewForm',
         ui: 'large',
@@ -20,8 +19,17 @@ Ext.define('Mdc.view.setup.devicelogbooks.Overview', {
         var me = this;
 
         me.side = {
-            xtype: 'deviceLogbookSubMenuPanel',
-            router: me.router
+            xtype: 'panel',
+            title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
+            ui: 'medium',
+            items: [
+                {
+                    xtype: 'deviceMenu',
+                    itemId: 'stepsMenu',
+                    device: me.device,
+                    toggleId: me.toggleId
+                }
+            ]
         };
 
         me.callParent(arguments);
