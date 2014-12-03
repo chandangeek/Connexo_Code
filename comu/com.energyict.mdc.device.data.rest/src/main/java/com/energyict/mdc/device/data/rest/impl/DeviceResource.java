@@ -172,6 +172,7 @@ public class DeviceResource {
     @DELETE
     @Path("/{mRID}")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response deleteDevice(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         device.delete();
