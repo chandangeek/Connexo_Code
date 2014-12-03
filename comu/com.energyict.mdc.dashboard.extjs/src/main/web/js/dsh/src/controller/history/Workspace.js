@@ -60,7 +60,15 @@ Ext.define('Dsh.controller.history.Workspace', {
             route: 'dashboard',
             controller: 'Dsh.controller.OperatorDashboard',
             action: 'showOverview',
-            filter: 'Dsh.model.OverviewFilter'
+            filter: 'Dsh.model.OverviewFilter',
+            items: {
+                selectfavoritedevicegroups: {
+                    title: Uni.I18n.translate('title.selectFavoriteDeviceGroups', 'DSH', 'Select favorite device groups'),
+                    route: 'selectfavoritedevicegroups',
+                    controller: 'Dsh.controller.OperatorDashboard',
+                    action: 'showMyFavorieDeviceGroups'
+                }
+            }
         }
     }
 });

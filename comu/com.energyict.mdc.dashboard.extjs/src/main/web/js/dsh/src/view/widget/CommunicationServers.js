@@ -8,7 +8,6 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
 
     tbar: {
         xtype: 'container',
-//        html: '<h3> </h3>',
         itemId: 'connection-summary-title-panel'
     },
 
