@@ -222,7 +222,7 @@ public class LoadProfileResource {
     @Path("{lpid}/validationstatus")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION)
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,Privileges.FINE_TUNE_VALIDATION_CONFIGURATION})
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
         ValidationStatusInfo deviceValidationStatusInfo = determineStatus(loadProfile);
