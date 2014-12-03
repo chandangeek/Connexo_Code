@@ -21,18 +21,18 @@ import javax.ws.rs.core.Response;
 /**
  * Created by bvn on 12/2/14.
  */
-public class DeviceProtocolPropertiesResource {
+public class ProtocolPropertiesResource {
 
     private final MdcPropertyUtils mdcPropertyUtils;
 
     private DeviceConfiguration deviceConfiguration;
 
     @Inject
-    public DeviceProtocolPropertiesResource(MdcPropertyUtils mdcPropertyUtils) {
+    public ProtocolPropertiesResource(MdcPropertyUtils mdcPropertyUtils) {
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-    DeviceProtocolPropertiesResource with(DeviceConfiguration deviceConfiguration) {
+    ProtocolPropertiesResource with(DeviceConfiguration deviceConfiguration) {
         this.deviceConfiguration = deviceConfiguration;
         return this;
     }

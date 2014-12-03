@@ -54,7 +54,7 @@ public class DeviceConfigurationResource {
     private final Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider;
     private final Provider<ValidationRuleSetResource> validationRuleSetResourceProvider;
     private final Provider<DeviceMessagesResource> deviceMessagesResourceProvider;
-    private final Provider<DeviceProtocolPropertiesResource> deviceProtocolPropertiesResourceProvider;
+    private final Provider<ProtocolPropertiesResource> deviceProtocolPropertiesResourceProvider;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -68,7 +68,7 @@ public class DeviceConfigurationResource {
                                        Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
                                        Provider<ComTaskEnablementResource> comTaskEnablementResourceProvider,
                                        Provider<ValidationRuleSetResource> validationRuleSetResourceProvider,
-                                       Provider<DeviceMessagesResource> deviceMessagesResourceProvider, Thesaurus thesaurus, Provider<DeviceProtocolPropertiesResource> deviceProtocolPropertiesResourceProvider) {
+                                       Provider<DeviceMessagesResource> deviceMessagesResourceProvider, Thesaurus thesaurus, Provider<ProtocolPropertiesResource> deviceProtocolPropertiesResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.validationService = validationService;
@@ -369,7 +369,7 @@ public class DeviceConfigurationResource {
 
     @Path("/{deviceConfigurationId}/deviceprotocolproperties")
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceProtocolPropertiesResource getDeviceProtocolPropertiesResource(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
+    public ProtocolPropertiesResource getDeviceProtocolPropertiesResource(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         return deviceProtocolPropertiesResourceProvider.get().with(deviceConfiguration);

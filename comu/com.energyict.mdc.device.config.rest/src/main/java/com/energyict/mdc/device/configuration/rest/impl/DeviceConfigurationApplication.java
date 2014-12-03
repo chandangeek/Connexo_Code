@@ -96,7 +96,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
                 ValidationRuleSetResource.class,
                 DeviceMessagesResource.class,
                 DeviceMessagePrivilegesResource.class,
-                DeviceProtocolPropertiesResource.class
+                ProtocolPropertiesResource.class
         );
     }
 

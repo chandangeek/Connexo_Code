@@ -24,7 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DeviceProtocolPropertiesResourceTest extends BaseLoadProfileTest {
+public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
 
     @Test
     public void testGetDeviceProtocolProperties() {
