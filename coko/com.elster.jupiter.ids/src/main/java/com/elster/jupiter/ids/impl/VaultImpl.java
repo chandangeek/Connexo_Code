@@ -182,6 +182,24 @@ public class VaultImpl implements Vault {
         }
     }
 
+    public Instant extendTo(Instant to, Logger logger) {
+    	if (!isActive()) {
+            throw new IllegalStateException("Vault " + getTableName() + " is not active"); 
+        }
+    	if (!to.isAfter(getMaxDate())) {
+    		return getMaxDate();
+    	}
+    	this.maxTime = to;
+        if (isPartitioned()) {
+        	this.maxTime = dataModel.partitionCreator(getTableName(), logger).create(to);
+        	if (hasJournal()) {
+        		dataModel.partitionCreator(getJournalTableName(), logger).create(to);
+        	}            
+        }
+        dataModel.update(this, "maxTime");
+        return maxTime;    	
+    }
+    
     private String createTableDdl(Instant to, boolean journal) {
         StringBuilder builder = new StringBuilder("create table ");
         builder.append(getTableName(journal));

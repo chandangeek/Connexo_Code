@@ -21,7 +21,9 @@ public interface Vault {
 	boolean isPartitioned();
 	boolean isActive();
 	void activate(Instant to);
+	@Deprecated
 	void addPartition(Instant to);
+	Instant extendTo(Instant to, Logger logger);
 	default TimeSeries createRegularTimeSeries(RecordSpec spec , TimeZone timeZone , TemporalAmount interval , int hourOffset) {
 		return createRegularTimeSeries(spec, timeZone.toZoneId(), interval, hourOffset);
 	}

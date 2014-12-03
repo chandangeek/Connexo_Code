@@ -6,7 +6,9 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 
-import java.util.Calendar;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.logging.Logger;
 
 public class InstallerImpl {
 	
@@ -35,16 +37,9 @@ public class InstallerImpl {
 	private void createVaults() {
 		Vault newVault = idsService.newVault("IDS",1,"Regular TimeSeries Default ", DEFAULT_SLOT_COUNT, 0,true);
 		newVault.persist();
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MONTH,1);
-		cal.set(Calendar.DAY_OF_MONTH,1);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE,0);
-		cal.set(Calendar.SECOND,0);
-		cal.set(Calendar.MILLISECOND, 0);
-		newVault.activate(cal.getTime().toInstant());
-		cal.add(Calendar.MONTH,1);
-		newVault.addPartition(cal.getTime().toInstant());		
+		Instant start = Instant.now().truncatedTo(ChronoUnit.DAYS);
+		newVault.activate(start);		
+		newVault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));		
 	}
 	
 	private void createRecordSpecs() {

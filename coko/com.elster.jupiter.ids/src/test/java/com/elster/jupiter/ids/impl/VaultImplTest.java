@@ -1,6 +1,5 @@
 package com.elster.jupiter.ids.impl;
 
-import org.junit.Before;
 import org.mockito.Mock;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
