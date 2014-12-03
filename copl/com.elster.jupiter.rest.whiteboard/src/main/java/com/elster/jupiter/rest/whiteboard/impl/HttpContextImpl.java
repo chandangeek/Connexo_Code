@@ -32,7 +32,7 @@ public class HttpContextImpl implements HttpContext {
 
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        whiteboard.checkLicense();
+        //whiteboard.checkLicense();
 
         boolean authorize = authorization.handleSecurity(request,response);
         if(!authorize && request.getHeader("referer") != null){

@@ -141,8 +141,8 @@ public class WhiteBoard {
     		return;
     	}
         List<String> applications = licenseService.getLicensedApplicationKeys();
-        if( !properties.containsKey("app") || properties.get("app").equals("SYS") ||
-                applications.stream().filter(webapp -> webapp.equals(properties.get("app"))).findFirst().isPresent()){
+        //if( !properties.containsKey("app") || properties.get("app").equals("SYS") ||
+        //        applications.stream().filter(webapp -> webapp.equals(properties.get("app"))).findFirst().isPresent()){
             ResourceConfig secureConfig = ResourceConfig.forApplication(Objects.requireNonNull(application));
             secureConfig.register(ObjectMapperProvider.class);
             secureConfig.register(JacksonFeature.class);
@@ -162,7 +162,7 @@ public class WhiteBoard {
                 LOGGER.log(Level.SEVERE, "Error while registering " + alias.get() + ": " + e.getMessage() , e);
                 throw new RuntimeException(e);
             }
-        }
+        //}
     }
 
 
@@ -177,7 +177,7 @@ public class WhiteBoard {
     	return Optional.ofNullable(properties.get("alias")).map(alias ->  "/api" + alias);
     }
 
-    void checkLicense(){
+    /*void checkLicense(){
         Optional<License> license;
         List<String> applications = licenseService.getLicensedApplicationKeys();
 
@@ -205,7 +205,7 @@ public class WhiteBoard {
         } catch (InvalidSyntaxException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     @Activate
     public void activate(BundleContext context){
