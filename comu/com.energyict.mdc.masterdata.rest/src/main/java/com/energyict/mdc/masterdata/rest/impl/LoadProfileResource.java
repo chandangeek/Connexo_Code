@@ -6,7 +6,7 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -55,7 +55,7 @@ public class LoadProfileResource {
     @GET
     @Path("/intervals")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public Response getIntervals(@BeanParam QueryParameters queryParameters) {
         List<LocalizedTimeDuration.TimeDurationInfo> infos = new ArrayList<>(LocalizedTimeDuration.intervals.size());
         for (Map.Entry<Integer, LocalizedTimeDuration> timeDurationEntry : LocalizedTimeDuration.intervals.entrySet()) {
@@ -69,7 +69,7 @@ public class LoadProfileResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public Response getAllProfileTypes(@BeanParam QueryParameters queryParameters) {
         List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
 
@@ -80,7 +80,7 @@ public class LoadProfileResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public Response getLoadProfileType(@PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = findLoadProfileTypeByIdOrThrowException(loadProfileId);
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isLoadProfileTypeAlreadyInUse(loadProfileType))).build();
@@ -89,7 +89,7 @@ public class LoadProfileResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response addNewLoadProfileType(LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
         LoadProfileType loadProfileType = masterDataService.newLoadProfileType(request.name, request.obisCode, request.timeDuration);
         boolean all = getBoolean(uriInfo, "all");
@@ -106,7 +106,7 @@ public class LoadProfileResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
         LoadProfileType loadProfileType = findLoadProfileTypeByIdOrThrowException(loadProfileId);
         loadProfileType.setName(request.name);
@@ -129,7 +129,7 @@ public class LoadProfileResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response deleteProfileType(@PathParam("id") long loadProfileId) {
         findLoadProfileTypeByIdOrThrowException(loadProfileId).delete();
         return Response.ok().build();
