@@ -3,18 +3,30 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.engine.model.*;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.security.Privileges;
-import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 public class ComPortPoolComPortResource {
 
@@ -60,6 +72,7 @@ public class ComPortPoolComPortResource {
     @DELETE
     @Path("/{id}")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response removeComPort(@PathParam("comPortPoolId") long comPortPoolId, @PathParam("id") long id) {
         ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
         removeComPortFromComPortPool(comPortPool, id);

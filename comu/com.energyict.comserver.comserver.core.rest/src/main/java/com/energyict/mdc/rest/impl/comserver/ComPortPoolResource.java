@@ -5,13 +5,18 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.engine.model.*;
+import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.engine.model.ComPortPool;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.InboundComPort;
+import com.energyict.mdc.engine.model.InboundComPortPool;
+import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -36,6 +41,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Path("/comportpools")
@@ -128,6 +134,7 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response deleteComPortPool(@PathParam("id") long id) {
         Optional<ComPortPool> comPortPool = Optional.ofNullable(engineModelService.findComPortPool(id));
         if (!comPortPool.isPresent()) {
