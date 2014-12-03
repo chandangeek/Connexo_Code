@@ -9,8 +9,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.ActionMenu', {
     items: [
         {
             itemId: 'viewData',
-            text: Uni.I18n.translate('devicelogbooks.actionmenu.viewEvents', 'MDC', 'View events'),
-            action: 'viewEvents'
+            text: Uni.I18n.translate('devicelogbooks.actionmenu.viewData', 'MDC', 'View data'),
+            action: 'viewData'
         },
         {
             itemId: 'viewDetails',

@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceevents.DataSortingToolbar', {
+Ext.define('Mdc.view.setup.devicelogbooks.DataSortingToolbar', {
     extend: 'Uni.view.panel.FilterToolbar',
     requires: [
         'Uni.view.button.SortItemButton'
@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataSortingToolbar', {
             itemId: 'sortingBy',
             xtype: 'button',
             ui: 'tag',
-            text: Uni.I18n.translate('deviceevents.eventDate', 'MDC', 'Event date'),
+            text: Uni.I18n.translate('devicelogbooks.eventDate', 'MDC', 'Event date'),
             sortName: 'eventDate',
             sortDirection: 'DESC',
             iconCls: 'x-btn-sort-item-desc'

@@ -21,30 +21,28 @@ Ext.define('Mdc.controller.setup.DeviceLogbookOverview', {
     showOverview: function (mRID, logbookId) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
-            logbookModel = me.getModel('Mdc.model.LogbookOfDevice');
+            logbookModel = me.getModel('Mdc.model.LogbookOfDevice'),
+            widget = Ext.widget('deviceLogbookOverview', {
+                router: me.getController('Uni.controller.history.Router')
+            });
 
+        me.getApplication().fireEvent('changecontentevent', widget);
+
+        widget.setLoading(true);
         deviceModel.load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
-                var widget = Ext.widget('deviceLogbookOverview', {
-                    router: me.getController('Uni.controller.history.Router'),
-                    device: record,
-                    toggleId: 'events'
-                });
-                widget.setLoading(true);
-                me.getApplication().fireEvent('changecontentevent', widget);
-                logbookModel.getProxy().setUrl(mRID);
-                logbookModel.load(logbookId, {
-                    success: function (record) {
-                        me.getApplication().fireEvent('logbookOfDeviceLoad', record);
-                        widget.down('#deviceLogbooksPreviewForm').loadRecord(record);
-                        widget.down('#deviceLogbookSubMenuPanel').setParams(mRID, record);
-                        widget.setLoading(false);
-                    }
-                });
             }
         });
 
-
+        logbookModel.getProxy().setUrl(mRID);
+        logbookModel.load(logbookId, {
+            success: function (record) {
+                me.getApplication().fireEvent('logbookOfDeviceLoad', record);
+                widget.down('#deviceLogbooksPreviewForm').loadRecord(record);
+                widget.down('#deviceLogbookSubMenuPanel').setParams(mRID, record);
+                widget.setLoading(false);
+            }
+        });
     }
 });

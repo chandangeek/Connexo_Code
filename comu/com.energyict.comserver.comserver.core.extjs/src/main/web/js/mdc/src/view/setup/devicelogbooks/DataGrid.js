@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
+Ext.define('Mdc.view.setup.devicelogbooks.DataGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceLogbookDataGrid',
     itemId: 'deviceLogbookDataGrid',
@@ -10,15 +10,15 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
     ],
     columns: [
         {
-            header: Uni.I18n.translate('deviceevents.eventDate', 'MDC', 'Event date'),
+            header: Uni.I18n.translate('devicelogbooks.eventDate', 'MDC', 'Event date'),
             dataIndex: 'eventDate',
             renderer: function (value) {
-                return value ? Uni.I18n.formatDate('deviceevents.eventDate.dateFormat', value, 'MDC', 'M d, Y H:i:s') : '';
+                return value ? Uni.I18n.formatDate('devicelogbooks.eventDate.dateFormat', value, 'MDC', 'M d, Y H:i:s') : '';
             },
             flex: 1
         },
         {
-            header: Uni.I18n.translate('deviceevents.domain', 'MDC', 'Domain'),
+            header: Uni.I18n.translate('devicelogbooks.domain', 'MDC', 'Domain'),
             dataIndex: 'domain',
             renderer: function (value) {
                 return value ? value.name : '';
@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             flex: 1
         },
         {
-            header: Uni.I18n.translate('deviceevents.subDomain', 'MDC', 'Subdomain'),
+            header: Uni.I18n.translate('devicelogbooks.subDomain', 'MDC', 'Subdomain'),
             dataIndex: 'subDomain',
             renderer: function (value) {
                 return value ? value.name : '';
@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             flex: 1
         },
         {
-            header: Uni.I18n.translate('deviceevents.eventOrAction', 'MDC', 'Event or action'),
+            header: Uni.I18n.translate('devicelogbooks.eventOrAction', 'MDC', 'Event or action'),
             dataIndex: 'eventOrAction',
             renderer: function (value) {
                 return value ? value.name : '';
@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             flex: 1
         },
         {
-            header: Uni.I18n.translate('deviceevents.message', 'MDC', 'Message'),
+            header: Uni.I18n.translate('devicelogbooks.message', 'MDC', 'Message'),
             dataIndex: 'message',
             flex: 1
         }
@@ -55,14 +55,14 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('deviceevents.dataGrid.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} events'),
-                displayMoreMsg: Uni.I18n.translate('deviceevents.dataGrid.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} events'),
-                emptyMsg: Uni.I18n.translate('deviceevents.dataGrid.pagingtoolbartop.emptyMsg', 'MDC', 'There are no events to display')
+                displayMsg: Uni.I18n.translate('devicelogbooks.dataGrid.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} events'),
+                displayMoreMsg: Uni.I18n.translate('devicelogbooks.dataGrid.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} events'),
+                emptyMsg: Uni.I18n.translate('devicelogbooks.dataGrid.pagingtoolbartop.emptyMsg', 'MDC', 'There are no events to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('deviceevents.dataGrid.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Events per page'),
+                itemsPerPageMsg: Uni.I18n.translate('devicelogbooks.dataGrid.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Events per page'),
                 dock: 'bottom',
                 deferLoading: false
             }

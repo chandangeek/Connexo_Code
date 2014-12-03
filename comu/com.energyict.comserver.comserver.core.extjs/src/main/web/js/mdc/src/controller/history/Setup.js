@@ -1224,10 +1224,10 @@ Ext.define('Mdc.controller.history.Setup', {
                                             privileges: ['privilege.administrate.device','privilege.view.device'],
                                             action: 'showOverview'
                                         },
-                                        events: {
-                                            title: Uni.I18n.translate('router.logbookEvents', 'MDC', 'Logbook events'),
-                                            route: 'events',
-                                            controller: 'Mdc.controller.setup.DeviceEvents',
+                                        data: {
+                                            title: Uni.I18n.translate('router.logbookData', 'MDC', 'Logbook data'),
+                                            route: 'data',
+                                            controller: 'Mdc.controller.setup.DeviceLogbookData',
                                             privileges: ['privilege.administrate.device','privilege.view.device'],
                                             action: 'showOverview',
                                             filter: 'Mdc.model.LogbookOfDeviceDataFilter'
@@ -1235,14 +1235,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 }
                             }
-                        },
-                        events: {
-                            title: Uni.I18n.translate('router.events', 'MDC', 'Events'),
-                            route: 'events',
-                            controller: 'Mdc.controller.setup.DeviceEvents',
-                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
-                            action: 'showOverview',
-                            filter: 'Mdc.model.LogbookOfDeviceDataFilter'
                         },
                         securitysettings: {
                             title: 'Security settings',

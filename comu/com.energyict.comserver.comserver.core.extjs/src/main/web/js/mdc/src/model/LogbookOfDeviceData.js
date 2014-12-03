@@ -7,7 +7,6 @@ Ext.define('Mdc.model.LogbookOfDeviceData', {
         'deviceCode',
         'eventLogId',
         {name: 'readingDate', dateFormat: 'time', type: 'date'},
-        'logBookId',
         'message',
         {
             name: 'code',

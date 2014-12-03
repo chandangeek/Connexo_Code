@@ -1,9 +1,11 @@
 Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceLogbooksGrid',
+    itemId: 'deviceLogbooksGrid',
     store: 'Mdc.store.LogbooksOfDevice',
     router: null,
-    overflowY: 'auto',
+    forceFit: true,
+    autoScroll: false,
     requires: [
         'Uni.grid.column.Action',
         'Uni.grid.column.Obis',
@@ -19,7 +21,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
                 header: Uni.I18n.translate('devicelogbooks.logbook', 'MDC', 'Logbook'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('devices/device/logbooks/logbook/events').buildUrl({logbookId: record.get('id')});
+                    var url = me.router.getRoute('devices/device/logbooks/logbook/data').buildUrl({logbookId: record.get('id')});
                     return '<a href="' + url + '">' + value + '</a>';
                 },
                 flex: 1

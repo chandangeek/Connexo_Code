@@ -42,15 +42,6 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 hrefTarget: '_self'
             });
         }
-        if (this.device.get('hasLogBooks')) {
-            this.add({
-                text: Uni.I18n.translate('devicemenu.events', 'MDC', 'Events'),
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration']),
-                itemId: 'events',
-                href: '#/devices/' + mRID + '/events',
-                hrefTarget: '_self'
-            });
-        }
         this.add({
             text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),
             itemId: 'connectionMethodsLink',
