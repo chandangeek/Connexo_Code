@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceConfiguration'),
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.device'),
                 menu: {
                     xtype: 'deviceregisterdataactionmenu'
                 }

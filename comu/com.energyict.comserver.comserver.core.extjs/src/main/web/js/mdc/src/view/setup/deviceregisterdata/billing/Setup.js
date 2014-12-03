@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Setup', {
                                     stepItems: [
                                         {
                                             text:  Uni.I18n.translate('device.registerData.addReading','MDC','Add reading'),
-                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                            privileges: ['privilege.administrate.device'],
                                             href: '#/devices/' + me.mRID + '/registers/' + me.registerId + '/data/create'
                                         }
                                     ]

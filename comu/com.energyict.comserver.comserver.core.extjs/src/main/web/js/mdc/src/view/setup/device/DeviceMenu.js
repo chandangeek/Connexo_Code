@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         if (this.device.get('hasRegisters')) {
             this.add({
                 text: Uni.I18n.translate('devicemenu.registerTypes', 'MDC', 'Registers'),
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration']),
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device']),
                 itemId: 'registersLink',
                 href: '#/devices/' + mRID + '/registers',
                 hrefTarget: '_self'
@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         if (this.device.get('hasLoadProfiles')) {
             this.add({
                 text: Uni.I18n.translate('devicemenu.loadProfiles', 'MDC', 'Load profiles'),
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration']),
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device']),
                 itemId: 'loadProfilesLink',
                 href: '#/devices/' + mRID + '/loadprofiles',
                 hrefTarget: '_self'
@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         if (this.device.get('hasLogBooks')) {
             this.add({
                 text: Uni.I18n.translate('devicemenu.logbooks', 'MDC', 'Logbooks'),
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration']),
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device']),
                 itemId: 'logbooksLink',
                 href: '#/devices/' + mRID + '/logbooks',
                 hrefTarget: '_self'
