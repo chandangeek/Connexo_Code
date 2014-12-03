@@ -5,9 +5,16 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -21,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -128,6 +136,26 @@ public class ResourceHelper {
         return condition;
     }
 
+
+    private Condition toSimpleCondition(StandardParametersBean params, String key) {
+        String value = params.getFirst(key);
+        if (params.wasRegExp()) {
+            return where(key).likeIgnoreCase(value);
+        }
+        else {
+            return where(key).isEqualTo(value);
+        }
+    }
+
+    private Condition toMultiValuedCondition(String params, String conditionField) {
+        return Stream
+            .of(params.split(","))
+            .map(v -> where(conditionField).isEqualTo(v.trim()))
+            .reduce(
+                Condition.FALSE,
+                (c1, c2) -> c1.or(c2));
+    }
+
     public Meter getMeterFor(Device device) {
         Optional<AmrSystem> amrSystemRef = meteringService.findAmrSystem(1);
         Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
@@ -136,6 +164,23 @@ public class ResourceHelper {
                     " wasn't configured.");
         }
         return meterRef.get();
+    }
+
+    Meter getOrCreateMeterFor(Device device) {
+        Meter meter = getMeterFor(device);
+        if (meter != null) {
+            return meter;
+        }
+        return createMeter(device);
+    }
+
+    private Meter createMeter(Device device) {
+        Meter meter;
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
+        meter.setSerialNumber(device.getSerialNumber());
+        meter.save();
+        return meter;
     }
 
     public List<MeterActivation> getMeterActivationsMostCurrentFirst(Meter meter) {
