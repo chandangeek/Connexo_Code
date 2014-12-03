@@ -41,11 +41,19 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         },
         {
             ref: 'sideFilterForm',
-            selector: 'deviceRegisterDataPage #deviceRegisterDataFilterForm'
+            selector: '#deviceRegisterDataFilterForm'
         },
         {
             ref: 'filterPanel',
             selector: 'deviceRegisterDataPage filter-top-panel'
+        },
+        {
+            ref: 'registerFilter',
+            selector: '#registerFilter'
+        },
+        {
+            ref: 'stepsMenu',
+            selector: '#stepsMenu'
         }
     ],
 
@@ -56,10 +64,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
             '#deviceregisterreportsetup #deviceregisterreportgrid': {
                 select: me.loadGridItemDetail
             },
-            'deviceRegisterDataPage #deviceRegisterDataFilterApplyBtn': {
+            '#deviceRegisterDataFilterApplyBtn': {
                 click: this.applyFilter
             },
-            'deviceRegisterDataPage #deviceRegisterDataFilterResetBtn': {
+            '#deviceRegisterDataFilterResetBtn': {
                 click: this.clearFilter
             },
             'deviceRegisterDataPage #deviceregisterdatafilterpanel': {
@@ -77,7 +85,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
         form.loadRecord(record);
     },
 
-    showDeviceRegisterDataView: function (mRID, registerId) {
+    showDeviceRegisterDataView: function (mRID, registerId, tabController) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
@@ -92,30 +100,39 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         var viewOnlySuspects,
                             type = register.get('type'),
                             dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData'),
-                            router = me.getController('Uni.controller.history.Router'),
-                            widget = Ext.widget('deviceregisterreportsetup-' + type, {mRID: mRID, registerId: registerId});
+                            router = me.getController('Uni.controller.history.Router');
+
+                        var widget = Ext.widget('tabbedDeviceRegisterView',{device: device});
+                        widget.down('#deviceRegisterDetailTitle').update('<h2>' + register.get('name') +' </h2>');
+
 
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        widget.down('#stepsMenu').setTitle(register.get('name'));
+
+
+
+                        var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {mRID: mRID, registerId: registerId});
+                        me.getRegisterFilter().setTitle(register.get('name'));
                         if (type === 'billing' || type === 'numerical') {
-                            widget.down('deviceRegisterDataSideFilter').show();
+                            me.getRegisterFilter().show();
                             if (Ext.isEmpty(router.filter.data.onlyNonSuspect)) {
                                 viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
                                 router.filter.set('onlySuspect', viewOnlySuspects);
                                 router.filter.set('onlyNonSuspect', false);
-                                me.getPage().down('#suspect').setValue(viewOnlySuspects);
+                                me.getRegisterFilter().down('#suspect').setValue(viewOnlySuspects);
                                 delete router.queryParams.onlySuspect;
                             }
                             dataStore.setFilterModel(router.filter);
                             me.getSideFilterForm().loadRecord(router.filter);
                             me.setFilterView();
                         }
+                        widget.down('#register-data').add(dataReport);
                         dataStore.load();
                     },
 
                     callback: function () {
                         contentPanel.setLoading(false);
+                        tabController.showTab(1);
                     }
                 });
             }

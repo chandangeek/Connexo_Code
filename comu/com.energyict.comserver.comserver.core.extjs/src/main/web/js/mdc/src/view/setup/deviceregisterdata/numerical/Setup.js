@@ -10,7 +10,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Setup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('device.registerData.title', 'MDC', 'Register data'),
                 items: [
                     {
                         xtype: 'filter-top-panel',
