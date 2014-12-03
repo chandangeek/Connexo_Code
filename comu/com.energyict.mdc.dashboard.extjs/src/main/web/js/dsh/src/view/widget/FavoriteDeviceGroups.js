@@ -40,6 +40,7 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                     {
                         xtype: 'dataview',
                         store: me.store,
+                        itemSelector: 'p a',
                         hidden: store.count() < 1,
                         tpl: new Ext.XTemplate(
                             '<tpl for=".">',

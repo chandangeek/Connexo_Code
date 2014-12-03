@@ -165,7 +165,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                     }
                 );
             }
-            this.getFavoriteDeviceGroupsView().store.load();
+            Ext.getStore('Dsh.store.FavoriteDeviceGroups').load();
         }
     }
 });
