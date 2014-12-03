@@ -144,11 +144,9 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
-                        this.close();
                         me.deleteComPortPool(record);
                         break;
                     case 'cancel':
-                        this.close();
                         break;
                 }
             }

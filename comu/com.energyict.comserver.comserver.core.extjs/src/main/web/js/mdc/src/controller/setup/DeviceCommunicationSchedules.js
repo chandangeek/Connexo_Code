@@ -302,11 +302,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
-                        this.close();
                         me.removeSharedCommunicationSchedule(record);
                         break;
                     case 'cancel':
-                        this.close();
                         break;
                 }
             }
@@ -360,11 +358,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
-                        this.close();
                         me.removeCommunicationSchedule(record);
                         break;
                     case 'cancel':
-                        this.close();
                         break;
                 }
             }

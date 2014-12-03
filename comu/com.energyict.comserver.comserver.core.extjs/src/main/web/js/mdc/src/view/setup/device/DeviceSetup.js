@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             xtype: 'panel',
             ui: 'large',
             itemId: 'deviceSetupPanel',
-            title: Uni.I18n.translate('devicesetup.deviceConfigurations', 'MDC', 'deviceName'),
+            //title: Uni.I18n.translate('devicesetup.deviceConfigurations', 'MDC', 'deviceName'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -31,8 +31,131 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         }
     ],
 
+    renderFlag: function(labelsStore) {
+        var me = this;
+        var toolbar = me.down('#deviceSetupFlags');
+        var flag = null;
+
+        if (labelsStore.count) {
+            flag = labelsStore.getById('mdc.label.category.favorites');
+        }
+
+        toolbar.removeAll();
+        toolbar.add({
+            xtype: 'button',
+            iconCls: 'device-flag',
+            ui: 'icon',
+            pressed: !!flag,
+            flag: flag,
+            enableToggle: true,
+            toggleHandler: function(button, state) {
+                button.setTooltip(state
+                    ? Uni.I18n.translate('device.flag.tooltip.unflag', 'MDC', 'Click to remove from the list of flagged devices')
+                    : Uni.I18n.translate('device.flag.tooltip.flag', 'MDC', 'Click to flag the device')
+                );
+            },
+            handler: function(button) {
+                if (!button.flag) {
+                    button.window && button.window.isVisible()
+                        ? button.window.close()
+                        : me.openFlagWindow(button, new labelsStore.model());
+                } else {
+                    me.removeFlag(button);
+                }
+            }
+        });
+
+        var button = toolbar.down('button');
+        button.toggleHandler(button, button.pressed);
+    },
+
+    removeFlag: function (button) {
+        button.flag.destroy({
+            callback: function () {
+                button.flag = null;
+                button.toggle(false, false);
+            }
+        });
+    },
+
+    openFlagWindow: function(button, flag) {
+        var me = this;
+        button.window = Ext.create('Ext.window.Window', {
+            title: Uni.I18n.translate('device.flag.title', 'MDC', 'Flag device') + ' ' + me.router.getRoute().getTitle(),
+            closable: false,
+            height: 200,
+            alignTarget: button,
+            defaultAlign: 'tr-br',
+            width: 400,
+            layout: 'fit',
+            items: {  // Let's put an empty grid in just to illustrate fit layout
+                xtype: 'form',
+                border: false,
+                items: {
+                    xtype: 'textareafield',
+                    name: 'comment',
+                    fieldLabel: Uni.I18n.translate('device.flag.label.comment', 'MDC', 'Comment'),
+                    anchor: '100%',
+                    height: 100
+                }
+            },
+            buttons: [{
+                text: Uni.I18n.translate('device.flag.button.flag', 'MDC', 'Flag device'),
+                name: 'flag',
+                handler: function() {
+                    var form = button.window.down('form');
+                    var flag = form.getRecord();
+                    form.updateRecord();
+                    flag.set('category', {
+                        id: 'mdc.label.category.favorites',
+                        name: 'Favorites'
+                    });
+                    flag.save({
+                        callback: function () {
+                            flag.setId(flag.get('category').id);
+                            button.flag = flag;
+                            button.toggle(true, false);
+                        }
+                    });
+                    button.window.close();
+                }
+            }, {
+                ui: 'link',
+                text: Uni.I18n.translate('device.flag.button.cancel', 'MDC', 'Cancel'),
+                name: 'cancel',
+                handler: function() {
+                    button.toggle(false, false);
+                    button.window.close();
+                }
+            }]
+        });
+
+        button.window.show();
+        button.window.down('form').loadRecord(flag);
+    },
+
     initComponent: function () {
         var me = this;
+
+        me.content[0].tbar = {
+            margin: '0 20 0 0',
+            items: [
+                {
+                    xtype: 'container',
+                    itemId: 'deviceSetupPanelTitle',
+                    cls: 'x-panel-header-text-container-large',
+                    html: me.router.getRoute().getTitle()
+                },
+                '->',
+                {
+                    xtype: 'container',
+                    itemId: 'deviceSetupFlags',
+                    layout: 'fit',
+                    width: 20,
+                    height: 20
+                }
+            ]
+        };
 
         me.side = [
             {
@@ -67,7 +190,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 },
                 items: [
                     {
-                        xtype: 'deviceGeneralInformationPanel',
+                        xtype: 'deviceGeneralInformationPanel'
                     },
                     {
                         xtype: 'deviceCommunicationTopologyPanel',

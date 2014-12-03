@@ -53,6 +53,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: 'Security settings',
                 pressed: false,
                 itemId: 'securitySettingsLink',
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceSecurity','privilege.view.deviceSecurity']),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings',
                 hrefTarget: '_self'
             },

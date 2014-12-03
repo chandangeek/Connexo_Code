@@ -14,7 +14,7 @@ Ext.define('Mdc.controller.setup.Devices', {
     ],
 
     stores: [
-        'Mdc.store.AvailableDeviceTypes',
+        'AvailableDeviceTypes',
         'AvailableDeviceConfigurations'
     ],
 
@@ -66,10 +66,16 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
-                var widget = Ext.widget('deviceSetup', {router: router, device: device});
                 me.getApplication().fireEvent('loadDevice', device);
+
+                var widget = Ext.widget('deviceSetup', {router: router, device: device});
+                var devicesStore = device.labels();
+                devicesStore.getProxy().setUrl(mRID);
+                devicesStore.load(function() {
+                    widget.renderFlag(devicesStore);
+                });
+
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.getDeviceSetupPanel().setTitle(device.get('mRID'));
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId')});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});

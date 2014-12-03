@@ -79,11 +79,6 @@ Ext.define('Mdc.model.ComServerComPort', {
             type: 'string'
         },
         {
-            name: 'modificationDate',
-            type: 'date',
-            dateFormat: 'time'
-        },
-        {
             name: 'numberOfSimultaneousConnections',
             type: 'int'
         },
