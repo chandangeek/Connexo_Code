@@ -156,7 +156,7 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         try {
             device.save();
         } catch (DeviceProtocolPropertyException e) {
-            if (!e.getMessageSeed().equals(MessageSeeds.DEVICE_PROPERTY_INFO_TYPE_DOESNT_EXIST)) {
+            if (!e.getMessageSeed().equals(MessageSeeds.DEVICE_PROPERTY_HAS_NO_SPEC)) {
                 fail("Should have gotten exception indicating that you can not create a DeviceProtocolProperty without an infoType, but was " + e.getMessage());
             } else {
                 throw e;

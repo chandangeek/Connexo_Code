@@ -779,14 +779,8 @@ public class DeviceImpl implements Device, CanLock {
     }
 
 
-    private String getPropertyValue(String name, Object value) {
-        String propertyValue = null;
-        for (PropertySpec propertySpec : this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs()) {
-            if (propertySpec.getName().equals(name)) {
-                propertyValue = propertySpec.getValueFactory().toStringValue(value);
-            }
-        }
-        return propertyValue;
+    private Optional<PropertySpec> getPropertySpecForProperty(String name) {
+        return this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec->spec.getName().equals(name)).findFirst();
     }
 
     private boolean propertyExistsOnDeviceProtocol(String name) {
@@ -875,8 +869,9 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void setProtocolProperty(String name, Object value) {
-        if (propertyExistsOnDeviceProtocol(name)) {
-            String propertyValue = getPropertyValue(name, value);
+        Optional<PropertySpec> optionalPropertySpec = getPropertySpecForProperty(name);
+        if (optionalPropertySpec.isPresent()) {
+            String propertyValue = optionalPropertySpec.get().getValueFactory().toStringValue(value);
             boolean notUpdated = !updatePropertyIfExists(name, propertyValue);
             if (notUpdated) {
                 addDeviceProperty(name, propertyValue);
@@ -914,8 +909,7 @@ public class DeviceImpl implements Device, CanLock {
 
     private void addDeviceProperty(String name, String propertyValue) {
         if (propertyValue != null) {
-            InfoType infoType = this.deviceService.findInfoType(name);
-            DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, infoType, propertyValue);
+            DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, name, propertyValue);
             Save.CREATE.validate(dataModel, deviceProtocolProperty);
             this.deviceProperties.add(deviceProtocolProperty);
         }

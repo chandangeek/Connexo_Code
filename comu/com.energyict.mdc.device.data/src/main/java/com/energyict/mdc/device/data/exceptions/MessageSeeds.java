@@ -50,7 +50,7 @@ public enum MessageSeeds implements MessageSeed {
     OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW(2017, Keys.OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY, "The offset of the next execution scheduling specifications within a week or month, once calculated back to a daily offset is not within the communication window", Level.SEVERE),
     DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(2018, Keys.PHYSICAL_GATEWAY_STILL_IN_USE, "You can not remove device '{0}' because it is still used as a physical gateway for '{1}'", Level.SEVERE),
     DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(2019, Keys.COMMUNICATION_GATEWAY_STILL_IN_USE, "You can not remove device '{0}' because it is still used as a communication gateway for '{1}'", Level.SEVERE),
-    DEVICE_PROPERTY_INFO_TYPE_DOESNT_EXIST(2020, Keys.INFOTYPE_DOESNT_EXIST, "The infotype for property value '{0}' does not exist.", Level.SEVERE),
+    DEVICE_PROPERTY_HAS_NO_SPEC(2020, Keys.PROPERTY_SPEC_DOESNT_EXIST, "The property specification for property value '{0}' does not exist.", Level.SEVERE),
     DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL(2021, Keys.PROPERTY_NOT_ON_DEVICE_PROTOCOL, "The property '{0}' is not defined by the device protocol '{1}' of device '{2}'", Level.SEVERE),
     PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED(2022, Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY, "The protocol dialect configuration properties are required to add device protocol dialect properties", Level.SEVERE),
     DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC(2023, Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC_KEY, "The protocol dialect ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
@@ -164,7 +164,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY = "gateway.not.origin";
         public static final String PHYSICAL_GATEWAY_STILL_IN_USE = "device.delete.linked.physical.gateway";
         public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "device.delete.linked.communication.gateway";
-        public static final String INFOTYPE_DOESNT_EXIST = "device.property.infotype.required";
+        public static final String PROPERTY_SPEC_DOESNT_EXIST = "device.property.infotype.required";
         public static final String PROPERTY_NOT_ON_DEVICE_PROTOCOL = "not.deviceprotocol.property";
         public static final String CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "cannotDeleteIfNotFromDevice";
         public static final String PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED_KEY = "protocolDialectConfigurationProperties.required";

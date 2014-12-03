@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
@@ -38,14 +37,21 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 /**
  * Models the database tables that hold the data of the
@@ -106,10 +112,9 @@ public enum
             Table<DeviceProtocolProperty> table = dataModel.addTable(name(), DeviceProtocolProperty.class);
             table.map(DeviceProtocolPropertyImpl.class);
             Column deviceId = table.column("DEVICEID").number().notNull().conversion(NUMBER2LONG).add();
-            Column infoTypeId = table.column("INFOTYPEID").map("infoTypeId").number().conversion(NUMBER2LONG).notNull().add();
+            Column propertySpec = table.column("PROPERTYSPEC").map("propertySpec").varChar(256).notNull().add();
             table.column("INFOVALUE").varChar().map("propertyValue").add();
-            table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId, infoTypeId).add();
-            table.foreignKey("FK_DDC_DEVICEPROTPROP_INFOTYPE").on(infoTypeId).references(DDC_INFOTYPE.name()).map("infoTypeId").add();
+            table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId, propertySpec).add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE").on(deviceId).references(DDC_DEVICE.name()).map("device").reverseMap("deviceProperties").composition().add();
         }
     },
