@@ -8,11 +8,12 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.PhenomenonInfo;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -30,7 +31,8 @@ public class PhenomenonResource {
     }
 
     @GET
-    public Response getAllPhenomenons(@BeanParam QueryParameters queryParameters){
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllPhenomenons(@BeanParam QueryParameters queryParameters) {
         List<Phenomenon> phenomenons = masterDataService.findAllPhenomena();
         return Response.ok(PagedInfoList.asJson("data", PhenomenonInfo.from(phenomenons), queryParameters)).build();
     }
