@@ -41,7 +41,8 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                             name: 'deviceTypeName',
                             cls: 'x-form-display-field',
                             autoEl: {
-                                tag: 'a',
+                                tag: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration'])
+                                    ? 'a' : 'div',
                                 href: '#',
                                 html: Uni.I18n.translate('deviceGeneralInformation.deviceType', 'MDC', 'Device type')
                             },
@@ -63,7 +64,8 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                             name: 'deviceConfigurationName',
                             cls: 'x-form-display-field',
                             autoEl: {
-                                tag: 'a',
+                                tag: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration'])
+                                    ? 'a' : 'div',
                                 href: '#',
                                 html: Uni.I18n.translate('deviceGeneralInformation.deviceConfiguration', 'MDC', 'Device configuration')
                             },
