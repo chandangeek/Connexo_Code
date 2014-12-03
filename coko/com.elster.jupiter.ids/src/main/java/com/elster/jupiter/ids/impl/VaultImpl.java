@@ -269,45 +269,6 @@ public class VaultImpl implements Vault {
     }
 
     @Override
-    public void addPartition(Instant to) {
-        if (!isActive() || !Objects.requireNonNull(to).isAfter(getMaxDate())) {
-            throw new IllegalArgumentException();
-        }
-        if (isPartitioned()) {
-            try {
-                doAddPartition(to);
-            } catch (SQLException ex) {
-                throw new UnderlyingSQLFailedException(ex);
-            }
-        }
-        this.maxTime = to;
-        dataModel.update(this, "maxTime");
-    }
-
-    private void doAddPartition(Instant to) throws SQLException {
-        try (Connection connection = getConnection(true)) {
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(addTablePartitionDdl(to, getTableName()));
-                if (hasJournal()) {
-                    statement.execute(addTablePartitionDdl(to, getJournalTableName()));
-                }
-            }
-        }
-    }
-
-
-    private String addTablePartitionDdl(Instant to, String table) {
-        StringBuilder builder = new StringBuilder("alter table ");
-        builder.append(table);
-        builder.append(" add partition ");
-        builder.append(getPartitionName(to));
-        builder.append(" values less than (");
-        builder.append(to.toEpochMilli() + 1L);
-        builder.append(")");
-        return builder.toString();
-    }
-
-    @Override
     public TimeSeriesImpl createRegularTimeSeries(RecordSpec spec, ZoneId zoneId, TemporalAmount interval, int hourOffset) {
         TimeSeriesImpl timeSeries = timeSeriesProvider.get().init(this, spec, zoneId, interval, hourOffset);
         timeSeries.persist();

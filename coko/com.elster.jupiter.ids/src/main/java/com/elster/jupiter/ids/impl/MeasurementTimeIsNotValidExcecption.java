@@ -6,7 +6,9 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 public class MeasurementTimeIsNotValidExcecption extends LocalizedException {
 
-    public MeasurementTimeIsNotValidExcecption(Thesaurus thesaurus) {
+	private static final long serialVersionUID = 1L;
+
+	public MeasurementTimeIsNotValidExcecption(Thesaurus thesaurus) {
         super(thesaurus, MessageSeeds.MEASUREMENT_TIME_IS_INCORRECT);
     }
 
