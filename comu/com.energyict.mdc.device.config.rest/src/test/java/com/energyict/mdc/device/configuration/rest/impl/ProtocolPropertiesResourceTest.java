@@ -30,11 +30,11 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
     public void testGetDeviceProtocolProperties() {
         DeviceProtocolConfigurationProperties properties = mock(DeviceProtocolConfigurationProperties.class);
         mockDeviceConfiguration(properties);
-        String response = target("/devicetypes/11/deviceconfigurations/12/deviceprotocolproperties").request().get(String.class);
+        String response = target("/devicetypes/11/deviceconfigurations/12/protocolproperties").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.deviceProtocolProperties[0].key")).isEqualTo("callHomeId");
-        assertThat(jsonModel.<String>get("$.deviceProtocolProperties[0].propertyValueInfo.value")).isEqualTo("0x7");
+        assertThat(jsonModel.<String>get("$.protocolProperties[0].key")).isEqualTo("callHomeId");
+        assertThat(jsonModel.<String>get("$.protocolProperties[0].propertyValueInfo.value")).isEqualTo("0x7");
     }
 
     @Test
@@ -48,7 +48,7 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
         propertyInfo.propertyTypeInfo.simplePropertyType= SimplePropertyType.TEXT;
 
 
-        Response response = target("/devicetypes/11/deviceconfigurations/12/deviceprotocolproperties").request().put(Entity.json(Arrays.asList(propertyInfo)));
+        Response response = target("/devicetypes/11/deviceconfigurations/12/protocolproperties").request().put(Entity.json(Arrays.asList(propertyInfo)));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(properties).setProperty("callHomeId", "0x99");
         verify(deviceConfiguration).save();
