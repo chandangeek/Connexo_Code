@@ -1,11 +1,10 @@
 package com.energyict.mdc.dynamic;
 
+import com.elster.jupiter.datavault.DataVault;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdc.common.Password;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -21,7 +20,7 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
     private final DataVault dataVault;
 
     public PasswordFactory () {
-        dataVault = DataVaultProvider.instance.get().getKeyVault();
+        dataVault = LegacyDataVaultProvider.instance.get().getKeyVault();
     }
 
     @Override
