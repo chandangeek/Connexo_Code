@@ -6,9 +6,13 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.interval.Phenomenon;
+import com.energyict.mdc.common.rest.IntegerAdapter;
+import com.energyict.mdc.common.rest.LongAdapter;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -37,6 +41,7 @@ public class ReadingTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryFilter queryFilter) {
         List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
         Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
