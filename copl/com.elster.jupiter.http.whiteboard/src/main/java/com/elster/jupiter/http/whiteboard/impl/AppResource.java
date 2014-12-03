@@ -37,10 +37,10 @@ public class AppResource {
             "privilege.view.deviceSecurity"};
     private static final String[] APP_YELLOWFIN_PRIVILEGES = {"privilege.view.*"};
     private static final String[] BPM_CONSOLE_PRIVILEGES = {"privilege.view.bpm"};
-    private static final String APP_SYSTEM_ADMIN_NAME = "Connexo System Admin";
-    private static final String APP_MULTI_SENSE_NAME = "Connexo Multi Sense";
-    private static final String APP_BPM_CONSOLE_NAME = "BPM console";
-    private static final String APP_YELLOWFIN_NAME = "Reports";
+    private static final String APP_SYSTEM_ADMIN_KEY = "SYS";
+    private static final String APP_MULTI_SENSE_KEY = "MDC";
+    private static final String APP_BPM_CONSOLE_KEY = "BPM";
+    private static final String APP_YELLOWFIN_KEY = "YFN";
 
 
     @GET
@@ -96,26 +96,26 @@ public class AppResource {
     private List<App> getAllowedApps(Set<Privilege> privileges) {
         List<App> applications = new ArrayList<>();
         Optional<App> appSys = whiteBoard.getApps().stream()
-                .filter(e -> e.getName().equals(APP_SYSTEM_ADMIN_NAME))
+                .filter(e -> e.getKey().equals(APP_SYSTEM_ADMIN_KEY))
                 .findAny();
         if (appSys.isPresent() && isUserInApp(SYSTEM_ADMIN_PRIVILEGES, privileges)) {
             applications.add(appSys.get());
         }
         Optional<App> appMdc = whiteBoard.getApps().stream()
-                .filter(e -> e.getName().equals(APP_MULTI_SENSE_NAME))
+                .filter(e -> e.getKey().equals(APP_MULTI_SENSE_KEY))
                 .findAny();
         if (appMdc.isPresent() && isUserInApp(MULTI_SENSE_PRIVILEGES, privileges)) {
             applications.add(appMdc.get());
         }
         Optional<App> appYfn = whiteBoard.getApps().stream()
-                .filter(e -> e.getName().equals(APP_YELLOWFIN_NAME))
+                .filter(e -> e.getKey().equals(APP_YELLOWFIN_KEY))
                 .findAny();
         //TODO: uncomment when privileges are set into system
         if (appYfn.isPresent() /*&& isUserInApp(APP_YELLOWFIN_PRIVILEGES, privileges)*/) {
             applications.add(appYfn.get());
         }
         Optional<App> appBpm = whiteBoard.getApps().stream()
-                .filter(e -> e.getName().equals(APP_BPM_CONSOLE_NAME))
+                .filter(e -> e.getKey().equals(APP_BPM_CONSOLE_KEY))
                 .findAny();
         if (appBpm.isPresent() && isUserInApp(BPM_CONSOLE_PRIVILEGES, privileges)) {
             applications.add(appBpm.get());

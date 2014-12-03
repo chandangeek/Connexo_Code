@@ -5,6 +5,7 @@ import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -37,8 +38,9 @@ public class WhiteBoard extends Application implements BinderProvider {
     private volatile HttpService httpService;
     private volatile UserService userService;
     private volatile LicenseService licenseService;
+    private volatile MessageService messageService;
     private volatile TransactionService transactionService;
-    private volatile YellowfinService yellowfinService;
+    //private volatile YellowfinService yellowfinService;
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
     private boolean generateEvents;
 
@@ -74,9 +76,14 @@ public class WhiteBoard extends Application implements BinderProvider {
         this.httpService = httpService;
     }
 
+    //@Reference
+    //public void setYellowfinService(YellowfinService yellowfinService) {
+    //    this.yellowfinService = yellowfinService;
+    //}
+
     @Reference
-    public void setYellowfinService(YellowfinService yellowfinService) {
-        this.yellowfinService = yellowfinService;
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Reference
@@ -87,7 +94,7 @@ public class WhiteBoard extends Application implements BinderProvider {
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(HttpResource resource) {
         String alias = getAlias(resource.getAlias());
-        HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, yellowfinService, eventAdminHolder);
+        HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, messageService, eventAdminHolder);
         try {
             httpService.registerResources(alias, resource.getLocalName(), httpContext);
             resources.add(resource);
@@ -100,14 +107,14 @@ public class WhiteBoard extends Application implements BinderProvider {
 
     @Reference(name = "ZApplication", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addApplication(App resource) {
-        List<String> applications = licenseService.getLicensedApplicationKeys();
-        if(resource.getKey().equals("SYS") ||
-                applications.stream().filter(application -> application.equals(resource.getKey())).findFirst().isPresent()){
+        //List<String> applications = licenseService.getLicensedApplicationKeys();
+        //if(resource.getKey().equals("SYS") ||
+        //        applications.stream().filter(application -> application.equals(resource.getKey())).findFirst().isPresent()){
             if (resource.isInternalApp()) {
                 addResource(resource.getMainResource());
             }
             apps.add(resource);
-        }
+        //}
     }
 
     @Activate
@@ -149,7 +156,7 @@ public class WhiteBoard extends Application implements BinderProvider {
         apps.remove(app);
     }
 
-    void checkLicense(){
+    /*void checkLicense(){
         Optional<License> license;
         List<String> applications = licenseService.getLicensedApplicationKeys();
 
@@ -162,9 +169,9 @@ public class WhiteBoard extends Application implements BinderProvider {
                 }
             }
         }
-    }
+    }*/
 
-    private void unregisterRestApplication(String application){
+    /*private void unregisterRestApplication(String application){
         try {
             ServiceReference<?>[] restApps = context.getAllServiceReferences(Application.class.getName(), "(app=" + application + ")");
             if(restApps != null){
@@ -177,16 +184,16 @@ public class WhiteBoard extends Application implements BinderProvider {
         } catch (InvalidSyntaxException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    boolean isAppLicensed(String app){
+    /*boolean isAppLicensed(String app){
         Optional<License> license = licenseService.getLicenseForApplication(app);
         if(license.isPresent() && (license.get().getStatus().equals(License.Status.ACTIVE) || license.get().getGracePeriodInDays() > 0)){
             return true;
         }
 
         return false;
-    }
+    }*/
 
     String getAlias(String name) {
         return "/apps" + (name.startsWith("/") ? name : "/" + name);
@@ -215,7 +222,7 @@ public class WhiteBoard extends Application implements BinderProvider {
             @Override
             protected void configure() {
                 this.bind(WhiteBoard.this).to(WhiteBoard.class);
-                this.bind(yellowfinService).to(YellowfinService.class);
+                //this.bind(yellowfinService).to(YellowfinService.class);
             }
         };
     }

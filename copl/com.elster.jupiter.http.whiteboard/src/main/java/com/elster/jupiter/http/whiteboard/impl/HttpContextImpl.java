@@ -1,11 +1,12 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.Resolver;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.yellowfin.YellowfinService;
 import com.google.common.collect.ImmutableMap;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -14,8 +15,6 @@ import org.osgi.service.http.HttpContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
@@ -44,17 +43,17 @@ public class HttpContextImpl implements HttpContext {
     private final WhiteBoard whiteboard;
     private final Resolver resolver;
     private final UserService userService;
-    private final YellowfinService yellowfinService;
+    private final MessageService messageService;
     private final TransactionService transactionService;
     private final AtomicReference<EventAdmin> eventAdminHolder;
 
-    HttpContextImpl(WhiteBoard whiteboard, Resolver resolver, UserService userService, TransactionService transactionService, YellowfinService yellowfinService, AtomicReference<EventAdmin> eventAdminHolder) {
+    HttpContextImpl(WhiteBoard whiteboard, Resolver resolver, UserService userService, TransactionService transactionService, MessageService messageService, AtomicReference<EventAdmin> eventAdminHolder) {
         this.resolver = resolver;
         this.userService = userService;
         this.transactionService = transactionService;
         this.eventAdminHolder = eventAdminHolder;
         this.whiteboard = whiteboard;
-        this.yellowfinService = yellowfinService;
+        this.messageService = messageService;
     }
 
     @Override
@@ -107,7 +106,7 @@ public class HttpContextImpl implements HttpContext {
         }
 
         if(user.isPresent()){
-            whiteboard.checkLicense();
+            //whiteboard.checkLicense();
             return allow(request, response, user.get());
         }
 
@@ -115,11 +114,11 @@ public class HttpContextImpl implements HttpContext {
     }
 
 
-    private void logoutYellowfin(String userName) {
-        if(whiteboard.isAppLicensed("YFN")){
-            yellowfinService.logout(userName);
-        }
-    }
+    //private void logoutYellowfin(String userName) {
+    //    if(whiteboard.isAppLicensed("YFN")){
+    //        yellowfinService.logout(userName);
+    //    }
+    //}
 
 
     private boolean login(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -163,7 +162,11 @@ public class HttpContextImpl implements HttpContext {
         if (session != null) {
             User user =( User )session.getAttribute("user");
             if(user!=null){
-                logoutYellowfin(user.getName());
+                //Optional<DestinationSpec> found = messageService.getDestinationSpec(LOGOUT_QUEUE_DEST);
+                //if (found.isPresent()) {
+                //    found.get().message(user.getName()).send();
+                //}
+                //logoutYellowfin(user.getName());
             }
             session.invalidate();
 
