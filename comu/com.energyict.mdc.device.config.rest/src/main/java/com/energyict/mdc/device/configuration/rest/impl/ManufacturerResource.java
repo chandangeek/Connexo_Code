@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.protocol.api.Manufacturer;
 
 import javax.annotation.security.RolesAllowed;
@@ -18,7 +18,7 @@ public class ManufacturerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public ManufacturerInfos getAllManufacturers() {
         ManufacturerInfos manufacturerInfos = new ManufacturerInfos();
         manufacturerInfos.manufacturerInfos = new ArrayList<>();
