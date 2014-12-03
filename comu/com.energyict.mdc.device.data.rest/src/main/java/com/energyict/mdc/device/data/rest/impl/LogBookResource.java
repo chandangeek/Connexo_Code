@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -26,6 +27,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.security.Privileges;
 
 public class LogBookResource {
 
@@ -50,6 +52,7 @@ public class LogBookResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public Response getAllLogBooks(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<LogBook> allLogBooks = device.getLogBooks();
@@ -61,6 +64,7 @@ public class LogBookResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lbid}")
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public Response getLogBook(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LogBook logBook = findLogBookOrThrowException(device, logBookId);
@@ -70,6 +74,7 @@ public class LogBookResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lbid}/data")
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public Response getLogBookData(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters)
     {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
