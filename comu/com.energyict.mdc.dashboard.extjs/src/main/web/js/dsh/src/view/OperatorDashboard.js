@@ -11,6 +11,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
         'Dsh.view.widget.Breakdown',
         'Dsh.view.widget.DeviceGroupFilter',
         'Dsh.view.widget.FavoriteDeviceGroups',
+        'Dsh.view.widget.FlaggedDevices',
         'Dsh.view.MyFavoriteDeviceGroups'
     ],
     alias: 'widget.operator-dashboard',
@@ -84,6 +85,11 @@ Ext.define('Dsh.view.OperatorDashboard', {
                         xtype: 'open-data-collection-issues',
                         itemId: 'open-data-collection-issues',
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue']),
+                        router: me.router
+                    },
+                    {
+                        xtype: 'flagged-devices',
+                        itemId: 'flagged-devices',
                         router: me.router
                     },
                     {

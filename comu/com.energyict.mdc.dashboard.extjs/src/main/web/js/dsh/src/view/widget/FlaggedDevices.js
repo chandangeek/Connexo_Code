@@ -1,0 +1,109 @@
+Ext.define('Dsh.view.widget.FlaggedDevices', {
+    extend: 'Ext.panel.Panel',
+    ui: 'tile',
+    alias: 'widget.flagged-devices',
+    buttonAlign: 'left',
+    layout: 'fit',
+    title: Uni.I18n.translatePlural('overview.widget.flaggedDevices.header', 0, 'DSH', 'My flagged devices ({0})'),
+    router: null,
+    header: {
+        ui: 'small'
+    },
+
+    tooltipTpl: new Ext.XTemplate(
+        '<table>',
+        '<tr>',
+        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.mrid', 'DSH', 'MRID') + '</td>',
+        '<td>{mRID}</td>',
+        '</tr>',
+        '<tr>',
+        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.serialNumber', 'DSH', 'Serial number') + '</td>',
+        '<td>{serialNumber}</td>',
+        '</tr>',
+        '<tr>',
+        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.deviceTypeName', 'DSH', 'Device Type') + '</td>',
+        '<td>{deviceTypeName}</td>',
+        '</tr>',
+        '<tr>',
+        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.creationDate', 'DSH', 'Flagged date') + '</td>',
+        '<td>{[Ext.util.Format.date(values.deviceLabelInfo.creationDate, "D M j, Y G:i")]}</td>',
+        '</tr>',
+        '<tr>',
+        '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.comment', 'DSH', 'Comment') + '</td>',
+        '<td>{[values.deviceLabelInfo.comment]}</td>',
+        '</tr>',
+        '</table>'
+    ),
+
+    items: {
+        xtype: 'dataview',
+        store: 'Dsh.store.FlaggedDevices',
+        itemId: 'devices-dataview',
+        itemSelector: 'a.x-btn.flag-toggle',
+        emptyText: Uni.I18n.translate('overview.widget.flaggedDevices.noDevicesFound', 'DSH', 'No flagged devices found'),
+
+        tpl: new Ext.XTemplate(
+            '<table  style="margin: 5px 0 10px 0">',
+            '<tpl for=".">',
+                '<tr id="{mRID}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" class="device">',
+                    '<td width="100%"><a href="{href}">{mRID}</a></td>',
+                    '<td>',
+                    '<a data-qtip="'+
+                    Uni.I18n.translate('overview.widget.flaggedDevices.unflag', 'DSH', 'Click to remove from the list of flagged devices') +
+                    '" class="flag-toggle x-btn x-btn-pressed">',
+                        '<span style="width: 16px; height: 16px" class="x-btn-button"><span class="x-btn-icon-el device-flag"></span></span></a>',
+                    '</td>',
+                '</tr>',
+            '</tpl>',
+            '</table>'
+        ),
+
+        listeners: {
+            'itemclick': function (view, record, item) {
+                var elm = new Ext.dom.Element(item);
+                var pressed = elm.hasCls('x-btn-pressed');
+                var flag = record.getLabel();
+                flag.proxy.setUrl(record.getId());
+
+                var callback = function() {
+                    elm.toggleCls('x-btn-pressed');
+                    elm.set({'data-qtip': pressed
+                        ? Uni.I18n.translate('overview.widget.flaggedDevices.flag', 'DSH', 'Click to flag the device')
+                        : Uni.I18n.translate('overview.widget.flaggedDevices.unflag', 'DSH', 'Click to remove from the list of flagged devices')
+                    });
+                };
+
+                pressed ? view.unflag(flag, callback) : view.flag(flag, callback);
+            }
+        },
+
+        flag: function(record, callback) {
+            var clone = new record.self();
+            var data = record.getWriteData(false, true);
+            clone.set(data);
+            clone.save({callback: callback});
+        },
+
+        unflag: function(record, callback) {
+            record.destroy({callback: callback});
+        }
+    },
+
+    reload: function () {
+        var me = this,
+            elm = me.down('#devices-dataview'),
+            store = elm.getStore();
+
+        me.setLoading();
+        store.load(function () {
+            var title = Uni.I18n.translatePlural('overview.widget.flaggedDevices.header', store.count(), 'DSH', 'My flagged devices ({0})');
+            me.setTitle(title);
+            me.setLoading(false);
+
+            store.each(function(item) {
+                item.set('href', me.router.getRoute('devices/device').buildUrl({mRID: item.getId()}));
+                item.set('tooltip', me.tooltipTpl.apply(item.getData(true)));
+            });
+        });
+    }
+});
