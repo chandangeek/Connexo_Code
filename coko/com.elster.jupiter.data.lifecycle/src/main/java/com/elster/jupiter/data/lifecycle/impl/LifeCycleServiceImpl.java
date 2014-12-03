@@ -3,6 +3,7 @@ package com.elster.jupiter.data.lifecycle.impl;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
+import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.PurgeConfiguration;
@@ -19,11 +20,13 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.google.inject.AbstractModule;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
@@ -43,6 +46,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	private volatile Thesaurus thesaurus;
 	private volatile MessageService messageService;
 	private volatile TaskService taskService;
+	private volatile IdsService idsService;
 	private volatile MeteringService meteringService;
 	private volatile Clock clock;
 	
@@ -50,11 +54,12 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	}
 
 	@Inject
-	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService, MeteringService meteringService, Clock clock) {
+	public LifeCycleServiceImpl(OrmService ormService, NlsService nlsService, MessageService messageService, TaskService taskService, IdsService idsService, MeteringService meteringService, Clock clock) {
 		setOrmService(ormService);
 		setNlsService(nlsService);
 		setMessageService(messageService);
 		setTaskService(taskService);
+		setIdsService(idsService);
 		setMeteringService(meteringService);
 		setClock(clock);
 		activate();
@@ -106,6 +111,11 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	@Reference
 	public void setTaskService(TaskService taskService) {
 		this.taskService = taskService;
+	}
+	
+	@Reference
+	public void setIdsService(IdsService idsService) {
+		this.idsService = idsService;
 	}
 	
 	@Reference
@@ -161,6 +171,10 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 				.logger(logger)
 				.build();
 		meteringService.purge(purgeConfiguration);
+		instant = clock.instant().plus(360,ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+		logger.info("Adding partitions up to " + instant);
+		idsService.extendTo(instant,logger);
+		ormService.createPartitions(instant, logger);
 	}
 	
 	@Override
