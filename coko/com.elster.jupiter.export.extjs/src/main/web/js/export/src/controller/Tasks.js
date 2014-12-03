@@ -529,6 +529,9 @@ Ext.define('Dxp.controller.Tasks', {
                             view = me.getDetailsPage();
                             view.down('tasks-action-menu').record = rec;
                             view.down('tasks-preview-form').loadRecord(rec);
+                            if (record.get('status') === 'Busy') {
+                                view.down('#run').hide();
+                            }
                             if (rec.properties() && rec.properties().count()) {
                                 view.down('property-form').loadRecord(rec);
                             }

@@ -21,7 +21,11 @@ Ext.define('Dxp.model.DataSource', {
         {
             name: 'lastExportedDate',
             mapping: function (data) {
-                return moment(data.lastExportedDate).format('ddd, DD MMM YYYY HH:mm:ss');
+                if (data.lastExportedDate) {
+                    return moment(data.lastExportedDate).format('ddd, DD MMM YYYY HH:mm:ss');
+                } else {
+                    return '';
+                }
             }
         }
     ]
