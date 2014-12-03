@@ -12,8 +12,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 
+import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import com.google.inject.AbstractModule;
@@ -133,13 +136,10 @@ public class KpiServiceImpl implements IKpiService, InstallService {
     }
 
     private void createPartitions(Vault vault) {
-    	YearMonth yearMonth = YearMonth.now();
-        vault.activate(yearMonth.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        for (int i = 0; i < MONTHS_PER_YEAR; i++) {
-            vault.addPartition(yearMonth.plusMonths(i+1).atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        }
+    	Instant start = YearMonth.now().atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        vault.activate(start);
+        vault.extendTo(start.plus(360, ChronoUnit.DAYS),Logger.getLogger(getClass().getPackage().getName()));        
     }
-
 
     @Reference
     public final void setOrmService(OrmService ormService) {
