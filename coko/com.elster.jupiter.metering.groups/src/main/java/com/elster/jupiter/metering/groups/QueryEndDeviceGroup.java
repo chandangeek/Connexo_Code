@@ -12,4 +12,5 @@ public interface QueryEndDeviceGroup extends EndDeviceGroup {
 
     public List<SearchCriteria> getSearchCriteria();
 
+    void setCondition(Condition condition);
 }

@@ -7,6 +7,7 @@ import com.elster.jupiter.util.conditions.Subquery;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.List;
 
 
 public interface EnumeratedEndDeviceGroup extends EndDeviceGroup {
@@ -30,5 +31,7 @@ public interface EnumeratedEndDeviceGroup extends EndDeviceGroup {
     Entry add(EndDevice endDevice, Range<Instant> range);
 
     void remove(Entry entry);
+
+    List<? extends Entry> getEntries();
 
 }

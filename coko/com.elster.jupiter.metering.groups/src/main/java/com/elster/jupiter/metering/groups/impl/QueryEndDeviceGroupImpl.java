@@ -58,6 +58,7 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
         return getMembers(instant).contains(endDevice);
     }
 
+    @Override
     public void setCondition(Condition condition) {
         queryBuilder = QueryBuilder.parse(condition);
         operations = convert(queryBuilder.getOperations());

@@ -45,7 +45,11 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         this.dataModel = dataModel;
     }
 
-    private List<EntryImpl> getEntries() {
+    public List<EntryImpl> getEntries() {
+        return doGetEntries();
+    }
+
+    private List<EntryImpl> doGetEntries() {
         if (entries == null) {
             List<Entry> entryList = dataModel.mapper(Entry.class).find("endDeviceGroup", this);
             entries = new ArrayList<>(entryList.size());
@@ -158,7 +162,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         }
         membership.addRange(range);
         EntryImpl entry = EntryImpl.from(dataModel, this, endDevice, membership.resultingRange(range));
-        getEntries().add(entry);
+        doGetEntries().add(entry);
         return entry;
     }
 
@@ -178,11 +182,11 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     public void save() {
         if (id == 0) {
             factory().persist(this);
-            for (EntryImpl entry : getEntries()) {
+            for (EntryImpl entry : doGetEntries()) {
                 entry.groupId = id;
             }
             ArrayList<Entry> result = new ArrayList<>();
-            for (EntryImpl entry : getEntries()) {
+            for (EntryImpl entry : doGetEntries()) {
                 result.add(entry);
             }
             entryFactory().persist(result);
