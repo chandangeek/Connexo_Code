@@ -4,6 +4,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 
 /**
@@ -16,6 +17,7 @@ public class DataLifeCycleCommands {
 
     private volatile LifeCycleService lifeCycleService;
     private volatile TransactionService transactionService;
+    private volatile ThreadPrincipalService principalService;
     
     @Reference
     public void setDataLifceCycleService(LifeCycleService lifeCycleService) {
@@ -27,11 +29,19 @@ public class DataLifeCycleCommands {
     	this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService principalService) {
+    	this.principalService = principalService;
+    }
+    
     public void purgeData() {
     	try {
+    		principalService.set(() -> "Gogo");
     		transactionService.execute(() -> {lifeCycleService.runNow(); return null;});    		
     	} catch (Exception ex) {
     		ex.printStackTrace();
+    	} finally {
+    		principalService.clear();
     	}
     }
  
