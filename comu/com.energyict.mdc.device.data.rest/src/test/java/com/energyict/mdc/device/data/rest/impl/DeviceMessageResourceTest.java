@@ -99,6 +99,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
         when(command1.getAttributes()).thenReturn(Collections.emptyList());
 
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceType()).thenReturn(deviceType);
+
         String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.model(response);
 
@@ -138,6 +147,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
         when(command1.getAttributes()).thenReturn(Collections.emptyList());
 
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceType()).thenReturn(deviceType);
+
         String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 2).queryParam("limit", 2).request().get(String.class);
         JsonModel model = JsonModel.model(response);
 
@@ -161,6 +179,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
         when(command1.getAttributes()).thenReturn(Collections.emptyList());
+
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceType()).thenReturn(deviceType);
 
         String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.model(response);
@@ -187,6 +214,14 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceType()).thenReturn(deviceType);
 
         String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.model(response);
@@ -229,6 +264,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(device);
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+        when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceType()).thenReturn(deviceType);
 
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1));
