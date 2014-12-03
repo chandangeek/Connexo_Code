@@ -27,6 +27,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>datavault</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.dynamic</artifactId>
       <version>${project.version}</version>

@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
+import com.elster.jupiter.datavault.DataVault;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.energyict.mdc.common.TypedProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -31,13 +31,13 @@ public class ExtendedAnsiC12SecuritySupportTest {
     @Mock
     private PropertySpecService propertySpecService;
     @Mock
-    private DataVaultProvider dataVaultProvider;
+    private LegacyDataVaultProvider dataVaultProvider;
     @Mock
     private DataVault dataVault;
 
     @Before
     public void setUp() {
-        DataVaultProvider.instance.set(dataVaultProvider);
+        LegacyDataVaultProvider.instance.set(dataVaultProvider);
         when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
     }
 

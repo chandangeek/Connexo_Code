@@ -1,10 +1,9 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.elster.jupiter.datavault.DataVault;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
 import com.energyict.mdc.shadow.protocol.task.MessagesTaskShadow;
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdw.xml.MdwXmlSerializer;
 import com.energyict.util.ArrayDiffList;
 import java.beans.XMLDecoder;
@@ -23,14 +22,14 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityMessageXmlConverterTest {
     @Mock
-    private DataVaultProvider dataVaultProvider;
+    private LegacyDataVaultProvider dataVaultProvider;
     @Mock
     private DataVault dataVault;
 
     @Before
     public void setUp() throws Exception {
         when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
-        DataVaultProvider.instance.set(dataVaultProvider);
+        LegacyDataVaultProvider.instance.set(dataVaultProvider);
     }
 
     @Test

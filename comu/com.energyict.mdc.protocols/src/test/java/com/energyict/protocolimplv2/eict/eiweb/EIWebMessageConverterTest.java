@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
-import com.energyict.mdc.common.DataVaultProvider;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.energyict.mdc.protocol.api.impl.device.messages.ChannelConfigurationDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
@@ -330,7 +330,7 @@ public class EIWebMessageConverterTest extends AbstractEIWebTests{
 
 
     private void mockProviders() {
-        DataVaultProvider.instance.set(new KeyStoreDataVaultProvider());
+        LegacyDataVaultProvider.instance.set(new KeyStoreDataVaultProvider());
         RandomProvider.instance.set(new SecureRandomProvider());
     }
 

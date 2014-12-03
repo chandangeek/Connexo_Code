@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
+import com.elster.jupiter.datavault.DataVault;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import org.fest.assertions.core.Condition;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,13 +27,13 @@ import static org.mockito.Mockito.when;
 public class NoOrPasswordSecuritySupportTest {
 
     @Mock
-    private DataVaultProvider dataVaultProvider;
+    private LegacyDataVaultProvider dataVaultProvider;
     @Mock
     private DataVault dataVault;
 
     @Before
     public void setUp() {
-        DataVaultProvider.instance.set(dataVaultProvider);
+        LegacyDataVaultProvider.instance.set(dataVaultProvider);
         when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
     }
 

@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.elster.jupiter.datavault.DataVault;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,9 +21,9 @@ public class EIWebConnectionTypePropertiesTest  extends AbstractEIWebTests{
     @Before
     public void initializeDataVaultProvider () {
         DataVault dataVault = mock(DataVault.class);
-        DataVaultProvider dataVaultProvider = mock(DataVaultProvider.class);
+        LegacyDataVaultProvider dataVaultProvider = mock(LegacyDataVaultProvider.class);
         when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
-        DataVaultProvider.instance.set(dataVaultProvider);
+        LegacyDataVaultProvider.instance.set(dataVaultProvider);
     }
 
     @Test

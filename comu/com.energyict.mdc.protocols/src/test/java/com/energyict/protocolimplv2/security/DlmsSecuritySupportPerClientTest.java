@@ -6,8 +6,8 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
+import com.elster.jupiter.datavault.DataVault;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import org.fest.assertions.core.Condition;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,13 +30,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DlmsSecuritySupportPerClientTest {
     @Mock
-    private DataVaultProvider dataVaultProvider;
+    private LegacyDataVaultProvider dataVaultProvider;
     @Mock
     private DataVault dataVault;
 
     @Before
     public void setUp() {
-        DataVaultProvider.instance.set(dataVaultProvider);
+        LegacyDataVaultProvider.instance.set(dataVaultProvider);
         when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
     }
 

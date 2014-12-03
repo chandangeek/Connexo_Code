@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.DataVaultProvider;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocols.messaging.LegacyMessageConverter;
 import org.junit.*;
@@ -76,7 +76,7 @@ public abstract class AbstractMessageConverterTest {
         when(provider.getMdcInterface()).thenReturn(mdcInterface);
         MdcInterfaceProvider.instance.set(provider);
 
-        DataVaultProvider.instance.set(new KeyStoreDataVaultProvider());
+        LegacyDataVaultProvider.instance.set(new KeyStoreDataVaultProvider());
         RandomProvider.instance.set(new SecureRandomProvider());
     }
 
