@@ -1,7 +1,18 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.services.Finder;
@@ -44,31 +55,8 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationSupport;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-import java.io.File;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +68,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 /**
  * Provides an interface for the {@link ProtocolPluggableService} interface.
@@ -111,6 +107,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile LicenseService licenseService;
     private volatile TransactionService transactionService;
     private volatile UserService userService;
+    private volatile DataVaultService dataVaultService;
 
     private volatile boolean active = false;
     private List<ReferencePropertySpecFinderProvider> factoryProviders = new ArrayList<>();
@@ -136,7 +133,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             DeviceCacheMarshallingService deviceCacheMarshallingService,
             LicenseService licenseService,
             LicensedProtocolService licensedProtocolService,
-            UserService userService) {
+            UserService userService,
+            DataVaultService dataVaultService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -154,6 +152,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.addDeviceCacheMarshallingService(deviceCacheMarshallingService);
         this.setLicenseService(licenseService);
         this.addLicensedProtocolService(licensedProtocolService);
+        this.setDataVaultService(dataVaultService);
         this.activate();
         this.install();
     }
@@ -549,6 +548,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Reference
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
+    }
+
+    @Reference
     public void setPluggableService(PluggableService pluggableService) {
         this.pluggableService = pluggableService;
     }
@@ -758,6 +762,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
                 bind(LicenseService.class).toInstance(licenseService);
                 bind(UserService.class).toInstance(userService);
+                bind(DataVaultService.class).toInstance(dataVaultService);
             }
         };
     }
@@ -765,7 +770,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Activate
     public void activate() {
         //TODO need a proper implementation of the DataVault!
-        DataVaultProvider.instance.set(new TemporaryUnSecureDataVaultProvider());
         this.dataModel.register(this.getModule());
         this.active = this.dataModel.isInstalled();
         this.registerAllPluggableClasses();
@@ -812,44 +816,4 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         return Arrays.asList("ORM", "USR", "EVT", "NLS");
     }
 
-    private class TemporaryUnSecureDataVaultProvider implements DataVaultProvider {
-
-        private DataVault soleInstance;
-
-        @Override
-        public DataVault getKeyVault() {
-            if (soleInstance == null) {
-                soleInstance = new StraightForwardUnSecureDataVault();
-            }
-            return soleInstance;
-        }
-    }
-
-    /**
-     * An unsecure DataVault. The encrypt will just make a String from the given bytes and the decrypt will do the reverse!.
-     * <b>NOT SECURE FOR IN PRODUCTION</b>
-     *
-     * @see <a href="http://jira.eict.vpdc/browse/JP-3879">JP-3879</a>
-     */
-    private class StraightForwardUnSecureDataVault implements DataVault {
-
-        @Override
-        public String encrypt(byte[] decrypted) {
-            return new String(decrypted);
-        }
-
-        @Override
-        public byte[] decrypt(String encrypted) {
-            if (encrypted != null) {
-                return encrypted.getBytes();
-            } else {
-                return new byte[0];
-            }
-        }
-
-        @Override
-        public void createVault(File file) {
-
-        }
-    }
 }
