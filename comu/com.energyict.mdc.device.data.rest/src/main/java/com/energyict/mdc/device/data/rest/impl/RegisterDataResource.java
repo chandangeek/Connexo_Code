@@ -50,7 +50,7 @@ public class RegisterDataResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public PagedInfoList getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
@@ -78,7 +78,7 @@ public class RegisterDataResource {
     @GET
     @Path("/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public ReadingInfo getRegisterData(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?> register = resourceHelper.findRegisterOrThrowException(device, registerId);

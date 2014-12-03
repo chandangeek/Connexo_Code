@@ -126,7 +126,7 @@ public class DeviceResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
         Condition condition = null;
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
@@ -184,7 +184,7 @@ public class DeviceResource {
     @GET
     @Path("/{mRID}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService);

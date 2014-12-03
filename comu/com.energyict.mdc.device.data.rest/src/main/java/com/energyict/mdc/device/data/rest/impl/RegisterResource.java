@@ -56,7 +56,7 @@ public class RegisterResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public PagedInfoList getRegisters(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<Register> registers = ListPager.of(device.getRegisters(),
@@ -70,7 +70,7 @@ public class RegisterResource {
     @GET
     @Path("/{registerId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public RegisterInfo getRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
         Register<?> register = doGetRegister(mRID, registerId);
         return RegisterInfoFactory.asInfo(register, validationInfoHelper.getRegisterValidationInfo(register));
@@ -80,7 +80,7 @@ public class RegisterResource {
     @Path("/{registerId}/validate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response validateNow(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, TriggerValidationInfo validationInfo) {
         Register<?> register = doGetRegister(mRID, registerId);
         if (validationInfo.lastChecked == null) {
