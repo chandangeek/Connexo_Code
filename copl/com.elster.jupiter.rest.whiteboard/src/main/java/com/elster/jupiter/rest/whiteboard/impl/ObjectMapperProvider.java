@@ -5,18 +5,22 @@ import java.time.Instant;
 
 import javax.ws.rs.ext.ContextResolver;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.*;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
-import org.codehaus.jackson.map.deser.std.StdDeserializer;
-import org.codehaus.jackson.map.introspect.JacksonAnnotationIntrospector;
-import org.codehaus.jackson.map.module.SimpleModule;
-import org.codehaus.jackson.map.ser.std.SerializerBase;
-import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
-
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 	
@@ -25,11 +29,12 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 	public ObjectMapperProvider() {
 		mapper = new ObjectMapper();
 		AnnotationIntrospector primary = new JacksonAnnotationIntrospector();
-	    AnnotationIntrospector secondary = new JaxbAnnotationIntrospector();
-	    AnnotationIntrospector pair = new AnnotationIntrospector.Pair(primary, secondary);
-		mapper.setSerializationInclusion(Inclusion.NON_NULL);
+	    AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(mapper.getTypeFactory());
+	    AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
+		mapper.setSerializationInclusion(Include.NON_NULL);
+		mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS,false);
 		mapper.setAnnotationIntrospector(pair);
-		mapper.registerModule(new SimpleModule("Instant", new Version(1,0,0,null))
+		mapper.registerModule(new SimpleModule("Instant", new Version(1,0,0,null,"com.elster.jupiter","rest.whiteboard"))
 			.addSerializer(new InstantSerializer())
 			.addDeserializer(Instant.class, new InstantDeserializer()));
 	}
@@ -39,7 +44,7 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 		return mapper;
 	}
 
-	private static class InstantSerializer extends SerializerBase<Instant> {
+	private static class InstantSerializer extends StdSerializer<Instant> {
 		
 		protected InstantSerializer() {
 			super(Instant.class);
@@ -54,6 +59,8 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 	
 	private static class InstantDeserializer extends StdDeserializer<Instant> {
 		
+		private static final long serialVersionUID = 1L;
+
 		protected InstantDeserializer() {
 			super(Instant.class);
 		}
