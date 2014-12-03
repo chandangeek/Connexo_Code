@@ -233,7 +233,7 @@ public class DataExportTaskResource {
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ReadingTypeDataExportItem> exportItems = ListPager.of(task.getExportItems()).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
-        DataSourceInfos dataSourceInfos = new DataSourceInfos(exportItems.subList(0, queryParameters.getLimit()));
+        DataSourceInfos dataSourceInfos = new DataSourceInfos(exportItems.subList(0, Math.min(queryParameters.getLimit(), exportItems.size())));
         dataSourceInfos.total = task.getExportItems().size();
 
         return dataSourceInfos;
