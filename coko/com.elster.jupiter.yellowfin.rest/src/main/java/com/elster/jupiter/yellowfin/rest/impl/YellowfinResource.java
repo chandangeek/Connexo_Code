@@ -1,6 +1,7 @@
 package com.elster.jupiter.yellowfin.rest.impl;
 
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.YellowfinService;
 
 import javax.inject.Inject;

@@ -23,7 +23,7 @@ public class YellowfinApplication extends Application implements BinderProvider{
     private volatile YellowfinService yellowfinService;
 
     public YellowfinApplication() {
-        classes.add(YellowfinReportInfoResource.class);
+        classes.add(YellowfinResource.class);
     }
 
     @Override
