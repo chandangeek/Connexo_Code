@@ -2,6 +2,7 @@ package com.elster.jupiter.datavault.impl;
 
 import com.elster.jupiter.datavault.DataVault;
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -62,6 +63,7 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService {
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
+        LegacyDataVaultProvider.instance.set(() -> dataModel.getInstance(DataVault.class));
     }
 
     @Override
