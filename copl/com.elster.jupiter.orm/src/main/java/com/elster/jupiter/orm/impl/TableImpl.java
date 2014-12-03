@@ -891,10 +891,7 @@ public class TableImpl<T> implements Table<T> {
 	}
 
 	@Override
-	public void partitionOn(Column column) {
-		if (!getPrimaryKeyColumns().contains(column)) {
-			throw new IllegalArgumentException("Partitioning column must be part of primary key");
-		}
+	public void partitionOn(Column column) {	
 		this.partitionColumn = Optional.of(column);
 	}
 	

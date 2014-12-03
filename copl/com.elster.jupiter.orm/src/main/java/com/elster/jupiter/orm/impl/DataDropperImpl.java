@@ -26,6 +26,9 @@ public class DataDropperImpl implements DataDropper {
 	}
 
 	public void drop(Instant instant) {
+		if (!dataModel.getSqlDialect().hasPartitioning()) {
+			return;
+		}
 		this.upTo = instant;
 		try {
 			dropPartitions();
