@@ -1,8 +1,8 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
+import com.elster.jupiter.datavault.DataVault;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
@@ -62,17 +62,17 @@ public class DeviceMessageSpecificationServiceImplTest {
     @Mock
     private DataVault dataVault;
     @Mock
-    private DataVaultProvider dataVaultProvider;
+    private LegacyDataVaultProvider dataVaultProvider;
 
     @Before
     public void setupDataVaultProvider () {
         when(this.dataVaultProvider.getKeyVault()).thenReturn(this.dataVault);
-        DataVaultProvider.instance.set(this.dataVaultProvider);
+        LegacyDataVaultProvider.instance.set(this.dataVaultProvider);
     }
 
     @After
     public void tearDownDataVaultProvider () {
-        DataVaultProvider.instance.set(null);
+        LegacyDataVaultProvider.instance.set(null);
     }
 
     @Before
