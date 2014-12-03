@@ -8,8 +8,10 @@ public enum G3NetworkManagementMethods implements DLMSClassMethods {
     PATH_REQUEST(1),
     ROUTE_REQUEST(2),
 	PING(3),
-	DETACH(4);
-	
+	DETACH(4),
+	ENABLE(5),
+	PROVIDE_PSK(9);
+
 	private final int methodId;
 	
 	/**

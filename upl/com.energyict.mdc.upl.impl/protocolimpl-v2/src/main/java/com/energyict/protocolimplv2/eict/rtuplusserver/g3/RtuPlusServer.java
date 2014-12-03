@@ -236,7 +236,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private RtuPlusServerMessages getRtuPlusServerMessages() {
         if (rtuPlusServerMessages == null) {
-            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession());
+            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), offlineDevice);
         }
         return rtuPlusServerMessages;
     }

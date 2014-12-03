@@ -8,8 +8,7 @@ import com.energyict.dlms.cosem.methods.G3NetworkManagementMethods;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 /**
  * Copyrights EnergyICT
@@ -173,6 +172,22 @@ public class G3NetworkManagement extends AbstractCosemObject {
         return readDataType(G3NetworkManagementAttributes.KEEP_ALIVE_TIMEOUT, Unsigned16.class).getValue();
     }
 
+    public final boolean isG3InterfaceEnabled() throws IOException {
+        return readDataType(G3NetworkManagementAttributes.IS_G3_INTERFACE_ENABLED, BooleanObject.class).getState();
+    }
+
+    public final Array getJoiningNodes() throws IOException {
+        return readDataType(G3NetworkManagementAttributes.JOINING_NODES, Array.class);
+    }
+
+    public void enableG3Interface(boolean enable) throws IOException {
+        methodInvoke(G3NetworkManagementMethods.ENABLE, new BooleanObject(enable).getBEREncodedByteArray());
+    }
+
+    public void provideKeyPairs(Array keyPairs) throws IOException {
+        methodInvoke(G3NetworkManagementMethods.PROVIDE_PSK, keyPairs.getBEREncodedByteArray());
+    }
+
     public final void setAutomaticRouteManagement(boolean routeRequestEnabled, boolean pingEnabled, boolean pathRequestEnabled) throws IOException {
         Structure structure = new Structure();
         structure.addDataType(new BooleanObject(routeRequestEnabled));
@@ -267,21 +282,37 @@ public class G3NetworkManagement extends AbstractCosemObject {
 
     /**
      * Requests the path to a particular node.
+     * Returns a text description of the back and forth path,
+     * e.g.: date:meterMac:mac1;mac2;mac3:mac1;mac2;mac3
      *
      * @param macAddress Hex string containing the EUI64 address of the path for.
      * @return A list of EUI64 addresses representing the path to the given node.
      * @throws IOException In case of an IO error during method execution.
      */
-    public final List<String> requestPath(final String macAddress) throws IOException {
-        final Array response = this.methodInvoke(G3NetworkManagementMethods.PATH_REQUEST, extractEUI64(macAddress), Array.class);
-
-        final List<String> path = new ArrayList<String>(response.nrOfDataTypes());
-
-        for (final AbstractDataType element : response) {
-            path.add((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
+    public final String requestPath(final String macAddress) throws IOException {
+        final Structure response = this.methodInvoke(G3NetworkManagementMethods.PATH_REQUEST, extractEUI64(macAddress), Structure.class);
+        if (response.nrOfDataTypes() != 2) {
+            throw new IOException("Expected the response to the path request method to be a structure with 2 array elements");
         }
+        Array forwardPath = response.getDataType(0).getArray();
+        Array reversePath = response.getDataType(1).getArray();
 
-        return path;
+        if (forwardPath != null && reversePath != null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(new Date().getTime()).append(":").append(macAddress).append(":");
+            for (final AbstractDataType element : forwardPath) {
+                sb.append((sb.charAt(sb.length() - 1) == ':') ? "" : ";");
+                sb.append((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
+        }
+            sb.append(':');
+            for (final AbstractDataType element : reversePath) {
+                sb.append((sb.charAt(sb.length() - 1) == ':') ? "" : ";");
+                sb.append((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
+            }
+            return sb.toString();
+        } else {
+            throw new IOException("Expected the response to the path request method to be a structure with 2 array elements");
+        }
     }
 
     /**

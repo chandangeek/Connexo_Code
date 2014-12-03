@@ -157,7 +157,8 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
     SetMinInactiveMeterTime(59, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.minInactiveMeterTime)),
     SetMaxInactiveMeterTime(60, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxInactiveMeterTime)),
     SetKeepAliveRetries(61, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.KeepAliveRetries)),
-    SetKeepAliveTimeout(62, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.KeepAliveTimeout));
+    SetKeepAliveTimeout(62, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.KeepAliveTimeout)),
+    EnableG3PLCInterface(63, PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.enablePLC));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PLC_CONFIGURATION;
 

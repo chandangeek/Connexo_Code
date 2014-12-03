@@ -14,12 +14,15 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
@@ -27,6 +30,7 @@ import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
@@ -47,11 +51,14 @@ import java.util.logging.Level;
 public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private final DlmsSession session;
+    private final OfflineDevice offlineDevice;
     private List<DeviceMessageSpec> supportedMessages = null;
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
+    private static final int MAX_REGISTER_TEXT_SIZE = 3800;  //The register text field is 4000 chars maximum
 
-    public RtuPlusServerMessages(DlmsSession session) {
+    public RtuPlusServerMessages(DlmsSession session, OfflineDevice offlineDevice) {
         this.session = session;
+        this.offlineDevice = offlineDevice;
     }
 
     public List<DeviceMessageSpec> getSupportedMessages() {
@@ -123,6 +130,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime);
             supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveRetries);
             supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveTimeout);
+            supportedMessages.add(PLCConfigurationDeviceMessage.EnableG3PLCInterface);
 
             supportedMessages.add(ClockDeviceMessage.SyncTime);
             supportedMessages.add(ConfigurationChangeDeviceMessage.SetDeviceName);
@@ -207,8 +215,10 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                 } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMinBe)) {
                     setMinBe(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.PathRequest)) {
-                    String feedback = pathRequest(pendingMessage);
-                    collectedMessage.setDeviceProtocolInformation(feedback);
+                    PathRequestFeedback pathRequestFeedback = pathRequest(pendingMessage);
+                    collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, pathRequestFeedback.getRegisters());
+                    collectedMessage.setDeviceProtocolInformation(pathRequestFeedback.getFeedback());
+                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
                 } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.EnableUplinkPing)) {
                     enableUplinkPing(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress)) {
@@ -265,6 +275,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     setKeepAliveRetries(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetKeepAliveTimeout)) {
                     setKeepAliveTimeout(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.EnableG3PLCInterface)) {
+                    enableG3PLCInterface(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                     changeDlmAuthLevel(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
@@ -459,6 +471,10 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveTimeout(getSingleIntegerAttribute(pendingMessage));
     }
 
+    private void enableG3PLCInterface(OfflineDeviceMessage pendingMessage) throws IOException {
+        this.session.getCosemObjectFactory().getG3NetworkManagement().enableG3Interface(getSingleBooleanAttribute(pendingMessage));
+    }
+
     private void setKeepAliveRetries(OfflineDeviceMessage pendingMessage) throws IOException {
         this.session.getCosemObjectFactory().getG3NetworkManagement().setKeepAliveRetries(getSingleIntegerAttribute(pendingMessage));
     }
@@ -605,11 +621,33 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.session.getCosemObjectFactory().getUplinkPingConfiguration().enableUplinkPing(enable);
     }
 
-    private String pathRequest(OfflineDeviceMessage pendingMessage) throws IOException {
+    public class PathRequestFeedback {
+
+        private final String feedback;
+        private final List<CollectedRegister> registers;
+
+        public PathRequestFeedback(String feedback, List<CollectedRegister> registers) {
+            this.feedback = feedback;
+            this.registers = registers;
+        }
+
+        public String getFeedback() {
+            return feedback;
+        }
+
+        public List<CollectedRegister> getRegisters() {
+            return registers;
+        }
+    }
+
+    private PathRequestFeedback pathRequest(OfflineDeviceMessage pendingMessage) throws IOException {
         String macAddressesString = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
         final G3NetworkManagement topologyManagement = this.session.getCosemObjectFactory().getG3NetworkManagement();
         List<String> macAddresses = Arrays.asList(macAddressesString.split(";"));
 
+        StringBuilder pingFailed = new StringBuilder();
+        StringBuilder pingSuccess = new StringBuilder();
+        StringBuilder pathFailed = new StringBuilder();
         long aarqTimeout = ((G3GatewayProperties) session.getProperties()).getAarqTimeout();
         long normalTimeout = session.getProperties().getTimeout();
         long pingTimeout = (aarqTimeout == 0 ? normalTimeout : aarqTimeout);
@@ -617,39 +655,132 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         int numberPingFailed = 0;
         int numberPathFailed = 0;
         int success = 0;
+        Map<String, String> allPaths = new HashMap<String, String>();   //Remember the full path for every meter
+
         for (String macAddress : macAddresses) {
             session.getDLMSConnection().setTimeout(fullRoundTripTimeout);     //The ping request can take a long time, increase the timeout of the DLMS connection
             Integer ping;
             try {
+                session.getLogger().info("Executing ping request to meter " + macAddress);
                 ping = topologyManagement.pingNode(macAddress, (int) (pingTimeout / 1000));
             } catch (DataAccessResultException e) {
                 ping = null;
+                session.getLogger().warning("Meter " + macAddress + " is not registered to this concentrator! Will not execute path request for this meter.");
             } finally {
                 session.getDLMSConnection().setTimeout(normalTimeout);
             }
             if (ping == null) {
                 numberPingFailed++;
+                logFailedPingRequest(pingFailed, macAddress);
             } else if (ping > 0) {
+                logSuccessfulPingRequest(pingSuccess, macAddress, ping);
+                session.getLogger().info("Ping request for meter " + macAddress + " was successful (" + ping + " ms).");
                 try {
+                    session.getLogger().info("Executing path request to meter " + macAddress);
                     session.getDLMSConnection().setTimeout(fullRoundTripTimeout);
-                    topologyManagement.requestPath(macAddress);     //If successful, it will be added in the topology of the RTU+Server
+                    String fullPath = topologyManagement.requestPath(macAddress);   //If successful, it will be added in the topology of the RTU+Server
+                    allPaths.put(macAddress, fullPath);
                     success++;
+                    session.getLogger().info("Path request for meter " + macAddress + " was successful.");
                 } catch (DataAccessResultException e) {
                     numberPathFailed++;
+                    session.getLogger().warning("Path request for meter " + macAddress + " failed.");
+                    logFailedPathRequest(pathFailed, macAddress);
                 } finally {
                     session.getDLMSConnection().setTimeout(normalTimeout);
                 }
             } else if (ping <= 0) {
                 numberPingFailed++;
+                session.getLogger().info("Ping failed for meter " + macAddress + ". Will not execute path request for this meter.");
+                logFailedPingRequest(pingFailed, macAddress);
             }
         }
 
-        return getProtocolInfo(success, macAddresses.size(), numberPingFailed, numberPathFailed);
+        String allInfo = (pingSuccess.length() == 0 ? "" : (pingSuccess + ". ")) + (pingFailed.length() == 0 ? "" : (pingFailed + ". ")) + (pathFailed.length() == 0 ? "" : (pathFailed + "."));
+
+        List<CollectedRegister> collectedRegisters = convertPathInfoToRegisters(allPaths);
+        if (pingFailed.toString().length() == 0 && pathFailed.toString().length() == 0) {
+            session.getLogger().info("Message result: ping and path requests were successful for every meter.");
+        }
+
+        return new PathRequestFeedback(allInfo, collectedRegisters);
     }
 
-    private String getProtocolInfo(int success, int total, int numberPingFailed, int numberPathFailed) {
-        return "Successful for " + success + "/" + total + " device(s), ping failed for " + numberPingFailed + " device(s), path request failed for " + numberPathFailed + " device(s).";
+    private List<CollectedRegister> convertPathInfoToRegisters(Map<String, String> allPaths) throws IOException {
+        List<CollectedRegister> result = new ArrayList<>();
+        List<String> allDescriptions = new ArrayList<String>();
+        StringBuilder currentBuilder = createNewBuilder();    //Start with this builder
+
+        for (String macAddress : allPaths.keySet()) {
+            //Prevent that the description size goes over 4000 chars.
+            if (currentBuilder.length() > MAX_REGISTER_TEXT_SIZE) {
+                allDescriptions.add(currentBuilder.toString());      //Add the generated descriptions to the list
+                currentBuilder = createNewBuilder();                 //Continue with a new StringBuilder
+            }
+            currentBuilder.append(allPaths.get(macAddress));
+            currentBuilder.append("\n\r");
+        }
+        allDescriptions.add(currentBuilder.toString());     //Add the last used builder too
+
+        for (int index = 0; index < allDescriptions.size(); index++) {
+            ObisCode topologyObisCode = ProtocolTools.setObisCodeField(G3NetworkManagement.getDefaultObisCode(), 1, (byte) (index + 1));
+            DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(offlineDevice.getId());
+            RegisterDataIdentifierByObisCodeAndDevice registerDataIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(topologyObisCode, deviceIdentifier);
+            CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(registerDataIdentifier);
+            collectedRegister.setCollectedData(allDescriptions.get(index));
+            collectedRegister.setReadTime(new Date());
+            result.add(collectedRegister);
+        }
+
+        return result;
     }
+
+    private StringBuilder createNewBuilder() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Date:MAC_Address:Forth_path:Back_path");
+        sb.append("\n\r");
+        return sb;
+    }
+
+    private void logFailedPingRequest(StringBuilder pingFailed, String macAddress) {
+        if (pingFailed.toString().length() == 0) {
+            pingFailed.append("Ping failed for: ");
+            pingFailed.append(macAddress);
+        } else {
+            pingFailed.append(", ");
+            pingFailed.append(macAddress);
+        }
+    }
+
+    private void logSuccessfulPingRequest(StringBuilder pingSuccess, String macAddress, int pingTime) {
+        if (pingSuccess.toString().length() == 0) {
+            pingSuccess.append("Ping successful for: ");
+            pingSuccess.append(macAddress);
+            if (pingTime > 1) {
+                pingSuccess.append(" (").append(pingTime).append(" ms)");
+            }
+        } else {
+            pingSuccess.append(", ");
+            pingSuccess.append(macAddress);
+            if (pingTime > 1) {
+                pingSuccess.append(" (").append(pingTime).append(" ms)");
+            }
+        }
+    }
+
+    private void logFailedPathRequest(StringBuilder pathFailed, String macAddress) {
+        if (pathFailed.toString().length() == 0) {
+            pathFailed.append("Path request failed for: ");
+            pathFailed.append(macAddress);
+        } else {
+            pathFailed.append(", ");
+            pathFailed.append(macAddress);
+        }
+    }
+
+    //private String getProtocolInfo(int success, int total, int numberPingFailed, int numberPathFailed) {
+    //    return "Successful for " + success + "/" + total + " device(s), ping failed for " + numberPingFailed + " device(s), path request failed for " + numberPathFailed + " device(s).";
+    //}
 
     private void setMinBe(OfflineDeviceMessage pendingMessage) throws IOException {
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
@@ -837,6 +968,10 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
         return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+    }
+
+    protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> registers) {
+        return MdcManager.getCollectedDataFactory().createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), new DeviceMessageIdentifierById(message.getDeviceMessageId()), registers);
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
