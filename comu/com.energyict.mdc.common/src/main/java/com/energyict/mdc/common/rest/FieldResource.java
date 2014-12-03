@@ -7,6 +7,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,6 +44,7 @@ public class FieldResource {
      * This method will return a JSON list of all available field descriptions in this resource
      */
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     public Object getAllFields() {
         final List<Object> allFields = new ArrayList<>();
         for (Method method : this.getClass().getMethods()) {
