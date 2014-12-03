@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers;
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
@@ -64,6 +65,10 @@ public class G3GatewayRegisters {
 
     public CollectedRegister readRegister(OfflineRegister register) {
         ObisCode obisCode = register.getObisCode();
+
+        if (obisCode.equalsIgnoreBChannel(G3NetworkManagement.getDefaultObisCode()) && (obisCode.getB() != 0)) {
+            return createFailureCollectedRegister(register, ResultType.InCompatible, "Register with obiscode " + obisCode + " cannot be read out, use the path request message for this.");
+        }
 
         try {
 
