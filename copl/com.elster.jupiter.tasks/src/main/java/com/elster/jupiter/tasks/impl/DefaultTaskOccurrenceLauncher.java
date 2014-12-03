@@ -23,12 +23,12 @@ class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
 
     @Override
     public void run() {
-        transactionService.execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                launchOccurrencesForDueTasks();
-            }
-        });
+            transactionService.execute(new VoidTransaction() {
+                @Override
+                protected void doPerform() {
+                    launchOccurrencesForDueTasks();
+                }
+            });
     }
 
     private void launchOccurrencesForDueTasks() {

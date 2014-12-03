@@ -3,6 +3,7 @@ package com.elster.jupiter.tasks.impl;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 final class TaskScheduler implements Runnable {
@@ -17,7 +18,14 @@ final class TaskScheduler implements Runnable {
         this.taskOccurrenceLauncher = taskOccurrenceLauncher;
         this.period = period;
         this.timeUnit = timeUnit;
-        scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r);
+                thread.setName("TaskOccurrenceLauncher");
+                return thread;
+            }
+        });
     }
 
     @Override

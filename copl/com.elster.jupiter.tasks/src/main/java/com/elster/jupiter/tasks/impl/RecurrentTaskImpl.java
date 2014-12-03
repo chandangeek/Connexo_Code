@@ -19,8 +19,12 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 class RecurrentTaskImpl implements RecurrentTask {
+
+    private static final Logger LOGGER = Logger.getLogger(RecurrentTaskImpl.class.getName());
 
     private long id;
     private String name;
@@ -188,14 +192,19 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @TransactionRequired
     TaskOccurrenceImpl launchOccurrence() {
-        TaskOccurrenceImpl taskOccurrence = createScheduledTaskOccurrence();
-        String json = toJson(taskOccurrence);
-        getDestination().message(json).send();
-        if (taskOccurrence.wasScheduled()) {
-            updateNextExecution();
+        try {
+            TaskOccurrenceImpl taskOccurrence = createScheduledTaskOccurrence();
+            String json = toJson(taskOccurrence);
+            getDestination().message(json).send();
+            if (taskOccurrence.wasScheduled()) {
+                updateNextExecution();
+            }
+            save();
+            return taskOccurrence;
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.SEVERE, "Failed to schedule task for RecurrentTask " + this.getName(), e);
+            return null;
         }
-        save();
-        return taskOccurrence;
     }
 
 
