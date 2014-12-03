@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.core.Application;
@@ -245,7 +246,7 @@ public class DeviceApplication extends Application implements InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("NLS");
+        return Arrays.asList(NlsService.COMPONENTNAME, FavoritesService.COMPONENTNAME);
     }
 
 
@@ -280,7 +281,7 @@ public class DeviceApplication extends Application implements InstallService {
         try {
             favoritesService.createLabelCategory(MessageSeeds.MDC_LABEL_CATEGORY_FAVORITES.getKey());
         } catch (Exception e) {
-            logger.severe(e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
