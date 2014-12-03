@@ -44,13 +44,20 @@ public class AnsiC12SecuritySupportTest {
         AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
 
         // currently only 3 properties are necessary
-        assertThat(ansiC12SecuritySupport.getSecurityProperties()).hasSize(3);
+        assertThat(ansiC12SecuritySupport.getSecurityProperties()).hasSize(4);
 
         // check for the password propertySpec
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
                 return propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            }
+        });
+        // check for the binaryPassword propertySpec
+        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
+            @Override
+            public boolean matches(PropertySpec propertySpec) {
+                return propertySpec.equals(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec());
             }
         });
         // check for the ANSI C12 user propertySpec
