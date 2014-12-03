@@ -1,12 +1,21 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.rest.ReadingTypeInfos;
+import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,23 +33,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
-import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.User;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Range;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 
 @Path("/usagepoints")
@@ -61,12 +60,12 @@ public class UsagePointResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-	@Produces(MediaType.APPLICATION_JSON) 
-	public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<UsagePoint> list = queryUsagePoints(maySeeAny(securityContext), params);
         return toUsagePointInfos(params.clipToLimit(list), params.getStart(), params.getLimit());
-	  }
+    }
 
     private UsagePointInfos toUsagePointInfos(List<UsagePoint> list, int start, int limit) {
         UsagePointInfos infos = new UsagePointInfos(list, clock);
@@ -82,7 +81,7 @@ public class UsagePointResource {
         Query<UsagePoint> query = meteringService.getUsagePointQuery();
         query.setLazy("serviceLocation");
         if (!maySeeAny) {
-        	query.setRestriction(meteringService.hasAccountability());
+            query.setRestriction(meteringService.hasAccountability());
         }
         return queryService.wrap(query).select(queryParameters);
     }
@@ -92,35 +91,36 @@ public class UsagePointResource {
     }
 
     @PUT
-	@RolesAllowed({Privileges.ADMIN_OWN, Privileges.ADMIN_ANY})
-	@Path("/{id}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
+    @RolesAllowed({Privileges.ADMIN_OWN, Privileges.ADMIN_ANY})
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.id = id;
         transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService, clock));
         return getUsagePoint(info.id, securityContext);
-	}
-	  
-	@GET
+    }
+
+    @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-	@Path("/{id}/")
-	@Produces(MediaType.APPLICATION_JSON)
-	public UsagePointInfos getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
+    @Path("/{id}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public UsagePointInfos getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
 
         UsagePointInfos result = new UsagePointInfos(usagePoint, clock);
-		result.addServiceLocationInfo();
-		return result;
-	}
+        result.addServiceLocationInfo();
+        return result;
+    }
 
-	@POST
+    @POST
     @RolesAllowed({Privileges.ADMIN_ANY})
-	@Consumes(MediaType.APPLICATION_JSON) 
-	public UsagePointInfos createUsagePoint(UsagePointInfo info) {
-		UsagePointInfos result = new UsagePointInfos();
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public UsagePointInfos createUsagePoint(UsagePointInfo info) {
+        UsagePointInfos result = new UsagePointInfos();
         result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService)), clock);
-		return result;
-	}
+        return result;
+    }
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
@@ -155,10 +155,10 @@ public class UsagePointResource {
     @Path("/{id}/meteractivations/{activationId}/channels/{channelId}/intervalreadings")
     @Produces(MediaType.APPLICATION_JSON)
     public ReadingInfos getIntervalReadings(@PathParam("id") long id, @PathParam("activationId") long activationId, @PathParam("channelId") long channelId, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
-    	if (from == 0 || to == 0) {
-    		throw new WebApplicationException(Response.Status.BAD_REQUEST);
-    	}
-    	Range<Instant> range = Range.openClosed(Instant.ofEpochMilli(from), Instant.ofEpochMilli(to));
+        if (from == 0 || to == 0) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        Range<Instant> range = Range.openClosed(Instant.ofEpochMilli(from), Instant.ofEpochMilli(to));
         return doGetIntervalreadings(id, activationId, channelId, securityContext, range);
     }
 
