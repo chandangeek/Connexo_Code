@@ -39,7 +39,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceLoadProfileData',
         'Mdc.controller.setup.DeviceLoadProfileOverview',
         'Mdc.controller.setup.DeviceLoadProfiles',
-        'Mdc.controller.setup.DeviceEvents',
+        'Mdc.controller.setup.DeviceLogbookData',
         'Mdc.controller.setup.DeviceLogbookOverview',
         'Mdc.controller.setup.DeviceLogbooks',
         'Mdc.controller.setup.DeviceProtocolDialects',
