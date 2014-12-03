@@ -45,7 +45,8 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
                 xtype: 'button',
                 text: Uni.I18n.translatePlural('deviceOpenIssues.dataCollectionIssuesOnMeter', value, 'MDC', '{0} data collection issues'),
                 ui: 'link',
-                href: me.router.getRoute('workspace/datacollection/issues').buildUrl(null, assignedFilter)
+                href: typeof me.router.getRoute('workspace/datacollection/issues') !== 'undefined'
+                    ? me.router.getRoute('workspace/datacollection/issues').buildUrl(null, assignedFilter) : null
             });
     }
 })
