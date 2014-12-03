@@ -78,12 +78,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 6/19/14.
@@ -802,7 +797,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B'property':'intervalStart','value':2%7D,%7B'property':'intervalEnd','value':1%7D]").request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22intervalStart%22,%22value%22:2%7D,%7B%22property%22:%22intervalEnd%22,%22value%22:1%7D]").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -815,7 +810,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B'property':'domain','value':'100500'%7D]").request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22domain%22,%22value%22:%22100500%22%7D]").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -828,7 +823,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B'property':'subDomain','value':'100500'%7D]").request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22subDomain%22,%22value%22:%22100500%22%7D]").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -841,7 +836,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(device);
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B'property':'eventOrAction','value':'100500'%7D]").request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22eventOrAction%22,%22value%22:%22100500%22%7D]").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -885,11 +880,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).thenAnswer(invocation -> (String) invocation.getArguments()[1]);
 
         Map<?, ?> response = target("/devices/mrid/logbooks/1/data")
-                .queryParam("filter", ("[{'property':'intervalStart','value':1},"
-                        + "{'property':'intervalEnd','value':2},"
-                        + "{'property':'domain','value':'BATTERY'},"
-                        + "{'property':'subDomain','value':'ACCESS'},"
-                        + "{'property':'eventOrAction','value':'ACTIVATED'}]").replace("{","%7B").replace("}","%7D")).request().get(Map.class);
+                .queryParam("filter", ("[{\"property\":\"intervalStart\",\"value\":1},"
+                        + "{\"property\":\"intervalEnd\",\"value\":2},"
+                        + "{\"property\":\"domain\",\"value\":\"BATTERY\"},"
+                        + "{\"property\":\"subDomain\",\"value\":\"ACCESS\"},"
+                        + "{\"property\":\"eventOrAction\",\"value\":\"ACTIVATED\"}]").replace("{", "%7B").replace("}", "%7D").replace("\"", "%22")).request().get(Map.class);
 
         assertThat(response.get("total")).isEqualTo(1);
 
@@ -956,7 +951,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testGetCommunicationTopologyPagingBigEnd(){
+    public void testGetCommunicationTopologyPagingBigEnd() {
         mockTopologyTimeline();
         String response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 6).queryParam("limit", 1000)
@@ -967,7 +962,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testGetCommunicationTopologyNoPaging(){
+    public void testGetCommunicationTopologyNoPaging() {
         mockTopologyTimeline();
         String response = target("/devices/gateway/topology/communication")
                 .request().get(String.class);
@@ -1002,7 +997,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testGetCommunicationTopologyFilter() throws Exception{
+    public void testGetCommunicationTopologyFilter() throws Exception {
         Device gateway = mockDeviceForTopologyTest("gateway");
         Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid");
         Device slave2 = mockDeviceForTopologyTest("123456789");
@@ -1020,50 +1015,50 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         Map<?, ?> response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'*'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'%'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"%\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'Simple%Mrid'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"Simple%Mrid\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'Simple?Mrid'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"Simple?Mrid\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(0);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'1234*'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"1234*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'*789'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"*789\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'mrid','value':'%34*7?9'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"%34*7?9\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
     }
 
 
     @Test
-    public void testGetCommunicationTopologyFilterOnSerialNumber() throws Exception{
+    public void testGetCommunicationTopologyFilterOnSerialNumber() throws Exception {
         Device gateway = mockDeviceForTopologyTest("gateway");
         Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid");
         Device slave2 = mockDeviceForTopologyTest("123456789");
@@ -1081,43 +1076,43 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         Map<?, ?> response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'*'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'%'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"%\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'D(\\E%\\\\Q'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"D(E%\\\\Q\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(0);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'123456?89'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"123456?89\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'1234*'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"1234*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'*789'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"*789\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", 10)
-                .queryParam("filter", URLEncoder.encode("[{'property':'serialNumber','value':'%34*7?9'}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"%34*7?9\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
     }
@@ -1158,7 +1153,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(infos.size()).isEqualTo(1);
     }
 
-    private Device mockDeviceForTopologyTest(String name){
+    private Device mockDeviceForTopologyTest(String name) {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(device.getmRID()).thenReturn(name);
