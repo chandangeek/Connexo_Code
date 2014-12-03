@@ -29,15 +29,19 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
         },
         {
             ref: 'sideFilter',
-            selector: 'deviceLogbookData #device-logbook-data-side-filter'
+            selector: '#logBookFilter'
         },
         {
             ref: 'filterForm',
-            selector: 'deviceLogbookData #deviceLogbookDataSideFilterForm'
+            selector: '#deviceLogbookDataSideFilterForm'
         },
         {
             ref: 'filterToolbar',
             selector: 'deviceLogbookData #device-logbook-data-filter-toolbar'
+        },
+        {
+            ref: 'deviceLogBookDetailTitle',
+            selector: '#deviceLogBookDetailTitle'
         }
     ],
 
@@ -48,38 +52,39 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
             'deviceLogbookData #deviceLogbookDataGrid': {
                 select: this.showPreview
             },
-            'deviceLogbookData #deviceLogbookDataSideFilterApplyBtn': {
+            '#deviceLogbookDataSideFilterApplyBtn': {
                 click: this.applyFilter
             },
-            'deviceLogbookData #deviceLogbookDataSideFilterResetBtn': {
+            '#deviceLogbookDataSideFilterResetBtn': {
                 click: this.clearFilter
             },
-            'deviceLogbookData #device-logbook-data-filter-toolbar': {
+            '#device-logbook-data-filter-toolbar': {
                 removeFilter: this.removeFilterItem,
                 clearAllFilters: this.clearFilter
             },
-            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=intervalStart]': {
+            '#deviceLogbookDataSideFilterForm [name=intervalStart]': {
                 change: this.changeFilterByIntervalStart
             },
-            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=domain]': {
+            '#deviceLogbookDataSideFilterForm [name=domain]': {
                 change: this.changeComboFilter
             },
-            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=subDomain]': {
+            '#deviceLogbookDataSideFilterForm [name=subDomain]': {
                 change: this.changeComboFilter
             },
-            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=eventOrAction]': {
+            '#deviceLogbookDataSideFilterForm [name=eventOrAction]': {
                 change: this.changeComboFilter
             }
         });
     },
 
-    showOverview: function (mRID, logbookId) {
+    showOverview: function (mRID, logbookId, tabController) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             logbookModel = me.getModel('Mdc.model.LogbookOfDevice'),
             dataStore = me.getStore('Mdc.store.LogbookOfDeviceData'),
             dataStoreProxy = dataStore.getProxy(),
             widget,
+            data,
             sideFilter;
 
         dataStoreProxy.setUrl({
@@ -87,36 +92,45 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
             logbookId: logbookId
         });
 
-        widget = Ext.widget('deviceLogbookData', {
-            router: me.getController('Uni.controller.history.Router')
-        });
-        me.getApplication().fireEvent('changecontentevent', widget);
 
-        sideFilter = me.getSideFilter();
-        sideFilter.disable();
-        Uni.util.Common.loadNecessaryStores([
-            'Mdc.store.Domains',
-            'Mdc.store.Subdomains',
-            'Mdc.store.EventsOrActions'
-        ], function () {
-            me.getFilterForm().loadRecord(router.filter);
-            sideFilter.enable();
-            me.setFilterView();
-        });
 
         me.getModel('Mdc.model.Device').load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
+                widget = Ext.widget('tabbedDeviceLogBookView', {
+                    device: record,
+                    router: me.getController('Uni.controller.history.Router')
+                });
+
+                data = Ext.widget('deviceLogbookData', {
+                    router: me.getController('Uni.controller.history.Router')
+                });
+                me.getApplication().fireEvent('changecontentevent', widget);
+                widget.down('#logBook-data').add(data);
+                tabController.showTab(1);
+                sideFilter = me.getSideFilter();
+                sideFilter.show();
+                sideFilter.disable();
+                Uni.util.Common.loadNecessaryStores([
+                    'Mdc.store.Domains',
+                    'Mdc.store.Subdomains',
+                    'Mdc.store.EventsOrActions'
+                ], function () {
+                    me.getFilterForm().loadRecord(router.filter);
+                    sideFilter.enable();
+                    me.setFilterView();
+                });
+                logbookModel.getProxy().setUrl(mRID);
+                logbookModel.load(logbookId, {
+                    success: function (record) {
+                        me.getDeviceLogBookDetailTitle().update('<H2>'+record.get('name')+'</H2>');
+                        me.getApplication().fireEvent('logbookOfDeviceLoad', record);
+                    }
+                });
             }
         });
 
-        logbookModel.getProxy().setUrl(mRID);
-        logbookModel.load(logbookId, {
-            success: function (record) {
-                me.getApplication().fireEvent('logbookOfDeviceLoad', record);
-                widget.down('#deviceLogbookSubMenuPanel').setParams(mRID, record);
-            }
-        });
+
     },
 
     showPreview: function (selectionModel, record) {

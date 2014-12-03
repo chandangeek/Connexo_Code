@@ -1216,16 +1216,16 @@ Ext.define('Mdc.controller.history.Setup', {
                                         overview: {
                                             title: Uni.I18n.translate('router.overview', 'MDC', 'Overview'),
                                             route: 'overview',
-                                            controller: 'Mdc.controller.setup.DeviceLogbookOverview',
+                                            controller: 'Mdc.controller.setup.DeviceLogBookTab',
                                             privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
                                             action: 'showOverview'
                                         },
                                         data: {
                                             title: Uni.I18n.translate('router.logbookData', 'MDC', 'Logbook data'),
                                             route: 'data',
-                                            controller: 'Mdc.controller.setup.DeviceLogbookData',
+                                            controller: 'Mdc.controller.setup.DeviceLogBookTab',
                                             privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
-                                            action: 'showOverview',
+                                            action: 'showData',
                                             filter: 'Mdc.model.LogbookOfDeviceDataFilter'
                                         }
                                     }

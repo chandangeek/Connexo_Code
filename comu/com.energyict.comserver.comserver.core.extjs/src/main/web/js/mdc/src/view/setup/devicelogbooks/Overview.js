@@ -12,17 +12,11 @@ Ext.define('Mdc.view.setup.devicelogbooks.Overview', {
 
     content: {
         xtype: 'deviceLogbooksPreviewForm',
-        ui: 'large',
-        title: Uni.I18n.translate('general.overview', 'MDC', 'Overview')
+        ui: 'large'
     },
 
     initComponent: function () {
         var me = this;
-
-        me.side = {
-            xtype: 'deviceLogbookSubMenuPanel',
-            router: me.router
-        };
 
         me.callParent(arguments);
     }

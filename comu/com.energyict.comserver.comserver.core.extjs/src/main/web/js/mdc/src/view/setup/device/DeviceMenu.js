@@ -107,5 +107,4 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             item.addCls(cls);
         }
     }
-
 });

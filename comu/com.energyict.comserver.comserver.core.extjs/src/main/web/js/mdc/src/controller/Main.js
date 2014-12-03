@@ -78,7 +78,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceCommunicationTaskHistory',
         'Mdc.controller.setup.DeviceConnectionHistory',
         'Mdc.controller.setup.AddDeviceGroupAction',
-        'Mdc.controller.setup.DeviceRegisterTab'
+        'Mdc.controller.setup.DeviceRegisterTab',
+        'Mdc.controller.setup.DeviceLogBookTab'
     ],
 
     refs: [
