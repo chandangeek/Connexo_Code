@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.Pair;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -28,8 +27,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
-@Component(name = "com.elster.jupiter.appserver.messagehandlerlauncher", immediate = true)
+@Component(name = "com.elster.jupiter.appserver.messagehandlerlauncher", service = MessageHandlerLauncherService.class, immediate = true)
 public class MessageHandlerLauncherService {
 
     private volatile AppService appService;
@@ -42,7 +42,8 @@ public class MessageHandlerLauncherService {
 
     private final Map<MessageHandlerFactory, ExecutorService> executors = new ConcurrentHashMap<>();
     private final Map<ExecutorService, List<Future<?>>> futures = new ConcurrentHashMap<>();
-    private final Queue<Pair<String, MessageHandlerFactory>> toBeLaunched = new LinkedList<>();
+    private final Queue<String> toBeLaunched = new LinkedList<>();
+    private final Map<String, MessageHandlerFactory> handlerFactories = new ConcurrentHashMap<>();
 
     private Principal batchPrincipal;
 
@@ -75,9 +76,22 @@ public class MessageHandlerLauncherService {
 
     @Activate
     public void activate() {
-        for (Pair<String, MessageHandlerFactory> pair : toBeLaunched) {
-            addMessageHandlerFactory(pair.getFirst(), pair.getLast());
+        toBeLaunched.forEach(launch());
+    }
+
+    private Consumer<String> launch() {
+        return key -> addMessageHandlerFactory(key, handlerFactories.get(key));
+    }
+
+    void appServerStarted() {
+        if (!executors.isEmpty()) {
+            throw new IllegalStateException();
         }
+        handlerFactories.keySet().forEach(launch());
+    }
+
+    void appServerStopped() {
+        deactivate();
     }
 
     private Thesaurus getThesaurus() {
@@ -86,16 +100,16 @@ public class MessageHandlerLauncherService {
 
     @Deactivate
     public void deactivate() {
-        for (ExecutorService executorService : executors.values()) {
-            shutDownServiceWithCancelling(executorService);
-        }
+        executors.values().forEach(this::shutDownServiceWithCancelling);
+        executors.clear();
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(MessageHandlerFactory factory, Map<String, Object> map) {
         String subscriberName = (String) map.get("subscriber");
+        handlerFactories.put(subscriberName, factory);
         if (transactionService == null || threadPrincipalService == null) {
-            toBeLaunched.add(Pair.of(subscriberName, factory));
+            toBeLaunched.add(subscriberName);
             return;
         }
         addMessageHandlerFactory(subscriberName, factory);

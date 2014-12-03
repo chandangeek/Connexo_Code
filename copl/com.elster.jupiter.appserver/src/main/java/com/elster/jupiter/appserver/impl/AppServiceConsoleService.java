@@ -33,6 +33,7 @@ public class AppServiceConsoleService {
     private volatile FileImportService fileImportService;
     private volatile CronExpressionParser cronExpressionParser;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile MessageHandlerLauncherService messageHandlerLauncherService;
 
     public void executeSubscription(final String subscriberName, final String destinationName, final int threads) {
         final Optional<AppServer> activated = appService.getAppServer();
@@ -133,11 +134,13 @@ public class AppServiceConsoleService {
 
     public void stopAppServer() {
         appService.stopAppServer();
+        messageHandlerLauncherService.appServerStopped();
     }
 
     public void become(String appServerName) {
         appService.stopAppServer();
         appService.startAsAppServer(appServerName);
+        messageHandlerLauncherService.appServerStarted();
     }
 
     public void setLocale(String language) {
@@ -213,5 +216,10 @@ public class AppServiceConsoleService {
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setMessageHandlerLauncherService(MessageHandlerLauncherService messageHandlerLauncherService) {
+        this.messageHandlerLauncherService = messageHandlerLauncherService;
     }
 }
