@@ -76,13 +76,13 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         String response = target("/devices/ZABF010000080004/deviceprotocolproperties").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.deviceProtocolProperties[0].key")).isEqualTo("callHomeId");
-        assertThat(jsonModel.<String>get("$.deviceProtocolProperties[0].propertyValueInfo.value")).isEqualTo("0x7");
+        assertThat(jsonModel.<String>get("$.protocolProperties[0].key")).isEqualTo("callHomeId");
+        assertThat(jsonModel.<String>get("$.protocolProperties[0].propertyValueInfo.value")).isEqualTo("0x7");
     }
 
     @Test
     public void testGetDeviceProtocolPropertiesNonExistingDevice() {
-        Response response = target("/devices/FAKE/deviceprotocolproperties").request().get();
+        Response response = target("/devices/FAKE/protocolproperties").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -95,7 +95,7 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         propertyInfo.propertyTypeInfo.simplePropertyType= SimplePropertyType.TEXT;
 
 
-        Response response = target("devices/ZABF010000080004/deviceprotocolproperties").request().put(Entity.json(Arrays.asList(propertyInfo)));
+        Response response = target("devices/ZABF010000080004/protocolproperties").request().put(Entity.json(Arrays.asList(propertyInfo)));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device).setProtocolProperty("callHomeId", "0x99");
         verify(device).save();
