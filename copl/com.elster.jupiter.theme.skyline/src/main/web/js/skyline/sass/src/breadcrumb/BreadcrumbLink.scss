@@ -5,13 +5,13 @@
 @include link();
 
 .#{$prefix}component-link {
-    background-color: $link-default-background-color;
-    color: $link-default-color;
+    color: #686868;
+
     a {
-        color: $link-default-color;
+        color: #686868;
 
         &:hover {
-            color: #f0f0f0;
+            color: #75a6bb;
         }
     }
 }
