@@ -27,7 +27,8 @@ public enum SecurityPropertySpecName {
      * Indicates whether the password should be represented as ASCII or as Binary
      */
     BINARY_PASSWORD("PasswordBinary"),
-    ANSI_CALLED_AP_TITLE("AnsiCalledAPTitle"),
+    ANSI_CALLED_AP_TITLE("CalledAPTitle"),
+    ANSI_SECURITY_KEY("SecurityKey"),
 
     /* Below are incremental properties for the different clients of DLMSSecuritySuportPerClient */
     PASSWORD_PUBLIC("PasswordPublic"),

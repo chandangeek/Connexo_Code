@@ -3,7 +3,12 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.*;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.LegacyDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +30,7 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(),
+                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
                 DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
                 DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec()
         );
@@ -32,7 +38,8 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
 
     @Override
     public List<String> getLegacySecurityProperties() {
-        return Arrays.asList(SECURITY_LEVEL_PROPERTY_NAME);
+        return Arrays.asList(
+                SECURITY_LEVEL_PROPERTY_NAME);
     }
 
     @Override
@@ -91,6 +98,7 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
 
         if (authenticationDeviceAccessLevelProperty == null) {
+            securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.BINARY_PASSWORD.name(), 0);
             securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER.name(), "");
             securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER_ID.name(), 0);
         } else {
@@ -135,6 +143,7 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
                     DeviceSecurityProperty.PASSWORD.getPropertySpec(),
+                    DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
                     DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
                     DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec()
             );
@@ -160,6 +169,7 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
                     DeviceSecurityProperty.PASSWORD.getPropertySpec(),
+                    DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
                     DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
                     DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec()
             );
@@ -185,6 +195,7 @@ public class AnsiC12SecuritySupport implements LegacyDeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
                     DeviceSecurityProperty.PASSWORD.getPropertySpec(),
+                    DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
                     DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
                     DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec()
             );

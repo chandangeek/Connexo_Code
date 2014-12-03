@@ -89,6 +89,13 @@ public enum DeviceSecurityProperty {
             .name(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString())
             .finish()),
     /**
+     * A key used for encryption of bytes
+     */
+    ANSI_SECURITY_KEY(PropertySpecBuilder
+            .forClass(String.class, new EncryptedStringFactory())
+            .name(SecurityPropertySpecName.ANSI_SECURITY_KEY.toString())
+            .finish()),
+    /**
      * The manufacturer key used for encryption of bytes
      */
     MANUFACTURER_ENCRYPTION_KEY(PropertySpecBuilder

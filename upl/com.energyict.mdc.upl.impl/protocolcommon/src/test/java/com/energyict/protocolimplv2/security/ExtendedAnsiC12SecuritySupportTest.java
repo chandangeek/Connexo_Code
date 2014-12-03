@@ -71,7 +71,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
+                return propertySpec.equals(DeviceSecurityProperty.ANSI_SECURITY_KEY.getPropertySpec());
             }
         });
         // check for the ANSI Called AP Title
@@ -163,7 +163,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
         String binaryPassword = "0";
         securityProperties.setProperty(SecurityPropertySpecName.BINARY_PASSWORD.toString(), binaryPassword);
         String encryptionKey = "MyPrivateEncryptionKey";
-        securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), encryptionKey);
+        securityProperties.setProperty(SecurityPropertySpecName.ANSI_SECURITY_KEY.toString(), encryptionKey);
         String calledApTitle = "MyPersonalAPTitle";
         securityProperties.setProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), calledApTitle);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =

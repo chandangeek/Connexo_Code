@@ -19,20 +19,18 @@ import java.util.List;
  */
 public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
 
-    private static final String SECURITY_KEY_LEGACY_PROPERTY = "SecurityKey";
     private static final String SECURITY_MODE_LEGACY_PROPERTY = "SecurityMode";
-    private static final String CALLED_AP_TITLE_LEGACY_PROPERTY = "CalledAPTitle";
     private final String encryptionTranslationKeyConstant = "AnsiC12SecuritySupport.encryptionlevel.";
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(),
+                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
                 DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
                 DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(),
                 DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(),
-                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec()
+                DeviceSecurityProperty.ANSI_SECURITY_KEY.getPropertySpec()
         );
     }
 
@@ -40,9 +38,7 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     public List<String> getLegacySecurityProperties() {
         return Arrays.asList(
                 SECURITY_LEVEL_PROPERTY_NAME,
-                SECURITY_KEY_LEGACY_PROPERTY,
-                SECURITY_MODE_LEGACY_PROPERTY,
-                CALLED_AP_TITLE_LEGACY_PROPERTY
+                SECURITY_MODE_LEGACY_PROPERTY
         );
     }
 
@@ -63,9 +59,7 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         TypedProperties typedProperties = super.convertToTypedProperties(deviceProtocolSecurityPropertySet);
         if (deviceProtocolSecurityPropertySet != null) {
-            typedProperties.setProperty(SECURITY_KEY_LEGACY_PROPERTY, deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
             typedProperties.setProperty(SECURITY_MODE_LEGACY_PROPERTY, String.valueOf(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
-            typedProperties.setProperty(CALLED_AP_TITLE_LEGACY_PROPERTY, String.valueOf(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), "")));
         }
         return typedProperties;
     }
@@ -138,7 +132,7 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
+                    DeviceSecurityProperty.ANSI_SECURITY_KEY.getPropertySpec(),
                     DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec());
         }
     }
@@ -161,7 +155,7 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
+                    DeviceSecurityProperty.ANSI_SECURITY_KEY.getPropertySpec(),
                     DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec());
         }
     }
