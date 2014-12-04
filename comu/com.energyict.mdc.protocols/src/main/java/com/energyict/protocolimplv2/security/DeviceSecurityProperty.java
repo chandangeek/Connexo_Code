@@ -24,7 +24,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
-                    newPropertySpecBuilder(new PasswordFactory()).
+                    newPropertySpecBuilder(PasswordFactory.class).
                     name(SecurityPropertySpecName.PASSWORD.toString()).
                     markRequired().
                     finish();
@@ -37,7 +37,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
-                    newPropertySpecBuilder(new EncryptedStringFactory()).
+                    newPropertySpecBuilder(EncryptedStringFactory.class).
                     name(SecurityPropertySpecName.ENCRYPTION_KEY.toString()).
                     markRequired().
                     finish();
@@ -50,7 +50,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
-                    newPropertySpecBuilder(new EncryptedStringFactory()).
+                    newPropertySpecBuilder(EncryptedStringFactory.class).
                     name(SecurityPropertySpecName.AUTHENTICATION_KEY.toString()).
                     markRequired().
                     finish();
