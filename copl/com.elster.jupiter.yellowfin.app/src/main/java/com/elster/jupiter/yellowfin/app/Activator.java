@@ -46,11 +46,6 @@ public class Activator implements BundleActivator {
         serviceTracker = null;
     }
 
-    //@Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
-    //public void setLicense(License license) {
-    //    this.license = license;
-    //}
-
     private class LicenseTracker implements ServiceTrackerCustomizer<License, License> {
 
         @Override
