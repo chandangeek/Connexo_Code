@@ -18,6 +18,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -44,6 +45,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
     private volatile EventService eventService;
 
     private BundleContext context;
+    private Timer dailyCheck = new Timer("License check");
     List<ServiceRegistration<License>> licenseServices = new CopyOnWriteArrayList<>();
 
     public LicenseServiceImpl() {
@@ -113,7 +115,14 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
         dataModel.register(getModule());
 
         this.context = context;
-        registerApps();
+        dailyCheck.scheduleAtFixedRate(new LicenseCheckTask(), 0, 24 * 60 * 60 * 1000);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        dailyCheck.cancel();
+        dailyCheck.purge();
+        unregisterApps();
     }
 
     private void registerApps() {
@@ -133,12 +142,16 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
         }
     }
 
-    private void reloadApps() {
+    private void unregisterApps() {
         for(ServiceRegistration<License> service : licenseServices){
             service.unregister();
         }
 
         licenseServices.clear();
+    }
+
+    private synchronized void reloadApps() {
+        unregisterApps();
         registerApps();
     }
 
@@ -225,5 +238,13 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
 
     public void clearCache() {
         ormService.invalidateCache(COMPONENTNAME, TableSpecs.LIC_LICENSE.name());
+    }
+
+    class LicenseCheckTask extends TimerTask {
+
+        @Override
+        public void run() {
+            reloadApps();
+        }
     }
 }
