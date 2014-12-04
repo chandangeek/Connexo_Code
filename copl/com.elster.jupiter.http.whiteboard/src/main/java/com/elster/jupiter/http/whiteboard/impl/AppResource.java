@@ -31,6 +31,7 @@ public class AppResource {
             "privilege.view.creationRule","privilege.administrate.creationRule","privilege.view.assignmentRule","privilege.administrate.validationConfiguration",
             "privilege.view.validationConfiguration","privilege.administrate.schedule","privilege.view.schedule","privilege.administrate.communicationInfrastructure",
             "privilege.view.communicationInfrastructure","privilege.administrate.protocol","privilege.view.protocol","privilege.administrate.deviceConfiguration",
+            "privilege.administrate.deviceCommand","privilege.view.deviceCommand",
             "privilege.view.deviceConfiguration","privilege.administrate.device","privilege.view.device","privilege.view.validateManual","privilege.view.fineTuneValidationConfiguration","privilege.view.scheduleDevice",
             "privilege.administrate.deviceGroup","privilege.administrate.deviceOfEnumeratedGroup","privilege.view.deviceGroupDetail",
             "privilege.import.inventoryManagement","privilege.revoke.inventoryManagement","privilege.create.inventoryManagement","privilege.administrate.deviceSecurity",
