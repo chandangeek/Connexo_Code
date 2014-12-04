@@ -73,21 +73,21 @@ public class DataExportTaskHistoryInfo {
             if (count == 1) {
                 unitTranslation = thesaurus.getStringBeyondComponent("day", "day");
             } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("days", "days");
+                unitTranslation = thesaurus.getStringBeyondComponent("multipleDays", "days");
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
             if (count == 1) {
                 unitTranslation = thesaurus.getStringBeyondComponent("week", "week");
             } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("weeks", "weeks");
+                unitTranslation = thesaurus.getStringBeyondComponent("multipleWeeks", "weeks");
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
             if (count == 1) {
                 unitTranslation = thesaurus.getStringBeyondComponent("month", "month");
             } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("months", "months");
+                unitTranslation = thesaurus.getStringBeyondComponent("multipleMonths", "months");
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
