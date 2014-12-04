@@ -78,9 +78,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Inject
-    public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec) {
+    public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec, DataVaultService dataVaultService, OrmService ormService) {
         this();
         this.setBasicPropertySpecService(basicPropertySpec);
+        this.setOrmService(ormService);
+        this.setDataVaultService(dataVaultService);
     }
 
     @Override
