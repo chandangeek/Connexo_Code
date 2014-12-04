@@ -1,6 +1,7 @@
 package com.elster.jupiter.bpm.rest.impl;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.rest.util.BinderProvider;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -17,11 +18,13 @@ import java.util.Set;
 @Component(name = "com.elster.jupiter.bpm.rest" , service=Application.class , immediate = true , property = {"alias=/bpm", "app=BPM", "name=" + BpmApplication.COMPONENT_NAME} )
 public class BpmApplication extends Application implements BinderProvider{
 
+    public static final String APP_KEY = "BPM";
     public static final String COMPONENT_NAME = "BPM";
 
     private final Set<Class<?>> classes = new HashSet<>();
 
     private volatile BpmService bpmService;
+    private volatile License license;
 
     public BpmApplication() {
         classes.add(BpmResource.class);
@@ -35,6 +38,11 @@ public class BpmApplication extends Application implements BinderProvider{
     @Reference
     public void setBpmService(BpmService bpmService) {
         this.bpmService = bpmService;
+    }
+
+    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Activate
