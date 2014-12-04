@@ -83,7 +83,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @Reference
     public final void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
+        dataModel = ormService.newDataModel(COMPONENTNAME, "National Language Support");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
