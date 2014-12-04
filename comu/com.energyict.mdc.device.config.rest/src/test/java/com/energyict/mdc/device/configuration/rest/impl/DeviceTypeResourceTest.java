@@ -25,7 +25,15 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -38,7 +46,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import java.util.Optional;
 import org.glassfish.jersey.client.ClientResponse;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -57,6 +64,7 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -911,7 +919,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Finder<RegisterType> registerTypeFinder = mockFinder(Arrays.asList(registerType101, registerType102, registerType103));
         when(masterDataService.findAllRegisterTypes()).thenReturn(registerTypeFinder);
 
-        Map response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", "41").create()).request().get(Map.class);
+        Map response = target("/devicetypes/31/registertypes").queryParam("filter", ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", 41l).create()).request().get(Map.class);
         assertThat(response).hasSize(2);
         List registerTypes = (List) response.get("registerTypes");
         assertThat(registerTypes).hasSize(2);
@@ -1174,7 +1182,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(partialConnectionTask.getId()).thenReturn(connectionMethodId);
         when(deviceConfigurationService.getPartialConnectionTask(connectionMethodId)).thenReturn(Optional.<PartialConnectionTask>of(partialConnectionTask));
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
-        when(protocolPluggableService.findConnectionTypePluggableClassByName("ConnType")).thenReturn(connectionTypePluggableClass);
+        when(protocolPluggableService.findConnectionTypePluggableClassByName("ConnType")).thenReturn(Optional.of(connectionTypePluggableClass));
         when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass); // it will not be set in the PUT!
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());

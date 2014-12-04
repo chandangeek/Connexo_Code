@@ -7,7 +7,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +37,16 @@ public class ComTaskEnablementInfo {
         comTaskEnablementInfo.id = comTaskEnablement.getId();
         comTaskEnablementInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
         comTaskEnablementInfo.securityPropertySet = SecurityPropertySetInfo.from(comTaskEnablement.getSecurityPropertySet());
-        comTaskEnablementInfo.partialConnectionTask = PartialConnectionTaskInfo.from(comTaskEnablement.getPartialConnectionTask().orElse(null), thesaurus);
-        comTaskEnablementInfo.protocolDialectConfigurationProperties = ProtocolDialectConfigurationPropertiesInfo.from(comTaskEnablement.getProtocolDialectConfigurationProperties().orElse(null), thesaurus);
+        comTaskEnablementInfo.partialConnectionTask =
+                comTaskEnablement
+                        .getPartialConnectionTask()
+                        .map(pct -> PartialConnectionTaskInfo.from(pct, thesaurus))
+                        .orElse(null);
+        comTaskEnablementInfo.protocolDialectConfigurationProperties =
+                comTaskEnablement
+                        .getProtocolDialectConfigurationProperties()
+                        .map(p -> ProtocolDialectConfigurationPropertiesInfo.from(p, thesaurus))
+                        .orElse(null);
         comTaskEnablementInfo.priority = comTaskEnablement.getPriority();
         comTaskEnablementInfo.suspended = comTaskEnablement.isSuspended();
         comTaskEnablementInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();

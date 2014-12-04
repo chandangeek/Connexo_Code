@@ -35,7 +35,7 @@ public class DeviceMessagePrivilegesResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getDeviceMessagePrivileges(@BeanParam QueryParameters queryParameters) {
         Multimap<DeviceMessageUserAction, Group> privilegesMap = ArrayListMultimap.create();
 

@@ -9,9 +9,10 @@ import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.PhenomenonInfo;
 import com.energyict.mdc.protocol.api.device.MultiplierMode;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;

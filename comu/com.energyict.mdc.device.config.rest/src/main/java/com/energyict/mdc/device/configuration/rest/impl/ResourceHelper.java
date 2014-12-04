@@ -64,27 +64,21 @@ public class ResourceHelper {
     }
 
     public RegisterSpec findRegisterSpec(long registerSpecId) {
-        RegisterSpec registerSpec = deviceConfigurationService.findRegisterSpec(registerSpecId);
-        if (registerSpec == null) {
-            throw new WebApplicationException("No register spec with id " + registerSpecId, Response.Status.NOT_FOUND);
-        }
-        return registerSpec;
+        return deviceConfigurationService
+                .findRegisterSpec(registerSpecId)
+                .orElseThrow(() -> new WebApplicationException("No register spec with id " + registerSpecId, Response.Status.NOT_FOUND));
     }
 
     public LoadProfileSpec findLoadProfileSpec(long loadProfileSpecId) {
-        LoadProfileSpec loadProfileSpec = deviceConfigurationService.findLoadProfileSpec((int) loadProfileSpecId);
-        if (loadProfileSpec == null) {
-            throw new WebApplicationException("No load profile spec with id " + loadProfileSpecId, Response.Status.NOT_FOUND);
-        }
-        return loadProfileSpec;
+        return deviceConfigurationService
+                .findLoadProfileSpec((int) loadProfileSpecId)
+                .orElseThrow(() -> new WebApplicationException("No load profile spec with id " + loadProfileSpecId, Response.Status.NOT_FOUND));
     }
 
     public ChannelSpec findChannelSpec(long channelSpecId) {
-        ChannelSpec channelSpec = deviceConfigurationService.findChannelSpec(channelSpecId);
-        if (channelSpec == null) {
-            throw new WebApplicationException("No channel spec with id " + channelSpecId, Response.Status.NOT_FOUND);
-        }
-        return channelSpec;
+        return deviceConfigurationService
+                    .findChannelSpec(channelSpecId)
+                    .orElseThrow(() -> new WebApplicationException("No channel spec with id " + channelSpecId, Response.Status.NOT_FOUND));
     }
 
     public SecurityPropertySet findSecurityPropertySetByIdOrThrowException(DeviceConfiguration deviceConfiguration, long securityPropertySetId) {

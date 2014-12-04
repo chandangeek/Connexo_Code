@@ -2,8 +2,9 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 public class SecurityPropertySetInfo {
 

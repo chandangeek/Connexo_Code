@@ -28,7 +28,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
@@ -46,7 +46,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
-@Component(name = "com.energyict.dtc.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dtc", "app=MDC", "name=" + DeviceConfigurationApplication.COMPONENT_NAME})
+@Component(name = "com.energyict.dtc.rest",
+        service = {Application.class, InstallService.class},
+        immediate = true,
+        property = {"alias=/dtc", "app=MDC", "name=" + DeviceConfigurationApplication.COMPONENT_NAME})
 public class DeviceConfigurationApplication extends Application implements InstallService {
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DCR";
@@ -65,7 +68,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
     private volatile Thesaurus thesaurus;
     private volatile ValidationService validationService;
     private volatile DeviceService deviceService;
-    private volatile DeviceMessageService deviceMessageService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile License license;
 
     @Override
@@ -77,7 +80,6 @@ public class DeviceConfigurationApplication extends Application implements Insta
                 DeviceConfigFieldResource.class,
                 DeviceConfigurationResource.class,
                 RegisterConfigurationResource.class,
-                RegisterTypeResource.class,
                 ReadingTypeResource.class,
                 ConstraintViolationExceptionMapper.class,
                 LocalizedFieldValidationExceptionMapper.class,
@@ -174,8 +176,8 @@ public class DeviceConfigurationApplication extends Application implements Insta
     }
     
     @Reference
-    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
-        this.deviceMessageService = deviceMessageService;
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
@@ -257,7 +259,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
             bind(userService).to(UserService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
-            bind(deviceMessageService).to(DeviceMessageService.class);
+            bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
         }
     }
 

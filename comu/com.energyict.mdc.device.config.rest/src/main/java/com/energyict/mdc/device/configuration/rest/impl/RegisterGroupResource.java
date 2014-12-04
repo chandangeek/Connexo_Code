@@ -2,11 +2,11 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
-import com.energyict.mdc.device.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -45,7 +45,7 @@ public class RegisterGroupResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getRegisterGroups(@BeanParam QueryParameters queryParameters) {
         List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups().from(queryParameters).find();
         List<RegisterGroupInfo> registerGroupInfos = new ArrayList<>();
@@ -59,7 +59,7 @@ public class RegisterGroupResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public RegisterGroupInfo getRegisterGroup(@PathParam("id") long id) {
         return new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
     }
@@ -67,11 +67,11 @@ public class RegisterGroupResource {
     @GET
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam QueryParameters queryParameters) {
         RegisterGroupInfo registerGroupInfo = new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
         List<RegisterTypeInfo> registerTypeInfos = registerGroupInfo.registerTypes;
-        if(queryParameters.getStart() != null && queryParameters.getStart() < registerGroupInfo.registerTypes.size()){
+        if (queryParameters.getStart() != null && queryParameters.getStart() < registerGroupInfo.registerTypes.size()) {
             registerTypeInfos = registerTypeInfos.subList(queryParameters.getStart(), registerTypeInfos.size());
         }
         return PagedInfoList.asJson("registerTypes", registerTypeInfos, queryParameters);
@@ -80,6 +80,7 @@ public class RegisterGroupResource {
     @DELETE
     @Path("/{id}")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response deleteRegisterGroup(@PathParam("id") long id) {
         RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
         group.removeRegisterTypes();

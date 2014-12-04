@@ -3,9 +3,10 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.*;
 
 @XmlRootElement
