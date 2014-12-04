@@ -105,21 +105,8 @@ public class HttpContextImpl implements HttpContext {
             context.commit();
         }
 
-        if(user.isPresent()){
-            //whiteboard.checkLicense();
-            return allow(request, response, user.get());
-        }
-
-        return deny(response);
+        return user.isPresent() ? allow(request, response, user.get()) : deny(response);
     }
-
-
-    //private void logoutYellowfin(String userName) {
-    //    if(whiteboard.isAppLicensed("YFN")){
-    //        yellowfinService.logout(userName);
-    //    }
-    //}
-
 
     private boolean login(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
