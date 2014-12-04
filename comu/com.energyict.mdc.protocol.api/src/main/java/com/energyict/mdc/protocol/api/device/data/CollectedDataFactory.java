@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -55,5 +56,7 @@ public interface CollectedDataFactory {
     public CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileExtension, byte[] contents);
 
     public CollectedData createCollectedAddressProperties(DeviceIdentifier deviceIdentifier, String ipAddress, String ipAddressPropertyName);
+
+    public CollectedDeviceInfo createCollectedDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, PropertySpec propertySpec, Object propertyValue);
 
 }

@@ -29,7 +29,7 @@ public interface DeviceProtocol extends Pluggable, DeviceAccessSupport, DeviceCl
 
     /**
      * Injects the {@link PropertySpecService} into this DeviceProtocol
-     * for it to be able to create {@link com.energyict.mdc.dynamic.PropertySpec}s
+     * for it to be able to create PropertySpec
      * @param propertySpecService The PropertySpecService
      */
     public void setPropertySpecService (PropertySpecService propertySpecService);

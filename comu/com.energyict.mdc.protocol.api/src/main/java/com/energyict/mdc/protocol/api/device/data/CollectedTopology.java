@@ -36,6 +36,17 @@ public interface CollectedTopology extends CollectedData {
     public void removeSlaveDevice(DeviceIdentifier slaveIdentifier);
 
     /**
+     * @return a list containing additional {@link CollectedDeviceInfo} collected data,
+     * this could be an ip address / protocol property / ... for a device
+     */
+    public List<CollectedDeviceInfo> getAdditionalCollectedDeviceInfo();
+
+    /**
+     * Add a new {@link CollectedDeviceInfo} collected data to the collected topology
+     */
+    public void addAdditionalCollectedDeviceInfo(CollectedDeviceInfo additionalDeviceInfo);
+
+    /**
      * Getter for the {@link TopologyAction}
      */
     public TopologyAction getTopologyAction();

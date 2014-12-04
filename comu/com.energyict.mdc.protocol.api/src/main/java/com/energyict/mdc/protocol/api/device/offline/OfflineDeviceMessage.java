@@ -6,6 +6,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public interface OfflineDeviceMessage extends Offline {
      *
      * @return the release date of this message
      */
-    public java.time.Instant getReleaseDate();
+    public Instant getReleaseDate();
 
     /**
      * An ID which can be used to keep track of this message
@@ -74,7 +75,7 @@ public interface OfflineDeviceMessage extends Offline {
      *
      * @return the creationDate of this message
      */
-    public java.time.Instant getCreationDate();
+    public Instant getCreationDate();
 
     /**
      * The list of {@link OfflineDeviceMessageAttribute}s which are owned by this DeviceMessage.
@@ -83,5 +84,10 @@ public interface OfflineDeviceMessage extends Offline {
      * @return the list of OfflineDeviceMessageAttribute
      */
     public List<OfflineDeviceMessageAttribute> getDeviceMessageAttributes();
+
+    /**
+     * @return the serialNumber of the device
+     */
+    public String getDeviceSerialNumber();
 
 }

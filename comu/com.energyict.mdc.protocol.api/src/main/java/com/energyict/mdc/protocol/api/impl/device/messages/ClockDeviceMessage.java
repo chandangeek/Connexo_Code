@@ -1,7 +1,9 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.TimeOfDayFactory;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -41,7 +43,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(meterTimeAttributeName, true, new DateFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(meterTimeAttributeName, true, new DateAndTimeFactory()));
         }
     },
     SET_TIMEZONE_OFFSET(DeviceMessageId.CLOCK_SET_TIMEZONE_OFFSET, "Set time zone offset") {
