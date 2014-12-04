@@ -36,6 +36,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>http.whiteboard</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.io</artifactId>
             <version>${project.version}</version>
