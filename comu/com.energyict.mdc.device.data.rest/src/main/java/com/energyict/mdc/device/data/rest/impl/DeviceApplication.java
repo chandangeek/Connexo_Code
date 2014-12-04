@@ -32,6 +32,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -118,7 +119,8 @@ public class DeviceApplication extends Application implements InstallService {
                 ConnectionMethodResource.class,
                 ComSessionResource.class,
                 DeviceMessageResource.class,
-                DeviceLabelResource.class
+                DeviceLabelResource.class,
+                ConnectionResource.class
         );
     }
 
@@ -326,6 +328,7 @@ public class DeviceApplication extends Application implements InstallService {
             bind(taskService).to(TaskService.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(favoritesService).to(FavoritesService.class);
+            bind(DeviceConnectionTaskInfoFactory.class).to(DeviceConnectionTaskInfoFactory.class);
         }
     }
 
