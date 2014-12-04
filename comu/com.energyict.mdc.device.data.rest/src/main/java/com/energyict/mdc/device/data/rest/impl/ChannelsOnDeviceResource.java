@@ -60,9 +60,9 @@ public class ChannelsOnDeviceResource {
         Predicate<String> filterByLoadProfileName = getFilterIfAvailable("loadProfileName", filter);
         Predicate<String> filterByChannelName = getFilterIfAvailable("channelName", filter);
         return device.getLoadProfiles().stream()
-//                .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
+                .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
                 .flatMap(l -> l.getChannels().stream())
-//                .filter(c -> filterByChannelName.test(c.getName()))
+                .filter(c -> filterByChannelName.test(c.getName()))
                 .sorted(Comparator.comparing(Channel::getName))
                 .collect(Collectors.toList());
     }
