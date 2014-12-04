@@ -2,6 +2,7 @@ package com.elster.jupiter.bpm.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
@@ -11,6 +12,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,12 +22,14 @@ import java.util.logging.Logger;
         property = {"name=" + BpmUiInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
 public class BpmUiInstaller implements TranslationKeyProvider {
 
+    public static final String APP_KEY = "BPM";
     public static final String COMPONENT_NAME = "BPM";
     public static final String HTTP_RESOURCE_ALIAS = "/bpm";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/bpm";
 
     private static final Logger LOGGER = Logger.getLogger(BpmUiInstaller.class.getName());
     private volatile ServiceRegistration<HttpResource> registration;
+    private volatile License license;
 
     public BpmUiInstaller() {
     }
@@ -42,6 +46,11 @@ public class BpmUiInstaller implements TranslationKeyProvider {
     @Deactivate
     public void deactivate() {
         registration.unregister();
+    }
+
+    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override
