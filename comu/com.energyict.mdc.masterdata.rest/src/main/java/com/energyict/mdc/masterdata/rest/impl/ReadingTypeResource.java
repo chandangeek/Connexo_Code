@@ -4,9 +4,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.IntegerAdapter;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -56,10 +56,10 @@ public class ReadingTypeResource {
     }
 
     private Predicate<ReadingType> getReadingTypeFilterPredicate(JsonQueryFilter queryFilter) {
-        if (!queryFilter.getFilterProperties().isEmpty()) {
-            if (queryFilter.getProperty("unitOfMeasureId") != null && queryFilter.getProperty("tou") != null) {
-                long unitOfMeasureId = queryFilter.getProperty("unitOfMeasureId", new LongAdapter());
-                int timeOfUse = queryFilter.getProperty("tou", new IntegerAdapter());
+        if (queryFilter.hasFilters()) {
+            if (queryFilter.hasProperty("unitOfMeasureId") && queryFilter.hasProperty("tou")) {
+                long unitOfMeasureId = queryFilter.getLong("unitOfMeasureId");
+                int timeOfUse = queryFilter.getInteger("tou");
                 Optional<Phenomenon> phenomenon = masterDataService.findPhenomenon(unitOfMeasureId);
                 if (phenomenon.isPresent()) {
                     String measurementCode = phenomenon.get().getUnit().getBaseUnit().toString();
