@@ -4,12 +4,9 @@ Ext.define('Mdc.view.setup.devicelogbooks.TabbedDeviceLogBookView', {
     itemId: 'tabbedDeviceLogBookView',
     content: [
         {
-            xtype: 'component',
-            itemId: 'deviceLogBookDetailTitle'
-        },
-        {
             xtype: 'tabpanel',
             itemId: 'logBookTabPanel',
+            ui: 'large',
             items: [
                 {
                     title: 'Specifications',

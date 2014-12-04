@@ -3,12 +3,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
     alias: 'widget.tabbedDeviceRegisterView',
     itemId: 'tabbedDeviceRegisterView',
     content: [
-        {
-            xtype: 'component',
-            itemId: 'deviceRegisterDetailTitle'
-        },
+//        {
+//            xtype: 'component',
+//            itemId: 'deviceRegisterDetailTitle'
+//        },
         {
             xtype: 'tabpanel',
+            ui: 'large',
             itemId: 'registerTabPanel',
             items: [
                 {

@@ -103,7 +103,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                             router = me.getController('Uni.controller.history.Router');
 
                         var widget = Ext.widget('tabbedDeviceRegisterView',{device: device});
-                        widget.down('#deviceRegisterDetailTitle').update('<h2>' + register.get('name') +' </h2>');
+                        widget.down('#registerTabPanel').setTitle(register.get('name'));
 
 
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
