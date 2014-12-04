@@ -13,6 +13,7 @@ public interface IdsService {
 	TimeSeriesDataStorer createStorer(boolean overrules);
 	Vault newVault(String component, long id, String name, int slotCount, int textSlotCount, boolean regular);	
 	RecordSpec newRecordSpec(String component , long id,String name);
+	void purge(Logger logger);
 	void extendTo(Instant instant, Logger logger);
 }
  

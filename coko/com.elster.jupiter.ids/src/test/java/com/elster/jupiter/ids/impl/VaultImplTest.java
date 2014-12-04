@@ -34,19 +34,19 @@ public class VaultImplTest extends EqualsContractTest {
     	if (a == null) {
     		dataModel = mock(DataModel.class);
     		when(dataModel.getSqlDialect()).thenReturn(SqlDialect.H2);
-    		a = new VaultImpl(dataModel, provider).init(COMPONENT_NAME,ID,DESCRIPTION,SLOT_COUNT,0,true);
+    		a = new VaultImpl(dataModel, clock, provider).init(COMPONENT_NAME,ID,DESCRIPTION,SLOT_COUNT,0,true);
     	}
     	return a;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new VaultImpl(dataModel, provider).init(COMPONENT_NAME, ID, DESCRIPTION, SLOT_COUNT, 0,true);
+        return new VaultImpl(dataModel, clock, provider).init(COMPONENT_NAME, ID, DESCRIPTION, SLOT_COUNT, 0,true);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return ImmutableList.of(new VaultImpl(dataModel ,provider).init(COMPONENT_NAME, ID + 1, DESCRIPTION, SLOT_COUNT,0, true));
+        return ImmutableList.of(new VaultImpl(dataModel , clock, provider).init(COMPONENT_NAME, ID + 1, DESCRIPTION, SLOT_COUNT,0, true));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class VaultImplTest extends EqualsContractTest {
     private class SubVault extends VaultImpl {
 
 		SubVault(DataModel dataModel, Clock clock,Provider<TimeSeriesImpl> timeSeriesProvider) {
-			super(dataModel, timeSeriesProvider);
+			super(dataModel, clock, timeSeriesProvider);
 		}
     	
     }

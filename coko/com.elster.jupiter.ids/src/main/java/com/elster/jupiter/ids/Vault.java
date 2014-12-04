@@ -1,6 +1,7 @@
 package com.elster.jupiter.ids;
 
 import java.time.Instant;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.TimeZone;
@@ -32,5 +33,7 @@ public interface Vault {
 	TimeSeries createIrregularTimeSeries(RecordSpec spec, ZoneId zoneId);
 	boolean isValidInstant(Instant instant);
 	void persist();
-	void purge(Instant instant, Logger logger);
+	void purge(Logger logger);
+	Period getRetention();
+	void setRetentionDays(int numberOfDays);
 }

@@ -92,6 +92,13 @@ public class IdsServiceImpl implements IdsService, InstallService, TranslationKe
     }
 
     @Override
+    public void purge(Logger logger) {
+    	getVaults().stream()
+    		.filter(Vault::isActive)
+    		.forEach(vault -> vault.purge(logger));    	
+    }
+    
+    @Override
     public void extendTo(Instant instant, Logger logger) {
     	getVaults().stream()
     		.filter(Vault::isActive)

@@ -19,8 +19,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.Period;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +52,7 @@ public class VaultImpl implements Vault {
     private boolean journal;
     private boolean partition;
     private boolean active;
+    private int retentionDays;
     private long version;
     private Instant createTime;
     private Instant modTime;
@@ -56,11 +60,13 @@ public class VaultImpl implements Vault {
     private String userName;
 
     private final DataModel dataModel;
+    private final Clock clock;
     private final Provider<TimeSeriesImpl> timeSeriesProvider;
 
     @Inject
-    VaultImpl(DataModel dataModel, Provider<TimeSeriesImpl> timeSeriesProvider) {
+    VaultImpl(DataModel dataModel, Clock clock, Provider<TimeSeriesImpl> timeSeriesProvider) {
         this.dataModel = dataModel;
+        this.clock = clock;
         this.timeSeriesProvider = timeSeriesProvider;
     }
 
@@ -533,8 +539,13 @@ public class VaultImpl implements Vault {
     }
 
     @Override
-    public void purge(Instant instant, Logger logger) {
+    public void purge(Logger logger) {
+    	if (retentionDays == 0) {
+    		return;
+    	}    	
+    	Instant instant = clock.instant().minus(retentionDays, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
     	if (isPartitioned()) {
+    		logger.info("Removing data up to " + instant + " for time series vault " + getTableName());
     		dataModel.dataDropper(getTableName(), logger).drop(instant);
         	if (hasJournal()) {
         		dataModel.dataDropper(getJournalTableName(), logger).drop(instant);
@@ -544,5 +555,19 @@ public class VaultImpl implements Vault {
     		this.minTime = instant;
     		dataModel.update(this, "minTime");
     	}
-    }    
+    }
+
+	@Override
+	public Period getRetention() {
+		return Period.ofDays(retentionDays == 0 ? 360 * 99 : retentionDays);
+	}
+
+	@Override
+	public void setRetentionDays(int numberOfDays) {
+		if (numberOfDays <= 0) {
+			throw new IllegalArgumentException();
+		}
+		this.retentionDays = numberOfDays;
+		dataModel.update(this, "retentionDays");
+	}    
  }
