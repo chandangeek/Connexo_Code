@@ -103,7 +103,7 @@ public class MasterDataApplication extends Application implements InstallService
         this.jsonService = jsonService;
     }
 
-    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
     public void setLicense(License license) {
         this.license = license;
     }
