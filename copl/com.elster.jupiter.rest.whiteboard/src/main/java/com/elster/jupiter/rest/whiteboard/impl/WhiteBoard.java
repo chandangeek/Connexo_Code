@@ -133,7 +133,6 @@ public class WhiteBoard {
     	if (!alias.isPresent()) {
     		return;
     	}
-        List<String> applications = licenseService.getLicensedApplicationKeys();
         ResourceConfig secureConfig = ResourceConfig.forApplication(Objects.requireNonNull(application));
         secureConfig.register(ObjectMapperProvider.class);
         secureConfig.register(JacksonFeature.class);
