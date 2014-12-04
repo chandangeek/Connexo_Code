@@ -12,7 +12,7 @@ import com.elster.jupiter.transaction.TransactionService;
  * Date: 17/06/2014
  * Time: 18:00
  */
-@Component(service = DataLifeCycleCommands.class,property = {"osgi.command.scope=metering", "osgi.command.function=purgeData"} , immediate = true)                
+@Component(service = DataLifeCycleCommands.class,property = {"osgi.command.scope=metering", "osgi.command.function=purgeData", "osgi.command.function=retention"} , immediate = true)                
 public class DataLifeCycleCommands {
 
     private volatile LifeCycleService lifeCycleService;
@@ -38,6 +38,20 @@ public class DataLifeCycleCommands {
     	try {
     		principalService.set(() -> "Gogo");
     		transactionService.execute(() -> {lifeCycleService.runNow(); return null;});    		
+    	} catch (Exception ex) {
+    		ex.printStackTrace();
+    	} finally {
+    		principalService.clear();
+    	}
+    }
+    
+    public void retention(int days) {
+    	try {
+    		principalService.set(() -> "Gogo");
+    		transactionService.execute(() -> {
+    			lifeCycleService.getCategories().forEach(category -> category.setRetentionDays(days));
+    			return null;
+    		});    		
     	} catch (Exception ex) {
     		ex.printStackTrace();
     	} finally {
