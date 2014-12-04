@@ -19,8 +19,10 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             assigned = record.getAssignedToMeIssues(),
             unassigned = record.getUnassignedIssues(),
             issuesCount;
-
-        grid.reconfigure(assigned.topMyIssues());
+        
+        if( assigned.topMyIssues().count() > 0 ) {
+            grid.reconfigure(assigned.topMyIssues());
+        }
         issuesCount = grid.getStore().getCount();
         countContainer.removeAll();
         dockedLinksContainer.removeAll();

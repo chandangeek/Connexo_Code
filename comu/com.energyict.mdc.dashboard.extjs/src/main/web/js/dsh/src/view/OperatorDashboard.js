@@ -132,7 +132,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                             {
                                 xtype: 'summary',
                                 itemId: 'connection-summary',
-                                wTitle: Uni.I18n.translate('dashboard.widget.connections.title', 'DSH', 'Active connections'),
+                                title: Uni.I18n.translate('dashboard.widget.connections.title', 'DSH', 'Active connections'),
                                 router: me.router,
                                 parent: 'connections',
                                 buttonAlign: 'left',
@@ -149,7 +149,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                             {
                                 xtype: 'summary',
                                 itemId: 'communication-summary',
-                                wTitle: Uni.I18n.translate('dashboard.widget.communications.title', 'DSH', 'Active communications'),
+                                title: Uni.I18n.translate('dashboard.widget.communications.title', 'DSH', 'Active communications'),
                                 parent: 'communications',
                                 router: me.router,
                                 buttonAlign: 'left',
