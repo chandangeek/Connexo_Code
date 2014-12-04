@@ -214,11 +214,6 @@ public class LoadProfileResource {
         return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
     }
 
-    @Path("{lpid}/channels")
-    public ChannelResource getChannelResource() {
-        return channelResourceProvider.get();
-    }
-
     @Path("{lpid}/validationstatus")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

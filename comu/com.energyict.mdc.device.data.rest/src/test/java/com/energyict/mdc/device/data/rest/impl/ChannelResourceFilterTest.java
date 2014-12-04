@@ -29,7 +29,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ChannelOnDeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
+public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTest {
 
     private static final String DEIVICE_MRID = "mrid1";
     private static final Instant NOW = Instant.ofEpochMilli(1410786205000L);

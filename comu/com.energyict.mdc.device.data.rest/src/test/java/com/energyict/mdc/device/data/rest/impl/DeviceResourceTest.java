@@ -664,7 +664,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel1.getChannelData(any(Interval.class))).thenReturn(loadProfileReadings);
 
 
-        Map response = target("/devices/mrid2/loadprofiles/3/channels/7/data")
+        Map response = target("/devices/mrid2/channels/7/data")
                 .queryParam("intervalStart", startTime)
                 .queryParam("intervalEnd", 1391212800000L)
                 .queryParam("start", 0)

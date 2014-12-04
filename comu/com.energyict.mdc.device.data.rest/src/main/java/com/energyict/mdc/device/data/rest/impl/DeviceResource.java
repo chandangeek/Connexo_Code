@@ -71,7 +71,7 @@ public class DeviceResource {
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<DeviceMessageResource> deviceCommandResourceProvider;
     private final Provider<DeviceLabelResource> deviceLabelResourceProvider;
-    private final Provider<ChannelsOnDeviceResource> channelsOnDeviceResourceProvider;
+    private final Provider<ChannelResource> channelsOnDeviceResourceProvider;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
@@ -98,7 +98,7 @@ public class DeviceResource {
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<DeviceLabelResource> deviceLabelResourceProvider,
-            Provider<ChannelsOnDeviceResource> channelsOnDeviceResourceProvider) {
+            Provider<ChannelResource> channelsOnDeviceResourceProvider) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
@@ -245,7 +245,7 @@ public class DeviceResource {
     }
 
     @Path("/{mRID}/channels")
-    public ChannelsOnDeviceResource getChannelResource() {
+    public ChannelResource getChannelResource() {
         return channelsOnDeviceResourceProvider.get();
     }
 

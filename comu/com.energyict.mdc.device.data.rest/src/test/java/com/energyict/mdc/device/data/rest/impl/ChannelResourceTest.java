@@ -129,7 +129,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testChannelData() {
-        String json = target("devices/1/loadprofiles/1/channels/" + CHANNEL_ID1 + "/data")
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("intervalStart", "1410774630000")
                 .queryParam("intervalEnd", "1410828630000")
                 .request().get(String.class);
@@ -193,7 +193,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         List<ChannelDataInfo> infos = new ArrayList<>();
         infos.add(channelDataInfo);
 
-        Response response = target("devices/1/loadprofiles/1/channels/" + CHANNEL_ID1 + "/data").request().put(Entity.json(infos));
+        Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/data").request().put(Entity.json(infos));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
@@ -202,7 +202,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.VALID);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.VALID);
 
-        String json = target("devices/1/loadprofiles/1/channels/" + CHANNEL_ID1 + "/data")
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("intervalStart", "1410774630000")
                 .queryParam("intervalEnd", "1410828630000")
                 .queryParam("onlySuspect", "true")
@@ -217,7 +217,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testChannelDataFilteredMatches() {
-        String json = target("devices/1/loadprofiles/1/channels/" + CHANNEL_ID1 + "/data")
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("intervalStart", "1410774630000")
                 .queryParam("intervalEnd", "1410828630000")
                 .queryParam("onlySuspect", "true")
@@ -236,7 +236,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.forValidation()).thenReturn(deviceValidation);
         when(channel.getLastReading()).thenReturn(Optional.of(LAST_READING));
 
-        Response response = target("devices/1/loadprofiles/1/channels/" + CHANNEL_ID1 + "/validate")
+        Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/validate")
                 .request()
                 .put(Entity.json(new TriggerValidationInfo()));
 
@@ -252,7 +252,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         TriggerValidationInfo triggerValidationInfo = new TriggerValidationInfo();
         triggerValidationInfo.lastChecked = LAST_CHECKED.getTime();
-        Response response = target("devices/1/loadprofiles/1/channels/" + CHANNEL_ID1 + "/validate")
+        Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/validate")
                 .request()
                 .put(Entity.json(triggerValidationInfo));
 
