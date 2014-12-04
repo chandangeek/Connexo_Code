@@ -1,5 +1,6 @@
 package com.elster.jupiter.yellowfin.rest.impl;
 
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import org.glassfish.hk2.utilities.Binder;
@@ -16,11 +17,13 @@ import java.util.Set;
 
 @Component(name = "com.elster.jupiter.yellowfin.rest" , service=Application.class , immediate = true , property = {"alias=/yfn", "app=YFN", "name=" + YellowfinApplication.COMPONENT_NAME} )
 public class YellowfinApplication extends Application implements BinderProvider{
+    public static final String APP_KEY = "YFN";
     public static final String COMPONENT_NAME = "YFN";
 
     private final Set<Class<?>> classes = new HashSet<>();
 
     private volatile YellowfinService yellowfinService;
+    private volatile License license;
 
     public YellowfinApplication() {
         classes.add(YellowfinResource.class);
@@ -34,6 +37,11 @@ public class YellowfinApplication extends Application implements BinderProvider{
     @Reference
     public void setYellowfinService(YellowfinService yellowfinService) {
         this.yellowfinService = yellowfinService;
+    }
+
+    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Activate
