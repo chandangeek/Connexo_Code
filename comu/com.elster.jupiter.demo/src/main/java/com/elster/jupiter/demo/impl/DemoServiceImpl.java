@@ -1,6 +1,8 @@
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.DemoService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -120,6 +122,7 @@ public class DemoServiceImpl implements DemoService {
     private volatile DeviceService deviceService;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile SchedulingService schedulingService;
+    private volatile LicenseService licenseService;
 
     // For OSGi framework
     @SuppressWarnings("unused")
@@ -142,7 +145,8 @@ public class DemoServiceImpl implements DemoService {
             DeviceConfigurationService deviceConfigurationService,
             DeviceService deviceService,
             ConnectionTaskService connectionTaskService,
-            SchedulingService schedulingService) {
+            SchedulingService schedulingService,
+            LicenseService licenseService) {
         this.engineModelService = engineModelService;
         this.userService = userService;
         this.validationService = validationService;
@@ -156,6 +160,7 @@ public class DemoServiceImpl implements DemoService {
         this.deviceService = deviceService;
         this.connectionTaskService = connectionTaskService;
         this.schedulingService = schedulingService;
+        this.licenseService = licenseService;
         rethrowExceptions = true;
     }
 
@@ -164,6 +169,10 @@ public class DemoServiceImpl implements DemoService {
         executeTransaction(new VoidTransaction() {
             @Override
             protected void doPerform() {
+                Optional<License> license = licenseService.getLicenseForApplication("MDC");
+                if (!license.isPresent() || !License.Status.ACTIVE.equals(license.get().getStatus())){
+                    throw new IllegalStateException("MDC License isn't installed correctly");
+                }
                 Store store = new Store();
                 store.getProperties().put("host", host);
 
@@ -445,9 +454,12 @@ public class DemoServiceImpl implements DemoService {
     }
 
     public void createDeviceType(Store store, int deviceTypeCount) {
-        System.out.println("==> Creating Create device types...");
-        DeviceProtocolPluggableClass webRTUprotocol = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(WebRTUKP.class.getName()).get(0);
-        DeviceType deviceType = deviceConfigurationService.newDeviceType(DEVICE_TYPES_NAMES[deviceTypeCount], webRTUprotocol);
+        System.out.println("==> Creating device types...");
+        List<DeviceProtocolPluggableClass> webRTUProtocols = protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(WebRTUKP.class.getName());
+        if (webRTUProtocols.isEmpty()){
+            throw new IllegalStateException("Unable to retrieve the WebRTU KP protocol. Please check that license was correctly installed and that indexing process was finished for protocols.");
+        }
+        DeviceType deviceType = deviceConfigurationService.newDeviceType(DEVICE_TYPES_NAMES[deviceTypeCount], webRTUProtocols.get(0));
         deviceType.addRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_0_WH));
         deviceType.addRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_1_WH));
         deviceType.addRegisterType(store.getRegisterTypes().get(BULK_A_FORWARD_ALL_PHASES_TOU_2_WH));
@@ -775,6 +787,12 @@ public class DemoServiceImpl implements DemoService {
     @SuppressWarnings("unused")
     public void setSchedulingService(SchedulingService schedulingService) {
         this.schedulingService = schedulingService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
     }
 
     private <T> T executeTransaction(Transaction<T> transaction) {
