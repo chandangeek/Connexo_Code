@@ -2,32 +2,49 @@ package com.elster.jupiter.yellowfin.impl;
 
 //import com.elster.jupiter.http.whiteboard.App;
 
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.yellowfin.YellowfinService;
+import com.google.inject.AbstractModule;
 import com.hof.mi.web.service.*;
 import com.hof.util.Base64;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import javax.xml.rpc.ServiceException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
-public class YellowfinServiceImpl implements YellowfinService {
+public class YellowfinServiceImpl implements YellowfinService, InstallService {
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
     private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.user";
     private static final String YELLOWFIN_WEBSERVICES_PASSWORD = "com.elster.jupiter.yellowfin.password";
     private static final String DEFAULT_YELLOWFIN_URL = "http://localhost:8081";
+
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+    private static final String LOGOUT_QUEUE_DEST = "LogoutQueueDest";
+    private static final String LOGOUT_QUEUE_SUBSC = "LogoutQueueSubsc";
 
     private String yellowfinHost;
     private int yellowfinPort;
     private String yellowfinUrl;
     private String yellowfinWebServiceUser;
     private String yellowfinWebServicePassword;
+
+    private volatile MessageService messageService;
 
     @Activate
     public void activate(BundleContext context) {
@@ -43,7 +60,11 @@ public class YellowfinServiceImpl implements YellowfinService {
         String parts[] = url.substring("http://".length()).split(":");
         yellowfinHost = parts[0];
         yellowfinPort = Integer.parseInt(parts[1]);
+    }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Override
@@ -232,4 +253,21 @@ public class YellowfinServiceImpl implements YellowfinService {
         return null;
     }
 
+    @Override
+    public void install() {
+        try {
+            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(LOGOUT_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            destinationSpec.activate();
+            destinationSpec.subscribe(LOGOUT_QUEUE_SUBSC);
+        } catch (Exception e) {
+            Logger logger = Logger.getLogger(YellowfinServiceImpl.class.getName());
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "MSG");
+    }
 }
