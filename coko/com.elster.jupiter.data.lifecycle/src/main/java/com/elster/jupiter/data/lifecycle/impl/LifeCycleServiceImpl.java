@@ -71,7 +71,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	@Override
 	public void install() {		
 		dataModel.install(true, true);
-		new Installer(dataModel, messageService, taskService).install();
+		new Installer(dataModel, messageService, taskService, meteringService).install();
 	}
 	
 	@Override
@@ -95,6 +95,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 			protected void configure() {
 				bind(DataModel.class).toInstance(dataModel);
 				bind(Thesaurus.class).toInstance(thesaurus);
+				bind(MeteringService.class).toInstance(meteringService);
 			}
 		});
 	}
@@ -170,7 +171,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 				.eventRetention(getCategory(LifeCycleCategoryKind.ENDDEVICEEVENT).getRetention())
 				.logger(logger)
 				.build();
-		meteringService.configurePurge(purgeConfiguration);
+		//meteringService.configurePurge(purgeConfiguration);
 		idsService.purge(logger);
 		meteringService.purge(purgeConfiguration);
 		instant = clock.instant().plus(360,ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
