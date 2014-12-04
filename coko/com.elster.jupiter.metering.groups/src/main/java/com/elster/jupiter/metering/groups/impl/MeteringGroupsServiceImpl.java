@@ -14,6 +14,8 @@ import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
+import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
@@ -26,10 +28,11 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringGroupsService.class, InstallService.class}, property = "name=" + MeteringGroupsService.COMPONENTNAME, immediate = true)
 public class MeteringGroupsServiceImpl implements MeteringGroupsService, InstallService {
@@ -38,7 +41,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     private volatile MeteringService meteringService;
     private volatile QueryService queryService;
 
-    private final List<EndDeviceQueryProvider> endDeviceQueryProviders = new CopyOnWriteArrayList<>();
+    private final OptionalServiceContainer<EndDeviceQueryProvider> endDeviceQueryProviders = new CopyOnWriteServiceContainer<>();
 
     public MeteringGroupsServiceImpl() {
     }
@@ -111,7 +114,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Override
     public Optional<UsagePointGroup> findUsagePointGroup(String mRID) {
-    	return dataModel.mapper(UsagePointGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();
+        return dataModel.mapper(UsagePointGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();
     }
 
     @Override
@@ -163,7 +166,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Override
     public Optional<EndDeviceGroup> findEndDeviceGroup(String mRID) {
-        return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();       
+        return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUAL.compare("mRID", mRID)).stream().findFirst();
     }
 
     @Override
@@ -196,21 +199,20 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider) {
-        endDeviceQueryProviders.add(endDeviceQueryProvider);
+        endDeviceQueryProviders.register(endDeviceQueryProvider);
     }
 
     public void removeEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider) {
-        endDeviceQueryProviders.remove(endDeviceQueryProvider);
+        endDeviceQueryProviders.unregister(endDeviceQueryProvider);
     }
 
-    public EndDeviceQueryProvider getEndDeviceQueryProvider(String name) {
-        for (EndDeviceQueryProvider endDeviceQueryProvider : endDeviceQueryProviders) {
-            if (endDeviceQueryProvider.getName().equals(name)) {
-                return endDeviceQueryProvider;
-            }
-        }
-        return null;
+    @Override
+    public Optional<EndDeviceQueryProvider> pollEndDeviceQueryProvider(String name, Duration duration) throws InterruptedException {
+        return endDeviceQueryProviders.get(withName(name), duration);
     }
 
+    private Predicate<EndDeviceQueryProvider> withName(String name) {
+        return p -> p.getName().equals(name);
+    }
 
 }

@@ -3,7 +3,9 @@ package com.elster.jupiter.metering.groups.impl;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.NoSuchQueryProvider;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.SearchCriteria;
 import com.elster.jupiter.metering.groups.impl.query.QueryBuilder;
@@ -16,7 +18,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import javax.inject.Inject;
-
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +42,16 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
 
     @Override
     public List<EndDevice> getMembers(Instant instant) {
-        return meteringGroupService.getEndDeviceQueryProvider(getQueryProviderName()).findEndDevices(instant, getCondition());
+        return getEndDeviceQueryProvider().findEndDevices(instant, getCondition());
+    }
+
+    private EndDeviceQueryProvider getEndDeviceQueryProvider() {
+        try {
+            return meteringGroupService.pollEndDeviceQueryProvider(getQueryProviderName(), Duration.ofMinutes(1)).orElseThrow(() -> new NoSuchQueryProvider(getQueryProviderName()));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new NoSuchQueryProvider(getQueryProviderName());
+        }
     }
 
     @Override

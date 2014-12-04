@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.groups;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.conditions.Condition;
+
+import java.time.Duration;
 import java.util.Optional;
 
 import java.util.List;
@@ -31,8 +33,6 @@ public interface MeteringGroupsService {
 
     Optional<EndDeviceGroup> findEndDeviceGroup(long id);
 
-    EndDeviceQueryProvider getEndDeviceQueryProvider(String name);
-
     Optional<EndDeviceGroup> findEndDeviceGroupByName(String name);
 
     void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider);
@@ -41,6 +41,8 @@ public interface MeteringGroupsService {
     Query<EndDeviceGroup> getQueryEndDeviceGroupQuery();
 
     List<EndDeviceGroup> findEndDeviceGroups();
+
+    Optional<EndDeviceQueryProvider> pollEndDeviceQueryProvider(String name, Duration duration) throws InterruptedException;
 
     //Finder<EndDeviceGroup> findAllEndDeviceGroups();
 
