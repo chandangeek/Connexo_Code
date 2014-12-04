@@ -5,6 +5,7 @@ import com.elster.jupiter.bpm.BpmProcess;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.http.whiteboard.App;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -36,6 +37,7 @@ import java.util.Map;
         immediate = true,
         property = "name=" + BpmService.COMPONENTNAME)
 public class BpmServiceImpl implements BpmService, InstallService {
+    public static final String APP_KEY = "BPM";
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
@@ -43,6 +45,7 @@ public class BpmServiceImpl implements BpmService, InstallService {
     private volatile AppService appService;
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
+    private volatile License license;
     private BpmServerImpl bpmServer;
     private ServiceRegistration<App> appServiceRegistration;
 
@@ -74,6 +77,7 @@ public class BpmServiceImpl implements BpmService, InstallService {
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(BpmService.class).toInstance(BpmServiceImpl.this);
+                bind(License.class).toInstance(license);
             }
         });
         if (context != null) {
@@ -99,7 +103,12 @@ public class BpmServiceImpl implements BpmService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("USR", "MSG");
+        return Arrays.asList("USR", "MSG", "LIC");
+    }
+
+    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Reference
