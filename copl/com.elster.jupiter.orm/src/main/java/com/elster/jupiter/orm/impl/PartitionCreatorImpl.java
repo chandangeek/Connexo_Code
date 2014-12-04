@@ -69,7 +69,7 @@ public class PartitionCreatorImpl implements PartitionCreator {
 			long high = highValues.stream()
 				.max(Comparator.naturalOrder())
 				.orElseThrow(() -> new RuntimeException("No partitions found for table " + tableName)); 
-			while (high < upTo.getEpochSecond()) {
+			while (high < upTo.toEpochMilli()) {
 				high += PARTITIONSIZE;
 				createPartition(connection, high);
 			}
