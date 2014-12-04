@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import java.time.Instant;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -10,40 +11,59 @@ import java.util.logging.Logger;
 
 public final class PurgeConfiguration {
 	
-	private Instant registerLimit;
-	private Instant intervalLimit;
-	private Instant dailyLimit;
-	private Instant eventLimit;
+	private Period registerRetention;
+	private Period intervalRetention;
+	private Period dailyRetention;
+	private Period eventRetention;
 	private Logger logger;
 	
 	private PurgeConfiguration() {		
 	}
 	
-	public Optional<Instant> getRegisterLimit() {
-		return Optional.ofNullable(registerLimit);
+	public Optional<Period> registerRetention() {
+		return Optional.ofNullable(registerRetention);
 		
 	}
 	
-	public Optional<Instant> getIntervalLimit() {
-		return Optional.ofNullable(intervalLimit);
+	public Optional<Period> intervalRetention() {
+		return Optional.ofNullable(intervalRetention);
 	}
 	
-	public Optional<Instant> getDailyLimit() {
-		return Optional.ofNullable(dailyLimit);
+	public Optional<Period> dailyRetention() {
+		return Optional.ofNullable(dailyRetention);
 	}
 	
-	public Optional<Instant> getEventLimit() {
-		return Optional.ofNullable(eventLimit);
+	public Optional<Period> eventRetention() {
+		return Optional.ofNullable(eventRetention);
 	}
 	
-	public Optional<Instant> getReadingQualityLimit() {
-		List<Instant> instants = Arrays.asList(registerLimit, intervalLimit, dailyLimit);
+	public Optional<Period> readingQualityRetention() {
+		List<Period> periods = Arrays.asList(registerRetention, intervalRetention, dailyRetention);
 		// do not purge reading qualities if not all kind of readings are purged
-		if (instants.stream().anyMatch(Objects::isNull)) {
+		if (periods.stream().anyMatch(Objects::isNull)) {
 			return Optional.empty();
 		} else {
-			return instants.stream().min(Comparator.naturalOrder());
+			return periods.stream().max(Comparator.comparing(period -> period.toTotalMonths() * 30 + period.getDays()));
 		}
+	}
+	
+	public int registerDays() {
+		return days(registerRetention);
+	}
+	
+	public int intervalDays() {
+		return days(intervalRetention);
+	}
+	
+	public int dailyDays() {
+		return days(dailyRetention);
+	}
+	
+	private int days(Period period) {
+		if (period == null) {
+			throw new IllegalStateException();
+		}
+		return (int) period.toTotalMonths() * 30 + period.getDays();				
 	}
 	
 	public Logger getLogger() {
@@ -62,23 +82,23 @@ public final class PurgeConfiguration {
 			this.product = new PurgeConfiguration();
 		}
 		
-		public Builder registerLimit(Instant instant) {
-			product.registerLimit = Objects.requireNonNull(instant);
+		public Builder registerRetention(Period period) {
+			product.registerRetention = Objects.requireNonNull(period);
 			return this;
 		}
 		
-		public Builder intervalLimit(Instant instant) {
-			product.intervalLimit = Objects.requireNonNull(instant);
+		public Builder intervalRetention(Period period) {
+			product.intervalRetention = Objects.requireNonNull(period);
 			return this;
 		}
 		
-		public Builder dailyLimit(Instant instant) {
-			product.dailyLimit = Objects.requireNonNull(instant);
+		public Builder dailyRetention(Period period) {
+			product.dailyRetention = Objects.requireNonNull(period);
 			return this;
 		}
 		
-		public Builder eventLimit(Instant instant) {
-			product.eventLimit = Objects.requireNonNull(instant);
+		public Builder eventRetention(Period period) {
+			product.eventRetention = Objects.requireNonNull(period);
 			return this;
 		}
 		
