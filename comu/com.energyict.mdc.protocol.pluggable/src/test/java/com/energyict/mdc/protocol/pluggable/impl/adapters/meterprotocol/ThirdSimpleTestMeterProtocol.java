@@ -126,11 +126,6 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "";
-    }
-
-    @Override
     public void setCache(Object cacheObject) {
         // nothing to set
     }
