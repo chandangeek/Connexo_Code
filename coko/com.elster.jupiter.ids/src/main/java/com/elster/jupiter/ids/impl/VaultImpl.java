@@ -50,7 +50,7 @@ public class VaultImpl implements Vault {
     private boolean localTime;
     private boolean regular;
     private boolean journal;
-    private boolean partition;
+    private boolean partitioned;
     private boolean active;
     private int retentionDays;
     private long version;
@@ -79,7 +79,7 @@ public class VaultImpl implements Vault {
         this.regular = regular;
         this.localTime = regular;
         this.journal = true;
-        this.partition = dataModel.getSqlDialect().hasPartitioning();
+        this.partitioned = dataModel.getSqlDialect().hasPartitioning();
         this.active = false;
         this.minTime = Instant.ofEpochMilli(0);
         return this;
@@ -157,7 +157,7 @@ public class VaultImpl implements Vault {
 
     @Override
     public boolean isPartitioned() {
-        return partition;
+        return partitioned;
     }
 
     @Override

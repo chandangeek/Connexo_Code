@@ -36,6 +36,7 @@ public enum TableSpecs {
 			table.column("JOURNAL").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("journal").add();
 			table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
 			table.column("RETENTIONDAYS").number().notNull().conversion(NUMBER2INT).map("retentionDays").add();
+			table.column("PARTITIONED").bool().map("partitioned").add();
 			table.addAuditColumns();
 			table.primaryKey("IDS_PK_VAULTS").on(componentName, idColumn).add();
 		}
