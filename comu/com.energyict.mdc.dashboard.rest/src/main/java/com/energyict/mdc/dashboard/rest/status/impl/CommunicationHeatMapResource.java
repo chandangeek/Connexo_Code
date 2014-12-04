@@ -3,9 +3,8 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
-import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.engine.model.security.Privileges;
 
@@ -41,10 +40,10 @@ public class CommunicationHeatMapResource {
      */
     @GET
     @Produces("application/json")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public CommunicationHeatMapInfo getConnectionHeatMap(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
-        if (jsonQueryFilter.getProperty(Constants.DEVICE_GROUP) != null) {
-            Optional<QueryEndDeviceGroup> deviceGroupOptional = meteringGroupService.findQueryEndDeviceGroup(jsonQueryFilter.getProperty(Constants.DEVICE_GROUP, new LongAdapter()));
+        if (jsonQueryFilter.hasProperty(Constants.DEVICE_GROUP)) {
+            Optional<QueryEndDeviceGroup> deviceGroupOptional = meteringGroupService.findQueryEndDeviceGroup(jsonQueryFilter.getLong(Constants.DEVICE_GROUP));
             return deviceGroupOptional
                     .map(g -> new CommunicationHeatMapInfo(dashboardService.getCommunicationTasksHeatMap(g), thesaurus))
                     .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP));

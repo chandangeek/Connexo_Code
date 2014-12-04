@@ -1,10 +1,10 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -22,15 +22,7 @@ import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -41,6 +33,15 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Path("/connections")
 public class ConnectionResource {
@@ -75,7 +76,7 @@ public class ConnectionResource {
     @GET
     @Path("/connectiontypepluggableclasses")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Object getConnectionTypeValues() {
         List<IdWithNameInfo> names = new ArrayList<>();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : this.protocolPluggableService.findAllConnectionTypePluggableClasses()) {
@@ -89,7 +90,7 @@ public class ConnectionResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters) throws Exception {
         ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
         if (queryParameters.getStart() == null || queryParameters.getLimit() == null) {
@@ -107,15 +108,14 @@ public class ConnectionResource {
     private ConnectionTaskFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
         ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
         filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
-        Map<String, Object> filterProperties = jsonQueryFilter.getFilterProperties();
-        if (filterProperties.containsKey(FilterOption.currentStates.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.currentStates.name())) {
             List<TaskStatus> taskStatuses = jsonQueryFilter.getPropertyList(FilterOption.currentStates.name(), TASK_STATUS_ADAPTER);
             filter.taskStatuses.addAll(taskStatuses);
         }
 
         filter.comPortPools = new HashSet<>();
-        if (filterProperties.containsKey(HeatMapBreakdownOption.comPortPools.name())) {
-            List<Long> comPortPoolIds = jsonQueryFilter.getPropertyList(FilterOption.comPortPools.name(), LONG_ADAPTER);
+        if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.comPortPools.name())) {
+            List<Long> comPortPoolIds = jsonQueryFilter.getLongList(FilterOption.comPortPools.name());
             // already optimized
             for (ComPortPool comPortPool : engineModelService.findAllComPortPools()) {
                 for (Long comPortPoolId : comPortPoolIds) {
@@ -126,8 +126,8 @@ public class ConnectionResource {
             }
         }
 
-        if (filterProperties.containsKey(HeatMapBreakdownOption.connectionTypes.name())) {
-            List<Long> connectionTypeIds = jsonQueryFilter.getPropertyList(FilterOption.connectionTypes.name(), LONG_ADAPTER);
+        if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.connectionTypes.name())) {
+            List<Long> connectionTypeIds = jsonQueryFilter.getLongList(FilterOption.connectionTypes.name());
             filter.connectionTypes = connectionTypeIds
                     .stream()
                     .map(protocolPluggableService::findConnectionTypePluggableClass)
@@ -137,53 +137,53 @@ public class ConnectionResource {
         }
 
         filter.latestResults = new HashSet<>();
-        if (filterProperties.containsKey(FilterOption.latestResults.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.latestResults.name())) {
             List<ComSession.SuccessIndicator> latestResults = jsonQueryFilter.getPropertyList(FilterOption.latestResults.name(), COM_SESSION_SUCCESS_INDICATOR_ADAPTER);
             filter.latestResults.addAll(latestResults);
         }
 
         filter.latestStatuses = new HashSet<>();
-        if (filterProperties.containsKey(FilterOption.latestStates.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.latestStates.name())) {
             List<ConnectionTask.SuccessIndicator> latestStates = jsonQueryFilter.getPropertyList(FilterOption.latestStates.name(), CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER);
             filter.latestStatuses.addAll(latestStates);
         }
 
         filter.deviceTypes = new HashSet<>();
-        if (filterProperties.containsKey(HeatMapBreakdownOption.deviceTypes.name())) {
-            List<Long> deviceTypeIds = jsonQueryFilter.getPropertyList(FilterOption.deviceTypes.name(), LONG_ADAPTER);
+        if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.deviceTypes.name())) {
+            List<Long> deviceTypeIds = jsonQueryFilter.getLongList(FilterOption.deviceTypes.name());
             filter.deviceTypes.addAll(
                     deviceTypeIds.stream()
-                        .map(deviceConfigurationService::findDeviceType)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .collect(Collectors.toList()));
+                            .map(deviceConfigurationService::findDeviceType)
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .collect(Collectors.toList()));
         }
 
-        if (filterProperties.containsKey(FilterOption.startIntervalFrom.name()) || filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.startIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.startIntervalTo.name())) {
             Date start = null;
             Date end = null;
-            if (filterProperties.containsKey(FilterOption.startIntervalFrom.name())) {
-                start = jsonQueryFilter.getDate(FilterOption.startIntervalFrom.name());
+            if (jsonQueryFilter.hasProperty(FilterOption.startIntervalFrom.name())) {
+                start = Date.from(jsonQueryFilter.getInstant(FilterOption.startIntervalFrom.name()));
             }
-            if (filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
-                end = jsonQueryFilter.getDate(FilterOption.startIntervalTo.name());
+            if (jsonQueryFilter.hasProperty(FilterOption.startIntervalTo.name())) {
+                end = Date.from(jsonQueryFilter.getInstant(FilterOption.startIntervalTo.name()));
             }
             filter.lastSessionStart = new Interval(start, end);
         }
 
-        if (filterProperties.containsKey(FilterOption.deviceGroups.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.deviceGroups.name())) {
             filter.deviceGroups = new HashSet<>();
-            jsonQueryFilter.getPropertyList(FilterOption.deviceGroups.name(), new LongAdapter()).stream().forEach(id->filter.deviceGroups.add(meteringGroupsService.findQueryEndDeviceGroup(id).get()));
+            jsonQueryFilter.getLongList(FilterOption.deviceGroups.name()).stream().forEach(id -> filter.deviceGroups.add(meteringGroupsService.findQueryEndDeviceGroup(id).get()));
         }
 
-        if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name()) || filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
             Date start = null;
             Date end = null;
-            if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name())) {
-                start = jsonQueryFilter.getDate(FilterOption.finishIntervalFrom.name());
+            if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name())) {
+                start = Date.from(jsonQueryFilter.getInstant(FilterOption.finishIntervalFrom.name()));
             }
-            if (filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
-                end = jsonQueryFilter.getDate(FilterOption.finishIntervalTo.name());
+            if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
+                end = Date.from(jsonQueryFilter.getInstant(FilterOption.finishIntervalTo.name()));
             }
             filter.lastSessionEnd = new Interval(start, end);
         }
@@ -194,19 +194,19 @@ public class ConnectionResource {
     @GET
     @Path("/{connectionId}/latestcommunications")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public PagedInfoList getCommunications(@PathParam("connectionId") long connectionId, @BeanParam QueryParameters queryParameters) {
         ConnectionTask connectionTask =
                 connectionTaskService
-                    .findConnectionTask(connectionId)
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_TASK, connectionId));
+                        .findConnectionTask(connectionId)
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_TASK, connectionId));
         Optional<ComSession> lastComSessionOptional = connectionTask.getLastComSession();
         List<ComTaskExecutionSession> comTaskExecutionSessions = new ArrayList<>();
         if (lastComSessionOptional.isPresent()) {
             comTaskExecutionSessions.addAll(lastComSessionOptional.get().getComTaskExecutionSessions());
         }
 
-        return PagedInfoList.asJson("communications",comTaskExecutionSessionInfoFactory.from(comTaskExecutionSessions),queryParameters);
+        return PagedInfoList.asJson("communications", comTaskExecutionSessionInfoFactory.from(comTaskExecutionSessions), queryParameters);
     }
 
 }

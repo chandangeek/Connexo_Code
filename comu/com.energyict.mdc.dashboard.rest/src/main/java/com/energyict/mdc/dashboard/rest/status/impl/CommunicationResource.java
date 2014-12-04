@@ -1,10 +1,10 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.DateAdapter;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
@@ -21,14 +21,6 @@ import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -38,6 +30,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
 
 @Path("/communications")
 public class CommunicationResource {
@@ -85,64 +83,63 @@ public class CommunicationResource {
 
     private ComTaskExecutionFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
         ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
-        Map<String, Object> filterProperties = jsonQueryFilter.getFilterProperties();
 
         filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
-        if (filterProperties.containsKey(FilterOption.currentStates.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.currentStates.name())) {
             List<TaskStatus> taskStatuses = jsonQueryFilter.getPropertyList(FilterOption.currentStates.name(), TASK_STATUS_ADAPTER);
             filter.taskStatuses.addAll(taskStatuses);
         }
 
         filter.latestResults = EnumSet.noneOf(CompletionCode.class);
-        if (filterProperties.containsKey(FilterOption.latestResults.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.latestResults.name())) {
             List<CompletionCode> latestResults = jsonQueryFilter.getPropertyList(FilterOption.latestResults.name(), COMPLETION_CODE_ADAPTER);
             filter.latestResults.addAll(latestResults);
         }
 
         filter.comSchedules = new HashSet<>();
-        if (filterProperties.containsKey(FilterOption.comSchedules.name())) {
-            List<Long> comScheduleIds = jsonQueryFilter.getPropertyList(FilterOption.comSchedules.name(), LONG_ADAPTER);
+        if (jsonQueryFilter.hasProperty(FilterOption.comSchedules.name())) {
+            List<Long> comScheduleIds = jsonQueryFilter.getLongList(FilterOption.comSchedules.name());
             filter.comSchedules.addAll(getObjectsByIdFromList(comScheduleIds, schedulingService.findAllSchedules()));
         }
 
         filter.comTasks = new HashSet<>();
-        if (filterProperties.containsKey(FilterOption.comTasks.name())) {
-            List<Long> comTaskIds = jsonQueryFilter.getPropertyList(FilterOption.comTasks.name(), LONG_ADAPTER);
+        if (jsonQueryFilter.hasProperty(FilterOption.comTasks.name())) {
+            List<Long> comTaskIds = jsonQueryFilter.getLongList(FilterOption.comTasks.name());
             filter.comTasks.addAll(getObjectsByIdFromList(comTaskIds, taskService.findAllComTasks()));
         }
 
         filter.deviceTypes = new HashSet<>();
-        if (filterProperties.containsKey(HeatMapBreakdownOption.deviceTypes.name())) {
-            List<Long> deviceTypeIds = jsonQueryFilter.getPropertyList(HeatMapBreakdownOption.deviceTypes.name(), LONG_ADAPTER);
+        if (jsonQueryFilter.hasProperty(HeatMapBreakdownOption.deviceTypes.name())) {
+            List<Long> deviceTypeIds = jsonQueryFilter.getLongList(HeatMapBreakdownOption.deviceTypes.name());
             filter.deviceTypes.addAll(getObjectsByIdFromList(deviceTypeIds, deviceConfigurationService.findAllDeviceTypes().find()));
         }
 
-        if (filterProperties.containsKey(FilterOption.deviceGroups.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.deviceGroups.name())) {
             filter.deviceGroups = new HashSet<>();
-            jsonQueryFilter.getPropertyList(FilterOption.deviceGroups.name(), new LongAdapter()).stream().forEach(id->filter.deviceGroups.add(meteringGroupsService.findQueryEndDeviceGroup(id).get()));
+            jsonQueryFilter.getLongList(FilterOption.deviceGroups.name()).stream().forEach(id -> filter.deviceGroups.add(meteringGroupsService.findQueryEndDeviceGroup(id).get()));
         }
 
 
-        if (filterProperties.containsKey(FilterOption.startIntervalFrom.name()) || filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.startIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.startIntervalTo.name())) {
             Date start = null;
             Date end = null;
-            if (filterProperties.containsKey(FilterOption.startIntervalFrom.name())) {
-                start = jsonQueryFilter.getProperty(FilterOption.startIntervalFrom.name(), DATE_ADAPTER);
+            if (jsonQueryFilter.hasProperty(FilterOption.startIntervalFrom.name())) {
+                start = Date.from(jsonQueryFilter.getInstant(FilterOption.startIntervalFrom.name()));
             }
-            if (filterProperties.containsKey(FilterOption.startIntervalTo.name())) {
-                end = jsonQueryFilter.getProperty(FilterOption.startIntervalTo.name(), DATE_ADAPTER);
+            if (jsonQueryFilter.hasProperty(FilterOption.startIntervalTo.name())) {
+                end = Date.from(jsonQueryFilter.getInstant(FilterOption.startIntervalTo.name()));
             }
             filter.lastSessionStart = new Interval(start, end);
         }
 
-        if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name()) || filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
+        if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
             Date start = null;
             Date end = null;
-            if (filterProperties.containsKey(FilterOption.finishIntervalFrom.name())) {
-                start = jsonQueryFilter.getProperty(FilterOption.finishIntervalFrom.name(), DATE_ADAPTER);
+            if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name())) {
+                start = Date.from(jsonQueryFilter.getInstant(FilterOption.finishIntervalFrom.name()));
             }
-            if (filterProperties.containsKey(FilterOption.finishIntervalTo.name())) {
-                end = jsonQueryFilter.getProperty(FilterOption.finishIntervalTo.name(), DATE_ADAPTER);
+            if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
+                end = Date.from(jsonQueryFilter.getInstant(FilterOption.finishIntervalTo.name()));
             }
             filter.lastSessionEnd = new Interval(start, end);
         }

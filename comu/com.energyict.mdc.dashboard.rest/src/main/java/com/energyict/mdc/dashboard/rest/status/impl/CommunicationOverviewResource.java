@@ -2,11 +2,11 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
-import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.engine.model.security.Privileges;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -39,10 +39,10 @@ public class CommunicationOverviewResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE,Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
+    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE})
     public CommunicationOverviewInfo getCommunicationOverview(@BeanParam JsonQueryFilter filter) throws Exception {
-        if (filter.getProperty("deviceGroup")!=null) {
-            Optional<QueryEndDeviceGroup> optional = meteringGroupService.findQueryEndDeviceGroup(filter.getProperty("deviceGroup", new LongAdapter()));
+        if (filter.hasProperty("deviceGroup")) {
+            Optional<QueryEndDeviceGroup> optional = meteringGroupService.findQueryEndDeviceGroup(filter.getLong("deviceGroup"));
             if (!optional.isPresent()) {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_END_DEVICE_GROUP);
             }
