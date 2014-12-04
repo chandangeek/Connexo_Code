@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Translation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class TranslationInstaller {
@@ -28,7 +29,7 @@ public class TranslationInstaller {
             List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
             for (MessageSeeds messageSeed : MessageSeeds.values()) {
                 SimpleNlsKey nlsKey = SimpleNlsKey
-                        .key(thesaurus.getComponent(), Layer.REST, messageSeed.getKey())
+                        .key(DataExportApplication.COMPONENT_NAME, Layer.REST, messageSeed.getKey())
                         .defaultMessage(messageSeed.getDefaultFormat());
                 translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
             }
@@ -37,7 +38,7 @@ public class TranslationInstaller {
             }
             thesaurus.addTranslations(translations);
         } catch (Exception e) {
-            LOG.severe(e.getMessage());
+            LOG.log(Level.SEVERE,e.getMessage());
         }
     }
 
