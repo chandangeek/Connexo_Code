@@ -44,6 +44,11 @@
       <version>${jupiter.version}</version>
     </dependency>
     <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>systemadmin</artifactId>
+        <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>rest.util</artifactId>
       <version>${jupiter.version}</version>
