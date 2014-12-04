@@ -1,7 +1,7 @@
 Ext.define('Dxp.model.DataSource', {
     extend: 'Ext.data.Model',
     fields: [
-        'mRID', 'active', 'serialNumber', 'readingType',
+        'mRID', 'active', 'serialNumber', 'readingType', 'occurrenceId',
         {
             name: 'active',
             mapping: function (data) {
@@ -21,7 +21,11 @@ Ext.define('Dxp.model.DataSource', {
         {
             name: 'lastExportedDate',
             mapping: function (data) {
-                return moment(data.lastExportedDate).format('ddd, DD MMM YYYY HH:mm:ss');
+                if (data.lastExportedDate) {
+                    return moment(data.lastExportedDate).format('ddd, DD MMM YYYY HH:mm:ss');
+                } else {
+                    return '';
+                }
             }
         }
     ]
