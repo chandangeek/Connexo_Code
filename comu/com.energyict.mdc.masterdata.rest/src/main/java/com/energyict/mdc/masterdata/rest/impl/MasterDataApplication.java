@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -35,6 +36,7 @@ public class MasterDataApplication extends Application implements InstallService
 
     private final Logger logger = Logger.getLogger(MasterDataApplication.class.getName());
 
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "MDR";
 
     private volatile MeteringService meteringService;
@@ -44,6 +46,7 @@ public class MasterDataApplication extends Application implements InstallService
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
+    private volatile License license;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -98,6 +101,11 @@ public class MasterDataApplication extends Application implements InstallService
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override
