@@ -2,19 +2,15 @@ package com.elster.jupiter.export.processor.impl;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.util.stream.Stream.concat;
 
 /**
  * Copyrights EnergyICT
@@ -36,17 +32,21 @@ public class Translations implements TranslationKeyProvider {
 
     @Override
     public List<TranslationKey> getKeys() {
-        return concat(
-                concat(
-                        Arrays.stream(FormatterProperties.values()),
-                        Arrays.stream(MessageSeeds.values()).map(MessageSeeds::toTranslationKey)
-                ),
-                labels()
-        ).collect(Collectors.toList());
+        return Stream.of(formatterProperties(), messageSeeds(), labels())
+                .flatMap(list -> list.stream())
+                .collect(Collectors.toList());
     }
 
-    private Stream<SimpleTranslationKey> labels() {
-        return Collections.singleton(new SimpleTranslationKey(StandardCsvDataProcessorFactory.NAME, "Standard CSV Exporter")).stream();
+    private List<FormatterProperties> formatterProperties() {
+        return Arrays.asList(FormatterProperties.values());
+    }
+
+    private List<MessageSeeds> messageSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    private List<TranslationKey> labels() {
+        return Arrays.asList(Labels.values());
     }
 
     static enum Labels implements TranslationKey {
