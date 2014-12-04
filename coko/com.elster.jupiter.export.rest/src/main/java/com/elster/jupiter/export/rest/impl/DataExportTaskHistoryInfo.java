@@ -66,7 +66,7 @@ public class DataExportTaskHistoryInfo {
         TimeDuration every = ((TemporalExpression) scheduleExpression).getEvery();
         int count = every.getCount();
         TimeDuration.TimeUnit unit = every.getTimeUnit();
-        String everyTranslation = thesaurus.getStringBeyondComponent("every", "Every");
+        String everyTranslation = thesaurus.getStringBeyondComponent("every", "every");
 
         String unitTranslation = unit.getDescription();
         if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
@@ -94,7 +94,7 @@ public class DataExportTaskHistoryInfo {
             if (count == 1) {
                 unitTranslation = thesaurus.getStringBeyondComponent("year", "year");
             } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("years", "years");
+                unitTranslation = thesaurus.getStringBeyondComponent("multipleYears", "years");
             }
         }
          if (count == 1) {
