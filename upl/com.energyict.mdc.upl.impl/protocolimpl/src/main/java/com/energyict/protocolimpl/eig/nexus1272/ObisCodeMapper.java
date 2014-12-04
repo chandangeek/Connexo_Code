@@ -177,15 +177,15 @@ public class ObisCodeMapper {
 					switch (obisCode.getE()) {
 					case 0:
 						if (read) {
-							//1D6F-1D70
+							//0x1B05
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
-							c.setStartAddress(AbstractCommand.intToByteArray(0x1D6F));
+							c.setStartAddress(AbstractCommand.intToByteArray(0x1B05));
 							c.setNumRegisters(AbstractCommand.intToByteArray(2));
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF64();
 							BigDecimal divisor = new BigDecimal(1);
-							LinePoint lp = new LinePoint(563,0);
+							LinePoint lp = new LinePoint(537,0);
 							Unit unitEnergy = Unit.getUndefined();
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
@@ -389,16 +389,15 @@ public class ObisCodeMapper {
 					switch (obisCode.getE()) {
 					case 0:
 						if (read) {
-							//1D79-1D7A
+							//0x1B0F
 							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
-							c.setStartAddress(AbstractCommand.intToByteArray(0x1D79));
+							c.setStartAddress(AbstractCommand.intToByteArray(0x1B0F));
 							c.setNumRegisters(AbstractCommand.intToByteArray(2));
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF64();
 							BigDecimal divisor = new BigDecimal(1);
-							//TODO Get correct line and point numbers
-							LinePoint lp = new LinePoint(565,0);
+							LinePoint lp = new LinePoint(537,5);
 							Unit unitEnergy = Unit.getUndefined();
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
@@ -502,6 +501,31 @@ public class ObisCodeMapper {
 				switch (obisCode.getD()) {
 				case 8: 
 					switch (obisCode.getE()) {
+					case 0:
+						if (read) {
+							//1B01
+							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
+							c.setStartAddress(AbstractCommand.intToByteArray(0x1B01));
+							c.setNumRegisters(AbstractCommand.intToByteArray(2));
+							outputStream.write(c.build());
+							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
+							BigDecimal bd = ndp.parseF64();
+							BigDecimal divisor = new BigDecimal(1);
+							LinePoint lp = new LinePoint(536,1);
+							Unit unitEnergy = Unit.getUndefined();
+							if (lp.isScaled()) {
+								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+								int numDecimals = ses.getNumDecimalPlaces();
+								if (numDecimals!=0)
+									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								unitEnergy=ses.getUnit();
+							}
+							bd = bd.divide(divisor);
+							Quantity q = new Quantity(bd, unitEnergy);  
+							registerValue = new RegisterValue(obisCode,q,new Date());
+							return registerValue;
+						}
+						else return new RegisterInfo(obisCode.getDescription());
 					case 1:
 						if (read) {
 							//1CD3-1CD4
@@ -619,6 +643,31 @@ public class ObisCodeMapper {
 				switch (obisCode.getD()) {
 				case 8: 
 					switch (obisCode.getE()) {
+					case 0:
+						if (read) {
+							//1B03
+							ReadCommand c = (ReadCommand) nexusCommandFactory.getReadSingleRegisterCommand();
+							c.setStartAddress(AbstractCommand.intToByteArray(0x1B03));
+							c.setNumRegisters(AbstractCommand.intToByteArray(2));
+							outputStream.write(c.build());
+							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
+							BigDecimal bd = ndp.parseF64();
+							BigDecimal divisor = new BigDecimal(1);
+							LinePoint lp = new LinePoint(536,2);
+							Unit unitEnergy = Unit.getUndefined();
+							if (lp.isScaled()) {
+								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
+								int numDecimals = ses.getNumDecimalPlaces();
+								if (numDecimals!=0)
+									divisor = new BigDecimal(Math.pow(10, numDecimals));
+								unitEnergy=ses.getUnit();
+							}
+							bd = bd.divide(divisor);
+							Quantity q = new Quantity(bd, unitEnergy);  
+							registerValue = new RegisterValue(obisCode,q,new Date());
+							return registerValue;
+						}
+						else return new RegisterInfo(obisCode.getDescription());
 					case 1:
 						if (read) {
 							//1CE3-1CE4

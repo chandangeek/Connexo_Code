@@ -35,6 +35,110 @@ public class ScaledEnergySetting {
 		int unitCode;
 		
 		switch (line) {
+		case 536:
+			switch(point) {
+			case 1:
+				getSES = NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
+				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x00});
+				outputStream.write(getSES.build());
+				resp = connection.receiveWriteResponse(getSES).toByteArray();
+				
+				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
+				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				switch (unitCode) {
+				case 0:
+					unit = Unit.get("varh");
+					break;
+				case 1:
+					unit = Unit.get("kvarh");
+					break;
+				case 2:
+				case 3:
+					unit = Unit.get("Mvarh");
+					break;
+				default:
+					unit = Unit.getUndefined();
+				}
+				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				break;
+			case 2:
+				getSES = NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
+				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x01});
+				outputStream.write(getSES.build());
+				resp = connection.receiveWriteResponse(getSES).toByteArray();
+				
+				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
+				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				switch (unitCode) {
+				case 0:
+					unit = Unit.get("varh");
+					break;
+				case 1:
+					unit = Unit.get("kvarh");
+					break;
+				case 2:
+				case 3:
+					unit = Unit.get("Mvarh");
+					break;
+				default:
+					unit = Unit.getUndefined();
+				}
+				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				break;
+			}
+			break;
+		case 537:
+			switch(point) {
+			case 0:
+				getSES = NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
+				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x01});
+				outputStream.write(getSES.build());
+				resp = connection.receiveWriteResponse(getSES).toByteArray();
+				
+				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
+				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				switch (unitCode) {
+				case 0:
+					unit = Unit.get("Wh");
+					break;
+				case 1:
+					unit = Unit.get("kWh");
+					break;
+				case 2:
+				case 3:
+					unit = Unit.get("MWh");
+					break;
+				default:
+					unit = Unit.getUndefined();
+				}
+				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				break;
+			case 5:
+				getSES = NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
+				((ReadCommand)getSES).setStartAddress(new byte[] {(byte) 0xCA, (byte) 0x04});
+				outputStream.write(getSES.build());
+				resp = connection.receiveWriteResponse(getSES).toByteArray();
+				
+				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
+				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				switch (unitCode) {
+				case 0:
+					unit = Unit.get("Wh");
+					break;
+				case 1:
+					unit = Unit.get("kWh");
+					break;
+				case 2:
+				case 3:
+					unit = Unit.get("MVh");
+					break;
+				default:
+					unit = Unit.getUndefined();
+				}
+				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				break;
+			}
+			break;
 		case 563:
 			switch(point) {
 			default:
