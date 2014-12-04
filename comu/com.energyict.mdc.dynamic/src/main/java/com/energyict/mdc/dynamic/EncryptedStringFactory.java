@@ -1,11 +1,11 @@
 package com.energyict.mdc.dynamic;
 
-import com.elster.jupiter.datavault.DataVault;
-import com.elster.jupiter.datavault.LegacyDataVaultProvider;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import javax.inject.Inject;
 
 /**
  * Insert your comments here.
@@ -15,10 +15,11 @@ import java.sql.SQLException;
  */
 public class EncryptedStringFactory extends AbstractValueFactory<String> {
 
-    private final DataVault dataVault;
+    private final DataVaultService dataVaultService;
 
-    public EncryptedStringFactory() {
-        dataVault = LegacyDataVaultProvider.instance.get().getKeyVault();
+    @Inject
+    public EncryptedStringFactory(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
     }
 
     @Override
@@ -42,7 +43,7 @@ public class EncryptedStringFactory extends AbstractValueFactory<String> {
     }
 
     private String valueFromDb(String encodedString) {
-        return new String(dataVault.decrypt(encodedString));
+        return new String(dataVaultService.decrypt(encodedString));
     }
 
     @Override
@@ -56,7 +57,7 @@ public class EncryptedStringFactory extends AbstractValueFactory<String> {
     }
 
     private String encrypt (String string) {
-        return dataVault.encrypt(string.getBytes());
+        return dataVaultService.encrypt(string.getBytes());
     }
 
     @Override

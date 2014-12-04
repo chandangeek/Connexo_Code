@@ -1,12 +1,12 @@
 package com.energyict.mdc.dynamic;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
 
 /**
  * Provides services to build {@link PropertySpec}s.
@@ -16,7 +16,16 @@ import com.elster.jupiter.time.TimeDuration;
  */
 public interface PropertySpecService extends com.elster.jupiter.properties.PropertySpecService {
 
-    public AtomicReference<PropertySpecService> INSTANCE = new AtomicReference<>();
+    /**
+     * Creates a PropertySpec, creating the required ValueFactory by asking the injector (DataModel) to provide an instance,
+     * thereby enabling Injection on the ValueFactories
+     *
+     * @param name The name of the PropertySpec
+     * @param required A flag that indicates if the PropertySpec should be required or not
+     * @param valueFactoryClass The class for which the DataModel (injector) will provide an instance
+     * @return The PropertySpec
+     */
+    public <T> PropertySpec<T> basicPropertySpec (String name, boolean required, Class<? extends ValueFactory<T>> valueFactoryClass);
 
     public PropertySpec<TimeDuration> timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue);
 
@@ -45,4 +54,17 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
 
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
 
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of values that are managed by the
+     * specified {@link ValueFactory}. An instance of the ValueFactory is created by the injector (DataModel), thereby enabling
+     * injection on the ValueFactory in casu
+     *
+     * @param valueFactoryClass Injector will create a instance of this ValueFactory-class
+     * @param <T> The Type of values for the PropertySpec
+     * @return The PropertySpecBuilder
+     */
+    public <T> PropertySpecBuilder<T> newPropertySpecBuilder(Class<? extends ValueFactory<T>> valueFactoryClass);
+
+    public <T> ValueFactory<T> getValueFactory(Class<? extends ValueFactory<T>> valueFactoryClassName);
 }

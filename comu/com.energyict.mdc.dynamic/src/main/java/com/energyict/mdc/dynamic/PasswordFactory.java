@@ -1,12 +1,12 @@
 package com.energyict.mdc.dynamic;
 
-import com.elster.jupiter.datavault.DataVault;
-import com.elster.jupiter.datavault.LegacyDataVaultProvider;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.Password;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link ValueFactory}
@@ -17,10 +17,11 @@ import java.sql.SQLException;
  */
 public class PasswordFactory extends AbstractValueFactory<Password> {
 
-    private final DataVault dataVault;
+    private final DataVaultService dataVaultService;
 
-    public PasswordFactory () {
-        dataVault = LegacyDataVaultProvider.instance.get().getKeyVault();
+    @Inject
+    public PasswordFactory(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
     }
 
     @Override
@@ -43,7 +44,7 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
     }
 
     private Password valueFromDb (String encodedString) {
-        return new Password(new String(dataVault.decrypt(encodedString)));
+        return new Password(new String(dataVaultService.decrypt(encodedString)));
     }
 
     @Override
@@ -59,7 +60,7 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
     private String encrypt (Password password) {
         String value = password.getValue();
         if (value != null) {
-            return dataVault.encrypt(value.getBytes());
+            return dataVaultService.encrypt(value.getBytes());
         }
         else {
             return null;

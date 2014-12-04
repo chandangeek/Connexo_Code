@@ -1,15 +1,13 @@
 package com.energyict.mdc.dynamic;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TimeOfDay;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Password;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.TimeOfDay;
 
 /**
  * Models the behavior of a component that will provide
@@ -61,14 +59,6 @@ public interface PropertySpecFactory {
      * @return The PropertySpec
      */
     public PropertySpec<HexString> hexStringPropertySpec (String name);
-
-    /**
-     * Creates a {@link PropertySpec} for a {@link Password} value.
-     *
-     * @param name The name of the PropertySpec
-     * @return The PropertySpec
-     */
-    public PropertySpec<Password> passwordPropertySpec (String name);
 
     /**
      * Creates a {@link PropertySpec} for a BigDecimal value.

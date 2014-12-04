@@ -1,31 +1,35 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
-
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.FindById;
 import com.elster.jupiter.properties.ListValue;
 import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
+import com.energyict.mdc.dynamic.ObisCodeValueFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.google.inject.AbstractModule;
+import com.google.inject.Module;
+import java.math.BigDecimal;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.inject.Inject;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides an implementation for the {@link PropertySpecService} interface
@@ -36,6 +40,36 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component(name = "com.energyict.mdc.dynamic.propertyspecservice", service = PropertySpecService.class)
 public class PropertySpecServiceImpl implements PropertySpecService {
+
+    private volatile DataModel dataModel;
+    private volatile DataVaultService dataVaultService;
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.dataModel = ormService.newDataModel("DYN", "MDC Dynamic Services");
+    }
+
+    @Reference
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
+    }
+
+
+    @Activate
+    public void activate() {
+        this.dataModel.register(this.getModule());
+    }
+
+    private Module getModule() {
+        return new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(DataModel.class).toInstance(dataModel);
+                bind(DataVaultService.class).toInstance(dataVaultService);
+            }
+        };
+    }
+
 
     private volatile Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
     private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
@@ -53,6 +87,12 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     public <T> PropertySpec<T> basicPropertySpec(String name, boolean required, ValueFactory<T> valueFactory) {
         return basicPropertySpecService.basicPropertySpec(name, required, valueFactory);
     }
+
+    @Override
+    public <T> PropertySpec<T> basicPropertySpec(String name, boolean required, Class<? extends ValueFactory<T>> valueFactoryClass) {
+        return new com.elster.jupiter.properties.BasicPropertySpec<>(name, required, getValueFactory(valueFactoryClass));
+    }
+
 
     @Override
     public PropertySpec<String> stringPropertySpecWithValues(String name, boolean required, String... values) {
@@ -162,4 +202,13 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return basicPropertySpecService.listValuePropertySpec(name, required, finder, values);
     }
 
+    @Override
+    public <T> PropertySpecBuilder<T> newPropertySpecBuilder(Class<? extends ValueFactory<T>> valueFactoryClass) {
+        return PropertySpecBuilderImpl.forClass(getValueFactory(valueFactoryClass));
+    }
+
+    @Override
+    public <T> ValueFactory<T> getValueFactory(Class<? extends ValueFactory<T>> valueFactoryClass) {
+        return dataModel.getInstance(valueFactoryClass);
+    }
 }

@@ -257,10 +257,10 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
                 return propertySpec.getValueFactory();
             }
             else {
-                return (ValueFactory) Class.forName(valueFactoryClassName).newInstance();
+                return this.propertySpecService.getValueFactory((Class<? extends ValueFactory<Object>>) Class.forName(valueFactoryClassName));
             }
         }
-        catch (ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
+        catch (ClassNotFoundException | ClassCastException ex) {
             throw new ValueFactoryCreationException(this.thesaurus, ex, valueFactoryClassName);
         }
     }
