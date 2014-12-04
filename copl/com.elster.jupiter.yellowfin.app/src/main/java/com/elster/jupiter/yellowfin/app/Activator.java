@@ -4,9 +4,11 @@ import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.HttpResource;
+import com.elster.jupiter.license.License;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Reference;
 
 
 public class Activator implements BundleActivator {
@@ -22,6 +24,7 @@ public class Activator implements BundleActivator {
     private static final String DEFAULT_YELLOWFIN_URL = "http://localhost:8081";
 
     private volatile ServiceRegistration<App> registration;
+    private volatile License license;
 
     public Activator() {
     }
@@ -45,4 +48,8 @@ public class Activator implements BundleActivator {
         registration.unregister();
     }
 
+    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
+    }
 }
