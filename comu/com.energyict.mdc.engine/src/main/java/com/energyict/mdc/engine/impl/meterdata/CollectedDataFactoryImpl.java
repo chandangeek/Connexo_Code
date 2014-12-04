@@ -78,6 +78,16 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
+    public CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile) {
+        return new DeviceProtocolMessageWithCollectedLoadProfileData(messageIdentifier, collectedLoadProfile);
+    }
+
+    @Override
+    public CollectedMessage createCollectedMessageWithRegisterData(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CollectedRegister> collectedRegisters) {
+        return new DeviceProtocolMessageWithCollectedRegisterData(deviceIdentifier, messageIdentifier, collectedRegisters);
+    }
+
+    @Override
     public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier) {
         return new UpdatedDeviceCache(deviceIdentifier);
     }
