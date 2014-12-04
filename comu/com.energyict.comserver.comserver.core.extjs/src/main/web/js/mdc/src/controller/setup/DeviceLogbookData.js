@@ -123,8 +123,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
                 logbookModel.getProxy().setUrl(mRID);
                 logbookModel.load(logbookId, {
                     success: function (record) {
-                        me.getDeviceLogBookDetailTitle().update('<H2>'+record.get('name')+'</H2>');
-                        me.getApplication().fireEvent('logbookOfDeviceLoad', record);
+                        widget.down('#logBookTabPanel').setTitle(record.get('name'));
                     }
                 });
             }
