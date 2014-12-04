@@ -210,6 +210,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 items: [
                     {
                         xtype: 'deviceOpenIssuesPanel',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue']),
                         router: me.router,
                         style: {
                             marginRight: '20px',
@@ -223,6 +224,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         },
                         items: {
                             xtype: 'device-data-validation-panel',
+                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration']),
                             mRID: me.device.get('mRID')
                         }
 
