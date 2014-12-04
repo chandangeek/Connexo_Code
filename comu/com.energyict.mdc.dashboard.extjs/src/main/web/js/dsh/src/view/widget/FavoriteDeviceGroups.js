@@ -7,6 +7,7 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
         this.callParent(arguments);
         var me = this,
             store = Ext.getStore(me.store);
+
         store.load({
             callback: function () {
                 me.add([

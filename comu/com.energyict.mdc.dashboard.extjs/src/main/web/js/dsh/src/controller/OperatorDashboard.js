@@ -8,7 +8,8 @@ Ext.define('Dsh.controller.OperatorDashboard', {
         'CommunicationServerInfos',
         'Dsh.store.CombineStore',
         'Dsh.store.ConnectionResultsStore',
-        'Dsh.store.FavoriteDeviceGroups'
+        'Dsh.store.FavoriteDeviceGroups',
+        'Dsh.store.FlaggedDevices'
     ],
     views: [ 'Dsh.view.OperatorDashboard' ],
 
@@ -19,6 +20,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
         { ref: 'communicationSummary', selector: 'operator-dashboard #communication-summary' },
         { ref: 'summary', selector: ' operator-dashboard #summary' },
         { ref: 'communicationServers', selector: 'operator-dashboard #communication-servers' },
+        { ref: 'flaggedDevices', selector: 'operator-dashboard #flagged-devices' },
         { ref: 'issuesWidget', selector: 'operator-dashboard #open-data-collection-issues'},
         { ref: 'favoriteDeviceGroupsView', selector: 'operator-dashboard #favorite-device-groups dataview'},
         { ref: 'favoriteDeviceGroups', selector: '#my-favorite-device-groups'},
@@ -132,6 +134,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                 connectionModel.setFilter(router.filter);
                 communicationModel.setFilter(router.filter);
                 me.getDashboard().setLoading();
+                me.getFlaggedDevices().reload();
                 me.getCommunicationServers().reload();
                 connectionModel.load(null, {
                         success: function (connections) {
