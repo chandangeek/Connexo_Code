@@ -8,17 +8,10 @@ import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.properties.PropertyType;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.dynamic.DateAndTimeFactory;
-import com.energyict.mdc.dynamic.DateFactory;
-import com.energyict.mdc.dynamic.Ean13Factory;
-import com.energyict.mdc.dynamic.Ean18Factory;
-import com.energyict.mdc.dynamic.EncryptedStringFactory;
-import com.energyict.mdc.dynamic.HexStringFactory;
-import com.energyict.mdc.dynamic.LargeStringFactory;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
-import com.energyict.mdc.dynamic.PasswordFactory;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
-import com.energyict.mdc.dynamic.TimeOfDayFactory;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.dynamic.*;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
@@ -44,7 +37,7 @@ public enum SimplePropertyType implements PropertyType {
     CODETABLE(FactoryIds.CODE, Code.class),
     TIMEZONEINUSE(FactoryIds.TIMEZONE_IN_USE, TimeZoneInUse.class),
     USERFILEREFERENCE(FactoryIds.USERFILE, UserFile.class),
-    LOADPROFILETYPE(FactoryIds.LOADPROFILE_TYPE, LoadProfileType.class),
+    //LOADPROFILETYPE(FactoryIds.LOADPROFILE_TYPE, LoadProfileType.class),
     EAN13(Ean13Factory.class),
     EAN18(Ean18Factory.class),
     DATE(DateFactory.class),
@@ -52,6 +45,10 @@ public enum SimplePropertyType implements PropertyType {
     ENCRYPTED_STRING(EncryptedStringFactory.class),
     OBISCODE(ObisCodeValueFactory.class),
     READINGTYPE(ReadingType.class),
+    LOADPROFILETYPE(JupiterReferenceFactory.class, LoadProfileType.class),
+    LOADPROFILE(JupiterReferenceFactory.class, LoadProfile.class),
+    LOGBOOK(JupiterReferenceFactory.class, LogBook.class),
+    REGISTER(JupiterReferenceFactory.class, Register.class),
     TEXT(StringFactory.class);
 
     private Class valueFactoryClass;
@@ -67,6 +64,12 @@ public enum SimplePropertyType implements PropertyType {
     SimplePropertyType(FactoryIds factoryId, Class domainClass) {
         this.isReference = true;
         this.factoryId = factoryId;
+        this.domainClass = domainClass;
+    }
+
+    SimplePropertyType(Class valueFactoryClass, Class domainClass) {
+        this.isReference = true;
+        this.valueFactoryClass = valueFactoryClass;
         this.domainClass = domainClass;
     }
 

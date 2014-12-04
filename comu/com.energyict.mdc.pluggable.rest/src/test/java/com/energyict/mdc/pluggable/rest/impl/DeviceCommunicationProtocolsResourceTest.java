@@ -1,25 +1,33 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.protocols.mdc.channels.ip.InboundIpConnectionType;
-import com.energyict.protocols.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
-import com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.protocols.mdc.channels.ip.socket.TcpIpPostDialConnectionType;
+import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
+import com.energyict.protocols.impl.channels.ip.InboundIpConnectionType;
+import com.energyict.protocols.impl.channels.ip.datagrams.OutboundUdpConnectionType;
+import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.impl.channels.ip.socket.TcpIpPostDialConnectionType;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -27,6 +35,10 @@ import static org.mockito.Mockito.when;
 
 public class DeviceCommunicationProtocolsResourceTest extends PluggableRestApplicationJerseyTest {
 
+    @Mock
+    private PropertySpecService propertySpecService;
+    @Mock
+    private SocketService socketService;
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private DeviceProtocol deviceProtocol;
     private ConnectionType outboundConnectionType1;
@@ -52,11 +64,11 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class, RETURNS_DEEP_STUBS);
         deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        outboundConnectionType1 = new OutboundTcpIpConnectionType();//mockOutboundConnectionType(OutboundTcpIpConnectionType.class);
+        outboundConnectionType1 = new OutboundTcpIpConnectionType(this.propertySpecService, this.socketService);//mockOutboundConnectionType(OutboundTcpIpConnectionType.class);
         connectionTypePluggableCass1 = createMockedConnectionTypePluggableCass(outboundConnectionType1);
-        outboundConnectionType2 = new OutboundUdpConnectionType();// mockOutboundConnectionType(OutboundUdpConnectionType.class);
+        outboundConnectionType2 = new OutboundUdpConnectionType(this.propertySpecService, this.socketService);// mockOutboundConnectionType(OutboundUdpConnectionType.class);
         connectionTypePluggableCass2 = createMockedConnectionTypePluggableCass(outboundConnectionType2);
-        outboundConnectionType3 = new TcpIpPostDialConnectionType();//mockOutboundConnectionType(TcpIpPostDialConnectionType.class);
+        outboundConnectionType3 = new TcpIpPostDialConnectionType(this.propertySpecService, this.socketService);//mockOutboundConnectionType(TcpIpPostDialConnectionType.class);
         connectionTypePluggableCass3 = createMockedConnectionTypePluggableCass(outboundConnectionType3);
         inConnectionType1 = new InboundIpConnectionType();//mockInboundConnectionType(InboundIpConnectionType.class);
         connectionTypePluggableCass4 = createMockedConnectionTypePluggableCass(inConnectionType1);
@@ -66,7 +78,7 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         deviceProtocolSupportedConnectionTypes = Arrays.asList(outboundConnectionType1, outboundConnectionType3, inConnectionType2);
         allConnectionTypes = Arrays.asList(outboundConnectionType1, outboundConnectionType2, outboundConnectionType3, inConnectionType1, inConnectionType2);
         when(deviceProtocol.getSupportedConnectionTypes()).thenReturn(deviceProtocolSupportedConnectionTypes);
-        when(protocolPluggableService.findDeviceProtocolPluggableClass(anyInt())).thenReturn(deviceProtocolPluggableClass);
+        when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
         allConnectionTypePluggableClasses = Arrays.asList(connectionTypePluggableCass1, connectionTypePluggableCass2, connectionTypePluggableCass3, connectionTypePluggableCass4, connectionTypePluggableCass5);
         when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(allConnectionTypePluggableClasses);
 

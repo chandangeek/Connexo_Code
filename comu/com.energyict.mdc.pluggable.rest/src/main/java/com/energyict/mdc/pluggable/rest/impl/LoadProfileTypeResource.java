@@ -26,7 +26,7 @@ public class LoadProfileTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public LoadProfileTypeInfos getLoadProfileTypePropertyContext(@Context UriInfo uriInfo) {
         LoadProfileTypeInfos loadProfileTypeInfos = new LoadProfileTypeInfos();
         for (LoadProfileType loadProfileType : this.masterDataService.findAllLoadProfileTypes()) {

@@ -1,11 +1,13 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import javax.ws.rs.core.Application;
+
 import org.mockito.Mock;
 
 /**
@@ -18,8 +20,6 @@ public class PluggableRestApplicationJerseyTest extends com.elster.jupiter.devto
     PropertySpecService propertySpecService;
     @Mock
     ProtocolPluggableService protocolPluggableService;
-    @Mock
-    LicensedProtocolService licensedProtocolService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -32,7 +32,6 @@ public class PluggableRestApplicationJerseyTest extends com.elster.jupiter.devto
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setDeviceConfigurationService(deviceConfigurationService);
-        application.setLicensedProtocolService(licensedProtocolService);
         application.setPropertySpecService(propertySpecService);
         application.setProtocolPluggableService(protocolPluggableService);
         return application;

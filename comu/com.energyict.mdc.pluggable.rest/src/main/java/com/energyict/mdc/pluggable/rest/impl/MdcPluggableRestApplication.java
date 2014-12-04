@@ -35,7 +35,6 @@ public class MdcPluggableRestApplication extends Application implements InstallS
     public static final String COMPONENT_NAME = "PLR";
 
     private volatile ProtocolPluggableService protocolPluggableService;
-    private volatile LicensedProtocolService licensedProtocolService;
     private volatile PropertySpecService propertySpecService;
     private volatile TransactionService transactionService;
     private volatile DeviceConfigurationService deviceConfigurationService;
@@ -70,11 +69,6 @@ public class MdcPluggableRestApplication extends Application implements InstallS
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
-    }
-
-    @Reference
-    public void setLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
-        this.licensedProtocolService = licensedProtocolService;
     }
 
     @Reference
@@ -120,7 +114,6 @@ public class MdcPluggableRestApplication extends Application implements InstallS
         @Override
         protected void configure() {
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
-            bind(licensedProtocolService).to(LicensedProtocolService.class);
             bind(propertySpecService).to(PropertySpecService.class);
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
