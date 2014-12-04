@@ -13,15 +13,20 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-import org.mockito.Mock;
+
+import java.time.Clock;
 
 import javax.ws.rs.core.Application;
-import java.time.Clock;
+
+import org.mockito.Mock;
 
 /**
  * Created by bvn on 9/19/14.
@@ -58,9 +63,16 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     RestQueryService restQueryService;
     @Mock
+    DeviceMessageSpecificationService deviceMessageSpecificationService;
+    @Mock
     TaskService taskService;
     @Mock
     CommunicationTaskService communicationTaskService;
+    @Mock
+    PropertySpecService propertySpecService;
+    @Mock
+    FavoritesService favoritesService;
+
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -89,6 +101,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setRestQueryService(restQueryService);
         application.setTaskService(taskService);
         application.setCommunicationTaskService(communicationTaskService);
+        application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        application.setFavoritesService(favoritesService);
         return application;
     }
 }

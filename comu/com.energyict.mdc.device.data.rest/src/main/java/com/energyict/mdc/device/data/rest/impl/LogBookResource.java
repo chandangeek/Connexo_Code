@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -18,14 +19,15 @@ import com.elster.jupiter.cbo.IllegalEnumValueException;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.security.Privileges;
 
 public class LogBookResource {
 
@@ -50,6 +52,7 @@ public class LogBookResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public Response getAllLogBooks(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<LogBook> allLogBooks = device.getLogBooks();
@@ -61,6 +64,7 @@ public class LogBookResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lbid}")
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public Response getLogBook(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LogBook logBook = findLogBookOrThrowException(device, logBookId);
@@ -70,6 +74,7 @@ public class LogBookResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lbid}/data")
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public Response getLogBookData(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters)
     {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -86,23 +91,22 @@ public class LogBookResource {
 
     private EndDeviceEventRecordFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) {
         EndDeviceEventRecordFilterSpecification filter = new EndDeviceEventRecordFilterSpecification();
-        Map<String, Object> filterProperties = jsonQueryFilter.getFilterProperties();
         Date intervalStart = null;
         Date intervalEnd = null;
-        if (filterProperties.containsKey(INTERVAL_START)) {
-            intervalStart = jsonQueryFilter.getDate(INTERVAL_START);
+        if (jsonQueryFilter.hasProperty(INTERVAL_START)) {
+            intervalStart = Date.from(jsonQueryFilter.getInstant(INTERVAL_START));
         }
-        if (filterProperties.containsKey(INTERVAL_END)) {
-            intervalEnd = jsonQueryFilter.getDate(INTERVAL_END);
+        if (jsonQueryFilter.hasProperty(INTERVAL_END)) {
+            intervalEnd = Date.from(jsonQueryFilter.getInstant(INTERVAL_END));
         }
         filter.range = new Interval(intervalStart, intervalEnd).toOpenClosedRange();
-        if (filterProperties.containsKey(DOMAIN)) {
+        if (jsonQueryFilter.hasProperty(DOMAIN)) {
             filter.domain = jsonQueryFilter.getProperty(DOMAIN, new EndDeviceDomainAdapter());
         }
-        if (filterProperties.containsKey(SUB_DOMAIN)) {
+        if (jsonQueryFilter.hasProperty(SUB_DOMAIN)) {
             filter.subDomain = jsonQueryFilter.getProperty(SUB_DOMAIN, new EndDeviceSubDomainAdapter());
         }
-        if (filterProperties.containsKey(EVENT_OR_ACTION)) {
+        if (jsonQueryFilter.hasProperty(EVENT_OR_ACTION)) {
             filter.eventOrAction = jsonQueryFilter.getProperty(EVENT_OR_ACTION, new EndDeviceEventOrActionAdapter());
         }
         return filter;

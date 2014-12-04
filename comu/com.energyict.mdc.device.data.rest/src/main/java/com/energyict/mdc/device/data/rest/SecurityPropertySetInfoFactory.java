@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.rest.impl;
+package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
@@ -9,6 +9,8 @@ import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
+import com.energyict.mdc.device.data.rest.impl.SecurityPropertySetInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
@@ -35,7 +37,7 @@ public class SecurityPropertySetInfoFactory {
 
     public List<SecurityPropertySetInfo> asInfo(Device device, UriInfo uriInfo) {
         return device.getDeviceConfiguration().getSecurityPropertySets().stream().map(s -> asInfo(device, uriInfo, s))
-                .sorted((p1, p2) -> p1.name.compareTo(p2.name))
+                .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
                 .collect(toList());
     }
 
@@ -52,8 +54,8 @@ public class SecurityPropertySetInfoFactory {
         TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
 
         securityPropertySetInfo.properties = new ArrayList<>();
-        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties);
-        changeToRequiredProperties(securityPropertySetInfo.properties);
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties, securityPropertySetInfo.userHasViewPrivilege && securityPropertySetInfo.userHasEditPrivilege, true);
+
         securityPropertySetInfo.status = new IdWithNameInfo();
         if (!getStatus(device, securityPropertySet, typedProperties)) {
             securityPropertySetInfo.status.id = CompletionState.INCOMPLETE;
@@ -63,7 +65,7 @@ public class SecurityPropertySetInfoFactory {
             securityPropertySetInfo.status.name = thesaurus.getString(MessageSeeds.COMPLETE.getKey(), MessageSeeds.COMPLETE.getDefaultFormat());
         }
         if (!securityPropertySetInfo.userHasViewPrivilege) {
-            securityPropertySetInfo.properties.stream().forEach(p -> p.propertyValueInfo = new PropertyValueInfo<>());
+            securityPropertySetInfo.properties.stream().forEach(p -> p.propertyValueInfo = new PropertyValueInfo<>(p.propertyValueInfo.propertyHasValue));
             if (!securityPropertySetInfo.userHasEditPrivilege) {
                 securityPropertySetInfo.properties.stream().forEach(p -> p.propertyTypeInfo = new PropertyTypeInfo());
             }
@@ -72,14 +74,14 @@ public class SecurityPropertySetInfoFactory {
     }
 
     private boolean getStatus(Device device, SecurityPropertySet securityPropertySet,TypedProperties typedProperties) {
-        if (device.getSecurityPropertiesStatus(securityPropertySet).isEmpty()) {
+        if (device.getAllSecurityProperties(securityPropertySet).isEmpty()) {
             if (typedProperties == TypedProperties.empty()) {
                 return true;
             } else {
                 return false;
             }
         } else {
-            for (SecurityProperty securityProperty : device.getSecurityPropertiesStatus(securityPropertySet)) {
+            for (SecurityProperty securityProperty : device.getAllSecurityProperties(securityPropertySet)) {
                 if (!securityProperty.isComplete()) {
                     return false;
                 }
@@ -90,7 +92,7 @@ public class SecurityPropertySetInfoFactory {
 
     private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
         TypedProperties typedProperties = TypedProperties.empty();
-        for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
+        for (SecurityProperty securityProperty : device.getAllSecurityProperties(securityPropertySet)) {
             typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
         }
         return typedProperties;
@@ -104,15 +106,6 @@ public class SecurityPropertySetInfoFactory {
             this.seed = seed;
         }
     }
-
-    //TODO JP-6225
-    //should be removed when implementing this issue
-    private void changeToRequiredProperties(List<PropertyInfo> propertyInfoList) {
-        for (PropertyInfo propertyInfo : propertyInfoList) {
-            propertyInfo.required = true;
-        }
-    }
-
 }
 
 

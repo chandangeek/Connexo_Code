@@ -518,7 +518,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTask comTask = mock(ComTask.class);
         when(comTask.getId()).thenReturn(19L);
         when(comTask.getName()).thenReturn("Read all");
-        when(taskService.findComTask(19)).thenReturn(comTask);
+        when(taskService.findComTask(19)).thenReturn(Optional.of(comTask));
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
 

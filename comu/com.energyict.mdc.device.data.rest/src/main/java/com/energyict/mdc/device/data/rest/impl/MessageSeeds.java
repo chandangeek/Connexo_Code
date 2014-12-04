@@ -9,7 +9,6 @@ import java.text.MessageFormat;
 import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
-
     NO_SUCH_DEVICE(14, "noSuchDevice", "No device with mrId {0}"),
     DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
     NO_SUCH_PARTIAL_CONNECTION_TASK(16, "NoSuchPartialConnectionTask", "No such connection method on device config"),
@@ -52,7 +51,7 @@ public enum MessageSeeds implements MessageSeed {
     NULL_DATE(61, "NullDate", "Date must be filled in"),
     DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE(62, "DeactivateValidationRuleSetNotPossible", "Deactivate of validation rule set {0} is currently not possible."),
     PENDING(63, "Pending", "Pending"),
-    FAILED(64, "Failed", "Failed"),
+    COMMAND_FAILED(64, "Failed", "Failed"),
     BUSY(65, "Busy", "Busy"),
     ON_HOLD(66, "OnHold", "Inactive"),
     RETRYING(67, "Retrying", "Retrying"),
@@ -80,7 +79,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COM_TASK(91, "NoSucComTaskOnDevice", "No such communication task exists for device ''{0}''"),
     COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE(92, "NoEnablementForDevice", "Communication task ''{0}'' is not enabled for device ''{1}''"),
     NO_SUCH_COM_TASK_EXEC_SESSION(93, "NoSuchComTaskExecSession", "The communication task logging could not be found"),
-    DEVICEGROUPNAME_ALREADY_EXISTS(94, "deviceGroupNameAlreadyExists", "A devicegroup with name {0} already exists"),    
+    DEVICEGROUPNAME_ALREADY_EXISTS(94, "deviceGroupNameAlreadyExists", "A devicegroup with name {0} already exists"),
     COMPLETE(95, "Complete", "Complete"),
     INCOMPLETE(96, "Incomplete", "Incomplete"),
     NO_SUCH_SECURITY_PROPERTY_SET_ON_DEVICE(97, "NoSuchSecurityPropertySetOnDevice", "No security settings with id {0} exist for device ''{1}''"),
@@ -173,9 +172,23 @@ public enum MessageSeeds implements MessageSeed {
     SIMPLEPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0(200, Keys.SIMPLEPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Password authentication"),
     WAVENISSECURITYSUPPORT_AUTHENTICATIONLEVEL_0(202, Keys.WAVENISSECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Wavenis authentication"),
     WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0(204, Keys.WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0, "Standard Wavenis encryption"),
-    NOT_DEFINED_YET(205, "NotDefinedYet", "(not defined yet)"),
-    AS_SOON_AS_POSSIBLE(206, "asSoonAsPossible", "As soon as possible"),
-    MINIMIZE_CONNECTIONS(207, "minimizeConnections", "Minimize connections");
+    COMMAND_REVOKED(205, "CommandRevoked", "Revoked"),
+    COMMAND_CONFIRMED(206, "CommandConfirmed", "Confirmed"),
+    COMMAND_IN_DOUBT(207, "CommandInDoubt", "In doubt"),
+    COMMAND_PENDING(208, "CommandPending", "Pending"),
+    COMMAND_SENT(209, "CommandSent", "Sent"),
+    COMMAND_WAITING(210, "CommandWaiting", "Waiting"),
+    NO_SUCH_USER(211, "NoSuchUser", "No such user"),
+    NO_SUCH_MESSAGE_SPEC(212, "NoSuchMessageSpec", "No such device message specification"),
+    NO_SUCH_MESSAGE(213, "NoSuchMessage", "No such device message exists on the device" ),
+    NOT_DEFINED_YET(214, "NotDefinedYet", "(not defined yet)"),
+    AS_SOON_AS_POSSIBLE(215, "asSoonAsPossible", "As soon as possible"),
+    MINIMIZE_CONNECTIONS(216, "minimizeConnections", "Minimize connections"),
+    UPDATE_SECURITY_PROPERTY_SET_NOT_ALLOWED(217, "UpdateSecurityPropertySetNotAllowed", "Update security property set not allowed"),
+    MDC_LABEL_CATEGORY_FAVORITES(218, "mdc.label.category.favorites", "Favorites"),
+    NO_SUCH_LABEL_CATEGORY(219, "NoSuchLabelCategory", "No such label category"),
+    NO_SUCH_DEVICE_LABEL(220, "NoSuchDeviceLabel", "No such device label of category ''{0}'' on a device {1}")
+    ;
 
 
     private final int number;
