@@ -34,7 +34,7 @@ public class ResourceResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_USER_ROLE)
+    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE,Privileges.VIEW_USER_ROLE})
     public ResourceInfos getResources(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Resource> list = getResourceRestQuery().select(queryParameters, Order.ascending("name"));

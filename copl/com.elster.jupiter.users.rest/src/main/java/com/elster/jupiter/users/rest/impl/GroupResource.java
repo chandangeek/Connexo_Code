@@ -71,7 +71,7 @@ public class GroupResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_USER_ROLE)
+    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE,Privileges.VIEW_USER_ROLE})
     public GroupInfos getGroup(@PathParam("id") long id) {
         Optional<Group> group = userService.getGroup(id);
         if (group.isPresent()) {
@@ -82,7 +82,7 @@ public class GroupResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_USER_ROLE)
+    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE,Privileges.VIEW_USER_ROLE})
     public GroupInfos getGroups(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Group> list = getGroupRestQuery().select(queryParameters, Order.ascending("name"));
