@@ -64,7 +64,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(newEncryptionKeyAttributeName, true, new PasswordFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(newEncryptionKeyAttributeName, true, PasswordFactory.class));
         }
     },
     CHANGE_AUTHENTICATION_KEY(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY, "Change authentication key"),
@@ -72,7 +72,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(newAuthenticationKeyAttributeName, true, new PasswordFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(newAuthenticationKeyAttributeName, true, PasswordFactory.class));
         }
     },
     CHANGE_PASSWORD(DeviceMessageId.SECURITY_CHANGE_PASSWORD, "Change password"),
@@ -80,7 +80,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, new PasswordFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, PasswordFactory.class));
         }
     },
     CHANGE_LLS_SECRET(DeviceMessageId.SECURITY_CHANGE_LLS_SECRET, "Change LLS secret"),
