@@ -383,7 +383,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
 			.filter(testRetention(purgeConfiguration.intervalRetention()))
 			.forEach(vault -> vault.setRetentionDays(purgeConfiguration.intervalDays()));  
     	dailyVaults().stream()
-			.filter(testRetention(purgeConfiguration.registerRetention()))
+			.filter(testRetention(purgeConfiguration.dailyRetention()))
 			.forEach(vault -> vault.setRetentionDays(purgeConfiguration.dailyDays()));  
     }
     
@@ -398,13 +398,15 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
     
     List<Vault> intervalVaults() {
-    	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.IRREGULARVAULTID)
+    	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.INTERVALVAULTID)
     			.map( vault -> Arrays.asList(vault))
     			.orElse(Collections.emptyList());
     }
     
     List<Vault> dailyVaults() {
-    	return Collections.emptyList();
+    	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.DAILYVAULTID)
+    			.map( vault -> Arrays.asList(vault))
+    			.orElse(Collections.emptyList());
     }
     
 }
