@@ -2,14 +2,16 @@ package com.elster.jupiter.export.processor.impl;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
-    INVALIDCHARS_EXCEPTION(1001, Keys.INVALIDCHARS_EXCEPTION, "*?\" <> and | are not allowed.", Level.SEVERE),
+    INVALIDCHARS_EXCEPTION(1001, Keys.INVALIDCHARS_EXCEPTION, "Characters {0} are not allowed.", Level.SEVERE),
     INVALID_READING_CONTAINER(1002, Keys.INVALID_READING_CONTAINER, "Reading container is not a Meter", Level.WARNING),
     FILE_IO(1003, Keys.FILE_IO, "Failure while doing IO on file {0}", Level.SEVERE),
     ABSOLUTE_PATH_NOT_ALLOWED(1004, Keys.ABSOLUTE_PATH, "Absolute path is not allowed here", Level.SEVERE);
@@ -68,5 +70,10 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FILE_IO = "file.io.failure";
         public static final String ABSOLUTE_PATH = "path.absolute.disallowed";
     }
+
+    TranslationKey toTranslationKey() {
+        return new SimpleTranslationKey(getKey(), getDefaultFormat());
+    }
+
 }
 

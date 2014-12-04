@@ -38,4 +38,6 @@ public enum FormatterProperties implements TranslationKey {
     public String getDefaultFormat() {
         return defaultTranslation;
     }
+
+
 }

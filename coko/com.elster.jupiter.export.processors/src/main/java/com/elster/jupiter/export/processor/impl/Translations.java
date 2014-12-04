@@ -3,13 +3,18 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import org.osgi.service.component.annotations.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Stream.concat;
 
 /**
  * Copyrights EnergyICT
@@ -31,9 +36,43 @@ public class Translations implements TranslationKeyProvider {
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>(Arrays.asList(FormatterProperties.values()));
-        keys.add(new SimpleTranslationKey(StandardCsvDataProcessorFactory.NAME, "Standard CSV Exporter"));
+        return concat(
+                concat(
+                        Arrays.stream(FormatterProperties.values()),
+                        Arrays.stream(MessageSeeds.values()).map(MessageSeeds::toTranslationKey)
+                ),
+                labels()
+        ).collect(Collectors.toList());
+    }
 
-        return keys;
+    private Stream<SimpleTranslationKey> labels() {
+        return Collections.singleton(new SimpleTranslationKey(StandardCsvDataProcessorFactory.NAME, "Standard CSV Exporter")).stream();
+    }
+
+    static enum Labels implements TranslationKey {
+        CSV_PROCESSSOR(StandardCsvDataProcessorFactory.NAME, "Standard CSV Exporter"),
+        AND("des.and", "and");
+
+        private final String key;
+        private final String defaultFormat;
+
+        Labels(String key, String defaultFormat) {
+            this.key = key;
+            this.defaultFormat = defaultFormat;
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return defaultFormat;
+        }
+
+        public String translate(Thesaurus thesaurus) {
+            return thesaurus.getString(key, defaultFormat);
+        }
     }
 }
