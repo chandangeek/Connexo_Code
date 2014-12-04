@@ -1,23 +1,19 @@
 package com.elster.jupiter.properties.impl;
 
-import java.math.BigDecimal;
-import java.util.logging.Logger;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpecImpl;
 import com.elster.jupiter.properties.FindById;
-import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.ListValue;
+import com.elster.jupiter.properties.ListValueEntry;
 import com.elster.jupiter.properties.ListValuePropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import java.math.BigDecimal;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Provides an implementation for the {@link PropertySpecService} interface
@@ -28,13 +24,6 @@ import com.elster.jupiter.properties.ValueFactory;
  */
 @Component(name = "com.elster.jupiter.properties.propertyspecservice", service = PropertySpecService.class)
 public class PropertySpecServiceImpl implements PropertySpecService {
-
-    private static final Logger LOGGER = Logger.getLogger(PropertySpecServiceImpl.class.getName());
-
-    @Activate
-    public void activate(){
-
-    }
 
     @Override
     public <T> PropertySpec<T> basicPropertySpec(String name, boolean required, ValueFactory<T> valueFactory) {

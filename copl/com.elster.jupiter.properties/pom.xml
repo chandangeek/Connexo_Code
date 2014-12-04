@@ -25,6 +25,11 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>datavault</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>domain.util</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
