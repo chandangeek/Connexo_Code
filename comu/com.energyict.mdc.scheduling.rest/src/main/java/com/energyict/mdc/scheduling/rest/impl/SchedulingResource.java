@@ -300,7 +300,7 @@ public class SchedulingResource {
     @Path("/preview")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_SCHEDULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_SCHEDULE)
     public Response generatePreviewForSchedule(PreviewInfo previewInfo) {
         if (previewInfo.temporalExpression == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.CAN_NOT_BE_EMPTY, "temporalExpression");
