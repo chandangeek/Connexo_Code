@@ -125,7 +125,10 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
                 if(license.getStatus().equals(License.Status.ACTIVE) || license.getGracePeriodInDays() > 0){
                     props.put("com.elster.jupiter.license.rest.key",license.getApplicationKey());
                 }
+
+                if(context != null){
                     licenseServices.add(context.registerService(License.class, license, props));
+                }
             }
         }
     }

@@ -114,7 +114,6 @@ public class LicenseServiceTest {
         }
     }
 
-    @Ignore
     @Test
     @Transactional
     public void testAddLicense() throws Exception {
@@ -154,7 +153,6 @@ public class LicenseServiceTest {
         assertThat(otherLicensedValues.isPresent()).isFalse();
     }
 
-    @Ignore
     @Test
     @Transactional
     public void testLicensedValue() throws Exception {
@@ -173,7 +171,6 @@ public class LicenseServiceTest {
 
     }
 
-    @Ignore
     @Test
     @Transactional
     public void testUpdateLicense() throws Exception {
@@ -191,13 +188,11 @@ public class LicenseServiceTest {
         assertThat(getLicenseService().getLicenseForApplication("MTR").get().getActivation().isAfter(firstActivationDate));
     }
 
-    @Ignore
     @Test(expected = InvalidLicenseException.class)
     public void testAddInvalidLicense() throws Exception {
         getLicenseService().addLicense(getResource("invalidLicense.lic"));
     }
 
-    @Ignore
     @Transactional
     public void testUpdateLicenseWithSameFile() throws Exception {
         getLicenseService().addLicense(getResource("validLicense.lic"));
@@ -209,7 +204,6 @@ public class LicenseServiceTest {
         }
     }
 
-    @Ignore
     @Test
     @Transactional
     public void testLicenseTampering() throws Exception {
@@ -224,7 +218,6 @@ public class LicenseServiceTest {
         assertThat(mtrLicensedValues.get()).containsEntry("key2", "1");
     }
 
-    @Ignore
     @Test
     @Transactional
     public void testExpiredLicense() throws Exception {
