@@ -9,6 +9,9 @@ package com.energyict.dialer.connection;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.protocols.util.ProtocolUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import serialio.xmodemapi.XGet;
 
 import java.io.ByteArrayInputStream;
@@ -16,8 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * Abstract baseclass for the low level stream oriented communication related class. Each protocol should extend this Connection class to implement the low level communication methods.
@@ -26,7 +28,7 @@ import java.util.logging.Logger;
  */
 public abstract class Connection {
 
-    private static final Logger LOGGER = Logger.getLogger(Connection.class.getName());
+    private static final Log logger = LogFactory.getLog(Connection.class);
     /**
      * reason for a ProtocolConnectionException
      */
@@ -212,8 +214,6 @@ public abstract class Connection {
      * @param lForceDelay          delay in ms before sendRawData
      * @param iEchoCancelling      on(1)/off(0)
      * @param halfDuplexController HalfDuplexController
-     * @throws ConnectionException
-     *          Thrown for communication related exceptions
      */
     protected Connection(InputStream inputStream,
                          OutputStream outputStream,
@@ -236,13 +236,11 @@ public abstract class Connection {
      * @param outputStream    communication outputStream
      * @param lForceDelay     delay in ms before sendRawData
      * @param iEchoCancelling on(1)/off(0)
-     * @throws ConnectionException
-     *          Thrown for communication related exceptions
      */
     protected Connection(InputStream inputStream,
                          OutputStream outputStream,
                          long lForceDelay,
-                         int iEchoCancelling) throws ConnectionException {
+                         int iEchoCancelling) {
         this(inputStream, outputStream, lForceDelay, iEchoCancelling, null);
     }
 
@@ -251,11 +249,9 @@ public abstract class Connection {
      *
      * @param inputStream  communication inputStream
      * @param outputStream communication outputStream
-     * @throws ConnectionException
-     *          Thrown for communication related exceptions
      */
     protected Connection(InputStream inputStream,
-                         OutputStream outputStream) throws ConnectionException {
+                         OutputStream outputStream) {
         this(inputStream, outputStream, 0, 0);
     }
 
@@ -286,7 +282,7 @@ public abstract class Connection {
 
     private void waitForEcho(int echo) throws NestedIOException, ConnectionException {
         long echoTimeout = System.currentTimeMillis() + 5000;
-        int kar;
+        int kar = 0;
         while (true) {
             if ((kar = readIn()) != -1) {
                 if (kar != echo) {
@@ -434,7 +430,7 @@ public abstract class Connection {
         } catch (InterruptedException e) {
             throw new NestedIOException(e);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new ConnectionException("Connection, readIn() error " + e.getMessage());
         }
         return (-1);
@@ -459,42 +455,32 @@ public abstract class Connection {
                 inputStream.read(data, 0, len);
                 for (int i = 0; i < len; i++) {
                     if ((data[i] & 0xFF) != echoByteArrayInputStream.read()) {
-                        return this.getSubArray(data, i);
+                        return ProtocolUtils.getSubArray(data, i);
                     }
                 }
-            }
+            } // if (inputStream.available() != 0)
             else {
                 Thread.sleep(100);
             }
         } catch (InterruptedException e) {
             throw new NestedIOException(e);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new ConnectionException("Connection, readIn() error " + e.getMessage());
         }
         return (null);
-    }
-
-    protected byte[] getSubArray(byte[] data, int from) {
-        byte[] subArray = new byte[data.length - from];
-        for (int i = 0; i < subArray.length; i++) {
-            subArray[i] = data[i + from];
-        }
-        return subArray;
     }
 
     /**
      * delay
      *
      * @param lDelay long delay in ms
-     * @throws NestedIOException
-     *          thrown when something goes wrong
      */
-    protected void delay(long lDelay) throws NestedIOException {
+    protected void delay(long lDelay) {
         try {
             Thread.sleep(lDelay);
         } catch (InterruptedException e) {
-            throw new NestedIOException(e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -540,7 +526,7 @@ public abstract class Connection {
                 inputStream.read();
             } // flush inputbuffer
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new ConnectionException("Connection, flushInputStream() error " + e.getMessage());
         }
     } // private void flushInputStream()  throws ConnectionException

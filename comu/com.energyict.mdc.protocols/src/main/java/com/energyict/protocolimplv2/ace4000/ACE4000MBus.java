@@ -24,22 +24,28 @@ public class ACE4000MBus extends ACE4000Outbound {
     }
 
     @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        List<EncryptionDeviceAccessLevel> encryptionAccessLevels = new ArrayList<>();
+        encryptionAccessLevels.addAll(super.getEncryptionAccessLevels());
+        encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel());
+        return encryptionAccessLevels;
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>();
+        authenticationAccessLevels.addAll(super.getAuthenticationAccessLevels());
+        authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel());
+        return authenticationAccessLevels;
+    }
+
+    @Override
     public String getProtocolDescription() {
-        return "Actaris ACE4000 Mbus Slave";
-    }
-
-    @Override
-    public DeviceFunction getDeviceFunction() {
-        return null;
-    }
-
-    @Override
-    public ManufacturerInformation getManufacturerInformation() {
-        return null;
+        return "Actaris ACE4000 MeterXML Mbus Device";
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 }

@@ -22,11 +22,15 @@ import java.io.IOException;
  */
 public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
 
-    private LoadProfileBuilder loadProfileBuilder;
+    protected LoadProfileBuilder loadProfileBuilder;
+    protected MessageProtocol messageProtocol;
 
     @Override
-    public String getProtocolDescription() {
-        return "Landis+Gyr E350 XEMEX NTA DSMR 4.0";
+    public MessageProtocol getMessageProtocol() {
+        if (messageProtocol == null) {
+            messageProtocol = new Dsmr40Messaging(new Dsmr40MessageExecutor(this));
+        }
+        return messageProtocol;
     }
 
     @Override
@@ -81,8 +85,8 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
         if (getCache() == null) {
             setCache(new DLMSCache());
         }
-        if ((((DLMSCache) getCache()).getObjectList() == null) || ((Dsmr40Properties) getProperties()).getForcedToReadCache()) {
-            getLogger().info(((Dsmr40Properties) getProperties()).getForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
+        if ((((DLMSCache) getCache()).getObjectList() == null) || ((Dsmr40Properties) getProperties()).isForcedToReadCache()) {
+            getLogger().info(((Dsmr40Properties) getProperties()).isForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
             requestConfiguration();
             ((DLMSCache) getCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
         } else {
@@ -95,6 +99,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
             this.loadProfileBuilder = new LGLoadProfileBuilder(this);
+            ((LGLoadProfileBuilder) loadProfileBuilder).setCumulativeCaptureTimeChannel(((Dsmr40Properties) getProperties()).getCumulativeCaptureTimeChannel());
         }
         return loadProfileBuilder;
     }

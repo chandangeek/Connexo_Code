@@ -59,11 +59,6 @@ public class EZ7 extends AbstractProtocol {
     public EZ7() {
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EMON EZ7";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

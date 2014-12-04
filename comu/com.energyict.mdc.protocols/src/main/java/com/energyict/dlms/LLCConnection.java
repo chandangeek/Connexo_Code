@@ -35,7 +35,7 @@ public class LLCConnection extends CosemPDUConnection {
                 } else {
                     while (readInArray() != null) {
                     }
-                    throw new IOException("LLC packet should start with 0x90!");
+                    throw new ProtocolException("LLC packet should start with 0x90!");
                 }
             }
             if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {

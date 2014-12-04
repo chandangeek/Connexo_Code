@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.common;
 
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.HHUEnabler;
@@ -41,11 +42,18 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     public Date getTime() throws IOException {
         try {
             getLogger().severe("Reading CLOCK");
-            return this.dlmsSession.getCosemObjectFactory().getClock().getDateTime();
+            return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
             throw new IOException("Could not retrieve the Clock object." + e);
         }
+    }
+
+    /**
+     * Used by sub protocols that implement ProtocolLink
+     */
+    public ApplicationServiceObject getAso() {
+        return getDlmsSession().getAso();
     }
 
     /**
@@ -68,7 +76,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     /**
      * The {@link DLMSCache} of the current RTU
      */
-    private DLMSCache dlmsCache;
+    protected DLMSCache dlmsCache;
 
     /**
      * Getter for the {@link DlmsProtocolProperties}
@@ -145,6 +153,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      * The number should increase if something in the configuration or firmware changed. This can cause the objectlist to change.
      * <br>
      * <i>This method may be overridden to fetch the version in a getWithListRequest</i>
+     *
      * @return the number of configuration changes.
      * @throws IOException
      */
@@ -243,6 +252,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     @Override
     public void updateCache(final int rtuid, final Object cacheObject) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
+//TODO wrap in a transaction?
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
                 new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());

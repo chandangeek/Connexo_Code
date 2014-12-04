@@ -23,9 +23,9 @@ public class XemexMessaging extends Dsmr40Messaging {
 
     private final Dsmr40MessageExecutor messageExecutor;
 
-    public XemexMessaging(final GenericMessageExecutor messageExecutor) {
-        super(messageExecutor);
-        this.messageExecutor = (Dsmr40MessageExecutor) messageExecutor;
+    public XemexMessaging(final MessageParser messageParser) {
+        super(messageParser);
+        this.messageExecutor = (Dsmr40MessageExecutor) messageParser;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class XemexMessaging extends Dsmr40Messaging {
         return catConfigurationParameters;
     }
 
-    private MessageCategorySpec getConnectivityCategory() {
+    protected MessageCategorySpec getConnectivityCategory() {
         MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec(
                 RtuMessageCategoryConstants.CHANGECONNECTIVITY);
         MessageSpec msgSpec = addChangeGPRSSetup(

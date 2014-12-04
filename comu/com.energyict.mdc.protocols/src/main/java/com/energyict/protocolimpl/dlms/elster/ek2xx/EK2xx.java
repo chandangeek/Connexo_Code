@@ -213,6 +213,11 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         }
     }
 
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
+    }
+
     public void connect() throws IOException {
         try {
             getDLMSConnection().connectMAC();
@@ -402,13 +407,8 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return getEk2xxProfile().getCapturedObjects();
     } // private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster EK2xx DLMS";
-    }
-
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {

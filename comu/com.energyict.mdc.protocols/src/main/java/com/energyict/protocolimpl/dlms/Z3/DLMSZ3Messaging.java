@@ -86,6 +86,8 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
+@Deprecated
 public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessageProtocol, ProtocolLink, RegisterProtocol, Constant {
 
     /**
@@ -134,6 +136,11 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
             throw new IOException(e.getMessage());
         }
 
+    }
+
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
     }
 
     public void log(Level level, String tekst) {
@@ -362,11 +369,6 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
     public String getVersion() {
         return getProtocolVersion();
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT WebRTU Z3 Messaging";
     }
 
     public String getProtocolVersion() {

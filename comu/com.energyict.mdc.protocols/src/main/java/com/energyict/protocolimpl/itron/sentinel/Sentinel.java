@@ -202,11 +202,6 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink {
         return getDataReadFactory().getCapabilitiesDataRead().getNumberOfLoadProfileChannels();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Itron/Schlumberger Sentinel ANSI C12";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

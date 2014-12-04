@@ -50,20 +50,22 @@ import java.util.logging.Level;
  * Date: 5/09/11
  * Time: 9:37
  */
-public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, FirmwareUpdateMessaging, CacheMechanism {
+public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, CacheMechanism {
+
+    public static final String CALLING_AP_TITLE = "CallingAPTitle";
+    public static final String CALLING_AP_TITLE_DEFAULT = "0000000000000000";
 
     private static final ObisCode FIRMWARE_VERSION = ObisCode.fromString("1.0.0.2.0.255");
     private static final String READ_CACHE_DEFAULT_VALUE = "0";
-    private static final String CALLING_AP_TITLE_DEFAULT = "0000000000000000";
     private static final String READCACHE_PROPERTY = "ReadCache";
     private static final String LIMITMAXNROFDAYS_PROPERTY = "LimitMaxNrOfDays";
-    private static final String CALLING_AP_TITLE = "CallingAPTitle";
     private static final String LOAD_PROFILE_OBIS_CODE_PROPERTY = "LoadProfileObisCode";
     public static final String OBISCODE_LOAD_PROFILE1 = "1.0.99.1.0.255";   //Quarterly
     private static final String MAX_NR_OF_DAYS_DEFAULT = "0";
     public static final String VALIDATE_INVOKE_ID = "ValidateInvokeId";
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
     private static final String TIMEOUT = "timeout";
+    private static final String CONFIRM_UNKNOWN_METER = "CONFIRM_UNKNOWN_METER";
 
     private ProfileDataReader profileDataReader = null;
     private IDISMessageHandler messageHandler = null;
@@ -125,11 +127,17 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
                 return;
             } catch (IOException e) {
                 exception = e;
+            } catch (DLMSConnectionException e) {
+                exception = new IOException(e.getMessage());
+                exception.initCause(e);
             }
 
             if ((exception.getMessage() != null) && exception.getMessage().toLowerCase().contains(TIMEOUT)) {
-                getLogger().severe("Meter didn't reply to the association request! Stopping session.");
+                getLogger().severe("Could not reach meter, it didn't reply to the association request! Stopping session.");
                 throw exception;    //Don't retry the AARQ if it's a real timeout!
+            } else if (exception.getMessage() != null && exception.getMessage().contains(CONFIRM_UNKNOWN_METER)) {
+                getLogger().severe("Received error 'CONFIRM_UNKNOWN_METER' while trying to create an association, aborting session.");
+                throw exception;    //Meter needs to be discovered again, stop session
             } else {
                 if (++tries > retries) {
                     getLogger().severe("Unable to establish association after [" + tries + "/" + (retries + 1) + "] tries.");
@@ -140,7 +148,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
                     }
                     try {
                         this.aso.releaseAssociation();
-                    } catch (IOException e) {
+                    } catch (IOException | DLMSConnectionException e) {
                         this.aso.setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
                         // Absorb exception: in 99% of the cases we expect an exception here ...
                     }
@@ -217,6 +225,12 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
         String callingAPTitle = properties.getProperty(CALLING_AP_TITLE, CALLING_AP_TITLE_DEFAULT).trim();
         setCallingAPTitle(callingAPTitle);
         loadProfileObisCode = ObisCode.fromString(properties.getProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, OBISCODE_LOAD_PROFILE1).trim());
+
+        String oldMacAddress = properties.getProperty(DlmsProtocolProperties.SERVER_MAC_ADDRESS, "1:17");
+        String nodeAddress = properties.getProperty(AbstractDLMSProtocol.NODEID, "");
+        String updatedMacAddress = oldMacAddress.replaceAll("x", nodeAddress);
+        properties.setProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, updatedMacAddress.split(":").length > 2 ? updatedMacAddress.split(":")[1] : "17");
+        properties.setProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, updatedMacAddress.split(":").length > 1 ? updatedMacAddress.split(":")[0] : "1");
     }
 
     private boolean isReadCache() {
@@ -244,8 +258,9 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     protected List doGetOptionalKeys() {
         List<String> optional = new ArrayList<String>();
         optional.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
-        optional.add(PROPNAME_SERVER_LOWER_MAC_ADDRESS);
-        optional.add(PROPNAME_SERVER_UPPER_MAC_ADDRESS);
+        optional.add(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
+        optional.add(PROPNAME_SERVER_LOWER_MAC_ADDRESS); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
+        optional.add(PROPNAME_SERVER_UPPER_MAC_ADDRESS); // Legacy property for migration, the protocol uses SERVER_MAC_ADDRESS property!
         optional.add(DlmsProtocolProperties.CONNECTION);
         optional.add(DlmsProtocolProperties.TIMEOUT);
         optional.add(DlmsProtocolProperties.ADDRESSING_MODE);
@@ -264,17 +279,12 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
         return required;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster AS220/AS1440 AM500 PLC IDIS";
-    }
-
     /**
      * The protocol version
      */
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-10-28 14:04:47 +0100 (Tue, 28 Oct 2014) $";
     }
 
     @Override
@@ -339,18 +349,6 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
 
     public int getGasSlotId() {
         return 0;     //E-meter has no gas slot id
-    }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        FirmwareUpdateMessagingConfig firmwareUpdateMessagingConfig = new FirmwareUpdateMessagingConfig();
-        firmwareUpdateMessagingConfig.setSupportsUserFiles(true);
-        firmwareUpdateMessagingConfig.setSupportsUrls(false);
-        firmwareUpdateMessagingConfig.setSupportsUserFileReferences(false);
-        return firmwareUpdateMessagingConfig;
-    }
-
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return new FirmwareUpdateMessageBuilder();
     }
 
     public String getFileName() {

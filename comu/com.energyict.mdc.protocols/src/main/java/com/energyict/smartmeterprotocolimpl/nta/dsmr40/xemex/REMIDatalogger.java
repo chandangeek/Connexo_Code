@@ -23,7 +23,7 @@ import java.io.IOException;
  */
 public class REMIDatalogger extends E350 {
 
-    private LoadProfileBuilder loadProfileBuilder;
+    private XemexLoadProfileBuilder loadProfileBuilder;
 
     @Override
     public DlmsProtocolProperties getProperties() {
@@ -34,7 +34,7 @@ public class REMIDatalogger extends E350 {
     }
 
     @Override
-    public LoadProfileBuilder getLoadProfileBuilder() {
+    public XemexLoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
             this.loadProfileBuilder = new XemexLoadProfileBuilder(this);
         }
@@ -102,11 +102,6 @@ public class REMIDatalogger extends E350 {
             this.meterTopology = new XemexMeterTopology(this);
         }
         return meterTopology;
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "XEMEX ReMI NTA DSMR 4.0";
     }
 
     @Override

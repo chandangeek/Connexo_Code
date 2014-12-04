@@ -121,11 +121,6 @@ public class WaveSense extends AbstractProtocol implements MessageProtocol, Prot
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "WaveSense";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date: 2011-05-24 15:41:26 +0200 (di, 24 mei 2011) $";
     }

@@ -113,12 +113,7 @@ public class Enerium200 extends Modbus {
 		return this.profile;
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Enerdis Enerium 200";
-    }
-
-	public String getProtocolVersion() {
+    public String getProtocolVersion() {
 		return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
 	}
 

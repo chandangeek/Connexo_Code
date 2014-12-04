@@ -21,10 +21,23 @@ public class ExtendedRegisterMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        final ExtendedRegister extendedRegister = as330D.getSession().getCosemObjectFactory().getExtendedRegister(getObisCode());
-        final Quantity quantityValue = extendedRegister.getQuantityValue();
-        final Date captureTime = extendedRegister.getCaptureTime();
+    public RegisterValue readRegister(DlmsSession session) throws IOException {
+        final ExtendedRegister extendedRegister = session.getCosemObjectFactory().getExtendedRegister(getObisCode());
+        return parse(extendedRegister.getValueAttr(), extendedRegister.getScalerUnit().getEisUnit(), extendedRegister.getCaptureTime());
+    }
+
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        final Quantity quantityValue = new Quantity(abstractDataType.longValue(), unit);
         return new RegisterValue(getObisCode(), quantityValue, captureTime);
+    }
+
+    @Override
+    public int[] getAttributeNumbers() {
+        return new int[]{ExtendedRegisterAttributes.VALUE.getAttributeNumber(), ExtendedRegisterAttributes.UNIT.getAttributeNumber(), ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(),};
+    }
+
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.EXTENDED_REGISTER.getClassId();
     }
 }

@@ -172,7 +172,7 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
         return msg.write(this);
     }
 
-    public void applyMessages(List messageEntries) {
+    public void applyMessages(List messageEntries) throws IOException {
     }
 
     public String writeTag(MessageTag tag) {

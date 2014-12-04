@@ -18,13 +18,16 @@ import java.util.logging.Logger;
  */
 public abstract class RegisterMapping {
 
-    private final DlmsSession session;
+    private final Logger logger;
+    private final CosemObjectFactory cosemObjectFactory;
 
     protected RegisterMapping(final DlmsSession session) {
-        if (session == null) {
-            throw new IllegalArgumentException("The DlmsSession object is required for each RegisterMapping, but was 'null'!");
+        this(session.getLogger(), session.getCosemObjectFactory());
         }
-        this.session = session;
+
+    public RegisterMapping(Logger logger, CosemObjectFactory cosemObjectFactory) {
+        this.logger = logger;
+        this.cosemObjectFactory = cosemObjectFactory;
     }
 
     /**
@@ -47,7 +50,13 @@ public abstract class RegisterMapping {
     protected abstract RegisterValue doReadRegister(final ObisCode obisCode) throws IOException;
 
     /**
-     * Try to read the value with the given {@link ObisCode} and return the result as a {@link com.energyict.mdc.protocol.api.device.data.RegisterValue}
+     * Method used in the doReadRegister() part of this class, for parsing the AbstractDataType into a proper RegisterValue.
+     * It is public to expose this functionality, so it can be used by other G3 protocols
+     */
+    public abstract RegisterValue parse(ObisCode obisCode, AbstractDataType abstractDataType) throws IOException;
+
+    /**
+     * Try to read the value with the given {@link com.energyict.obis.ObisCode} and return the result as a {@link com.energyict.protocol.RegisterValue}
      *
      * @param obisCode The {@link ObisCode} to fetch
      * @return The {@link com.energyict.mdc.protocol.api.device.data.RegisterValue}
@@ -62,11 +71,11 @@ public abstract class RegisterMapping {
     }
 
     protected final Logger getLogger() {
-        return this.session.getLogger();
+        return this.logger;
     }
 
     protected final CosemObjectFactory getCosemObjectFactory() {
-        return this.session.getCosemObjectFactory();
+        return this.cosemObjectFactory;
     }
 
     /**
@@ -87,7 +96,17 @@ public abstract class RegisterMapping {
                 //Add valid elements to the StringBuilder
                 for (int index = 0; index < structure.nrOfDataTypes(); index++) {
                     sb.append(index == 0 ? "" : ",");   //Separate values of the structure with a comma
-                    sb.append(structure.getDataType(index).intValue());
+                    String element = "";
+
+                    AbstractDataType dataType = structure.getDataType(index);
+                    if (dataType.isOctetString()) {
+                        element = dataType.getOctetString().stringValue();
+                    } else if (dataType.isBitString()) {
+                        element = "0x" + Long.toHexString(dataType.getBitString().longValue());
+                    } else {
+                        element = String.valueOf(dataType.intValue());
+                    }
+                    sb.append(element);
                 }
                 sb.append(";");                             //Separate elements with a ;
             }

@@ -20,7 +20,32 @@ public class FirmwareMapping extends G3Mapping {
 
     @Override
     public RegisterValue readRegister(AS330D as330D) throws IOException {
-        return new RegisterValue(getObisCode(), getFirmwareVersion(as330D));
+        return new RegisterValue(getObisCode(), parseFirmwareVersion(as330D.getFirmwareVersion()));
+    }
+
+    @Override
+    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
+        return null;    //Not used here, the method above is overridden
+    }
+
+    /**
+     * This method is not used here locally (instead, as330D.getFirmwareVersion() is used)
+     * However, it can still be of use to expose the parsing of the abstractDataType (array)
+     * containing the firmware version information.
+     */
+    @Override
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        Array fwEntries = (Array) abstractDataType;
+        final StringBuilder sb = new StringBuilder();
+        String fwVersionEntry;
+        for (int i = 0; i < fwEntries.nrOfDataTypes(); i++) {
+            fwVersionEntry = FirmwareVersion.fromStructure(fwEntries.getDataType(i, Structure.class)).getDisplayString();
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append('[').append(fwVersionEntry).append(']');
+        }
+        return new RegisterValue(getObisCode(), parseFirmwareVersion(sb.toString()));
     }
 
     /**
@@ -29,17 +54,22 @@ public class FirmwareMapping extends G3Mapping {
      * @return The firmware version as string
      * @throws java.io.IOException
      */
-    private final String getFirmwareVersion(final AS330D as330D) throws IOException {
+    private String parseFirmwareVersion(String fullFirmwareVersion) throws IOException {
         int eField = getObisCode().getE();
         if (eField == 0) {
-            return as330D.getFirmwareVersion();
+            return fullFirmwareVersion;
         } else {
-            String[] fwVersionEntries = as330D.getFirmwareVersion().split(", ");
+            String[] fwVersionEntries = fullFirmwareVersion.split(", ");
             if (eField > fwVersionEntries.length) {
                 throw new NoSuchRegisterException(getObisCode().toString());
             } else {
                 return fwVersionEntries[eField - 1];
             }
         }
+    }
+
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.DATA.getClassId();
     }
 }

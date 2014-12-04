@@ -790,11 +790,6 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         throw new UnsupportedException();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT RTU DukePower";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

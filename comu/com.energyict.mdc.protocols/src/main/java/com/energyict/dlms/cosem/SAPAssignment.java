@@ -42,7 +42,7 @@ public class SAPAssignment extends AbstractCosemObject {
         final byte[] rawData = getResponseData(SAP_ATTR_ASSIGNMENT_LIST);
         final AbstractDataType abstractSapList = AXDRDecoder.decode(rawData);
         if (!(abstractSapList instanceof Array)) {
-            throw new IOException("Expected [" + Array.class.getName() + "] type for SapAssignmentList but was [" + abstractSapList.getClass().getName() + "]");
+            throw new ProtocolException("Expected [" + Array.class.getName() + "] type for SapAssignmentList but was [" + abstractSapList.getClass().getName() + "]");
         }
 
         Array sapList = (Array) abstractSapList;

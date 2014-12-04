@@ -123,13 +123,8 @@ public class MK6 extends AbstractProtocol implements Serializable{
 		ti.setTime();
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "EDMI MK6";
-    }
-
-	public String getProtocolVersion() {
-		return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+    public String getProtocolVersion() {
+		return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
 	}
 
 	public String getFirmwareVersion() throws IOException {

@@ -34,7 +34,7 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
     private int maxRetries;
     private int clientAddress;
     private int serverAddress;
-    int timeout;
+    long timeout;
     private long forceDelay;
 
     private int iskraWrapper = 0;
@@ -62,10 +62,6 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
         this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
 
     } // public TCPIPConnection(...)
-
-    public int getType() {
-        return ConnectionMode.COSEM_APDU.getMode();
-    }
 
     public byte[] sendRawBytes(byte[] data) throws IOException {
         return new byte[0];
@@ -109,6 +105,9 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
         interFrameTimeout = System.currentTimeMillis() + timeout;
         while (true) {
             if ((data = readInArray()) != null) {
+                if (DEBUG >= 2) {
+                    ProtocolUtils.outputHexString(data);
+                }
                 byte[] dataWithLLC = new byte[data.length + 3];
                 System.arraycopy(data, 0, dataWithLLC, 3, data.length);
                 return dataWithLLC;
@@ -167,7 +166,7 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
         return sendRequest(encryptedRequest);
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(long timeout) {
         this.timeout = timeout;
     }
 
@@ -290,7 +289,7 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
         this.invokeIdAndPriorityHandler = iiapHandler;
     }
 
-    public int getTimeout() {
+    public long getTimeout() {
         return timeout;
     }
 
@@ -302,12 +301,13 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
         this.maxRetries = retries;
     }
 
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return null;
+    @Override
+    public int getMaxTries() {
+        return getMaxRetries() + 1;
     }
 
     public long getForceDelay() {
         return forceDelay;
     }
 
-} // public class TCPIPConnection
+}

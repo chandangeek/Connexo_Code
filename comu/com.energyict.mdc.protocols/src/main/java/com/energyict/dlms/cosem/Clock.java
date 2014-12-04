@@ -116,6 +116,9 @@ public class Clock extends AbstractCosemObject {
 		} else {
             byte[] responseData;
             responseData = getResponseData(ClockAttributes.TIME);
+            if (DEBUG == 1) {
+				ProtocolUtils.printResponseData(responseData);
+			}
             return getDateTime(responseData,protocolLink.getRoundTripCorrection());
         }
     }
@@ -320,7 +323,7 @@ public class Clock extends AbstractCosemObject {
 
     public int getDstFlag() throws IOException {
         if (dstFlag == -1) {
-			throw new IOException("Clock, getDstFlag, dstFlag not evaluated. getDateTime() should invoked first.");
+			throw new ProtocolException("Clock, getDstFlag, dstFlag not evaluated. getDateTime() should invoked first.");
 		}
         return dstFlag;
     }

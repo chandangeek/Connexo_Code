@@ -55,7 +55,7 @@ public class SecuritySetup extends AbstractCosemObject {
 			return this.securityPolicy;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Couldn't read the securityPolicy." + e.getMessage());
+			throw new NestedIOException(e, "Couldn't read the securityPolicy." + e.getMessage());
 		}
 	}
 
@@ -69,7 +69,7 @@ public class SecuritySetup extends AbstractCosemObject {
 			write(ATTRB_SECURITY_POLICY, securityPolicy.getBEREncodedByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Couldn't write the securityPolicy to the device." + e.getMessage());
+			throw new NestedIOException(e, "Couldn't write the securityPolicy to the device." + e.getMessage());
 		}
 	}
 	/**
@@ -95,7 +95,7 @@ public class SecuritySetup extends AbstractCosemObject {
 			return this.securitySuite;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Couldn't read the securitySuite." + e.getMessage());
+			throw new NestedIOException(e, "Couldn't read the securitySuite." + e.getMessage());
 		}
 	}
 	/**
@@ -119,7 +119,7 @@ public class SecuritySetup extends AbstractCosemObject {
 			write(ATTRB_SECURITY_SUITE, securitySuite.getBEREncodedByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Couldn't write the securitySuite to the device." + e.getMessage());
+			throw new NestedIOException(e, "Couldn't write the securitySuite to the device." + e.getMessage());
 		}
 	}
 
@@ -133,7 +133,7 @@ public class SecuritySetup extends AbstractCosemObject {
 			return this.clientSystemTitle;
 		} catch(IOException e) {
 			e.printStackTrace();
-			throw new IOException("Couldn't read the current client system title from the device." + e.getMessage());
+			throw new NestedIOException(e, "Couldn't read the current client system title from the device." + e.getMessage());
 		}
 	}
 
@@ -147,7 +147,7 @@ public class SecuritySetup extends AbstractCosemObject {
 			return this.serverSystemTitle;
 		} catch(IOException e){
 			e.printStackTrace();
-			throw new IOException("Couldn't read the server system title." + e.getMessage());
+			throw new NestedIOException(e, "Couldn't read the server system title." + e.getMessage());
 		}
 	}
 
@@ -170,7 +170,7 @@ public class SecuritySetup extends AbstractCosemObject {
 			return invoke(METHOD_SECURITY_ACTIVATE, securityPolicy.getBEREncodedByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not activate the securityPolicy." + e.getMessage());
+			throw new NestedIOException(e, "Could not activate the securityPolicy." + e.getMessage());
 		}
 	}
 
@@ -186,7 +186,7 @@ public class SecuritySetup extends AbstractCosemObject {
 			return invoke(METHOD_GLOBAL_KEY_TRANSFER, keyData.getBEREncodedByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not transfer the globalKey(s)" + e.getMessage());
+			throw new NestedIOException(e, "Could not transfer the globalKey(s)" + e.getMessage());
 		}
 	}
 }

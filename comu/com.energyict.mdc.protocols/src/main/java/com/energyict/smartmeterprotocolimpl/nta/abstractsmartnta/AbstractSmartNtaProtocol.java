@@ -47,15 +47,7 @@ import java.util.logging.Logger;
  * Date: 14-jul-2011
  * Time: 11:20:34
  */
-public abstract class AbstractSmartNtaProtocol
-        extends AbstractSmartDlmsProtocol
-        implements
-            MasterMeter,
-            SimpleMeter,
-            MessageProtocol,
-            WakeUpProtocolSupport,
-            PartialLoadProfileMessaging,
-            LoadProfileRegisterMessaging {
+public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
     public static final int ObisCodeBFieldIndex = 1;
 
@@ -78,6 +70,13 @@ public abstract class AbstractSmartNtaProtocol
     protected Dsmr23Properties properties;
 
     /**
+     * Indicating if the meter has a breaker.
+     * This implies whether or not we can control the breaker and read the control logbook.
+     * This will be set to false in the cryptoserver protocols, because these meters don't have a breaker anymore.
+     */
+    private boolean hasBreaker = true;
+
+    /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo}
      */
     private ComposedMeterInfo meterInfo;
@@ -90,12 +89,12 @@ public abstract class AbstractSmartNtaProtocol
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder}
      */
-    private LoadProfileBuilder loadProfileBuilder;
+    protected LoadProfileBuilder loadProfileBuilder;
 
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile}
      */
-    private EventProfile eventProfile;
+    protected EventProfile eventProfile;
 
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology}
@@ -463,5 +462,16 @@ public abstract class AbstractSmartNtaProtocol
      */
     protected void setLoadProfileBuilder(LoadProfileBuilder loadProfileBuilder) {
         this.loadProfileBuilder = loadProfileBuilder;
+    }
+
+    public boolean hasBreaker() {
+        return hasBreaker;
+    }
+
+    /**
+     * Setter is only called from the cryptoserver protocols to remove the breaker functionality
+     */
+    public void setHasBreaker(boolean hasBreaker) {
+        this.hasBreaker = hasBreaker;
     }
 }

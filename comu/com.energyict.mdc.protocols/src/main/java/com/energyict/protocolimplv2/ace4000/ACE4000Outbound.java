@@ -65,6 +65,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private Logger logger;
     private Long cachedMeterTimeDifference = null;
     private ACE4000MessageExecutor messageExecutor = null;
+    private DeviceProtocolSecurityPropertySet securityProperties;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -82,21 +83,11 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "Actaris ACE4000";
-    }
-
-    @Override
-    public DeviceFunction getDeviceFunction() {
-        return null;
-    }
-
-    @Override
-    public ManufacturerInformation getManufacturerInformation() {
-        return null;
+        return "Actaris ACE4000 MeterXML";
     }
 
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-09-25 10:05:52 +0200 (Thu, 25 Sep 2014) $";
     }
 
     @Override
@@ -347,6 +338,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        securityProperties = deviceProtocolSecurityPropertySet;
         //TODO use the password property for SMS communication
     }
 

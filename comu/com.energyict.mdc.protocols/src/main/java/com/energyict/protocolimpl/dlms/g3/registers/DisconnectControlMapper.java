@@ -23,12 +23,25 @@ public class DisconnectControlMapper extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        final Disconnector disconnector = as330D.getSession().getCosemObjectFactory().getDisconnector(getObisCode());
-        final TypeEnum controlState = disconnector.getControlState();
+    public RegisterValue readRegister(DlmsSession session) throws IOException {
+        final Disconnector disconnector = session.getCosemObjectFactory().getDisconnector(getObisCode());
+        return parse(disconnector.getControlState());
+    }
+
+    @Override
+    public int getAttributeNumber() {
+        return DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber();
+    }
+
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        final TypeEnum controlState = ((TypeEnum) abstractDataType);
         final BigDecimal value = BigDecimal.valueOf(controlState.getValue());
         final Quantity quantity = new Quantity(value, Unit.get(""));
         return new RegisterValue(getObisCode(), quantity);
     }
 
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.DISCONNECT_CONTROL.getClassId();
+    }
 }

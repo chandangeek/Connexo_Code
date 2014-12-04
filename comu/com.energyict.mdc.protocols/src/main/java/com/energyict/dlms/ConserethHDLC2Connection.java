@@ -48,7 +48,7 @@ public class ConserethHDLC2Connection extends HDLC2Connection {
     }
 
     @Override
-    protected void sendFrame(byte[] byteBuffer) throws IOException, DLMSConnectionException {
+    protected void sendFrame(byte[] byteBuffer) throws IOException {
         DLMSUtils.delay(getlForceDelay());
         byte[] dataToSendOut = addConserethHeaders(addHDLCFrameFlags(byteBuffer));
         sendOut(dataToSendOut);
@@ -64,7 +64,7 @@ public class ConserethHDLC2Connection extends HDLC2Connection {
     }
 
     @Override
-    protected byte waitForHDLCFrameStateMachine(int iTimeout, byte[] byteReceiveBuffer) throws DLMSConnectionException, IOException {
+    protected byte waitForHDLCFrameStateMachine(long iTimeout, byte[] byteReceiveBuffer) throws DLMSConnectionException, IOException {
         long lMSTimeout = System.currentTimeMillis() + iTimeout;
         int sRXCount = 0;
         int sLength=0;

@@ -45,10 +45,6 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     private ComChannel comChannel;
     private TypedProperties typedProperties;
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        // No usage for the PropertySpecService so far
-    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
@@ -148,7 +144,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public void copyProperties(TypedProperties properties) {
+    public void addProperties(TypedProperties properties) {
         this.typedProperties = properties;
     }
 
@@ -162,16 +158,15 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public PropertySpec getPropertySpec (String name) {
-        return null;
+    public List<PropertySpec> getRequiredProperties() {
+        return new ArrayList<>();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        PropertySpecService propertySpecService = Bus.getPropertySpecService();
+    public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(propertySpecService.basicPropertySpec(TIMEOUT_KEY, false, new BigDecimalFactory()));
-        propertySpecs.add(propertySpecService.basicPropertySpec(RETRIES_KEY, false, new BigDecimalFactory()));
+        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_KEY));
+        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES_KEY));
         return propertySpecs;
     }
 

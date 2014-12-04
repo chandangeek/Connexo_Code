@@ -70,6 +70,7 @@ import java.util.logging.Logger;
  */
 public class G3Messaging extends AnnotatedMessaging {
 
+    @SuppressWarnings("unchecked")
     public static final Class<? extends AnnotatedMessage>[] MESSAGES = new Class[]{
 
             // Firmware upgrade message
@@ -103,10 +104,23 @@ public class G3Messaging extends AnnotatedMessaging {
             WriteConsumerProducerModeMessage.class,
             WritePlcPskMessage.class,
 
-            // PLC OFDM MAC setup messages
+            // PLC Counters messages
             PlcOfdmMacSetupMessages.ResetPlcOfdmMacCountersMessage.class,
-            PlcOfdmMacSetupMessages.SetPanIdMessage.class,
-            PlcOfdmMacSetupMessages.SetMaxOrphanTimerMessage.class,
+
+            // PLC OFDM MAC setup messages
+            PlcOfdmMacSetupMessages.SetToneMaskMessage.class,
+            PlcOfdmMacSetupMessages.SetTMRTTL.class,
+            PlcOfdmMacSetupMessages.SetMaxFrameRetries.class,
+            PlcOfdmMacSetupMessages.SetNeighbourTableEntryTTL.class,
+            PlcOfdmMacSetupMessages.SetHighPriorityWindowSize.class,
+            PlcOfdmMacSetupMessages.SetCSMAFairnessLimit.class,
+            PlcOfdmMacSetupMessages.SetBeaconRandomizationWindowLength.class,
+            PlcOfdmMacSetupMessages.SetMacA.class,
+            PlcOfdmMacSetupMessages.SetMacK.class,
+            PlcOfdmMacSetupMessages.SetMinimumCWAttempts.class,
+            PlcOfdmMacSetupMessages.SetMaxBe.class,
+            PlcOfdmMacSetupMessages.SetMaxCSMABackOff.class,
+            PlcOfdmMacSetupMessages.SetMinBe.class,
 
             // Security messages
             SecurityConfigurationMessages.ChangeAuthenticationLevelMessage.class,
@@ -119,13 +133,15 @@ public class G3Messaging extends AnnotatedMessaging {
             // 6LoWPan layer setup messages
             SixLoWPanMessages.SetMaxHopsMessage.class,
             SixLoWPanMessages.SetWeakLQIValueMessage.class,
-            SixLoWPanMessages.SetPanConflictWaitTimeMessage.class,
-            SixLoWPanMessages.SetMaxPanConflictCountMessage.class,
-            SixLoWPanMessages.SetActiveScanDurationMessage.class,
-            SixLoWPanMessages.SetToneMaskMessage.class,
-            SixLoWPanMessages.SetDiscoveryAttemptsSpeedMessage.class,
+            SixLoWPanMessages.SetSecurityLevel.class,
+            SixLoWPanMessages.SetRoutingConfiguration.class,
             SixLoWPanMessages.SetBroadcastLogTableEntryTTLMessage.class,
-            SixLoWPanMessages.SetMaxAgeTimeMessage.class
+            SixLoWPanMessages.SetMaxJoinWaitTime.class,
+            SixLoWPanMessages.SetPathDiscoveryTime.class,
+            SixLoWPanMessages.SetMetricType.class,
+            SixLoWPanMessages.SetCoordShortAddress.class,
+            SixLoWPanMessages.SetDisableDefaultRouting.class,
+            SixLoWPanMessages.SetDeviceType.class,
     };
 
     private static final String FIRMWARE_OPENING_TAG = "<FirmwareUpdate><IncludedFile>";
@@ -137,29 +153,32 @@ public class G3Messaging extends AnnotatedMessaging {
     private static final String PUBLIC_NETWORK = "PublicNetwork";
     private static final String PLC = "plc";
     private static final String NORESUME = "noresume";
-    private static final ObisCode PLC_G3_TIMEOUT_OBISCODE = ObisCode.fromString("0.0.96.67.0.255");
+    private static final ObisCode PLC_G3_TIMEOUT_OBISCODE = ObisCode.fromString("0.0.94.33.10.255");
     private static final ObisCode PRODUCER_CONSUMER_MODE_OBISCODE = ObisCode.fromString("1.0.96.63.11.255");
 
-    private DlmsSession session;
+    protected DlmsSession session;
     private G3Properties properties;
 
-    public G3Messaging(Logger logger) {
-        super(logger, MESSAGES);
-        this.session = null;
+    public G3Messaging(final DlmsSession session, G3Properties properties) {
+        this(session, MESSAGES);
+        this.properties = properties;
     }
 
-    public G3Messaging(final DlmsSession session, G3Properties properties) {
-        this(session.getLogger());
-        this.properties = properties;
+    public G3Messaging(final DlmsSession session, final Class<? extends AnnotatedMessage>... messages) {
+        super(session != null ? session.getLogger() : null, messages);
         this.session = session;
     }
 
     @Override
     public List<MessageCategorySpec> getMessageCategories() {
-        List<MessageCategorySpec> messageCategories = super.getMessageCategories();
+        List<MessageCategorySpec> messageCategories = getAnnotatedMessageCategories();
         messageCategories.add(new DummyGenericMessaging().getActivityCalendarCategory(PROVIDER));
         messageCategories.add(new DummyGenericMessaging().getActivityCalendarCategory(PUBLIC_NETWORK));
         return messageCategories;
+    }
+
+    protected List<MessageCategorySpec> getAnnotatedMessageCategories() {
+        return super.getMessageCategories();
     }
 
     @Override
@@ -276,7 +295,7 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @Override
-    public void applyMessages(List messageEntries) {
+    public void applyMessages(List messageEntries) throws IOException {
         List<AnnotatedMessage> annotatedMessages = new ArrayList<AnnotatedMessage>(messageEntries.size());
         for (Object msgObject : messageEntries) {
             if (msgObject instanceof MessageEntry) {
@@ -365,7 +384,12 @@ public class G3Messaging extends AnnotatedMessaging {
             //Go on with the other steps
             imageTransfer.checkAndSendMissingBlocks();
             getLogger().log(Level.INFO, "Verification of image using polling method ...");
+            try {
             imageTransfer.verifyAndPollForSuccess();
+            } catch (DataAccessResultException e) {
+                getLogger().log(Level.WARNING, "Verification of image failed: " + e.getMessage());
+                return MessageResult.createFailed(messageEntry, e.getMessage());
+            }
             getLogger().log(Level.INFO, "Verification of the image was successful at : " + new Date());
             try {
                 imageTransfer.setUsePollingVerifyAndActivate(false);    //Don't use polling for the activation, the meter reboots immediately!
@@ -375,6 +399,8 @@ public class G3Messaging extends AnnotatedMessaging {
                 if (isTemporaryFailure(e) || isTemporaryFailure(e.getCause())) {
                     //Move on in case of temporary failure
                     this.session.getLogger().info("Image activation returned 'temporary failure'. The activation is in progress, moving on.");
+                } else if (e.getMessage().toLowerCase().contains("timeout")) {
+                    this.session.getLogger().info("Image activation timed out, meter is rebooting. Moving on.");
                 } else {
                     throw e;
                 }
@@ -513,14 +539,6 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final MessageResult writeMaxAgeTime(SixLoWPanMessages.SetMaxAgeTimeMessage message) throws IOException {
-        getLogger().info("Received [SetMaxAgeTimeMessage]. Writing new value of [" + message.getMaxAgeTime() + "].");
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeMaxAgeTime(message.getMaxAgeTime());
-        return MessageResult.createSuccess(message.getMessageEntry());
-    }
-
-    @RtuMessageHandler
     public final MessageResult changeHLSSecret(SecurityConfigurationMessages.ChangeHLSSecretMessage message) throws IOException {
         getLogger().info("Received [ChangeHLSSecretMessage]. Writing new value of [" + message.getHLSSecret() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
@@ -538,7 +556,7 @@ public class G3Messaging extends AnnotatedMessaging {
 
     @RtuMessageHandler
     public final MessageResult changeEncryptionKey(SecurityConfigurationMessages.ChangeEncryptionKeyMessage message) throws IOException {
-        String wrappedEncryptionKeyString = session.getProperties().getSecurityProvider().getNEWGlobalKeys()[1];
+        String wrappedEncryptionKeyString = message.getNewWrappedEncryptionKey();
         String oldGlobalKey = ProtocolTools.getHexStringFromBytes(session.getProperties().getSecurityProvider().getGlobalKey(), "");
         byte[] wrappedEncryptionKey = ProtocolTools.getBytesFromHexString(wrappedEncryptionKeyString, "");
         getLogger().info("Received [ChangeEncryptionKeyMessage], wrapped key is '" + wrappedEncryptionKeyString + "'");
@@ -551,10 +569,10 @@ public class G3Messaging extends AnnotatedMessaging {
         getSecuritySetup().transferGlobalKey(encryptionKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        session.getProperties().getSecurityProvider().changeEncryptionKey();
+        session.getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(message.getNewEncryptionKey(), ""));
 
         //Reset frame counter, only if a different key has been written
-        if (!oldGlobalKey.equalsIgnoreCase(session.getProperties().getSecurityProvider().getNEWGlobalKeys()[0])) {
+        if (!oldGlobalKey.equalsIgnoreCase(message.getNewEncryptionKey())) {
             session.getAso().getSecurityContext().setFrameCounter(1);
         }
 
@@ -567,19 +585,19 @@ public class G3Messaging extends AnnotatedMessaging {
 
     @RtuMessageHandler
     public final MessageResult changeAuthenticationKey(SecurityConfigurationMessages.ChangeAuthenticationKeyMessage message) throws IOException {
-        String wrappedAuthenticationKeyString = session.getProperties().getSecurityProvider().getNEWAuthenticationKeys()[1];
-        byte[] authenticationKeysBytes = ProtocolTools.getBytesFromHexString(wrappedAuthenticationKeyString, "");
+        String wrappedAuthenticationKeyString = message.getNewWrappedAuthenticationKey();
+        byte[] wrappedAuthenticationKeysBytes = ProtocolTools.getBytesFromHexString(wrappedAuthenticationKeyString, "");
         getLogger().info("Received [ChangeAuthenticationKeyMessage], wrapped key is '" + wrappedAuthenticationKeyString + "'");
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(authenticationKeysBytes));
+        keyData.addDataType(OctetString.fromByteArray(wrappedAuthenticationKeysBytes));
         globalKeyArray.addDataType(keyData);
 
         getSecuritySetup().transferGlobalKey(globalKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        session.getProperties().getSecurityProvider().changeAuthenticationKey();
+        session.getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(message.getNewAuthenticationKey(), ""));
 
         return MessageResult.createSuccess(message.getMessageEntry());
     }
@@ -617,50 +635,10 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final MessageResult writeBroadcastLogTableEntryTTL(SixLoWPanMessages.SetBroadcastLogTableEntryTTLMessage message) throws IOException {
-        getLogger().info("Received [SetBroadcastLogTableEntryTTLMessage]. Writing new value of [" + message.getBroadcastLogTableEntryTTL() + "].");
+    public final MessageResult writeMaxHops(SixLoWPanMessages.SetMaxHopsMessage message) throws IOException {
+        getLogger().info("Received [SetMaxHopsMessage]. Writing new value of [" + message.getMaxHops() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeBroadcastLogTableTTL(message.getBroadcastLogTableEntryTTL());
-        return MessageResult.createSuccess(message.getMessageEntry());
-    }
-
-    @RtuMessageHandler
-    public final MessageResult writeDiscoveryAttemptsSpeed(SixLoWPanMessages.SetDiscoveryAttemptsSpeedMessage message) throws IOException {
-        getLogger().info("Received [SetDiscoveryAttemptsSpeedMessage]. Writing new value of [" + message.getDiscoveryAttemptsSpeed() + "].");
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeDiscoveryAttemptsSpeed(message.getDiscoveryAttemptsSpeed());
-        return MessageResult.createSuccess(message.getMessageEntry());
-    }
-
-    @RtuMessageHandler
-    public final MessageResult writeToneMask(SixLoWPanMessages.SetToneMaskMessage message) throws IOException {
-        getLogger().info("Received [SetToneMaskMessage]. Writing new value of [" + message.getToneMask() + "].");
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeToneMask(message.getToneMask());
-        return MessageResult.createSuccess(message.getMessageEntry());
-    }
-
-    @RtuMessageHandler
-    public final MessageResult writeActiveScanDuration(SixLoWPanMessages.SetActiveScanDurationMessage message) throws IOException {
-        getLogger().info("Received [SetActiveScanDurationMessage]. Writing new value of [" + message.getActiveScanDuration() + "].");
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeActiveScanDuration(message.getActiveScanDuration());
-        return MessageResult.createSuccess(message.getMessageEntry());
-    }
-
-    @RtuMessageHandler
-    public final MessageResult writeMaxPanConflictCount(SixLoWPanMessages.SetMaxPanConflictCountMessage message) throws IOException {
-        getLogger().info("Received [SetMaxPanConflictCountMessage]. Writing new value of [" + message.getMaxPanConflictCount() + "].");
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeMaxPanConflictCount(message.getMaxPanConflictCount());
-        return MessageResult.createSuccess(message.getMessageEntry());
-    }
-
-    @RtuMessageHandler
-    public final MessageResult writePanConflictWaitTime(SixLoWPanMessages.SetPanConflictWaitTimeMessage message) throws IOException {
-        getLogger().info("Received [SetPanConflictWaitTimeMessage]. Writing new value of [" + message.getPanConflictWaitTime() + "].");
-        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writePanConflictWaitTime(message.getPanConflictWaitTime());
+        cof.getSixLowPanAdaptationLayerSetup().writeMaxHops(message.getMaxHops());
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
@@ -673,26 +651,193 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @RtuMessageHandler
-    public final MessageResult writeMaxHops(SixLoWPanMessages.SetMaxHopsMessage message) throws IOException {
-        getLogger().info("Received [SetMaxHopsMessage]. Writing new value of [" + message.getMaxHops() + "].");
+    public final MessageResult setSecurityLevel(SixLoWPanMessages.SetSecurityLevel message) throws IOException {
+        getLogger().info("Received [SetSecurityLevel]. Writing new value of [" + message.getValue() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getSixLowPanAdaptationLayerSetup().writeMaxHops(message.getMaxHops());
+        cof.getSixLowPanAdaptationLayerSetup().writeSecurityLevel(message.getValue());
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final MessageResult writePanId(PlcOfdmMacSetupMessages.SetPanIdMessage message) throws IOException {
-        getLogger().info("Received [SetPanIdMessage]. Writing new value of [" + message.getPanId() + "].");
+    public final MessageResult setRoutingConfiguration(SixLoWPanMessages.SetRoutingConfiguration message) throws IOException {
+        getLogger().info("Received [SetRoutingConfiguration].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getPLCOFDMType2MACSetup().writePanID(message.getPanId());
+        cof.getSixLowPanAdaptationLayerSetup().writeRoutingConfiguration(message.adp_net_traversal_time(),
+                message.adp_routing_table_entry_TTL(),
+                message.adp_Kr(),
+                message.adp_Km(),
+                message.adp_Kc(),
+                message.adp_Kq(),
+                message.adp_Kh(),
+                message.adp_Krt(),
+                message.adp_RREQ_retries(),
+                message.adp_RREQ_RERR_wait(),
+                message.adp_Blacklist_table_entry_TTL(),
+                message.adp_unicast_RREQ_gen_enable(),
+                message.adp_RLC_enabled(),
+                message.adp_add_rev_link_cost()
+        );
+
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 
     @RtuMessageHandler
-    public final MessageResult writeMaxOrphanTimer(PlcOfdmMacSetupMessages.SetMaxOrphanTimerMessage message) throws IOException {
-        getLogger().info("Received [SetMaxOrphanTimerMessage]. Writing new value of [" + message.getMaxOrphanTimer() + "].");
+    public final MessageResult writeBroadcastLogTableEntryTTL(SixLoWPanMessages.SetBroadcastLogTableEntryTTLMessage message) throws IOException {
+        getLogger().info("Received [SetBroadcastLogTableEntryTTLMessage]. Writing new value of [" + message.getBroadcastLogTableEntryTTL() + "].");
         final CosemObjectFactory cof = this.session.getCosemObjectFactory();
-        cof.getPLCOFDMType2MACSetup().writeMaxOrphanTimer(message.getMaxOrphanTimer());
+        cof.getSixLowPanAdaptationLayerSetup().writeBroadcastLogTableTTL(message.getBroadcastLogTableEntryTTL());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setMaxJoinWaitTime(SixLoWPanMessages.SetMaxJoinWaitTime message) throws IOException {
+        getLogger().info("Received [SetMaxJoinWaitTime]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getSixLowPanAdaptationLayerSetup().writeMaxJoinWaitTime(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setPathDiscoveryTime(SixLoWPanMessages.SetPathDiscoveryTime message) throws IOException {
+        getLogger().info("Received [SetPathDiscoveryTime]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getSixLowPanAdaptationLayerSetup().writePathDiscoveryTime(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setMetricType(SixLoWPanMessages.SetMetricType message) throws IOException {
+        getLogger().info("Received [SetMetricType]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getSixLowPanAdaptationLayerSetup().writeMetricType(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setCoordShortAddress(SixLoWPanMessages.SetCoordShortAddress message) throws IOException {
+        getLogger().info("Received [SetCoordShortAddress]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getSixLowPanAdaptationLayerSetup().writeCoordShortAddress(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setDisableDefaultRouting(SixLoWPanMessages.SetDisableDefaultRouting message) throws IOException {
+        getLogger().info("Received [SetDisableDefaultRouting]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getSixLowPanAdaptationLayerSetup().writeDisableDefaultRouting(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setDeviceType(SixLoWPanMessages.SetDeviceType message) throws IOException {
+        getLogger().info("Received [SetDeviceType]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getSixLowPanAdaptationLayerSetup().writeDeviceType(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setToneMaskMessage(PlcOfdmMacSetupMessages.SetToneMaskMessage message) throws IOException {
+        getLogger().info("Received [SetToneMaskMessage].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeToneMask(message.getToneMask());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setTMRTTL(PlcOfdmMacSetupMessages.SetTMRTTL message) throws IOException {
+        getLogger().info("Received [SetTMRTTL]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeTMRTTL(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setMaxFrameRetries(PlcOfdmMacSetupMessages.SetMaxFrameRetries message) throws IOException {
+        getLogger().info("Received [SetMaxFrameRetries]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeMaxFrameRetries(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setNeighbourTableEntryTTL(PlcOfdmMacSetupMessages.SetNeighbourTableEntryTTL message) throws IOException {
+        getLogger().info("Received [SetNeighbourTableEntryTTL]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeNeighbourTableEntryTTL(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setHighPriorityWindowSize(PlcOfdmMacSetupMessages.SetHighPriorityWindowSize message) throws IOException {
+        getLogger().info("Received [SetHighPriorityWindowSize]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeHighPriorityWindowSize(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setCSMAFairnessLimit(PlcOfdmMacSetupMessages.SetCSMAFairnessLimit message) throws IOException {
+        getLogger().info("Received [SetCSMAFairnessLimit]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeCSMAFairnessLimit(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setBeaconRandomizationWindowLength(PlcOfdmMacSetupMessages.SetBeaconRandomizationWindowLength message) throws IOException {
+        getLogger().info("Received [SetBeaconRandomizationWindowLength]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeBeaconRandomizationWindowLength(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setMacA(PlcOfdmMacSetupMessages.SetMacA message) throws IOException {
+        getLogger().info("Received [SetMacA]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeMacA(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setMacK(PlcOfdmMacSetupMessages.SetMacK message) throws IOException {
+        getLogger().info("Received [SetMacK]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeMacK(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setMinimumCWAttempts(PlcOfdmMacSetupMessages.SetMinimumCWAttempts message) throws IOException {
+        getLogger().info("Received [SetMinimumCWAttempts]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeMinCWAttempts(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setMaxBe(PlcOfdmMacSetupMessages.SetMaxBe message) throws IOException {
+        getLogger().info("Received [SetMaxBe]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeMaxBE(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setMaxCSMABackOff(PlcOfdmMacSetupMessages.SetMaxCSMABackOff message) throws IOException {
+        getLogger().info("Received [SetMaxBeSetMaxCSMABackOff]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeMaxCSMABackOff(message.getValue());
+        return MessageResult.createSuccess(message.getMessageEntry());
+    }
+
+    @RtuMessageHandler
+    public final MessageResult setMinBe(PlcOfdmMacSetupMessages.SetMinBe message) throws IOException {
+        getLogger().info("Received [SetMinBe]. Writing new value of [" + message.getValue() + "].");
+        final CosemObjectFactory cof = this.session.getCosemObjectFactory();
+        cof.getPLCOFDMType2MACSetup().writeMinBE(message.getValue());
         return MessageResult.createSuccess(message.getMessageEntry());
     }
 

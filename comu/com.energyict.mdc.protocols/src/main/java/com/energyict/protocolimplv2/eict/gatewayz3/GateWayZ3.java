@@ -35,13 +35,8 @@ import java.util.Set;
 public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
-    protected String getFirmwareVersion() {
+    protected DlmsSessionProperties getDlmsSessionProperties() {
         return null;  // nothing to do
-    }
-
-    @Override
-    protected DlmsProtocolProperties getProtocolProperties() {
-        return new Dsmr23Properties();
     }
 
     @Override
@@ -50,18 +45,23 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
     }
 
     @Override
+    public int requestConfigurationChanges() {
+        return -1;        // nothing to do yet
+    }
+
+    @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs () {
+    public List<PropertySpec> getRequiredProperties() {
         return Collections.emptyList();
     }
 
     @Override
-    public PropertySpec getPropertySpec (String name) {
-        return null;
+    public List<PropertySpec> getOptionalProperties() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -126,17 +126,7 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT WebRTU Z3 Gateway";
-    }
-
-    @Override
-    public DeviceFunction getDeviceFunction() {
-        return null;
-    }
-
-    @Override
-    public ManufacturerInformation getManufacturerInformation() {
-        return null;
+        return "EnergyICT WebRTU Z3 DLMS Gateway";
     }
 
     @Override

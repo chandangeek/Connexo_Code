@@ -136,11 +136,11 @@ public class PrimeBasicEventLog {
         }
 
         protected int getEisEventCode(int meterEventCode) {
-            return ApolloEvents.find(meterEventCode, eventGroup).getEIServerCode();
+            return PrimeEvents.find(meterEventCode, eventGroup).getEIServerCode();
         }
 
         protected String getEventMessage(int meterEventCode) {
-        	final StringBuilder builder = new StringBuilder(ApolloEvents.find(meterEventCode, eventGroup).getDescription());
+        	final StringBuilder builder = new StringBuilder(PrimeEvents.find(meterEventCode, eventGroup).getDescription());
 
         	if (this.eventGroup == POWER_CONTRACT_GROUP && meterEventCode == CONTRACT_POWER_CHANGED) {
 

@@ -23,4 +23,9 @@ public interface EventLog {
      */
     List<MeterEvent> getEvents(Calendar from, Calendar to) throws IOException;
 
+    /**
+     * This method is used to parse the received array of events into EIServer MeterEvents.
+     */
+    List<MeterEvent> parseEvents(AbstractDataType buffer) throws IOException;
+
 }

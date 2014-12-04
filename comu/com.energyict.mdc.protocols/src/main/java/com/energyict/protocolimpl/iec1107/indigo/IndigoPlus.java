@@ -79,11 +79,6 @@ public class IndigoPlus extends AbstractIEC1107Protocol {
         super(false,new Encryption());
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Actaris Indigo+ IEC1107";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

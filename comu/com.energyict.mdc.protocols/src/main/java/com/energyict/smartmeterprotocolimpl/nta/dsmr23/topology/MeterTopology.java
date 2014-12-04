@@ -100,10 +100,6 @@ public class MeterTopology implements MasterMeter {
         // get an MbusDeviceMap
         this.mbusMap = getMbusMapper();
 
-        if (!this.mbusMap.isEmpty()) {
-            checkToUpdateMbusMeters(mbusMap);
-        }
-
         StringBuilder sb = new StringBuilder();
         sb.append("Found ").append(this.mbusMap.size()).append(" MBus devices: ").append("\r\n");
         for (DeviceMapping deviceMapping : this.mbusMap) {
@@ -132,7 +128,7 @@ public class MeterTopology implements MasterMeter {
                     Unsigned32 identification = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getIdentificationNumber()).getUnsigned32();
                     Unsigned8 deviceType = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getDeviceType()).getUnsigned8();
                     mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
-                    if ((mbusSerial != null) && (!"".equalsIgnoreCase(mbusSerial)) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
+                    if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
                     }
                 } catch (IOException e) {
@@ -210,50 +206,6 @@ public class MeterTopology implements MasterMeter {
             }
         }
         return "";
-    }
-
-    /**
-     * Check the ghostMbusDevices and create the mbusDevices.
-     * Also check if the zombie MBus device is in the list (@@@0000000000000), this should be ignored as wel.
-     *
-     * @param mbusDeviceMap a List of Mbus DeviceMappings
-     */
-    protected void checkToUpdateMbusMeters(List<DeviceMapping> mbusDeviceMap) {
-        for (DeviceMapping deviceMapping : mbusDeviceMap) {
-            if (!ignoreZombieMbusDevice.equals(deviceMapping.getSerialNumber())) {
-                findOrCreateMbusDevice(deviceMapping.getSerialNumber());
-            }
-        }
-    }
-
-    /**
-     * Find or create the MbusDevice based on his serialNumber
-     *
-     * @param serialNumber the serialnumber of the MbusDevice
-     * @return the requested Mbus Device
-     */
-    private BaseDevice findOrCreateMbusDevice(String serialNumber) {
-        DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
-        BaseDevice mbusRtu = deviceIdentifier.findDevice();
-        // Check if gateway has changed, and update if it has
-        if ((mbusRtu.getPhysicalGateway() == null) || (mbusRtu.getPhysicalGateway().getId() != getRtuFromDatabaseBySerialNumber().getId())) {
-            mbusRtu.setPhysicalGateway(getRtuFromDatabaseBySerialNumber());
-        }
-        return mbusRtu;
-    }
-
-    /**
-     * Get the Device from the Database based on his SerialNumber
-     *
-     * @return the Device
-     */
-    protected BaseDevice getRtuFromDatabaseBySerialNumber() {
-        if (rtu == null) {
-            String serial = this.protocol.getSerialNumber();
-            DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serial);
-            this.rtu = deviceIdentifier.findDevice();
-        }
-        return rtu;
     }
 
     public AbstractSmartNtaProtocol getProtocol() {

@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider;
 
-import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Extension on the Dsmr40SecurityProvider, with extra functionality for immediate key changing.
@@ -18,8 +17,6 @@ import java.io.IOException;
  */
 public class G3SecurityProvider extends Dsmr40SecurityProvider {
 
-    private static final String SEPARATOR = ",";
-    private long frameCounter = -1;
     private G3Properties g3Properties;
     private String hlsSecret;
 
@@ -28,17 +25,20 @@ public class G3SecurityProvider extends Dsmr40SecurityProvider {
      *
      * @param properties - contains the keys for the authentication/encryption
      */
-    public G3SecurityProvider(G3Properties properties) {
-        super(properties.getProtocolProperties());
-        this.g3Properties = properties;
+    public G3SecurityProvider(Properties properties) {
+        super(properties);
+        this.g3Properties = new G3Properties(properties);
     }
 
-    public long getFrameCounter() {
-        return frameCounter;
+    /**
+     * @return the initial frameCounter
+     */
+    public long getInitialFrameCounter() {
+        if (initialFrameCounter != null) {
+            return initialFrameCounter;             //G3 way
+        } else {
+            return super.getInitialFrameCounter();  //DSMR 4.0 way
     }
-
-    public void setFrameCounter(long frameCounter) {
-        this.frameCounter = frameCounter;
     }
 
     @Override
@@ -55,53 +55,5 @@ public class G3SecurityProvider extends Dsmr40SecurityProvider {
             byteWord[i] = (byte) this.hlsSecret.charAt(i);
         }
         return byteWord;
-    }
-
-    /**
-     * String array containing the original key and the wrapped key
-     */
-    @Override
-    public String[] getNEWAuthenticationKeys() throws IOException {
-        if (getProperties().containsKey(NEW_DATATRANSPORT_AUTHENTICATION_KEY)) {
-            String keys = getProperties().getProperty(NEW_DATATRANSPORT_AUTHENTICATION_KEY);   //Comma separated keys
-            return splitKeys(keys, NEW_DATATRANSPORT_AUTHENTICATION_KEY);                      //Array of original and wrapped key
-        }
-        throw new IllegalArgumentException("New authenticationKey is not correctly filled in.");
-    }
-
-    /**
-     * String array containing the original key and the wrapped key
-     */
-    @Override
-    public String[] getNEWGlobalKeys() throws IOException {
-        if (getProperties().containsKey(NEW_DATATRANSPORT_ENCRYPTION_KEY)) {
-            String keys = getProperties().getProperty(NEW_DATATRANSPORT_ENCRYPTION_KEY);
-            return splitKeys(keys, NEW_DATATRANSPORT_ENCRYPTION_KEY);
-        }
-        throw new IllegalArgumentException("New encryptionKey is not correctly filled in.");
-    }
-
-    @Override
-    public void changeEncryptionKey() throws IOException {
-        setEncryptionKey(ProtocolTools.getBytesFromHexString(getNEWGlobalKeys()[0], ""));    //First key is the original (not wrapped) key
-    }
-
-    @Override
-    public void changeAuthenticationKey() throws IOException {
-        setAuthenticationKey(ProtocolTools.getBytesFromHexString(getNEWAuthenticationKeys()[0], ""));
-    }
-
-    public String[] splitKeys(String keys, String propertyName) {
-        String[] splitKeys = keys.split(SEPARATOR);
-        if (splitKeys.length == 2) {
-            return splitKeys;
-        } else {
-            throw new IllegalArgumentException("Invalid property '" + propertyName + "': should contain the original key and the wrapped key, comma separated");
-        }
-    }
-
-    @Override
-    public long getInitialFrameCounter() {
-        return frameCounter == -1 ? 1 : frameCounter;
     }
 }

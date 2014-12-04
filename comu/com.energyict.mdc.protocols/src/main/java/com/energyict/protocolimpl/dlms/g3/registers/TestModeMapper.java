@@ -21,12 +21,19 @@ class TestModeMapper extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        final CosemObjectFactory cof = as330D.getSession().getCosemObjectFactory();
+    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
+        final CosemObjectFactory cof = dlmsSession.getCosemObjectFactory();
         final Data data = cof.getData(getObisCode());
-        final BooleanObject valueAttr = data.getValueAttr(BooleanObject.class);
-        final String textValue = valueAttr.getState() ? "TEST_MODE" : "NORMAL_MODE";
-        return new RegisterValue(getObisCode(), textValue);
+        return parse(data.getValueAttr(BooleanObject.class));
     }
 
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        final String textValue = ((BooleanObject) abstractDataType).getState() ? "TEST_MODE" : "NORMAL_MODE";
+        return new RegisterValue(getObisCode(), textValue);
+}
+
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.DATA.getClassId();
+    }
 }

@@ -1,10 +1,10 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.NullData;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 
-import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public final class AXDRDate {
 
@@ -28,7 +28,53 @@ public final class AXDRDate {
 		}
 	}
 
+    public static OctetString fromDate(String dateString, TimeZone deviceTimeZone) throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        simpleDateFormat.setTimeZone(deviceTimeZone);
+        Calendar cal = Calendar.getInstance(deviceTimeZone);
+        cal.setTime(simpleDateFormat.parse(dateString));
+
+        byte[] result = new byte[5];
+        result[0] = (byte) (cal.get(Calendar.YEAR) >> 8);
+        result[1] = (byte) (cal.get(Calendar.YEAR) & 0xFF);
+        result[2] = (byte) (cal.get(Calendar.MONTH) + 1);
+        result[3] = (byte) cal.get(Calendar.DAY_OF_MONTH);
+        result[4] = getDayOfWeek(cal);
+
+        return OctetString.fromByteArray(result, result.length);
+    }
+
+    public static Date toDate(OctetString octetString) throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(simpleDateFormat.parse(toDescription(octetString)));
+        return cal.getTime();
+    }
+
 	/**
+     * Convert to readable yyyy/MM/dd string
+     */
+    public static String toDescription(OctetString date) {
+        StringBuilder sb = new StringBuilder();
+        byte[] octetStr = date.getOctetStr();
+        int year = ((octetStr[0] & 0xFF) << 8) + (octetStr[1] & 0xFF);
+        sb.append(year);
+        sb.append("/");
+        String month = String.valueOf(octetStr[2] & 0xFF);
+        sb.append(month.length() == 1 ? ("0" + month) : month);
+        sb.append("/");
+        String day = String.valueOf(octetStr[3] & 0xFF);
+        sb.append(day.length() == 1 ? ("0" + day) : day);
+        return sb.toString();
+    }
+
+    private static byte getDayOfWeek(Calendar cal) {
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1;
+        dayOfWeek = dayOfWeek == 0 ? 7 : dayOfWeek;
+        return (byte) dayOfWeek;
+    }
+
+    /**
 	 * @param dataType
 	 * @return
 	 */

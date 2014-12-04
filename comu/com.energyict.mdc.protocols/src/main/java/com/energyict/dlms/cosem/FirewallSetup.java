@@ -70,7 +70,7 @@ public final class FirewallSetup extends AbstractCosemObject {
 
 				return new InterfaceFirewallConfiguration(allowDLMS, allowHTTP, allowSSH);
 			} else {
-				throw new IOException("Port setup structure has wrong number of elements : expected [3] elements, but got [" + structure.nrOfDataTypes() + "]");
+				throw new ProtocolException("Port setup structure has wrong number of elements : expected [3] elements, but got [" + structure.nrOfDataTypes() + "]");
 			}
 		}
 

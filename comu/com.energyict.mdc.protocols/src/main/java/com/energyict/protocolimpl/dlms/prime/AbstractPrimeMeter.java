@@ -31,7 +31,7 @@ import java.util.logging.Level;
  * Date: 21/02/12
  * Time: 14:43
  */
-public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements FirmwareUpdateMessaging {
+public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
 
     private final PrimeProperties properties = new PrimeProperties();
     private PrimeProfile loadProfile;
@@ -43,7 +43,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
     private ProfileCache cache = new ProfileCache();
 
     public String getProtocolVersion() {
-        return "$Date: 2013-05-27 10:27:01 +0200 (Mon, 27 Mai 2013) $";
+        return "$Date: 2014-04-24 17:00:13 +0200 (Thu, 24 Apr 2014) $";
     }
 
     @Override
@@ -196,14 +196,6 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol imp
         if ((cache != null) && (cache instanceof ProfileCache)) {
             this.cache = (ProfileCache) cache;
         }
-    }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        return new FirmwareUpdateMessagingConfig(false, true, false);
-    }
-
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return new FirmwareUpdateMessageBuilder();
     }
 
     /**

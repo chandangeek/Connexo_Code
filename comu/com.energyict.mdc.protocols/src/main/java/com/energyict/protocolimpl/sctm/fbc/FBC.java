@@ -36,11 +36,6 @@ public class FBC extends Metcom3FBC implements RegisterProtocol {
         fbcRegisters = new FBCRegisters(this);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G FBC SCTM";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

@@ -248,6 +248,7 @@ public class IF2LinkLayer {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
 
     }
@@ -271,7 +272,8 @@ public class IF2LinkLayer {
                 Thread.sleep(POLL_INTERVAL);
             }
         } catch (InterruptedException e) {
-            throw new NestedIOException(e, "Got interrupted while waiting for the next IF2 byte.");
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
         return -1;
     }

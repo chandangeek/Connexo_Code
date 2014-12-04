@@ -85,11 +85,11 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         MessageCategorySpec otherMeterCat = new MessageCategorySpec("[03] Other");
 
         eMeterCat.addMessageSpec(createMessageSpec(DISCONNECT_EMETER_DISPLAY, DISCONNECT_EMETER, false));
-        //eMeterCat.addMessageSpec(createMessageSpec(ARM_EMETER_DISPLAY, ARM_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(CONNECT_EMETER_DISPLAY, CONNECT_EMETER, false));
         eMeterCat.addMessageSpec(createMessageSpec(DUMMY_MESSAGE_DISPLAY, DUMMY_MESSAGE, false));
         eMeterCat.addMessageSpec(AS220IEC1107AccessController.createWriteIEC1107ClassMessageSpec(WRITE_RAW_IEC1107_CLASS_DISPLAY, WRITE_RAW_IEC1107_CLASS, true));
 
+        eMeterCat.addMessageSpec(addTimeOfUse(RtuMessageKeyIdConstants.ACTIVITYCALENDAR, ACTIVITY_CALENDAR, false));
         eMeterCat.addMessageSpec(createValueMessage(ACTIVATE_CALENDAR_DISPLAY, ACTIVATE_ACTIVITY_CALENDAR, false, ACTIVITY_CALENDAR_ACTIVATION_TIME));
         eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_THRESHOLD_DISPLAY, SET_LOADLIMIT_THRESHOLD, false, LOADLIMIT_THRESHOLD));
         eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_DURATION_DISPLAY, SET_LOADLIMIT_DURATION, false, LOADLIMIT_DURATION));
@@ -100,6 +100,30 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         categories.add(eMeterCat);
         categories.add(otherMeterCat);
         return categories;
+    }
+
+    /**
+     * Creates a MessageSpec to add ActivityCalendar functionality
+     *
+     * @param keyId    - id for the MessageSpec
+     * @param tagName  - name for the MessageSpec
+     * @param advanced - indicates whether it's an advanced message or not
+     * @return the newly created MessageSpec
+     */
+    private MessageSpec addTimeOfUse(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        tagSpec.add(msgVal);
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(CALENDAR_NAME, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(ACTIVATION_DATE, false);
+        tagSpec.add(msgAttrSpec);
+        msgAttrSpec = new MessageAttributeSpec(ACTIVITY_CALENDAR, false);
+        tagSpec.add(msgAttrSpec);
+        msgSpec.add(tagSpec);
+        return msgSpec;
     }
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
@@ -202,5 +226,50 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         } else {
             return getAs220().getCosemObjectFactory().getMbusClient(getAs220().getMeterConfig().getMbusClient(physicalAddress).getObisCode(), MbusClientAttributes.VERSION9);
         }
+    }
+
+    @Override
+    public String writeTag(final MessageTag msgTag) {
+        if (msgTag.getName().equals(ACTIVITY_CALENDAR)) {
+            StringBuilder builder = new StringBuilder();
+            addOpeningTag(builder, msgTag.getName());
+            long activationDate = 0;
+            int codeTableId = -1;
+            for (Object maObject : msgTag.getAttributes()) {
+                MessageAttribute ma = (MessageAttribute) maObject;
+                if (ma.getSpec().getName().equals(ACTIVITY_CALENDAR_ACTIVATION_TIME)) {
+                    if (ma.getValue() != null && ma.getValue().length() != 0) {
+                        activationDate = Long.valueOf(ma.getValue());
+                    }
+                } else if (ma.getSpec().getName().equals(ACTIVITY_CALENDAR)) {
+                    if (ma.getValue() != null && ma.getValue().length() != 0) {
+                        codeTableId = Integer.valueOf(ma.getValue());
+                    }
+                }
+            }
+
+            try {
+                String xmlContent = CodeTableXml.parseActivityCalendarAndSpecialDayTable(codeTableId, activationDate);
+                builder.append(xmlContent);
+            } catch (ParserConfigurationException e) {
+                return null;
+            }
+            addClosingTag(builder, msgTag.getName());
+            return builder.toString();
+        } else {
+            return super.writeTag(msgTag);
+        }
+    }
+
+    private void addOpeningTag(StringBuilder builder, String tagName) {
+        builder.append("<");
+        builder.append(tagName);
+        builder.append(">");
+    }
+
+    private void addClosingTag(StringBuilder builder, String tagName) {
+        builder.append("</");
+        builder.append(tagName);
+        builder.append(">");
     }
 }

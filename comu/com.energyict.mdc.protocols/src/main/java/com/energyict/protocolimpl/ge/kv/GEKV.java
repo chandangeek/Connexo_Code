@@ -220,11 +220,6 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink {
         return 0;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "General Electric KV ANSI C12";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

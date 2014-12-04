@@ -370,13 +370,12 @@ public class DataContainer implements Serializable {
 	}
 
 
-	public void parseObjectList(byte[] responseData, Logger logger) throws IOException {
-		//DataContainer dataContainer= new DataContainer();
+	public void parseObjectList(byte[] responseData, Logger logger) {
 		doParseObjectList(responseData,logger);
 	}
 
 	private static final int MAX_LEVELS=20;
-	protected void doParseObjectList(byte[] responseData, Logger logger) throws IOException {
+	protected void doParseObjectList(byte[] responseData, Logger logger) {
 		int i=0,temp;
 		int iLevel=0;
 		int[] LevelNROfElements = new int[MAX_LEVELS];
@@ -395,10 +394,11 @@ public class DataContainer implements Serializable {
 					{
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
-							throw new IOException("Max printlevel exceeds!");
+                            IOException ioException = new IOException("Max printlevel exceeds!");
+                            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(ioException);
 						}
 
-						LevelNROfElements[iLevel] = DLMSUtils.getAXDRLength(responseData,i);
+						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
 
@@ -409,9 +409,10 @@ public class DataContainer implements Serializable {
 					{
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
-							throw new IOException("Max printlevel exceeds!");
+                            IOException ioException = new IOException("Max printlevel exceeds!");
+                            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(ioException);
 						}
-						LevelNROfElements[iLevel] = DLMSUtils.getAXDRLength(responseData,i);
+						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
 
@@ -437,7 +438,7 @@ public class DataContainer implements Serializable {
 					{
 						int t,s;
 						i++;
-						t = DLMSUtils.getAXDRLength(responseData,i);
+						t = (int)DLMSUtils.getAXDRLength(responseData,i);
 						byte[] array = new byte[t];
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
 						for (s=0;s<t;s++) {
@@ -479,7 +480,7 @@ public class DataContainer implements Serializable {
 					{
 						int t,s;
 						i++;
-						t = DLMSUtils.getAXDRLength(responseData,i);
+						t = (int)DLMSUtils.getAXDRLength(responseData,i);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
 
 						// calc nr of bytes
@@ -557,9 +558,9 @@ public class DataContainer implements Serializable {
 				}
 				catch(DataContainerException e) {
 					if (logger == null) {
-						System.out.println(ProtocolUtils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+						System.out.println(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 					} else {
-						logger.severe(ProtocolUtils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+						logger.severe(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 					}
 					return;
 				}

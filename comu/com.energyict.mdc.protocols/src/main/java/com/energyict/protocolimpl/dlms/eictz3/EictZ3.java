@@ -125,7 +125,8 @@ import java.util.logging.Logger;
 /**
  * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol}.
  */
-public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, FirmwareUpdateMessaging {
+@Deprecated
+public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
 
     /**
      * The name of the property containing the information field size.
@@ -1069,6 +1070,11 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.numberOfConfigurationChanges;
     }
 
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
+    }
+
     public final void connect() throws IOException {
         logger.info("Connecting to EpIO / Z3, connecting MAC...");
 
@@ -1317,13 +1323,8 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return dc;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT WebRTU Z3 DLMS";
-    }
-
     public final String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-20 14:07:47 +0200 (Fri, 20 Jun 2014) $";
     }
 
     public final String getFirmwareVersion() throws IOException {
@@ -1949,7 +1950,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
 
         final ImageTransfer imageTransfer = this.getCosemObjectFactory().getImageTransfer();
 
-        try {
             logger.info("Converting received image to binary using a Base64 decoder...");
 
             final Base64EncoderDecoder decoder = new Base64EncoderDecoder();
@@ -1961,14 +1961,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             imageTransfer.imageActivation();
 
             logger.info("Upgrade has finished successfully...");
-        } catch (final InterruptedException e) {
-            logger.log(Level.SEVERE, "Interrupted while uploading firmware image [" + e.getMessage() + "]", e);
-
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-
-            throw ioException;
-        }
     }
 
     public final MessageResult queryMessage(final MessageEntry messageEntry) {
@@ -2180,16 +2172,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         }
 
         return this.deviceSerialNumber;
-    }
-
-    public final FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return new FirmwareUpdateMessageBuilder();
-    }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        FirmwareUpdateMessagingConfig config = new FirmwareUpdateMessagingConfig();
-        config.setSupportsUserFiles(true);
-        return config;
     }
 
     /**

@@ -21,7 +21,6 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.HHUEnabler;
@@ -33,6 +32,7 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -130,6 +130,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     @Override
     protected void doConnect() throws IOException {
         connect();
+    }
+
+    public ApplicationServiceObject getAso() {
+        return aso;
     }
 
     @Override
@@ -254,6 +258,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
      */
     protected byte[] getCalledAPTitle() {
         return serialNumber.getBytes();
+    }
+
+    protected String getSerialNumberProperty() {
+        return serialNumber;
     }
 
     /**

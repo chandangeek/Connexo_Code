@@ -38,6 +38,7 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
         optional.add(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
         optional.add(DlmsProtocolProperties.CONNECTION);
+        optional.add(DlmsProtocolProperties.SERVER_MAC_ADDRESS);
         optional.add(DlmsProtocolProperties.FORCED_DELAY);
         optional.add(DlmsProtocolProperties.DELAY_AFTER_ERROR);
         optional.add(DlmsProtocolProperties.INFORMATION_FIELD_SIZE);
@@ -50,9 +51,6 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
         optional.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
         optional.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
-        optional.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
-        optional.add(NTASecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
-        optional.add(NTASecurityProvider.NEW_HLS_SECRET);
         optional.add(OLD_MBUS_DISCOVERY);
         optional.add(FIX_MBUS_HEX_SHORT_ID);
         optional.add(DlmsProtocolProperties.WAKE_UP);

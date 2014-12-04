@@ -165,11 +165,6 @@ public class Metcom2 extends Metcom{
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Metcom2 Protocol Base";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

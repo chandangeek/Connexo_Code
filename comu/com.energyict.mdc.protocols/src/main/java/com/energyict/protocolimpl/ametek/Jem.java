@@ -232,7 +232,7 @@ public abstract class Jem extends AbstractProtocol implements MessageProtocol {
 		RegisterValue rv = (RegisterValue)registerValues.get(obisCode.toString());
 
 		if(rv!=null)
-			return new RegisterValue(obisCode, rv.getQuantity(), rv.getEventTime(), rv.getFromTime(), rv.getToTime(), rv.getReadTime(), rv.getRtuRegisterId(), rv.getText());
+			return new RegisterValue(obisCode, rv.getQuantity(), rv.getEventTime(), rv.getFromTime(), rv.getToTime(), rv.getReadTime(), rv.getRegisterSpecId(), rv.getText());
 
 		throw new NoSuchRegisterException("Register "+obisCode+" not supported!");
 

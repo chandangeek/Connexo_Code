@@ -135,7 +135,7 @@ public class DLMSProfileIntervals extends Array {
                             try {
                                 cal = constructIntervalCalendar(cal, element.getDataType(d), timeZone);
                             } catch (IOException e) {
-                                throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
+                                throw new ProtocolException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
                             }
                         } else if (isStatusIndex(d)) {
                             profileStatus = profileStatusBits.getEisStatusCode(element.getDataType(d).intValue());
@@ -149,7 +149,7 @@ public class DLMSProfileIntervals extends Array {
                         currentInterval = new IntervalData(cal.getTime(), profileStatus);
                         currentInterval.addValues(values);
                     } else {
-                        throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
+                        throw new ProtocolException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
                     }
                 } else { // the implementation is different if you have multiple status flags
                     Map<Integer, Integer> statuses = new HashMap<Integer, Integer>();
@@ -158,7 +158,7 @@ public class DLMSProfileIntervals extends Array {
                             try {
                                 cal = constructIntervalCalendar(cal, element.getDataType(d), timeZone);
                             } catch (IOException e) {
-                                throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
+                                throw new ProtocolException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
                             }
                         } else if (isStatusIndex(d)) {
                             statuses.put(values.size(), profileStatusBits.getEisStatusCode(element.getDataType(d).intValue()));
@@ -177,7 +177,7 @@ public class DLMSProfileIntervals extends Array {
                             currentInterval.addValue(values.get(j), 0, (statuses.containsKey(j) ? statuses.get(j) : 0));
                         }
                     } else {
-                        throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
+                        throw new ProtocolException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
                     }
                 }
 
@@ -240,12 +240,12 @@ public class DLMSProfileIntervals extends Array {
             } else if (cal != null) {
                 cal.add(Calendar.SECOND, profileInterval);
             } else {
-                throw new IOException("Could not create a correct calender for current interval.");
+                throw new ProtocolException("Could not create a correct calender for current interval.");
             }
         } else if (dataType instanceof NullData && cal != null) {
             cal.add(Calendar.SECOND, profileInterval);
         } else {
-            throw new IOException("Unknown calendar type for current interval.");
+            throw new ProtocolException("Unknown calendar type for current interval.");
         }
         return cal;
     }

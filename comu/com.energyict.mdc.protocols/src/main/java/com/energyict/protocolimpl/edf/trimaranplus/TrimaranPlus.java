@@ -174,11 +174,6 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         return new Date();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EDF Trimaran+ ICE";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

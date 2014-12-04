@@ -3,6 +3,7 @@ package com.energyict.dlms;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,7 +12,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.StringTokenizer;
 
-@XmlRootElement
 public class UniversalObject implements Serializable {
 
 	/**
@@ -42,8 +42,7 @@ public class UniversalObject implements Serializable {
 	private static final byte IOL_LN_F=8;
 
 
-    @XmlElement
-    private long[] fields = new long[9];
+	private long[] fields;
 
 	private static final int ASSOC_SN_OBJECT_LIST_STRUCTURE_SIZE=9;
 
@@ -60,16 +59,17 @@ public class UniversalObject implements Serializable {
 		this.fields[0] = -1;
 		this.fields[1] = classId;
 		this.fields[2] = version;
-		this.fields[3] = ln[0];
-		this.fields[4] = ln[1];
-		this.fields[5] = ln[2];
-		this.fields[6] = ln[3];
-		this.fields[7] = ln[4];
-		this.fields[8] = ln[5];
+		this.fields[3] = ln[0] & 0xFF;
+		this.fields[4] = ln[1] & 0xFF;
+		this.fields[5] = ln[2] & 0xFF;
+		this.fields[6] = ln[3] & 0xFF;
+		this.fields[7] = ln[4] & 0xFF;
+		this.fields[8] = ln[5] & 0xFF;
 	}
 
+
 	public UniversalObject() {
-		this.fields= new long[9];
+		this.fields=null;
 	}
 
 	public UniversalObject(List values, int reference) { //, List frmts) {
@@ -220,7 +220,7 @@ public class UniversalObject implements Serializable {
 		this.fields[IOL_LN_F]=iVal;
 	}
 
-	public boolean equals(UniversalObject uo) throws IOException {
+	public boolean equals(UniversalObject uo) throws ProtocolException {
 
 		if ((getLNA() == uo.fields[COL_LN_A])  &&
 				(getLNB() == uo.fields[COL_LN_B]) &&
@@ -236,7 +236,7 @@ public class UniversalObject implements Serializable {
 	}
 
 
-	public boolean equals(DLMSConfig config) throws IOException {
+	public boolean equals(DLMSConfig config) {
 
 		if (((getLNA() == config.getLNA()) || (config.getLNA()==-1)) &&
 				((getLNB() == config.getLNB()) || (config.getLNB()==-1)) &&
@@ -251,7 +251,7 @@ public class UniversalObject implements Serializable {
 		}
 	}
 
-	public boolean equals(DLMSObis dlmsObis) throws IOException {
+	public boolean equals(DLMSObis dlmsObis) throws ProtocolException {
 		if ((getLNA() == dlmsObis.getLNA()) &&
 				(getLNB() == dlmsObis.getLNB()) &&
 				(getLNC() == dlmsObis.getLNC()) &&
@@ -290,7 +290,7 @@ public class UniversalObject implements Serializable {
 	}
 
 
-	public int getValueAttributeOffset() throws IOException {
+	public int getValueAttributeOffset() throws ProtocolException {
 		if (getClassID() == DLMSClassId.REGISTER.getClassId()) {
 			return 8;
 		} else if (getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
@@ -304,7 +304,7 @@ public class UniversalObject implements Serializable {
 		} else if (getClassID() == DLMSClassId.CLOCK.getClassId()) {
 			return 8;
 		} else {
-			throw new IOException("UniversalObject, wrong object for value attribute!");
+			throw new ProtocolException("UniversalObject, wrong object for value attribute!");
 		}
 	}
 	public int getScalerAttributeOffset() throws IOException {
@@ -317,7 +317,7 @@ public class UniversalObject implements Serializable {
 		} else if (getClassID() == DLMSClassId.DATA.getClassId()) {
 			return 8;
 		} else {
-			throw new IOException("UniversalObject, wrong object for scaler attribute!");
+			throw new ProtocolException("UniversalObject, wrong object for scaler attribute!");
 		}
 	}
 

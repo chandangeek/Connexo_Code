@@ -21,11 +21,20 @@ class ProducerConsumerMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        final CosemObjectFactory cof = as330D.getSession().getCosemObjectFactory();
+    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
+        final CosemObjectFactory cof = dlmsSession.getCosemObjectFactory();
         final Data data = cof.getData(getObisCode());
-        final TypeEnum valueAttr = data.getValueAttr(TypeEnum.class);
+        return parse(data.getValueAttr(TypeEnum.class));
+    }
+
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        final TypeEnum valueAttr = (TypeEnum) abstractDataType;
         final String textValue = valueAttr.getValue() == 0 ? "CONSUMER_MODE" : "PRODUCER_MODE";
         return new RegisterValue(getObisCode(), textValue);
+    }
+
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.DATA.getClassId();
     }
 }

@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * @author sva
@@ -45,12 +46,12 @@ public class XMLParser {
     private static final String DATA_INDEX_ATTRIBUTE = "DataIndex";
 
     private final CosemObjectFactory cosemObjectFactory;
-    private final IDIS meterProtocol;
+    private final Logger logger;
 
     private List<Object[]> parsedObjects = new ArrayList<Object[]>();
 
-    public XMLParser(IDIS meterProtocol, CosemObjectFactory cosemObjectFactory) {
-        this.meterProtocol = meterProtocol;
+    public XMLParser(Logger logger, CosemObjectFactory cosemObjectFactory) {
+        this.logger = logger;
         this.cosemObjectFactory = cosemObjectFactory;
     }
 
@@ -250,8 +251,8 @@ public class XMLParser {
     }
 
     private void infoLog(String message) {
-        if (meterProtocol != null) {
-            meterProtocol.getLogger().info(message);
+        if (logger != null) {
+            logger.info(message);
         } else {
             System.out.println(message);
         }

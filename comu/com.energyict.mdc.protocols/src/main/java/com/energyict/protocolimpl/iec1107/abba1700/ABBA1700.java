@@ -262,11 +262,6 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster/ABB A1700 IEC1107";
-    }
-
     /* Protocol version */
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";

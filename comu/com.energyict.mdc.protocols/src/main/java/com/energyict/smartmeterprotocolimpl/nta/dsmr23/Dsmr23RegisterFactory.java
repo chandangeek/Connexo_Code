@@ -106,13 +106,18 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
             RegisterValue rv = null;
             try {
                 if (this.composedRegisterMap.containsKey(register)) {
-                    ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
+                    ScalerUnit su = readUnit(registerComposedCosemObject, register);
                     if (su.getUnitCode() != 0) {
+                        Date eventTime = null;   //Optional capture time attribute
+                        DLMSAttribute registerCaptureTime = this.composedRegisterMap.get(register).getRegisterCaptureTime();
+                        if (registerCaptureTime != null) {
+                            eventTime = readEventTime(registerComposedCosemObject, registerCaptureTime);
+                        }
                         rv = new RegisterValue(register,
                                 new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                        su.getEisUnit()));
+                                        su.getEisUnit()), eventTime);
                     } else {
-                        throw new NoSuchRegisterException("Register with ObisCode: " + register.getObisCode() + " does not provide a proper Unit.");
+                        this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit.");
                     }
 
                 } else if (this.registerMap.containsKey(register)) {
@@ -130,11 +135,21 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
         return registerValues;
     }
 
+    protected Date readEventTime(ComposedCosemObject registerComposedCosemObject, DLMSAttribute registerCaptureTime) throws IOException {
+        AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
+        return attribute.getOctetString().getDateTime(protocol.getDlmsSession().getTimeZone()).getValue().getTime();
+    }
+
+    protected ScalerUnit readUnit(ComposedCosemObject registerComposedCosemObject, Register register) throws IOException {
+        return new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
+    }
+
     /**
      * From the given list of registers, filter out all invalid ones. <br></br>
      * A register is invalid if the physical address of the device, owning the register, could not be fetched.
      * This is the case, when an Mbus device is linked to a master in EIMaster, but in reality not physically connected. <br></br>
      * E.g.: This is the case when the Mbus device in the field has been swapped for a new one, but without changing/correcting the EIMaster configuration.
+     *
      * @param registers    the complete list of registers
      * @return  the validated list containing all valid registers
      */
@@ -145,7 +160,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
             if (this.protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) != -1) {
                 validRegisters.add(register);
             } else {
-                this.protocol.getLogger().severe(register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
+                this.protocol.getLogger().severe("Register " + register.getObisCode() + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validRegisters;
@@ -174,10 +189,18 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), rObisCode);
                 if (uo != null) {
                     if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-                        ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(rObisCode, RegisterAttributes.VALUE.getAttributeNumber(), uo.getClassID()),
-                                new DLMSAttribute(rObisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(), uo.getClassID()));
+                        DLMSAttribute valueAttribute = new DLMSAttribute(rObisCode, RegisterAttributes.VALUE.getAttributeNumber(), uo.getClassID());
+                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(), uo.getClassID());
+                        DLMSAttribute captureTimeAttribute = null;  //Optional attribute
+                        if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
+                            captureTimeAttribute = new DLMSAttribute(rObisCode, ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), uo.getClassID());
+                        }
+                        ComposedRegister composedRegister = new ComposedRegister(valueAttribute, unitAttribute, captureTimeAttribute);
                         dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
                         dlmsAttributes.add(composedRegister.getRegisterUnitAttribute());
+                        if (composedRegister.getRegisterCaptureTime() != null) {
+                            dlmsAttributes.add(composedRegister.getRegisterCaptureTime());
+                        }
                         this.composedRegisterMap.put(register, composedRegister);
                     } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
                         ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(rObisCode, DemandRegisterAttributes.CURRENT_AVG_VALUE.getAttributeNumber(), uo.getClassID()),
@@ -188,13 +211,16 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                     } else {
                         if (ACTIVITY_CALENDAR.equals(rObisCode) || ACTIVITY_CALENDAR_NAME.equals(rObisCode)) {
                             this.registerMap.put(register, new DLMSAttribute(ACTIVITY_CALENDAR, ActivityCalendarAttributes.CALENDAR_NAME_ACTIVE.getAttributeNumber(), DLMSClassId.ACTIVITY_CALENDAR.getClassId()));
+                            dlmsAttributes.add(this.registerMap.get(register));
                         } else if (rObisCode.equals(GSM_SIGNAL_STRENGTH)) {
                             this.registerMap.put(register, new DLMSAttribute(rObisCode, RegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.REGISTER.getClassId()));
+                            dlmsAttributes.add(this.registerMap.get(register));
                         } else if (rObisCode.equals(ISKRA_MBUS_ENCRYPTION_STATUS)) {
                             this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, DLMSClassId.DATA.getClassId()));
+                            dlmsAttributes.add(this.registerMap.get(register));
 
-                            // We can't add this for the SecuritySetup or the AssociationLN object, the DSMR4.0 uses these
-                        } else if (!(uo.getObisCode().equals(SecuritySetup.getDefaultObisCode()) || (uo.getObisCode().equals(AssociationLN.getDefaultObisCode())))) {
+                            // We can't add this for the SecuritySetup, MBus client setup attributes or the AssociationLN object, the DSMR4.0 uses these
+                        } else if (!(uo.getObisCode().equalsIgnoreBChannel(MbusClientObisCode) || uo.getObisCode().equals(SecuritySetup.getDefaultObisCode()) || (uo.getObisCode().equals(AssociationLN.getDefaultObisCode())))) {
                             // We get the default 'Value' attribute (2), mostly Data objects
                             this.registerMap.put(register, new DLMSAttribute(uo.getObisCode(), DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
                         }
@@ -259,7 +285,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
             return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.getContentByteArray()));
         } else if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE) || rObisCode.equals(MODULE_FIRMWARE_SIGNATURE)) {
             OctetString os = OctetString.fromByteArray(abstractDataType.getContentByteArray());
-            return new RegisterValue(register, null, null, null, null, new Date(), 0, com.energyict.genericprotocolimpl.common.ParseUtils.decimalByteToString(os.getOctetStr()).toUpperCase());
+            return new RegisterValue(register, null, null, null, null, new Date(), 0, ParseUtils.decimalByteToString(os.getOctetStr()).toUpperCase());
         } else if (rObisCode.equals(CONNECT_CONTROL_MODE)) {
             int mode = ((TypeEnum) abstractDataType).getValue();
             return new RegisterValue(register, new Quantity(BigDecimal.valueOf(mode), Unit.getUndefined()), null, null, null, new Date(), 0, new String("ConnectControl mode: " + mode));
@@ -300,6 +326,8 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
             return new RegisterValue(register, quantity, null, null, null, new Date(), 0, "State: " + state);
         } else if (abstractDataType.isOctetString()) {
             return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.getContentByteArray()));
+        } else if (abstractDataType.isTypeEnum()) {
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()));
         } else if (abstractDataType.isNumerical()) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()));
         } else {

@@ -1,12 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.UserFileShadow;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
@@ -23,20 +16,24 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -72,32 +69,46 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(new Array());
     }
 
-    protected void doFirmwareUpgrade(MessageHandler messageHandler) throws IOException, InterruptedException {
+    protected MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
+        MessageResult messageResult = super.doReadLoadProfileRegisters(msgEntry);
+        return new LoadProfileToRegisterParser().parse(messageResult);
+    }
+
+    protected void doFirmwareUpgrade(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException, InterruptedException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
         if (!ParseUtils.isInteger(userFileID)) {
-            throw new IOException("Not a valid entry for the userFile.");
+            String str = "Not a valid entry for the userFile.";
+            throw new IOException(str);
         }
-        UserFile uf = this.findUserFile(Integer.parseInt(userFileID));
+        UserFile uf = findUserFile(userFileID);
         if (uf == null) {
-            throw new IOException("Not a valid entry for the userfileID " + userFileID);
+            String str = "Not a valid entry for the userfileID " + userFileID;
+            throw new IOException(str);
         }
 
         byte[] imageData = uf.loadFileInByteArray();
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+        if (isResume(messageEntry)) {
+            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
+            if (lastTransferredBlockNumber > 0) {
+                it.setStartIndex(lastTransferredBlockNumber - 1);
+            }
+        }
+
         it.setBooleanValue(getBooleanValue());
         it.setUsePollingVerifyAndActivate(true);    //Poll verification
         it.setPollingDelay(10000);
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
         String imageIdentifier = messageHandler.getImageIdentifier();
-        if (imageIdentifier != null && !imageIdentifier.isEmpty()) {
+        if (imageIdentifier != null && imageIdentifier.length() > 0) {
             it.upgrade(imageData, false, imageIdentifier, false);
         } else {
             it.upgrade(imageData, false);
         }
-        if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
+        if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
             try {
                 it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
                 log(Level.INFO, "Activating the image");
@@ -120,12 +131,19 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 //					sas.writeExecutionTime(dateArray);
 
 
-        } else if (!"".equalsIgnoreCase(messageHandler.getActivationDate())) {
+        } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
             String strDate = messageHandler.getActivationDate();
             Array dateArray = convertUnixToDateTimeArray(strDate);
             sas.writeExecutionTime(dateArray);
         }
+    }
+
+    /**
+     * Not supported in DSMR4.0, subclasses can override
+     */
+    protected boolean isResume(MessageEntry messageEntry) {
+        return false;
     }
 
     private boolean isTemporaryFailure(DataAccessResultException e) {
@@ -207,7 +225,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                 throw new IOException("No CodeTable defined with id '" + codeTable + "'");
             } else {
 
-                ActivityCalendarMessage acm = new ActivityCalendarMessage(ct, getMeterConfig());
+                ActivityCalendarMessage acm = getActivityCalendarParser(ct);
                 acm.parse();
 
                 ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
@@ -227,7 +245,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     ac.activateNow();
                 }
             }
-        } else if (userFile != null) {
+        } else if (userFile.isEmpty()) {
             throw new IOException("ActivityCalendar by userfile is not supported yet.");
         } else {
             // should never get here
@@ -235,16 +253,39 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         }
     }
 
+    protected ActivityCalendarMessage getActivityCalendarParser(Code ct) {
+        return new ActivityCalendarMessage(ct, getMeterConfig());
+    }
+
     private Code findCode(String codeTable) {
-        int codeId = Integer.parseInt(codeTable);
-        List<CodeFactory> codeFactories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(CodeFactory.class);
-        for (CodeFactory codeFactory : codeFactories) {
-            Code code = codeFactory.findCode(codeId);
-            if (code != null) {
-                return code;
+        // Todo: port Code to jupiter, return null as the previous code would have returned null too.
+        throw new UnsupportedOperationException("Code is not longer supported by Jupiter");
+    }
+
+    @Override
+    protected MessageResult changeDiscoveryOnPowerUp(MessageEntry msgEntry, int enable) throws IOException {
+        log(Level.INFO, "Changing discover_on_power_on bit to " + enable);
+
+        Data config = getCosemObjectFactory().getData(OBISCODE_CONFIGURATION_OBJECT);
+        Structure value;
+        BitString flags;
+        try {
+            value = (Structure) config.getValueAttr();
+            try {
+                AbstractDataType dataType = value.getDataType(1);
+                flags = (BitString) dataType;
+            } catch (IndexOutOfBoundsException e) {
+                return MessageResult.createFailed(msgEntry, "Couldn't write configuration. Expected structure value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to have 2 elements.");
+            } catch (ClassCastException e) {
+                return MessageResult.createFailed(msgEntry, "Couldn't write configuration. Expected second element of structure to be of type 'Bitstring', but was of type '" + value.getDataType(1).getClass().getSimpleName() + "'.");
             }
+
+            flags.set(1, enable == 1);    //Set bit1 to true or false in order to enable/disable the discovery on power up.
+            config.setValueAttr(value);
+            return MessageResult.createSuccess(msgEntry);
+        } catch (ClassCastException e) {
+            return MessageResult.createFailed(msgEntry, "Couldn't write configuration. Expected value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to be of type 'Structure', but was of type '" + config.getValueAttr().getClass().getSimpleName() + "'.");
         }
-        return null;
     }
 
     @Override
@@ -367,15 +408,8 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         return 0xFF;
     }
 
-    private UserFile findUserFile(int userFileID) {
-        List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);
-        for (UserFileFactory codeFactory : factories) {
-            UserFile userFile = codeFactory.findUserFile(userFileID);
-            if (userFile != null) {
-                return userFile;
-            }
-        }
-        return null;
+    private UserFile findUserFile(String userFileId) {
+        throw new UnsupportedOperationException("UserFiles are not longer supported by Jupiter");
     }
 
 }

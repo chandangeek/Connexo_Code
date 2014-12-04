@@ -43,10 +43,9 @@ import java.util.logging.Level;
  * Date: 21/03/12
  * Time: 10:32
  */
-public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdateMessaging {
+public class AS330D extends AbstractDlmsSessionProtocol {
 
     private static final String TIMEOUT = "timeout";
-    private final FirmwareUpdateMessageBuilder fwMessageBuilder = new FirmwareUpdateMessageBuilder();
     protected G3Properties properties;
 
     private G3Clock clock;
@@ -63,11 +62,6 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
             properties = new G3Properties();
         }
         return properties;
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "Elster AS330D PLC G3 DLMS";
     }
 
     /**
@@ -117,22 +111,25 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
             }
 
             //Release and retry the AARQ in case of ACSE exception
-            if ((exception.getMessage() != null) && exception.getMessage().toLowerCase().contains(TIMEOUT)) {
-                throw exception;    //Don't retry the AARQ if it's a real timeout!
-            }
             if (++tries > getProperties().getAARQRetries()) {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (getProperties().getAARQRetries() + 1) + "] tries.");
                 throw new NestedIOException(exception);
+            } else {
+                if ((exception.getMessage() != null) && exception.getMessage().toLowerCase().contains(TIMEOUT)) {
+                    if (getLogger().isLoggable(Level.INFO)) {
+                        getLogger().info("Unable to establish association after [" + tries + "/" + (getProperties().getAARQRetries() + 1) + "] tries, due to timeout. Retrying.");
+                    }
             } else {
                 if (getLogger().isLoggable(Level.INFO)) {
                     getLogger().info("Unable to establish association after [" + tries + "/" + (getProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 }
                 try {
                     getSession().getAso().releaseAssociation();
-                } catch (IOException e) {
-                    getSession().getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
+                    } catch (DLMSConnectionException e) {
                     // Absorb exception: in 99% of the cases we expect an exception here ...
                 }
+                }
+                getSession().getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
             }
         }
     }
@@ -183,16 +180,14 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             return this.registerMapper.readRegister(obisCode);
-        } catch (NoSuchRegisterException e) {
-            throw e;
-        } catch (IOException e) {
-            throw new NoSuchRegisterException(obisCode.toString() + ": " + e.getMessage());
+        } catch (DataAccessResultException e) {
+            throw new NoSuchRegisterException("Error while reading out register " + obisCode + ": " + e.getMessage());
         }
     }
 
     public G3Messaging getMessaging() {
         if (this.messaging == null) {
-            this.messaging = new G3Messaging(getLogger());
+            this.messaging = new G3Messaging(getSession(), getProperties());
         }
         return messaging;
     }
@@ -212,7 +207,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
     }
 
     @Override
-    public void applyMessages(List messageEntries) {
+    public void applyMessages(List messageEntries) throws IOException {
         getMessaging().applyMessages(messageEntries);
     }
 
@@ -231,26 +226,6 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
         return getMessaging().getMessageCategories();
     }
 
-    /**
-     * Return the supported features in this protocol related to the Firmware update
-     * We only support embedded user files, so we're completly disconnected from the database
-     *
-     * @return Our config object {@link FirmwareUpdateMessagingConfig}
-     */
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        return new FirmwareUpdateMessagingConfig(false, true, false);
-    }
-
-    /**
-     * This method is not used in EIServer the way it should. The parsing is done by this object but the
-     * The XML is still build up with a new {@link FirmwareUpdateMessageBuilder} and not with the object returned here.
-     *
-     * @return The customised FirmwareUpdateMessageBuilder: {@link AnnotatedFWUpdateMessageBuilder}
-     */
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return this.fwMessageBuilder;
-    }
-
     @Override
     public Object getCache() {
         this.cache.setFrameCounter(getSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
@@ -261,7 +236,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
     public void setCache(Object cache) {
         if ((cache != null) && (cache instanceof G3Cache)) {
             this.cache = (G3Cache) cache;
-            this.getProperties().getSecurityProvider().setFrameCounter(this.cache.getFrameCounter());    //Get this from the last session
+            this.getProperties().getSecurityProvider().setInitialFrameCounter(this.cache.getFrameCounter());    //Get this from the last session
         }
     }
 
@@ -291,6 +266,8 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
                         try {
                             G3Cache dc = (G3Cache) cacheObject;
                             new RTUCache(rtuid).setBlob(dc);
+                    //new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
+                    return null;
                         }
                         catch (SQLException e) {
                             throw new LocalSQLException(e);

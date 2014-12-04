@@ -41,7 +41,7 @@ public class GenericRead extends AbstractCosemObject {
         if (dataContainer.getRoot().isInteger(0)) {
            return (long)((Integer)dataContainer.getRoot().getElement(0)).intValue();
         }
-        throw new IOException("DataGeneric, getValue(), invalid data value type...");
+        throw new ProtocolException("DataGeneric, getValue(), invalid data value type...");
     }
 
     public String getString() throws IOException {
@@ -52,7 +52,7 @@ public class GenericRead extends AbstractCosemObject {
         else if (dataContainer.getRoot().isString(0)) {
            return ((String)dataContainer.getRoot().getElement(0)).trim();
         }
-        throw new IOException("DataGeneric, getString(), invalid data value type...");
+        throw new ProtocolException("DataGeneric, getString(), invalid data value type...");
     }
 
     public DataContainer getDataContainer() throws IOException {

@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -653,7 +652,7 @@ public final class ProtocolTools {
                 registerValue.getFromTime(),
                 registerValue.getToTime(),
                 registerValue.getReadTime(),
-                registerValue.getRtuRegisterId(),
+                registerValue.getRegisterSpecId(),
                 registerValue.getText()
         );
     }

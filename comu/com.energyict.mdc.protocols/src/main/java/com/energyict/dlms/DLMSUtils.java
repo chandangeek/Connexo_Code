@@ -122,11 +122,11 @@ public final class DLMSUtils {
      * @return
      * @throws IOException
      */
-    public static long parseValue2long(byte[] byteBuffer) throws IOException {
+    public static long parseValue2long(byte[] byteBuffer) throws ProtocolException {
         return parseValue2long(byteBuffer, 0);
     }
 
-    public static long parseValue2long(byte[] byteBuffer, int iOffset) throws IOException {
+    public static long parseValue2long(byte[] byteBuffer, int iOffset) throws ProtocolException {
         int signBit;
         float exponent, fraction;
         long fractionDigits;
@@ -146,7 +146,7 @@ public final class DLMSUtils {
             case STRUCTURE:
             case ARRAY:
             case COMPACT_ARRAY:
-                throw new IOException("parseValue2int() error");
+                throw new ProtocolException("parseValue2int() error");
 
             case ENUM:
             case BOOLEAN:
@@ -216,7 +216,7 @@ public final class DLMSUtils {
                 return getUnsignedIntFromBytes(byteBuffer, iOffset + 1, Integer64.LENGTH);
 
             default:
-                throw new IOException("parseValue2long() error, unknown type " + byteBuffer[iOffset]);
+                throw new ProtocolException("parseValue2long() error, unknown type " + byteBuffer[iOffset]);
         } // switch (byteBuffer[iOffset])
 
     } // public long parseValue2long(byte[] byteBuffer,int iOffset) throws IOException
@@ -333,7 +333,7 @@ public final class DLMSUtils {
             case STRUCTURE:
             case ARRAY:
             case COMPACT_ARRAY:
-                throw new IOException("parseValue2int() error");
+                throw new ProtocolException("parseValue2int() error");
 
 
             case OCTET_STRING:
@@ -364,7 +364,7 @@ public final class DLMSUtils {
                 return String.valueOf(ProtocolUtils.getLong(byteBuffer, iOffset + 1));
 
             default:
-                throw new IOException("parseValue2int() error, unknown type.");
+                throw new ProtocolException("parseValue2int() error, unknown type.");
         } // switch (byteBuffer[iOffset])
 
     } // public String parseValue2String(byte[] byteBuffer,int iOffset) throws IOException
@@ -1235,7 +1235,8 @@ public final class DLMSUtils {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            throw new ApplicationException("Delay interrupted!", e);
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.PLCOFDMType2PHYAndMACCountersAttribute;
 import com.energyict.dlms.cosem.methods.PLCOFDMType2PHYAndMACCountersMethods;
@@ -40,97 +41,97 @@ public class PLCOFDMType2PHYAndMACCounters extends AbstractCosemObject {
      * Statistics counter of successfully transmitted data packets (MSDU).
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public long readMacTxDataPacketCount() throws IOException {
-        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_TX_DATA_PACKET_COUNT).longValue();
+    public AbstractDataType readMacTxDataPacketCount() throws IOException {
+        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_TX_DATA_PACKET_COUNT);
     }
 
     /**
      * Statistics counter of successfully received data packets (MSDU).
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public long readMacRxDataPacketCount() throws IOException {
-        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_RX_DATA_PACKET_COUNT).longValue();
+    public AbstractDataType readMacRxDataPacketCount() throws IOException {
+        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_RX_DATA_PACKET_COUNT);
     }
 
     /**
      * Statistics counter of successfully transmitted command packets (MSDU).
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public long readMacTxCmdPacketCount() throws IOException {
-        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_TX_CMD_PACKET_COUNT).longValue();
+    public AbstractDataType readMacTxCmdPacketCount() throws IOException {
+        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_TX_CMD_PACKET_COUNT);
     }
 
     /**
      * Statistics counter of successfully received command packets (MSDU).
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public long readMacRxCmdPacketCount() throws IOException {
-        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_RX_CMD_PACKET_COUNT).longValue();
+    public AbstractDataType readMacRxCmdPacketCount() throws IOException {
+        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_RX_CMD_PACKET_COUNT);
     }
 
     /**
      * Statistic counter of failed CSMA transmit attempts.
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public long readMacCSMAFailCount() throws IOException {
-        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_CSMA_FAIL_COUNT).longValue();
+    public AbstractDataType readMacCSMAFailCount() throws IOException {
+        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_CSMA_FAIL_COUNT);
     }
 
     /**
      * Statistic counter of collisions due to busy channel or failed transmission on CSMA transmit attempts.
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public long readMacCSMACollisionCount() throws IOException {
-        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_CSMA_COLLISION_COUNT).longValue();
+    public AbstractDataType readMacNoAckCount() throws IOException {
+        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_NO_ACK_COUNT);
     }
 
     /**
      * Statistic counter of frames received with bad CRC.
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public long readMacBadCrcCount() throws IOException {
-        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_BAD_CRC_COUNT).longValue();
+    public AbstractDataType readMacBadCrcCount() throws IOException {
+        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_BAD_CRC_COUNT);
     }
 
     /**
      * Statistic counter of broadcast frames sent
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public long readMacBroadcastCount() throws IOException {
-        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_BROADCAST_COUNT).longValue();
+    public AbstractDataType readMacTxDataBroadcastCount() throws IOException {
+        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_TX_DATA_BROADCAST_COUNT);
     }
 
     /**
      * Statistic counter of multicast frames sent
      *
      * @return
-     * @throws java.io.IOException
+     * @throws IOException
      */
-    public long readMacMulticastCount() throws IOException {
-        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_MULTICAST_COUNT).longValue();
+    public AbstractDataType readMacRxDataBroadcastCount() throws IOException {
+        return readDataType(PLCOFDMType2PHYAndMACCountersAttribute.MAC_RX_DATA_BROADCAST_COUNT);
     }
 
     /**
      * This method forces a reset of the object. By invoking this method, the value of all
      * counters is set to 0.
      *
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public void reset() throws IOException {
         methodInvoke(PLCOFDMType2PHYAndMACCountersMethods.RESET, new Unsigned8(0));

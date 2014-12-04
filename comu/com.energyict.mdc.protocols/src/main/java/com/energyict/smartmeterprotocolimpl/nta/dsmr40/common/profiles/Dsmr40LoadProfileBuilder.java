@@ -27,6 +27,8 @@ import java.util.List;
  */
 public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
 
+    private boolean cumulativeCaptureTimeChannel = false;
+
     /**
      * Default constructor
      *
@@ -36,21 +38,24 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
         super(meterProtocol);
     }
 
+    public void setCumulativeCaptureTimeChannel(boolean cumulativeCaptureTimeChannel) {
+        this.cumulativeCaptureTimeChannel = cumulativeCaptureTimeChannel;
+    }
+
     @Override
-    protected List<ChannelInfo> constructChannelInfos(LoadProfileReader loadProfileReader, ComposedCosemObject ccoRegisterUnits) throws IOException {
-        List<ChannelInfo> channelInfos = new ArrayList<>();
-        for (CapturedRegisterObject registerObject : capturedObjectRegisterListMap.get(loadProfileReader)) {
-            if (!"".equalsIgnoreCase(registerObject.getSerialNumber()) && isDataObisCode(registerObject.getObisCode(), registerObject.getSerialNumber())) {
+    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        for (CapturedRegisterObject registerObject : registers) {
+            if (!registerObject.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerObject.getObisCode(), registerObject.getSerialNumber())) {
                 if (this.getRegisterUnitMap().containsKey(registerObject)) {
                     registerObject.getAttribute();
-                    ChannelInfo configuredChannelInfo = getConfiguredChannelInfo(loadProfileReader, registerObject);
                     ScalerUnit su = getScalerUnitForCapturedRegisterObject(registerObject, ccoRegisterUnits);
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject), configuredChannelInfo.getReadingType());
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject));
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), registerObject.getSerialNumber(), true, configuredChannelInfo.getReadingType());
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), registerObject.getSerialNumber(), true);
                         channelInfos.add(ci);
 //                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerObject + " - unitCode was 0.");
                     }
@@ -101,10 +106,10 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
     protected boolean isCumulativeChannel(CapturedRegisterObject registerObject) {
         if ((registerObject.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId()) &&
                 (registerObject.getAttribute() == ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber())) {
-            return false;
+            return cumulativeCaptureTimeChannel;
         } else if ((registerObject.getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId()) &&
                 (registerObject.getAttribute() == DemandRegisterAttributes.CAPTURE_TIME.getAttributeNumber())) {
-            return false;
+            return cumulativeCaptureTimeChannel;
         }
         return true;
     }

@@ -115,13 +115,11 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
         return geteMeter().getClockController().getTime();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster AS220/AS1440 AM500 PLC";
-    }
-
+    /**
+     * The protocol version
+     */
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-10-10 16:52:23 +0200 (Fri, 10 Oct 2014) $";
     }
 
     public String getFirmwareVersion() throws IOException {

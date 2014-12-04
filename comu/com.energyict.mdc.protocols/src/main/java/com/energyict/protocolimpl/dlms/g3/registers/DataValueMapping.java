@@ -30,11 +30,19 @@ public class DataValueMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        final Data data = as330D.getSession().getCosemObjectFactory().getData(getObisCode());
-        final AbstractDataType valueAttr = data.getValueAttr();
-        final BigDecimal value = BigDecimal.valueOf(valueAttr.longValue());
-        final Quantity quantityValue = new Quantity(value, unit);
+    public RegisterValue readRegister(DlmsSession session) throws IOException {
+        final Data data = session.getCosemObjectFactory().getData(getObisCode());
+        return parse(data.getValueAttr(), unit);
+    }
+
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        final BigDecimal value = BigDecimal.valueOf(abstractDataType.longValue());
+        final Quantity quantityValue = new Quantity(value, this.unit);
         return new RegisterValue(getObisCode(), quantityValue);
+    }
+
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.DATA.getClassId();
     }
 }

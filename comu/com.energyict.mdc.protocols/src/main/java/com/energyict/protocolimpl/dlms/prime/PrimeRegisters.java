@@ -343,17 +343,11 @@ public class PrimeRegisters {
         if (ObisCode.fromString("1.1.1.1.2.255").equalsIgnoreBChannel(obisCode)) {
             try {
                 session.getLogger().info("Executing firmware update message");
-                try {
                     byte[] imageData = ProtocolTools.readBytesFromFile("/home/jme/Desktop/FW/AS330D/ASP06.01.11-08451.bin");
                     final ImageTransfer it = cof.getImageTransfer();
                     it.setUsePollingVerifyAndActivate(true);
                     it.upgrade(imageData, true);
                     it.imageActivation();
-                } catch (InterruptedException e) {
-                    String msg = "Firmware upgrade failed! " + e.getClass().getName() + " : " + e.getMessage();
-                    session.getLogger().severe(msg);
-                    throw new IOException(msg);
-                }
             } catch (IOException e) {
                 return new RegisterValue(obisCode, "Failed: " + e.getMessage());
             }

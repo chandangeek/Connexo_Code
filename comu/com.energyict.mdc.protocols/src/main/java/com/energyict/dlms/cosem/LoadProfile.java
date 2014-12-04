@@ -1,15 +1,8 @@
-/*
- * LoadProfile.java
- *
- * Created on 20 augustus 2004, 16:05
- */
-
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
-
-import java.io.IOException;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 /**
  *
@@ -26,7 +19,7 @@ public class LoadProfile {
         this.cof=cof;
     }
 
-    protected void retrieve() throws IOException {
+    protected void retrieve() throws ProtocolException {
         profileGeneric = new ProfileGeneric(protocolLink,cof.getObjectReference(DLMSCOSEMGlobals.LOAD_PROFILE_LN,protocolLink.getMeterConfig().getProfileSN()));
     }
 

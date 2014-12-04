@@ -60,7 +60,7 @@ public class MT83ObisCodeMapper {
                 regVal.getFromTime(),
                 regVal.getToTime(),
                 regVal.getReadTime(),
-                regVal.getRtuRegisterId(),
+                regVal.getRegisterSpecId(),
                 regVal.getText()
         );
 

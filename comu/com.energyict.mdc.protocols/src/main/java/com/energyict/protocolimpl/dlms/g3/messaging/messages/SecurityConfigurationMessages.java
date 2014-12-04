@@ -13,11 +13,11 @@ public interface SecurityConfigurationMessages {
 
     String SECURITY_CONFIGURATION = "Security configuration";
 
-    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change HLS secret", tag = "ChangeHLSSecret")
+    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change HLS secret", tag = RtuMessageConstant.AEE_CHANGE_HLS_SECRET)
     interface ChangeHLSSecretMessage extends AnnotatedMessage {
 
         @RtuMessageAttribute(tag = "HLS_Secret", required = true)
-        java.lang.String getHLSSecret();
+        String getHLSSecret();
 
     }
 
@@ -26,7 +26,7 @@ public interface SecurityConfigurationMessages {
     interface ChangeLLSSecretMessage extends AnnotatedMessage {
 
         @RtuMessageAttribute(tag = "LLS_Secret", required = true)
-        java.lang.String getLLSSecret();
+        String getLLSSecret();
 
     }
 
@@ -38,7 +38,7 @@ public interface SecurityConfigurationMessages {
 
     }
 
-    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Activate security level", tag = "ActivateSecurityLevel")
+    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Activate security level", tag = RtuMessageConstant.AEE_ACTIVATE_SECURITY)
     interface ActivateSecurityLevelMessage extends AnnotatedMessage {
 
         @RtuMessageAttribute(tag = "Security_level", required = true)
@@ -46,17 +46,25 @@ public interface SecurityConfigurationMessages {
 
     }
 
-    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change encryption key", tag = "ChangeEncryptionKey")
+    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change encryption key", tag = RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY)
     interface ChangeEncryptionKeyMessage extends AnnotatedMessage {
 
-        //No attributes, key is in properties
+        @RtuMessageAttribute(tag = "NewEncryptionKey", required = true)
+        String getNewEncryptionKey();
+
+        @RtuMessageAttribute(tag = "NewWrappedEncryptionKey", required = true)
+        String getNewWrappedEncryptionKey();
 
     }
 
-    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change authentication key", tag = "ChangeAuthenticationKey")
+    @RtuMessageDescription(category = SECURITY_CONFIGURATION, description = "Change authentication key", tag = RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY)
     interface ChangeAuthenticationKeyMessage extends AnnotatedMessage {
 
-        //No attributes, key is in properties
+        @RtuMessageAttribute(tag = "NewAuthenticationKey", required = true)
+        String getNewAuthenticationKey();
+
+        @RtuMessageAttribute(tag = "NewWrappedAuthenticationKey", required = true)
+        String getNewWrappedAuthenticationKey();
 
     }
 }

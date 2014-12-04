@@ -34,11 +34,6 @@ public class FAF20 extends Metcom3FAF implements RegisterProtocol {
         fafRegisters = new FAF20Registers(this);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G FAF20 SCTM";
-    }
-
     /**
      * The protocol version
      */

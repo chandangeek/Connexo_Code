@@ -29,49 +29,79 @@ import java.io.IOException;
  */
 public class IPv4Setup extends AbstractCosemObject {
 
-    /** Reference to the DataLink layer setup Object by it's logical name */
+    /**
+     * Reference to the DataLink layer setup Object by it's logical name
+     */
 	private OctetString dl_Reference = null;
-    /** Carries the value of the IP address of this physical device on the network to which the device is connected */
+    /**
+     * Carries the value of the IP address of this physical device on the network to which the device is connected
+     */
 	private Unsigned32 ipAddress = null;
-    /** Contains an array of IP addresses */
+    /**
+     * Contains an array of IP addresses
+     */
 	private Array multicastIPAddress = null;
-    /** Contains the necessary parameters to support the selected IP options */
+    /**
+     * Contains the necessary parameters to support the selected IP options
+     */
 	private Array ipOptions = null;
-    /** Contains the subnet mask */
+    /**
+     * Contains the subnet mask
+     */
 	private Unsigned32 subnetMask = null;
-    /** Contains the IP address of the gateway device */
+    /**
+     * Contains the IP address of the gateway device
+     */
 	private Unsigned32 gatewayIPAddress = null;
-    /** Indication whether DHCP is used */
+    /**
+     * Indication whether DHCP is used
+     */
 	private BooleanObject useDHCPFlag = null;				//TODO
-    /** The IP Address of the primary Domain Name Server (DNS). */
+    /**
+     * The IP Address of the primary Domain Name Server (DNS).
+     */
 	private Unsigned32 primaryDNSAddress = null;
-    /** The IP Address of the secondary Domain Name Server (DNS). */
+    /**
+     * The IP Address of the secondary Domain Name Server (DNS).
+     */
 	private Unsigned32 secondaryDNSAddress = null;
 
-    /** The <b>Default</b> logical Device Name of the IPv4Setup Object (0.0.25.1.0.255)*/
+    /**
+     * The <b>Default</b> logical Device Name of the IPv4Setup Object (0.0.25.1.0.255)
+     */
 	static final byte[] LN=new byte[]{0,0,25,1,0,(byte)255};
 
-    /** Constructor for the object with the default {@link #LN} Logical Name */
+    /**
+     * Constructor for the object with the default {@link #LN} Logical Name
+     */
 	public IPv4Setup(ProtocolLink protocolLink) {
         super(protocolLink,new ObjectReference(LN));
     }
 
-    /** Constructor for the object with a given ObjectReference(including Logical Name)*/
+    /**
+     * Constructor for the object with a given ObjectReference(including Logical Name)
+     */
 	public IPv4Setup(ProtocolLink protocolLink, ObjectReference objectReference) {
 		super(protocolLink, objectReference);
 	}
 
-    /** The current ObisCode */
+    /**
+     * The current ObisCode
+     */
 	public static ObisCode getDefaultObisCode() {
 		return ObisCode.fromByteArray(LN) ;
 	}
 
-    /** @return the classId of the IPv4Setup object */
+    /**
+     * @return the classId of the IPv4Setup object
+     */
 	protected int getClassId() {
 		return DLMSClassId.IPV4_SETUP.getClassId();
 	}
 
-    /** Read the {@link #dl_Reference} from the device */
+    /**
+     * Read the {@link #dl_Reference} from the device
+     */
 	public OctetString readDLReference() throws IOException {
         this.dl_Reference = OctetString.fromByteArray(getResponseData(Ipv4SetupAttributes.DL_REFERENCE));
 		return this.dl_Reference;
@@ -87,7 +117,9 @@ public class IPv4Setup extends AbstractCosemObject {
 		return this.dl_Reference;
 	}
 
-    /** Write the {@link #dl_Reference} to the device*/
+    /**
+     * Write the {@link #dl_Reference} to the device
+     */
 	public void writeDLReference(OctetString dlReference) throws IOException {
 		write(Ipv4SetupAttributes.DL_REFERENCE, dlReference.getBEREncodedByteArray());
 		this.dl_Reference = dlReference;
@@ -95,6 +127,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Read the IP-address from the device
+     *
      * @return the IP-address as a double-long-unsigned
      * @throws java.io.IOException if we failed to read the Ip-address
      */
@@ -105,6 +138,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the IP address
+     *
      * @return the IP address in doted notation ( A.B.C.D.E.F)
      * @throws java.io.IOException
      */
@@ -122,12 +156,13 @@ public class IPv4Setup extends AbstractCosemObject {
     	}
     	return builder.toString();
         } else {
-            throw new IOException("Could not get a correct IP-address");
+            throw new ProtocolException("Could not get a correct IP-address");
 	}
 	}
 
     /**
      * Setter for the IP address
+     *
      * @param newIp the IP address to set in dotted notation
      * @throws java.io.IOException
      */
@@ -144,6 +179,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Setter for th IP address
+     *
      * @param newIp the IP address to set as an {@link com.energyict.dlms.axrdencoding.Unsigned32}
      * @throws java.io.IOException
      */
@@ -165,6 +201,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Read the MulticastIp address list from the device
+     *
      * @return an Array of multicast IP addresses
      * @throws java.io.IOException
      */
@@ -175,6 +212,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the Multicast IP address. If the array is null then it is read from the device
+     *
      * @return an Array of multicast IP addresses
      * @throws java.io.IOException
      */
@@ -187,6 +225,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Setter for the Multicast IP addresses
+     *
      * @param multicastIPAddress the array of IP addresses to set
      * @throws java.io.IOException
      */
@@ -197,6 +236,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Read the IP options from the device
+     *
      * @return the array of IP Options
      * @throws java.io.IOException
      */
@@ -207,6 +247,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Get the IP options, if the IP options is null then read it from the device
+     *
      * @return the array of IP Options
      * @throws java.io.IOException
      */
@@ -219,6 +260,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Setter for the IP Options
+     *
      * @param ipOptions the IP Options to set
      * @throws java.io.IOException
      */
@@ -229,6 +271,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the subnetMaks. Will always be read from the device
+     *
      * @return the Subnetmask as an Unsigned32
      * @throws java.io.IOException
      */
@@ -239,6 +282,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the SubnetMask. If the mask is null then we read it from the device
+     *
      * @return the subnetmask in dotted notation
      * @throws java.io.IOException
      */
@@ -256,12 +300,13 @@ public class IPv4Setup extends AbstractCosemObject {
     	}
     	return builder.toString();
         } else {
-             throw new IOException("Could not get a correct subnetmask.");
+            throw new ProtocolException("Could not get a correct subnetmask.");
 	}
 	}
 
     /**
      * Setter for the subnetmask
+     *
      * @param subnetMask the subnetmask to set
      * @throws java.io.IOException
      */
@@ -272,6 +317,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Setter for the subnetmask in dotted notation
+     *
      * @param subnetMask the subnetmask to set
      * @throws java.io.IOException
      */
@@ -288,6 +334,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the GateWay IP address. Address will always be read from the device
+     *
      * @return the gateWay Ip address
      * @throws java.io.IOException
      */
@@ -298,6 +345,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the GateWay IP Address. If the gateway IP address is null then we read it from the device.
+     *
      * @return the gateway Ip address in dotted notation
      * @throws java.io.IOException
      */
@@ -315,12 +363,13 @@ public class IPv4Setup extends AbstractCosemObject {
     	}
     	return builder.toString();
         } else {
-            throw new IOException("Could not get a correct gateWay IP address");
+            throw new ProtocolException("Could not get a correct gateWay IP address");
 	}
     }
 
     /**
      * Setter for the GateWayIP address
+     *
      * @param gatewayIPAddress the gateWay IP Address to set
      * @throws java.io.IOException
      */
@@ -331,6 +380,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Setter for the gateway IP address
+     *
      * @param gatewayIPAddress the gateway IP address in dotted notation
      * @throws java.io.IOException
      */
@@ -347,6 +397,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the primary DNS address. The address will always be read from the device
+     *
      * @return the primary DNS address
      * @throws java.io.IOException
      */
@@ -357,6 +408,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the primary DNS address. If the address is null then it will be read from the device
+     *
      * @return the primary DNS address
      * @throws java.io.IOException
      */
@@ -374,12 +426,13 @@ public class IPv4Setup extends AbstractCosemObject {
     	}
     	return builder.toString();
         } else {
-            throw new IOException("Could not get a correct primary DNS Address.");
+            throw new ProtocolException("Could not get a correct primary DNS Address.");
 	}
 	}
 
     /**
      * Setter for the primary DNS address
+     *
      * @param primaryDNSAddress the primary DNS address
      * @throws java.io.IOException
      */
@@ -390,6 +443,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Setter for the primary DNS address
+     *
      * @param primaryDNSAddress the primary DNS address in dotted notation
      * @throws java.io.IOException
      */
@@ -406,6 +460,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the secondary DNS address. The address will always be read from the device
+     *
      * @return the secondary DNS address
      * @throws java.io.IOException
      */
@@ -416,6 +471,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the secondary DNS address. If the address is null it will be read from the device.
+     *
      * @return the secondary DNS address in dotted notation
      * @throws java.io.IOException
      */
@@ -433,12 +489,13 @@ public class IPv4Setup extends AbstractCosemObject {
     	}
     	return builder.toString();
         } else {
-            throw new IOException("Could not get a correct secondary DNS address.");
+            throw new ProtocolException("Could not get a correct secondary DNS address.");
 	}
 	}
 
     /**
      * Setter for the secondary DNS address
+     *
      * @param secondaryDNSAddress the secondary DNS address to set
      * @throws java.io.IOException
      */
@@ -449,6 +506,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Setter for the secondary DNS address.
+     *
      * @param secondaryDNSAddress the secondary DNS address in dotted notation.
      * @throws java.io.IOException
      */
@@ -465,6 +523,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the DHCP flag. Will always be read from the device
+     *
      * @return
      */
     public BooleanObject readDHCPFlag() throws IOException {
@@ -474,6 +533,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Getter for the DHCP flag. If the flag is null then we will read it from the device
+     *
      * @return
      * @throws java.io.IOException
      */
@@ -484,12 +544,13 @@ public class IPv4Setup extends AbstractCosemObject {
         if(this.useDHCPFlag != null){
             return this.useDHCPFlag.getState();
         } else {
-            throw new IOException("Could not correctly read the DHCP flag.");
+            throw new ProtocolException("Could not correctly read the DHCP flag.");
         }
     }
 
     /**
      * Setter for the DHCPflag.
+     *
      * @param dhcpFlag the DHCP flag to set as an AXDR encoded boolean
      * @throws java.io.IOException
      */
@@ -500,6 +561,7 @@ public class IPv4Setup extends AbstractCosemObject {
 
     /**
      * Setter for the DHCPFlag.
+     *
      * @param dhcpFlag the DHCP flag as a java boolean
      * @throws java.io.IOException
      */

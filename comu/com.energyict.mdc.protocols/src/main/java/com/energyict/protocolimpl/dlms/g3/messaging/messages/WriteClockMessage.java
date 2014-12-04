@@ -13,6 +13,6 @@ import com.energyict.protocolimpl.messaging.RtuMessageDescription;
 public interface WriteClockMessage extends AnnotatedMessage {
 
     @RtuMessageAttribute(tag = "DateTime", required = true)
-    java.lang.String getDateTime();
+    String getDateTime();
 
 }

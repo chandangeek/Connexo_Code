@@ -157,11 +157,6 @@ public class Trimaran extends AbstractProtocol {
         throw new UnsupportedException();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EDF Trimaran CVE";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

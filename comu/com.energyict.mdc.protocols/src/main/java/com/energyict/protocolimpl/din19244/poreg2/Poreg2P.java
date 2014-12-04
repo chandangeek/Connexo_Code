@@ -72,11 +72,6 @@ public class Poreg2P extends Poreg {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "Iskraemeco Poreg 2P";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

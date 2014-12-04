@@ -61,7 +61,7 @@ public class IF2HHUSignon implements HHUSignOn {
      * @throws IOException         If there occurred an error while switching the baudrate
      * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID) throws IOException {
+    public MeterType signOn(String strIdent, String meterID) throws IOException, ConnectionException {
         return signOn(strIdent, meterID, DEFAULT_BAUDRATE);
     }
 
@@ -75,7 +75,7 @@ public class IF2HHUSignon implements HHUSignOn {
      * @throws IOException         If there occurred an error while switching the baudrate
      * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException {
+    public MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException, ConnectionException {
         return signOn(strIdent, meterID, false, baudrate);
     }
 
@@ -90,15 +90,16 @@ public class IF2HHUSignon implements HHUSignOn {
      * @throws IOException         If there occurred an error while switching the baudrate
      * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException {
+    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException, ConnectionException {
         this.logger.info("Switching serial channel to [" + baudrate + "] baud.");
         this.serialCommunicationChannel.setBaudrate(baudrate);
         try {
             Thread.sleep(DELAY_AFTER_SWITCH);
         } catch (InterruptedException e) {
-            throw new NestedIOException(e, "Got interrupted just after switching the baudrate to [" + baudrate + "] baud.");
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
-        return new MeterTypeImpl(getReceivedIdent());
+        return new MeterType(getReceivedIdent());
     }
 
     /**

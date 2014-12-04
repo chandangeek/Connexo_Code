@@ -58,7 +58,7 @@ public class PPPSetup extends AbstractCosemObject {
 			return this.lcpOptions;
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not read the lcpOptionsType." + e.getMessage());
+			throw new NestedIOException(e, "Could not read the lcpOptionsType." + e.getMessage());
 		}
 	}
 
@@ -85,7 +85,7 @@ public class PPPSetup extends AbstractCosemObject {
 			return this.pppAuthentication;
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not read the pppAuthenticationType." + e.getMessage());
+			throw new NestedIOException(e, "Could not read the pppAuthenticationType." + e.getMessage());
 		}
 	}
 
@@ -154,7 +154,7 @@ public class PPPSetup extends AbstractCosemObject {
 			}
 			case LCPOptionsType.AUTH_CHAP : {}	// TODO
 			case LCPOptionsType.AUTH_EAP : {}	//TODO
-			default : {throw new IOException("Could not get the BEREncodedByteArray for authenticationtype " + this.authentication);}
+			default : {throw new ProtocolException("Could not get the BEREncodedByteArray for authenticationtype " + this.authentication);}
 			}
 		}
 
@@ -182,14 +182,14 @@ public class PPPSetup extends AbstractCosemObject {
 						this.oneTimePassword = new BooleanObject(this.dataContainer.getRoot().getInteger(1)==0?false:true);
 						this.genericTokenCard = new BooleanObject(this.dataContainer.getRoot().getInteger(2)==0?false:true);
 						}break;
-					default : {throw new IOException("Unknown AuthenticationProtocol value: " + getLCPOptionsType().getAuthProt().getValue());}
+					default : {throw new ProtocolException("Unknown AuthenticationProtocol value: " + getLCPOptionsType().getAuthProt().getValue());}
 					}
 				} else {
-					throw new IOException("Could not get the AuthenticationProtocol.");
+					throw new ProtocolException("Could not get the AuthenticationProtocol.");
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
-				throw new IOException("PPPAuthentication - can't parse response." + e.getMessage());
+				throw new ProtocolException("PPPAuthentication - can't parse response." + e.getMessage());
 			}
 		}
 
@@ -286,7 +286,7 @@ public class PPPSetup extends AbstractCosemObject {
 				case DATA_ADCTR_COMPR : {this.adCtrCompr = new BooleanObject((dataContainer.getRoot().getStructure(i).getValue(LCP_OPTION_DATA) == 0)?false:true);}break;
 				case DATA_FCS_ALTER : {this.fcsAlter = new Unsigned8((int)dataContainer.getRoot().getStructure(i).getValue(LCP_OPTION_DATA)&0xFFFF);}break;
 				case DATA_CALLBACK : {this.callBack = new CallBackData(dataContainer.getRoot().getStructure(i).getElement(LCP_OPTION_DATA));}break;
-				default : {throw new IOException("Unknown LCP-Option-Data element: " + (int)dataContainer.getRoot().getStructure(i).getValue(LCP_OPTION_TYPE));}
+				default : {throw new ProtocolException("Unknown LCP-Option-Data element: " + (int)dataContainer.getRoot().getStructure(i).getValue(LCP_OPTION_TYPE));}
 				}
 			}
 		}

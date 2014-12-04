@@ -76,7 +76,7 @@ public class LoadProfileBuilder {
      * {@link com.energyict.mdc.protocol.api.device.BaseRegister} which
      * will represent the 'data' channels of the Profile
      */
-    protected Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<>();
+    private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<CapturedRegisterObject>>();
 
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
@@ -91,7 +91,7 @@ public class LoadProfileBuilder {
     /**
      * Keep track of a list of channelMask per LoadProfileReader
      */
-    private Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
+    protected Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
 
     /**
      * Keeps track of the link between a {@link com.energyict.mdc.protocol.api.device.BaseRegister}
@@ -133,15 +133,21 @@ public class LoadProfileBuilder {
         List<CapturedRegisterObject> capturedObjectRegisterList = createCapturedObjectRegisterList(ccoLpConfigs);
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, this.meterProtocol.supportsBulkRequests());
 
-        for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
-            this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());
+        for (LoadProfileReader lpr : loadProfileReaders) {
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            if (!expectedLoadProfileReaders.contains(lpr)) {      //Invalid LP, mark as not supported and move on to the next LP
+                lpc.setSupportedByMeter(false);
+                continue;
+            }
 
+            this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
             ComposedProfileConfig cpc = lpConfigMap.get(lpr);
             if (cpc != null) {
                 try {
-                    lpc.setProfileInterval(ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue());
-                    List<ChannelInfo> channelInfos = constructChannelInfos(lpr, ccoCapturedObjectRegisterUnits);
+                    int profileInterval = readLoadProfileInterval(ccoLpConfigs, cpc);
+                    lpIntervals.put(lpr, profileInterval);
+                    lpc.setProfileInterval(profileInterval);
+                    List<ChannelInfo> channelInfos = constructChannelInfos(capturedObjectRegisterListMap.get(lpr), ccoCapturedObjectRegisterUnits);
                     int statusMask = constructStatusMask(capturedObjectRegisterListMap.get(lpr));
                     int channelMask = constructChannelMask(capturedObjectRegisterListMap.get(lpr));
                     lpc.setChannelInfos(channelInfos);
@@ -161,10 +167,18 @@ public class LoadProfileBuilder {
     }
 
     /**
+     * Return the load profile interval, in seconds
+     */
+    protected int readLoadProfileInterval(ComposedCosemObject ccoLpConfigs, ComposedProfileConfig cpc) throws IOException {
+        return ccoLpConfigs.getAttribute(cpc.getLoadProfileInterval()).intValue();
+    }
+
+    /**
      * From the given list of LoadProfileReaders, filter out all invalid ones. <br></br>
      * A LoadProfileReader is invalid if the physical address of the device, owning the loadProfileReader, could not be fetched.
      * This is the case, when an Mbus device is linked to a master in EIMaster, but in reality not physically connected. <br></br>
      * E.g.: This is the case when the Mbus device in the field has been swapped for a new one, but without changing/correcting the EIMaster configuration.
+     *
      * @param loadProfileReaders    the complete list of loadProfileReaders
      * @return  the validated list containing all valid loadProfileReaders
      */
@@ -175,7 +189,7 @@ public class LoadProfileBuilder {
             if (this.meterProtocol.getPhysicalAddressFromSerialNumber(loadProfileReader.getMeterSerialNumber()) != -1) {
                 validLoadProfileReaders.add(loadProfileReader);
             } else {
-                this.meterProtocol.getLogger().severe("LoadProfile " + loadProfileReader.getProfileObisCode() + " is not supported because MbusDevice " + loadProfileReader.getDeviceIdentifier() + " is not installed on the physical device.");
+                this.meterProtocol.getLogger().severe("LoadProfile " + loadProfileReader.getProfileObisCode() + " is not supported because MbusDevice " + loadProfileReader.getMeterSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validLoadProfileReaders;
@@ -202,7 +216,7 @@ public class LoadProfileBuilder {
                     dlmsAttributes.add(cProfileConfig.getLoadProfileCapturedObjects());
                     this.lpConfigMap.put(lpReader, cProfileConfig);
                 } else {
-                    this.meterProtocol.getLogger().log(Level.INFO, "LoadProfile with ObisCode " + obisCode + " for meter " + lpReader.getDeviceIdentifier() + " is not supported.");
+                    this.meterProtocol.getLogger().log(Level.INFO, "LoadProfile with ObisCode " + obisCode + " for meter " + lpReader.getMeterSerialNumber() + " is not supported.");
                 }
             }
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
@@ -303,19 +317,18 @@ public class LoadProfileBuilder {
      * @return a constructed list of <CODE>ChannelInfos</CODE>
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
-    protected List<ChannelInfo> constructChannelInfos(LoadProfileReader loadProfileReader, ComposedCosemObject ccoRegisterUnits) throws IOException {
-        List<ChannelInfo> channelInfos = new ArrayList<>();
-        for (CapturedRegisterObject registerUnit : capturedObjectRegisterListMap.get(loadProfileReader)) {
-            if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        for (CapturedRegisterObject registerUnit : registers) {
+            if (!registerUnit.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
-                    ChannelInfo configuredChannelInfo = getConfiguredChannelInfo(loadProfileReader, registerUnit);
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true, configuredChannelInfo.getReadingType());
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true);
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true, configuredChannelInfo.getReadingType());
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true);
                         channelInfos.add(ci);
 //                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
                     }
@@ -325,15 +338,6 @@ public class LoadProfileBuilder {
             }
         }
         return channelInfos;
-    }
-
-    protected ChannelInfo getConfiguredChannelInfo(LoadProfileReader loadProfileReader, Register registerUnit) throws IOException {
-        for (ChannelInfo channelInfo : loadProfileReader.getChannelInfos()) {
-            if(channelInfo.getChannelObisCode().equals(registerUnit.getObisCode())){
-                return channelInfo;
-            }
-        }
-        return null;
     }
 
     private int constructStatusMask(List<CapturedRegisterObject> registers) {
@@ -352,7 +356,7 @@ public class LoadProfileBuilder {
         int channelMask = 0;
         int counter = 0;
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!"".equals(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!registerUnit.getSerialNumber().equals("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 channelMask |= (int) Math.pow(2, counter);
             }
             counter++;
@@ -463,7 +467,7 @@ public class LoadProfileBuilder {
      */
     protected LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getDeviceIdentifier().getIdentifier().equals(lpc.getDeviceIdentifier().getIdentifier())) {
+            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
                 return lpc;
             }
         }
@@ -478,12 +482,20 @@ public class LoadProfileBuilder {
         return statusMasksMap;
     }
 
+    public Map<LoadProfileReader, Integer> getChannelMaskMap() {
+        return channelMaskMap;
+    }
+
     protected AbstractSmartNtaProtocol getMeterProtocol() {
         return meterProtocol;
     }
 
     protected Map<LoadProfileReader, ComposedProfileConfig> getLpConfigMap() {
         return lpConfigMap;
+    }
+
+    protected Map<LoadProfileReader, Integer> getLpIntervals() {
+        return lpIntervals;
     }
 
     protected Map<LoadProfileReader, List<CapturedRegisterObject>> getCapturedObjectRegisterListMap() {

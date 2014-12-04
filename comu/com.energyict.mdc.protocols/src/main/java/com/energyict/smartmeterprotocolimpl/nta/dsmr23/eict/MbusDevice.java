@@ -20,7 +20,7 @@ import java.util.Properties;
  * Date: 15-jul-2011
  * Time: 12:00:53
  */
-public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
+public class MbusDevice extends AbstractNtaMbusDevice {
 
     public MbusDevice() {
         super();
@@ -33,11 +33,6 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     @Override
     public MessageProtocol getMessageProtocol() {
         return new Dsmr23MbusMessaging();
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT Mbus Slave NTA DSMR 2.3";
     }
 
     /**

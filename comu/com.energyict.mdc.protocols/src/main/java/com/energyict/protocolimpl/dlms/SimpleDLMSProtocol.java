@@ -592,11 +592,6 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         }
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EICT Simple DLMS Protocol";
-    }
-
     /**
      * @return the version of the specific protocol implementation
      */

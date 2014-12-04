@@ -1,22 +1,18 @@
-/**
- * @version 2.0
- * @author Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Base class that implements the DLMS SN (short name) protocol
- * <BR>
- * <B>@beginchanges</B><BR>
- *      KV 08042003 Initial version.<BR>
- *      KV 08102003 Save dstFlag when getTime() to be used in setTime()
- *      KV 14072004 DLMSMeterConfig made multithreaded! singleton pattern implementation removed!
- *      KV 20082004 Extended with obiscode mapping for register reading + start reengineering to use cosem package
- *      KV 30082004 Reengineered to use cosem package
- *@endchanges
- */
-
-
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.dlms.CosemPDUConnection;
 import com.energyict.dlms.DLMSCache;
@@ -38,22 +34,6 @@ import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
@@ -72,7 +52,22 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
+/**
+ * @version 2.0
+ * @author Koenraad Vanderschaeve
+ * <P>
+ * <B>Description :</B><BR>
+ * Base class that implements the DLMS SN (short name) protocol
+ * <BR>
+ * <B>@beginchanges</B><BR>
+ *      KV 08042003 Initial version.<BR>
+ *      KV 08102003 Save dstFlag when getTime() to be used in setTime()
+ *      KV 14072004 DLMSMeterConfig made multithreaded! singleton pattern implementation removed!
+ *      KV 20082004 Extended with obiscode mapping for register reading + start reengineering to use cosem package
+ *      KV 30082004 Reengineered to use cosem package
+ *@endchanges
+ */
+public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism {
 
     private static final String PR_OPTICAL_BAUDRATE = "OpticalBaudrate";
     private static final String PR_PROFILE_TYPE = "ProfileType";
@@ -271,6 +266,10 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, cb, MAX_PDU_SIZE);
         aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId());
         dlmsConnection = new SecureConnection(aso, connection);
+    }
+
+    public ApplicationServiceObject getAso() {
+        return aso;
     }
 
     /**
@@ -738,10 +737,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return logger;
     }
 
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return aso;
-    }
-
     /**
      * Getter for property cosemObjectFactory.
      *
@@ -790,19 +785,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
      */
     public int getRoundTripCorrection() {
         return iRoundtripCorrection;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return new FirmwareUpdateMessageBuilder();
-    }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        FirmwareUpdateMessagingConfig config = new FirmwareUpdateMessagingConfig();
-        config.setSupportsUserFiles(true);
-        return config;
     }
 
     /**

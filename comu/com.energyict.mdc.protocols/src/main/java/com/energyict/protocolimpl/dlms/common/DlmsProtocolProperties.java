@@ -10,9 +10,12 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
+import java.math.BigDecimal;
 import java.util.Properties;
 
 /**
@@ -20,18 +23,20 @@ import java.util.Properties;
  * Date: 11-feb-2011
  * Time: 13:27:58
  */
-public abstract class DlmsProtocolProperties extends AbstractProtocolProperties implements DlmsSessionProperties {
+public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
 
-    public static final int INVALID = -1;
-    public static final int DEFAULT_LOWER_HDLC_ADDRESS = 0;
-    public static final int DEFAULT_AUTHENTICATION_SECURITY_LEVEL = 0;
-    public static final int DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL = 0;
-    private static final int DEFAULT_DEST_WPDU_PORT = 1;
-
+    public static final String TIMEOUT = "Timeout";
+    public static final String TIMEZONE = "TimeZone";
+    public static final String RETRIES = "Retries";
+    public static final String FORCED_DELAY = "ForcedDelay";
+    public static final String DELAY_AFTER_ERROR = "DelayAfterError";
+    public static final String PROFILE_INTERVAL = MeterProtocol.PROFILEINTERVAL;
     public static final String CONNECTION = "Connection";
     public static final String SECURITY_LEVEL = "SecurityLevel";
     public static final String CLIENT_MAC_ADDRESS = "ClientMacAddress";
     public static final String SERVER_MAC_ADDRESS = "ServerMacAddress";
+    public static final String SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
+    public static final String SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
     public static final String ADDRESSING_MODE = "AddressingMode";
     public static final String MANUFACTURER = "Manufacturer";
     public static final String INFORMATION_FIELD_SIZE = "InformationFieldSize";
@@ -51,44 +56,120 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String ROUND_TRIP_CORRECTION = "RoundTripCorrection";
     public static final String ISKRA_WRAPPER = "IskraWrapper";
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
+    public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
+    public static final String DEVICE_ID = "DevideId";
 
-    public static final String DEFAULT_CONNECTION = ConnectionMode.TCPIP.getModeAsString();
+    public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
+    public static final String DEFAULT_TIMEZONE = "GMT";
+    public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
+    public static final BigDecimal DEFAULT_FORCED_DELAY = new BigDecimal(0);
+    public static final BigDecimal DEFAULT_DELAY_AFTER_ERROR = new BigDecimal(100);
+    public static final BigDecimal DEFAULT_PROFILE_INTERVAL = new BigDecimal(900);
+    public static final int INVALID = -1;
+    public static final int DEFAULT_LOWER_HDLC_ADDRESS = 0;
+    public static final int DEFAULT_AUTHENTICATION_SECURITY_LEVEL = 0;
+    public static final int DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL = 0;
+    public static final int DEFAULT_DEST_WPDU_PORT = 1;
+    public static final BigDecimal DEFAULT_CONNECTION = new BigDecimal(ConnectionMode.TCPIP.getMode());
     public static final String DEFAULT_SECURITY_LEVEL = DEFAULT_AUTHENTICATION_SECURITY_LEVEL + ":" + DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;
-    public static final String DEFAULT_CLIENT_MAC_ADDRESS = "16";
+    public static final BigDecimal DEFAULT_CLIENT_MAC_ADDRESS = new BigDecimal(16);
     public static final String DEFAULT_SERVER_MAC_ADDRESS = "1";
-    public static final String DEFAULT_ADDRESSING_MODE = "2";
+    public static final BigDecimal DEFAULT_UPPER_SERVER_MAC_ADDRESS = BigDecimal.ONE;
+    public static final BigDecimal DEFAULT_LOWER_SERVER_MAC_ADDRESS = BigDecimal.ZERO;
+    public static final BigDecimal DEFAULT_ADDRESSING_MODE = new BigDecimal(2);
     public static final String DEFAULT_MANUFACTURER = "WKP";
-    public static final String DEFAULT_INFORMATION_FIELD_SIZE = "-1";
-    public static final String DEFAULT_WAKE_UP = "0";
-    public static final String DEFAULT_IP_PORT_NUMBER = "4059";
-    public static final String DEFAULT_CIPHERING_TYPE = CipheringType.GLOBAL.getTypeString();
-    public static final String DEFAULT_NTA_SIMULATION_TOOL = "0";
-    public static final String DEFAULT_BULK_REQUEST = "0";
-    public static final String DEFAULT_CONFORMANCE_BLOCK_VALUE_LN = "" + ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK;
-    public static final String DEFAULT_CONFORMANCE_BLOCK_VALUE_SN = "" + ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK;
+    public static final BigDecimal DEFAULT_INFORMATION_FIELD_SIZE = new BigDecimal(-1);
+    public static final Boolean DEFAULT_WAKE_UP = false;
+    public static final BigDecimal DEFAULT_IP_PORT_NUMBER = new BigDecimal(4059);
+    public static final BigDecimal DEFAULT_CIPHERING_TYPE = new BigDecimal(CipheringType.GLOBAL.getType());
+    public static final Boolean DEFAULT_NTA_SIMULATION_TOOL = false;
+    public static final Boolean DEFAULT_BULK_REQUEST = false;
+    public static final BigDecimal DEFAULT_CONFORMANCE_BLOCK_VALUE_LN = new BigDecimal(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK);
+    public static final BigDecimal DEFAULT_CONFORMANCE_BLOCK_VALUE_SN = new BigDecimal(ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK);
     public static final String DEFAULT_SYSTEM_IDENTIFIER = "EICTCOMM";
-    public static final String DEFAULT_INVOKE_ID_AND_PRIORITY = "66"; // 0x41, 0b01000001 -> [invoke-id = 1, service_class = 1 (confirmed), priority = 0 (normal)]
-    public static final String DEFAULT_VALIDATE_INVOKE_ID = "0";
-    public static final String DEFAULT_MAX_REC_PDU_SIZE = "4096";
-    public static final String DEFAULT_PROPOSED_DLMS_VERSION = "6";
-    public static final String DEFAULT_PROPOSED_QOS = "-1";
-    public static final String DEFAULT_REQUEST_TIMEZONE = "0";
-    public static final String DEFAULT_ROUND_TRIP_CORRECTION = "0";
-    public static final String DEFAULT_ISKRA_WRAPPER = "1";
-    public static final String DEFAULT_DEVICE_BUFFER_SIZE = "-1";
+    public static final BigDecimal DEFAULT_INVOKE_ID_AND_PRIORITY = new BigDecimal(66); // 0x42, 0b01000010 -> [invoke-id = 1, service_class = 1 (confirmed), priority = 0 (normal)]
+    public static final Boolean DEFAULT_VALIDATE_INVOKE_ID = false;
+    public static final BigDecimal DEFAULT_MAX_REC_PDU_SIZE = new BigDecimal(4096);
+    public static final BigDecimal DEFAULT_PROPOSED_DLMS_VERSION = new BigDecimal(6);
+    public static final BigDecimal DEFAULT_PROPOSED_QOS = new BigDecimal(-1);
+    public static final Boolean DEFAULT_REQUEST_TIMEZONE = false;
+    public static final BigDecimal DEFAULT_ROUND_TRIP_CORRECTION = new BigDecimal(0);
+    public static final BigDecimal DEFAULT_ISKRA_WRAPPER = new BigDecimal(1);
+    public static final BigDecimal DEFAULT_DEVICE_BUFFER_SIZE = new BigDecimal(-1);
+    public static final boolean DEFAULT_FIX_MBUS_HEX_SHORT_ID = false;
+    public static final String DEFAULT_DEVICE_ID = "";
+
+    private TypedProperties typedProperties;
 
     protected SecurityProvider securityProvider;
 
     public DlmsProtocolProperties() {
-        super(new Properties());
+        this(TypedProperties.empty());
     }
 
-    public DlmsProtocolProperties(Properties properties) {
-        super(properties);
+    public DlmsProtocolProperties(TypedProperties properties) {
+        this.typedProperties = properties;
     }
 
     @ProtocolProperty
-    public abstract DLMSReference getReference();
+    public String getPassword() {
+        return getStringValue(MeterProtocol.PASSWORD, "");
+    }
+
+    @ProtocolProperty
+    public String getDeviceId() {
+        return getStringValue(MeterProtocol.ADDRESS, "");
+    }
+
+    @ProtocolProperty
+    public String getNodeAddress() {
+        return getStringValue(MeterProtocol.NODEID, "");
+    }
+
+    @ProtocolProperty
+    public String getSerialNumber() {
+        return getStringValue(MeterProtocol.SERIALNUMBER, "");
+    }
+
+    @ProtocolProperty
+    public int getTimeout() {
+        return getIntProperty(TIMEOUT, DEFAULT_TIMEOUT);
+    }
+
+    @ProtocolProperty
+    public String getTimeZone() {
+        return getStringValue(TIMEZONE, DEFAULT_TIMEZONE);
+    }
+
+    @ProtocolProperty
+    public int getRetries() {
+        return getIntProperty(RETRIES, DEFAULT_RETRIES);
+    }
+
+    @ProtocolProperty
+    public int getForcedDelay() {
+        return getIntProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY);
+    }
+
+    @ProtocolProperty
+    public int getDelayAfterError() {
+        return getIntProperty(DELAY_AFTER_ERROR, DEFAULT_DELAY_AFTER_ERROR);
+    }
+
+    @ProtocolProperty
+    public int getProfileInterval() {
+        return getIntProperty(PROFILE_INTERVAL, DEFAULT_PROFILE_INTERVAL);
+    }
+
+    @Override
+    public Properties getProtocolProperties() {
+        return getTypedProperties().toStringProperties();
+    }
+
+    @ProtocolProperty
+    public DLMSReference getReference() {
+        return DLMSReference.LN;
+    }
 
     @ProtocolProperty
     public ConnectionMode getConnectionMode() {
@@ -241,6 +322,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
         return getStringValue(SYSTEM_IDENTIFIER, DEFAULT_SYSTEM_IDENTIFIER).getBytes();
     }
 
+    @ProtocolProperty
     public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
         byte invokeIdAndPriority = (byte) (getIntProperty(INVOKE_ID_AND_PRIORITY, DEFAULT_INVOKE_ID_AND_PRIORITY) & 0x0FF);
         if (validateInvokeId()) {
@@ -291,7 +373,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
 
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
-            securityProvider = new LocalSecurityProvider(this);
+            securityProvider = new LocalSecurityProvider(getProtocolProperties());
         }
         return securityProvider;
     }
@@ -300,4 +382,28 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
         this.securityProvider = securityProvider;
     }
 
+    /* -------------------- Common methods --------------------  */
+    protected int getIntProperty(String propertyName, BigDecimal defaultValue) {
+        return ((BigDecimal) getTypedProperties().getProperty(propertyName, defaultValue)).intValue();
+    }
+
+    protected long getLongProperty(String propertyName, BigDecimal defaultValue) {
+        return ((BigDecimal) getTypedProperties().getProperty(propertyName, defaultValue)).longValue();
+    }
+
+    protected boolean getBooleanProperty(String propertyName, boolean defaultValue) {
+        return (Boolean) getTypedProperties().getProperty(propertyName, defaultValue);
+    }
+
+    protected String getStringValue(String propertyName, String defaultValue) {
+        return (String) getTypedProperties().getProperty(propertyName, defaultValue);
+    }
+
+    public void addProperties(TypedProperties properties) {
+        this.typedProperties.setAllProperties(properties); // this will add the properties to the existing properties
+    }
+
+    public TypedProperties getTypedProperties() {
+        return typedProperties;
+    }
 }

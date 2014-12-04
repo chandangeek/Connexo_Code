@@ -71,11 +71,6 @@ public class PM800 extends Modbus  {
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Scheider Electric SquareD PM800";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

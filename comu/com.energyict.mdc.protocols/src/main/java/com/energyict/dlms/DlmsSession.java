@@ -18,8 +18,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * //TODO needs refactoring to use a ComChannel instead of the Input- and OutputStream
- *
+ * The old DlmsSession used by V1 and V11 protocols
+ * <p/>
  * Copyrights EnergyICT
  * Date: 11/02/11
  * Time: 18:18
@@ -44,6 +44,7 @@ public class DlmsSession implements ProtocolLink {
      * @param logger
      * @param properties
      * @param timeZone
+     * @deprecated it is advised not ot use the input- and outputStream directly, use the ComChannel instead
      */
     public DlmsSession(InputStream in, OutputStream out, Logger logger, DlmsSessionProperties properties, TimeZone timeZone) {
         this.in = in;
@@ -100,23 +101,26 @@ public class DlmsSession implements ProtocolLink {
         try {
             Thread.sleep(5);
         } catch (InterruptedException e) {
-            throw new NestedIOException(e);
+            Thread.currentThread().interrupt();
+            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
         }
     }
 
 
     public void disconnect() {
+        this.disconnect(true);
+    }
+
+    public void disconnect(boolean release) {
         try {
-            if ((this.aso != null) /*&& (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED)*/) {
+            if (release && (this.aso != null)) {
                 logger.fine("Releasing the application association");
                 this.aso.releaseAssociation();
             }
             if (getDLMSConnection() != null) {
                 getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException e) {
-            getLogger().log(Level.FINEST, "Disconnect failed, " + e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             getLogger().log(Level.FINEST, "Disconnect failed, " + e.getMessage());
         }
     }
@@ -174,6 +178,11 @@ public class DlmsSession implements ProtocolLink {
             } catch (IOException e) {
                 logger.fine("Application association failed, " + e.getMessage());
                 throw e;
+            } catch (DLMSConnectionException e) {
+                logger.fine("Application association failed, " + e.getMessage());
+                IOException exception = new IOException(e.getMessage());
+                exception.initCause(e);
+                throw exception;
             }
         } else {
             logger.fine("Application association was already open, continuing...");
@@ -271,7 +280,7 @@ public class DlmsSession implements ProtocolLink {
                 }
                 break;
             default:
-                throw new IOException("Unknown connectionMode: " + getProperties().getConnectionMode() + " - Only 0(HDLC), 1(TCP), 2(COSEM_APDU) and 3(LLC) are allowed");
+                throw new ProtocolException("Unknown connectionMode: " + getProperties().getConnectionMode() + " - Only 0(HDLC), 1(TCP), 2(COSEM_APDU) and 3(LLC) are allowed");
         }
 
         return transportConnection;

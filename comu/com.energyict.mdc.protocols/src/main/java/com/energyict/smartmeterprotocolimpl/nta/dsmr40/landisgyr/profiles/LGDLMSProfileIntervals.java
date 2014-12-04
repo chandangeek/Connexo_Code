@@ -57,7 +57,7 @@ public class LGDLMSProfileIntervals extends DLMSProfileIntervals {
      * @throws java.io.IOException when the dataType is not as expected or the calendar could not be constructed
      */
     @Override
-    protected Calendar constructIntervalCalendar(Calendar cal, final AbstractDataType dataType) throws IOException {
+    public Calendar constructIntervalCalendar(Calendar cal, final AbstractDataType dataType) throws IOException {
         if (dataType instanceof OctetString) {
             OctetString os = (OctetString) dataType;
             // check if the OctetString contains a date, otherwise just add the profileInterval to the current calendar
