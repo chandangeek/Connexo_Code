@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks.rest;
 
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -21,6 +22,7 @@ import java.util.Set;
 
 @Component(name = "com.energyict.mdc.tasks.rest", service = Application.class, immediate = true, property = {"alias=/cts", "app=MDC", "name=" + ComTasksApplication.COMPONENT_NAME})
 public class ComTasksApplication extends Application implements BinderProvider {
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "CTS";
 
     private volatile TransactionService transactionService;
@@ -29,6 +31,7 @@ public class ComTasksApplication extends Application implements BinderProvider {
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile License license;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -82,5 +85,10 @@ public class ComTasksApplication extends Application implements BinderProvider {
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 }
