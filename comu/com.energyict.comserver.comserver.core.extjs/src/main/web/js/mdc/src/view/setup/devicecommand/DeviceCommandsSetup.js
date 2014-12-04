@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsSetup', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('deviceCommand.overview.emptyStep', 'MDC', 'Add command'),
-                                    itemId: 'deviceAddCommandButton',
+                                    itemId: 'empty_grid_deviceAddCommandButton',
                                     mRID: me.mRID
                                 }
                             ]

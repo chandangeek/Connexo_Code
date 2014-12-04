@@ -14,7 +14,6 @@ Ext.define('Mdc.view.setup.devicelogbooks.Data', {
 
     content: {
         ui: 'large',
-        title: Uni.I18n.translate('devicelogbooks.data.header', 'MDC', 'Logbook data'),
         items: [
             {
                 xtype: 'filter-top-panel',
@@ -38,26 +37,6 @@ Ext.define('Mdc.view.setup.devicelogbooks.Data', {
 
     initComponent: function () {
         var me = this;
-
-        me.side = {
-            xtype: 'panel',
-            ui: 'medium',
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            },
-            items: [
-                {
-                    xtype: 'deviceLogbookSubMenuPanel',
-                    router: me.router
-                },
-                {
-                    xtype: 'deviceLogbookDataSideFilter',
-                    itemId: 'device-logbook-data-side-filter'
-                }
-            ]
-        };
-
         me.callParent(arguments);
     }
 });

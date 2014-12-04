@@ -218,12 +218,33 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         var me = this;
         Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
             success: function (device) {
-                me.getStore('Mdc.store.DeviceCommands').setMrid(device.get('mRID'));
-                widget = Ext.widget('deviceCommandsSetup', {
-                    device: device
-                });
-                me.getApplication().fireEvent('loadDevice', device);
-                me.getApplication().fireEvent('changecontentevent', widget);
+                var store = me.getStore('Mdc.store.DeviceCommands');
+                store.setMrid(device.get('mRID'));
+                store.load({
+                        callback: function () {
+                            widget = Ext.widget('deviceCommandsSetup', {
+                                device: device
+                            });
+                            me.getApplication().fireEvent('loadDevice', device);
+                            me.getApplication().fireEvent('changecontentevent', widget);
+                            if (store.proxy.reader.rawData.hasCommandsWithPrivileges) {
+                                if (store.count() === 0) {
+                                    widget.down('#empty_grid_deviceAddCommandButton').show();
+                                } else {
+                                    widget.down('#deviceAddCommandButton').show();
+                                }
+                            } else {
+                                if (store.count() === 0) {
+                                    widget.down('#empty_grid_deviceAddCommandButton').hide();
+                                } else {
+                                    widget.down('#deviceAddCommandButton').hide();
+                                }
+                            }
+
+                        }
+                    }
+                );
+
             }
         });
     },

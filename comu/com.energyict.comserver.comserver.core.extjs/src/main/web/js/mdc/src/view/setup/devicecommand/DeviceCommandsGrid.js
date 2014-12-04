@@ -82,7 +82,8 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 },
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     var status = record.get('status').value;
-                    if (status !== 'CommandWaiting' && status !== 'CommandPending' ) {
+                    var hasCommandsWithPrivileges = view.getStore().proxy.reader.rawData.hasCommandsWithPrivileges;
+                    if ((status !== 'CommandWaiting' && status !== 'CommandPending') || !hasCommandsWithPrivileges) {
                         return true
                     }
                 }
