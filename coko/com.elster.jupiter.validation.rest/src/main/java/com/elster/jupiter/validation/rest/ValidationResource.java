@@ -57,7 +57,7 @@ public class ValidationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_VALIDATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
     public ValidationRuleSetInfos getValidationRuleSets(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<ValidationRuleSet> list = queryRuleSets(params);
@@ -79,7 +79,7 @@ public class ValidationResource {
     @GET
     @Path("/rules/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_VALIDATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
     public ValidationRuleInfos getValidationRules(@PathParam("id") long id, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         Optional<? extends ValidationRuleSet> optional = Bus.getValidationService().getValidationRuleSet(id);
@@ -137,7 +137,7 @@ public class ValidationResource {
     @GET
     @Path("/{id}/usage")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
     public Response getValidationRuleSetUsage(@PathParam("id") final long id, @Context final SecurityContext securityContext) {
         ValidationRuleSet validationRuleSet = fetchValidationRuleSet(id, securityContext);
         return Response.status(Response.Status.OK).entity(Bus.getValidationService().isValidationRuleSetInUse(validationRuleSet)).build();
@@ -256,7 +256,7 @@ public class ValidationResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
     public ValidationRuleSetInfo getValidationRuleSet(@PathParam("id") long id, @Context SecurityContext securityContext) {
         ValidationRuleSet validationRuleSet = fetchValidationRuleSet(id, securityContext);
         return new ValidationRuleSetInfo(validationRuleSet);
@@ -270,7 +270,7 @@ public class ValidationResource {
     @GET
     @Path("/actions")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_VALIDATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
     public ValidationActionInfos getAvailableValidationActions(@Context UriInfo uriInfo) {
         ValidationActionInfos infos = new ValidationActionInfos();
         ValidationAction[] actions = ValidationAction.values();
@@ -284,7 +284,7 @@ public class ValidationResource {
     @GET
     @Path("/readingtypes/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_VALIDATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
     public ReadingTypeInfos getReadingTypesForRule(@PathParam("id") long id) {
         ReadingTypeInfos infos = new ReadingTypeInfos();
         Optional<ValidationRule> optional = Bus.getValidationService().getValidationRule(id);
@@ -302,7 +302,7 @@ public class ValidationResource {
     @GET
     @Path("/validators")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_VALIDATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
     public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
         ValidatorInfos infos = new ValidatorInfos();
         List<Validator> toAdd = Bus.getValidationService().getAvailableValidators();
