@@ -3,7 +3,7 @@ $(document).ready(function(){
 	$.getJSON('/api/goodies/datamodels' , function(response) {		
 		var selectField = $('#graph_name').get(0);
 		response.forEach( function (element) {
-			selectField.options[selectField.length]= new Option(element, element);
+			selectField.options[selectField.length]= new Option(element.name + ': ' + element.description , element.name);
 		});
 		load_graph();
 	});

@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.*;
 import com.google.common.base.Joiner;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Path("/datamodels")
 public class DataModelResource {
@@ -18,13 +19,11 @@ public class DataModelResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON) 
-	public String[] getDataModels() {
-		List<? extends DataModel> dataModels = ormService.getDataModels();
-		String result[] = new String[dataModels.size()];
-		for (int i = 0 ; i < dataModels.size(); i++) {
-			result[i] = dataModels.get(i).getName();
-		}
-		return result;
+	public List<DataModelInfo> getDataModels() {
+		return  ormService.getDataModels().stream()
+			.sorted(Comparator.comparing(DataModel::getName))
+			.map( DataModelInfo::new)
+			.collect(Collectors.toList());
 	}
 	
 	@GET
@@ -178,5 +177,15 @@ public class DataModelResource {
 		tables.add(table.getName());
 		String shape = table.getJournalTableName() == null ? "box" : "invhouse";
  		builder.append(table.getName() + "[shape=" + shape + " URL=\"/api/goodies/datamodels/" + table.getComponentName() + "/tables/" + table.getName() + ".svg\"];\n");		
+	}
+	
+	static private class DataModelInfo {
+		public String name;
+		public String description;
+		
+		DataModelInfo(DataModel model) {
+			this.name = model.getName();
+			this.description = model.getDescription();
+		}
 	}
 }
