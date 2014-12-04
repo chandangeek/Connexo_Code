@@ -62,6 +62,7 @@ public class ProtocolDialectResource {
     @Path("/{protocolDialectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
     public ProtocolDialectInfo updateProtocolDialect(@PathParam("mRID") String mRID,
                                                       @PathParam("protocolDialectId") long protocolDialectId,
                                                       @Context UriInfo uriInfo,
