@@ -24,7 +24,7 @@ Ext.define('Dxp.view.tasks.Grid', {
                 header: Uni.I18n.translate('general.lastRun', 'DES', 'Last run'),
                 dataIndex: 'lastRun_formatted',
                 renderer: function (value, metaData, record) {
-                    if (value) {
+                    if (value !== '-') {
                         return record.get('status') + ' ' + Uni.I18n.translate('dataExportTasks.on', 'DES', 'on') + ' ' + value;
                     } else {
                         return Uni.I18n.translate('general.notPerformedYet', 'DES', 'Not performed yet')

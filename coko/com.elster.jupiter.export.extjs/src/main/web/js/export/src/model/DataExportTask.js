@@ -17,7 +17,7 @@ Ext.define('Dxp.model.DataExportTask', {
                 if (data.lastRun && (data.lastRun !== 0)) {
                     result = moment(data.lastRun).format('ddd, DD MMM YYYY HH:mm:ss');
                 } else {
-                    result = ''
+                    result = '-'
                 }
                 return result;
             }
@@ -42,7 +42,7 @@ Ext.define('Dxp.model.DataExportTask', {
                 if (data.lastExportOccurence && data.lastExportOccurence.status) {
                     return data.lastExportOccurence.status;
                 } else {
-                    return '-';
+                    return Uni.I18n.translate('general.notPerformed', 'DES', 'Not performed yet');
                 }
             }
         },
@@ -64,7 +64,7 @@ Ext.define('Dxp.model.DataExportTask', {
                 if (data.lastExportOccurence && data.lastExportOccurence.trigger) {
                     return data.lastExportOccurence.trigger;
                 } else {
-                    return '-';
+                    return '-'
                 }
             }
         },
