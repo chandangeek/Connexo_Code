@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 import com.energyict.protocolimplv2.security.SecurityRelationTypeName;
 
@@ -19,6 +21,16 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
 
     public final String authenticationTranslationKeyConstant = "GarnetSecuritySupport.authenticationlevel.0";
     public final String encryptionTranslationKeyConstant = "GarnetSecuritySupport.encryptionlevel.1";
+    private PropertySpecService propertySpecService;
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
 
     /**
      * Summarizes the used ID for the AuthenticationLevels.
@@ -57,8 +69,8 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(),
-                DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec()
+                DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(propertySpecService),
+                DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec(propertySpecService)
         );
     }
 
@@ -106,8 +118,8 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec());
+                    DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(propertySpecService),
+                    DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec(propertySpecService));
         }
     }
 

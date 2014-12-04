@@ -1,36 +1,42 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdw.core.TimeZoneInUse;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocols.exception.ProtocolEncryptionException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.*;
 
 /**
  * @author sva
  * @since 17/06/2014 - 13:40
  */
-public class GarnetProperties implements ConfigurationSupport {
+public class GarnetProperties implements HasDynamicProperties {
 
     public static final String DEVICE_ID = "DeviceId";
     public static final BigDecimal DEFAULT_DEVICE_ID = new BigDecimal(0);
-    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.SECONDS);
-    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(0, TimeDuration.MILLISECONDS);
-    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.MILLISECONDS);
+    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
+    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(0, TimeDuration.TimeUnit.MILLISECONDS);
+    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
+
+    private final List<PropertySpec> propertySpecs = Arrays.asList(
+            PropertySpecService.INSTANCE.get().bigDecimalPropertySpecWithValues(DEVICE_ID, true, DEFAULT_DEVICE_ID),
+            PropertySpecService.INSTANCE.get().referencePropertySpec(TIMEOUT, false, FactoryIds.TIMEZONE_IN_USE));
 
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
@@ -109,14 +115,12 @@ public class GarnetProperties implements ConfigurationSupport {
             if (hex != null) {
                 this.manufacturerKey = DLMSUtils.hexStringToByteArray(hex);
                 if (this.manufacturerKey.length != 16) {
-                    MdcManager.getComServerExceptionFactory().createCipheringException(
-                            new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER + " has an invalid length!")
-                    );
+                    throw new ProtocolEncryptionException(new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER + " has an invalid length!"),
+                            MessageSeeds.ENCRYPTION_ERROR);
                 }
             } else {
-                MdcManager.getComServerExceptionFactory().createCipheringException(
-                        new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER + " is missing!")
-                );
+                throw new ProtocolEncryptionException(new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER + " is missing!"),
+                        MessageSeeds.ENCRYPTION_ERROR);
             }
         }
         return this.manufacturerKey;
@@ -128,13 +132,12 @@ public class GarnetProperties implements ConfigurationSupport {
             if (hex != null) {
                 this.customerKey = DLMSUtils.hexStringToByteArray(hex);
                 if (this.customerKey.length != 16) {
-                    MdcManager.getComServerExceptionFactory().createCipheringException(
-                            new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " has an invalid length!")
-                    );
+                    throw new ProtocolEncryptionException(new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " has an invalid length!"),
+                            MessageSeeds.ENCRYPTION_ERROR);
                 }
             } else {
-                GarnetException exception = new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " is missing!");
-                MdcManager.getComServerExceptionFactory().createCipheringException(exception);
+                throw new ProtocolEncryptionException(new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " is missing!"),
+                        MessageSeeds.ENCRYPTION_ERROR);
             }
         }
         return this.customerKey;
@@ -164,25 +167,14 @@ public class GarnetProperties implements ConfigurationSupport {
         return this.properties;
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Arrays.asList(
-                this.deviceIdPropertySpec()
-        );
-    }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Arrays.asList(
-                this.timeZonePropertySpec()
-        );
+    public List<PropertySpec> getPropertySpecs() {
+        return propertySpecs;
     }
 
-    private PropertySpec deviceIdPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DEVICE_ID, DEFAULT_DEVICE_ID);
-    }
-
-    private PropertySpec timeZonePropertySpec() {
-        return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
+    @Override
+    public PropertySpec getPropertySpec(String s) {
+        return propertySpecs.stream().filter(propertySpec -> propertySpec.getName().equals(s)).findAny().orElse(null);
     }
 }

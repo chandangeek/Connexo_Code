@@ -1,16 +1,18 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.cpo.PropertySpec;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.elster.garnet.common.InstallationConfig;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
@@ -21,10 +23,12 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNum
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.ContactorStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterInstallationStatusBitMaskField;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author sva
@@ -40,8 +44,8 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        return Collections.emptyList();
+    public Set<DeviceMessageId> getSupportedMessages() {
+        return EnumSet.noneOf(DeviceMessageId.class);
     }
 
     @Override
@@ -51,7 +55,7 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = getCollectedDataFactory().createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = null;
 
@@ -64,12 +68,17 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
             }
 
             if (collectedMessage == null) { //This is the case when the message is not executed
+                collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
             }
-            result.addCollectedMessage(collectedMessage);
+            result.addCollectedMessages(collectedMessage);
         }
         return result;
+    }
+
+    private CollectedDataFactory getCollectedDataFactory() {
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
     private boolean isMessageForEMeterSlave(OfflineDeviceMessage pendingMessage) {
@@ -119,14 +128,14 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
             }
         } catch (NotExecutedException e) {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
-                collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(pendingMessage, "operationNotSupported"));
+                collectedMessage.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newProblem(pendingMessage, "operationNotSupported"));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
-                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addProblem(pendingMessage, "topologyMismatch", deviceProtocol.getSerialNumber()));
+                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, Bus.getIssueService().newProblem(pendingMessage, "topologyMismatch", deviceProtocol.getSerialNumber()));
             } else {
-                collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(pendingMessage, "CouldNotParseMessageData"));
+                collectedMessage.setFailureInformation(ResultType.InCompatible, Bus.getIssueService().newProblem(pendingMessage, "CouldNotParseMessageData"));
             }
         } catch (GarnetException e) {
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(pendingMessage, "CouldNotParseMessageData"));
+            collectedMessage.setFailureInformation(ResultType.InCompatible, Bus.getIssueService().newProblem(pendingMessage, "CouldNotParseMessageData"));
         }
         return collectedMessage;
     }
@@ -177,15 +186,15 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
+        return Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
@@ -196,7 +205,7 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.failed",
+        return Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),

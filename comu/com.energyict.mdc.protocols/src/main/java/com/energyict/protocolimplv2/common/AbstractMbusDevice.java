@@ -1,39 +1,44 @@
 package com.energyict.protocolimplv2.common;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimplv2.MdcManager;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
+import com.energyict.protocols.exception.UnsupportedMethodException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The Abstract Mbus device implements the {@link DeviceProtocol} interface so we can
@@ -49,6 +54,7 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
 
     private final String serialNumber;
     private final DeviceProtocol meterProtocol;
+    private PropertySpecService propertySpecService;
 
     public abstract DeviceMessageSupport getDeviceMessageSupport();
 
@@ -73,7 +79,7 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return getDeviceMessageSupport().getSupportedMessages();
     }
 
@@ -154,95 +160,105 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
         return getMeterProtocol().getSecurityPropertySpec(name);
     }
 
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     //############## Unsupported methods ##############//
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "init");
+        throw new UnsupportedMethodException(this.getClass(), "init");
     }
 
     @Override
     public void terminate() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "terminate");
+        throw new UnsupportedMethodException(this.getClass(), "terminate");
     }
 
     @Override
     public void logOn() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "logOn");
+        throw new UnsupportedMethodException(this.getClass(), "longOn");
     }
 
     @Override
     public void daisyChainedLogOn() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "daisyChainedLogOn");
+        throw new UnsupportedMethodException(this.getClass(), "daisyChainedLogOn");
     }
 
     @Override
     public void logOff() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "logOff");
+        throw new UnsupportedMethodException(this.getClass(), "logOff");
     }
 
     @Override
     public void daisyChainedLogOff() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "daisyChainedLogOff");
+        throw new UnsupportedMethodException(this.getClass(), "daisyChainedLogOff");
     }
 
     @Override
     public void setTime(Date timeToSet) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setTime");
-    }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "addProperties");
+        throw new UnsupportedMethodException(this.getClass(), "setTime");
     }
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "addDeviceProtocolDialectProperties");
+        throw new UnsupportedMethodException(this.getClass(), "addDeviceProtocolDialectProperties");
     }
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setSecurityPropertySet");
+        throw new UnsupportedMethodException(this.getClass(), "setSecurityPropertySet");
     }
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "fetchLoadProfileConfiguration");
+        throw new UnsupportedMethodException(this.getClass(), "fetchLoadProfileConfiguration");
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getLoadProfileData");
+        throw new UnsupportedMethodException(this.getClass(), "getLoadProfileData");
     }
 
     @Override
     public Date getTime() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "createUnsupportedMethodException");
+        throw new UnsupportedMethodException(this.getClass(), "getTime");
     }
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setDeviceCache");
+        throw new UnsupportedMethodException(this.getClass(), "setDeviceCache");
     }
 
     @Override
     public DeviceProtocolCache getDeviceCache() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceCache");
+        throw new UnsupportedMethodException(this.getClass(), "getDeviceCache");
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getLogBookData");
+        throw new UnsupportedMethodException(this.getClass(), "getLogBookData");
     }
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "readRegisters");
+        throw new UnsupportedMethodException(this.getClass(), "readRegisters");
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceTopology");
+        throw new UnsupportedMethodException(this.getClass(), "getDeviceTopology");
     }
 }

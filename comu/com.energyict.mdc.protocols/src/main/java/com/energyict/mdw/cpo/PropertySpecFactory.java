@@ -3,8 +3,10 @@ package com.energyict.mdw.cpo;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueFactory;
 
+import com.energyict.mdw.dynamicattributes.BigDecimalFactory;
 import com.energyict.mdw.dynamicattributes.StringFactory;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,16 @@ public class PropertySpecFactory {
      */
     public static PropertySpec<String> stringPropertySpec(String name) {
         return simplePropertySpec(name, String.class, new StringFactory());
+    }
+
+    /**
+     * Creates a PropertySpec for a BigDecimal value.
+     *
+     * @param name the name of the PropertySpec
+     * @return the PropertySpec
+     */
+    public static PropertySpec<BigDecimal> bigDecimalPropertySpec(String name){
+        return simplePropertySpec(name, BigDecimal.class, new BigDecimalFactory());
     }
 
     private static <T> PropertySpec<T> simplePropertySpec(String name, Class<T> domainClass, ValueFactory<T> valueFactory) {

@@ -1,43 +1,51 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
-import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.common.TopologyMaintainer;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.structure.ConcentratorVersionResponseStructure;
+import com.energyict.protocols.exception.UnsupportedMethodException;
+import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
+import com.energyict.protocols.mdc.services.impl.Bus;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author sva
@@ -53,6 +61,12 @@ public class GarnetConcentrator implements DeviceProtocol {
     private RegisterFactory registerFactory;
     private LogBookFactory logBookFactory;
     private ConcentratorMessaging messaging;
+    private PropertySpecService propertySpecService;
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -71,21 +85,11 @@ public class GarnetConcentrator implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getProperties().getRequiredProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getProperties().getOptionalProperties();
-    }
-
-    @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType());
-        result.add(new SioSerialConnectionType());
-        result.add(new RxTxSerialConnectionType());
+        result.add(new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService()));
+        result.add(new SioPlainSerialConnectionType(Bus.getSerialComponentService()));
+        result.add(new RxTxPlainSerialConnectionType(Bus.getSerialComponentService()));
         return result;
     }
 
@@ -94,7 +98,7 @@ public class GarnetConcentrator implements DeviceProtocol {
         try {
             getRequestFactory().openSession();
         } catch (GarnetException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, e);
         }
     }
 
@@ -119,7 +123,7 @@ public class GarnetConcentrator implements DeviceProtocol {
             ConcentratorVersionResponseStructure concentratorVersion = getRequestFactory().readConcentratorVersion();
             return ProtocolTools.removeLeadingZerosFromString(concentratorVersion.getSerialNumber().getSerialNumber());
         } catch (GarnetException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -132,20 +136,20 @@ public class GarnetConcentrator implements DeviceProtocol {
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
-            DeviceLoadProfileConfiguration configuration = new DeviceLoadProfileConfiguration(
-                    loadProfileReader.getProfileObisCode(),
-                    loadProfileReader.getMeterSerialNumber(),
-                    false
-            );
-            configuration.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
+            CollectedLoadProfileConfiguration configuration = getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier(), false);
+            configuration.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
             collectedLoadProfileConfigurations.add(configuration);
         }
         return collectedLoadProfileConfigurations;
     }
 
+    private CollectedDataFactory getCollectedDataFactory() {
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
+    }
+
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getLoadProfileData");
+        throw new UnsupportedMethodException(this.getClass(), "getLoadProfileData");
     }
 
     @Override
@@ -169,12 +173,22 @@ public class GarnetConcentrator implements DeviceProtocol {
     }
 
     @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         return getLogBookFactory().getLogBookData(logBooks);
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return getMessaging().getSupportedMessages();
     }
 
@@ -204,10 +218,10 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-        getRequestFactory().getProperties().addProperties(properties);
-    }
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        getRequestFactory().getProperties().addProperties(properties);
+//    }
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
@@ -255,7 +269,12 @@ public class GarnetConcentrator implements DeviceProtocol {
         return "$Date: 2014-10-03 14:19:42 +0200 (Fri, 03 Oct 2014) $";
     }
 
-    public GarnetProperties getProperties() {
+    @Override
+    public void copyProperties(TypedProperties properties) {
+        getGarnetProperties().addProperties(properties);
+    }
+
+    public GarnetProperties getGarnetProperties() {
         return getRequestFactory().getProperties();
     }
 
@@ -307,5 +326,15 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     private void setDevice(OfflineDevice offlineDevice) {
         this.offlineDevice = offlineDevice;
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getGarnetProperties().getPropertySpecs();
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String s) {
+        return getGarnetProperties().getPropertySpec(s);
     }
 }

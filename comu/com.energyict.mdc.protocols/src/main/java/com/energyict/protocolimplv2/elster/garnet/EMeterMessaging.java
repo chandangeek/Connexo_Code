@@ -1,15 +1,16 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 
-import java.util.ArrayList;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.protocols.exception.UnsupportedMethodException;
+
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author sva
@@ -17,26 +18,15 @@ import java.util.List;
  */
 public class EMeterMessaging implements DeviceMessageSupport {
 
-    private final static List<DeviceMessageSpec> supportedMessages;
-
     private final A100C deviceProtocol;
-
-    static {
-        supportedMessages = new ArrayList<>();
-
-        // contactor related
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
-    }
-
 
     public EMeterMessaging(A100C deviceProtocol) {
         this.deviceProtocol = deviceProtocol;
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        return supportedMessages;
+    public Set<DeviceMessageId> getSupportedMessages() {
+        return EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
     }
 
     @Override
@@ -46,12 +36,12 @@ public class EMeterMessaging implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "executePendingMessages");
+        throw new UnsupportedMethodException(this.getClass(), "executePendingMessages");
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "updateSentMessages");
+        throw new UnsupportedMethodException(this.getClass(), "updateSentMessages");
     }
 
     public A100C getDeviceProtocol() {

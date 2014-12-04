@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.exception;
 
-import com.energyict.protocol.ProfileData;
+
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 
 /**
  * Copyrights EnergyICT

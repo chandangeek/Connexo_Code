@@ -159,7 +159,7 @@ public class PropertySpecBuilder<T> {
         public void setDefaultValue (T defaultValue) {
             PropertySpecPossibleValues<T> xPossibleValues = this.propertySpec.getPossibleValues();
             if (xPossibleValues == null) {
-                PropertySpecPossibleValuesImpl<T> possibleValues = new PropertySpecPossibleValuesImpl<>(defaultValue, false);
+                PropertySpecPossibleValuesImpl<T> possibleValues = new PropertySpecPossibleValuesImpl<T>(defaultValue, false);
                 this.propertySpec.setPossibleValues(possibleValues);
             }
             else {

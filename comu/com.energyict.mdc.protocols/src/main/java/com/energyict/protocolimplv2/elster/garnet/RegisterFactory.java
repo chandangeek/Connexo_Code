@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
-import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.protocolimplv2.elster.garnet.common.InstallationConfig;
 import com.energyict.protocolimplv2.elster.garnet.common.ReadingResponse;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
@@ -29,6 +29,8 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.M
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterRelayStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterSensorStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterTariffStatus;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -155,7 +157,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             collectedRegister = readMeterReadingRegister(register);
         } else if (register.getObisCode().equals(HARDWARE_MODEL_OBIS)) {
             DiscoverMetersResponseStructure meterStatuses = getRequestFactory().discoverMeters();
-            int meterIndex = getMeterIndex(meterStatuses, register.getSerialNumber());
+            int meterIndex = getMeterIndex(meterStatuses, register.getDeviceSerialNumber());
             MeterModel meterModel = meterStatuses.getMeterModelCollection().getAllBitMasks().get(meterIndex);
             collectedRegister.setCollectedData(
                     new Quantity(meterModel.getModelCode(), Unit.getUndefined()),
@@ -163,7 +165,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             );
         } else if (register.getObisCode().equals(SLAVE_RELAY_STATUS_OBIS)) {
             DiscoverMetersResponseStructure meterStatuses = getRequestFactory().discoverMeters();
-            int meterIndex = getMeterIndex(meterStatuses, register.getSerialNumber());
+            int meterIndex = getMeterIndex(meterStatuses, register.getDeviceSerialNumber());
             MeterRelayStatus relayStatus = meterStatuses.getMeterRelayStatusCollection().getAllBitMasks().get(meterIndex);
             collectedRegister.setCollectedData(
                     new Quantity(relayStatus.getRelayStatusCode(), Unit.getUndefined()),
@@ -171,7 +173,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             );
         } else if (register.getObisCode().equals(SLAVE_SENSOR_STATUS_OBIS)) {
             DiscoverMetersResponseStructure meterStatuses = getRequestFactory().discoverMeters();
-            int meterIndex = getMeterIndex(meterStatuses, register.getSerialNumber());
+            int meterIndex = getMeterIndex(meterStatuses, register.getDeviceSerialNumber());
             MeterSensorStatus sensorStatus = meterStatuses.getMeterSensorStatusCollection().getAllBitMasks().get(meterIndex);
             collectedRegister.setCollectedData(
                     new Quantity(sensorStatus.getSensorStatusCode(), Unit.getUndefined()),
@@ -179,7 +181,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             );
         } else if (register.getObisCode().equals(SLAVE_INSTALLATION_STATUS_OBIS)) {
             DiscoverMetersResponseStructure meterStatuses = getRequestFactory().discoverMeters();
-            int meterIndex = getMeterIndex(meterStatuses, register.getSerialNumber());
+            int meterIndex = getMeterIndex(meterStatuses, register.getDeviceSerialNumber());
             MeterInstallationStatusBitMaskField installationStatus = meterStatuses.getMeterInstallationStatusCollection().getAllBitMasks().get(meterIndex);
             collectedRegister.setCollectedData(
                     new Quantity(installationStatus.getInstallationStatusCode(), Unit.getUndefined()),
@@ -187,7 +189,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             );
         } else if (register.getObisCode().equals(SLAVE_COMMUNICATION_STATUS_OBIS)) {
             DiscoverMetersResponseStructure meterStatuses = getRequestFactory().discoverMeters();
-            int meterIndex = getMeterIndex(meterStatuses, register.getSerialNumber());
+            int meterIndex = getMeterIndex(meterStatuses, register.getDeviceSerialNumber());
             MeterReadingStatus readingStatus = meterStatuses.getMeterReadingStatusCollection().getAllBitMasks().get(meterIndex);
             collectedRegister.setCollectedData(
                     new Quantity(readingStatus.getReadingStatusCode(), Unit.getUndefined()),
@@ -195,7 +197,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             );
         } else if (register.getObisCode().equals(SLAVE_TARIFF_MODE_OBIS)) {
             DiscoverMetersResponseStructure meterStatuses = getRequestFactory().discoverMeters();
-            int meterIndex = getMeterIndex(meterStatuses, register.getSerialNumber());
+            int meterIndex = getMeterIndex(meterStatuses, register.getDeviceSerialNumber());
             MeterTariffStatus tariffStatus = meterStatuses.getMeterTariffStatusCollection().getAllBitMasks().get(meterIndex);
             collectedRegister.setCollectedData(
                     new Quantity(tariffStatus.getTariffStatusCode(), Unit.getUndefined()),
@@ -209,7 +211,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
 
     private CollectedRegister readMeterReadingRegister(OfflineRegister register) throws GarnetException {
         DiscoverMetersResponseStructure meterStatuses = getRequestFactory().discoverMeters();
-        int meterIndex = getMeterIndex(meterStatuses, register.getSerialNumber());
+        int meterIndex = getMeterIndex(meterStatuses, register.getDeviceSerialNumber());
         List<MeterInstallationStatusBitMaskField> installationStatuses = meterStatuses.getMeterInstallationStatusCollection().getAllBitMasks();
         List<Integer> installationConfig = new InstallationConfig(installationStatuses).getConfigForMeter(meterIndex);
 
@@ -243,9 +245,9 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 isBilling ? ReadingRequestStructure.ReadingMode.CHECKPOINT_READING : ReadingRequestStructure.ReadingMode.ONLINE_READING
         );
         collectedRegister = createDeviceRegister(register, isBilling ? readingResponse.getReadingDateTime().getDate() : null);
-        boolean activeEnergyRegister = register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_1_OBIS)
-                || register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_2_OBIS)
-                || register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_3_OBIS);
+        boolean activeEnergyRegister = register.getObisCode().equalsIgnoreBChannel(ACTIVE_ENERGY_PHASE_1_OBIS)
+                || register.getObisCode().equalsIgnoreBChannel(ACTIVE_ENERGY_PHASE_2_OBIS)
+                || register.getObisCode().equalsIgnoreBChannel(ACTIVE_ENERGY_PHASE_3_OBIS);
         collectedRegister.setCollectedData(
                 new Quantity(
                         activeEnergyRegister
@@ -260,12 +262,12 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private boolean isMeterReadingRegister(OfflineRegister register) {
-        return register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_1_OBIS) ||
-                register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_2_OBIS) ||
-                register.getObisCode().equalsIgnoreBillingField(ACTIVE_ENERGY_PHASE_3_OBIS) ||
-                register.getObisCode().equalsIgnoreBillingField(REACTIVE_ENERGY_PHASE_1_OBIS) ||
-                register.getObisCode().equalsIgnoreBillingField(REACTIVE_ENERGY_PHASE_2_OBIS) ||
-                register.getObisCode().equalsIgnoreBillingField(REACTIVE_ENERGY_PHASE_3_OBIS);
+        return register.getObisCode().equalsIgnoreBChannel(ACTIVE_ENERGY_PHASE_1_OBIS) ||
+                register.getObisCode().equalsIgnoreBChannel(ACTIVE_ENERGY_PHASE_2_OBIS) ||
+                register.getObisCode().equalsIgnoreBChannel(ACTIVE_ENERGY_PHASE_3_OBIS) ||
+                register.getObisCode().equalsIgnoreBChannel(REACTIVE_ENERGY_PHASE_1_OBIS) ||
+                register.getObisCode().equalsIgnoreBChannel(REACTIVE_ENERGY_PHASE_2_OBIS) ||
+                register.getObisCode().equalsIgnoreBChannel(REACTIVE_ENERGY_PHASE_3_OBIS);
     }
 
     private String createInstallationStatusInfo(DiscoverMetersResponseStructure meterStatuses, int meterIndex) {
@@ -308,31 +310,36 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createDeviceRegister(OfflineRegister register, Date eventTime) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterIdentifierById(register.getRegisterId(), register.getObisCode()));
+        CollectedRegister deviceRegister = getCollectedDataFactory().createDefaultCollectedRegister(
+                new RegisterDataIdentifierByObisCodeAndDevice(register.getObisCode(), register.getObisCode(), register.getDeviceIdentifier()), register.getReadingType());
         deviceRegister.setCollectedTimeStamps(new Date(), null, eventTime != null ? eventTime : new Date(), eventTime); // If eventTime != null, then it contains the billing timestamp
         return deviceRegister;
     }
 
+    private CollectedDataFactory getCollectedDataFactory() {
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
+    }
+
     private CollectedRegister createNotSupportedCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register, "registerXnotsupported", register.getObisCode()));
+        failedRegister.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(register, "registerXnotsupported", register.getObisCode()));
         return failedRegister;
     }
 
     private CollectedRegister createTopologyMisMatchCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(register, "topologyMismatch"));
+        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, Bus.getIssueService().newWarning(register, "topologyMismatch"));
         return failedRegister;
     }
 
     private CollectedRegister createCouldNotParseCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(register, "CouldNotParseRegisterData"));
+        failedRegister.setFailureInformation(ResultType.InCompatible, Bus.getIssueService().newProblem(register, "CouldNotParseRegisterData"));
         return failedRegister;
     }
 
     private boolean isRegisterOfMaster(OfflineRegister register) {
-        return register.getSerialNumber().equals(getMeterProtocol().getOfflineDevice().getSerialNumber());
+        return register.getDeviceSerialNumber().equals(getMeterProtocol().getOfflineDevice().getSerialNumber());
     }
 
     public GarnetConcentrator getMeterProtocol() {

@@ -86,6 +86,16 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         return "Actaris ACE4000 MeterXML";
     }
 
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
     public String getVersion() {
         return "$Date: 2014-09-25 10:05:52 +0200 (Thu, 25 Sep 2014) $";
     }

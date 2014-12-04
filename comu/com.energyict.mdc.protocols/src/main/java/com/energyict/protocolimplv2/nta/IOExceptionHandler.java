@@ -5,7 +5,9 @@ import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 
@@ -29,7 +31,7 @@ public class IOExceptionHandler {
      */
     public static ComServerExecutionException handle(IOException e, DlmsSession dlmsSession) {
         if (isUnexpectedResponse(e, dlmsSession)) {
-            return MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            return new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         } else {
             return communicationException(e, dlmsSession);
         }
@@ -69,7 +71,7 @@ public class IOExceptionHandler {
     }
 
     private static ComServerExecutionException communicationException(IOException e, DlmsSession dlmsSession) {
-        return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, dlmsSession.getProperties().getRetries() + 1);
+        return new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, dlmsSession.getProperties().getRetries() + 1);
     }
 
 }

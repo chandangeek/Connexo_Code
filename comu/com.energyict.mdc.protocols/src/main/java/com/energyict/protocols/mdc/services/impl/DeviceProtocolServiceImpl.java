@@ -8,6 +8,9 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import java.time.Clock;
+
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
@@ -41,6 +44,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile Thesaurus thesaurus;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile OrmClient ormClient;
+    private volatile SocketService socketService;
+    private volatile SerialComponentService serialComponentService;
 
     public DeviceProtocolServiceImpl() {
         super();
@@ -58,6 +63,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         Bus.clearIssueService(this.issueService);
         Bus.clearMdcReadingTypeUtilService(this.mdcReadingTypeUtilService);
         Bus.clearThesaurus(this.thesaurus);
+        Bus.clearSocketService(this.socketService);
+        Bus.clearSerialComponentService(this.serialComponentService);
     }
 
     @Inject
@@ -146,6 +153,18 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
         Bus.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
+    }
+
+    @Reference
+    public void setSocketService(SocketService socketService) {
+        this.socketService = socketService;
+        Bus.setSocketService(socketService);
+    }
+
+    @Reference
+    public void setSerialComponentService(SerialComponentService serialComponentService) {
+        this.serialComponentService = serialComponentService;
+        Bus.setSerialComponentService(serialComponentService);
     }
 
     public MdcReadingTypeUtilService getMdcReadingTypeUtilService() {

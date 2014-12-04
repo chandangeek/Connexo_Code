@@ -1,12 +1,11 @@
 package com.energyict.protocolimplv2.elster.garnet.common;
 
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
-import com.energyict.mdc.protocol.tasks.support.DeviceTopologySupport;
-import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
 import com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
 import com.energyict.protocolimplv2.elster.garnet.RequestFactory;
@@ -15,6 +14,8 @@ import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException
 import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNumber;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class TopologyMaintainer implements DeviceTopologySupport {
     @Override
     public CollectedTopology getDeviceTopology() {
         DeviceIdentifier deviceIdentifierOfMaster = new DeviceIdentifierById(getMasterDevice().getId());
-        CollectedTopology collectedTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(deviceIdentifierOfMaster);
+        CollectedTopology collectedTopology = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(deviceIdentifierOfMaster);
         try {
             List<DeviceIdentifier> slaveMeters = readListOfSlaveDevices();
             for (DeviceIdentifier slave : slaveMeters) {
@@ -44,14 +45,14 @@ public class TopologyMaintainer implements DeviceTopologySupport {
             }
         } catch (NotExecutedException e) {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
-                collectedTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(getMasterDevice(), "commandNotSupported"));
+                collectedTopology.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(getMasterDevice(), "commandNotSupported"));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
-                collectedTopology.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(getMasterDevice(), "topologyMismatch"));
+                collectedTopology.setFailureInformation(ResultType.ConfigurationMisMatch, Bus.getIssueService().newWarning(getMasterDevice(), "topologyMismatch"));
             } else {
-                collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(getMasterDevice(), "CouldNotParseTopologyData"));
+                collectedTopology.setFailureInformation(ResultType.InCompatible, Bus.getIssueService().newProblem(getMasterDevice(), "CouldNotParseTopologyData"));
             }
         } catch (GarnetException e) {
-            collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(getMasterDevice(), "CouldNotParseTopologyData"));
+            collectedTopology.setFailureInformation(ResultType.InCompatible, Bus.getIssueService().newProblem(getMasterDevice(), "CouldNotParseTopologyData"));
         }
         return collectedTopology;
     }

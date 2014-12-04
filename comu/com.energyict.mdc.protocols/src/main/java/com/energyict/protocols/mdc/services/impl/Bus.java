@@ -1,6 +1,8 @@
 package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -24,6 +26,8 @@ public final class Bus {
     private static AtomicReference<MdcReadingTypeUtilService> mdcReadingTypeUtilServiceProvider = new AtomicReference<>();
     private static AtomicReference<Thesaurus> thesaurusProvider = new AtomicReference<>();
     private static AtomicReference<OrmClient> ormClientProvider = new AtomicReference<>();
+    private static AtomicReference<SocketService> socketServiceProvider = new AtomicReference<>();
+    private static AtomicReference<SerialComponentService> seriaComponentServiceProvider = new AtomicReference<>();
 
     public static IssueService getIssueService() {
         return issueServiceProvider.get();
@@ -97,4 +101,27 @@ public final class Bus {
         thesaurusProvider.compareAndSet(old, null);
     }
 
+    public static SocketService getSocketService() {
+        return socketServiceProvider.get();
+    }
+
+    public static void setSocketService(SocketService socketService){
+        socketServiceProvider.set(socketService);
+    }
+
+    public static void clearSocketService(SocketService old){
+        socketServiceProvider.compareAndSet(old, null);
+    }
+
+    public static SerialComponentService getSerialComponentService() {
+        return seriaComponentServiceProvider.get();
+    }
+
+    public static void setSerialComponentService(SerialComponentService serialComponentService){
+        seriaComponentServiceProvider.set(serialComponentService);
+    }
+
+    public static void clearSerialComponentService(SerialComponentService old){
+        seriaComponentServiceProvider.compareAndSet(old, null);
+    }
 }

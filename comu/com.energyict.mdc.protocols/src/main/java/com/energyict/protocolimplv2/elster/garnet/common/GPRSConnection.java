@@ -1,10 +1,9 @@
 package com.energyict.protocolimplv2.elster.garnet.common;
 
-import com.energyict.mdc.exceptions.ComServerExecutionException;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.common.ComServerExecutionException;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
 import com.energyict.protocolimplv2.elster.garnet.exception.CipheringException;
 import com.energyict.protocolimplv2.elster.garnet.exception.ConnectionException;
@@ -19,6 +18,8 @@ import com.energyict.protocolimplv2.elster.garnet.frame.field.Crc;
 import com.energyict.protocolimplv2.elster.garnet.frame.field.FunctionCode;
 import com.energyict.protocolimplv2.elster.garnet.structure.NotExecutedErrorResponseStructure;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
+import com.energyict.protocols.exception.ProtocolEncryptionException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.ByteArrayOutputStream;
 
@@ -97,7 +98,7 @@ public class GPRSConnection implements Connection {
                 delayAndFlushConnection(-1);
                 attempts++;
                 if (attempts > getProperties().getRetries()) {
-                    throw createNumberOfRetriesReachedException(attempts, e);
+                    throw createNumberOfRetriesReachedException(attempts);
                 }
             } catch (NotExecutedException e) {
                 if (e.getErrorStructure().getNotExecutedError().getErrorCodeId() == NotExecutedError.ErrorCode.CRC_ERROR.getErrorCode()) {
@@ -105,11 +106,11 @@ public class GPRSConnection implements Connection {
                     delayAndFlushConnection(-1);
                     attempts++;
                     if (attempts > getProperties().getRetries()) {
-                        throw createNumberOfRetriesReachedException(attempts, e);
+                        throw createNumberOfRetriesReachedException(attempts);
                     }
                 } else if (e.getErrorStructure().getNotExecutedError().getErrorCode() == NotExecutedError.ErrorCode.MAJOR_DATA ||
                         e.getErrorStructure().getNotExecutedError().getErrorCode() == NotExecutedError.ErrorCode.MINOR_DATA) {
-                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                    throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
                 } else {
                     throw e;
                 }
@@ -129,7 +130,7 @@ public class GPRSConnection implements Connection {
                 delayAndFlushConnection(-1);
                 attempts++;
                 if (attempts > getProperties().getRetries()) {
-                    throw createNumberOfRetriesReachedException(attempts, e);
+                    throw createNumberOfRetriesReachedException(attempts);
                 }
             }
         } while (true);
@@ -145,7 +146,7 @@ public class GPRSConnection implements Connection {
                 delayAndFlushConnection(-1);
                 attempts++;
                 if (attempts > getProperties().getRetries()) {
-                    throw createNumberOfRetriesReachedException(attempts, e);
+                    throw createNumberOfRetriesReachedException(attempts);
                 }
             }
         } while (true);
@@ -287,12 +288,12 @@ public class GPRSConnection implements Connection {
         comChannel.startWriting();
     }
 
-    private static ComServerExecutionException createNumberOfRetriesReachedException(int attempts, GarnetException e) {
-        return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, attempts);
+    private static ComServerExecutionException createNumberOfRetriesReachedException(int attempts) {
+        return new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, attempts);
     }
 
     private ComServerExecutionException createCipheringException(CipheringException e) {
-        return MdcManager.getComServerExceptionFactory().createCipheringException(e);
+        return new ProtocolEncryptionException(e, MessageSeeds.ENCRYPTION_ERROR);
     }
 
     public ComChannel getComChannel() {

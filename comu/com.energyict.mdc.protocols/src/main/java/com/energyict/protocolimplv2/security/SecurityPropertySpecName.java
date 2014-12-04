@@ -42,6 +42,7 @@ public enum SecurityPropertySpecName {
     ENCRYPTION_KEY_EXT_DATA("EncryptionKeyExtData"),
     ENCRYPTION_KEY_MANAGEMENT("EncryptionKeyManagement"),
     ENCRYPTION_KEY_FIRMWARE("EncryptionKeyFirmware"),
+    ENCRYPTION_KEY_CUSTOMER("EncryptionKeyCustomer"),
     ENCRYPTION_KEY_MANUFACTURER("EncryptionKeyManufacturer"),
 
     AUTHENTICATION_KEY_PUBLIC("AuthenticationKeyPublic"),

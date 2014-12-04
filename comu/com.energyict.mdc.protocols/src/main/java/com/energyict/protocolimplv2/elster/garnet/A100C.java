@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.common.AbstractMbusDevice;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
@@ -69,12 +70,18 @@ public class A100C extends AbstractMbusDevice {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
+    public void copyProperties(TypedProperties properties) {
+
+    }
+
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
+    public PropertySpec getPropertySpec(String s) {
+        return null;
     }
 }

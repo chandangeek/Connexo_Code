@@ -47,6 +47,7 @@ import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -108,7 +109,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType());
+        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService()));
     }
 
     @Override
@@ -229,7 +230,7 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     private PropertySpec nodeAddressPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(MeterProtocol.NODEID, "");
+        return Bus.getPropertySpecService().stringPropertySpec(MeterProtocol.NODEID, false, "");
     }
 
     @Override
