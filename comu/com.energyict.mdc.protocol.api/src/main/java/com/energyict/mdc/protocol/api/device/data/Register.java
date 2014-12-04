@@ -12,7 +12,7 @@ public class Register {
     /**
      * Holds the ID of the Register.
      */
-    private final int rtuRegisterId;
+    private final long registerSpecId;
 
     /**
      * The serial number of the rtu
@@ -26,13 +26,12 @@ public class Register {
 
     /**
      * This class identifies a register in an smart meter by its obis code and serial number of the (slave)device
-     *
-     * @param rtuRegisterId the ID of the Register BusinessObject
+     *  @param registerSpecId the ID of the Register BusinessObject
      * @param obisCode      the obisCode of the Register
      * @param serialNumber  the serialNumber of the device containing the Register
      */
-    public Register(final int rtuRegisterId, final ObisCode obisCode, final String serialNumber) {
-        this.rtuRegisterId = rtuRegisterId;
+    public Register(final long registerSpecId, final ObisCode obisCode, final String serialNumber) {
+        this.registerSpecId = registerSpecId;
         this.obisCode = obisCode;
         this.serialNumber = serialNumber;
     }
@@ -60,8 +59,8 @@ public class Register {
      *
      * @return the requested ID
      */
-    public int getRtuRegisterId() {
-        return this.rtuRegisterId;
+    public long getRegisterSpecId() {
+        return this.registerSpecId;
     }
 
     @Override
@@ -79,7 +78,7 @@ public class Register {
             return false;
         } else if (serialNumber != null ? !serialNumber.equals(register.serialNumber) : register.serialNumber != null) {
             return false;
-        } else if (this.rtuRegisterId != register.getRtuRegisterId()) {
+        } else if (this.registerSpecId != register.getRegisterSpecId()) {
             return false;
         }
         return true;

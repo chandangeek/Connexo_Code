@@ -201,6 +201,4 @@ public interface SmartMeterProtocol extends Pluggable, MultipleLoadProfileSuppor
      */
     void release() throws IOException;
 
-    String getProtocolDescription();
-
 }

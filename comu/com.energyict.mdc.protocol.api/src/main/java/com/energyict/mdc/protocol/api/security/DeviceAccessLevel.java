@@ -23,6 +23,11 @@ public interface DeviceAccessLevel {
     public static final int NOT_USED_DEVICE_ACCESS_LEVEL_ID = -1;
 
     /**
+     * Indicates that a (slave device) security set can inherit its properties from the master device's security set
+     */
+    public static final int CAN_INHERIT_PROPERTIES_FROM_MASTER_ID = -100;
+
+    /**
      * Returns a number that uniquely identifies
      * this DeviceAccessLevel within the scope of the
      * {@link DeviceProtocol}

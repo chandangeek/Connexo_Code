@@ -34,13 +34,17 @@ public interface CollectedDataFactory {
 
     public CollectedLogBook createNoLogBookCollectedData(DeviceIdentifier deviceIdentifier);
 
+    public CollectedMessage createCollectedMessage(MessageIdentifier messageIdentifier);
+
+    public CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile);
+
+    public CollectedMessage createCollectedMessageWithRegisterData(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CollectedRegister> collectedRegisters);
+
     public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier);
 
     public CollectedMessageList createCollectedMessageList(List<OfflineDeviceMessage> offlineDeviceMessages);
 
     public CollectedMessageList createEmptyCollectedMessageList();
-
-    public CollectedMessage createCollectedMessage (MessageIdentifier messageIdentifier);
 
     public CollectedRegisterList createCollectedRegisterList(DeviceIdentifier deviceIdentifier);
 
