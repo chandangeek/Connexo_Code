@@ -3,6 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
+import com.energyict.mdc.device.data.rest.TaskStatusInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
 import java.util.Date;

@@ -1,57 +1,11 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.common.rest.IdWithNameInfo;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
-import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import java.util.Date;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 
-/**
- * Created by bvn on 8/11/14.
- */
-public class ConnectionTaskInfo {
-    public long id;
+public class ConnectionTaskInfo extends DeviceConnectionTaskInfo {
     public IdWithNameInfo device;
     public DeviceConfigurationIdInfo deviceConfiguration;
     public IdWithNameInfo deviceType;
-    public TaskStatusInfo currentState;
-    public LatestStatusInfo latestStatus;
-    public SuccessIndicatorInfo latestResult;
-    public ComTaskCountInfo taskCount;
-    public Date startDateTime;
-    public Date endDateTime;
-    public TimeDurationInfo duration;
-    public IdWithNameInfo comPort;
-    public IdWithNameInfo comPortPool;
-    public String direction;
-    public String connectionType;
-    public IdWithNameInfo comServer;
-    public IdWithNameInfo connectionMethod;
-    public String window;
-    public ConnectionStrategyInfo connectionStrategy;
-    public Date nextExecution;
-    public long comSessionId;
 }
-
-class LatestStatusInfo {
-    @XmlJavaTypeAdapter(ConnectionTaskSuccessIndicatorAdapter.class)
-    public ConnectionTask.SuccessIndicator id;
-    public String displayValue;
-}
-
-class ConnectionStrategyInfo {
-    @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
-    public ConnectionStrategy id;
-    public String displayValue;
-}
-
-class ComTaskCountInfo {
-    public long numberOfSuccessfulTasks;
-    public long numberOfFailedTasks;
-    public long numberOfIncompleteTasks;
-}
-
