@@ -3,6 +3,7 @@ package com.energyict.mdc.issue.datacollection.rest;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleOrActionValidationExceptionMapper;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -40,6 +41,7 @@ import java.util.Set;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.rest", service = {Application.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/idc", "app=MDC", "name=" + IssueDataCollectionApplication.ISSUE_DATACOLLECTION_REST_COMPONENT})
 public class IssueDataCollectionApplication extends Application implements InstallService, TranslationKeyProvider {
+    public static final String APP_KEY = "MDC";
     public static final String ISSUE_DATACOLLECTION_REST_COMPONENT = "IDR";
 
     private volatile TransactionService transactionService;
@@ -52,6 +54,7 @@ public class IssueDataCollectionApplication extends Application implements Insta
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
+    private volatile License license;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -106,6 +109,11 @@ public class IssueDataCollectionApplication extends Application implements Insta
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override
