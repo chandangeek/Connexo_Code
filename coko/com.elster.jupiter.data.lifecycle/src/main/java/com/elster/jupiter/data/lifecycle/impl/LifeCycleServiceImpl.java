@@ -164,17 +164,19 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 		logger.info("Removing logging up to " + instant);
 		ormService.dropAuto(LifeCycleClass.LOGGING, instant, logger);
 		PurgeConfiguration purgeConfiguration = PurgeConfiguration.builder()
-				.registerLimit(limit(getCategory(LifeCycleCategoryKind.REGISTER).getRetention()))
-				.intervalLimit(limit(getCategory(LifeCycleCategoryKind.INTERVAL).getRetention()))
-				.dailyLimit(limit(getCategory(LifeCycleCategoryKind.DAILY).getRetention()))
-				.eventLimit(limit(getCategory(LifeCycleCategoryKind.ENDDEVICEEVENT).getRetention()))
+				.registerRetention(getCategory(LifeCycleCategoryKind.REGISTER).getRetention())
+				.intervalRetention(getCategory(LifeCycleCategoryKind.INTERVAL).getRetention())
+				.dailyRetention(getCategory(LifeCycleCategoryKind.DAILY).getRetention())
+				.eventRetention(getCategory(LifeCycleCategoryKind.ENDDEVICEEVENT).getRetention())
 				.logger(logger)
 				.build();
+		meteringService.configurePurge(purgeConfiguration);
+		idsService.purge(logger);
 		meteringService.purge(purgeConfiguration);
 		instant = clock.instant().plus(360,ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
 		logger.info("Adding partitions up to " + instant);
-		idsService.extendTo(instant,logger);
 		ormService.createPartitions(instant, logger);
+		idsService.extendTo(instant,logger);		
 	}
 	
 	@Override
