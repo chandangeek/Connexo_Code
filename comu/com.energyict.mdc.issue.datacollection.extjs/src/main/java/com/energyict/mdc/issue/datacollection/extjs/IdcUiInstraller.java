@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datacollection.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
@@ -11,6 +12,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,12 +21,13 @@ import java.util.logging.Logger;
 @Component(name = "com.elster.jupiter.issue.extjs", service = TranslationKeyProvider.class,
         property = "name=" + IdcUiInstraller.COMPONENT_NAME + "-UI", immediate = true)
 public class IdcUiInstraller implements TranslationKeyProvider {
-
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "IDC";
     public static final String HTTP_RESOURCE_ALIAS = "/idc";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/idc";
     private static final Logger LOGGER = Logger.getLogger(IdcUiInstraller.class.getName());
     private volatile ServiceRegistration<HttpResource> registration;
+    private volatile License license;
 
     public IdcUiInstraller() {
 
@@ -41,6 +44,11 @@ public class IdcUiInstraller implements TranslationKeyProvider {
     @Deactivate
     public void deactivate() {
         registration.unregister();
+    }
+
+    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override
