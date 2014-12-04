@@ -21,7 +21,7 @@ public class DataModelResource {
 	@Produces(MediaType.APPLICATION_JSON) 
 	public List<DataModelInfo> getDataModels() {
 		return  ormService.getDataModels().stream()
-			.sorted(Comparator.comparing(DataModel::getName))
+			.sorted((Comparator<DataModel>) Comparator.comparing(DataModel::getName)) // jdk 1.8u20 needs this cast , eclipse jdt not
 			.map( DataModelInfo::new)
 			.collect(Collectors.toList());
 	}
