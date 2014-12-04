@@ -10,14 +10,11 @@ import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
-import java.util.Optional;
-
 import org.joda.time.DateTimeConstants;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,10 +22,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
@@ -42,7 +39,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
 
         Map<String, Object> map = target("/schedules/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
-        assertThat((List<?>)map.get("schedules")).isEmpty();
+        assertThat((List<?>) map.get("schedules")).isEmpty();
     }
 
     @Test
@@ -94,11 +91,11 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
-        comScheduleInfo.plannedDate=new Date();
-        comScheduleInfo.name="new name";
+        comScheduleInfo.plannedDate = new Date();
+        comScheduleInfo.name = "new name";
         ComTaskInfo comTaskInfo = new ComTaskInfo();
-        comTaskInfo.id= COM_TASK_1;
-        comScheduleInfo.comTaskUsages=Arrays.asList(comTaskInfo);
+        comTaskInfo.id = COM_TASK_1;
+        comScheduleInfo.comTaskUsages = Arrays.asList(comTaskInfo);
         Entity<ComScheduleInfo> json = Entity.json(comScheduleInfo);
         Response response = target("/schedules/1").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -137,21 +134,21 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
         ComTask comTask1 = mockComTask(COM_TASK_1, "Com task 1");
         ComTask comTask2 = mockComTask(COM_TASK_2, "Com task 2");
-        ComTask comTask3 = mockComTask(COM_TASK_3,"Com task 3");
+        ComTask comTask3 = mockComTask(COM_TASK_3, "Com task 3");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
         when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
-        comScheduleInfo.plannedDate=new Date();
-        comScheduleInfo.name="new name";
+        comScheduleInfo.plannedDate = new Date();
+        comScheduleInfo.name = "new name";
         ComTaskInfo comTaskInfo1 = new ComTaskInfo();
-        comTaskInfo1.id= COM_TASK_1;
+        comTaskInfo1.id = COM_TASK_1;
         ComTaskInfo comTaskInfo2 = new ComTaskInfo();
-        comTaskInfo2.id= COM_TASK_2;
-        ComTaskInfo comTaskInfo3= new ComTaskInfo();
-        comTaskInfo3.id= COM_TASK_3;
-        comScheduleInfo.comTaskUsages=Arrays.asList(comTaskInfo1, comTaskInfo2, comTaskInfo3);
+        comTaskInfo2.id = COM_TASK_2;
+        ComTaskInfo comTaskInfo3 = new ComTaskInfo();
+        comTaskInfo3.id = COM_TASK_3;
+        comScheduleInfo.comTaskUsages = Arrays.asList(comTaskInfo1, comTaskInfo2, comTaskInfo3);
         Entity<ComScheduleInfo> json = Entity.json(comScheduleInfo);
         Response response = target("/schedules/1").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -174,23 +171,23 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
         ComTask comTask1 = mockComTask(COM_TASK_1, "Com task 1");
-        ComTask comTask2 = mockComTask(COM_TASK_2,"Com task 2");
-        ComTask comTask3 = mockComTask(COM_TASK_3,"Com task 3");
-        ComTask comTask4 = mockComTask(COM_TASK_4,"Com task 4");
+        ComTask comTask2 = mockComTask(COM_TASK_2, "Com task 2");
+        ComTask comTask3 = mockComTask(COM_TASK_3, "Com task 3");
+        ComTask comTask4 = mockComTask(COM_TASK_4, "Com task 4");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2, comTask3));
         when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
-        comScheduleInfo.plannedDate=new Date();
-        comScheduleInfo.name="new name";
+        comScheduleInfo.plannedDate = new Date();
+        comScheduleInfo.name = "new name";
         ComTaskInfo comTaskInfo1 = new ComTaskInfo();
-        comTaskInfo1.id= COM_TASK_1;
+        comTaskInfo1.id = COM_TASK_1;
         ComTaskInfo comTaskInfo2 = new ComTaskInfo();
-        comTaskInfo2.id= COM_TASK_2;
-        ComTaskInfo comTaskInfo4= new ComTaskInfo();
-        comTaskInfo4.id= COM_TASK_4;
-        comScheduleInfo.comTaskUsages=Arrays.asList(comTaskInfo1, comTaskInfo2, comTaskInfo4); // so delete 3, add 4
+        comTaskInfo2.id = COM_TASK_2;
+        ComTaskInfo comTaskInfo4 = new ComTaskInfo();
+        comTaskInfo4.id = COM_TASK_4;
+        comScheduleInfo.comTaskUsages = Arrays.asList(comTaskInfo1, comTaskInfo2, comTaskInfo4); // so delete 3, add 4
         Entity<ComScheduleInfo> json = Entity.json(comScheduleInfo);
         Response response = target("/schedules/1").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -253,8 +250,11 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(deviceConfigurationService.findAvailableComTasks(mockedSchedule)).thenReturn(Arrays.asList(comTask3));
 
         List<Map<String, Object>> list = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "tRue").create()).request().get(List.class);
+        assertThat(list).hasSize(2); // param values are case sensitive !!! tRue != true
+        list = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get(List.class);
         assertThat(list).hasSize(1);
-        assertThat(list.get(0).get("id")).isEqualTo((int)COMTASK_3);
+
+        assertThat(list.get(0).get("id")).isEqualTo((int) COMTASK_3);
     }
 
     @Test
@@ -275,15 +275,15 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
 
         List<Map<String, Object>> list = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get(List.class);
         assertThat(list).hasSize(1);
-        assertThat(list.get(0).get("id")).isEqualTo((int)COMTASK_3);
+        assertThat(list.get(0).get("id")).isEqualTo((int) COMTASK_3);
     }
 
     @Test
     public void testPreviewMinutelyWithoutOffset() throws Exception {
         PreviewInfo previewInfo = new PreviewInfo();
         previewInfo.temporalExpression = new TemporalExpressionInfo();
-        previewInfo.temporalExpression.every=new TimeDurationInfo(new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
-        previewInfo.startDate=new Date(1400146123000L); //  Thu, 15 May 2014 09:28:43 GMT
+        previewInfo.temporalExpression.every = new TimeDurationInfo(new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
+        previewInfo.startDate = new Date(1400146123000L); //  Thu, 15 May 2014 09:28:43 GMT
 
         Entity<PreviewInfo> entity = Entity.json(previewInfo);
         Response response = target("/schedules/preview").request().put(entity);
@@ -291,19 +291,19 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         PreviewInfo responseEntity = response.readEntity(PreviewInfo.class);
         assertThat(responseEntity.nextOccurrences).hasSize(5);
         assertThat(responseEntity.nextOccurrences.get(0)).isEqualTo(new Date(1400146200000L));
-        assertThat(responseEntity.nextOccurrences.get(1)).isEqualTo(new Date(1400146200000L + 10*DateTimeConstants.MILLIS_PER_MINUTE));
-        assertThat(responseEntity.nextOccurrences.get(2)).isEqualTo(new Date(1400146200000L + 20*DateTimeConstants.MILLIS_PER_MINUTE));
-        assertThat(responseEntity.nextOccurrences.get(3)).isEqualTo(new Date(1400146200000L + 30*DateTimeConstants.MILLIS_PER_MINUTE));
-        assertThat(responseEntity.nextOccurrences.get(4)).isEqualTo(new Date(1400146200000L + 40*DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(1)).isEqualTo(new Date(1400146200000L + 10 * DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(2)).isEqualTo(new Date(1400146200000L + 20 * DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(3)).isEqualTo(new Date(1400146200000L + 30 * DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(4)).isEqualTo(new Date(1400146200000L + 40 * DateTimeConstants.MILLIS_PER_MINUTE));
     }
 
     @Test
     public void testPreviewMinutelyWithOffset() throws Exception {
         PreviewInfo previewInfo = new PreviewInfo();
         previewInfo.temporalExpression = new TemporalExpressionInfo();
-        previewInfo.temporalExpression.every=new TimeDurationInfo(new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
-        previewInfo.temporalExpression.offset=new TimeDurationInfo(new TimeDuration(5, TimeDuration.TimeUnit.SECONDS));
-        previewInfo.startDate=new Date(1400146123000L); //  Thu, 15 May 2014 09:28:43 GMT
+        previewInfo.temporalExpression.every = new TimeDurationInfo(new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
+        previewInfo.temporalExpression.offset = new TimeDurationInfo(new TimeDuration(5, TimeDuration.TimeUnit.SECONDS));
+        previewInfo.startDate = new Date(1400146123000L); //  Thu, 15 May 2014 09:28:43 GMT
 
         Entity<PreviewInfo> entity = Entity.json(previewInfo);
         Response response = target("/schedules/preview").request().put(entity);
@@ -311,20 +311,10 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         PreviewInfo responseEntity = response.readEntity(PreviewInfo.class);
         assertThat(responseEntity.nextOccurrences).hasSize(5);
         assertThat(responseEntity.nextOccurrences.get(0)).isEqualTo(new Date(1400146205000L));
-        assertThat(responseEntity.nextOccurrences.get(1)).isEqualTo(new Date(1400146205000L + 10*DateTimeConstants.MILLIS_PER_MINUTE));
-        assertThat(responseEntity.nextOccurrences.get(2)).isEqualTo(new Date(1400146205000L + 20*DateTimeConstants.MILLIS_PER_MINUTE));
-        assertThat(responseEntity.nextOccurrences.get(3)).isEqualTo(new Date(1400146205000L + 30*DateTimeConstants.MILLIS_PER_MINUTE));
-        assertThat(responseEntity.nextOccurrences.get(4)).isEqualTo(new Date(1400146205000L + 40*DateTimeConstants.MILLIS_PER_MINUTE));
-    }
-
-    @Test
-    public void testGetAvailableComTasksOfScheduleWithFaultyFilter() throws Exception {
-        when(thesaurus.getString(anyString(), anyString())).thenReturn("");
-        ComSchedule mockedSchedule = mock(ComSchedule.class);
-        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
-
-        Response response = target("/schedules/1/comTasks").queryParam("filter", ExtjsFilter.filter().property("available", "BOGUS").create()).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(responseEntity.nextOccurrences.get(1)).isEqualTo(new Date(1400146205000L + 10 * DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(2)).isEqualTo(new Date(1400146205000L + 20 * DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(3)).isEqualTo(new Date(1400146205000L + 30 * DateTimeConstants.MILLIS_PER_MINUTE));
+        assertThat(responseEntity.nextOccurrences.get(4)).isEqualTo(new Date(1400146205000L + 40 * DateTimeConstants.MILLIS_PER_MINUTE));
     }
 
 
@@ -332,7 +322,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComTask comTask1 = mock(ComTask.class);
         when(comTask1.getId()).thenReturn(id);
         when(comTask1.getName()).thenReturn(name);
-        when(taskService.findComTask(id)).thenReturn(comTask1);
+        when(taskService.findComTask(id)).thenReturn(Optional.of(comTask1));
         return comTask1;
     }
 

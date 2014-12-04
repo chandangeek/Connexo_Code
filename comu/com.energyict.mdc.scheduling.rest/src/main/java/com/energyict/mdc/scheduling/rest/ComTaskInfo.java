@@ -1,7 +1,7 @@
 package com.energyict.mdc.scheduling.rest;
 
 import com.energyict.mdc.tasks.ComTask;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
 import java.util.List;
