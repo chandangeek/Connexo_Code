@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -75,7 +76,7 @@ import java.util.Set;
  */
 @Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dsr", "app=MDC", "name=" + DashboardApplication.COMPONENT_NAME})
 public class DashboardApplication extends Application implements InstallService {
-
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DSR";
 
     private volatile StatusService statusService;
@@ -96,6 +97,7 @@ public class DashboardApplication extends Application implements InstallService 
     private volatile IssueService issueService;
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile FavoritesService favoritesService;
+    private volatile License license;
     private Clock clock = Clock.systemDefaultZone();
 
     @Reference
@@ -182,6 +184,11 @@ public class DashboardApplication extends Application implements InstallService 
     @Reference
     public void setFavoritesService(FavoritesService favoritesService) {
         this.favoritesService = favoritesService;
+    }
+
+    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     // Only for testing purposes

@@ -55,6 +55,12 @@
     </dependency>
 
     <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>systemadmin</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.dashboard</artifactId>
       <version>${project.version}</version>
