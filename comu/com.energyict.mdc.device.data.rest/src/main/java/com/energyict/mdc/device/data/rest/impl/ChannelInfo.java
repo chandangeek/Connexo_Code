@@ -30,6 +30,7 @@ public class ChannelInfo {
     public BigDecimal overflowValue;
     public String flowUnit;
     public Integer nbrOfFractionDigits;
+    public long loadProfileId;
 
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
@@ -47,6 +48,7 @@ public class ChannelInfo {
         info.flowUnit = channel.getPhenomenon().getUnit().isFlowUnit() ? "flow" : "volume";
         info.obisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
+        info.loadProfileId = channel.getLoadProfile().getId();
         return info;
     }
 
