@@ -172,7 +172,6 @@ public class ComServerResource {
     }
 
     @Path("/{comServerId}/comports")
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public ComServerComPortResource getComPortResource() {
         return comServerComPortResourceProvider.get();
     }

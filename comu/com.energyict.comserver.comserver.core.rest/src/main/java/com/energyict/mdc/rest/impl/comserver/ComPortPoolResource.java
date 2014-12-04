@@ -182,7 +182,6 @@ public class ComPortPoolResource {
     }
 
     @Path("/{comPortPoolId}/comports")
-    @RolesAllowed(Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE)
     public ComPortPoolComPortResource getComPortResource() {
         return comPortPoolComPortResourceProvider.get();
     }
