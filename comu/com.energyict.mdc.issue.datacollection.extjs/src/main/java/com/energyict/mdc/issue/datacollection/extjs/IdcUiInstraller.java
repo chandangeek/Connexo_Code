@@ -46,7 +46,7 @@ public class IdcUiInstraller implements TranslationKeyProvider {
         registration.unregister();
     }
 
-    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
     public void setLicense(License license) {
         this.license = license;
     }
