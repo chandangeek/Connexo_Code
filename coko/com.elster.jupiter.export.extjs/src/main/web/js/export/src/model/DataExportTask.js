@@ -47,6 +47,17 @@ Ext.define('Dxp.model.DataExportTask', {
             }
         },
         {
+            name: 'reason',
+            persist: false,
+            mapping: function (data) {
+                if (data.lastExportOccurence && data.lastExportOccurence.reason) {
+                    return data.lastExportOccurence.reason;
+                } else {
+                    return '';
+                }
+            }
+        },
+        {
             name: 'trigger',
             persist: false,
             mapping: function (data) {
