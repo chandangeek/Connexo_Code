@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -47,7 +48,7 @@ import java.util.logging.Level;
 
 @Component(name = "com.energyict.dtc.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/dtc", "app=MDC", "name=" + DeviceConfigurationApplication.COMPONENT_NAME})
 public class DeviceConfigurationApplication extends Application implements InstallService {
-
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DCR";
 
     private volatile MasterDataService masterDataService;
@@ -65,6 +66,7 @@ public class DeviceConfigurationApplication extends Application implements Insta
     private volatile ValidationService validationService;
     private volatile DeviceService deviceService;
     private volatile DeviceMessageService deviceMessageService;
+    private volatile License license;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -174,6 +176,11 @@ public class DeviceConfigurationApplication extends Application implements Insta
     @Reference
     public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
         this.deviceMessageService = deviceMessageService;
+    }
+
+    @Reference(target="(com.elster.jupiter.license.application.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override
