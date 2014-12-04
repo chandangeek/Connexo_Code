@@ -16,6 +16,4 @@ public interface DataProcessorFactory extends HasName {
 
     void validateProperties(List<DataExportProperty> properties);
 
-    // TODO check with Tom why we need this ? Why is getProperties() on this interface not enough ?
-    // DataProcessor createTemplateDataFormatter();
 }
