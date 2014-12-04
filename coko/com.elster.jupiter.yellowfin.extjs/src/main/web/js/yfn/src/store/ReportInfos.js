@@ -1,0 +1,21 @@
+/**
+ * @class Uni.store.ReportInfos
+ */
+Ext.define('Yfn.store.ReportInfos', {
+    extend: 'Ext.data.Store',
+    model: 'Yfn.model.ReportInfo',
+    storeId: 'ReportInfos',
+    autoLoad: false,
+    requires:[
+       'Yfn.model.ReportInfo'
+    ],
+
+    proxy: {
+        type: 'ajax',
+        url: '/api/yfn/report/info',
+        reader: {
+            type: 'json',
+            root: 'reports'
+        }
+    }
+});

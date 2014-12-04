@@ -3,6 +3,9 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
     requires: [
         'Yfn.view.ReportView'
     ],
+    stores:[
+        'ReportInfos'
+    ],
 
     showReport: function(report) {
 

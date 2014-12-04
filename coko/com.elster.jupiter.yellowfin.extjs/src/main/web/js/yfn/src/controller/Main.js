@@ -4,12 +4,16 @@ Ext.define('Yfn.controller.Main', {
     requires: [
         'Ext.window.Window',
         'Uni.controller.Navigation',
-        'Uni.store.MenuItems'
+        'Uni.store.MenuItems',
+        'Yfn.store.ReportInfos'
     ],
 
     controllers: [
     ],
 
+    stores:[
+        'ReportInfos'
+    ],
     refs: [
         {
             ref: 'viewport',
@@ -21,55 +25,68 @@ Ext.define('Yfn.controller.Main', {
         var me = this,
             historian = me.getController('Yfn.controller.history.YellowfinReports'); // Forces route registration.
 
-        me.initMenu();
+        me.initDeviceReports();
     },
 
-    initMenu: function () {
-        if (Uni.Auth.hasAnyPrivilege(['privilege.create.inventoryManagement', 'privilege.revoke.inventoryManagement', 'privilege.import.inventoryManagement'])) {
+    initDeviceReports: function () {
+        //if (Uni.Auth.hasAnyPrivilege(['privilege.create.inventoryManagement', 'privilege.revoke.inventoryManagement', 'privilege.import.inventoryManagement'])) {
             var me = this;
+
+            var reportsStore = Ext.create('Yfn.store.ReportInfos',{});
+            //var reportsStore = Ext.getStore('ReportInfos');
             var reportsItems = [];
-
-            if (Uni.Auth.hasPrivilege('privilege.import.inventoryManagement')) {
-                reportsItems.push(
-                    {
-                        text: Uni.I18n.translate('report.communicationperformance.title', 'YFN', 'Communication (connection) performance'),
-                        onClick: function(){
-                            window.open("../reports/index.html#/reports/communicationperformance", "", "");}
-                    }
-                );
-            }
-
-            if (Uni.Auth.hasPrivilege('privilege.import.inventoryManagement')) {
-                reportsItems.push(
-                    {
-                        text: Uni.I18n.translate('report.devicegatewaytopology.title', 'YFN', 'Device / Gateway topology'),
-                        onClick: function(){
-                            window.open("../reports/index.html#/reports/devicegatewaytopology", "", "");}
-                    }
-                );
-            }
-
-            if (Uni.Auth.hasPrivilege('privilege.import.inventoryManagement')) {
-                reportsItems.push(
-                    {
-                        text: Uni.I18n.translate('report.deviceconfig.title', 'YFN', 'Device Config'),
-                        onClick: function(){
-                            window.open("../reports/index.html#/reports/deviceconfig", "", "");}
-                    }
-                );
-            }
 
             var portalItem = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('report.home', 'YFN', 'Reports'),
                 portal: 'devices',
                 route: 'reports',
-                items: reportsItems
+                items: reportsItems,
+                itemId:'deviceReportsPortlet'
             });
 
             Uni.store.PortalItems.add(
                 portalItem
             );
-        }
+
+            if(reportsStore) {
+                var proxy = reportsStore.getProxy();
+                proxy.setExtraParam('category', 'MDC');
+                proxy.setExtraParam('subCategory', 'Device');
+
+                reportsStore.load(function (records) {
+
+                    Ext.each(records, function (record) {
+                        var reportDescription = record.get('description');
+                        var reportUUID = record.get('reportUUID');
+                        var reportName = record.get('name');
+                        var reportDescription = record.get('name');
+                        reportsItems.push({
+                            text: reportName,
+                            tooltip: reportDescription,
+                            href: '#/administration/generatereport?reportUUID=' + reportUUID
+                            //,hrefTarget: '_blank'
+                        });
+                    });
+
+                    var cmp =  Ext.ComponentQuery.query('portal-container #deviceReportsPortlet')[0];
+                    if(cmp){
+                        reportsItems.sort(function (item1, item2) {
+                            if (item1.text < item2.text) {
+                                return -1;
+                            } else if (item1.text > item2.text) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        });
+                        cmp.refresh(reportsItems);
+                    }
+
+                });
+            }
+
+
+        //}
     },
 
     /**
