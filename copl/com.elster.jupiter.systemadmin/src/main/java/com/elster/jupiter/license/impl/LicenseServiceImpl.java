@@ -9,9 +9,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
-import java.util.Optional;
+
+import java.util.*;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -23,12 +27,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.SignedObject;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Copyrights EnergyICT
@@ -44,6 +43,9 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
     private volatile UserService userService;
     private volatile EventService eventService;
 
+    private BundleContext context;
+    List<ServiceRegistration<License>> licenseServices = new CopyOnWriteArrayList<>();
+
     public LicenseServiceImpl() {
     }
 
@@ -52,7 +54,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
         setOrmService(ormService);
         setUserService(userService);
         setEventService(eventService);
-        activate();
+        activate(null);
         if (!dataModel.isInstalled()) {
             install();
         }
@@ -107,8 +109,31 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext context) {
         dataModel.register(getModule());
+
+        this.context = context;
+        registerApps();
+    }
+
+    private void registerApps() {
+        List<License> licenses = dataModel.mapper(License.class).find();
+        for (License license : licenses) {
+            if(license.getStatus().equals(License.Status.ACTIVE) || license.getGracePeriodInDays() > 0){
+                Dictionary<String, String> props=new Hashtable<String, String>();
+                props.put("com.elster.jupiter.license.application.key",license.getApplicationKey());
+                licenseServices.add(context.registerService(License.class, license, props));
+            }
+        }
+    }
+
+    private void reloadApps() {
+        for(ServiceRegistration<License> service : licenseServices){
+            service.unregister();
+        }
+
+        licenseServices.clear();
+        registerApps();
     }
 
     private Module getModule() {
@@ -184,6 +209,8 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
                     eventService.postEvent(EventType.LICENSE_UPDATED.topic(), license);
                 }
             }
+
+            reloadApps();
             return licensedApps.keySet();
         }
 
