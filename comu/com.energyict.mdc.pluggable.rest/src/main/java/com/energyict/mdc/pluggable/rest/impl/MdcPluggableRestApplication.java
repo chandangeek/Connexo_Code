@@ -1,5 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -30,13 +31,14 @@ import java.util.Set;
 
 @Component(name = "com.energyict.mdc.pluggable.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/plr", "app=MDC", "name=" + MdcPluggableRestApplication.COMPONENT_NAME})
 public class MdcPluggableRestApplication extends Application implements InstallService {
-
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "PLR";
 
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile PropertySpecService propertySpecService;
     private volatile TransactionService transactionService;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile License license;
     private NlsService nlsService;
     private Thesaurus thesaurus;
 
@@ -88,6 +90,11 @@ public class MdcPluggableRestApplication extends Application implements InstallS
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override
