@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.TopologyTimeline;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -56,6 +57,7 @@ public class DeviceResource {
 
     private final DeviceImportService deviceImportService;
     private final DeviceService deviceService;
+    private final TopologyService topologyService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final IssueService issueService;
@@ -80,6 +82,7 @@ public class DeviceResource {
             ResourceHelper resourceHelper,
             DeviceImportService deviceImportService,
             DeviceService deviceService,
+            TopologyService topologyService,
             DeviceConfigurationService deviceConfigurationService,
             IssueService issueService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
@@ -97,10 +100,10 @@ public class DeviceResource {
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<DeviceLabelResource> deviceLabelResourceProvider) {
-
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
         this.deviceService = deviceService;
+        this.topologyService = topologyService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.issueService = issueService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
@@ -156,7 +159,7 @@ public class DeviceResource {
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
 
         this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
-        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, deviceService, issueService);
+        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, topologyService, issueService);
     }
 
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
@@ -185,7 +188,7 @@ public class DeviceResource {
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService);
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService);
     }
 
     /**
@@ -280,7 +283,7 @@ public class DeviceResource {
     public SecurityPropertySetResource getSecurityPropertySetResource() {
         return securityPropertySetResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/devicelabels")
     public DeviceLabelResource getDeviceLabelResource() {
         return deviceLabelResourceProvider.get();

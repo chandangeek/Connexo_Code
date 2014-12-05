@@ -7,6 +7,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.Batch;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.topology.TopologyService;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.ZoneId;
@@ -43,7 +45,7 @@ public class DeviceInfo {
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, DeviceService deviceService, IssueService issueService) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
@@ -60,9 +62,10 @@ public class DeviceInfo {
         if (optionalBatch.isPresent()) {
             deviceInfo.batch = optionalBatch.get().getName();
         }
-        if (device.getPhysicalGateway() != null) {
-            deviceInfo.masterDeviceId = device.getPhysicalGateway().getId();
-            deviceInfo.masterDevicemRID = device.getPhysicalGateway().getmRID();
+        Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
+        if (physicalGateway.isPresent()) {
+            deviceInfo.masterDeviceId = physicalGateway.get().getId();
+            deviceInfo.masterDevicemRID = physicalGateway.get().getmRID();
         }
 
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
