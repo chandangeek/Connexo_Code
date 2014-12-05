@@ -57,6 +57,10 @@ Ext.define('Uni.property.controller.Registry', {
         TIMEOFDAY: 'Uni.property.view.property.Time',
         CODETABLE: 'Uni.property.view.property.CodeTable',
         REFERENCE: 'Uni.property.view.property.Reference',
+        LOGBOOK: 'Uni.property.view.property.Reference',
+        LOADPROFILETYPE: 'Uni.property.view.property.Reference',
+        REGISTER: 'Uni.property.view.property.Reference',
+        LOADPROFILE: 'Uni.property.view.property.Reference',
         EAN13: 'Uni.property.view.property.Text',
         EAN18: 'Uni.property.view.property.Text',
         ENCRYPTED_STRING: 'Uni.property.view.property.Password',
@@ -64,7 +68,7 @@ Ext.define('Uni.property.controller.Registry', {
         LISTVALUE: 'Uni.property.view.property.Multiselect'
     },
 
-    // store must be registered on some ctrl (not in the responsibility of this class: move later?)
+// store must be registered on some ctrl (not in the responsibility of this class: move later?)
     stores: [
         'Uni.property.store.TimeUnits'
     ],
@@ -104,4 +108,5 @@ Ext.define('Uni.property.controller.Registry', {
     getProperty: function (key) {
         return this.propertiesMap[key] || null;
     }
-});
+})
+;

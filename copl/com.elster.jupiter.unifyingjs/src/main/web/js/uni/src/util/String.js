@@ -46,6 +46,16 @@ Ext.define('Uni.util.String', {
             Uni.I18n.translatePlural('general.time.seconds_short', seconds, 'UNI', '{0}s') :
             Uni.I18n.translatePlural('general.time.seconds', seconds, 'UNI', '{0} seconds');
 
+        if (duration.asHours() === 1 && duration.asMinutes() === 60 && duration.asSeconds() === 3600) {
+            format = shortFormat ?
+                Uni.I18n.translatePlural('general.time.hours_short', 1, 'UNI', '{0}h') :
+                Uni.I18n.translatePlural('general.time.hours', 1, 'UNI', '{0} hours');
+        } else if (duration.asHours() < 1 && duration.asMinutes() === 1 && duration.asSeconds() === 60) {
+            format = shortFormat ?
+                Uni.I18n.translatePlural('general.time.minutes_short', 1, 'UNI', '{0}m') :
+                Uni.I18n.translatePlural('general.time.minutes', 1, 'UNI', '{0} minutes');
+        }
+
         return format;
     }
 });

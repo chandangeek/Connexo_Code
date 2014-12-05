@@ -375,3 +375,57 @@ TODO Move this into a separate button UI.
   height: 13px;
   width: 13px;
 }
+
+/* line 411, ../../sass/etc/all.scss */
+.x-btn .device-flag {
+  background-image: url("/apps/sky/resources/images/shared/Not-validated.png");
+  height: 13px;
+  width: 13px;
+}
+
+/* line 416, ../../sass/etc/all.scss */
+.x-btn.x-btn-pressed .device-flag {
+  background-image: url("/apps/sky/resources/images/shared/Suspect.png");
+}
+
+/* line 420, ../../sass/etc/all.scss */
+.icon-arrow-up {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAYklEQVR4XmMY5qBw7XFvECZXMwcQ3wXieyA2OQbUA/F/KK4nVbMiEH+HGQBlK5JiwGa4ZgTeTKxmH7gmTOxNTMDdw2UAwQAFamgAaSCAGwgGHDZMMECBGrbANRDGWxiGDwAATsHH9SBuh2YAAAAASUVORK5CYII=");
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+}
+
+/* line 427, ../../sass/etc/all.scss */
+.x-over .icon-arrow-up {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAY0lEQVR42mNgGN4gYvpmbxAmVzMHEN8F4nsgNjkG1APxfyiuJ1WzIhB/RzIAxFYkxYDNSJpheDOxmn2waIZhb2IC7h4eA/AHKFCyAY9mGG4gNuBwYewBChTcQoRmGN4yjPILADretJerptwEAAAAAElFTkSuQmCC");
+}
+
+/* line 431, ../../sass/etc/all.scss */
+.x-disabled .icon-arrow-up {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAWUlEQVR4XmOgO7jifcUbnzTHlbtX7l3hwK2g/sp/IGzAJa145TtIAZBUxK5gM1ASArdgk/YBSiCgD6bz7iErwHDqlQagBCpsxHQeKvx+RQmhYAuKFMKp9AEAAWt5EFx4I5sAAAAASUVORK5CYII=");
+}
+
+/* line 435, ../../sass/etc/all.scss */
+.icon-arrow-down {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAXklEQVR4XmMYRqBw7fEtQPyfSLwFmwFKQPydkAFQNcq4XNFIhAFN+LzBAcT3cBkAleMgFBa+eAzwpSRAt5ASI4rIAQplK5EarQ1IBjTiUkcwQAkEHEFDvIHYh2F4AwACCcgGZB4GZgAAAABJRU5ErkJggg==");
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+}
+
+/* line 442, ../../sass/etc/all.scss */
+.x-over .icon-arrow-down {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAXklEQVR4XmMYRiBi+uYtQPyfSLwFmwFKQPydkAFQNcq4XNFIhAFN+LzBAcT3cBkAleMgFBa+eAzwpSRAt5ASI4rIAQplK5EarQ1IBjTiUkcwQAkEHEFDvIHYh2F4AwBNKbSofp5SiQAAAABJRU5ErkJggg==");
+}
+
+/* line 446, ../../sass/etc/all.scss */
+.x-disabled .icon-arrow-down {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAVklEQVR4XmOgE7iy5cp/LHALQoHSle8YCr5fUUI2oxFDQSOqJRxX7qEouHeFA90dvigKfPA7dQt2vyhCnAokFXF5twGsoAFZDMOpKM7DBFe8gc6jNwAAyEZ5Fzsdi60AAAAASUVORK5CYII=");
+}
+
+/* line 450, ../../sass/etc/all.scss */
+.previous-next-navigation-items-counter {
+  color: #686868;
+  padding-right: 10px;
+}

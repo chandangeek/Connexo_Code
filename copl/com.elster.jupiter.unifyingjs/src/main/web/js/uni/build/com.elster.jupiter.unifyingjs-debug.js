@@ -1196,7 +1196,7 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                 header.set({'data-qtip': undefined});
             }
 
-            if (column.$className === 'Ext.grid.column.Column' || column.$className === 'Ext.grid.column.Date' || column.$className === 'Ext.grid.column.Template') {
+            if (column.$className === 'Ext.grid.column.Column' || column.$className === 'Ext.grid.column.Date' || column.$className === 'Ext.grid.column.Template'|| column.$className === 'Uni.grid.column.Duration') {
                 Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + (column.itemId || column.id)), function (item) {
                     var cell = Ext.get(item),
                         inner = cell.down('.x-grid-cell-inner'),
@@ -1353,15 +1353,26 @@ Ext.define('Uni.Auth', {
     },
 
     hasAnyPrivilege: function (privileges) {
+        var result = false;
         if (Ext.isArray(privileges)) {
             for (var i = 0; i < privileges.length; i++) {
                 var privilege = privileges[i];
-                if (this.hasPrivilege(privilege)) {
-                    return true;
+                if (Ext.isArray(privilege)) {
+                    result = false;
+                    for (var j = 0; j < privilege.length; j++) {
+                        result = result || this.hasPrivilege(privilege[j]);
+                    }
+                    if (!result) {
+                        return result;
+                    }
+                } else {
+                    if (this.hasPrivilege(privilege)) {
+                        return true;
+                    }
                 }
             }
         }
-        return false;
+        return result;
     }
 });
 
@@ -2431,6 +2442,56 @@ Ext.define('Uni.view.error.NotFound', {
                             'error.pageNotFoundNotAuthorized',
                             'UNI',
                             "You are not authorized to access this page."
+                        ),
+                        Uni.I18n.translate(
+                            'error.pageNotFoundNotLicense',
+                            'UNI',
+                            "Your license has expired."
+                        )
+                    ],
+                    stepItems: []
+                }
+            ]
+        }
+    ]
+});
+
+Ext.define('Uni.view.error.Launch', {
+    extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.errorLaunch',
+    itemId: 'errorLaunch',
+    overflowY: 'auto',
+    requires: [
+        'Ext.panel.Panel',
+        'Uni.view.notifications.NoItemsFoundPanel'
+    ],
+
+    content: [
+        {
+            xtype: 'panel',
+            ui: 'large',
+            title: Uni.I18n.translate(
+                'error.errorLaunchTitle',
+                'UNI',
+                "Sorry! An error occurred."
+            ),
+            layout: {
+                type: 'fit',
+                align: 'stretch'
+            },
+            items: [
+                {
+                    xtype: 'no-items-found-panel',
+                    title: Uni.I18n.translate('error.errorLaunch', 'UNI', 'Application error'),
+                    reasons: [
+                        Uni.I18n.translate(
+                            'error.errorLaunchAuthentication',
+                            'UNI',
+                            "You are not authorized to access this application."
+                        ),
+                        Uni.I18n.translate(
+                            'error.errorServerUnreachable',
+                            'UNI',"Server hosting this application is unreachable."
                         )
                     ],
                     stepItems: []
@@ -2452,7 +2513,8 @@ Ext.define('Uni.controller.Error', {
     requires: [
         'Uni.view.error.Window',
         'Ext.ux.window.Notification',
-        'Uni.view.error.NotFound'
+        'Uni.view.error.NotFound',
+        'Uni.view.error.Launch'
     ],
 
     config: {
@@ -2465,6 +2527,12 @@ Ext.define('Uni.controller.Error', {
             route: 'error/notfound',
             controller: 'Uni.controller.Error',
             action:'showPageNotFound'
+        },
+        launch: {
+            title: Uni.I18n.translate('error.errorLaunch', 'UNI', 'Application error'),
+            route: 'error/launch',
+            controller: 'Uni.controller.Error',
+            action:'showErrorLaunch'
         }
     },
 
@@ -2624,7 +2692,12 @@ Ext.define('Uni.controller.Error', {
     showPageNotFound: function () {
         var widget = Ext.widget('errorNotFound');
         this.getApplication().fireEvent('changecontentevent', widget);
+    },
+    showErrorLaunch: function () {
+        var widget = Ext.widget('errorLaunch');
+        this.getApplication().fireEvent('changecontentevent', widget);
     }
+
 });
 
 /**
@@ -2650,10 +2723,6 @@ Ext.define('Uni.controller.history.EventBus', {
     initHistory: function () {
         var me = this;
 
-        crossroads.bypassed.add(function(request){
-            crossroads.parse("/error/notfound");
-        });
-
         Ext.util.History.init(function () {
             Ext.util.History.addListener('change', function (token) {
                 me.onHistoryChange(token);
@@ -2661,6 +2730,11 @@ Ext.define('Uni.controller.history.EventBus', {
 
             me.checkHistoryState();
         });
+
+        crossroads.bypassed.add(function(request){
+            crossroads.parse("/error/notfound");
+        });
+
     },
 
     checkHistoryState: function () {
@@ -2670,6 +2744,7 @@ Ext.define('Uni.controller.history.EventBus', {
         if (token === null || token === '') {
             token = me.getDefaultToken();
             Ext.util.History.add(token);
+            Ext.util.History.currentToken = token;
         }
 
         me.onHistoryChange(token);
@@ -2677,6 +2752,12 @@ Ext.define('Uni.controller.history.EventBus', {
 
     onHistoryChange: function (token) {
         var queryStringIndex = token.indexOf('?');
+
+        if (typeof token === 'undefined' || token === null || token === '') {
+            token = this.getDefaultToken();
+            Ext.util.History.add(token);
+        }
+
         if (queryStringIndex > 0) {
             token = token.substring(0, queryStringIndex);
         }
@@ -2803,12 +2884,13 @@ Ext.define('Uni.model.App', {
                     || fullPath.indexOf(record.data.url, 0) === 0;
             }
         },
+        'isExternal',
         {
-            name: 'isExternal',
+            name: 'is3External',
             persist: false,
             convert: function (value, record) {
                 var url = record.get('url');
-                return url.indexOf('http') === 0;
+                return (url.indexOf('http') === 0);
             }
         }
     ]
@@ -3204,27 +3286,27 @@ Ext.define('Uni.controller.Navigation', {
             me.selectMenuItemByActiveToken();
         });
 
-        this.initApps();
-        this.initMenuItems();
+        me.initApps();
+        me.initMenuItems();
 
-        this.control({
+        me.control({
             'navigationMenu': {
-                afterrender: this.onAfterRenderNavigationMenu
+                afterrender: me.onAfterRenderNavigationMenu
             },
             'navigationAppSwitcher': {
-                afterrender: this.resetAppSwitcherState
+                afterrender: me.resetAppSwitcherState
             },
             'navigationHeader #globalSearch': {
-                afterrender: this.initSearch
+                afterrender: me.initSearch
             }
         });
 
-        this.getApplication().on('changemaincontentevent', this.showContent, this);
-        this.getApplication().on('changemainbreadcrumbevent', this.initTitle, this);
-        this.getApplication().on('changemainbreadcrumbevent', this.setBreadcrumb, this);
+        me.getApplication().on('changemaincontentevent', me.showContent, me);
+        me.getApplication().on('changemainbreadcrumbevent', me.initTitle, me);
+        me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb, me);
 
-        this.getController('Uni.controller.history.Router').on('routematch', this.initBreadcrumbs, this);
-        this.getController('Uni.controller.history.Router').on('routechange', this.initBreadcrumbs, this);
+        me.getController('Uni.controller.history.Router').on('routematch', me.initBreadcrumbs, me);
+        me.getController('Uni.controller.history.Router').on('routechange', me.initBreadcrumbs, me);
     },
 
     initApps: function () {
@@ -4347,7 +4429,7 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
     ),
     listeners: {
         change: function (field, newValue) {
-            field.el.down('a').setVisible(newValue && newValue.length > 0);
+            field.el.down('a').setVisible(!!newValue && newValue.length > 0);
         }
     },
     initComponent: function () {
@@ -4606,6 +4688,7 @@ Ext.define('Uni.Loader', {
     onReady: function (callback) {
         var me = this;
 
+        me.loadExt();
         me.loadFont();
         me.loadTooltips();
         me.loadStateManager();
@@ -4613,6 +4696,10 @@ Ext.define('Uni.Loader', {
         me.loadVtypes();
 
         callback();
+    },
+
+    loadExt: function () {
+        Ext.History.init();
     },
 
     loadFont: function () {
@@ -5206,6 +5293,13 @@ Ext.define('Uni.controller.AppController', {
     applicationTitle: 'Connexo',
 
     /**
+     * @cfg {String} applicationKey
+     *
+     * The key to be used for licensing the application.
+     */
+    applicationKey: 'SYS',
+
+    /**
      * @cfg {String} defaultToken
      *
      * The default history token the application needs to use.
@@ -5238,18 +5332,19 @@ Ext.define('Uni.controller.AppController', {
     init: function () {
 
         var me = this;
-        if (Uni.Auth.hasAnyPrivilege(me.privileges)){
-            me.initCrossroads();
+        me.initCrossroads();
 
-            me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
-            me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
-            me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
-            me.getApplication().on('changecontentevent', me.showContent, me);
-            me.getApplication().on('sessionexpired', me.redirectToLogin, me);
-
+        me.getController('Uni.controller.Navigation').applicationTitle = me.applicationTitle;
+        me.getController('Uni.controller.Navigation').searchEnabled = me.searchEnabled;
+        me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
+        me.getApplication().on('changecontentevent', me.showContent, me);
+        me.getApplication().on('sessionexpired', me.redirectToLogin, me);
+        if (Uni.Auth.hasAnyPrivilege(me.privileges)) {
+            me.checkLicenseStatus();
             me.loadControllers();
-            me.callParent(arguments);
+            me.showLicenseGraced();
         }
+        me.callParent(arguments);
     },
 
     /**
@@ -5277,6 +5372,58 @@ Ext.define('Uni.controller.AppController', {
         this.getContentPanel().removeAll();
         this.getContentPanel().add(widget);
         this.getContentPanel().doComponentLayout();
+    },
+
+    checkLicenseStatus: function () {
+        var me = this;
+        if (typeof me.applicationKey !== 'undefined' && me.applicationKey !== 'SYS'){
+            Ext.Ajax.request({
+                url: '/api/apps/apps/status/'+me.applicationKey,
+                method: 'GET',
+                async: false,
+                success: function(response){
+                    me.licenseStatus = response.responseText;
+                    if (me.licenseStatus === 'EXPIRED') {
+                        me.controllers = [];
+                        me.getController('Uni.controller.Navigation').searchEnabled  = false;
+                    }
+                },
+                failure: function(response) {
+                    me.licenseStatus = 'NO_LICENSE';
+                }
+            });
+        }
+    },
+
+    showLicenseGraced : function () {
+        if (!isNaN(this.licenseStatus) && !Ext.state.Manager.get('licenseGraced')) {
+            Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+            Ext.state.Manager.set('licenseGraced', 'Y');
+            var config = {
+                title: Uni.I18n.translate('error.license', 'UNI', 'License'),
+                msg: Uni.I18n.translate('error.license.graced', 'UNI', 'The system is currently running on a license that has a grace period. You have {0} day(s) remaining.', [this.licenseStatus]),
+                modal: false,
+                ui: 'message-error',
+                icon: Ext.MessageBox.ERROR
+            };
+
+            var box = Ext.create('Ext.window.MessageBox', {
+                buttons: [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
+                        action: 'close',
+                        name: 'close',
+                        ui: 'action',
+                        handler: function () {
+                            box.close();
+                        }
+                    }
+                ]
+            });
+
+            box.show(config);
+        }
     },
 
     redirectToLogin: function () {
@@ -5556,11 +5703,9 @@ Ext.define('Uni.data.proxy.QueryStringProxy', {
             queryParams = {};
 
         operation.setStarted();
-
         var data = this.hydrator
             ? this.hydrator.extract(model)
             : this.writer.getRecordData(model);
-
         //todo: clean empty data!
         model.commit();
 
@@ -6626,6 +6771,8 @@ Ext.define('Uni.form.field.DateTime', {
      */
     minutesConfig: null,
 
+    dateTimeSeparatorConfig: null,
+
     initComponent: function () {
         var me = this,
             dateField = {
@@ -6656,6 +6803,11 @@ Ext.define('Uni.form.field.DateTime', {
             separator = {
                 xtype: 'component',
                 html: ':',
+                margin: '0 5 0 5'
+            },
+            dateTimeSeparator = {
+                xtype: 'component',
+                html: '',
                 margin: '0 5 0 5'
             },
             container = {
@@ -6692,8 +6844,9 @@ Ext.define('Uni.form.field.DateTime', {
         Ext.apply(hoursField, me.hoursConfig);
         Ext.apply(minutesField, me.minutesConfig);
         Ext.apply(separator, me.separatorConfig);
+        Ext.apply(dateTimeSeparator, me.dateTimeSeparatorConfig);
 
-        container.items = [hoursField, separator, minutesField];
+        container.items = [dateTimeSeparator, hoursField, separator, minutesField];
         me.items = [dateField, container];
 
         me.callParent(arguments);
@@ -6727,7 +6880,7 @@ Ext.define('Uni.form.field.DateTime', {
             dateField = me.down('#date-time-field-date'),
             hoursField = me.down('#date-time-field-hours'),
             minutesField = me.down('#date-time-field-minutes');
-        if (Ext.isDate(value) || moment(new Date(value)).isValid()) {
+        if (value != null && Ext.isDate(new Date(value))) {
             me.eachItem(function (item) {
                 item.suspendEvent('change');
             });
@@ -6738,49 +6891,39 @@ Ext.define('Uni.form.field.DateTime', {
             me.eachItem(function (item) {
                 item.resumeEvent('change');
             });
-        } else if (value === undefined || value === null) {
+        } else {
             dateField.reset();
             hoursField.reset();
             minutesField.reset();
-        } else {
-            console.error('\'' + value + '\' is not a date');
         }
     },
 
-    getValue: function() {
+    getValue: function () {
         var me = this,
             date = me.down('#date-time-field-date').getValue(),
             hours = me.down('#date-time-field-hours').getValue(),
             minutes = me.down('#date-time-field-minutes').getValue();
-
         if (date) {
             date = date.getTime();
-            if (hours) {
-                date += hours * 3600000;
-            }
-            if (minutes) {
-                date += minutes * 60000;
-            }
+            if (hours) date += hours * 3600000;
+            if (minutes) date += minutes * 60000;
         }
-
-        if(me.getRawValue) {
-            return date;
-        }
-
+        if (me.getRawValue) return date;
         date = new Date(date);
-
         return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
     },
 
-    markInvalid: function(fields){
-        this.eachItem(function(field){
-            field.markInvalid('');
+    markInvalid: function (fields) {
+        this.eachItem(function (field) {
+            if (_.isFunction(field.markInvalid)) {
+                field.markInvalid('');
+            }
         });
         this.items.items[0].markInvalid(fields);
     },
 
-    eachItem: function(fn, scope) {
-        if(this.items && this.items.each){
+    eachItem: function (fn, scope) {
+        if (this.items && this.items.each) {
             this.items.each(fn, scope || this);
         }
     },
@@ -7150,6 +7293,95 @@ Ext.define('Uni.form.field.DisplayFieldWithInfoIcon', {
 });
 
 /**
+ * @class Uni.util.String
+ *
+ * Utility class for commonly used string functions.
+ */
+Ext.define('Uni.util.String', {
+    singleton: true,
+
+    /**
+     * Formats a duration in milliseconds to a human readable format.
+     *
+     * @param millis
+     * @returns {string}
+     */
+    formatDuration: function (millis, shortFormat) {
+        var duration = moment.duration(millis),
+            format = '',
+            hours,
+            minutes,
+            seconds;
+
+        if (duration.asHours() > 1) {
+            hours = Math.floor(duration.asHours()); // Avoids rounding errors.
+            format += shortFormat ?
+                Uni.I18n.translatePlural('general.time.hours_short', hours, 'UNI', '{0}h') :
+                Uni.I18n.translatePlural('general.time.hours', hours, 'UNI', '{0} hours');
+            format += ' ';
+        }
+
+        if (duration.asMinutes() > 1) {
+            minutes = duration.minutes();
+            format += shortFormat ?
+                Uni.I18n.translatePlural('general.time.minutes_short', minutes, 'UNI', '{0}m') :
+                Uni.I18n.translatePlural('general.time.minutes', minutes, 'UNI', '{0} minutes');
+            format += ' ';
+        }
+
+        seconds = duration.seconds() + Math.round(duration.milliseconds() / 1000);
+
+        // If less than 1 full second, round up; milliseconds get ignored in this case.
+        if (duration.asSeconds() < 1 && duration.asSeconds() !== 0) {
+            seconds = 1;
+        }
+
+        format += shortFormat ?
+            Uni.I18n.translatePlural('general.time.seconds_short', seconds, 'UNI', '{0}s') :
+            Uni.I18n.translatePlural('general.time.seconds', seconds, 'UNI', '{0} seconds');
+
+        return format;
+    }
+});
+
+/**
+ * @class Uni.form.field.Duration
+ */
+Ext.define('Uni.form.field.Duration', {
+    extend: 'Ext.form.field.Display',
+    xtype: 'uni-form-field-duration',
+
+    requires: [
+        'Uni.util.String'
+    ],
+
+    fieldLabel: Uni.I18n.translate('form.field.duration.label', 'UNI', 'Duration'),
+
+    /**
+     * @cfg usesSeconds
+     *
+     * If the duration field gets its value in seconds or not.
+     * By default it assumes a millisecond value.
+     */
+    usesSeconds: false,
+
+    initComponent: function () {
+        this.callParent(arguments);
+    },
+
+    setRawValue: function (value) {
+        var me = this;
+
+        if (!isNaN(value)) {
+            value = me.usesSeconds ? value * 1000 : value;
+            arguments[0] = Uni.util.String.formatDuration(parseInt(value, 10));
+        }
+
+        me.callParent(arguments);
+    }
+});
+
+/**
  * @class Uni.form.field.EditedDisplay
  */
 Ext.define('Uni.form.field.EditedDisplay', {
@@ -7239,6 +7471,35 @@ Ext.define('Uni.form.field.FilterDisplay', {
         ];
 
         me.callParent(arguments);
+    }
+});
+
+/**
+ * @class Uni.form.field.IconDisplay
+ */
+Ext.define('Uni.form.field.IconDisplay', {
+    extend: 'Ext.form.field.Display',
+    xtype: 'icon-displayfield',
+    iconCls: null,
+    tipString: null,
+    deferredRenderer: function (field, icon) {
+        field.getEl().down('.x-form-display-field').appendChild(icon);
+        field.updateLayout();
+    },
+
+    renderer: function (value, field) {
+        var me = this,
+            icon;
+        if (value) {
+            icon = document.createElement('span');
+            icon.className = me.iconCls;
+            Ext.create('Ext.tip.ToolTip', {
+                target: icon,
+                html: me.tipString
+            });
+            Ext.defer(this.deferredRenderer, 1, this, [field, icon]);
+        }
+        return '';
     }
 });
 
@@ -7478,6 +7739,7 @@ Ext.define('Uni.form.field.Password', {
         type: 'vbox',
         align: 'stretch'
     },
+    passwordAsTextComponent: false,
 
     handler: function (checkbox, checked) {
         var field = this.down('textfield');
@@ -7494,17 +7756,22 @@ Ext.define('Uni.form.field.Password', {
             inputType: 'password',
             name: this.name,
             readOnly: this.readOnly
-        },
-        {
-            xtype: 'checkbox',
-            boxLabel: Uni.I18n.translate('comServerComPorts.form.showChar', 'MDC', 'Show characters')
         }
     ],
 
     initComponent: function() {
         this.items[0].name = this.name;
-        this.items[1].handler = this.handler;
-        this.items[1].scope = this;
+        if (!this.passwordAsTextComponent) {
+            this.items[1] = (
+                {
+                    xtype: 'checkbox',
+                    boxLabel: Uni.I18n.translate('comServerComPorts.form.showChar', 'MDC', 'Show characters')
+                }
+            )
+            this.items[1].handler = this.handler;
+            this.items[1].scope = this;
+        }
+
 
         this.callParent(arguments);
     },
@@ -7512,6 +7779,39 @@ Ext.define('Uni.form.field.Password', {
     setValue: function(value) {
         this.down('textfield').setValue(value);
     }
+});
+
+/**
+ * @class Uni.form.field.PasswordDisplay
+ */
+Ext.define('Uni.form.field.PasswordDisplay', {
+    extend: 'Ext.form.FieldContainer',
+    xtype: 'password-display-field',
+    //   fieldLabel: Uni.I18n.translate('form.password', 'UNI', 'Password'),
+    layout: {
+        type: 'hbox',
+        align: 'stretch'
+    },
+
+    originalValue: null,
+    onlyView: true,
+
+    items: [
+        {
+            xtype: 'displayfield',
+            required: true,
+            allowBlank: false,
+            name: this.name,
+            readOnly: this.readOnly,
+            flex: 2.5
+        }
+    ],
+
+    initComponent: function () {
+        this.items[0].name = this.name;
+        this.callParent(arguments);
+    }
+
 });
 
 /**
@@ -7666,7 +7966,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
             });
         }, 1);
 
-        return '<span style="display: inline-block; float: left; width: 400px">' +
+        return '<span style="display: inline-block; float: left; margin: 0px 10px 0px 0px">' +
             (me.link ? ('<a href="' + me.link + '">' + (assembledName || value.mRID) + '</a>') :
                 (assembledName || value.mRID)) + '</span>' + icon;
     }
@@ -7723,7 +8023,7 @@ Ext.define('Uni.grid.column.Action', {
     header: 'Actions',
     width: 100,
     align: 'left',
-    iconCls: 'x-uni-action-icon',
+    iconCls: ' uni-actioncolumn-gear',
 
     menu: {
         defaultAlign: 'tr-br?',
@@ -7731,7 +8031,7 @@ Ext.define('Uni.grid.column.Action', {
         items: []
     },
 
-    constructor: function(config) {
+    constructor: function (config) {
         var me = this,
             cfg = Ext.apply({}, config);
 
@@ -7749,7 +8049,7 @@ Ext.define('Uni.grid.column.Action', {
         cfg.items = null;
         me.callParent([cfg]);
 
-        this.initMenu();
+        me.initMenu();
     },
 
     /**
@@ -7760,7 +8060,7 @@ Ext.define('Uni.grid.column.Action', {
             menuXtype = me.menu.xtype;
         menuXtype == null ? menuXtype = 'menu' : null;
         me.menu = Ext.widget(menuXtype, me.menu);
-        me.menu.on('click', function(menu, item, e, eOpts) {
+        me.menu.on('click', function (menu, item, e, eOpts) {
             me.fireEvent('menuclick', menu, item, e, eOpts);
             if (item.action && !Ext.isObject(item.action)) {
 
@@ -7768,25 +8068,40 @@ Ext.define('Uni.grid.column.Action', {
             }
         });
     },
+  
+    handler: function (grid, rowIndex, colIndex) {
+        var me = this,
+            record = grid.getStore().getAt(rowIndex),
+            cell = grid.getCellByPosition({row: rowIndex, column: colIndex}),
+            selectionModel = grid.getSelectionModel(),
+            selection = selectionModel.getSelection(),
+            selectedRecord;
 
-    handler: function(grid, rowIndex, colIndex) {
-        var me = this;
-        var record = grid.getStore().getAt(rowIndex);
-        var cell = grid.getCellByPosition({row: rowIndex, column: colIndex});
+        if (selection.length > 0) {
+            selectedRecord = selection[0];
+
+            if (grid.getStore().indexOf(selectedRecord) !== rowIndex) {
+                selectionModel.select(rowIndex);
+            }
+        } else if (selection.length === 0 && grid.getStore().getCount() > 0) {
+            selectionModel.select(rowIndex);
+        }
 
         if (me.menu.cell === cell) {
             me.menu.hide();
             me.menu.cell = null;
         } else {
-            cell.addCls('active');
-            me.menu.record = record;
-            me.menu.showBy(cell);
-            me.menu.cell = cell;
+            if(me.fireEvent('beforeshow', grid, cell, colIndex, rowIndex, record)) {
+                cell.addCls('active');
+                me.menu.record = record;
+                me.menu.showBy(cell);
+                me.menu.cell = cell;
+            }
         }
 
         // this is for menu toggling, change the code below with accuracy!
-        me.menu.on('hide', function() {
-            var actions = grid.getEl().query('.' + me.iconCls + ':hover');
+        me.menu.on('hide', function () {
+            var actions = grid.getEl().query(me.iconCls + ':hover');
             if (!actions.length) {
                 me.menu.cell = null;
             }
@@ -7816,6 +8131,39 @@ Ext.define('Uni.grid.column.Default', {
     }
 });
 
+/**
+ * @class Uni.grid.column.Duration
+ */
+Ext.define('Uni.grid.column.Duration', {
+    extend: 'Ext.grid.column.Column',
+    xtype: 'uni-grid-column-duration',
+
+    requires: [
+        'Uni.util.String'
+    ],
+
+    header: Uni.I18n.translate('grid.column.duration.header', 'UNI', 'Duration'),
+    shortFormat: false,
+
+    /**
+     * @cfg usesSeconds
+     *
+     * If the duration field gets its value in seconds or not.
+     * By default it assumes a millisecond value.
+     */
+    usesSeconds: false,
+
+    renderer: function (value, metaData, record) {
+        var me = metaData.column;
+        if (!isNaN(value)) {
+            value = me.usesSeconds ? value * 1000 : value;
+            return Uni.util.String.formatDuration(parseInt(value, 10), me.shortFormat);
+        }
+
+        return value;
+    }
+});
+
 Ext.define('Uni.grid.column.Edited', {
     extend: 'Ext.grid.column.Column',
     xtype: 'edited-column',
@@ -7833,6 +8181,50 @@ Ext.define('Uni.grid.column.Edited', {
         });
 
         return new Uni.form.field.EditedDisplay().renderer.apply(me, arguments);
+    }
+});
+
+Ext.define('Uni.grid.column.Icon', {
+    extend: 'Ext.grid.column.Column',
+    xtype: 'icon-column',
+    header: null,
+    minWidth: 100,
+    align: 'left',
+    requires: [
+        'Uni.form.field.IconDisplay'
+    ],
+
+    deferredRenderer: function (value, record, view) {
+        try {
+            var me = this,
+                cmp = view.getCell(record, me).down('.x-grid-cell-inner'),
+                field = new Uni.form.field.IconDisplay({
+                    fieldLabel: false,
+                    iconCls: value.iconCls,
+                    tipString: value.tipString
+                });
+            cmp.setHTML('');
+            field.setValue(value.value);
+            field.render(cmp);
+        } catch (e) {
+        }
+    },
+
+    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
+        var me = metaData.column;
+        var res = {};
+        if (Ext.isDefined(value.editedTime)) {
+            var time = Ext.isDate(value.editedTime) ? value.editedTime : new Date(value.editedTime);
+            res.value = time;
+            res.iconCls = 'icon-edit';
+            res.tipString = Uni.I18n.formatDate('editedDate.format', time, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+        }
+        if (Ext.isDefined(value.deletedTime)) {
+            res.value = value.deletedTime;
+            res.iconCls = 'icon-deleted';
+            res.tipString = Uni.I18n.formatDate('deletedDate.format', value.deletedTime, 'MDC', '\\D\\e\\l\\e\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+        }
+        Ext.defer(me.deferredRenderer, 1, me, [res, record, view]);
     }
 });
 
@@ -8096,8 +8488,13 @@ Ext.define('Uni.property.view.property.Base', {
 
     isEdit: true,
     isReadOnly: false,
+    inputType: 'text',
     property: null,
     key: null,
+    passwordAsTextComponent: false,
+    emptyText: '',
+    userHasViewPrivilege: true,
+    userHasEditPrivilege: true,
 
     /**
      * @param {string|null} key
@@ -8134,14 +8531,18 @@ Ext.define('Uni.property.view.property.Base', {
      * @param {Uni.property.model.Property} property
      */
     initProperty: function (property) {
-        this.property = property;
+        var me = this;
+        me.property = property;
 
         if (property) {
-            this.key = property.get('key');
-            this.itemId = this.key;
+            me.key = property.get('key');
+            me.itemId = me.key;
 
-            if (this.isEdit) {
-                this.required = property.get('required');
+            if (me.isEdit) {
+                me.required = property.get('required');
+                if (me.required) {
+                    me.allowBlank = false
+                }
             }
         }
     },
@@ -8262,13 +8663,24 @@ Ext.define('Uni.property.view.property.Base', {
      * @param value
      */
     setValue: function (value) {
-        this.isEdit
-            ? this.getField().setValue(value)
-            : this.getDisplayField().setValue(value);
+        if (this.isEdit) {
+            if (this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
+                this.getField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
+            } else {
+                this.getField().emptyText = '';
+            }
+            this.getField().setValue(value);
+        } else {
+            if (this.getProperty().get('hasValue')) {
+                this.getDisplayField().setValue('********');
+            } else {
+                this.getDisplayField().setValue(value);
+            }
+        }
     },
 
-    getValue: function (value) {
-        return value;
+    getValue: function () {
+        return this.getField().getValue()
     },
 
     /**
@@ -8329,14 +8741,19 @@ Ext.define('Uni.property.view.property.Base', {
             field.on('change', function () {
                 me.getProperty().set('isInheritedOrDefaultValue', false);
                 me.updateResetButton();
+                if (field.getValue() === null || field.getValue() === '') {
+                    me.getProperty().set('hasValue', false);
+                    me.getProperty().set('propertyHasValue', false);
+                }
             });
             field.on('blur', function () {
                 if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
                     me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
                 }
+
             })
         }
-        this.on('afterrender', function(){
+        this.on('afterrender', function () {
             me.fireEvent('enableRestoreAll', this);
         });
         this.getResetButton().setHandler(this.restoreDefault, this);
@@ -8348,8 +8765,12 @@ Ext.define('Uni.property.view.property.Base', {
     restoreDefault: function () {
         var property = this.getProperty();
         var restoreValue = property.get('default');
+        property.set('hasValue', false);
+        property.set('propertyHasValue', false);
         this.setValue(restoreValue);
         property.set('isInheritedOrDefaultValue', true);
+
+
 
         this.updateResetButton();
     },
@@ -8360,7 +8781,34 @@ Ext.define('Uni.property.view.property.Base', {
     useInheritedValue: function () {
         this.getProperty().initInheritedValues();
         this.updateResetButton();
+    },
+
+    /**
+     * show value
+     */
+    showValue: function () {
+        if (this.isEdit) {
+            this.getField().getEl().down('input').dom.type = 'text';
+        } else {
+            this.getDisplayField().setValue(this.getProperty().get('value'));
+        }
+    },
+
+    /**
+     * hide value
+     */
+    hideValue: function () {
+        if (this.isEdit) {
+            this.getField().getEl().down('input').dom.type = 'password';
+        } else {
+            if (this.getProperty().get('hasValue')) {
+                this.getDisplayField().setValue('********');
+            } else {
+                this.getDisplayField().setValue('');
+            }
+        }
     }
+
 });
 
 /**
@@ -8455,11 +8903,12 @@ Ext.define('Uni.property.view.property.Text', {
         return {
             xtype: 'textfield',
             name: this.getName(),
-            itemId: me.key + 'textfield',
+            itemId: me.key,
             width: me.width,
             msgTarget: 'under',
             readOnly: me.isReadOnly,
-            allowBlank: me.allowBlank
+            allowBlank: me.allowBlank,
+            inputType: me.inputType
         }
     },
 
@@ -8505,7 +8954,9 @@ Ext.define('Uni.property.view.property.Textarea', {
             width: me.width,
             grow: true,
             msgTarget: 'under',
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            inputType: me.inputType,
+            allowBlank: me.allowBlank
         }
     },
 
@@ -8517,7 +8968,8 @@ Ext.define('Uni.property.view.property.Textarea', {
 Ext.define('Uni.property.view.property.Password', {
     extend: 'Uni.property.view.property.Base',
     requires: [
-        'Uni.form.field.Password'
+        'Uni.form.field.Password',
+        'Uni.form.field.PasswordDisplay'
     ],
 
     getEditCmp: function () {
@@ -8529,16 +8981,37 @@ Ext.define('Uni.property.view.property.Password', {
             width: me.width,
             msgTarget: 'under',
             readOnly: me.isReadOnly,
-            fieldLabel: undefined
+            fieldLabel: undefined,
+            passwordAsTextComponent: me.passwordAsTextComponent,
+            allowBlank: me.allowBlank
         }
     },
 
+    /**
+     * returns basic display field configuration
+     * override this method if you want custom look of display field of custom property.
+     *
+     * @returns {Object}
+     */
+    getDisplayCmp: function () {
+        return {
+            xtype: 'password-display-field',
+            name: this.getName(),
+            itemId: this.key + 'passworddisplayfield'
+        }
+    },
+
+
     getField: function () {
-        return this.down('password-field');
+        return this.getPasswordField();
     },
 
     getPasswordField: function () {
         return this.down('textfield');
+    },
+
+    getPasswordDisplayField: function () {
+        return this.down('password-display-field');
     },
 
 
@@ -8551,10 +9024,39 @@ Ext.define('Uni.property.view.property.Password', {
             field.on('change', function () {
                 me.getProperty().set('isInheritedOrDefaultValue', false);
                 me.updateResetButton();
+                if (field.getValue() === null || field.getValue() === '') {
+                    me.getProperty().set('hasValue', false);
+                    me.getProperty().set('propertyHasValue', false);
+                }
             });
+            field.on('blur', function () {
+                if (field.getValue() !== '' && !me.getProperty().get('isInheritedOrDefaultValue') && field.getValue() === me.getProperty().get('default')) {
+                    me.showPopupEnteredValueEqualsInheritedValue(field, me.getProperty());
+                }
+
+            })
+        }
+    },
+
+    setValue: function (value) {
+        if (this.isEdit) {
+            if (this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
+                this.getPasswordField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
+            } else {
+                this.getPasswordField().emptyText = '';
+            }
+            this.getField().setValue(value);
+        } else {
+            if (this.getProperty().get('hasValue')) {
+                this.getDisplayField().setValue('********');
+            } else {
+                this.getDisplayField().setValue(value);
+            }
         }
     }
-});
+
+})
+;
 
 Ext.define('Uni.property.view.property.Hexstring', {
     extend: 'Uni.property.view.property.Text',
@@ -8642,7 +9144,9 @@ Ext.define('Uni.property.view.property.Number', {
             maxValue: maxValue,
             allowDecimals: allowDecimals,
             msgTarget: 'under',
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            inputType: me.inputType,
+            allowBlank: me.allowBlank
         };
     },
 
@@ -8654,7 +9158,12 @@ Ext.define('Uni.property.view.property.Number', {
     },
 
     getField: function () {
-        return this.down('numberfield');
+        var me = this;
+        if (me.isCombo()) {
+            return me.down('combobox')
+        } else {
+            return me.down('numberfield')
+        }
     }
 });
 
@@ -8668,7 +9177,7 @@ Ext.define('Uni.property.view.property.NullableBoolean', {
             xtype: 'radiogroup',
             itemId: me.key + 'radiogroup',
             name: this.getName(),
-            allowBlank: false,
+            allowBlank: me.allowBlank,
             vertical: true,
             columns: 1,
             readOnly: me.isReadOnly,
@@ -8739,7 +9248,9 @@ Ext.define('Uni.property.view.property.Date', {
             altFormats: me.formats.join('|'),
             width: me.width,
             required: me.required,
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            inputType: me.inputType,
+            allowBlank: me.allowBlank
         };
     },
 
@@ -8758,15 +9269,8 @@ Ext.define('Uni.property.view.property.Date', {
         this.callParent([value]);
     },
 
-    getValue: function (value) {
-        if (value !== null && value !== '') {
-            var newDate = new Date(value.getFullYear(), value.getMonth(), value.getDate(),
-                0, 0, 0, 0);
-            return newDate.getTime();
-        } else
-        {
-            return value;
-        }
+    getValue: function () {
+        return this.getField().getValue().getTime()
     }
 });
 
@@ -8788,7 +9292,9 @@ Ext.define('Uni.property.view.property.DateTime', {
             format: me.timeFormat,
             width: me.width,
             required: me.required,
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            inputType: me.inputType,
+            allowBlank: me.allowBlank
         };
 
         return result;
@@ -8820,16 +9326,14 @@ Ext.define('Uni.property.view.property.DateTime', {
         }
     },
 
-    getValue: function (value) {
+    getValue: function () {
         var timeValue = this.getTimeField().getValue(),
             dateValue = this.getDateField().getValue();
-
         if (timeValue !== null && timeValue !== '' && dateValue !== null && dateValue !== '') {
             var newDate = new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(),
                 timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), 0);
             return newDate.getTime();
         }
-
         return null;
     }
 });
@@ -8891,7 +9395,8 @@ Ext.define('Uni.property.view.property.Period', {
                 width: me.width,
                 forceSelection: false,
                 required: me.required,
-                readOnly: me.isReadOnly
+                readOnly: me.isReadOnly,
+                allowBlank: me.allowBlank
             }
         ];
     },
@@ -8944,11 +9449,12 @@ Ext.define('Uni.property.view.property.Period', {
         }
     },
 
-    getValue: function (value) {
-        if (!this.isCombo()) {
+    getValue: function (values) {
+        var me = this;
+        if (!me.isCombo()) {
             var result = {};
-            result.count = value.numberfield;
-            result.timeUnit = value.combobox;
+            result.count = me.getField().getValue();
+            result.timeUnit = me.getComboField().getValue();
 
             return result;
         } else {
@@ -8972,7 +9478,9 @@ Ext.define('Uni.property.view.property.Time', {
             format: me.timeFormat,
             width: me.width,
             required: me.required,
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            inputType: me.inputType,
+            allowBlank: me.allowBlank
         };
     },
 
@@ -9032,7 +9540,80 @@ Ext.define('Uni.property.view.property.CodeTable', {
 });
 
 Ext.define('Uni.property.view.property.Reference', {
-    extend: 'Uni.property.view.property.BaseCombo'
+    extend: 'Uni.property.view.property.BaseCombo',
+
+    referencesStore: Ext.create('Ext.data.Store', {
+        fields: [
+            {name: 'key', type: 'number'},
+            {name: 'value', type: 'string'}
+        ]
+    }),
+
+    getEditCmp: function () {
+        var me = this;
+
+        // clear store
+        me.referencesStore.loadData([], false);
+        for (var i = 0; i < me.getProperty().getPossibleValues().length; i++) {
+            me.referencesStore.add({key: me.getProperty().getPossibleValues()[i].id, value: me.getProperty().getPossibleValues()[i].name})
+        }
+
+        return {
+            xtype: 'combobox',
+            itemId: me.key + 'combobox',
+            name: this.getName(),
+            store: me.referencesStore,
+            queryMode: 'local',
+            displayField: 'value',
+            valueField: 'key',
+            width: me.width,
+            forceSelection: me.getProperty().getExhaustive(),
+            readOnly: me.isReadOnly
+        }
+    },
+
+    getDisplayCmp: function () {
+        var me = this
+
+        return {
+            xtype: 'displayfield',
+            name: me.getName(),
+            itemId: me.key + 'displayfield'
+        }
+    },
+
+    getValue: function () {
+        return this.getField().getValue();
+    },
+
+    getField: function () {
+        return this.down('combobox');
+    },
+
+    /**
+     * Sets value to the view component
+     * Override this method if you have custom logic of value transformation
+     * @see Uni.property.view.property.Time for example
+     *
+     * @param value
+     */
+    setValue: function (value) {
+        if (this.isEdit) {
+            if (this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
+                this.getField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
+            } else {
+                this.getField().emptyText = '';
+            }
+            this.getField().setValue(value.id);
+        } else {
+            if (this.getProperty().get('hasValue')) {
+                this.getDisplayField().setValue('********');
+            } else {
+                this.getDisplayField().setValue(value.name);
+            }
+        }
+    }
+
 });
 
 /**
@@ -9543,13 +10124,14 @@ Ext.define('Uni.property.view.property.Multiselect', {
                         xtype: 'multiselect',
                         itemId: me.key + 'multiselect',
                         name: me.getName(),
-                        allowBlank: !me.getProperty().get('required'),
+                        allowBlank: me.allowBlank,
                         store: me.getProperty().getPredefinedPropertyValues().possibleValues(),
                         displayField: 'name',
                         valueField: 'id',
                         width: me.width,
                         height: 194,
-                    readOnly: me.isReadOnly,
+                        readOnly: me.isReadOnly,
+                        inputType: me.inputType,
                         msgTarget: 'multiselect-invalid-id-' + me.id,
                         validateOnChange: false,
                             listeners: {
@@ -9677,14 +10259,18 @@ Ext.define('Uni.property.controller.Registry', {
         TIMEOFDAY: 'Uni.property.view.property.Time',
         CODETABLE: 'Uni.property.view.property.CodeTable',
         REFERENCE: 'Uni.property.view.property.Reference',
+        LOGBOOK: 'Uni.property.view.property.Reference',
+        LOADPROFILETYPE: 'Uni.property.view.property.Reference',
+        REGISTER: 'Uni.property.view.property.Reference',
+        LOADPROFILE: 'Uni.property.view.property.Reference',
         EAN13: 'Uni.property.view.property.Text',
         EAN18: 'Uni.property.view.property.Text',
-        ENCRYPTED_STRING: 'Uni.property.view.property.Text',
+        ENCRYPTED_STRING: 'Uni.property.view.property.Password',
         UNKNOWN: 'Uni.property.view.property.Text',
         LISTVALUE: 'Uni.property.view.property.Multiselect'
     },
 
-    // store must be registered on some ctrl (not in the responsibility of this class: move later?)
+// store must be registered on some ctrl (not in the responsibility of this class: move later?)
     stores: [
         'Uni.property.store.TimeUnits'
     ],
@@ -9724,7 +10310,8 @@ Ext.define('Uni.property.controller.Registry', {
     getProperty: function (key) {
         return this.propertiesMap[key] || null;
     }
-});
+})
+;
 
 Ext.define('Uni.property.form.PropertyHydrator', {
     extract: function(record) {
@@ -9748,9 +10335,11 @@ Ext.define('Uni.property.form.PropertyHydrator', {
             return false;
         }
         record.properties().each(function (property) {
+            var value,
+                propertyValue;
             if (property.get('isInheritedOrDefaultValue') === true) {
                 if (property.get('required') === true && property.get('hasDefaultValue')) {
-                    var value = me.falseAndZeroChecker(values[property.get('key')]);
+                    value = me.falseAndZeroChecker(values[property.get('key')]);
                     propertyValue = Ext.create('Uni.property.model.PropertyValue');
                     property.setPropertyValue(propertyValue);
                     propertyValue.set('value', value);
@@ -9758,13 +10347,15 @@ Ext.define('Uni.property.form.PropertyHydrator', {
                     property.setPropertyValue(null);
                 }
             } else {
-                var value = me.falseAndZeroChecker(values[property.get('key')]);
+                value = me.falseAndZeroChecker(values[property.get('key')]);
                 if (!property.raw['propertyValueInfo']) {
                     propertyValue = Ext.create('Uni.property.model.PropertyValue');
+                    propertyValue.set('value', value);
                     property.setPropertyValue(propertyValue);
                 }
-                var propertyValue = property.getPropertyValue();
+                propertyValue = property.getPropertyValue();
                 propertyValue.set('value', value);
+                propertyValue.set('propertyHasValue', property.get('hasValue'));
             }
 
         });
@@ -9813,6 +10404,10 @@ Ext.define('Uni.property.form.Property', {
     isEdit: true,
     isReadOnly: false,
     inheritedValues: false,
+    inputType: 'text',
+    passwordAsTextComponent: false,
+    userHasEditPrivilege: true,
+    userHasViewPrivilege: true,
 
     /**
      * Loads record to the form.
@@ -9825,10 +10420,10 @@ Ext.define('Uni.property.form.Property', {
         this.callParent(arguments);
     },
 
-    loadRecordAsNotRequired: function(record){
+    loadRecordAsNotRequired: function (record) {
         var properties = record.properties();
-        _.each(properties.data.items,function(item){
-            item.set('required',false)
+        _.each(properties.data.items, function (item) {
+            item.set('required', false)
         });
         this.loadRecord(record);
     },
@@ -9839,7 +10434,7 @@ Ext.define('Uni.property.form.Property', {
      *
      * @param {MixedCollection} properties
      */
-    initProperties: function(properties) {
+    initProperties: function (properties) {
         var me = this;
         var registry = Uni.property.controller.Registry;
 
@@ -9861,7 +10456,11 @@ Ext.define('Uni.property.form.Property', {
                 var field = Ext.create(fieldType, Ext.apply(me.defaults, {
                     property: property,
                     isEdit: me.isEdit,
-                    isReadOnly: me.isReadOnly
+                    isReadOnly: me.isReadOnly,
+                    inputType: me.inputType,
+                    passwordAsTextComponent: me.passwordAsTextComponent,
+                    userHasEditPrivilege: me.userHasEditPrivilege,
+                    userHasViewPrivilege: me.userHasViewPrivilege
                 }));
 
                 me.add(field);
@@ -9871,42 +10470,41 @@ Ext.define('Uni.property.form.Property', {
         this.initialised = true;
     },
 
-    useInheritedValues: function() {
-        this.items.each(function(item){
+    useInheritedValues: function () {
+        this.items.each(function (item) {
             item.useInheritedValue();
         });
         this.inheritedValues = true;
     },
 
-    getFieldValues: function(dirtyOnly) {
+    getFieldValues: function (dirtyOnly) {
         var data = this.getValues(false, dirtyOnly, false, true);
         return this.unFlattenObj(data);
     },
 
-    updateRecord: function() {
+    updateRecord: function () {
+
         var me = this;
         var raw = me.getFieldValues();
         var values = {};
-        _.each(raw.properties || [], function(rawValue, key){
+
+        me.getRecord().properties().each(function (property) {
+            var key = property.get('key');
             var field = me.getPropertyField(key);
-            values[key] = field.getValue(rawValue);
+            values[key] = field.getValue(raw);
         });
 
         this.getForm().hydrator.hydrate(values, me.getRecord());
     },
 
-    unFlattenObj: function(object) {
-        return _(object).inject(function(result, value, keys) {
-            var current = result,
-                partitions = keys.split('.'),
-                limit = partitions.length - 1;
-
-            _(partitions).each(function(key, index) {
-                current = current[key] = (index == limit ? value : (current[key] || {}));
-            });
-
+    unFlattenObj: function (object) {
+        return _.reduce(object, function (result, value, key) {
+            var properties = key.split('.');
+            if (_.first(properties) == 'properties') {
+                result[_.first(properties)][_.rest(properties, 1).join('.')] = value;
+            }
             return result;
-        }, {});
+        }, {properties: {}});
     },
 
     /**
@@ -9914,7 +10512,7 @@ Ext.define('Uni.property.form.Property', {
      *
      * @param {MixedCollection} properties
      */
-    setProperties: function(properties) {
+    setProperties: function (properties) {
         var me = this;
 
         properties.each(function (property) {
@@ -9929,9 +10527,21 @@ Ext.define('Uni.property.form.Property', {
         });
     },
 
-    restoreAll: function() {
-        this.items.each(function(item){
+    restoreAll: function () {
+        this.items.each(function (item) {
             item.restoreDefault();
+        })
+    },
+
+    showValues: function () {
+        this.items.each(function (item) {
+            item.showValue();
+        })
+    },
+
+    hideValues: function () {
+        this.items.each(function (item) {
+            item.hideValue();
         })
     },
 
@@ -9940,7 +10550,7 @@ Ext.define('Uni.property.form.Property', {
      * @param {string} key
      * @returns {Uni.property.view.property.Base}
      */
-    getPropertyField: function(key) {
+    getPropertyField: function (key) {
         return this.getComponent(key);
     }
 });
@@ -9971,7 +10581,8 @@ Ext.define('Uni.property.model.PropertyValue', {
     fields: [
         {name: 'value'},
         {name: 'defaultValue'},
-        {name: 'inheritedValue'}
+        {name: 'inheritedValue'},
+        {name: 'propertyHasValue', type:'boolean', persist: false}
     ]
 });
 
@@ -10026,6 +10637,7 @@ Ext.define('Uni.property.model.Property', {
         {name: 'value', persist: false},
         {name: 'default', persist: false},
         {name: 'hasDefault', persist: false},
+        {name: 'hasValue', persist:false},
         {name: 'isInheritedOrDefaultValue', type: 'boolean', defaultValue: true, persist: false}
     ],
     requires: [
@@ -10062,6 +10674,7 @@ Ext.define('Uni.property.model.Property', {
         var restoreValue = '';
         var isInheritedValue = true;
         var hasDefaultValue = false;
+        var hasValue = false;
 
         // was on try-catch
         if (me.raw['propertyValueInfo']) {
@@ -10070,23 +10683,26 @@ Ext.define('Uni.property.model.Property', {
             if (null !== propertyValue) {
                 value = propertyValue.get('value');
                 isInheritedValue = false;
-                if (value === propertyValue.get('defaultValue')) {
-                    isInheritedValue = true;
-                }
+                if (!propertyValue.get('propertyHasValue')) {
+                    if (value === propertyValue.get('defaultValue')) {
+                        isInheritedValue = true;
+                    }
 
-                if (propertyValue.get('inheritedValue') !== '') {
-                    restoreValue = propertyValue.get('inheritedValue');
-                } else {
-                    restoreValue = propertyValue.get('defaultValue');
-                    if (typeof propertyValue.get('defaultValue') !== 'undefined' && typeof propertyValue.get('defaultValue') !== '') {
-                        hasDefaultValue = true;
+                    if (propertyValue.get('inheritedValue') !== '') {
+                        restoreValue = propertyValue.get('inheritedValue');
+                    } else {
+                        restoreValue = propertyValue.get('defaultValue');
+                        if (typeof propertyValue.get('defaultValue') !== 'undefined' && typeof propertyValue.get('defaultValue') !== '') {
+                            hasDefaultValue = true;
+                        }
+                    }
+
+                    if (value === '') {
+                        value = restoreValue;
+                        isInheritedValue = true;
                     }
                 }
-
-                if (value === '') {
-                    value = restoreValue;
-                    isInheritedValue = true;
-                }
+                hasValue = propertyValue.get('propertyHasValue');
             }
         }
 
@@ -10094,6 +10710,7 @@ Ext.define('Uni.property.model.Property', {
         me.set('value', value);
         me.set('default', restoreValue);
         me.set('hasDefaultValue', hasDefaultValue);
+        me.set('hasValue', hasValue);
     },
 
     initInheritedValues: function() {
@@ -10101,23 +10718,28 @@ Ext.define('Uni.property.model.Property', {
         var value = null;
         var hasDefaultValue = false;
         var isDefaultValue = false;
+        var hasValue = false;
 
         // was on try-catch
         if (me.raw['propertyValueInfo']) {
             var propertyValue = me.getPropertyValue() || null;
             if (null !== propertyValue) {
                 value = propertyValue.get('value');
-                if (value === propertyValue.get('defaultValue')){
-                      isDefaultValue = true;
-                }
+                if (!propertyValue.get('propertyHasValue')) {
+                    if (value === propertyValue.get('defaultValue')) {
+                        isDefaultValue = true;
+                    }
 
-                if (!value) {
-                    value = propertyValue.get('defaultValue');
-                    hasDefaultValue = true;
+                    if (!value) {
+                        value = propertyValue.get('defaultValue');
+                        hasDefaultValue = true;
+                    }
                 }
                 propertyValue.set('inheritedValue', value);
                 propertyValue.set('value', '');
+                hasValue = propertyValue.get('propertyHasValue');
             }
+
         }
         if (isDefaultValue || (typeof me.raw['propertyValueInfo'] === 'undefined')) {
             me.set('isInheritedOrDefaultValue', true);
@@ -10127,6 +10749,7 @@ Ext.define('Uni.property.model.Property', {
         me.set('value', value);
         me.set('default', value);
         me.set('hasDefaultValue', hasDefaultValue);
+        me.set('hasValue', hasValue);
     },
 
     getType: function () {
@@ -10966,29 +11589,83 @@ Ext.define('Uni.view.navigation.Footer', {
  */
 Ext.define('Uni.view.navigation.Menu', {
     extend: 'Ext.container.Container',
-    alias: 'widget.navigationMenu',
+    xtype: 'navigationMenu',
     ui: 'navigationmenu',
+
+    requires: [
+        'Uni.util.Application'
+    ],
 
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
 
-    defaults: {
-        xtype: 'button',
-        ui: 'menuitem',
-        hrefTarget: '_self',
-        toggleGroup: 'menu-items',
-        action: 'menu-main',
-        enableToggle: true,
-        allowDepress: false,
-        cls: 'menu-item',
-        tooltipType: 'title',
-        scale: 'large'
+    baseCollapsedCookieKey: '_nav_menu_collapsed',
+
+    initComponent: function () {
+        var me = this;
+
+        me.items = [
+            {
+                xtype: 'container',
+                flex: 1,
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                defaults: {
+                    xtype: 'button',
+                    ui: 'menuitem',
+                    hrefTarget: '_self',
+                    toggleGroup: 'menu-items',
+                    action: 'menu-main',
+                    enableToggle: true,
+                    allowDepress: false,
+                    tooltipType: 'title',
+                    iconAlign: 'top',
+                    scale: 'large'
+                }
+            },
+            {
+                xtype: 'container',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+                padding: '4px',
+                items: [
+                    {
+                        xtype: 'component',
+                        html: '&nbsp;',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'button',
+                        ui: 'toggle',
+                        itemId: 'toggle-button',
+                        toggleGroup: 'uni-navigation-menu-toggle-button',
+                        tooltipType: 'title',
+                        tooltip: Uni.I18n.translate('navigation.toggle.collapse', 'UNI', 'Collapse'),
+                        enableToggle: true,
+                        scale: 'large',
+                        toggleHandler: me.onToggleClick,
+                        pressed: JSON.parse(Ext.util.Cookies.get(me.getCollapsedCookieKey())),
+                        scope: me
+                    }
+                ]
+            }
+        ];
+
+        me.callParent(arguments);
+
+        me.on('afterrender', function () {
+            me.setCollapsed(JSON.parse(Ext.util.Cookies.get(me.getCollapsedCookieKey())) || false);
+        }, me);
     },
 
     removeAllMenuItems: function () {
-        this.removeAll();
+        this.getMenuContainer().removeAll();
     },
 
     addMenuItem: function (model) {
@@ -10997,9 +11674,9 @@ Ext.define('Uni.view.navigation.Menu', {
 
         // TODO Sort the buttons on their model's index value, instead of relying on insert.
         if (model.data.index === '' || model.data.index === null || model.data.index === undefined) {
-            this.add(item);
+            me.getMenuContainer().add(item);
         } else {
-            this.insert(model.data.index, item);
+            me.getMenuContainer().insert(model.data.index, item);
         }
     },
 
@@ -11021,7 +11698,7 @@ Ext.define('Uni.view.navigation.Menu', {
         var me = this,
             itemId = model.id;
 
-        this.items.items.forEach(function (item) {
+        me.getMenuContainer().items.items.forEach(function (item) {
             if (itemId === item.data.id) {
                 me.deselectAllMenuItems();
                 item.toggle(true, false);
@@ -11030,9 +11707,70 @@ Ext.define('Uni.view.navigation.Menu', {
     },
 
     deselectAllMenuItems: function () {
-        this.items.items.forEach(function (item) {
+        this.getMenuContainer().items.items.forEach(function (item) {
             item.toggle(false, false);
         });
+    },
+
+    onToggleClick: function (button, state) {
+        var me = this;
+        me.setCollapsed(state);
+    },
+
+    setCollapsed: function (collapsed) {
+        var me = this;
+
+        if (collapsed) {
+            me.collapseMenu();
+        } else {
+            me.expandMenu();
+        }
+
+        me.setCollapsedCookie(collapsed);
+    },
+
+    getCollapsedCookieKey: function () {
+        var me = this,
+            namespace = Uni.util.Application.getAppNamespace();
+
+        namespace = namespace.replace(/\s+/g, '-').toLowerCase();
+
+        return namespace + me.baseCollapsedCookieKey;
+    },
+
+    collapseMenu: function () {
+        var me = this;
+
+        me.getToggleButton().setTooltip(Uni.I18n.translate('navigation.toggle.expand', 'UNI', 'Expand'));
+
+        me.addCls('collapsed');
+        me.setWidth(48);
+        me.doLayout();
+    },
+
+    expandMenu: function () {
+        var me = this;
+
+        me.getToggleButton().setTooltip(Uni.I18n.translate('navigation.toggle.collapse', 'UNI', 'Collapse'));
+
+        me.removeCls('collapsed');
+        me.setWidth(null);
+        me.doLayout();
+    },
+
+    setCollapsedCookie: function (collapsed) {
+        var me = this;
+
+        Ext.util.Cookies.set(me.getCollapsedCookieKey(), collapsed,
+            new Date(new Date().getTime() + 365.25 * 24 * 60 * 60 * 1000)); // Expires in a year.
+    },
+
+    getMenuContainer: function () {
+        return this.down('container:first');
+    },
+
+    getToggleButton: function () {
+        return this.down('#toggle-button');
     }
 });
 
@@ -11132,16 +11870,16 @@ Ext.define('Uni.view.breadcrumb.Trail', {
             // Ignore.
         }
 
-        if (child !== undefined && child.rendered) {
+        if (typeof child !== 'undefined' && child !== null && child.rendered) {
             link.setHref(baseHref + href);
-        } else if (child !== undefined && !child.rendered) {
+        } else if (typeof child !== 'undefined' && child !== null && !child.rendered) {
             link.href = baseHref + href;
         }
 
         this.addBreadcrumbComponent(link);
 
         // Recursively add the children.
-        if (child !== undefined && child !== null) {
+        if (typeof child !== 'undefined' && child !== null) {
             if (item.data.relative) {
                 baseHref += href;
             }
@@ -11184,25 +11922,6 @@ Ext.define('Uni.view.Viewport', {
             weight: 30
         },
         {
-            xtype: 'container',
-            ui: 'navigationwrapper',
-            region: 'west',
-            layout: 'absolute',
-            width: 48,
-            items: [
-                {
-                    xtype: 'navigationMenu'
-                }
-            ],
-            weight: 10
-        },
-        {
-            xtype: 'container',
-            region: 'center',
-            itemId: 'contentPanel',
-            layout: 'fit'
-        },
-        {
             region: 'north',
             xtype: 'container',
             itemId: 'northContainer',
@@ -11217,6 +11936,23 @@ Ext.define('Uni.view.Viewport', {
                 }
             ],
             weight: 20
+        },
+        {
+            xtype: 'container',
+            ui: 'navigationwrapper',
+            region: 'west',
+            layout: 'fit',
+            items: [
+                {
+                    xtype: 'navigationMenu'
+                }
+            ]
+        },
+        {
+            xtype: 'container',
+            region: 'center',
+            itemId: 'contentPanel',
+            layout: 'fit'
         }
     ]
 });
@@ -13503,13 +14239,148 @@ Ext.define('Uni.view.toolbar.PagingTop', {
 });
 
 /**
+ * @class Uni.view.toolbar.PreviousNextNavigation
+ *
+ * This component contains links to previous and next details pages if these exist.
+ * So it isn't necessary to return to the list each time.
+ *
+ * Example usage:
+ *
+ *     ...
+ *     requires: [
+ *         ...
+ *         'Uni.view.toolbar.PreviousNextNavigation'
+ *     ],
+ *
+ *     initComponent: function () {
+ *         var me = this;
+ *
+ *         me.items = [
+ *             {
+ *                 xtype: 'previous-next-navigation-toolbar',
+ *                 store: 'Mdc.store.RegisterConfigsOfDevice',
+ *                 router: me.router,
+ *                 routerIdArgument: 'registerId'
+ *             },
+ *             ...
+ *         ]
+ *     }
+ *     ...
+ */
+Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
+    extend: 'Ext.toolbar.Toolbar',
+    alias: 'widget.previous-next-navigation-toolbar',
+    layout: {
+        type: 'hbox',
+        pack: 'end'
+    },
+    /**
+     * @cfg {String} store
+     * This parameter is mandatory
+     */
+    store: null,
+    /**
+     * @cfg {Uni.controller.history.Router} router
+     * This parameter is mandatory
+     */
+    router: null,
+    /**
+     * @cfg {String} routerIdArgument
+     * This parameter is mandatory
+     */
+    routerIdArgument: null,
+
+    /**
+     * @cfg {String} [itemsName="items"]
+     * Name of items.
+     * A link to a items list can be provided. For example:
+     *
+     *     itemsName: '<a href="' + me.router.getRoute('devices/device/registers').buildUrl() + '">' + Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers').toLowerCase() + '</a>'
+     */
+    itemsName: Uni.I18n.translate('general.items', 'UNI', 'Items').toLowerCase(),
+
+    initComponent: function () {
+        var me = this,
+            store = Ext.getStore(me.store);
+
+        me.callParent(arguments);
+
+        if (me.router && me.routerIdArgument && store && store.getCount() > 1) {
+            me.initToolbar(store);
+        } else {
+            me.hide();
+
+            if (!store) {
+                console.error('Store for \'' + me.xtype + '\' is not defined');
+            }
+            if (!me.router) {
+                console.error('Router for \'' + me.xtype + '\' is not defined');
+            }
+            if (!me.routerIdArgument) {
+                console.error('Router id argument for \'' + me.xtype + '\' is not defined');
+            }
+        }
+    },
+
+    // @private
+    initToolbar: function (store) {
+        var me = this,
+            prevBtn = {
+                itemId: 'previous-next-navigation-toolbar-previous-link',
+                ui: 'plain',
+                iconCls: 'icon-arrow-up',
+                iconAlign: 'left',
+                style: 'margin-right: 0 !important;'
+            },
+            nextBtn = {
+                itemId: 'previous-next-navigation-toolbar-next-link',
+                ui: 'plain',
+                iconCls: 'icon-arrow-down',
+                iconAlign: 'right'
+            },
+            separator = {
+                xtype: 'tbtext',
+                text: '|'
+            },
+            currentIndex = store.indexOfId(me.router.arguments[me.routerIdArgument]),
+            itemsCounter;
+
+        if (currentIndex === -1) {
+            currentIndex = store.indexOfId(parseInt(me.router.arguments[me.routerIdArgument]));
+        }
+
+        itemsCounter = {
+            xtype: 'component',
+            cls: ' previous-next-navigation-items-counter',
+            html: Ext.String.format(Uni.I18n.translate('previousNextNavigation.itemsCount', 'UNI', '{0} of {1}'), currentIndex + 1, store.getCount()) + ' ' + me.itemsName
+        };
+
+        if (currentIndex - 1 >= 0) {
+            me.router.arguments[me.routerIdArgument] = store.getAt(currentIndex - 1).getId();
+            prevBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(me.router.arguments, me.router.queryParams);
+        } else {
+            prevBtn.disabled = true;
+        }
+
+        if (currentIndex + 1 < store.getCount()) {
+            me.router.arguments[me.routerIdArgument] = store.getAt(currentIndex + 1).getId();
+            nextBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(me.router.arguments, me.router.queryParams);
+        } else {
+            nextBtn.disabled = true;
+        }
+
+        me.add(itemsCounter, prevBtn, nextBtn);
+    }
+});
+
+/**
  * @class Uni.view.window.Confirmation
  */
 Ext.define('Uni.view.window.Confirmation', {
     extend: 'Ext.window.MessageBox',
     xtype: 'confirmation-window',
     cls: Uni.About.baseCssPrefix + 'confirmation-window',
-
+    confirmBtnUi: 'remove',
     /**
      * @cfg {String}
      *
@@ -13557,7 +14428,7 @@ Ext.define('Uni.view.window.Confirmation', {
                 name: 'confirm',
                 scope: me,
                 text: me.confirmText,
-                ui: 'remove',
+                ui: me.confirmBtnUi,
                 handler: me.confirmation
             },
             {
@@ -13575,9 +14446,11 @@ Ext.define('Uni.view.window.Confirmation', {
     },
 
     show: function (config) {
-        Ext.apply(config, {
-            icon: Ext.MessageBox.ERROR
-        });
+        if (!Ext.isDefined(config.icon)) {
+            Ext.apply(config, {
+                icon: Ext.MessageBox.ERROR
+            });
+        }
 
         this.callParent(arguments);
     }
