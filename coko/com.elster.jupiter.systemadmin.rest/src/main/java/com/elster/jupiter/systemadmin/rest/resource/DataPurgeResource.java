@@ -3,6 +3,7 @@ package com.elster.jupiter.systemadmin.rest.resource;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
+import com.elster.jupiter.license.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.systemadmin.rest.response.LifeCycleCategoryInfo;
@@ -16,6 +17,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.google.common.collect.Range;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -68,6 +70,7 @@ public class DataPurgeResource {
 
     @GET
     @Path("/lifecycle/categories")
+    @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLifeCycleCategories() {
         return Response.ok(ListInfo.from(lifeCycleService.getCategories(),  getCategoryInfoMapper())).build();
@@ -75,6 +78,7 @@ public class DataPurgeResource {
 
     @PUT
     @Path("/lifecycle/categories")
+    @RolesAllowed(Privileges.ADMINISTRATE_DATA_PURGE)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateLifeCycleCategories(ListInfo<LifeCycleCategoryInfo> updatedCategories) {
         if (updatedCategories != null) {
@@ -92,6 +96,7 @@ public class DataPurgeResource {
 
     @PUT
     @Path("/lifecycle/categories/{key}")
+    @RolesAllowed(Privileges.ADMINISTRATE_DATA_PURGE)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateLifeCycleCategory(LifeCycleCategoryInfo updatedCategory) {
         try (TransactionContext context = transactionService.getContext()) {
@@ -108,6 +113,7 @@ public class DataPurgeResource {
 
     @GET
     @Path("/history")
+    @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPurgeHistory(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -127,6 +133,7 @@ public class DataPurgeResource {
 
     @GET
     @Path("/history/{id}")
+    @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPurgeHistoryRecord(@PathParam("id") long id) {
         TaskOccurrence occurrence = getTaskOccurenceOrThrowException(id);
@@ -135,6 +142,7 @@ public class DataPurgeResource {
 
     @GET
     @Path("/history/{id}/categories")
+    @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPurgeHistory(@PathParam("id") long id) {
         Instant triggerTime = getTaskOccurenceOrThrowException(id).getTriggerTime();
@@ -143,6 +151,7 @@ public class DataPurgeResource {
 
     @GET
     @Path("/history/{id}/logs")
+    @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON)
     public Response getPurgeLogForOccurence(@PathParam("id") long id, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
