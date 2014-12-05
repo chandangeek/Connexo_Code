@@ -13,49 +13,38 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                 me.add([
                     {
                         xtype: 'container',
+                        style: {
+                            margin: '0 0 10px 0'
+                        },
                         html: store.count() > 0 ?
                             '<h3>' + Ext.String.format(Uni.I18n.translate('overview.widget.favoriteDeviceGroups.header', 'DSH', 'My favorite device groups ({0})'), store.count()) + '</h3>' :
                             '<h3>' + Uni.I18n.translate('overview.widget.favoriteDeviceGroups.headerNoItemsFound', 'DSH', 'My favorite device groups') + '</h3>'
                     },
                     {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('overview.widget.favoriteDeviceGroups.noFavoriteDeviceGroupsMsg', 'DSH', 'No favorite device groups'),
-                        reasons: [
-                            Uni.I18n.translate('overview.widget.favoriteDeviceGroups.noFavoriteDeviceGroupsReason', 'DSH', 'You have not added any group to favorites')
-                        ],
-                        stepItems: [
-                            {
-                                text: Uni.I18n.translate('overview.widget.favoriteDeviceGroups.selectBtn', 'DSH', 'Select'),
-                                ui: 'action',
-                                href: '#/dashboard/selectfavoritedevicegroups'
-                            }
-                        ],
-                        hidden: store.count() > 0,
-                        listeners: {
-                            render: function (panel) {
-                                panel.el.down('.uni-panel-no-items-found').dom.style.border = 'none';
-                            }
-                        }
-                    },
-                    {
                         xtype: 'dataview',
                         store: me.store,
                         itemSelector: 'p a',
-                        hidden: store.count() < 1,
+                        emptyText: Uni.I18n.translate('overview.widget.favoriteDeviceGroups.notFound', 'DSH', 'No favorite device groups found'),
+                        overflowY: 'auto',
+                        style: 'max-height: 120px',
                         tpl: new Ext.XTemplate(
-                            '<tpl for=".">',
-                                '<p>',
-                                    '<a href="#/devices/devicegroups/{id}">{name}</a>',
-                                '</p>',
-                            '</tpl>'
+                            '<table style="margin-top: 5px">',
+                                '<tpl for=".">',
+                                    '<tr>',
+                                        '<td style="height: 20px">',
+                                            '<a href="#/devices/devicegroups/{id}">{name}</a>',
+                                        '</td>',
+                                    '</tr>',
+                                '</tpl>',
+                            '</table>'
                         )
                     },
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('overview.widget.favoriteDeviceGroups.selectBtn', 'DSH', 'Select'),
                         ui: 'action',
-                        href: '#/dashboard/selectfavoritedevicegroups',
-                        hidden: store.count() < 1
+                        style: 'margin-top: 15px',
+                        href: '#/dashboard/selectfavoritedevicegroups'
                     }
                 ]);
             }

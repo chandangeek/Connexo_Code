@@ -135,6 +135,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                 communicationModel.setFilter(router.filter);
                 me.getDashboard().setLoading();
                 me.getFlaggedDevices().reload();
+                Ext.getStore('Dsh.store.FavoriteDeviceGroups').load();
                 me.getCommunicationServers().reload();
                 connectionModel.load(null, {
                         success: function (connections) {
@@ -165,7 +166,6 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                     }
                 );
             }
-            Ext.getStore('Dsh.store.FavoriteDeviceGroups').load();
         }
     }
 });
