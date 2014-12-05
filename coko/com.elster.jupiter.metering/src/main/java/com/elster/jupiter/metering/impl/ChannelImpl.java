@@ -4,7 +4,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.Period;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,8 +53,9 @@ import com.google.common.collect.Range;
 
 public final class ChannelImpl implements ChannelContract {
 
-    static final int REGULARVAULTID = 1;
+    static final int INTERVALVAULTID = 1;
     static final int IRREGULARVAULTID = 2;
+    static final int DAILYVAULTID = 3;
 
     // persistent fields
     private long id;
@@ -173,9 +176,14 @@ public final class ChannelImpl implements ChannelContract {
         return getRecordSpecDefinition().get(idsService);
     }
 
+    private int getVaultId() {
+    	return getIntervalLength()
+    		.map(temporalAmount -> temporalAmount instanceof Period ? DAILYVAULTID : INTERVALVAULTID)
+    		.orElse(IRREGULARVAULTID);
+    }
+    
     private Vault getVault() {
-        int id = isRegular() ? REGULARVAULTID : IRREGULARVAULTID;
-        Optional<Vault> result = idsService.getVault(MeteringService.COMPONENTNAME, id);
+        Optional<Vault> result = idsService.getVault(MeteringService.COMPONENTNAME, getVaultId());
         if (result.isPresent()) {
             return result.get();
         }

@@ -39,6 +39,7 @@ import com.elster.jupiter.util.conditions.Where;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.Period;
 import java.util.Optional;
 
 import com.google.inject.AbstractModule;
@@ -54,6 +55,7 @@ import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
 public class MeteringServiceImpl implements MeteringService, InstallService {
@@ -372,6 +374,23 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     	new DataPurger(purgeConfiguration,this).purge();
     }
     
+    @Override
+    public void configurePurge(PurgeConfiguration purgeConfiguration) {
+    	registerVaults().stream()
+    		.filter(testRetention(purgeConfiguration.registerRetention()))
+    		.forEach(vault -> vault.setRetentionDays(purgeConfiguration.registerDays()));
+    	intervalVaults().stream()
+			.filter(testRetention(purgeConfiguration.intervalRetention()))
+			.forEach(vault -> vault.setRetentionDays(purgeConfiguration.intervalDays()));  
+    	dailyVaults().stream()
+			.filter(testRetention(purgeConfiguration.dailyRetention()))
+			.forEach(vault -> vault.setRetentionDays(purgeConfiguration.dailyDays()));  
+    }
+    
+    private Predicate<Vault> testRetention(Optional<Period> periodHolder) {
+    	return vault -> periodHolder.filter(period -> !vault.getRetention().equals(period)).isPresent();
+    }
+    
     List<Vault> registerVaults() {
     	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.IRREGULARVAULTID)
     			.map( vault -> Arrays.asList(vault))
@@ -379,13 +398,15 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
     
     List<Vault> intervalVaults() {
-    	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.IRREGULARVAULTID)
+    	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.INTERVALVAULTID)
     			.map( vault -> Arrays.asList(vault))
     			.orElse(Collections.emptyList());
     }
     
     List<Vault> dailyVaults() {
-    	return Collections.emptyList();
+    	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.DAILYVAULTID)
+    			.map( vault -> Arrays.asList(vault))
+    			.orElse(Collections.emptyList());
     }
     
 }

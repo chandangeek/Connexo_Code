@@ -64,5 +64,7 @@ public interface MeteringService {
 
     Optional<EndDeviceEventType> getEndDeviceEventType(String mRID);
     
+    void configurePurge(PurgeConfiguration purgeConfiguration);
+    
     void purge(PurgeConfiguration purgeConfiguration);
 }

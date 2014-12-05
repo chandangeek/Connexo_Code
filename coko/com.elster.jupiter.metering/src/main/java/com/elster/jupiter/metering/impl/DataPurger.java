@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
 import java.time.Instant;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.logging.Logger;
 
 import com.elster.jupiter.metering.PurgeConfiguration;
@@ -16,33 +18,24 @@ public class DataPurger {
 	}
 	
 	void purge() {
-		purgeConfiguration.getRegisterLimit().ifPresent(this::purgeRegister);
-		purgeConfiguration.getIntervalLimit().ifPresent(this::purgeInterval);
-		purgeConfiguration.getDailyLimit().ifPresent(this::purgeDaily);
-		purgeConfiguration.getEventLimit().ifPresent(this::purgeEvents);
+		purgeConfiguration.eventRetention().ifPresent(this::purgeEvents);
+		purgeConfiguration.readingQualityRetention().ifPresent(this::purgeReadingQualities);
 	}
 	
-	private void purgeRegister(Instant limit) {
-		logger().info("Removing register readings up to " + limit);
-		meteringService.registerVaults().forEach(vault -> vault.purge(limit, logger()));
-	}
-	
-	private void purgeInterval(Instant limit) {
-		logger().info("Removing interval data up to " + limit);
-		meteringService.intervalVaults().forEach(vault -> vault.purge(limit, logger()));
-	}
-	
-	private void purgeDaily(Instant limit) {
-		logger().info("Removing daily and monthly readings data up to " + limit);
-		meteringService.dailyVaults().forEach(vault -> vault.purge(limit, logger()));
-	}
-	
-	private void  purgeEvents(Instant limit) {
+	private void purgeEvents(Period period) {
+		Instant limit = Instant.now().minus(period).truncatedTo(ChronoUnit.DAYS);
 		logger().info("Removing device events up to " + limit);
-		//meteringService.getDataModel().dataDropper(TableSpecs.MTR_ENDDEVICEEVENTRECORD.name(),logger()).drop(limit);
+		meteringService.getDataModel().dataDropper(TableSpecs.MTR_ENDDEVICEEVENTRECORD.name(),logger()).drop(limit);
+	}
+	
+	private void purgeReadingQualities(Period period) {
+		Instant limit = Instant.now().minus(period).truncatedTo(ChronoUnit.DAYS);
+		logger().info("Removing reading qualities up to " + limit);
+		meteringService.getDataModel().dataDropper(TableSpecs.MTR_READINGQUALITY.name(),logger()).drop(limit);
 	}
 	
 	private Logger logger() {
 		return purgeConfiguration.getLogger();
 	}
+	
 }

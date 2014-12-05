@@ -31,6 +31,8 @@ import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -156,21 +158,18 @@ public class InstallerImpl {
             Vault registerVault = idsService.newVault(MeteringService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, 1, false);
             registerVault.persist();
             createPartitions(registerVault);
+            Vault dailyVault = idsService.newVault(MeteringService.COMPONENTNAME, 3, "Daily and Monthly Data Store", SLOT_COUNT, 0, true);
+            dailyVault.persist();
+            createPartitions(dailyVault);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error creating vaults : " + e.getMessage(), e);
         }
     }
 
-    private Instant toInstant(YearMonth yearMonth) {
-    	return yearMonth.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-    }
-    private void createPartitions(Vault vault) {
-    	YearMonth start = YearMonth.now();
-    	vault.activate(toInstant(start));
-        for (int i = 1; i <= MONTHS_PER_YEAR; i++) {
-            YearMonth yearMonth = start.plusMonths(i);
-            vault.addPartition(toInstant(yearMonth));
-        }
+    private void createPartitions(Vault vault) {    	
+    	Instant start = YearMonth.now().atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+    	vault.activate(start);
+    	vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));        
     }
 
     private void createRecordSpecs() {
