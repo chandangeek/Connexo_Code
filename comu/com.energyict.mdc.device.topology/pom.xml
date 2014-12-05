@@ -20,9 +20,9 @@
   <dependencies>
     <dependency>
       <groupId>com.energyict</groupId>
-      <artifactId>mdc.data</artifactId>
+      <artifactId>mdc.device.data</artifactId>
+      <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>orm</artifactId>
