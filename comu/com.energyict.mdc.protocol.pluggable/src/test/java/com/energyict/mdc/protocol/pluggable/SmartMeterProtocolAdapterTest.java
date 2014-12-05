@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable;
 
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
@@ -133,28 +134,28 @@ public class SmartMeterProtocolAdapterTest {
         when(nodeIdPropertySpec.getName()).thenReturn(MeterProtocol.NODEID);
         when(nodeIdPropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq(MeterProtocol.NODEID), eq(false), any())).
+                basicPropertySpec(eq(MeterProtocol.NODEID), eq(false), any(ValueFactory.class))).
                 thenReturn(nodeIdPropertySpec);
         PropertySpec addressPropertySpec = mock(PropertySpec.class);
         when(addressPropertySpec.isRequired()).thenReturn(false);
         when(addressPropertySpec.getName()).thenReturn(MeterProtocol.ADDRESS);
         when(addressPropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq(MeterProtocol.ADDRESS), eq(false), any())).
+                basicPropertySpec(eq(MeterProtocol.ADDRESS), eq(false), any(ValueFactory.class))).
                 thenReturn(addressPropertySpec);
         PropertySpec callHomeIdPropertySpec = mock(PropertySpec.class);
         when(callHomeIdPropertySpec.isRequired()).thenReturn(false);
         when(callHomeIdPropertySpec.getName()).thenReturn("callHomeId");
         when(callHomeIdPropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq("callHomeId"), eq(false), any())).
+                basicPropertySpec(eq("callHomeId"), eq(false), any(ValueFactory.class))).
                 thenReturn(callHomeIdPropertySpec);
         PropertySpec deviceTimeZonePropertySpec = mock(PropertySpec.class);
         when(deviceTimeZonePropertySpec.isRequired()).thenReturn(false);
         when(deviceTimeZonePropertySpec.getName()).thenReturn("deviceTimeZone");
         when(deviceTimeZonePropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq("deviceTimeZone"), eq(false), any())).
+                basicPropertySpec(eq("deviceTimeZone"), eq(false), any(ValueFactory.class))).
                 thenReturn(deviceTimeZonePropertySpec);
     }
 
@@ -296,11 +297,11 @@ public class SmartMeterProtocolAdapterTest {
         when(smartMeterProtocol.getOptionalProperties()).thenReturn(optionalKeys);
         PropertySpecService propertySpecService = this.inMemoryPersistence.getPropertySpecService();
         doReturn(new BasicPropertySpec<>("o1", false, new StringFactory()))
-            .when(propertySpecService).basicPropertySpec(eq("o1"), eq(false), any());
+            .when(propertySpecService).basicPropertySpec(eq("o1"), eq(false), any(ValueFactory.class));
         doReturn(new BasicPropertySpec<>("o2", false, new StringFactory()))
-            .when(propertySpecService).basicPropertySpec(eq("o2"), eq(false), any());
+            .when(propertySpecService).basicPropertySpec(eq("o2"), eq(false), any(ValueFactory.class));
         doReturn(new BasicPropertySpec<>("o3", false, new StringFactory()))
-            .when(propertySpecService).basicPropertySpec(eq("o3"), eq(false), any());
+            .when(propertySpecService).basicPropertySpec(eq("o3"), eq(false), any(ValueFactory.class));
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
