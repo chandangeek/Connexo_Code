@@ -45,6 +45,11 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>systemadmin</artifactId>
+      <version>${jupiter.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.common</artifactId>
       <version>${project.version}</version>

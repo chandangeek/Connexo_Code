@@ -1,5 +1,6 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -33,7 +34,7 @@ import java.util.Set;
 
 @Component(name = "com.energyict.sch.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/scr", "app=MDC", "name=" + MasterSchedulingApplication.COMPONENT_NAME})
 public class MasterSchedulingApplication extends Application implements InstallService {
-
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "SCR";
 
     private volatile TransactionService transactionService;
@@ -46,6 +47,7 @@ public class MasterSchedulingApplication extends Application implements InstallS
     private volatile TaskService taskService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile Clock clock;
+    private volatile License license;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -112,6 +114,11 @@ public class MasterSchedulingApplication extends Application implements InstallS
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override
