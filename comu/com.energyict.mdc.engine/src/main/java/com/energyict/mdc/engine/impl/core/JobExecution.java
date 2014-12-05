@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.exceptions.CodingException;
@@ -90,6 +91,8 @@ public abstract class JobExecution implements ScheduledJob {
         public LogBookService logBookService();
 
         public DeviceService deviceService();
+
+        public TopologyService topologyService();
 
         public EngineService engineService();
 
@@ -642,6 +645,11 @@ public abstract class JobExecution implements ScheduledJob {
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
 
         @Override
+        public TopologyService topologyService() {
+            return serviceProvider.topologyService();
+        }
+
+        @Override
         public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
             return serviceProvider.engineService().findDeviceCacheByDevice(device);
         }
@@ -655,7 +663,7 @@ public abstract class JobExecution implements ScheduledJob {
         @Override
         public List<PreparedComTaskExecution> perform() {
             List<PreparedComTaskExecution> result = new ArrayList<>();
-            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.deviceConfigurationService());
+            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.deviceConfigurationService(), serviceProvider.topologyService());
             for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : organizer.defineComTaskExecutionOrders(comTaskExecutions)) {
                 ComTaskPreparationContext comTaskPreparationContext = new ComTaskPreparationContext(deviceOrganizedComTaskExecution).invoke();
                 for (DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps : deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity()) {
@@ -689,7 +697,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         @Override
         public PreparedComTaskExecution perform() {
-            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.deviceConfigurationService());
+            ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.deviceConfigurationService(), serviceProvider.topologyService());
             final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
             final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
             if (deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size() == 1) {

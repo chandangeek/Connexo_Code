@@ -5,6 +5,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.LoadProfileIdentifierForAlreadyKnownLoadProfile;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -18,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * An offline implementation version of an {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} mainly containing information which is relevant to use at offline-time.
+ * An offline implementation of an {@link LoadProfile}.
  *
  * @author gna
  * @since 30/05/12 - 10:26
@@ -26,39 +27,39 @@ import java.util.List;
 public class OfflineLoadProfileImpl implements OfflineLoadProfile {
 
     /**
-     * The {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} which is going offline
+     * The {@link LoadProfile} which is going offline
      */
     private final LoadProfile loadProfile;
-
     private final Device device;
+    private final TopologyService topologyService;
 
     /**
-     * The ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} that will go offline
+     * The ID of the {@link LoadProfile} that will go offline
      */
     private long loadProfileId;
 
     /**
-     * The ID of the {@link LoadProfileType LoadProfileType} of this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * The ID of the {@link LoadProfileType LoadProfileType} of this {@link LoadProfile}
      */
     private long loadProfileTypeId;
 
     /**
-     * The ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice} which owns this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * The ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice} which owns this {@link LoadProfile}
      */
     private long deviceId;
 
     /**
-     * The {@link ObisCode} of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * The {@link ObisCode} of the {@link LoadProfile}
      */
     private ObisCode loadProfileObisCode;
 
     /**
-     * The interval of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * The interval of the {@link LoadProfile}
      */
     private TimeDuration loadProfileInterval;
 
     /**
-     * The date of the last correctly stored interval of this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * The date of the last correctly stored interval of this {@link LoadProfile}
      */
     private Date lastReading;
 
@@ -72,12 +73,14 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     private List<OfflineLoadProfileChannel> loadProfileChannels;
     /**
      * Represents a list of  {@link OfflineLoadProfileChannel offlineLoadProfileChannels} which are owned by the master
-     * <b>OR</b> slave devices belonging to the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} of the same type
+     * <b>OR</b> slave devices belonging to the {@link LoadProfile} of the same type
      */
     private List<OfflineLoadProfileChannel> allLoadProfileChannels;
 
-    public OfflineLoadProfileImpl(final LoadProfile loadProfile) {
+    public OfflineLoadProfileImpl(final LoadProfile loadProfile, TopologyService topologyService) {
+        super();
         this.loadProfile = loadProfile;
+        this.topologyService = topologyService;
         this.device = loadProfile.getDevice();
         goOffline();
     }
@@ -96,7 +99,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
         setLoadProfileInterval(this.loadProfile.getLoadProfileSpec().getInterval());
         setLoadProfileObisCode(this.loadProfile.getLoadProfileSpec().getDeviceObisCode());
         setLoadProfileChannels(convertToOfflineChannels(this.loadProfile.getChannels()));
-        setAllLoadProfileChannels(convertToOfflineChannels(this.loadProfile.getAllChannels()));
+        setAllLoadProfileChannels(convertToOfflineChannels(this.topologyService.getAllChannels(this.loadProfile)));
     }
 
     /**
@@ -114,9 +117,9 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     }
 
     /**
-     * Returns the database ID of this {@link com.energyict.mdc.protocol.api.device.offline.OfflineDevice Rtus'} {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * Returns the database ID of this {@link com.energyict.mdc.protocol.api.device.offline.OfflineDevice Rtus'} {@link LoadProfile}
      *
-     * @return the ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * @return the ID of the {@link LoadProfile}
      */
     @Override
     public long getLoadProfileId() {
@@ -124,7 +127,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     }
 
     /**
-     * Returns the database ID of the {@link LoadProfileType LoadProfileType} of this {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * Returns the database ID of the {@link LoadProfileType LoadProfileType} of this {@link LoadProfile}
      *
      * @return the ID of the {@link LoadProfileType LoadProfileType}
      */
@@ -164,7 +167,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     }
 
     /**
-     * Returns the ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice} for the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} object.
+     * Returns the ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice} for the {@link LoadProfile} object.
      *
      * @return the ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice}.
      */

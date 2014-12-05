@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
@@ -71,6 +72,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
     private volatile CommunicationTaskService communicationTaskService;
     private volatile LogBookService logBookService;
     private volatile DeviceService deviceService;
+    private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile StatusService statusService;
     private volatile ManagementBeanFactory managementBeanFactory;
@@ -94,7 +96,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
             HexService hexService, EngineModelService engineModelService, IssueService issueService,
             MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
-            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService,
+            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory, EmbeddedWebServerFactory embeddedWebServerFactory,
             WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory, WebSocketEventPublisherFactory webSocketEventPublisherFactory,
@@ -110,6 +112,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
         setThreadPrincipalService(threadPrincipalService);
         setIssueService(issueService);
         this.setDeviceService(deviceService);
+        this.setTopologyService(topologyService);
         this.setConnectionTaskService(connectionTaskService);
         this.setCommunicationTaskService(communicationTaskService);
         this.setLogBookService(logBookService);
@@ -166,6 +169,11 @@ public class EngineServiceImpl implements EngineService, InstallService {
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
     }
 
     @Reference
@@ -350,6 +358,11 @@ public class EngineServiceImpl implements EngineService, InstallService {
         @Override
         public DeviceService deviceService() {
             return deviceService;
+        }
+
+        @Override
+        public TopologyService topologyService() {
+            return topologyService;
         }
 
         @Override

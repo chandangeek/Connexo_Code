@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
@@ -97,6 +98,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         public DeviceService deviceService();
 
+        public TopologyService topologyService();
+
         public EngineService engineService();
 
         public TransactionService transactionService();
@@ -167,6 +170,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
+
+        @Override
+        public TopologyService topologyService() {
+            return serviceProvider.topologyService();
+        }
 
         @Override
         public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
@@ -258,7 +266,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-        return new OfflineLoadProfileImpl((LoadProfile) loadProfileIdentifier.findLoadProfile());
+        return new OfflineLoadProfileImpl((LoadProfile) loadProfileIdentifier.findLoadProfile(), this.serviceProvider.topologyService());
     }
 
     @Override
@@ -283,14 +291,14 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
-        BaseDevice device = deviceIdentifier.findDevice();
-        BaseDevice gatewayDevice;
+        Device device = (Device) deviceIdentifier.findDevice();
+        Device gatewayDevice;
         if (gatewayDeviceIdentifier != null) {
-            gatewayDevice = gatewayDeviceIdentifier.findDevice();
+            gatewayDevice = (Device) gatewayDeviceIdentifier.findDevice();
         } else {
             gatewayDevice = null;
         }
-        device.setPhysicalGateway(gatewayDevice);
+        this.serviceProvider.topologyService().setPhysicalGateway(device, gatewayDevice);
     }
 
     @Override

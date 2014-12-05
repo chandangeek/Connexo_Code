@@ -6,6 +6,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import org.junit.Test;
 
@@ -50,14 +51,13 @@ public class OfflineLoadProfileImplTest {
         return loadProfile;
     }
 
-    private LoadProfile getMockedLoadProfileWithTwoChannels(long loadProfileId, ObisCode loadProfileObisCode){
+    private LoadProfile getMockedLoadProfileWithTwoChannels(long loadProfileId, ObisCode loadProfileObisCode, TopologyService topologyService){
         LoadProfile newMockedLoadProfile = getNewMockedLoadProfile(loadProfileId, loadProfileObisCode);
         Channel channel1 = mock(Channel.class, RETURNS_DEEP_STUBS);
         Channel channel2 = mock(Channel.class, RETURNS_DEEP_STUBS);
         Channel channel3 = mock(Channel.class, RETURNS_DEEP_STUBS);
         Channel channel4 = mock(Channel.class, RETURNS_DEEP_STUBS);
-        when(newMockedLoadProfile.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
-        when(newMockedLoadProfile.getAllChannels()).thenReturn(Arrays.asList(channel1, channel2, channel3, channel4));
+        when(topologyService.getAllChannels(newMockedLoadProfile)).thenReturn(Arrays.asList(channel1, channel2, channel3, channel4));
         return newMockedLoadProfile;
     }
 
@@ -65,7 +65,7 @@ public class OfflineLoadProfileImplTest {
     public void goOfflineTest() {
         final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
         LoadProfile loadProfile = getNewMockedLoadProfile(LOAD_PROFILE_ID, loadProfileObisCode);
-        OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile);
+        OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, mock(TopologyService.class));
 
         // Asserts
         assertNotNull(offlineLoadProfile);
@@ -82,8 +82,9 @@ public class OfflineLoadProfileImplTest {
     @Test
     public void convertToOfflineChannelsTest() {
         final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
-        LoadProfile loadProfile = getMockedLoadProfileWithTwoChannels(LOAD_PROFILE_ID, loadProfileObisCode);
-        OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile);
+        TopologyService topologyService = mock(TopologyService.class);
+        LoadProfile loadProfile = getMockedLoadProfileWithTwoChannels(LOAD_PROFILE_ID, loadProfileObisCode, topologyService);
+        OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, topologyService);
 
         // asserts
         assertNotNull(offlineLoadProfile.getChannels());
@@ -91,4 +92,5 @@ public class OfflineLoadProfileImplTest {
         assertNotNull(offlineLoadProfile.getAllChannels());
         assertEquals("Expected a total of 4 channels for this loadProfile", 4, offlineLoadProfile.getAllChannels().size());
     }
+
 }

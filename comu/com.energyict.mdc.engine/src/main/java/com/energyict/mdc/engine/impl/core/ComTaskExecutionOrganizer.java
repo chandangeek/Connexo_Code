@@ -6,6 +6,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
@@ -50,10 +51,12 @@ public final class ComTaskExecutionOrganizer {
                     TypedProperties.empty());
 
     private final DeviceConfigurationService deviceConfigurationService;
+    private final TopologyService topologyService;
 
-    public ComTaskExecutionOrganizer(DeviceConfigurationService deviceConfigurationService) {
+    public ComTaskExecutionOrganizer(DeviceConfigurationService deviceConfigurationService, TopologyService topologyService) {
         super();
         this.deviceConfigurationService = deviceConfigurationService;
+        this.topologyService = topologyService;
     }
 
     public List<DeviceOrganizedComTaskExecution> defineComTaskExecutionOrders(List<? extends ComTaskExecution> comTaskExecutions) {
@@ -129,11 +132,12 @@ public final class ComTaskExecutionOrganizer {
 
     private Device getMasterDeviceIfAvailable(Device device) {
         if (device.getDeviceType().isLogicalSlave()) {
-            final Device gateway = device.getPhysicalGateway();
-            if (gateway == null) {
+            Optional<Device> gateway = this.topologyService.getPhysicalGateway(device);
+            if (gateway.isPresent()) {
+                return getMasterDeviceIfAvailable(gateway.get());
+            }
+            else {
                 return device;
-            } else {
-                return getMasterDeviceIfAvailable(gateway);
             }
         } else {
             return device;

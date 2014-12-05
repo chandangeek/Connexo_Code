@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
@@ -225,7 +226,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     }
 
     public OfflineLoadProfile createMockedOfflineLoadProfile(Device device) {
-        return new OfflineLoadProfileImpl(device.getLoadProfiles().get(0));
+        return new OfflineLoadProfileImpl(device.getLoadProfiles().get(0), mock(TopologyService.class));
     }
 
     @Test

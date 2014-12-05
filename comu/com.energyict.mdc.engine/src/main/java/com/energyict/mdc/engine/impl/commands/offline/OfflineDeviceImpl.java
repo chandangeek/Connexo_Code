@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -110,6 +111,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     public interface ServiceProvider {
 
+        public TopologyService topologyService();
+
         public Optional<DeviceCache> findProtocolCacheByDevice(Device device);
 
     }
@@ -145,10 +148,10 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setSlaveDevices(convertToOfflineRtus(downStreamEndDevices, serviceProvider));
         }
         if (context.needsMasterLoadProfiles()) {
-            setMasterLoadProfiles(convertToOfflineLoadProfiles(this.device.getLoadProfiles()));
+            setMasterLoadProfiles(convertToOfflineLoadProfiles(this.device.getLoadProfiles(), serviceProvider.topologyService()));
         }
         if (context.needsAllLoadProfiles()) {
-            setAllLoadProfiles(convertToOfflineLoadProfiles((List)getAllLoadProfilesIncludingDownStreams(this.device)));
+            setAllLoadProfiles(convertToOfflineLoadProfiles((List)getAllLoadProfilesIncludingDownStreams(this.device), serviceProvider.topologyService()));
         }
         if (context.needsLogBooks()) {
             setAllLogBooks(convertToOfflineLogBooks(this.device.getLogBooks()));
@@ -252,12 +255,11 @@ public class OfflineDeviceImpl implements OfflineDevice {
         return downstreamRtu.getDeviceType().isLogicalSlave();
     }
 
-    private List<OfflineLoadProfile> convertToOfflineLoadProfiles(final List<LoadProfile> loadProfiles){
-        List<OfflineLoadProfile> offlineLoadProfiles = new ArrayList<>(loadProfiles.size());
-        for (LoadProfile loadProfile : loadProfiles) {
-            offlineLoadProfiles.add(new OfflineLoadProfileImpl(loadProfile));
-        }
-        return offlineLoadProfiles;
+    private List<OfflineLoadProfile> convertToOfflineLoadProfiles(final List<LoadProfile> loadProfiles, TopologyService topologyService) {
+        return loadProfiles
+                .stream()
+                .map(lp -> new OfflineLoadProfileImpl(lp, topologyService))
+                .collect(Collectors.toList());
     }
 
     private List<OfflineLogBook> convertToOfflineLogBooks(final List<LogBook> logBooks){

@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
@@ -55,6 +56,7 @@ public class FakeServiceProvider
     private CommunicationTaskService communicationTaskService;
     private LogBookService logBookService;
     private DeviceService deviceService;
+    private TopologyService topologyService;
     private MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private EngineService engineService;
     private UserService userService;
@@ -120,6 +122,11 @@ public class FakeServiceProvider
     @Override
     public DeviceService deviceService() {
         return deviceService;
+    }
+
+    @Override
+    public TopologyService topologyService() {
+        return this.topologyService;
     }
 
     @Override
@@ -191,6 +198,10 @@ public class FakeServiceProvider
 
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
     }
 
     public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {

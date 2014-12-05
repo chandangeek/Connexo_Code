@@ -9,6 +9,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -55,6 +56,8 @@ public class ComTaskExecutionOrganizerTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
+    private TopologyService topologyService;
+    @Mock
     private AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel;
     @Mock
     private EncryptionDeviceAccessLevel encryptionDeviceAccessLevel;
@@ -73,6 +76,7 @@ public class ComTaskExecutionOrganizerTest {
         when(this.comTaskEnablement.getSecurityPropertySet()).thenReturn(this.securityPropertySet);
         when(this.securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(this.encryptionDeviceAccessLevel);
         when(this.securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(this.authenticationDeviceAccessLevel);
+        when(this.topologyService.getPhysicalGateway(any(Device.class))).thenReturn(Optional.empty());
     }
 
     private ComTask createMockedTopologyComTask() {
@@ -135,7 +139,7 @@ public class ComTaskExecutionOrganizerTest {
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(deviceConfiguration))).thenReturn(Optional.of(this.comTaskEnablement));
 
         // business exception
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -166,7 +170,7 @@ public class ComTaskExecutionOrganizerTest {
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(deviceConfiguration))).thenReturn(Optional.of(this.comTaskEnablement));
 
         // business exception
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2));
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -208,7 +212,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business exception
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4));
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -281,7 +285,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business exception
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2));
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -345,7 +349,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business exception
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4));
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -435,7 +439,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business exception
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(
                         comTaskExecution1_d1, comTaskExecution2_d1, comTaskExecution3_d1, comTaskExecution4_d1,
                         comTaskExecution1_d2, comTaskExecution2_d2, comTaskExecution3_d2, comTaskExecution4_d2));
 
@@ -573,7 +577,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business exception
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(
                         comTaskExecution1_d1, comTaskExecution2_d1, comTaskExecution3_d1,
                         comTaskExecution1_d2, comTaskExecution2_d2, comTaskExecution3_d2,
                         comTaskExecution1_d3, comTaskExecution2_d3, comTaskExecution3_d3));
@@ -693,7 +697,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(
                         comTaskExecution1, comTaskExecution2, comTaskExecution3, comTaskExecution4, comTaskExecution5));
 
         final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
@@ -722,7 +726,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(
                         comTaskExecution1, comTaskExecution2, comTaskExecution3));
 
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -740,7 +744,7 @@ public class ComTaskExecutionOrganizerTest {
         when(masterComTaskEnablement.getDeviceConfiguration()).thenReturn(masterDeviceConfiguration);
         when(masterComTaskEnablement.getSecurityPropertySet()).thenReturn(this.securityPropertySet);
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(masterDeviceConfiguration);
-        when(device.getPhysicalGateway()).thenReturn(master);
+        when(this.topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(master));
 
         ComTaskExecution comTaskExecution1 = createMockedComTaskExecution(device, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution2 = createMockedComTaskExecution(device, createMockedRegistersComTask());
@@ -753,7 +757,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(
                         comTaskExecution1, comTaskExecution2, comTaskExecution3));
 
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -787,7 +791,7 @@ public class ComTaskExecutionOrganizerTest {
         when(masterSecurityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(this.encryptionDeviceAccessLevel);
         when(masterComTaskEnablement.getSecurityPropertySet()).thenReturn(masterSecurityPropertySet);
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(masterDeviceConfiguration))).thenReturn(Optional.of(masterComTaskEnablement));
-        when(device.getPhysicalGateway()).thenReturn(master);
+        when(this.topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(master));
 
         ComTaskExecution comTaskExecution1 = createMockedComTaskExecution(device, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution2 = createMockedComTaskExecution(device, createMockedRegistersComTask());
@@ -795,7 +799,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(
                         comTaskExecution1, comTaskExecution2, comTaskExecution3));
 
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -809,8 +813,8 @@ public class ComTaskExecutionOrganizerTest {
         Device device = getMockedDevice(true);
         Device master1 = getMockedDevice(true);
         Device masterOfMaster1 = getMockedDevice(false);
-        when(device.getPhysicalGateway()).thenReturn(master1);
-        when(master1.getPhysicalGateway()).thenReturn(masterOfMaster1);
+        when(this.topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(master1));
+        when(this.topologyService.getPhysicalGateway(master1)).thenReturn(Optional.of(masterOfMaster1));
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(deviceConfiguration))).thenReturn(Optional.empty());
         DeviceConfiguration master1DeviceConfiguration = master1.getDeviceConfiguration();
@@ -826,7 +830,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(
                         comTaskExecution1, comTaskExecution2, comTaskExecution3));
 
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -840,8 +844,8 @@ public class ComTaskExecutionOrganizerTest {
         Device device = getMockedDevice(false);
         Device master1 = getMockedDevice(false);
         Device masterOfMaster1 = getMockedDevice(false);
-        when(device.getPhysicalGateway()).thenReturn(master1);
-        when(master1.getPhysicalGateway()).thenReturn(masterOfMaster1);
+        when(this.topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(master1));
+        when(this.topologyService.getPhysicalGateway(master1)).thenReturn(Optional.of(masterOfMaster1));
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(this.deviceConfigurationService.findComTaskEnablement(any(ComTask.class), eq(deviceConfiguration))).thenReturn(Optional.empty());
         DeviceConfiguration master1DeviceConfiguration = master1.getDeviceConfiguration();
@@ -857,7 +861,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(
                         comTaskExecution1, comTaskExecution2, comTaskExecution3));
 
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -876,7 +880,7 @@ public class ComTaskExecutionOrganizerTest {
         when(deviceConfigurationService.findComTaskEnablement(any(ComTask.class), any(DeviceConfiguration.class))).thenReturn(Optional.of(comTaskEnablement));
 
         // business exception
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -911,7 +915,7 @@ public class ComTaskExecutionOrganizerTest {
                 device.getDeviceConfiguration())).thenReturn(Optional.of(comTaskEnablement));
 
         // business method
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
 
         // asserts
         final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> comTasksWithStepsAndSecurity = deviceOrganizedComTaskExecutions.get(0).getComTasksWithStepsAndSecurity();
@@ -965,7 +969,7 @@ public class ComTaskExecutionOrganizerTest {
             thenReturn(Optional.of(secondComTaskEnablement));
 
         // business method
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(firstComTaskExecution, secondComTaskExecution));
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(firstComTaskExecution, secondComTaskExecution));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).hasSize(1);
@@ -1050,7 +1054,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(firstCTD_1, firstCTD_2, secondCTD_1, secondCTD_2, thirdCTD_1, thirdCTD_2, fourthCTD_1, fourthCTD_2));
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(firstCTD_1, firstCTD_2, secondCTD_1, secondCTD_2, thirdCTD_1, thirdCTD_2, fourthCTD_1, fourthCTD_2));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).hasSize(2);
@@ -1168,7 +1172,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(firstCTD_1, firstCTD_2, secondCTD_1, secondCTD_2, thirdCTD_1, thirdCTD_2, fourthCTD_1, fourthCTD_2, fifthCTD_1));
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(firstCTD_1, firstCTD_2, secondCTD_1, secondCTD_2, thirdCTD_1, thirdCTD_2, fourthCTD_1, fourthCTD_2, fifthCTD_1));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -1292,7 +1296,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
-                new ComTaskExecutionOrganizer(deviceConfigurationService).defineComTaskExecutionOrders(Arrays.asList(firstComTaskExecution, secondComTaskExecution, thirdComTaskExecution, fourthComTaskExecution));
+                new ComTaskExecutionOrganizer(deviceConfigurationService, topologyService).defineComTaskExecutionOrders(Arrays.asList(firstComTaskExecution, secondComTaskExecution, thirdComTaskExecution, fourthComTaskExecution));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).hasSize(1);
