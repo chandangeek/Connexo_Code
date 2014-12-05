@@ -8,7 +8,7 @@ Ext.define('SystemApp.controller.Main', {
     defaultToken: '#/administration',
     searchEnabled: false,
     privileges: ['privilege.administrate.userAndRole','privilege.view.userAndRole','privilege.view.license','privilege.upload.license',
-                'privilege.administrate.period','privilege.view.period',
+                'privilege.administrate.period','privilege.view.period','privilege.administrate.dataPurge','privilege.view.dataPurge',
                 'privilege.administrate.dataExportTask','privilege.view.dataExportTask','privilege.update.dataExportTask','privilege.update.schedule.dataExportTask','privilege.run.dataExportTask'],
     controllers: [
         'Usr.controller.Main',
