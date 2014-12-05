@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.tests;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -38,7 +39,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.impl.MdcCommonModule;
@@ -65,7 +65,8 @@ import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
+import java.util.List;
+import javax.validation.MessageInterpolator;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -77,11 +78,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
-import javax.validation.MessageInterpolator;
-
-import java.util.List;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public abstract class BaseTest {
     private static Injector injector;
@@ -125,6 +123,7 @@ public abstract class BaseTest {
                 new EventsModule(),
                 new DomainUtilModule(),
                 new OrmModule(),
+                new DataVaultModule(),
                 new com.elster.jupiter.tasks.impl.TaskModule(),
                 new KpiModule(),
                 new UtilModule(),
