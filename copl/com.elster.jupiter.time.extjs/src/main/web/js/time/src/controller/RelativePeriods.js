@@ -101,6 +101,7 @@ Ext.define('Tme.controller.RelativePeriods', {
 
         model.set('startPeriodAgo', value.startPeriodAgo);
         model.set('startAmountAgo', value.startAmountAgo);
+        model.set('startTimeMode', value.startTimeMode);
         model.set('startNow', value.startNow);
         model.set('startFixedDay', value.startFixedDay);
         model.set('startFixedMonth', value.startFixedMonth);

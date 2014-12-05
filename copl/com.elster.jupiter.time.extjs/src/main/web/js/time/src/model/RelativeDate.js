@@ -1,7 +1,9 @@
 Ext.define('Tme.model.RelativeDate', {
     extend: 'Ext.data.Model',
     fields: [
+        {name: 'startAmountAgo', type: 'string', useNull: true},
         {name: 'startPeriodAgo', type: 'string', useNull: true},
+        {name: 'startTimeMode', type: 'string', useNull: true},
         {name: 'startFixedDay', type: 'number', useNull: true},
         {name: 'startFixedMonth', type: 'number', useNull: true},
         {name: 'startFixedYear', type: 'number', useNull: true},
