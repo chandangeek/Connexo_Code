@@ -60,7 +60,7 @@ public class RelativePeriodResource {
     }
 
     @GET
-    @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
+    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
     @Produces(MediaType.APPLICATION_JSON)
     public RelativePeriodInfos getRelativePeriods(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -76,7 +76,7 @@ public class RelativePeriodResource {
 
     @Path("/{id}")
     @GET
-    @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
+    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
     @Produces(MediaType.APPLICATION_JSON)
     public RelativePeriodInfo getRelativePeriod(@PathParam("id") long id) {
         return new RelativePeriodInfo(getRelativePeriodOrThrowException(id), thesaurus);
@@ -144,7 +144,7 @@ public class RelativePeriodResource {
 
     @Path("/{id}/preview")
     @PUT
-    @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
+    @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RelativePeriodPreviewInfo previewRelativePeriod(@PathParam("id") long id, RelativeDatePreviewInfo relativeDatePreviewInfo) {
@@ -157,7 +157,7 @@ public class RelativePeriodResource {
 
     @Path("/preview")
     @PUT
-    @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
+    @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public RelativeDatePreviewInfo previewRelativeDate(RelativeDatePreviewInfo relativeDatePreviewInfo) {
@@ -174,7 +174,7 @@ public class RelativePeriodResource {
 
     @Path("/categories")
     @GET
-    @RolesAllowed(Privileges.VIEW_RELATIVE_PERIOD)
+    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
     @Produces(MediaType.APPLICATION_JSON)
     public RelativePeriodCategoryInfos getCategories(@Context UriInfo uriInfo) {
         return new RelativePeriodCategoryInfos(timeService.getRelativePeriodCategories(), thesaurus);
