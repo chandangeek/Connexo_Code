@@ -1,7 +1,7 @@
 package com.energyict.mdc.scheduling.model.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bootstrap.h2.impl.ResultSetPrinter;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -42,14 +42,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.security.Principal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
@@ -99,6 +92,7 @@ public class InMemoryPersistence {
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
+                new DataVaultModule(),
                 new MasterDataModule(),
                 new MdcCommonModule(),
                 new BasicPropertiesModule(),
