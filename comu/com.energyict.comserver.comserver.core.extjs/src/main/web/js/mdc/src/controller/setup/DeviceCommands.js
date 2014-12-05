@@ -349,7 +349,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         if (commandForm.isValid() && (propertyForm && propertyForm.isValid())) {
             propertyForm.updateRecord();
             var record = propertyForm.getRecord(),
-                releaseDate = commandForm.getValues().releaseDate,
+                releaseDate = new Date(commandForm.getValues().releaseDate).getTime(),
                 messageSpecification;
             if (!Ext.isEmpty(record.get('id'))) {
                 messageSpecification = {id: record.get('id')}
