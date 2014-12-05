@@ -136,6 +136,7 @@ public class ConnectionMethodResource {
     @DELETE
     @Path("/{id}")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response deleteConnectionMethod(@PathParam("mRID") String mrid, @PathParam("id") long connectionMethodId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<?,?> targetConnectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
