@@ -1,4 +1,4 @@
-Ext.define('Yfn.view.setup.generatereport.Step4', {
+Ext.define('Yfn.view.generatereport.Step4', {
     extend: 'Ext.panel.Panel',
     xtype: 'generatereport-wizard-step4',
     name: 'deviceGroupWizardStep4',

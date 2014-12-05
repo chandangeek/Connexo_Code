@@ -1,11 +1,11 @@
-Ext.define('Yfn.view.setup.generatereport.Wizard', {
+Ext.define('Yfn.view.generatereport.Wizard', {
     extend: 'Ext.form.Panel',
     requires: [
         'Ext.layout.container.Card',
-        'Yfn.view.setup.generatereport.Step1',
-        'Yfn.view.setup.generatereport.Step2',
-        'Yfn.view.setup.generatereport.Step3',
-        'Yfn.view.setup.generatereport.Step4'
+        'Yfn.view.generatereport.Step1',
+        'Yfn.view.generatereport.Step2',
+        'Yfn.view.generatereport.Step3',
+        'Yfn.view.generatereport.Step4'
 
     ],
     alias: 'widget.generatereport-wizard',
@@ -42,26 +42,26 @@ Ext.define('Yfn.view.setup.generatereport.Wizard', {
         },
         items: [
             {
-                text: Uni.I18n.translate('general.back', 'MDC', 'Back'),
+                text: Uni.I18n.translate('general.back', 'YFN', 'Back'),
                 action: 'back',
                 itemId: 'backButton',
                 disabled: true
             },
             {
-                text: Uni.I18n.translate('general.next', 'MDC', 'Next'),
+                text: Uni.I18n.translate('general.next', 'YFN', 'Next'),
                 ui: 'action',
                 action: 'next',
                 itemId: 'nextButton'
             },
             {
-                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                text: Uni.I18n.translate('general.generate', 'YFN', 'Generate'),
                 ui: 'action',
                 action: 'finish',
                 itemId: 'finishButton',
                 hidden: true
             },
             {
-                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                text: Uni.I18n.translate('general.cancel', 'IFN', 'Cancel'),
                 ui: 'link',
                 action: 'cancel',
                 itemId: 'wizardCancelButton',

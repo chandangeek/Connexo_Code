@@ -59,7 +59,6 @@ Ext.define('Yfn.controller.Main', {
                         var reportDescription = record.get('description');
                         var reportUUID = record.get('reportUUID');
                         var reportName = record.get('name');
-                        var reportDescription = record.get('name');
                         reportsItems.push({
                             text: reportName,
                             tooltip: reportDescription,

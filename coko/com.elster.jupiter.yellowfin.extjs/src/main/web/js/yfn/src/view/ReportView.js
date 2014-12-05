@@ -6,6 +6,8 @@ Ext.define('Yfn.view.ReportView', {
     overflowY: 'hidden',
     layout: 'fit',
     reportName: '',
+    reportId: '',
+    reportUUID: '',
 
     listeners: {
         afterrender: function(){

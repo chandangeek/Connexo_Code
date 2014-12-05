@@ -1,10 +1,10 @@
-Ext.define('Yfn.view.setup.generatereport.Browse', {
+Ext.define('Yfn.view.generatereport.Browse', {
     extend: 'Uni.view.container.ContentContainer',
     xtype: 'generatereport-browse',
     itemId: 'generatereport-browse',
     requires: [
-        'Yfn.view.setup.generatereport.Navigation',
-        'Yfn.view.setup.generatereport.Wizard'
+        'Yfn.view.generatereport.Navigation',
+        'Yfn.view.generatereport.Wizard'
     ],
 
     side: {
@@ -27,7 +27,6 @@ Ext.define('Yfn.view.setup.generatereport.Browse', {
         {
             xtype: 'generatereport-wizard',
             itemId: 'generatereportwizard',
-            layout:'fit',
             defaults: {
                 cls: 'content-wrapper'
             }

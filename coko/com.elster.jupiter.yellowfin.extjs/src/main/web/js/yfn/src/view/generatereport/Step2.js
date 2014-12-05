@@ -1,4 +1,4 @@
-Ext.define('Yfn.view.setup.generatereport.Step2', {
+Ext.define('Yfn.view.generatereport.Step2', {
     extend: 'Ext.panel.Panel',
     xtype: 'generatereport-wizard-step2',
     name: 'generateReportWizardStep2',
@@ -25,6 +25,11 @@ Ext.define('Yfn.view.setup.generatereport.Step2', {
         },
         {
             xtype: 'filter-top-panel'
+        },
+        {
+            xtype: 'form',
+            layout: 'column',
+            itemId: 'step2-form'
         }
     ]
 

@@ -1,12 +1,14 @@
-Ext.define('Yfn.view.setup.generatereport.ReportGroupSelection', {
+Ext.define('Yfn.view.generatereport.RadioGroup', {
     extend: 'Ext.container.Container',
-    alias: 'widget.report-group-selection',
+    alias: 'widget.radio-group',
+    ui:'tile',
     config:{
-        reportGroupTitle:'Device reports',
-        reportGroupName:'',
-        reportsList:[],
-        reportGroupDisabled:false,
-        reportGroupSelected:false
+        groupLabel:'Device reports',
+        groupValue:false,
+        groupName:undefined,
+        groupItems:[],
+        groupDisabled:false,
+        groupSelected:false
 
     },
     layout: 'fit',
@@ -14,22 +16,21 @@ Ext.define('Yfn.view.setup.generatereport.ReportGroupSelection', {
         var me = this;
 
         var items = [];
-        if (me.reportsList && me.reportsList.length) {
-            for(var i=0;i<me.reportsList.length;i++){
-                var report = me.reportsList[i];
+        if (me.groupItems && me.groupItems.length) {
+            for(var i=0;i<me.groupItems.length;i++){
+                var item = me.groupItems[i];
                 items.push({
                     xtype: 'radiofield',
-                    boxLabel: report.reportName,
-                    inputValue: report.reportUUID,
-                    tooltip:report.reportDescription,
-                    name: 'reportUUID',//report.subCategory,
-                    checked: !me.disabled && report.checked,
-                    disabled:me.reportGroupDisabled,
+                    boxLabel: item.boxLabel,
+                    inputValue: item.inputValue,
+                    name: item.name,
+                    checked: !me.disabled && item.checked,
+                    disabled:me.groupDisabled,
                     listeners:{
                         afterrender:function(component){
                             new Ext.ToolTip({
                                 target: component.getEl(),
-                                html: report.reportDescription
+                                html: item.tooltip
                             });
 
                         },
@@ -47,13 +48,15 @@ Ext.define('Yfn.view.setup.generatereport.ReportGroupSelection', {
                 items: [
                     {
                         xtype: 'radiofield',
-                        boxLabel: me.reportGroupTitle,
-                        disabled : me.reportGroupDisabled,
-                        checked : me.reportGroupSelected,
-                        name: 'reportGroup'
+                        boxLabel: me.groupLabel,
+                        disabled : me.groupDisabled,
+                        checked : me.groupSelected,
+                        inputValue:me.groupValue,
+                        name: me.groupName
                     },
                     {
                         xtype: 'radiogroup',
+                        layout:'fit',
                         padding: '0 0 0 20',
                         columns: 1,
                         items: items

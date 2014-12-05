@@ -1,4 +1,4 @@
-Ext.define('Yfn.view.setup.generatereport.Navigation', {
+Ext.define('Yfn.view.generatereport.Navigation', {
     extend: 'Uni.view.menu.NavigationMenu',
     alias: 'widget.generatereport-navigation',
     width: 256,

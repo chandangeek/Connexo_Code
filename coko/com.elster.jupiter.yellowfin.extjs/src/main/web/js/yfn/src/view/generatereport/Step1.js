@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.generatereport.Step1', {
+Ext.define('Mdc.view.generatereport.Step1', {
     extend: 'Ext.panel.Panel',
     xtype: 'generatereport-wizard-step1',
     name: 'generateReportWizardStep1',
@@ -20,9 +20,9 @@ Ext.define('Mdc.view.setup.generatereport.Step1', {
             text: Uni.I18n.translate('generatereport.noReportPrompts', 'MDC', 'Please select at least one device.')
         },
         {
-            xtype: 'container',
+            xtype: 'form',
             layout: 'column',
-            itemId: 'step1-generatereport-report-groups'
+            itemId: 'step1-form'
         }
     ],
 
