@@ -6,6 +6,7 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -15,6 +16,8 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -40,19 +43,21 @@ public class DeviceMessageResource {
     private final MdcPropertyUtils mdcPropertyUtils;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final ExceptionFactory exceptionFactory;
+    private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
 
     @Inject
-    public DeviceMessageResource(ResourceHelper resourceHelper, DeviceMessageInfoFactory deviceMessageInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceMessageSpecificationService deviceMessageSpecificationService, ExceptionFactory exceptionFactory) {
+    public DeviceMessageResource(ResourceHelper resourceHelper, DeviceMessageInfoFactory deviceMessageInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceMessageSpecificationService deviceMessageSpecificationService, ExceptionFactory exceptionFactory, DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceMessageInfoFactory = deviceMessageInfoFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.exceptionFactory = exceptionFactory;
+        this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
+    public DeviceMessageInfos getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<DeviceMessageInfo> infos = device.getMessages().stream().
                 sorted(comparing(DeviceMessage::getReleaseDate, nullsLast(Comparator.<Instant>naturalOrder().reversed()))).
@@ -62,7 +67,13 @@ public class DeviceMessageResource {
         List<DeviceMessageInfo> infosInPage = ListPager.of(infos).from(queryParameters).find();
 
         PagedInfoList deviceMessages = PagedInfoList.asJson("deviceMessages", infosInPage, queryParameters);
-        return deviceMessages;
+
+        DeviceMessageInfos info = new DeviceMessageInfos();
+        info.deviceMessages = deviceMessages.getInfos();
+        info.hasCommandsWithPrivileges = hasCommandsWithPrivileges(device) ;
+        info.total = deviceMessages.getTotal();
+
+        return info;
     }
 
     @POST
@@ -111,5 +122,23 @@ public class DeviceMessageResource {
 
     private DeviceMessage<?> findDeviceMessageOrThrowException(Device device, long deviceMessageId) {
         return device.getMessages().stream().filter(message -> message.getId() == deviceMessageId).findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE));
+    }
+
+    private boolean hasCommandsWithPrivileges (Device device) {
+        final boolean[] hasCommandsWithPrivileges = {false};
+        Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
+        List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
+        deviceMessageSpecificationService.allCategories().stream().sorted((c1,c2)->c1.getName().compareToIgnoreCase(c2.getName())).forEach(category-> {
+            List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
+                    .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
+                    .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
+                    .filter(dms -> device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
+                    .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
+                    .collect(Collectors.toList());
+            if (!deviceMessageSpecs.isEmpty()) {
+                hasCommandsWithPrivileges[0] = true;
+            }
+        });
+        return hasCommandsWithPrivileges[0];
     }
 }

@@ -19,9 +19,9 @@ import com.elster.jupiter.cbo.IllegalEnumValueException;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -91,23 +91,22 @@ public class LogBookResource {
 
     private EndDeviceEventRecordFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) {
         EndDeviceEventRecordFilterSpecification filter = new EndDeviceEventRecordFilterSpecification();
-        Map<String, Object> filterProperties = jsonQueryFilter.getFilterProperties();
         Date intervalStart = null;
         Date intervalEnd = null;
-        if (filterProperties.containsKey(INTERVAL_START)) {
-            intervalStart = jsonQueryFilter.getDate(INTERVAL_START);
+        if (jsonQueryFilter.hasProperty(INTERVAL_START)) {
+            intervalStart = Date.from(jsonQueryFilter.getInstant(INTERVAL_START));
         }
-        if (filterProperties.containsKey(INTERVAL_END)) {
-            intervalEnd = jsonQueryFilter.getDate(INTERVAL_END);
+        if (jsonQueryFilter.hasProperty(INTERVAL_END)) {
+            intervalEnd = Date.from(jsonQueryFilter.getInstant(INTERVAL_END));
         }
         filter.range = new Interval(intervalStart, intervalEnd).toOpenClosedRange();
-        if (filterProperties.containsKey(DOMAIN)) {
+        if (jsonQueryFilter.hasProperty(DOMAIN)) {
             filter.domain = jsonQueryFilter.getProperty(DOMAIN, new EndDeviceDomainAdapter());
         }
-        if (filterProperties.containsKey(SUB_DOMAIN)) {
+        if (jsonQueryFilter.hasProperty(SUB_DOMAIN)) {
             filter.subDomain = jsonQueryFilter.getProperty(SUB_DOMAIN, new EndDeviceSubDomainAdapter());
         }
-        if (filterProperties.containsKey(EVENT_OR_ACTION)) {
+        if (jsonQueryFilter.hasProperty(EVENT_OR_ACTION)) {
             filter.eventOrAction = jsonQueryFilter.getProperty(EVENT_OR_ACTION, new EndDeviceEventOrActionAdapter());
         }
         return filter;
