@@ -344,24 +344,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask defaultConnectionTask) {
-        List<ComTaskExecution> comTaskExecutions = this.findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopology(device);
-        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
-            comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTask);
-            comTaskExecutionUpdater.update();
-        }
-    }
-
-    /**
-     * Constructs a list of {@link ComTaskExecution} which are linked to
-     * the default {@link ConnectionTask} for the entire topology of the specified Device,
-     * but are not linked yet to the given Default connectionTask
-     *
-     * @param device         the Device for which we need to search the ComTaskExecution
-     * @return The List of ComTaskExecution
-     */
-    private List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTaskForCompleteTopology(Device device) {
+    public List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTask(Device device) {
         List<ComTaskExecution> scheduledComTasks = new ArrayList<>();
         this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(device, scheduledComTasks);
         return scheduledComTasks;

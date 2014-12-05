@@ -20,11 +20,6 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.time.Interval;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +34,14 @@ import java.util.Set;
  */
 public interface CommunicationTaskService {
 
-    public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
+    /**
+     * Gets all {@link ComTaskExecution}s of the specified {@link Device}
+     * that are using the default {@link ConnectionTask}.
+     *
+     * @param device The Device
+     * @return The List of ComTaskExecution
+     */
+    public List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTask(Device device);
 
     public TimeDuration releaseTimedOutComTasks(ComServer comServer);
 

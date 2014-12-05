@@ -19,7 +19,7 @@ import com.energyict.mdc.device.data.TopologyTimeline;
 import com.energyict.mdc.device.data.TopologyTimeslice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.exceptions.StillGatewayException;
+import com.energyict.mdc.device.topology.StillGatewayException;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -493,131 +493,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void getDefaultPhysicalGatewayNullTest() {
-        Device simpleDevice = createSimpleDevice();
-
-        assertThat(simpleDevice.getPhysicalGateway()).isNull();
-    }
-
-    @Test
-    @Transactional
-    public void createWithPhysicalGatewayTest() {
-        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
-
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave", MRID);
-        device.setPhysicalGateway(masterDevice);
-        device.save();
-        Device reloadedDevice = getReloadedDevice(device);
-
-        assertThat(reloadedDevice.getPhysicalGateway()).isNotNull();
-        assertThat(reloadedDevice.getPhysicalGateway().getId()).isEqualTo(masterDevice.getId());
-    }
-
-    @Test
-    @Transactional
-    public void updateWithPhysicalGatewayTest() {
-        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER");
-
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave", MRID);
-        device.save();
-        Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.setPhysicalGateway(masterDevice);
-        reloadedDevice.save();
-
-        Device updatedDevice = getReloadedDevice(reloadedDevice);
-
-        assertThat(updatedDevice.getPhysicalGateway()).isNotNull();
-        assertThat(updatedDevice.getPhysicalGateway().getId()).isEqualTo(masterDevice.getId());
-    }
-
-    @Test
-    @Transactional
-    public void updateMultipleSlavesWithSameMasterTest() {
-        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER","m");
-        Device slaveDevice1 = createSimpleDeviceWithName("SLAVE_1","s1");
-        Device slaveDevice2 = createSimpleDeviceWithName("SLAVE_2", "s2");
-
-        slaveDevice1.setPhysicalGateway(masterDevice);
-        slaveDevice1.save();
-        slaveDevice2.setPhysicalGateway(masterDevice);
-        slaveDevice2.save();
-
-        Device reloadedSlave1 = getReloadedDevice(slaveDevice1);
-        Device reloadedSlave2 = getReloadedDevice(slaveDevice2);
-
-        assertThat(reloadedSlave1.getPhysicalGateway().getId()).isEqualTo(reloadedSlave2.getPhysicalGateway().getId()).isEqualTo(masterDevice.getId());
-    }
-
-    @Test
-    @Transactional
-    public void updateWithSecondMasterDeviceTest() {
-        Device masterDevice1 = createSimpleDeviceWithName("Physical_MASTER_1", "m1");
-        Device masterDevice2 = createSimpleDeviceWithName("Physical_MASTER_2", "m2");
-        Device origin = createSimpleDeviceWithName("Origin","o");
-
-        origin.setPhysicalGateway(masterDevice1);
-        origin.save();
-
-        Device slaveWithMaster1 = getReloadedDevice(origin);
-        slaveWithMaster1.setPhysicalGateway(masterDevice2);
-        slaveWithMaster1.save();
-
-        Device slaveWithMaster2 = getReloadedDevice(slaveWithMaster1);
-
-        assertThat(slaveWithMaster2.getPhysicalGateway().getId()).isEqualTo(masterDevice2.getId());
-    }
-
-    @Test
-    @Transactional
-    public void removePhysicalGatewayTest() {
-        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER", "m");
-        Device slaveDevice1 = createSimpleDeviceWithName("SLAVE_1","s");
-        slaveDevice1.setPhysicalGateway(masterDevice);
-        slaveDevice1.save();
-
-        Device updatedSlave = getReloadedDevice(slaveDevice1);
-        updatedSlave.clearPhysicalGateway();
-        updatedSlave.save();
-
-        Device slaveWithNoMaster = getReloadedDevice(updatedSlave);
-        assertThat(slaveWithNoMaster.getPhysicalGateway()).isNull();
-    }
-
-    @Test
-    @Transactional
-    public void clearPhysicalGatewayWhenThereIsNoGatewayTest() {
-        Device origin = createSimpleDeviceWithName("Origin");
-        origin.clearPhysicalGateway();
-        // no exception should be thrown
-        assertThat(getReloadedDevice(origin).getPhysicalGateway()).isNull();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
-    public void setPhysicalGatewaySameAsOriginDeviceTest() {
-        Device origin = createSimpleDeviceWithName("Origin");
-
-        origin.setPhysicalGateway(origin);
-        origin.save();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
-    public void updatePhysicalGatewayWithSameAsOriginDeviceTest() {
-        Device physicalGateway = createSimpleDeviceWithName("PhysicalGateway");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave", "SlaveMrid");
-        device.setPhysicalGateway(physicalGateway);
-        device.save();
-        Device reloadedDevice = getReloadedDevice(device);
-
-        reloadedDevice.setPhysicalGateway(reloadedDevice);
-        reloadedDevice.save();
-    }
-
-    @Test
-    @Transactional
     public void defaultCommunicationGatewayNullTest() {
         Device simpleDevice = createSimpleDevice();
 
@@ -741,20 +616,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void createWithSamePhysicalAndCommunicationGatewayTest() {
-        Device gatewayForBoth = createSimpleDeviceWithName("GatewayForBoth");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin", MRID);
-        device.setPhysicalGateway(gatewayForBoth);
-        device.setCommunicationGateway(gatewayForBoth);
-        device.save();
-
-        Device reloadedDevice = getReloadedDevice(device);
-
-        assertThat(reloadedDevice.getPhysicalGateway().getId()).isEqualTo(reloadedDevice.getCommunicationGateway().getId()).isEqualTo(gatewayForBoth.getId());
-    }
-
-    @Test
-    @Transactional
     public void findDownstreamDevicesWhenNoneArePresentTest() {
         Device device = createSimpleDevice();
 
@@ -849,44 +710,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
         assertThat(downstreamDevices).hasSize(1);
         assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
-    }
-
-    @Test(expected = StillGatewayException.class)
-    @Transactional
-    public void cannotDeleteBecauseStillUsedAsPhysicalGatewayTest() {
-        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
-        device1.setPhysicalGateway(physicalMaster);
-        device1.save();
-
-        //business method
-        try {
-            physicalMaster.delete();
-        } catch (StillGatewayException e) {
-            if (!e.getMessageSeed().equals(MessageSeeds.DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY)) {
-                fail("Should have gotten an exception indicating that the device was still linked as a physical gateway, but was " + e.getMessage());
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    @Test
-    @Transactional
-    public void deletePhysicalMasterAfterDeletingSlaveTest() {
-        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin", MRID);
-        device.setPhysicalGateway(physicalMaster);
-        device.save();
-
-        Device reloadedSlave = getReloadedDevice(device);
-        reloadedSlave.delete();
-
-        Device reloadedMaster = getReloadedDevice(physicalMaster);
-        long masterId = reloadedMaster.getId();
-        reloadedMaster.delete();
-
-        assertThat(inMemoryPersistence.getDeviceService().findDeviceById(masterId)).isNull();
     }
 
     @Test(expected = StillGatewayException.class)

@@ -4,11 +4,15 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import java.util.List;
 import java.util.Optional;
 
 /**

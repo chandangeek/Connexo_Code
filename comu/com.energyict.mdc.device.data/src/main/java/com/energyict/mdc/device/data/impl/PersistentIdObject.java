@@ -78,6 +78,10 @@ public abstract class PersistentIdObject<D> {
         this.eventService.postEvent(this.updateEventType().topic(), this);
     }
 
+    protected void postEvent(EventType eventType) {
+        this.eventService.postEvent(eventType.topic(), this);
+    }
+
     protected abstract UpdateEventType updateEventType();
 
     private void notifyDeleted() {

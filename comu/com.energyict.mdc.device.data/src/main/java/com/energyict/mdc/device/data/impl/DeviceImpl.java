@@ -72,7 +72,6 @@ import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichI
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
@@ -369,7 +368,6 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void delete() {
-        this.validateDelete();
         this.notifyDeviceIsGoingToBeDeleted();
         this.doDelete();
         this.notifyDeleted();
@@ -413,21 +411,6 @@ public class DeviceImpl implements Device, CanLock {
 
     private void deleteProperties() {
         this.deviceProperties.clear();
-    }
-
-    private void validateDelete() {
-        validateGatewayUsage();
-    }
-
-    private void validateGatewayUsage() {
-        List<Device> physicalConnectedDevices = getPhysicalConnectedDevices();
-        if (!physicalConnectedDevices.isEmpty()) {
-            throw StillGatewayException.forPhysicalGateway(thesaurus, this, physicalConnectedDevices.toArray(new Device[physicalConnectedDevices.size()]));
-        }
-        List<Device> communicationReferencingDevices = getCommunicationReferencingDevices();
-        if (!communicationReferencingDevices.isEmpty()) {
-            throw StillGatewayException.forCommunicationGateway(thesaurus, this, communicationReferencingDevices.toArray(new Device[communicationReferencingDevices.size()]));
-        }
     }
 
     @Override
@@ -562,11 +545,6 @@ public class DeviceImpl implements Device, CanLock {
     @Override
     public List<Device> getPhysicalConnectedDevices() {
         return this.deviceService.findPhysicalConnectedDevicesFor(this);
-    }
-
-    @Override
-    public Device getPhysicalGateway() {
-        return this.getPhysicalGateway(clock.instant());
     }
 
     @Override
@@ -1664,21 +1642,6 @@ public class DeviceImpl implements Device, CanLock {
             }
         }
         throw new CannotDeleteComScheduleFromDevice(this.thesaurus, comSchedule, this);
-    }
-
-    @Override
-    public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval) {
-        int eventCounter = 0;
-        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            for (Device slaveDevice : this.getPhysicalConnectedDevices()) {
-                Optional<Meter> slaveMeter = amrSystem.get().findMeter(String.valueOf(slaveDevice.getId()));
-                if (slaveMeter.isPresent()) {
-                    eventCounter = eventCounter + this.countUniqueEndDeviceEvents(slaveMeter.get(), eventTypes, interval);
-                }
-            }
-        }
-        return eventCounter;
     }
 
     @Override

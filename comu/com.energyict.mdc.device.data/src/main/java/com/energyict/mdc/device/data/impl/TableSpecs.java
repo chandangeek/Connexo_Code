@@ -54,8 +54,7 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-07 (14:28)
  */
-public enum
-        TableSpecs {
+public enum TableSpecs {
 
     DDC_DEVICE {
         @Override

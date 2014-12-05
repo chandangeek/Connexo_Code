@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDe
 import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.DeleteEventType;
+import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.PersistentIdObject;
 import com.energyict.mdc.device.data.impl.PropertyCache;
 import com.energyict.mdc.device.data.impl.PropertyFactory;
@@ -729,6 +730,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void setAsDefault() {
         this.doSetAsDefault();
         this.post();
+        this.postEvent(EventType.CONNECTIONTASK_SETASDEFAULT);
     }
 
     protected void doSetAsDefault() {

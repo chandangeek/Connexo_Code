@@ -64,11 +64,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     public DeviceType getDeviceType();
 
-    @Override
-    public Device getPhysicalGateway();
-
-    public Device getPhysicalGateway(Instant timestamp);
-
     /**
      * Get the Device which is used for <i>communication</i><br>
      * <i>Note that this can be another device than the physical gateway</i>
@@ -320,17 +315,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     public ScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ScheduledComTaskExecution comTaskExecution);
 
     void removeComTaskExecution(ComTaskExecution comTaskExecution);
-
-    /**
-     * Counts the number of EndDeviceEvents of the specified types
-     * that have occurred in the specified {@link Interval}
-     * within the topology that starts from this Device.
-     *
-     * @param eventTypes The List of EndDeviceEventType of interest
-     * @param interval The Interval during which the EndDeviceEvents have occurred
-     * @return The number of EndDeviceEvents
-     */
-    public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval);
 
     /**
      * Returns a {@link ComTaskExecutionBuilder} that will build a

@@ -185,20 +185,17 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     @Override
-    public ConnectionTask findDefaultConnectionTaskForDevice(Device device) {
+    public Optional<ConnectionTask> findDefaultConnectionTaskForDevice(Device device) {
         Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
                           and(where("isDefault").isEqualTo(true)).
                           and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
-        if (connectionTasks != null && connectionTasks.size() == 1) {
-            return connectionTasks.get(0);
+        if (connectionTasks.size() == 1) {
+            return Optional.of(connectionTasks.get(0));
         }
         else {
-            if (device.getPhysicalGateway() != null) {
-                return this.findDefaultConnectionTaskForDevice(device.getPhysicalGateway());
-            }
+            return Optional.empty();
         }
-        return null;  //if no default is found, null is returned
     }
 
     @Override
@@ -437,16 +434,19 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     public void doSetDefaultConnectionTask(final Device device, final ConnectionTaskImpl newDefaultConnectionTask) {
-        List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device);
-        for (ConnectionTask connectionTask : connectionTasks) {
-            if (isPreviousDefault(newDefaultConnectionTask, connectionTask)) {
-                ((ConnectionTaskImpl) connectionTask).clearDefault();
-            }
-        }
-        this.deviceDataModelService.setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(device, newDefaultConnectionTask);
+        this.clearOldDefault(device, newDefaultConnectionTask);
         if (newDefaultConnectionTask != null) {
             newDefaultConnectionTask.setAsDefault();
         }
+    }
+
+    private void clearOldDefault(Device device, ConnectionTaskImpl newDefaultConnectionTask) {
+        List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device);
+        connectionTasks
+                .stream()
+                .filter(connectionTask -> isPreviousDefault(newDefaultConnectionTask, connectionTask))
+                .map(ConnectionTaskImpl.class::cast)
+                .forEach(ConnectionTaskImpl::clearDefault);
     }
 
     @Override

@@ -16,6 +16,7 @@ public enum EventType {
 
     CONNECTIONTASK_CREATED("connectiontask/CREATED"),
     CONNECTIONTASK_UPDATED("connectiontask/UPDATED"),
+    CONNECTIONTASK_SETASDEFAULT("connectiontask/SETASDEFAULT"),
     CONNECTIONTASK_DELETED("connectiontask/DELETED"),
     CONNECTIONMETHOD_CREATED("connectionmethod/CREATED"),
     CONNECTIONMETHOD_UPDATED("connectionmethod/UPDATED"),
@@ -34,6 +35,7 @@ public enum EventType {
     PROTOCOLDIALECTPROPERTIES_UPDATED("protocoldialectproperties/UPDATED"),
     PROTOCOLDIALECTPROPERTIES_DELETED("protocoldialectproperties/DELETED"),
     COMTASKEXECUTION_CREATED("comtaskexecution/CREATED"),
+    COMTASKEXECUTION_VALIDATE_OBSOLETE("comtaskexecution/VALIDATE_OBSOLETE"),
     COMTASKEXECUTION_UPDATED("comtaskexecution/UPDATED"),
     COMTASKEXECUTION_RANGE_OBSOLETE("comtaskexecution/RANGE_OBSOLETE"),
     COMTASKEXECUTION_DELETED("comtaskexecution/DELETED"),

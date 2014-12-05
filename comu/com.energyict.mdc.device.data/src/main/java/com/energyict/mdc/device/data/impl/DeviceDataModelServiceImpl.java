@@ -6,7 +6,6 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
@@ -18,7 +17,6 @@ import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -78,7 +76,6 @@ import java.util.stream.Stream;
 @Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
 public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService {
 
-    private volatile BundleContext bundleContext;
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -106,8 +103,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
-    public DeviceDataModelServiceImpl() {}
+    // For OSGi purposes only
+    public DeviceDataModelServiceImpl() {super();}
 
+    // For unit testing purposes only
     @Inject
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
                                       OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService,
@@ -116,6 +115,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       MeteringService meteringService, ValidationService validationService,
                                       SchedulingService schedulingService, MessageService messageService,
                                       SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
@@ -353,7 +353,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
         this.createRealServices();
         this.dataModel.register(this.getModule());
         this.registerRealServices(bundleContext);
@@ -405,7 +404,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Deactivate
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop() throws Exception {
         for (ServiceRegistration serviceRegistration : this.serviceRegistrations) {
             serviceRegistration.unregister();
         }
@@ -431,11 +430,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
-    }
-
-    @Override
-    public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask) {
-        this.communicationTaskService.setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(device, connectionTask);
     }
 
     @Override

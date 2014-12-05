@@ -304,7 +304,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         return (MockProtocolPluggableService) protocolPluggableService;
     }
 
-
     public static class MockProtocolPluggableService implements ProtocolPluggableService {
 
         private final ProtocolPluggableService protocolPluggableService;
@@ -334,8 +333,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public Class loadProtocolClass(String javaClassName) {
-            return protocolPluggableService.loadProtocolClass(javaClassName);
+        public Object createProtocol(String className) {
+            return protocolPluggableService.createProtocol(className);
         }
 
         @Override
