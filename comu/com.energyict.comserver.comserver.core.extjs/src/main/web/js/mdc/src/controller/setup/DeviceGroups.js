@@ -10,7 +10,8 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
     views: [
         'setup.devicegroup.DeviceGroupsGrid',
         'setup.devicegroup.DeviceGroupsGrid',
-        'setup.devicegroup.DeviceGroupPreview'
+        'setup.devicegroup.DeviceGroupPreview',
+        'Mdc.view.setup.devicegroup.Details'
     ],
 
     stores: [
@@ -157,6 +158,29 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
 
     back: function () {
         location.href = "#devices";
+    },
+
+    showDevicegroupDetailsView: function (currentDeviceGroupId) {
+        var me = this;
+        var router = me.getController('Uni.controller.history.Router');
+        var widget = Ext.widget('device-groups-details', {
+                router: router,
+                devicegroupId: currentDeviceGroupId
+            });
+
+        var actionsMenu = widget.down('device-group-action-menu');
+
+        var model = Ext.ModelManager.getModel('Mdc.model.DeviceGroup');
+        model.load(currentDeviceGroupId, {
+            success: function (record) {
+                actionsMenu.record = record;
+                widget.down('#devicegroups-view-menu').setTitle(record.get('name'));
+                me.getApplication().fireEvent('changecontentevent', widget);
+                widget.down('form').loadRecord(record);
+                me.getApplication().fireEvent('loadDeviceGroup', record);
+
+            }
+        });
     }
 });
 

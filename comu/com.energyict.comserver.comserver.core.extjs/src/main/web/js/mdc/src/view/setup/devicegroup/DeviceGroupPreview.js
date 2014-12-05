@@ -1,6 +1,7 @@
 Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
     extend: 'Ext.form.Panel',
     xtype: 'deviceGroupPreview',
+    alias: 'widget.deviceGroup-preview-form',
     frame: true,
     requires: [
         'Mdc.view.setup.devicegroup.DeviceGroupActionMenu'
