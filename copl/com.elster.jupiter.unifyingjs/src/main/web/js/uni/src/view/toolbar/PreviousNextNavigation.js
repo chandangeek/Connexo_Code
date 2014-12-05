@@ -53,11 +53,14 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
     /**
      * @cfg {String} [itemsName="items"]
      * Name of items.
-     * A link to a items list can be provided. For example:
-     *
-     *     itemsName: '<a href="' + me.router.getRoute('devices/device/registers').buildUrl() + '">' + Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers').toLowerCase() + '</a>'
      */
     itemsName: Uni.I18n.translate('general.items', 'UNI', 'Items').toLowerCase(),
+
+    /**
+     * @cfg {String} [itemsName="items"]
+     * Route to items list.
+     */
+    listRoute: null,
 
     initComponent: function () {
         var me = this,
@@ -105,21 +108,47 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
                 text: '|'
             },
             currentIndex = store.indexOfId(me.router.arguments[me.routerIdArgument]),
-            itemsCounter;
+            itemsCounter = {
+                xtype: 'component',
+                cls: ' previous-next-navigation-items-counter'
+            },
+            storeCurrentPage = store.lastOptions.page;
 
         if (currentIndex === -1) {
             currentIndex = store.indexOfId(parseInt(me.router.arguments[me.routerIdArgument]));
         }
 
-        itemsCounter = {
-            xtype: 'component',
-            cls: ' previous-next-navigation-items-counter',
-            html: Ext.String.format(Uni.I18n.translate('previousNextNavigation.itemsCount', 'UNI', '{0} of {1}'), currentIndex + 1, store.getCount()) + ' ' + me.itemsName
-        };
+        if (me.listRoute && me.router.getRoute(me.listRoute)) {
+            me.router.queryParams.limit = store.pageSize;
+            me.router.queryParams.start = store.pageSize * storeCurrentPage;
+            me.itemsName = '<a href="' + me.router.getRoute(me.listRoute).buildUrl(me.router.arguments, me.router.queryParams) + '">' + me.itemsName + '</a>';
+        }
+
+        if (store.getTotalCount() > store.pageSize * storeCurrentPage) {
+            itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgMoreItems', 'UNI', '{0} of more than {1}'), store.pageSize * (storeCurrentPage - 1) + currentIndex + 1, store.pageSize * storeCurrentPage) + ' ' + me.itemsName;
+        } else {
+            itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'UNI', '{0} of {1}'), store.pageSize * (storeCurrentPage - 1) + currentIndex + 1, store.getTotalCount()) + ' ' + me.itemsName;
+        }
 
         if (currentIndex - 1 >= 0) {
             me.router.arguments[me.routerIdArgument] = store.getAt(currentIndex - 1).getId();
             prevBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(me.router.arguments, me.router.queryParams);
+        } else if (storeCurrentPage > 1) {
+            prevBtn.handler = function () {
+                me.setLoading(true);
+                store.loadPage(storeCurrentPage - 1, {
+                    scope: me,
+                    callback: function (records) {
+                        me.setLoading(false);
+                        if (records.length) {
+                            me.router.arguments[me.routerIdArgument] = store.getAt(records.length - 1).getId();
+                            me.router.getRoute(me.router.currentRoute).forward(me.router.arguments, me.router.queryParams);
+                        } else {
+                            prevBtn.disable();
+                        }
+                    }
+                });
+            }
         } else {
             prevBtn.disabled = true;
         }
@@ -127,6 +156,22 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
         if (currentIndex + 1 < store.getCount()) {
             me.router.arguments[me.routerIdArgument] = store.getAt(currentIndex + 1).getId();
             nextBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(me.router.arguments, me.router.queryParams);
+        } else if (store.getTotalCount() > store.pageSize * storeCurrentPage) {
+            nextBtn.handler = function () {
+                me.setLoading(true);
+                store.loadPage(storeCurrentPage + 1, {
+                    scope: me,
+                    callback: function (records) {
+                        me.setLoading(false);
+                        if (records.length) {
+                            me.router.arguments[me.routerIdArgument] = store.getAt(0).getId();
+                            me.router.getRoute(me.router.currentRoute).forward(me.router.arguments, me.router.queryParams);
+                        } else {
+                            nextBtn.disable();
+                        }
+                    }
+                });
+            }
         } else {
             nextBtn.disabled = true;
         }
