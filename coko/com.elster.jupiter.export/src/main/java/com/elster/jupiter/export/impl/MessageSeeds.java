@@ -16,9 +16,9 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH(1003, Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH, "Field's text length should be between 1 and " + Table.NAME_LENGTH + " symbols", Level.SEVERE),
     NO_SUCH_PROCESSOR(1004, Keys.NO_SUCH_PROCESSOR, "Processor {0} does not exist.", Level.SEVERE),
     NAME_MUST_BE_UNIQUE(1005, Keys.NAME_MUST_BE_UNIQUE, "Data export task with such name already exists", Level.SEVERE),
-    ITEM_FAILED(1006, "dataexport.item.failed", "Item {0} failed to export", Level.WARNING),
-    ITEM_FATALLY_FAILED(1007, "dataexport.item.fatally.failed", "Item {0} fatally failed to export", Level.SEVERE),
-    ITEM_EXPORTED_SUCCESFULLY(1008, "dataexport.item.success", "Item {0} exported succesfully for period {1}", Level.INFO),
+    ITEM_FAILED(1006, "dataexport.item.failed", "Item {0}:{1} failed to export", Level.WARNING),
+    ITEM_FATALLY_FAILED(1007, "dataexport.item.fatally.failed", "Item {0}:{1} fatally failed to export", Level.SEVERE),
+    ITEM_EXPORTED_SUCCESFULLY(1008, "dataexport.item.success", "Item {0}:{1} exported succesfully for period {2} - {3}", Level.INFO),
     CANNOT_DELETE_WHILE_RUNNING(1009, "dataexport.cannot.delete", "Cannot delete a data export task (id = {0}) while it is running.", Level.SEVERE);
 
     private final int number;
