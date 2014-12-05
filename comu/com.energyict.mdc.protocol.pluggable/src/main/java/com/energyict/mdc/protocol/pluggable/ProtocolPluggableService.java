@@ -27,17 +27,17 @@ public interface ProtocolPluggableService {
     public static String COMPONENTNAME = "PPC";
 
     /**
-     * Loads the pluggable protocol class with the specified javaClassName
+     * Creates an instance of the pluggable protocol class with the specified name
      * from whichever OSGi bundle actually contains the class.
      * This is different from the same method provided by
      * {@link com.energyict.mdc.protocol.api.services.DeviceProtocolService}
      * that attempts the same from the bundle that contains that specific service
-     * but may fail if the class is not actually contained in that bundle
+     * but may fail if the class is not actually contained in that bundle.
      *
-     * @param javaClassName the javaClassName to use to model the new class
+     * @param className the fully qualified Class name
      * @return the newly created DeviceProtocol
      */
-    public Class loadProtocolClass(String javaClassName);
+    public Object createProtocol(String className);
 
     /**
      * Create a DeviceProtocol messages related object

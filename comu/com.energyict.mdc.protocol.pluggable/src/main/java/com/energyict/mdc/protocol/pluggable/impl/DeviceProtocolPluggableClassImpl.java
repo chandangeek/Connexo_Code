@@ -12,7 +12,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolNotAllowedByLicenseException;
@@ -24,7 +23,6 @@ import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRe
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
@@ -53,10 +51,9 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private RelationService relationService;
     private DataModel dataModel;
     private IssueService issueService;
-    private final LicenseService licenseService;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus, IssueService issueService, LicenseService licenseService) {
+    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus, IssueService issueService) {
         super(eventService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
@@ -64,7 +61,6 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         this.relationService = relationService;
         this.dataModel = dataModel;
         this.issueService = issueService;
-        this.licenseService = licenseService;
     }
 
     static DeviceProtocolPluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
@@ -88,19 +84,14 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
 
     @Override
     protected DeviceProtocol newInstance(PluggableClass pluggableClass) {
-        Class<?> protocolClass = this.protocolPluggableService.loadProtocolClass(pluggableClass.getJavaClassName());
+        Object protocol = this.protocolPluggableService.createProtocol(pluggableClass.getJavaClassName());
         DeviceProtocol deviceProtocol;
-        try {
-            if (DeviceProtocol.class.isAssignableFrom(protocolClass)) {
-                deviceProtocol = (DeviceProtocol) protocolClass.newInstance();
-            }
-            else {
-                // Must be a lecagy pluggable class
-                deviceProtocol = this.checkForProtocolWrappers(protocolClass.newInstance());
-            }
+        if (protocol instanceof DeviceProtocol) {
+            deviceProtocol = (DeviceProtocol) protocol;
         }
-        catch (InstantiationException | IllegalAccessException e) {
-            throw new ProtocolCreationException(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, pluggableClass.getJavaClassName());
+        else {
+            // Must be a lecagy pluggable class
+            deviceProtocol = this.checkForProtocolWrappers(protocol);
         }
         deviceProtocol.setPropertySpecService(this.propertySpecService);
         return deviceProtocol;
