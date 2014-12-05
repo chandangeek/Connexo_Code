@@ -14,6 +14,8 @@ public interface YellowfinService {
 
     boolean importContent(String filePath);
 
-    List<YellowfinReportInfo> getUserReports(String userName, String category, String subCategory);
+    List<YellowfinReportInfo> getUserReports(String userName, String category, String subCategory,String reportUUId);
+    List<YellowfinFilterInfo> getReportFilters(int reportId);
+
 
 }

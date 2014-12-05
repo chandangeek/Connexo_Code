@@ -2,19 +2,18 @@ package com.elster.jupiter.yellowfin.impl;
 
 //import com.elster.jupiter.http.whiteboard.App;
 
+import com.elster.jupiter.yellowfin.YellowfinFilterInfo;
 import com.elster.jupiter.yellowfin.YellowfinReportInfo;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.hof.mi.web.service.*;
+
 import com.hof.util.Base64;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 import javax.xml.rpc.ServiceException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -236,10 +235,9 @@ public class YellowfinServiceImpl implements YellowfinService {
    }
 
     @Override
-    public List<YellowfinReportInfo> getUserReports(String username, String category, String subCategory)  {
+    public List<YellowfinReportInfo> getUserReports(String username, String category, String subCategory,String reportUUId)  {
 
         List<YellowfinReportInfo> userReports = new ArrayList<>();
-
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/AdministrationService", false);
@@ -254,32 +252,35 @@ public class YellowfinServiceImpl implements YellowfinService {
         rsr.setPassword(yellowfinWebServicePassword);
         rsr.setOrgId(new Integer(1));
         rsr.setFunction("GETALLUSERREPORTS");
+
         AdministrationPerson ap = new AdministrationPerson();
         ap.setUserId(username);
         rsr.setPerson(ap);
-
         if (rssbs != null) {
             try {
                 rs = rssbs.remoteAdministrationCall(rsr);
                 if (rs != null){
                     if("SUCCESS".equals(rs.getStatusCode()) ) {
-
                         AdministrationReport[] reports = rs.getReports();
-
-                        for (int i=0;i<reports.length;i++) {
+                        for (int i = 0; i < reports.length; i++) {
                             AdministrationReport report = reports[i];
                             YellowfinReportInfoImpl userReport = new YellowfinReportInfoImpl();
-                            if((category==null || category.equalsIgnoreCase(report.getReportCategory())) &&
-                               (subCategory==null || subCategory.equalsIgnoreCase(report.getReportSubCategory()))){
+                            if ((category == null || category.equalsIgnoreCase(report.getReportCategory())) &&
+                                    (subCategory == null || subCategory.equalsIgnoreCase(report.getReportSubCategory())) &&
+                                    (reportUUId == null || reportUUId.equalsIgnoreCase(report.getReportUUID()))) {
                                 userReport.setCategory(report.getReportCategory());
+                                userReport.setName(report.getReportName());
                                 userReport.setSubCategory(report.getReportSubCategory());
                                 userReport.setDescription(report.getReportDescription());
                                 userReport.setReportUUID(report.getReportUUID());
                                 userReport.setDescription(report.getReportDescription());
+                                userReport.setReportId(report.getReportId());
                                 userReports.add(userReport);
 
                             }
                         }
+
+
                     }
                 }
 
@@ -289,6 +290,50 @@ public class YellowfinServiceImpl implements YellowfinService {
         }
 
         return userReports;
+    }
+
+    @Override
+    public List<YellowfinFilterInfo> getReportFilters(int reportId) {
+        List<YellowfinFilterInfo> userFilters = new ArrayList<>();
+        ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/ReportService", false);
+        ReportServiceSoapBindingStub rssbs;
+        ReportServiceRequest rsr = new ReportServiceRequest();
+        try {
+            rssbs = (ReportServiceSoapBindingStub) ts.getReportService();
+            ReportServiceResponse reportServiceResponse = null;
+            rsr.setLoginId(yellowfinWebServiceUser);
+            rsr.setPassword(yellowfinWebServicePassword);
+            rsr.setOrgId(new Integer(1));
+            rsr.setReportRequest("SCHEMA");
+            rsr.setReportId(reportId);
+            try {
+                reportServiceResponse = rssbs.remoteReportCall(rsr);
+                if(reportServiceResponse != null){
+                    if("SUCCESS".equals(reportServiceResponse.getStatusCode())){
+                        ReportSchema[] rs = reportServiceResponse.getColumns();
+                        for(int i = 0 ; i<rs.length;i++){
+                            if(rs[i].getFilterId()!=null){
+                                YellowfinFilterInfoImpl userFilter = new YellowfinFilterInfoImpl();
+                                userFilter.setId(rs[i].getFilterId());
+                                userFilter.setFilterDataValues(rs[i].getDefaultValue1());
+                                userFilter.setFilterDisplayType(rs[i].getFilterDisplayType());
+                                userFilter.setFilterName(rs[i].getColumnName());
+                                userFilter.setFilterType(rs[i].getFilterType());
+                                userFilter.setFilterOmittable(rs[i].getFilterOmittable());
+                                userFilters.add(userFilter);
+
+                            }
+                        }
+                    }
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return userFilters;
+
     }
 
 }

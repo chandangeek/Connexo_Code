@@ -10,6 +10,8 @@ public class YellowfinReportInfoImpl implements YellowfinReportInfo{
     private String subCategory;
     private String reportUUID;
     private String description;
+    private String name;
+    private int reportId;
 
     public String getCategory() {
         return category;
@@ -41,5 +43,23 @@ public class YellowfinReportInfoImpl implements YellowfinReportInfo{
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public int getReportId() {
+        return reportId;
+    }
+
+    @Override
+    public void setReportId(int reportId) {
+        this.reportId = reportId;
     }
 }

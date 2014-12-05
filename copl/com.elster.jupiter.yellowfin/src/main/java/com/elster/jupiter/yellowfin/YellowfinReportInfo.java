@@ -4,6 +4,8 @@ package com.elster.jupiter.yellowfin;
  * Created by Albertv on 12/3/2014.
  */
 public interface YellowfinReportInfo {
+    public int getReportId();
+    public void setReportId(int reportId);
 
     public String getCategory();
 
@@ -20,4 +22,8 @@ public interface YellowfinReportInfo {
     public String getDescription();
 
     public void setDescription(String description);
+
+    public void setName(String name);
+
+    public String getName();
 }
