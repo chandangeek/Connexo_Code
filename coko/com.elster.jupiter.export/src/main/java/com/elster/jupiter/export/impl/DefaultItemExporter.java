@@ -4,6 +4,9 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -14,6 +17,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.export.impl.IntervalReadingImpl.intervalReading;
+import static com.elster.jupiter.export.impl.ReadingImpl.reading;
 import static com.elster.jupiter.util.Ranges.copy;
 
 class DefaultItemExporter implements ItemExporter {
@@ -47,15 +52,15 @@ class DefaultItemExporter implements ItemExporter {
         if (item.getReadingType().isRegular()) {
             return getMeterReadingWithIntervalBlock(item, readings);
         }
-        return getMeterReadingWithReadings(readings);
+        return getMeterReadingWithReadings(item, readings);
     }
 
-    private MeterReadingImpl getMeterReadingWithReadings(List<? extends BaseReadingRecord> readings) {
+    private MeterReadingImpl getMeterReadingWithReadings(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
         return readings.stream()
-                .map(Reading.class::cast)
+                .map(ReadingRecord.class::cast)
                 .collect(
                         MeterReadingImpl::newInstance,
-                        (mr, reading) -> mr.addReading(reading),
+                        (mr, reading) -> mr.addReading(forReadingType(reading, item.getReadingType())),
                         (mr1, mr2) -> mr1.addAllReadings(mr2.getReadings())
                 );
     }
@@ -68,13 +73,20 @@ class DefaultItemExporter implements ItemExporter {
 
     private IntervalBlockImpl buildIntervalBlock(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
         return readings.stream()
-                .map(IntervalReading.class::cast)
+                .map(IntervalReadingRecord.class::cast)
                 .collect(
                         () -> IntervalBlockImpl.of(item.getReadingType().getMRID()),
-                        (block, reading) -> block.addIntervalReading(reading),
+                        (block, reading) -> block.addIntervalReading(forReadingType(reading, item.getReadingType())),
                         (b1, b2) -> b1.addAllIntervalReadings(b2.getIntervals())
                 );
     }
 
+    private IntervalReading forReadingType(IntervalReadingRecord readingRecord, ReadingType readingType) {
+        return intervalReading(readingRecord, readingType);
+    }
+
+    private Reading forReadingType(ReadingRecord readingRecord, ReadingType readingType) {
+        return reading(readingRecord, readingType);
+    }
 
 }
