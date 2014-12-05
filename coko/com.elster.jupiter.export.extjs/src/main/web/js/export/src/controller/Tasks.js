@@ -154,6 +154,7 @@ Ext.define('Dxp.controller.Tasks', {
 
                 actionsMenu.record = record;
                 actionsMenu.down('#view-details').hide();
+                view.down('#tasks-view-menu').setTitle(record.get('name'));
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 detailsForm.loadRecord(record);
                 if (record.get('status') !== 'Busy') {
@@ -251,6 +252,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         taskModel.load(currentTaskId, {
             success: function (record) {
+                view.down('#tasks-view-menu').setTitle(record.get('name'));
                 store.load(function (records, operation, success) {
                     records.map(function (r) {
                         r.set(Ext.apply({}, r.raw, record.raw));
