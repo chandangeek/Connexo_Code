@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -72,6 +73,7 @@ public class PersistenceTest {
                 new PubSubModule(),
                 new InMemoryMessagingModule(),
                 new IssuesModule(),
+                new DataVaultModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new MdcReadingTypeUtilServiceModule(),
