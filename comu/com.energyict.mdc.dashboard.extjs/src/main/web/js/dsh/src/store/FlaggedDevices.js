@@ -8,6 +8,9 @@ Ext.define('Dsh.store.FlaggedDevices', {
     proxy: {
         type: 'ajax',
         url: '/api/dsr/mylabeleddevices?category=mdc.label.category.favorites',
+        pageParam: false,
+        limitParam: false,
+
         reader: {
             type: 'json',
             root: 'myLabeledDevices'
