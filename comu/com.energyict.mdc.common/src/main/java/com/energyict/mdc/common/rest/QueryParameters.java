@@ -1,15 +1,16 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.util.conditions.Order;
-import java.util.ArrayList;
-import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Convenience class to wrap all supported ExtJS constructs regarding paging and sorting (both simple sort and multi sort)
@@ -26,11 +27,11 @@ public class QueryParameters {
     private static final String EXTJS_DIRECTION = "direction";
     private static final String EXTJS_FIELD = "property";
 
-    private final MultivaluedMap<String,String> queryParameters;
+    private final MultivaluedMap<String, String> queryParameters;
 
     @Inject
-    public QueryParameters(@Context UriInfo uriInfo)  {
-         queryParameters=uriInfo.getQueryParameters();
+    public QueryParameters(@Context UriInfo uriInfo) {
+        queryParameters = uriInfo.getQueryParameters();
     }
 
     public Integer getStart() {
@@ -41,18 +42,18 @@ public class QueryParameters {
         return getIntegerOrNull(EXTJS_LIMIT);
     }
 
-    public List<Order> getSortingColumns()  {
+    public List<Order> getSortingColumns() {
         try {
             List<Order> sortingColumns = new ArrayList<>();
             String singleSortDirection = queryParameters.getFirst(EXTJS_DIR);
             String sort = queryParameters.getFirst(EXTJS_SORT);
-            if (singleSortDirection!=null && sort!=null) {
+            if (singleSortDirection != null && sort != null) {
                 sortingColumns.add(EXTJS_ASCENDING.equals(singleSortDirection) ? Order.ascending(sort) : Order.descending(sort));
-            } else if (sort!=null && !sort.isEmpty()){
+            } else if (sort != null && !sort.isEmpty()) {
                 JSONArray jsonArray = new JSONArray(sort);
-                for (int index=0; index<jsonArray.length(); index++) {
+                for (int index = 0; index < jsonArray.length(); index++) {
                     JSONObject object = jsonArray.getJSONObject(index);
-                    sortingColumns.add(EXTJS_ASCENDING.equals(object.getString(EXTJS_DIRECTION))?Order.ascending(object.getString(EXTJS_FIELD)):Order.descending(object.getString(EXTJS_FIELD)));
+                    sortingColumns.add(EXTJS_ASCENDING.equals(object.getString(EXTJS_DIRECTION)) ? Order.ascending(object.getString(EXTJS_FIELD)) : Order.descending(object.getString(EXTJS_FIELD)));
                 }
             }
             return sortingColumns;
@@ -63,7 +64,7 @@ public class QueryParameters {
 
     public Integer getIntegerOrNull(String name) {
         String start = queryParameters.getFirst(name);
-        if (start!=null) {
+        if (start != null) {
             return Integer.parseInt(start);
         }
         return null;
