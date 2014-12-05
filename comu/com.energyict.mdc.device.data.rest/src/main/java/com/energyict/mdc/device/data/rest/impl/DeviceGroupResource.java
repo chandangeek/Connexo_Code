@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -153,7 +154,7 @@ public class DeviceGroupResource {
                 .collect(Collectors.toList());
 
         Map<Long, EnumeratedEndDeviceGroup.Entry> currentEntries = enumeratedEndDeviceGroup.getEntries().stream()
-                .collect(Collectors.toMap(entry -> entry.getEndDevice().getId(), Function.identity()));
+                .collect(toMap());
 
         // remove those no longer mapped
         currentEntries.entrySet().stream()
@@ -164,6 +165,10 @@ public class DeviceGroupResource {
         endDevices.stream()
                 .filter(device -> !currentEntries.containsKey(device.getId()))
                 .forEach(device -> enumeratedEndDeviceGroup.add(device, Interval.sinceEpoch().toClosedRange()));
+    }
+
+    private Collector<EnumeratedEndDeviceGroup.Entry, ?, Map<Long, EnumeratedEndDeviceGroup.Entry>> toMap() {
+        return Collectors.toMap(entry -> entry.getEndDevice().getId(), Function.identity());
     }
 
     private Condition getCondition(DeviceGroupInfo deviceGroupInfo) {
