@@ -8,12 +8,18 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Locale;
 
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.ON_REQUEST;
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.SCHEDULED;
 
 public class DataExportTaskHistoryInfo {
+
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", new Locale("en"));
+    //Locale "en" because it would be similar to extjs date formatting, otherwise day and month are not capitalized.
+
     public Long id;
     public String trigger;
     public Long startedOn;
@@ -24,6 +30,7 @@ public class DataExportTaskHistoryInfo {
     public Long lastRun;
     public Long exportPeriodFrom;
     public Long exportPeriodTo;
+    public String statusOnDate;
 
     public DataExportTaskHistoryInfo() {
     }
@@ -44,6 +51,24 @@ public class DataExportTaskHistoryInfo {
         Range<Instant> interval = dataExportOccurrence.getExportedDataInterval();
         this.exportPeriodFrom = interval.lowerEndpoint().toEpochMilli();
         this.exportPeriodTo = interval.upperEndpoint().toEpochMilli();
+        setStatusOnDate(dataExportOccurrence, thesaurus);
+    }
+
+    private void setStatusOnDate(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
+        DataExportStatus dataExportStatus = dataExportOccurrence.getStatus();
+        String statusTranslation =
+                thesaurus.getStringBeyondComponent(dataExportStatus.toString(), dataExportStatus.toString());
+        if (DataExportStatus.BUSY.equals(dataExportStatus)) {
+            this.statusOnDate = statusTranslation + " " +
+                    thesaurus.getStringBeyondComponent("since", "since") + " " +
+                    dateFormat.format(this.startedOn);
+        } else if ((DataExportStatus.FAILED.equals(dataExportStatus)) || (DataExportStatus.SUCCESS.equals(dataExportStatus))) {
+            this.statusOnDate = statusTranslation + " " +
+                    thesaurus.getStringBeyondComponent("on", "on") + " " +
+                    dateFormat.format(this.finishedOn);
+        } else {
+            this.statusOnDate = statusTranslation;
+        }
     }
 
     private static Long calculateDuration(Long startedOn, Long finishedOn) {
