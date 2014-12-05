@@ -10,6 +10,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -18,7 +19,7 @@ import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.SCHEDULED;
 
 public class DataExportTaskHistoryInfo {
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withLocale(new Locale("en"));
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withLocale(new Locale("en")).withZone(ZoneId.systemDefault());
     //Locale "en" because it would be similar to extjs date formatting, otherwise day and month are not capitalized.
 
     public Long id;
