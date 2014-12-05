@@ -39,7 +39,7 @@ Ext.define('Sam.controller.Main', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license', 'privilege.view.license'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license', 'privilege.view.license', 'privilege.administrate.dataPurge','privilege.view.dataPurge'])) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'SAM', 'Administration'),
                 href: me.getController('Sam.controller.history.Administration').tokenizeShowOverview(),
@@ -63,27 +63,28 @@ Ext.define('Sam.controller.Main', {
                     ]
                 });
 
-                Uni.store.PortalItems.add(
-                    licensingItem
-                );
+                Uni.store.PortalItems.add(licensingItem);
             }
 
-            Uni.store.PortalItems.add(
-                Ext.create('Uni.model.PortalItem', {
+            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.dataPurge','privilege.view.dataPurge'])) {
+                var dataPurgeItem = Ext.create('Uni.model.PortalItem', {
                     title: Uni.I18n.translate('datapurge.title', 'SAM', 'Data purge'),
                     portal: 'administration',
                     items: [
                         {
                             text: Uni.I18n.translate('datapurge.settings.title', 'SAM', 'Data purge settings'),
-                            href: router.getRoute('administration/datapurgesettings').buildUrl()
+                            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.dataPurge'),
+                            href: typeof router.getRoute('administration/datapurgesettings') !== 'undefined'
+                                ? router.getRoute('administration/datapurgesettings').buildUrl() : ''
                         },
                         {
                             text: Uni.I18n.translate('datapurge.history.breadcrumb', 'SAM', 'Data purge history'),
                             href: router.getRoute('administration/datapurgehistory').buildUrl()
                         }
                     ]
-                })
-            );
+                });
+                Uni.store.PortalItems.add(dataPurgeItem);
+            }
         }
     }
 });
