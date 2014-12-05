@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic.impl;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -23,6 +24,7 @@ public class MdcDynamicModule extends AbstractModule {
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
         requireBinding(TransactionService.class);
+        requireBinding(DataVaultService.class);
         requireBinding(com.elster.jupiter.properties.PropertySpecService.class);
 
         bind(PropertySpecService.class).to(PropertySpecServiceImpl.class).in(Scopes.SINGLETON);

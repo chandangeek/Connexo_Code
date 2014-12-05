@@ -44,6 +44,18 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     private volatile DataModel dataModel;
     private volatile DataVaultService dataVaultService;
 
+    public PropertySpecServiceImpl() {
+    }
+
+    @Inject
+    public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec, DataVaultService dataVaultService, OrmService ormService) {
+        this();
+        this.setBasicPropertySpecService(basicPropertySpec);
+        this.setOrmService(ormService);
+        this.setDataVaultService(dataVaultService);
+        this.activate();
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel("DYN", "MDC Dynamic Services");
@@ -73,17 +85,6 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     private volatile Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
     private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
-
-    public PropertySpecServiceImpl() {
-    }
-
-    @Inject
-    public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec, DataVaultService dataVaultService, OrmService ormService) {
-        this();
-        this.setBasicPropertySpecService(basicPropertySpec);
-        this.setOrmService(ormService);
-        this.setDataVaultService(dataVaultService);
-    }
 
     @Override
     public <T> PropertySpec<T> basicPropertySpec(String name, boolean required, ValueFactory<T> valueFactory) {
