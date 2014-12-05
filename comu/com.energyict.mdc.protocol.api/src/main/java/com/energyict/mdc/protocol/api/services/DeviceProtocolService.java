@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.api.services;
 
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 /**
  * OSGI Service wrapper for {@link DeviceProtocol}s.
@@ -15,11 +14,13 @@ public interface DeviceProtocolService {
     public static String COMPONENT_NAME = "PR1"; // Stands for PRotocol bundle 1 (as more protocol bundles can follow)
 
     /**
-     * Loads the class with the specified javaClassName.
+     * Creates an instance of the protocol of the specified className
+     * or throws a {@link com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException}
+     * when the class is not actually managed by the Device Protocol service.
      *
-     * @param javaClassName the javaClassName to use to model the new class
+     * @param className the fully qualified Class name
      * @return the newly created DeviceProtocol
      */
-    public Class loadProtocolClass(String javaClassName);
+    public Object createProtocol(String className);
 
 }

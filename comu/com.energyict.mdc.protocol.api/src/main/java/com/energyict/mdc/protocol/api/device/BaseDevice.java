@@ -47,25 +47,6 @@ public interface BaseDevice<C extends BaseChannel, LP extends BaseLoadProfile<C>
     R getRegisterWithDeviceObisCode(ObisCode code);
 
     /**
-     * Returns this device's gateway device.
-     *
-     * @return the device used as a gateway or null if none is assigned
-     */
-    BaseDevice getPhysicalGateway();
-
-    /**
-     * Set the physical gateway for this device to the specified gateway
-     *
-     * @param gateway the new gateway device
-     */
-    void setPhysicalGateway(BaseDevice gateway);
-
-    /**
-     * Clears the current physical gateway, if any
-     */
-    void clearPhysicalGateway();
-
-    /**
      * Returns the list of Devices which are <i>Physically</i> connected to this device.
      *
      * @return the list of physically connected Devices

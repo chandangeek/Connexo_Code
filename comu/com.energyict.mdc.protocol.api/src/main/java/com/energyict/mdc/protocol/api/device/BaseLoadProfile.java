@@ -33,15 +33,6 @@ public interface BaseLoadProfile<C extends BaseChannel> {
     public BaseDevice getDevice();
 
     /**
-     * Returns the receiver's {@link BaseChannel}s AND
-     * the channels of all <i>physical</i> slave devices belonging to
-     * LoadProfiles of the same type.
-     *
-     * @return a <CODE>List</CODE> of <CODE>Channel</CODE> objects
-     */
-    public List<C> getAllChannels();
-
-    /**
      * Gets the ID of the LoadProfileType
      *
      * @return the ID of the LoadProfileType
