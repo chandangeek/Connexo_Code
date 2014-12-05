@@ -105,7 +105,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                     name: 'frequency',
                     hideLabel: true,
                     value: 1,
-                    minValue: 1,
+                    minValue: 0,
                     editable: false,
                     allowBlank: false,
                     width: 64,
@@ -114,6 +114,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                 {
                     xtype: 'combobox',
                     name: 'period-interval',
+                    itemId: 'period-interval',
                     displayField: 'name',
                     valueField: 'value',
                     queryMode: 'local',
@@ -121,18 +122,34 @@ Ext.define('Uni.form.field.StartPeriod', {
                     hideLabel: true,
                     value: 'months',
                     width: 200,
-                    margin: '0 6 0 0',
+                    margin: '0 6 0 6',
                     store: Ext.create('Uni.store.Periods'),
                     allowBlank: false,
                     forceSelection: true
                 },
                 {
-                    xtype: 'label',
-                    text: Uni.I18n.translate('form.field.startPeriod.optionAgo.label', 'UNI', 'ago'),
-                    cls: Ext.baseCSSPrefix + 'form-item-label',
-                    style: {
-                        fontWeight: 'normal'
-                    }
+                    xtype: 'combobox',
+                    name: 'period-edge',
+                    itemId: 'period-edge',
+                    displayField: 'name',
+                    valueField: 'value',
+                    queryMode: 'local',
+                    editable: false,
+                    hideLabel: true,
+                    value: 'ago',
+                    width: 110,
+                    margin: '0 6 0 6',
+                    store: new Ext.data.Store({
+                        fields: ['name', 'value'],
+                        data: (function () {
+                            return [
+                                {name: Uni.I18n.translate('general.period.ago', 'UNI', 'ago'), value: 'ago'},
+                                {name: Uni.I18n.translate('general.period.ahead', 'UNI', 'ahead'), value: 'ahead'}
+                            ];
+                        })()
+                    }),
+                    allowBlank: false,
+                    forceSelection: true
                 }
             ]
         });
@@ -186,7 +203,11 @@ Ext.define('Uni.form.field.StartPeriod', {
             me.lastTask.delay(256);
         }, me);
 
-        me.getOptionAgoContainer().down('combobox').on('change', function () {
+        me.getOptionAgoContainer().down('#period-interval').on('change', function () {
+            me.selectOptionAgo();
+        }, me);
+
+        me.getOptionAgoContainer().down('#period-edge').on('change', function () {
             me.selectOptionAgo();
         }, me);
 
@@ -264,7 +285,8 @@ Ext.define('Uni.form.field.StartPeriod', {
         var me = this,
             selectedValue = me.selectedValue,
             amountAgoValue = me.getOptionAgoContainer().down('numberfield').getValue(),
-            freqAgoValue = me.getOptionAgoContainer().down('combobox').getValue();
+            freqAgoValue = me.getOptionAgoContainer().down('#period-interval').getValue(),
+            timeMode = me.getOptionAgoContainer().down('#period-edge').getValue();
 
         var result = {
             startNow: selectedValue === 'now'
@@ -282,7 +304,8 @@ Ext.define('Uni.form.field.StartPeriod', {
         } else if (selectedValue === 'ago') {
             var shiftDate = {
                 startAmountAgo: amountAgoValue,
-                startPeriodAgo: freqAgoValue
+                startPeriodAgo: freqAgoValue,
+                startTimeMode: timeMode
             };
             Ext.apply(result, shiftDate);
         }

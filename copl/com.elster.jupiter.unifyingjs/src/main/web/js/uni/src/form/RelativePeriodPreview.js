@@ -53,16 +53,6 @@ Ext.define('Uni.form.RelativePeriodPreview', {
 
         me.items = [
             {
-                xtype: 'component',
-                itemId: 'preview-label',
-                html: me.noPreviewDateErrorMsg,
-                cls: Ext.baseCSSPrefix + 'form-item-label',
-                style: {
-                    fontWeight: 'normal'
-                },
-                margin: '8 0 8 0'
-            },
-            {
                 xtype: 'container',
                 layout: {
                     type: 'hbox',
@@ -71,7 +61,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                 items: [
                     {
                         xtype: 'label',
-                        text: 'The relative period is defined using',
+                        text: Uni.I18n.translate('period.preview.base', 'UNI','Preview based on date:'),
                         cls: Ext.baseCSSPrefix + 'form-item-label',
                         style: {
                             fontWeight: 'normal'
@@ -126,14 +116,6 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                         margin: '0 6 0 6'
                     },
                     {
-                        xtype: 'label',
-                        text: 'as reference',
-                        cls: Ext.baseCSSPrefix + 'form-item-label',
-                        style: {
-                            fontWeight: 'normal'
-                        }
-                    },
-                    {
                         xtype: 'button',
                         tooltip: Uni.I18n.translate('relativeperiod.form.referencedete.tooltip', 'TME', 'You can change the reference to define another relative period'),
                         iconCls: 'icon-info-small',
@@ -144,6 +126,16 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                         width: 16
                     }
                 ]
+            },
+            {
+                xtype: 'component',
+                itemId: 'preview-label',
+                html: me.noPreviewDateErrorMsg,
+                cls: Ext.baseCSSPrefix + 'form-item-label',
+                style: {
+                    fontWeight: 'normal'
+                },
+                margin: '15 0 3 0'
             }
         ];
     },

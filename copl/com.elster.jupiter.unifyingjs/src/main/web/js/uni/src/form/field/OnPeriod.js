@@ -121,7 +121,7 @@ Ext.define('Uni.form.field.OnPeriod', {
                         queryMode: 'local',
                         editable: false,
                         hideLabel: true,
-                        value: 1,
+                        value: moment().startOf('week').isoWeekday(),
                         width: 128,
                         margin: '0 6 0 6',
                         store: new Ext.data.Store({
@@ -267,6 +267,10 @@ Ext.define('Uni.form.field.OnPeriod', {
         radio.setDisabled(disabled);
         combo.setDisabled(disabled);
 
+        if(Ext.ComponentQuery.query('#period-interval')[0].getValue() === 'weeks') {
+            me.selectedValue = 'dayofweek';
+            me.fireEvent('periodchange', me.getOnValue());
+        }
         me.selectAvailableOption();
     },
 
