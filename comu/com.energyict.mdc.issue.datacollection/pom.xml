@@ -29,8 +29,6 @@
     </dependency>
 
     <!-- Jupiter modules -->
-
-
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>domain.util</artifactId>
@@ -73,6 +71,11 @@
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.device.data</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.device.topology</artifactId>
       <version>${project.version}</version>
     </dependency>
 

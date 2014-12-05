@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
@@ -42,6 +43,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     private final MeteringService meteringService;
     private final CommunicationTaskService communicationTaskService;
     private final DeviceService deviceService;
+    private final TopologyService topologyService;
     private final Thesaurus thesaurus;
 
     private Device device;
@@ -51,12 +53,13 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     private Optional<? extends Issue> existingIssue;
     private Injector injector;
 
-    public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
+    public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
         this.issueDataCollectionService = issueDataCollectionService;
         this.issueService = issueService;
         this.meteringService = meteringService;
         this.communicationTaskService = communicationTaskService;
         this.deviceService = deviceService;
+        this.topologyService = topologyService;
         this.thesaurus = thesaurus;
         this.injector = injector;
     }
@@ -175,15 +178,15 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     @SuppressWarnings("unused")
     // Used in rule engine
     public double computeCurrentThreshold() {
-        Device concentrator = device.getPhysicalGateway();
-        if (concentrator == null) {
+        Optional<Device> concentrator = this.topologyService.getPhysicalGateway(this.device);
+        if (!concentrator.isPresent()) {
             LOG.log(Level.WARNING, "Concentrator for device[id={0}] is not found", device.getId());
             return -1;
         }
-        int numberOfEvents = getNumberOfDevicesWithEvents(concentrator);
-        int numberOfConnectedDevices = concentrator.getPhysicalConnectedDevices().size();
+        int numberOfEvents = getNumberOfDevicesWithEvents(concentrator.get());
+        int numberOfConnectedDevices = this.topologyService.getPhysicalConnectedDevices(concentrator.get()).size();
         if (numberOfConnectedDevices == 0) {
-            LOG.log(Level.WARNING, "Number of connected devices for concentrator[id={0}] equals 0", concentrator.getId());
+            LOG.log(Level.WARNING, "Number of connected devices for concentrator[id={0}] equals 0", concentrator.get().getId());
             return -1;
         }
         return (double) numberOfEvents / (double) numberOfConnectedDevices * 100.0;
@@ -244,10 +247,13 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     @SuppressWarnings("unused")
     public DataCollectionEvent cloneForAggregation(){
         DataCollectionEvent clone = this.clone();
-        clone.device = device.getPhysicalGateway();
-        if (clone.device != null) {
+        Optional<Device> physicalGateway = this.topologyService.getPhysicalGateway(this.device);
+        if (physicalGateway.isPresent()) {
+            clone.device = physicalGateway.get();
             clone.endDevice = findEndDeviceByMdcDevice();
-        } else {
+        }
+        else {
+            clone.device = null;
             clone.endDevice = null;
         }
         return clone;
@@ -256,4 +262,5 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     public boolean isResolveEvent(){
         return false;
     }
+
 }

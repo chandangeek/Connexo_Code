@@ -25,9 +25,9 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
 
     @Inject
     public UnknownSlaveDeviceEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
-        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, thesaurus, injector);
+        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, injector);
     }
-    
+
     @Override
     public void apply(Issue issue) {
         if (issue instanceof OpenIssueDataCollection){

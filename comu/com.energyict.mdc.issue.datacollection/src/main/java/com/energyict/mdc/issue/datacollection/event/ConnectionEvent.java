@@ -27,7 +27,7 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
     private final ConnectionTaskService connectionTaskService;
 
     public ConnectionEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
-        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, thesaurus, injector);
+        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, topologyService, thesaurus, injector);
         this.connectionTaskService = connectionTaskService;
     }
 
@@ -64,7 +64,7 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
     protected Optional<ConnectionTask> getConnectionTask() {
         return this.connectionTask;
     }
-    
+
     protected Optional<ComSession> getComSession() {
         return comSession;
     }
@@ -72,7 +72,7 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
     protected void setConnectionTask(long connectionTaskId) {
         this.connectionTask = getConnectionTaskService().findConnectionTask(connectionTaskId);
     }
-    
+
     protected void setComSession(long comSessionId) {
         this.comSession = getConnectionTaskService().findComSession(comSessionId);
     }
