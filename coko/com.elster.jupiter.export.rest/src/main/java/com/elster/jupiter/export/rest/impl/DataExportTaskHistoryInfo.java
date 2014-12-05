@@ -5,11 +5,12 @@ import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.ON_REQUEST;
@@ -17,7 +18,7 @@ import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.SCHEDULED;
 
 public class DataExportTaskHistoryInfo {
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", new Locale("en"));
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withLocale(new Locale("en"));
     //Locale "en" because it would be similar to extjs date formatting, otherwise day and month are not capitalized.
 
     public Long id;
@@ -61,11 +62,11 @@ public class DataExportTaskHistoryInfo {
         if (DataExportStatus.BUSY.equals(dataExportStatus)) {
             this.statusOnDate = statusTranslation + " " +
                     thesaurus.getStringBeyondComponent("since", "since") + " " +
-                    dateFormat.format(this.startedOn);
+                    DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(startedOn));
         } else if ((DataExportStatus.FAILED.equals(dataExportStatus)) || (DataExportStatus.SUCCESS.equals(dataExportStatus))) {
             this.statusOnDate = statusTranslation + " " +
                     thesaurus.getStringBeyondComponent("on", "on") + " " +
-                    dateFormat.format(this.finishedOn);
+                    DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(finishedOn));
         } else {
             this.statusOnDate = statusTranslation;
         }
