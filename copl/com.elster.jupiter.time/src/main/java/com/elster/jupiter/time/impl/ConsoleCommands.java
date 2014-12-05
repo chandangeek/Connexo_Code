@@ -31,7 +31,12 @@ public class ConsoleCommands {
     private volatile ThreadPrincipalService threadPrincipalService;
 
     public RelativePeriodCategory createRelativePeriodCategory(String key) {
-        return timeService.createRelativePeriodCategory(key);
+        threadPrincipalService.set(() -> "console");
+        try (TransactionContext context = transactionService.getContext()) {
+            return timeService.createRelativePeriodCategory(key);
+        } finally {
+            threadPrincipalService.clear();
+        }
     }
 
     public void relativePeriods() {
