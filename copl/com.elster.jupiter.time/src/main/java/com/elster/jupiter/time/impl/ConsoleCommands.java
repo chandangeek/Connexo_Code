@@ -33,7 +33,9 @@ public class ConsoleCommands {
     public RelativePeriodCategory createRelativePeriodCategory(String key) {
         threadPrincipalService.set(() -> "console");
         try (TransactionContext context = transactionService.getContext()) {
-            return timeService.createRelativePeriodCategory(key);
+            RelativePeriodCategory relativePeriodCategory = timeService.createRelativePeriodCategory(key);
+            context.commit();
+            return relativePeriodCategory;
         } finally {
             threadPrincipalService.clear();
         }
