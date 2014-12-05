@@ -4,10 +4,13 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -23,6 +26,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Message builder class responsible of generating and parsing Partial LoadProfile request Messages for old {@link SmartMeterProtocol}s
@@ -42,6 +47,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
     private static final String ChannelMeterIdentifier = "ID";
     private static final String ChannelUnitTag = "Unit";
 
+    private final TopologyService topologyService;
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-DD-mm HH:mm:ss");
 
     /**
@@ -77,7 +83,12 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
     /**
      * The LoadProfile to read
      */
-    private BaseLoadProfile loadProfile;
+    private LoadProfile loadProfile;
+
+    public LegacyPartialLoadProfileMessageBuilder(TopologyService topologyService) {
+        super();
+        this.topologyService = topologyService;
+    }
 
     public static String getMessageNodeTag() {
         return MESSAGETAG;
@@ -144,7 +155,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
             throw new BusinessException("emptyStartTime", "StartTime can not be empty.");
         } else if (this.endReadingTime == null) {
             throw new BusinessException("emptyEndTime", " EndTime can not be empty.");
-        } else if (this.meterSerialNumber.equalsIgnoreCase("")) {
+        } else if ("".equalsIgnoreCase(this.meterSerialNumber)) {
             throw new BusinessException("noDeviceSerialNumber", "Device Serial Number must be filled in.");
         }
 
@@ -157,7 +168,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
         addAttribute(builder, EndReadingTimeTag, this.formatter.format(this.endReadingTime));
         addAttribute(builder, LoadProfileIdTag, this.loadProfileId);
         builder.append(">");
-        if (this.channelInfos.size() > 0) {
+        if (!this.channelInfos.isEmpty()) {
             builder.append("<");
             builder.append(ChannelInfosTag);
             builder.append(">");
@@ -186,10 +197,8 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
         return new PartialLoadProfileMessageHandler((LegacyPartialLoadProfileMessageBuilder) builder, getMessageNodeTag());
     }
 
-    public static MessageBuilder fromXml(String xmlString) throws SAXException, IOException {
-        MessageBuilder builder = new LegacyPartialLoadProfileMessageBuilder();
-        builder.initFromXml(xmlString);
-        return builder;
+    public void fromXml(String xmlString) throws SAXException, IOException {
+        this.initFromXml(xmlString);
     }
 
     /**
@@ -198,18 +207,18 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
      * @return The description of the message
      */
     public String getDescription() {
-        StringBuffer buf = new StringBuffer(MESSAGETAG);
-        buf.append(" ");
-        buf.append("LoadProfileObisCode = '").append(profileObisCode).append("', ");
-        buf.append("MeterSerialNumber = '").append(meterSerialNumber).append("', ");
+        StringBuilder sb = new StringBuilder(MESSAGETAG);
+        sb.append(" ");
+        sb.append("LoadProfileObisCode = '").append(profileObisCode).append("', ");
+        sb.append("MeterSerialNumber = '").append(meterSerialNumber).append("', ");
         if (startReadingTime != null) {
-            buf.append("StartReadingTime = '").append(formatter.format(startReadingTime)).append("', ");
+            sb.append("StartReadingTime = '").append(formatter.format(startReadingTime)).append("', ");
         }
         if (endReadingTime != null) {
-            buf.append("EndReadingTime = '").append(formatter.format(endReadingTime)).append("', ");
+            sb.append("EndReadingTime = '").append(formatter.format(endReadingTime)).append("', ");
         }
-        buf.append("LoadProfileId = '").append(loadProfileId).append("', ");
-        return buf.toString();
+        sb.append("LoadProfileId = '").append(loadProfileId).append("', ");
+        return sb.toString();
     }
 
     public BaseLoadProfile getLoadProfile() {
@@ -219,12 +228,12 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
         return loadProfile;
     }
 
-    private BaseLoadProfile findLoadProfile(int loadProfileId) {
+    private LoadProfile findLoadProfile(int loadProfileId) {
         List<LoadProfileFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LoadProfileFactory.class);
         if(modulesImplementing.isEmpty()){
             return null;
         } else {
-            return modulesImplementing.get(0).findLoadProfileById(loadProfileId);
+            return (LoadProfile) modulesImplementing.get(0).findLoadProfileById(loadProfileId);
         }
     }
 
@@ -234,14 +243,11 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
      *
      * @param loadProfile the new LoadProfile to set
      */
-    public void setLoadProfile(final BaseLoadProfile loadProfile) {
-        BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> currentRtu = loadProfile.getDevice();
-        while (currentRtu.isLogicalSlave() && currentRtu.getPhysicalGateway() != null) {
-            currentRtu = currentRtu.getPhysicalGateway();
-        }
+    public void setLoadProfile(LoadProfile loadProfile) {
+        Device currentRtu = this.getDevice(loadProfile);
         setMeterSerialNumber(currentRtu.getSerialNumber());
-        BaseLoadProfile currentLoadProfile = null;
-        for (BaseLoadProfile lProfile : currentRtu.getLoadProfiles()) {
+        LoadProfile currentLoadProfile = null;
+        for (LoadProfile lProfile : currentRtu.getLoadProfiles()) {
             if (lProfile.getLoadProfileTypeId() == loadProfile.getLoadProfileTypeId()) {
                 currentLoadProfile = lProfile;
             }
@@ -257,6 +263,21 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
         setChannelInfos(createChannelInfos(this.loadProfile));
     }
 
+    @SuppressWarnings("unchecked")
+    private Device getDevice(LoadProfile loadProfile) {
+        boolean notAtTopOfTopology = true;
+        Device currentRtu = loadProfile.getDevice();
+        while (currentRtu.isLogicalSlave() && notAtTopOfTopology) {
+            Optional<Device> physicalGateway = this.topologyService.getPhysicalGateway(currentRtu);
+            if (physicalGateway.isPresent()) {
+                currentRtu = physicalGateway.get();
+            }
+            else {
+                notAtTopOfTopology = false;
+            }
+        }
+        return currentRtu;
+    }
     /**
      * Create a <CODE>List</CODE> of <CODE>ChannelInfos</CODE> for the given <CODE>LoadProfile</CODE>.
      * If the channel has the com.energyict.mdw.coreimpl.ChannelImpl#storeData boolean is checked, then we can add it.
@@ -265,16 +286,17 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
      * @param loadProfile the given <CODE>LoadProfile</CODE>
      * @return the new List
      */
-    private static List<ChannelInfo> createChannelInfos(BaseLoadProfile<?> loadProfile) {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        for (BaseChannel lpChannel : loadProfile.getAllChannels()) {
-                channelInfos.add(
-                        ChannelInfo.ChannelInfoBuilder.fromObisCode(lpChannel.getRegisterTypeObisCode())
-                        .unit(lpChannel.getUnit())
-                        .meterIdentifier(lpChannel.getDevice().getSerialNumber())
-                        .build()); //TODO there should be a readingType in here...
-        }
-        return channelInfos;
+    private List<ChannelInfo> createChannelInfos(LoadProfile loadProfile) {
+        //TODO there should be a readingType in here...
+        return this.topologyService
+                .getAllChannels(loadProfile)
+                .stream()
+                .map(channel -> ChannelInfo.ChannelInfoBuilder
+                        .fromObisCode(channel.getRegisterTypeObisCode())
+                        .unit(channel.getUnit())
+                        .meterIdentifier(channel.getDevice().getSerialNumber())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public LoadProfileReader getLoadProfileReader() {
@@ -303,7 +325,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
 
         private final LegacyPartialLoadProfileMessageBuilder messageBuilder;
 
-        public PartialLoadProfileMessageHandler(final LegacyPartialLoadProfileMessageBuilder legacyPartialLoadProfileMessageBuilder, final String messageNodeTag) {
+        private PartialLoadProfileMessageHandler(final LegacyPartialLoadProfileMessageBuilder legacyPartialLoadProfileMessageBuilder, final String messageNodeTag) {
             super(messageNodeTag);
             this.messageBuilder = legacyPartialLoadProfileMessageBuilder;
         }

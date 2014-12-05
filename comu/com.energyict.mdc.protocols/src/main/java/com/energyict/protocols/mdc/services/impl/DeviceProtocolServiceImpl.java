@@ -8,12 +8,18 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import java.time.Clock;
+
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.google.inject.AbstractModule;
+import com.google.inject.ConfigurationException;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.ProvisionException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -36,11 +42,14 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
-    private volatile IssueService issueService;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
-    private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile OrmClient ormClient;
+    private volatile IssueService issueService;
+    private volatile TopologyService topologyService;
+    private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
+
+    private Injector injector;
 
     public DeviceProtocolServiceImpl() {
         super();
@@ -48,7 +57,9 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     @Activate
     public void activate() {
-        this.dataModel.register(getModule());
+        Module module = this.getModule();
+        this.dataModel.register(module);
+        this.injector = Guice.createInjector(module);
     }
 
     @Deactivate
@@ -61,12 +72,13 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     }
 
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, TopologyService topologyService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setIssueService(issueService);
         this.setClock(clock);
+        this.setTopologyService(topologyService);
         this.activate();
         this.install();
     }
@@ -79,17 +91,21 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(IssueService.class).toInstance(issueService);
                 bind(Clock.class).toInstance(clock);
+                bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceProtocolService.class).toInstance(DeviceProtocolServiceImpl.this);
             }
         };
     }
 
     @Override
-    public Class loadProtocolClass(String javaClassName) {
+    public Object createProtocol(String className) {
         try {
-            return this.getClass().getClassLoader().loadClass(javaClassName);
-        } catch (ClassNotFoundException e) {
-            throw new ProtocolCreationException(MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, javaClassName);
+            // Attempt to load the class to verify that this class is managed by this bundle
+            Class<?> protocolClass = this.getClass().getClassLoader().loadClass(className);
+            return this.injector.getInstance(protocolClass);
+        }
+        catch (ClassNotFoundException | ConfigurationException | ProvisionException e) {
+            throw new ProtocolCreationException(MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, className);
         }
     }
 
@@ -146,6 +162,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
         Bus.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
     }
 
     public MdcReadingTypeUtilService getMdcReadingTypeUtilService() {

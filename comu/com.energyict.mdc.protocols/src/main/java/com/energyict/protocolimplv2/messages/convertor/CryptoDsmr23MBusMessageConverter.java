@@ -20,7 +20,7 @@ import java.util.Map;
 public class CryptoDsmr23MBusMessageConverter extends Dsmr23MBusDeviceMessageConverter {
 
     public CryptoDsmr23MBusMessageConverter() {
-        super();
+        super(topologyService);
     }
 
     @Override

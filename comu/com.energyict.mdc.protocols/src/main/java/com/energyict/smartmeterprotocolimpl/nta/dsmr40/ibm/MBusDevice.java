@@ -8,6 +8,10 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
  */
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
+    public MBusDevice() {
+        super(topologyService);
+    }
+
     @Override
     public String getProtocolDescription() {
         return "IBM Mbus Slave NTA DSMR 4.0";

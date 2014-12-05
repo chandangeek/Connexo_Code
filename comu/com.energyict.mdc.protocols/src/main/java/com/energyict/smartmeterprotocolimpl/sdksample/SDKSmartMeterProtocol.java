@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.sdksample;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -29,6 +30,7 @@ import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 import org.xml.sax.SAXException;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,6 +51,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
 
     private static final String MeterSerialNumber = "Master";
 
+    private final TopologyService topologyService;
     /**
      * The used <CODE>Connection</CODE> class
      */
@@ -62,11 +65,10 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
     private SDKSmartMeterProfile smartMeterProfile;
     private SDKSmartMeterRegisterFactory registerFactory;
 
-    /**
-     * Constructor ...
-     */
-    public SDKSmartMeterProtocol() {
-
+    @Inject
+    public SDKSmartMeterProtocol(TopologyService topologyService) {
+        super();
+        this.topologyService = topologyService;
     }
 
     /**
@@ -343,7 +345,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
+        return new LegacyPartialLoadProfileMessageBuilder(topologyService);
     }
 
     /**
@@ -380,7 +382,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
         try {
             getLogger().info("Handling message Read LoadProfile Registers.");
             LegacyLoadProfileRegisterMessageBuilder builder = getLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
             final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Arrays.asList(lpr));
@@ -429,7 +431,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
         try {
             getLogger().info("Handling message Read Partial LoadProfile.");
             LegacyPartialLoadProfileMessageBuilder builder = getPartialLoadProfileMessageBuilder();
-            builder = (LegacyPartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
             final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Arrays.asList(lpr));
@@ -465,6 +467,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
+        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
     }
+
 }

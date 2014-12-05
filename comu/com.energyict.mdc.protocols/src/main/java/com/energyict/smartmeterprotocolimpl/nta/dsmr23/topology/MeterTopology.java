@@ -1,6 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 
@@ -23,6 +25,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedM
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -37,6 +40,7 @@ public class MeterTopology implements MasterMeter {
     public static final int MaxMbusDevices = 4;
     protected static String ignoreZombieMbusDevice = "@@@0000000000000";
 
+    private final TopologyService topologyService;
     private final AbstractSmartNtaProtocol protocol;
 
     /**
@@ -56,8 +60,14 @@ public class MeterTopology implements MasterMeter {
 
     private BaseDevice rtu;
 
-    public MeterTopology(final AbstractSmartNtaProtocol protocol) {
+    public MeterTopology(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
+        super();
         this.protocol = protocol;
+        this.topologyService = topologyService;
+    }
+
+    protected TopologyService getTopologyService() {
+        return topologyService;
     }
 
     /**
@@ -234,12 +244,22 @@ public class MeterTopology implements MasterMeter {
      */
     private BaseDevice findOrCreateMbusDevice(String serialNumber) {
         DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
-        BaseDevice mbusRtu = deviceIdentifier.findDevice();
-        // Check if gateway has changed, and update if it has
-        if ((mbusRtu.getPhysicalGateway() == null) || (mbusRtu.getPhysicalGateway().getId() != getRtuFromDatabaseBySerialNumber().getId())) {
-            mbusRtu.setPhysicalGateway(getRtuFromDatabaseBySerialNumber());
-        }
+        Device mbusRtu = (Device) deviceIdentifier.findDevice();
+        this.updateGatewayIfChanged(mbusRtu);
         return mbusRtu;
+    }
+
+    private void updateGatewayIfChanged(Device mbusRtu) {
+        Optional<Device> physicalGateway = this.topologyService.getPhysicalGateway(mbusRtu);
+        Device deviceBySerialNumber = this.getRtuFromDatabaseBySerialNumber();
+        if (physicalGateway.isPresent()) {
+            if (physicalGateway.get().getId() != deviceBySerialNumber.getId()) {
+                this.topologyService.setPhysicalGateway(mbusRtu, deviceBySerialNumber);
+            }
+        }
+        else {
+            this.topologyService.setPhysicalGateway(mbusRtu, deviceBySerialNumber);
+        }
     }
 
     /**
@@ -247,13 +267,13 @@ public class MeterTopology implements MasterMeter {
      *
      * @return the Device
      */
-    protected BaseDevice getRtuFromDatabaseBySerialNumber() {
+    protected Device getRtuFromDatabaseBySerialNumber() {
         if (rtu == null) {
             String serial = this.protocol.getSerialNumber();
             DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serial);
             this.rtu = deviceIdentifier.findDevice();
         }
-        return rtu;
+        return (Device) rtu;
     }
 
     public AbstractSmartNtaProtocol getProtocol() {

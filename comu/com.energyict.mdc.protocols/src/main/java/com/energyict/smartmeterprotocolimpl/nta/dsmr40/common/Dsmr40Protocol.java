@@ -23,6 +23,10 @@ import java.util.logging.Level;
  */
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
+    public Dsmr40Protocol() {
+        super(topologyService);
+    }
+
     @Override
     public MessageProtocol getMessageProtocol() {
         return new Dsmr40Messaging(new Dsmr40MessageExecutor(this));

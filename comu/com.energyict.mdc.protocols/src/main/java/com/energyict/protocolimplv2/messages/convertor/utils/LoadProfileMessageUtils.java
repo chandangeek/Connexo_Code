@@ -1,8 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -116,15 +118,7 @@ public class LoadProfileMessageUtils {
         }
     }
 
-    /**
-     * We format the LoadProfile is such a way it is usable in the legacy
-     * PartialLoadProfileMessageBuilder and
-     * LoadProfileRegisterMessageBuilder
-     *
-     * @param loadProfile the LoadProfile to format
-     * @return the formatted loadProfile
-     */
-    public static String formatLoadProfile(final BaseLoadProfile loadProfile) {
+    public static String formatLoadProfile(final LoadProfile loadProfile, TopologyService topologyService) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
@@ -137,10 +131,11 @@ public class LoadProfileMessageUtils {
             root.setAttribute(LoadProfileIdTag, String.valueOf(loadProfile.getId()));
 
             // append the channels
-            root.appendChild(convertToChannelsElement(loadProfile.getAllChannels(), document));
+            List<Channel> allChannels = topologyService.getAllChannels(loadProfile);
+            root.appendChild(convertToChannelsElement(allChannels, document));
 
             // append the registers
-            root.appendChild(convertToRegisterElements(loadProfile.getAllChannels(), document));
+            root.appendChild(convertToRegisterElements(allChannels, document));
 
             document.appendChild(root);
             return XmlUtils.documentToString(document);
@@ -149,7 +144,7 @@ public class LoadProfileMessageUtils {
         }
     }
 
-    private static Node convertToRegisterElements(List<BaseChannel> allChannels, Document document) {
+    private static Node convertToRegisterElements(List<Channel> allChannels, Document document) {
         Element registers = document.createElement(RtuRegistersTag);
         for (BaseChannel channel : allChannels) {
             Element registerElement = document.createElement(RegisterTag);
@@ -160,7 +155,7 @@ public class LoadProfileMessageUtils {
         return registers;
     }
 
-    private static Node convertToChannelsElement(List<BaseChannel> allChannels, Document document) {
+    private static Node convertToChannelsElement(List<Channel> allChannels, Document document) {
         Element channels = document.createElement(ChannelInfosTag);
         int counter = 0;
         for (BaseChannel channel : allChannels) {

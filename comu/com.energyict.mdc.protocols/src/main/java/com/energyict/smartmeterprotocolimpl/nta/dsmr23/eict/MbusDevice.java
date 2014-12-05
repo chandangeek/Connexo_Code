@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.TypedProperties;
@@ -9,9 +10,9 @@ import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
 import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
-import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,12 +23,12 @@ import java.util.Properties;
  */
 public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
-    public MbusDevice() {
-        super();
-    }
+    private final TopologyService topologyService;
 
-    public MbusDevice(final AbstractSmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
-        super(meterProtocol, serialNumber, physicalAddress);
+    @Inject
+    public MbusDevice(TopologyService topologyService) {
+        super();
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -74,11 +75,11 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
+        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
+        return new LegacyPartialLoadProfileMessageBuilder(topologyService);
     }
 
 }

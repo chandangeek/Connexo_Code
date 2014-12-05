@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -14,6 +15,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.spec
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,8 +36,12 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
  */
 public class REMIDataloggerMessageConverter extends AbstractMessageConverter {
 
-    public REMIDataloggerMessageConverter() {
+    private final TopologyService topologyService;
+
+    @Inject
+    public REMIDataloggerMessageConverter(TopologyService topologyService) {
         super();
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -62,7 +68,7 @@ public class REMIDataloggerMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.enableDSTAttributeName:
                 return ((Boolean) messageAttribute).booleanValue() == true ? "1" : "0";
             case DeviceMessageConstants.loadProfileAttributeName:
-            	return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
+            	return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
             	return dateTimeFormatWithTimeZone.format((Date) messageAttribute);

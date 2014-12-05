@@ -48,6 +48,11 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
+      <artifactId>mdc.device.topology</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
       <artifactId>mdc.metering</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -125,15 +130,15 @@
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>      
+      <artifactId>org.osgi.core</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>     
+      <artifactId>org.osgi.compendium</artifactId>
     </dependency>
     <dependency>
       <groupId>org.aspectj</groupId>

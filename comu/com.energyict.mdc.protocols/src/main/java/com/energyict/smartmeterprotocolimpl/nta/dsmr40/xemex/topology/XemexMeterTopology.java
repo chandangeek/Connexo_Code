@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.topology;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 
 import com.energyict.dlms.DLMSAttribute;
@@ -32,8 +33,8 @@ public class XemexMeterTopology extends MeterTopology {
      */
     private List<DLMSAttribute> cMbusDLMSAttributes = new ArrayList<>();
 
-    public XemexMeterTopology(AbstractSmartNtaProtocol protocol) {
-        super(protocol);
+    public XemexMeterTopology(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
+        super(protocol, topologyService);
     }
 
     @Override
@@ -100,15 +101,15 @@ public class XemexMeterTopology extends MeterTopology {
     }
 
     private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusMap) {
-        BaseDevice gatewayDevice = getRtuFromDatabaseBySerialNumber();
+        Device gatewayDevice = getRtuFromDatabaseBySerialNumber();
         if (gatewayDevice != null) {
-            List<BaseDevice> mbusSlaves = gatewayDevice.getPhysicalConnectedDevices();
-            for (BaseDevice mbus : mbusSlaves) {
-                if (!mbusMap.contains(new DeviceMapping(mbus.getSerialNumber()))) {
-                    log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device - detaching from gateway.");
-                    mbus.setPhysicalGateway(null);
-                }
-            }
+            List<Device> mbusSlaves = this.getTopologyService().getPhysicalConnectedDevices(gatewayDevice);
+            mbusSlaves.stream()
+                    .filter(mbus -> !mbusMap.contains(new DeviceMapping(mbus.getSerialNumber())))
+                    .forEach(mbus -> {
+                        log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device - detaching from gateway.");
+                        getTopologyService().clearPhysicalGateway(mbus);
+            });
         }
     }
 

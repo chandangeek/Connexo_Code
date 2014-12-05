@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -37,8 +39,11 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
  */
 public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
 
-    public Dsmr23MBusDeviceMessageConverter() {
+    private final TopologyService topologyService;
+
+    public Dsmr23MBusDeviceMessageConverter(TopologyService topologyService) {
         super();
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -73,7 +78,7 @@ public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.contactorActivationDateAttributeName:
                 return Long.toString(((Date) messageAttribute).getTime() / 1000);
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
                 return dateTimeFormatWithTimeZone.format((Date) messageAttribute);

@@ -2,9 +2,11 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.Password;
 import com.elster.jupiter.time.TimeDuration;
+
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.lookups.Lookup;
@@ -45,6 +47,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.spec
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,11 +94,12 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
     private static final String RESET_ALARM_REGISTER = "Reset_Alarm_Register";
     private static final String DEFAULT_RESET_WINDOW = "Default_Reset_Window";
 
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public Dsmr23MessageConverter() {
+    private final TopologyService topologyService;
+
+    @Inject
+    public Dsmr23MessageConverter(TopologyService topologyService) {
         super();
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -132,7 +136,7 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(loadProfileAttributeName)) {
-            return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
+            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
         } else if (propertySpec.getName().equals(fromDateAttributeName)
                 || propertySpec.getName().equals(toDateAttributeName)) {
             return dateTimeFormatWithTimeZone.format((Date) messageAttribute);

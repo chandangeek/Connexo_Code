@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -13,6 +14,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 /**
@@ -23,6 +25,11 @@ import java.io.IOException;
 public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
 
     private LoadProfileBuilder loadProfileBuilder;
+
+    @Inject
+    public E350(TopologyService topologyService) {
+        super(topologyService);
+    }
 
     @Override
     public String getProtocolDescription() {

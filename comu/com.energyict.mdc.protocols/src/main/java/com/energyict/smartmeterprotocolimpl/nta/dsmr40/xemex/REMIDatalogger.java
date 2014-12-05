@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -15,6 +16,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMessa
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.profiles.XemexLoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.topology.XemexMeterTopology;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 /**
@@ -24,6 +26,11 @@ import java.io.IOException;
 public class REMIDatalogger extends E350 {
 
     private LoadProfileBuilder loadProfileBuilder;
+
+    @Inject
+    public REMIDatalogger(TopologyService topologyService) {
+        super(topologyService);
+    }
 
     @Override
     public DlmsProtocolProperties getProperties() {

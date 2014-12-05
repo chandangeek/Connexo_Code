@@ -1,9 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
-import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
@@ -36,7 +34,6 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;

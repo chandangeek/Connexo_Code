@@ -2,9 +2,11 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.Password;
 import com.elster.jupiter.time.TimeDuration;
+
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -29,6 +31,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.spec
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
+import javax.inject.Inject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -72,11 +75,12 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
     private final SimpleDateFormat dateFormatWithoutTimeZone = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public SmartWebRtuKpMessageConverter() {
+    private final TopologyService topologyService;
+
+    @Inject
+    public SmartWebRtuKpMessageConverter(TopologyService topologyService) {
         super();
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -113,7 +117,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(loadProfileAttributeName)) {
-            return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
+            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
         } else if (propertySpec.getName().equals(fromDateAttributeName)
                 || propertySpec.getName().equals(toDateAttributeName)) {
             return dateFormat.format((Date) messageAttribute);

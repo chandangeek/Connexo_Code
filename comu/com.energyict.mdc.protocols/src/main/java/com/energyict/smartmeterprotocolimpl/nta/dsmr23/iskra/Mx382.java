@@ -1,6 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
 import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
@@ -8,12 +10,19 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging;
 
+import javax.inject.Inject;
+
 /**
  * Copyrights EnergyICT
  * Date: 15-jul-2011
  * Time: 11:59:24
  */
 public class Mx382 extends AbstractSmartNtaProtocol implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
+
+    @Inject
+    public Mx382(TopologyService topologyService) {
+        super(topologyService);
+    }
 
     @Override
     public MessageProtocol getMessageProtocol() {

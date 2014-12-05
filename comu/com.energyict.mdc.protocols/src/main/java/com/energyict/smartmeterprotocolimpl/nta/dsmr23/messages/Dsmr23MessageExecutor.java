@@ -101,10 +101,9 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     }
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
-
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
             //Execute messages for MBus device
-            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol);
+            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol, topologyService);
             return mbusMessageExecutor.executeMessageEntry(msgEntry);
         } else {
 
@@ -249,13 +248,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 }
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
-            } catch (BusinessException e) {
-                msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
-                log(Level.SEVERE, "Message failed : " + e.getMessage());
-            } catch (IOException e) {
-                msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
-                log(Level.SEVERE, "Message failed : " + e.getMessage());
-            } catch (InterruptedException e) {
+            } catch (BusinessException | IOException | InterruptedException e) {
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
             }
@@ -275,7 +268,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         try {
             log(Level.INFO, "Handling message Read LoadProfile Registers.");
             LegacyLoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectedLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
@@ -324,7 +317,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         try {
             log(Level.INFO, "Handling message Read Partial LoadProfile.");
             LegacyPartialLoadProfileMessageBuilder builder = this.protocol.getPartialLoadProfileMessageBuilder();
-            builder = (LegacyPartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
 
@@ -332,11 +325,11 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
-            if (profileData.size() == 0) {
+            if (profileData.isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "LoadProfile returned no data.");
             } else {
                 for (ProfileData data : profileData) {
-                    if (data.getIntervalDatas().size() == 0) {
+                    if (data.getIntervalDatas().isEmpty()) {
                         return MessageResult.createFailed(msgEntry, "LoadProfile returned no interval data.");
                     }
                 }
@@ -567,7 +560,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
             int entries = messageHandler.getMEEntries();
             String type = messageHandler.getMEInterval();
-            Long millis = Long.parseLong(messageHandler.getMEStartDate()) * 1000;
+            long millis = Long.parseLong(messageHandler.getMEStartDate()) * 1000;
             Date startTime = new Date(Long.parseLong(messageHandler.getMEStartDate()) * 1000);
             startTime = getFirstDate(startTime, type);
             while (entries > 0) {

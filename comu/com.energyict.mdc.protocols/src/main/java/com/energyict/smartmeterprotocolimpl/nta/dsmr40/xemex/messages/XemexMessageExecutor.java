@@ -26,14 +26,14 @@ public class XemexMessageExecutor extends Dsmr40MessageExecutor {
     private static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
     private final ObisCode ALARM_FILTER = ObisCode.fromString("0.0.97.98.10.255");
 
-    public XemexMessageExecutor(final AbstractSmartNtaProtocol protocol) {
+    public XemexMessageExecutor(AbstractSmartNtaProtocol protocol) {
         super(protocol);
     }
 
     @Override
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
-            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol);
+            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol, topologyService);
             return mbusMessageExecutor.executeMessageEntry(msgEntry);
         } else {
             MessageResult msgResult = null;

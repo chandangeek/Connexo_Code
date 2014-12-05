@@ -20,6 +20,8 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
@@ -37,14 +39,12 @@ import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -59,10 +59,12 @@ import java.util.logging.Level;
 public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
 
     private final AbstractSmartNtaProtocol protocol;
+    private final TopologyService topologyService;
     private final DlmsSession dlmsSession;
 
-    public Dsmr23MbusMessageExecutor(final AbstractSmartNtaProtocol protocol) {
+    public Dsmr23MbusMessageExecutor(final AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
         this.protocol = protocol;
+        this.topologyService = topologyService;
         this.dlmsSession = this.protocol.getDlmsSession();
     }
 
@@ -96,15 +98,15 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             } else if (connectMode) {
                 setConnectMode(messageHandler, serialNumber);
             } else if (decommission) {
-                doDecommission(messageHandler, serialNumber);
+                doDecommission(serialNumber);
             } else if (mbusEncryption) {
                 setMbusEncryptionKeys(messageHandler, serialNumber);
             } else if (mbusCryptoserverEncryption) {
-                setCryptoserverMbusEncryptionKeys(msgEntry, messageHandler, serialNumber);
+                setCryptoserverMbusEncryptionKeys();
             } else if (mbusCorrected) {
-                setMbusCorrected(messageHandler, serialNumber);
+                setMbusCorrected(serialNumber);
             } else if (mbusUnCorrected) {
-                setMbusUncorrected(messageHandler, serialNumber);
+                setMbusUncorrected(serialNumber);
             } else if (partialLoadProfile) {
                 msgResult = doReadPartialLoadProfile(msgEntry);
             } else if (loadProfileRegisterRequest) {
@@ -121,13 +123,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             } else if (msgResult.isFailed()) {
                 log(Level.SEVERE, "Message failed : " + msgResult.getInfo());
             }
-        } catch (BusinessException e) {
-            msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-        } catch (IOException e) {
-            msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-        } catch (SQLException e) {
+        } catch (BusinessException | IOException e) {
             msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
             log(Level.SEVERE, "Message failed : " + e.getMessage());
         }
@@ -138,7 +134,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         return new NTAMessageHandler();
     }
 
-    private void setMbusUncorrected(final MessageHandler messageHandler, final String serialNumber) throws IOException {
+    private void setMbusUncorrected(final String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage Set loadprofile to unCorrected values");
         Array capDef = new Array();
         Structure struct = new Structure();
@@ -158,7 +154,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         return getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode();
     }
 
-    private void setMbusCorrected(final MessageHandler messageHandler, final String serialNumber) throws IOException {
+    private void setMbusCorrected(final String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage  Set loadprofile to corrected values");
         Array capDef = new Array();
         Structure struct = new Structure();
@@ -170,7 +166,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         getMBusClient(serialNumber).writeCaptureDefinition(capDef);
     }
 
-    protected void setCryptoserverMbusEncryptionKeys(MessageEntry msgEntry, final MessageHandler messageHandler, final String serialNumber) throws IOException {
+    protected void setCryptoserverMbusEncryptionKeys() throws IOException {
         throw new IOException("Received message to renew MBus keys using the Cryptoserver, but Cryptoserver usage is not supported in this protocol");
     }
 
@@ -191,16 +187,16 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void doDecommission(final MessageHandler messageHandler, final String serialNumber) throws IOException, BusinessException, SQLException {
+    private void doDecommission(final String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage Decommission MBus device");
 
         getMBusClient(serialNumber).deinstallSlave();
 
         //Need to clear the gateWay
         //TODO this is not fully compliant with the HTTP comserver ...
-        BaseDevice mbus = getRtuFromDatabaseBySerialNumber(serialNumber);
+        Device mbus = (Device) getRtuFromDatabaseBySerialNumber(serialNumber);
         if (mbus != null) {
-            mbus.setPhysicalGateway(null);
+            this.topologyService.clearPhysicalGateway(mbus);
         }
     }
 
@@ -232,7 +228,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     private void doDisconnectMessage(final MessageHandler messageHandler, final String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage Disconnect");
 
-        if (!messageHandler.getDisconnectDate().equals("")) {    // use the disconnectControlScheduler
+        if (!"".equals(messageHandler.getDisconnectDate())) {    // use the disconnectControlScheduler
 
             Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
             SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMbusAddress(serialNumber)).getObisCode());
@@ -255,7 +251,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     private void doConnectMessage(MessageHandler messageHandler, String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage Connect");
 
-        if (!messageHandler.getConnectDate().equals("")) {    // use the disconnectControlScheduler
+        if (!"".equals(messageHandler.getConnectDate())) {    // use the disconnectControlScheduler
 
             Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
             SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getMbusDisconnectControlSchedule(getMbusAddress(serialNumber)).getObisCode());
@@ -288,12 +284,11 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-
     protected MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
             log(Level.INFO, "Handling message Read LoadProfile Registers.");
             LegacyLoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectedLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
@@ -342,7 +337,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         try {
             log(Level.INFO, "Handling message Read Partial LoadProfile.");
             LegacyPartialLoadProfileMessageBuilder builder = this.protocol.getPartialLoadProfileMessageBuilder();
-            builder = (LegacyPartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
 
@@ -351,11 +346,11 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
-            if (profileData.size() == 0) {
+            if (profileData.isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "LoadProfile returned no data.");
             } else {
                 for (ProfileData data : profileData) {
-                    if (data.getIntervalDatas().size() == 0) {
+                    if (data.getIntervalDatas().isEmpty()) {
                         return MessageResult.createFailed(msgEntry, "LoadProfile returned no interval data.");
                     }
                 }

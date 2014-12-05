@@ -11,6 +11,10 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster;
  */
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
+    public MBusDevice() {
+        super(topologyService);
+    }
+
     @Override
     public String getProtocolDescription() {
         return "Elster Mbus Slave NTA DSM 4.0";

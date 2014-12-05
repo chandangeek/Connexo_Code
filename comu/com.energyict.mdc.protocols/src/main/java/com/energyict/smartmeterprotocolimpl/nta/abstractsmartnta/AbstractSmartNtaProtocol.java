@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
@@ -36,8 +37,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -62,6 +63,13 @@ public abstract class AbstractSmartNtaProtocol
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
+    private final TopologyService topologyService;
+
+    @Inject
+    protected AbstractSmartNtaProtocol(TopologyService topologyService) {
+        super();
+        this.topologyService = topologyService;
+    }
 
     public abstract MessageProtocol getMessageProtocol();
 
@@ -102,10 +110,9 @@ public abstract class AbstractSmartNtaProtocol
      */
     protected MeterTopology meterTopology;
 
-    /**
-     * A list of slaveDevices
-     */
-    private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<AbstractNtaMbusDevice>();
+    protected TopologyService getTopologyService() {
+        return topologyService;
+    }
 
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
@@ -364,7 +371,7 @@ public abstract class AbstractSmartNtaProtocol
 
     public MeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
-            this.meterTopology = new MeterTopology(this);
+            this.meterTopology = new MeterTopology(this, this.getTopologyService());
         }
         return meterTopology;
     }
@@ -449,11 +456,11 @@ public abstract class AbstractSmartNtaProtocol
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
+        return new LegacyPartialLoadProfileMessageBuilder(topologyService);
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
+        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
     }
 
     /**
@@ -464,4 +471,5 @@ public abstract class AbstractSmartNtaProtocol
     protected void setLoadProfileBuilder(LoadProfileBuilder loadProfileBuilder) {
         this.loadProfileBuilder = loadProfileBuilder;
     }
+
 }

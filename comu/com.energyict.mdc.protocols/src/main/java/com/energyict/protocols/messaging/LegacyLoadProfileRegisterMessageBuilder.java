@@ -3,8 +3,12 @@ package com.energyict.protocols.messaging;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
@@ -23,9 +27,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
- * Message builder class responsible of generating and parsing Partial LoadProfile request Messages for old {@link SmartMeterProtocol}s
+ * Message builder class responsible of generating and parsing Partial LoadProfile request Messages
+ * for old {@link SmartMeterProtocol}s.
  * <p/>
  * TODO some changes have to be made so the registers are given in the xml form
  */
@@ -42,6 +49,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     private static final String RegisterObiscodeTag = "OC";
     private static final String RtuRegisterSerialNumber = "ID";
 
+    private final TopologyService topologyService;
     private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
@@ -72,7 +80,12 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     /**
      * The LoadProfile to read
      */
-    private BaseLoadProfile<BaseChannel> loadProfile;
+    private LoadProfile loadProfile;
+
+    public LegacyLoadProfileRegisterMessageBuilder(TopologyService topologyService) {
+        super();
+        this.topologyService = topologyService;
+    }
 
     public static String getMessageNodeTag() {
         return MESSAGETAG;
@@ -129,7 +142,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             throw new BusinessException("needLoadProfile", "LoadProfile needed.");
         } else if (this.startReadingTime == null) {
             throw new BusinessException("emptyStartTime", "StartTime can not be empty.");
-        } else if (this.meterSerialNumber.equalsIgnoreCase("")) {
+        } else if ("".equalsIgnoreCase(this.meterSerialNumber)) {
             throw new BusinessException("noDeviceSerialNumber", "Device Serial Number must be filled in.");
         }
 
@@ -143,7 +156,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         addAttribute(builder, StartReadingTimeTag, this.formatter.format(this.startReadingTime));
         addAttribute(builder, LoadProfileIdTag, this.loadProfileId);
         builder.append(">");
-        if (this.registers.size() > 0) {
+        if (!this.registers.isEmpty()) {
             builder.append("<");
             builder.append(RtuRegistersTag);
             builder.append(">");
@@ -166,16 +179,19 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     }
 
     private void checkRtuRegistersForLoadProfile() throws BusinessException {
-        BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device = this.loadProfile.getDevice();
+        Device device = this.loadProfile.getDevice();
 
-        List<BaseRegister> allRegisters = device.getRegisters();
-        for (BaseDevice dRtu : device.getPhysicalConnectedDevices()) {
-            allRegisters.addAll(dRtu.getRegisters());
-        }
+        List<Register> allRegisters = device.getRegisters();
+        allRegisters.addAll(
+                this.topologyService
+                    .getPhysicalConnectedDevices(device)
+                    .stream()
+                    .flatMap(slave -> slave.getRegisters().stream())
+                    .collect(Collectors.toList()));
 
-        for (BaseChannel channel : this.loadProfile.getAllChannels()) {
+        for (Channel channel : this.topologyService.getAllChannels(this.loadProfile)) {
             boolean contains = false;
-            for (BaseRegister register : allRegisters) {
+            for (Register register : allRegisters) {
                 contains |= register.getRegisterTypeObisCode().equals(channel.getRegisterTypeObisCode());
             }
             if (!contains) {
@@ -189,10 +205,8 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         return new LoadProfileRegisterMessageHandler((LegacyLoadProfileRegisterMessageBuilder) builder, getMessageNodeTag());
     }
 
-    public static MessageBuilder fromXml(String xmlString) throws SAXException, IOException {
-        MessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
-        builder.initFromXml(xmlString);
-        return builder;
+    public void fromXml(String xmlString) throws SAXException, IOException {
+        this.initFromXml(xmlString);
     }
 
     /**
@@ -212,19 +226,19 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         return builder.toString();
     }
 
-    public BaseLoadProfile<BaseChannel> getLoadProfile() {
+    public LoadProfile getLoadProfile() {
         if (this.loadProfile == null) {
             this.loadProfile = this.findLoadProfile(this.loadProfileId);
         }
         return loadProfile;
     }
 
-    private BaseLoadProfile<BaseChannel> findLoadProfile(int loadProfileId) {
+    private LoadProfile findLoadProfile(int loadProfileId) {
         List<LoadProfileFactory> modulesImplementing = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LoadProfileFactory.class);
         if (modulesImplementing.isEmpty()) {
             return null;
         } else {
-            return modulesImplementing.get(0).findLoadProfileById(loadProfileId);
+            return (LoadProfile) modulesImplementing.get(0).findLoadProfileById(loadProfileId);
         }
     }
 
@@ -234,14 +248,11 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
      *
      * @param loadProfile the new LoadProfile to set
      */
-    public void setLoadProfile(final BaseLoadProfile loadProfile) {
-        BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> currentRtu = loadProfile.getDevice();
-        while (currentRtu.isLogicalSlave() && currentRtu.getPhysicalGateway() != null) {
-            currentRtu = currentRtu.getPhysicalGateway();
-        }
+    public void setLoadProfile(final LoadProfile loadProfile) {
+        Device currentRtu = this.getDevice(loadProfile);
         setMeterSerialNumber(currentRtu.getSerialNumber());
-        BaseLoadProfile currentLoadProfile = null;
-        for (BaseLoadProfile lProfile : currentRtu.getLoadProfiles()) {
+        LoadProfile currentLoadProfile = null;
+        for (LoadProfile lProfile : currentRtu.getLoadProfiles()) {
             if (lProfile.getLoadProfileTypeId() == loadProfile.getLoadProfileTypeId()) {
                 currentLoadProfile = lProfile;
             }
@@ -256,18 +267,34 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         setRegisters(createRegisterList(this.loadProfile));
     }
 
+    @SuppressWarnings("unchecked")
+    private Device getDevice(LoadProfile loadProfile) {
+        boolean notAtTopOfTopology = true;
+        Device currentRtu = loadProfile.getDevice();
+        while (currentRtu.isLogicalSlave() && notAtTopOfTopology) {
+            Optional<Device> physicalGateway = this.topologyService.getPhysicalGateway(currentRtu);
+            if (physicalGateway.isPresent()) {
+                currentRtu = physicalGateway.get();
+            }
+            else {
+                notAtTopOfTopology = false;
+            }
+        }
+        return currentRtu;
+    }
+
     /**
      * Create a <code>List</code> of <code>Register</code> for the given <code>LoadProfile</code>.
      *
      * @param loadProfile the given <code>LoadProfile</code>
      * @return the new Register List
      */
-    private List<com.energyict.mdc.protocol.api.device.data.Register> createRegisterList(final BaseLoadProfile<?> loadProfile) {
-        List<com.energyict.mdc.protocol.api.device.data.Register> registers = new ArrayList<>();
-        for (BaseChannel channel : loadProfile.getAllChannels()) {
-            registers.add(new com.energyict.mdc.protocol.api.device.data.Register(-1, channel.getRegisterTypeObisCode(), channel.getDevice().getSerialNumber()));
-        }
-        return registers;
+    private List<com.energyict.mdc.protocol.api.device.data.Register> createRegisterList(final LoadProfile loadProfile) {
+        return this.topologyService
+                .getAllChannels(loadProfile)
+                .stream()
+                .map(channel -> new com.energyict.mdc.protocol.api.device.data.Register(-1, channel.getRegisterTypeObisCode(), channel.getDevice().getSerialNumber()))
+                .collect(Collectors.toList());
     }
 
     public LoadProfileReader getLoadProfileReader() {
@@ -291,8 +318,8 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
 
 
     public int getRegisterSpecIdForRegister(com.energyict.mdc.protocol.api.device.data.Register register) {
-        BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister> device = null;
-        for (BaseChannel channel : getLoadProfile().getAllChannels()) {
+        Device device = null;
+        for (Channel channel : this.topologyService.getAllChannels(this.getLoadProfile())) {
             if (channel.getDevice().getSerialNumber().equals(register.getSerialNumber())) {
                 device = channel.getDevice();
                 break;
@@ -315,7 +342,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
 
         private final LegacyLoadProfileRegisterMessageBuilder messageBuilder;
 
-        public LoadProfileRegisterMessageHandler(final LegacyLoadProfileRegisterMessageBuilder legacyLoadProfileRegisterMessageBuilder, final String messageNodeTag) {
+        private LoadProfileRegisterMessageHandler(final LegacyLoadProfileRegisterMessageBuilder legacyLoadProfileRegisterMessageBuilder, final String messageNodeTag) {
             super(messageNodeTag);
             this.messageBuilder = legacyLoadProfileRegisterMessageBuilder;
         }

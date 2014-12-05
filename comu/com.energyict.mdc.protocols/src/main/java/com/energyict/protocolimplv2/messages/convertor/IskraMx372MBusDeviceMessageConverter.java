@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -12,6 +14,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.spec
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +33,12 @@ public class IskraMx372MBusDeviceMessageConverter extends AbstractMessageConvert
 
     private static final String MBUS_SET_VIF = "Mbus_Set_VIF";
 
-    public IskraMx372MBusDeviceMessageConverter() {
+    private final TopologyService topologyService;
+
+    @Inject
+    public IskraMx372MBusDeviceMessageConverter(TopologyService topologyService) {
         super();
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -51,7 +58,7 @@ public class IskraMx372MBusDeviceMessageConverter extends AbstractMessageConvert
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
                 return dateTimeFormatWithTimeZone.format((Date) messageAttribute);

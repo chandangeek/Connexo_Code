@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -8,7 +9,6 @@ import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
 import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
-import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMbusMessaging;
 
 import java.util.ArrayList;
@@ -20,12 +20,11 @@ import java.util.List;
  */
 public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
-    public MbusDevice() {
-        super();
-    }
+    private final TopologyService topologyService;
 
-    public MbusDevice(final AbstractSmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
-        super(meterProtocol, serialNumber, physicalAddress);
+    public MbusDevice(TopologyService topologyService) {
+        super();
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -62,11 +61,11 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
+        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
+        return new LegacyPartialLoadProfileMessageBuilder(topologyService);
     }
 
 }

@@ -30,7 +30,7 @@ public class Dsmr40MbusMessageExecutor extends Dsmr23MbusMessageExecutor {
     private static final ObisCode MBUS_VALUE_OBISCODE = ObisCode.fromString("0.x.24.2.1.255");
 
     public Dsmr40MbusMessageExecutor(final AbstractSmartNtaProtocol protocol) {
-        super(protocol);
+        super(protocol, topologyService);
     }
 
 
