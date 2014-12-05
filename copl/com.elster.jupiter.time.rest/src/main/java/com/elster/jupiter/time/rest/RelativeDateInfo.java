@@ -14,6 +14,8 @@ public class RelativeDateInfo {
     public Long startAmountAgo;
     @JsonProperty("startPeriodAgo")
     public String startPeriodAgo;
+    @JsonProperty("startTimeMode")
+    public String startTimeMode;
     @JsonProperty("startFixedDay")
     public Long startFixedDay;
     @JsonProperty("startFixedMonth")
@@ -39,46 +41,46 @@ public class RelativeDateInfo {
         List<RelativeOperation> relativeOperations = relativeDate.getOperations();
         relativeOperations.stream().forEach(ro -> {
             RelativeField relativeField = ro.getField();
+            RelativeOperator relativeOperator = ro.getOperator();
             switch (relativeField) {
                 case YEAR:
-                    startFixedYear = ro.getShift();
+                    if(relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
+                        setAgoOptions(ro);
+                      } else {
+                        startFixedYear = ro.getShift();
+                    }
                     break;
                 case MONTH:
-                    if(ro.getOperator().equals(RelativeOperator.PLUS) || ro.getOperator().equals(RelativeOperator.MINUS)) {
-                        startPeriodAgo = relativeField.getChronoUnit().toString().toLowerCase();
-                        startAmountAgo = ro.getShift();
+                    if(relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
+                        setAgoOptions(ro);
                     } else {
                         startFixedMonth = ro.getShift();
                     }
                     break;
                 case WEEK:
-                    startPeriodAgo = relativeField.getChronoUnit().toString().toLowerCase();
-                    startAmountAgo = ro.getShift();
+                    setAgoOptions(ro);
                     break;
                 case DAY_OF_WEEK:
                     onDayOfWeek = ro.getShift();
                     break;
                 case DAY:
-                    if(ro.getOperator().equals(RelativeOperator.PLUS) || ro.getOperator().equals(RelativeOperator.MINUS)) {
-                        startPeriodAgo = relativeField.getChronoUnit().toString().toLowerCase();
-                        startAmountAgo = ro.getShift();
+                    if(relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
+                        setAgoOptions(ro);
                     } else {
                         onDayOfMonth = ro.getShift();
                         startFixedDay = ro.getShift();
                     }
                     break;
                 case HOUR:
-                    if(ro.getOperator().equals(RelativeOperator.PLUS) || ro.getOperator().equals(RelativeOperator.MINUS)) {
-                        startPeriodAgo = relativeField.getChronoUnit().toString().toLowerCase();
-                        startAmountAgo = ro.getShift();
+                    if(relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
+                        setAgoOptions(ro);
                     } else {
                         atHour = ro.getShift();
                     }
                     break;
                 case MINUTES:
-                    if(ro.getOperator().equals(RelativeOperator.PLUS) || ro.getOperator().equals(RelativeOperator.MINUS)) {
-                        startPeriodAgo = relativeField.getChronoUnit().toString().toLowerCase();
-                        startAmountAgo = ro.getShift();
+                    if(relativeOperator.equals(RelativeOperator.PLUS) || relativeOperator.equals(RelativeOperator.MINUS)) {
+                        setAgoOptions(ro);
                     } else {
                         atMinute = ro.getShift();
                     }
@@ -99,29 +101,30 @@ public class RelativeDateInfo {
         boolean dayOfMonthEnabled = true;
         boolean hourEnabled = true;
         boolean minuteEnabled = true;
-        if(startPeriodAgo != null && startAmountAgo != null) {
+        if(startPeriodAgo != null && startAmountAgo != null && startTimeMode != null) {
+            RelativeOperator operator = startTimeMode.equals("ago") ? RelativeOperator.MINUS : RelativeOperator.PLUS;
             switch (startPeriodAgo) {
                 case "months":
-                    operations.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.MINUS, startAmountAgo));
+                    operations.add(new RelativeOperation(RelativeField.MONTH, operator, startAmountAgo));
                     dayOfWeekEnabled = false;
                     break;
                 case "weeks":
-                    operations.add(new RelativeOperation(RelativeField.WEEK, RelativeOperator.MINUS, startAmountAgo));
+                    operations.add(new RelativeOperation(RelativeField.WEEK, operator, startAmountAgo));
                     dayOfMonthEnabled = false;
                     break;
                 case "days":
-                    operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.MINUS, startAmountAgo));
+                    operations.add(new RelativeOperation(RelativeField.DAY, operator, startAmountAgo));
                     dayOfWeekEnabled = false;
                     dayOfMonthEnabled = false;
                     break;
                 case "hours":
-                    operations.add(new RelativeOperation(RelativeField.HOUR, RelativeOperator.MINUS, startAmountAgo));
+                    operations.add(new RelativeOperation(RelativeField.HOUR, operator, startAmountAgo));
                     dayOfWeekEnabled = false;
                     dayOfMonthEnabled = false;
                     hourEnabled = false;
                     break;
                 case "minutes":
-                    operations.add(new RelativeOperation(RelativeField.MINUTES, RelativeOperator.MINUS, startAmountAgo));
+                    operations.add(new RelativeOperation(RelativeField.MINUTES, operator, startAmountAgo));
                     dayOfWeekEnabled = false;
                     dayOfMonthEnabled = false;
                     hourEnabled = false;
@@ -146,5 +149,11 @@ public class RelativeDateInfo {
             operations.add(new RelativeOperation(RelativeField.MINUTES, RelativeOperator.EQUAL, atMinute));
         }
         return operations;
+    }
+
+    private void setAgoOptions(RelativeOperation relativeOperation) {
+        startPeriodAgo = relativeOperation.getField().getChronoUnit().toString().toLowerCase();
+        startAmountAgo = relativeOperation.getShift();
+        startTimeMode = relativeOperation.getOperator().equals(RelativeOperator.PLUS) ? "ahead" : "ago";
     }
 }
