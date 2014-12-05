@@ -6,14 +6,11 @@ import com.energyict.mdc.common.Password;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.pluggable.rest.impl.CodeTableInfo;
-import com.energyict.mdc.pluggable.rest.impl.CodeTableResource;
-import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeInfo;
-import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeResource;
-import com.energyict.mdc.pluggable.rest.impl.TimeZoneInUseInfo;
-import com.energyict.mdc.pluggable.rest.impl.UserFileReferenceInfo;
-import com.energyict.mdc.pluggable.rest.impl.UserFileReferenceResource;
+import com.energyict.mdc.pluggable.rest.impl.*;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
@@ -56,6 +53,12 @@ public class MdcPropertyReferenceInfoFactory {
                 info = ((TimeOfDay) property).getSeconds();
             } else if (TimeDuration.class.isAssignableFrom(property.getClass())) {
                 info = new TimeDurationInfo((TimeDuration) property);
+            } else if (LoadProfile.class.isAssignableFrom(property.getClass())) {
+                info = new LoadProfileInfo((LoadProfile) property);
+            } else if (LoadProfile.class.isAssignableFrom(property.getClass())) {
+                info = new RegisterInfo((Register) property);
+            } else if (LogBook.class.isAssignableFrom(property.getClass())) {
+                info = new LogBookInfo((LogBook) property);
             }
         }
         return info;
