@@ -404,6 +404,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 messages: {
                                                     title: 'Commands',
                                                     route: 'messages',
+                                                    privileges: ['privilege.administrate.deviceCommand','privilege.view.deviceCommand'],
                                                     controller: 'Mdc.controller.setup.Messages',
                                                     action: 'showMessagesOverview'
                                                 }
@@ -1055,7 +1056,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Data validation',
                             route: 'datavalidation',
                             controller: 'Mdc.controller.setup.DeviceDataValidation',
-                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration','privilege.view.fineTuneValidationConfiguration'],
+                            privileges: ['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration'],
                             action: 'showDeviceDataValidationMainView'
                         },
                         communicationschedules: {

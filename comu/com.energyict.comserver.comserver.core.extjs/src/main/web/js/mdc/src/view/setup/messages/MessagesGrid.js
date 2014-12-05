@@ -65,6 +65,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
         },
         {
             xtype: 'uni-actioncolumn',
+            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommand'),
             menu: {
                 xtype: 'menu',
                 itemId: 'messages-actionmenu',
@@ -89,6 +90,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommand'),
                     iconCls: 'x-uni-action-iconD',
                     itemId: 'messages-actionbutton'
                 }

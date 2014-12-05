@@ -84,7 +84,8 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device.get('nbrOfDataCollectionIssues'));
                 me.getDeviceGeneralInformationForm().loadRecord(device);
 
-                if (device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters')) {
+                if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
+                    && (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration']))) {
                     me.updateDataValidationStatusSection(mRID, widget);
                 } else {
                     widget.down('device-data-validation-panel').hide();

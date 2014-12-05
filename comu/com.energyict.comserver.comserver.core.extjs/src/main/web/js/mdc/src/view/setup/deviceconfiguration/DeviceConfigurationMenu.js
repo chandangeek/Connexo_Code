@@ -84,6 +84,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: 'Commands',
                 pressed: false,
                 itemId: 'messagesLink',
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommand','privilege.view.deviceCommand']),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/messages',
                 hrefTarget: '_self'
             }
