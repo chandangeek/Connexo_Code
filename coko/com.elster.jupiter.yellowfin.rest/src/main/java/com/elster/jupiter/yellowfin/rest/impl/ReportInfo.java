@@ -10,15 +10,22 @@ public class ReportInfo {
     private String subCategory;
     private String reportUUID;
     private String description;
-
+    private String name;
+    private int reportId;
     public ReportInfo(YellowfinReportInfo reportInfo){
         this.category = reportInfo.getCategory();
         this.subCategory = reportInfo.getSubCategory();
         this.reportUUID = reportInfo.getReportUUID();
         this.description = reportInfo.getDescription();
+        this.name = reportInfo.getName();
+        this.reportId = reportInfo.getReportId();
 
 
     }
+
+    public int getReportId(){return  reportId;}
+
+    public void setReportId(int reportId){this.reportId=reportId;}
 
     public String getCategory() {
         return category;
@@ -50,5 +57,12 @@ public class ReportInfo {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
