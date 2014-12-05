@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.Environment;
@@ -255,6 +256,7 @@ public class SecurityPropertyServiceImplTest {
                     new DomainUtilModule(),
                     new InMemoryMessagingModule(),
                     new OrmModule(),
+                    new DataVaultModule(),
                     new IssuesModule(),
                     new MdcCommonModule(),
                     new BasicPropertiesModule(),

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
@@ -158,6 +159,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new MeteringGroupsModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
+                new DataVaultModule(),
                 new IssuesModule(),
                 new ProtocolsModule(),
                 new MdcReadingTypeUtilServiceModule(),

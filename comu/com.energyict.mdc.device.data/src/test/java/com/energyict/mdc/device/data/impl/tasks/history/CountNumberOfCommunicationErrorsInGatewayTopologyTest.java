@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -26,7 +27,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.Translator;
@@ -65,6 +65,10 @@ import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,14 +79,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -157,6 +155,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
+                new DataVaultModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
                 new KpiModule(),
