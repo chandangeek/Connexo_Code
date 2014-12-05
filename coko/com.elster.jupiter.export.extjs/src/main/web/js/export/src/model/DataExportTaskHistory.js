@@ -9,6 +9,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
         {name: 'finishedOn', type: 'number'},
         {name: 'duration', type: 'number'},
         {name: 'status', type: 'string'},
+        {name: 'reason', type: 'string'},
         {name: 'exportPeriodFrom', type: 'number'},
         {name: 'exportPeriodTo', type: 'number'},
         {name: 'statusOnDate', type: 'string'},

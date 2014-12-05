@@ -154,9 +154,13 @@ Ext.define('Dxp.controller.Tasks', {
 
                 actionsMenu.record = record;
                 actionsMenu.down('#view-details').hide();
+                view.down('#tasks-view-menu').setTitle(record.get('name'));
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 detailsForm.loadRecord(record);
                 if (record.get('status') !== 'Busy') {
+                    if (record.get('status') === 'Failed') {
+                        view.down('#reason-field').show();
+                    }
                     view.down('#run').show();
                 }
                 if (record.properties() && record.properties().count()) {
@@ -248,6 +252,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         taskModel.load(currentTaskId, {
             success: function (record) {
+                view.down('#tasks-view-menu').setTitle(record.get('name'));
                 store.load(function (records, operation, success) {
                     records.map(function (r) {
                         r.set(Ext.apply({}, r.raw, record.raw));
@@ -276,6 +281,11 @@ Ext.define('Dxp.controller.Tasks', {
             previewForm.down('displayfield[name=finishedOn_formatted]').setVisible(true);
             previewForm.loadRecord(record);
             preview.down('tasks-action-menu').record = record;
+            if (record.get('status') === 'Failed') {
+                previewForm.down('#reason-field').show();
+            } else {
+                previewForm.down('#reason-field').hide();
+            }
             if (record.properties() && record.properties().count()) {
                 propertyForm.loadRecord(record);
             }
@@ -419,11 +429,17 @@ Ext.define('Dxp.controller.Tasks', {
             previewForm = page.down('tasks-preview-form'),
             propertyForm = previewForm.down('property-form');
 
+        Ext.suspendLayouts();
         if (record.get('status') === 'Busy') {
             Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
                 item.hide();
             });
         } else {
+            if (record.get('status') === 'Failed') {
+                previewForm.down('#reason-field').show();
+            } else {
+                previewForm.down('#reason-field').hide();
+            }
             Ext.Array.each(Ext.ComponentQuery.query('#run'), function (item) {
                 item.show();
             });
@@ -434,6 +450,7 @@ Ext.define('Dxp.controller.Tasks', {
         if (record.properties() && record.properties().count()) {
             propertyForm.loadRecord(record);
         }
+        Ext.resumeLayouts();
     },
 
     chooseAction: function (menu, item) {

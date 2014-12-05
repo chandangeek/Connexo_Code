@@ -58,6 +58,17 @@ Ext.define('Dxp.model.DataExportTask', {
             }
         },
         {
+            name: 'reason',
+            persist: false,
+            mapping: function (data) {
+                if (data.lastExportOccurence && data.lastExportOccurence.reason) {
+                    return data.lastExportOccurence.reason;
+                } else {
+                    return '';
+                }
+            }
+        },
+        {
             name: 'trigger',
             persist: false,
             mapping: function (data) {
@@ -98,17 +109,6 @@ Ext.define('Dxp.model.DataExportTask', {
                     return data.lastExportOccurence.duration;
                 } else {
                     return '-';
-                }
-            }
-        },
-        {
-            name: 'gridStatus',
-            persist: false,
-            mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.status) {
-                    return data.lastExportOccurence.status;
-                } else {
-                    return Uni.I18n.translate('general.notPerformed', 'DES', 'Not performed yet');
                 }
             }
         }

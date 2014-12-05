@@ -92,6 +92,12 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         name: 'status'
                     },
                     {
+                        fieldLabel: Uni.I18n.translate('general.reason', 'DES', 'Reason'),
+                        itemId: 'reason-field',
+                        name: 'reason',
+                        hidden: true
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),
                         name: 'startedOn'
                     },
