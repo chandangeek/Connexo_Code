@@ -95,6 +95,7 @@ Ext.define('Sam.controller.licensing.Upload', {
                             showTime: 5000
                         });
                         self.getApplication().fireEvent('upload', action.result.data.success[0]);
+                        Ext.getStore('apps').load();
                     } else {
                         var bodyItem = {};
                         bodyItem.style = 'msgItemStyle';
