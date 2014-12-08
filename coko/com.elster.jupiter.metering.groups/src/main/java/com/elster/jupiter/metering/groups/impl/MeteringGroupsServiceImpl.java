@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
@@ -40,6 +41,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     private volatile DataModel dataModel;
     private volatile MeteringService meteringService;
     private volatile QueryService queryService;
+    private volatile EventService eventService;
 
     private final OptionalServiceContainer<EndDeviceQueryProvider> endDeviceQueryProviders = new CopyOnWriteServiceContainer<>();
 
@@ -119,14 +121,14 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
 
     @Override
     public QueryEndDeviceGroup createQueryEndDeviceGroup(Condition condition) {
-        QueryEndDeviceGroupImpl queryUsagePointGroup = new QueryEndDeviceGroupImpl(dataModel, meteringService, this);
+        QueryEndDeviceGroupImpl queryUsagePointGroup = new QueryEndDeviceGroupImpl(dataModel, this, eventService);
         queryUsagePointGroup.setCondition(condition);
         return queryUsagePointGroup;
     }
 
     @Override
     public EnumeratedEndDeviceGroup createEnumeratedEndDeviceGroup(String name) {
-        EnumeratedEndDeviceGroup group = new EnumeratedEndDeviceGroupImpl(dataModel);
+        EnumeratedEndDeviceGroup group = new EnumeratedEndDeviceGroupImpl(dataModel, eventService);
         group.setName(name);
         return group;
     }
@@ -190,6 +192,11 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference
