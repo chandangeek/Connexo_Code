@@ -1,12 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.Phenomenon;
@@ -17,6 +10,14 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -100,21 +101,6 @@ public class LoadProfileImpl implements LoadProfile {
     @Override
     public Device getDevice() {
         return this.device.get();
-    }
-
-    @Override
-    public List<Channel> getAllChannels() {
-        List<Channel> allChannels = getChannels();
-        for (Device physicalConnectedDevice : this.device.get().getPhysicalConnectedDevices()) {
-            if (physicalConnectedDevice.isLogicalSlave()) {
-                for (Channel channel : physicalConnectedDevice.getChannels()) {
-                    if (channel.getLoadProfile().getLoadProfileTypeId() == this.getLoadProfileTypeId()) {
-                        allChannels.add(channel);
-                    }
-                }
-            }
-        }
-        return allChannels;
     }
 
     @Override

@@ -345,20 +345,10 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public List<ComTaskExecution> findComTaskExecutionsWithDefaultConnectionTask(Device device) {
-        List<ComTaskExecution> scheduledComTasks = new ArrayList<>();
-        this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(device, scheduledComTasks);
-        return scheduledComTasks;
-    }
-
-    private void collectComTaskWithDefaultConnectionTaskForCompleteTopology(Device device, List<ComTaskExecution> scheduledComTasks) {
         Condition query = where(ComTaskExecutionFields.USEDEFAULTCONNECTIONTASK.fieldName()).isEqualTo(true)
-                .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device))
-                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
-        List<ComTaskExecution> comTaskExecutions = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).select(query);
-        scheduledComTasks.addAll(comTaskExecutions);
-        for (Device slave : device.getPhysicalConnectedDevices()) {
-            this.collectComTaskWithDefaultConnectionTaskForCompleteTopology(slave, scheduledComTasks);
-        }
+                     .and(where(ComTaskExecutionFields.DEVICE.fieldName()).isEqualTo(device))
+                     .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+        return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).select(query);
     }
 
     @Override

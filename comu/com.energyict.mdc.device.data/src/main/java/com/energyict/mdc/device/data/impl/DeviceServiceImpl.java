@@ -91,14 +91,6 @@ public class DeviceServiceImpl implements ServerDeviceService {
         return null;
     }
 
-    @Override
-    public List<Device> findPhysicalConnectedDevicesFor(Device device) {
-        Condition condition = this.getDevicesInTopologyCondition(device);
-        List<PhysicalGatewayReference> physicalGatewayReferences = this.deviceDataModelService.dataModel().mapper(PhysicalGatewayReference.class).select(condition);
-        return this.findUniqueReferencingDevices(physicalGatewayReferences);
-    }
-
-    @Override
     public List<Device> findCommunicationReferencingDevicesFor(Device device) {
         Condition condition = this.getDevicesInTopologyCondition(device);
         List<CommunicationGatewayReference> communicationGatewayReferences = this.deviceDataModelService.dataModel().mapper(CommunicationGatewayReference.class).select(condition);

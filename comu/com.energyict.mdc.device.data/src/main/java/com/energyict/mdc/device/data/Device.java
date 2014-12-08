@@ -92,9 +92,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     void clearCommunicationGateway();
 
-    @Override
-    List<Device> getPhysicalConnectedDevices();
-
     /**
      * Gets the list of Devices which are referencing this Device for Communication.
      * This means that for each returned Device, the {@link #getCommunicationGateway()}

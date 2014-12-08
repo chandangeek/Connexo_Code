@@ -29,7 +29,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
@@ -191,10 +190,6 @@ public class DeviceImpl implements Device, CanLock {
     private Instant modificationDate;
     private Instant yearOfCertification;
 
-    @Valid
-    private TemporalReference<CommunicationGatewayReference> communicationGatewayReferenceDevice = Temporals.absent();
-    @Valid
-    private TemporalReference<PhysicalGatewayReference> physicalGatewayReferenceDevice = Temporals.absent();
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
     @Valid
@@ -540,89 +535,6 @@ public class DeviceImpl implements Device, CanLock {
             }
         }
         return RegisterFactory.Numerical.newRegister(this, registerSpec);
-    }
-
-    @Override
-    public List<Device> getPhysicalConnectedDevices() {
-        return this.deviceService.findPhysicalConnectedDevicesFor(this);
-    }
-
-    @Override
-    public Device getPhysicalGateway(Instant timestamp) {
-        return this.physicalGatewayReferenceDevice.effective(timestamp)
-                .map(PhysicalGatewayReference::getGateway)
-                .orElse(null);
-    }
-
-    private void topologyChanged() {
-        List<ComTaskExecution> comTasksForDefaultConnectionTask = this.communicationTaskService.findComTasksByDefaultConnectionTask(this);
-        Device gateway = this.getPhysicalGateway();
-        if (gateway != null) {
-            updateComTasksToUseNewDefaultConnectionTask(comTasksForDefaultConnectionTask);
-        } else {
-            updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
-        }
-
-    }
-
-    private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
-        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
-            comTaskExecutionUpdater.connectionTask(null);
-            comTaskExecutionUpdater.useDefaultConnectionTask(true);
-            comTaskExecutionUpdater.update();
-        }
-    }
-
-    private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
-        ConnectionTask<?, ?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
-        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
-            comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTaskForGateway);
-            comTaskExecutionUpdater.update();
-        }
-    }
-
-    private ConnectionTask<?, ?> getDefaultConnectionTask() {
-        for (ConnectionTaskImpl<?, ?> connectionTask : this.getConnectionTaskImpls()) {
-            if (connectionTask.isDefault()) {
-                return connectionTask;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void setPhysicalGateway(BaseDevice gateway) {
-        if (gateway != null) {
-            Instant currentTime = clock.instant();
-            terminateTemporal(currentTime, this.physicalGatewayReferenceDevice);
-            PhysicalGatewayReferenceImpl physicalGatewayReference =
-                    this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class)
-                            .createFor(Interval.startAt(currentTime), (Device) gateway, this);
-            savePhysicalGateway(physicalGatewayReference);
-            topologyChanged();
-        }
-    }
-
-    private void savePhysicalGateway(PhysicalGatewayReferenceImpl physicalGatewayReference) {
-        Save.action(getId()).validate(this.dataModel, physicalGatewayReference);
-        this.physicalGatewayReferenceDevice.add(physicalGatewayReference);
-    }
-
-    @Override
-    public void clearPhysicalGateway() {
-        terminateTemporal(clock.instant(), this.physicalGatewayReferenceDevice);
-        topologyChanged();
-    }
-
-    private void terminateTemporal(Instant currentTime, TemporalReference<? extends GatewayReference> temporalReference) {
-        Optional<? extends GatewayReference> currentGateway = temporalReference.effective(currentTime);
-        if (currentGateway.isPresent()) {
-            GatewayReference gateway = currentGateway.get();
-            gateway.terminate(currentTime);
-            this.dataModel.update(gateway);
-        }
     }
 
     @Override
