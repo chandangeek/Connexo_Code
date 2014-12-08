@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
@@ -9,7 +10,6 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -19,9 +19,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.LogBookType;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -40,6 +38,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class DeviceConfigurationResource {
 
@@ -86,11 +87,11 @@ public class DeviceConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("deviceTypeId") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<DeviceConfiguration> deviceConfigurations;
-        if(queryFilter.getFilterProperties().get("active")!=null && queryFilter.getBoolean("active")){
+        if (queryFilter.hasProperty("active") && queryFilter.getBoolean("active")) {
             deviceConfigurations = deviceConfigurationService.
                     findActiveDeviceConfigurationsForDeviceType(deviceType).
                     from(queryParameters).
@@ -107,11 +108,11 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public DeviceConfigurationInfo getDeviceConfigurationsById(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
-            if (deviceConfiguration.getId()==deviceConfigurationId) {
+            if (deviceConfiguration.getId() == deviceConfigurationId) {
                 return new DeviceConfigurationInfo(deviceConfiguration);
             }
         }
@@ -121,7 +122,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/logbookconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public Response getDeviceConfigurationsLogBookConfigurations(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -146,7 +147,7 @@ public class DeviceConfigurationResource {
         Iterator<LogBookType> logBookTypeIterator = allLogBookTypes.iterator();
         while (logBookTypeIterator.hasNext()) {
             LogBookType logBookType = logBookTypeIterator.next();
-            if (deviceConfiguration.hasLogBookSpecForConfig((int) logBookType.getId(), 0)){
+            if (deviceConfiguration.hasLogBookSpecForConfig((int) logBookType.getId(), 0)) {
                 logBookTypeIterator.remove();
             }
         }
@@ -168,7 +169,7 @@ public class DeviceConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<LogBookTypeInfo> addedLogBookSpecs = new ArrayList<>(ids.size());
         for (LogBookType logBookType : deviceType.getLogBookTypes()) {
-            if(ids.contains(logBookType.getId())){
+            if (ids.contains(logBookType.getId())) {
                 LogBookSpec newLogBookSpec = deviceConfiguration.createLogBookSpec(logBookType).add();
                 addedLogBookSpecs.add(LogBookSpecInfo.from(newLogBookSpec));
             }
@@ -188,7 +189,7 @@ public class DeviceConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         LogBookSpec logBookSpec = null;
         for (LogBookSpec spec : deviceConfiguration.getLogBookSpecs()) {
-            if (spec.getId() == logBookSpecId){
+            if (spec.getId() == logBookSpecId) {
                 logBookSpec = spec;
                 break;
             }
@@ -214,7 +215,7 @@ public class DeviceConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         List<LogBookSpec> logBookSpecs = new ArrayList<>(deviceConfiguration.getLogBookSpecs());
         for (LogBookSpec logBookSpec : logBookSpecs) {
-            if (logBookSpec.getId() == logBookSpecId){
+            if (logBookSpec.getId() == logBookSpecId) {
                 deviceConfiguration.getLogBookSpecUpdaterFor(logBookSpec).setOverruledObisCode(logBookRequest.overruledObisCode).update();
                 return Response.ok(LogBookSpecInfo.from(logBookSpec)).build();
             }
@@ -271,10 +272,10 @@ public class DeviceConfigurationResource {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(deviceConfigurationInfo.name).
                 description(deviceConfigurationInfo.description);
         deviceConfigurationBuilder.gatewayType(deviceConfigurationInfo.gatewayType);
-        if (deviceConfigurationInfo.canBeGateway!=null) {
+        if (deviceConfigurationInfo.canBeGateway != null) {
             deviceConfigurationBuilder.canActAsGateway(deviceConfigurationInfo.canBeGateway);
         }
-        if (deviceConfigurationInfo.isDirectlyAddressable!=null) {
+        if (deviceConfigurationInfo.isDirectlyAddressable != null) {
             deviceConfigurationBuilder.isDirectlyAddressable(deviceConfigurationInfo.isDirectlyAddressable);
         }
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
@@ -314,7 +315,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/comtasks")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getComTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         return comTaskEnablementResourceProvider.get().getComTasks(deviceTypeId, deviceConfigurationId, queryParameters, uriInfo);
     }
@@ -322,7 +323,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/registers/{registerId}/validationrules")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public Response getValidationRulesForRegister(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -338,7 +339,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/channels/{channelId}/validationrules")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public Response getValidationRulesForChannel(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -354,7 +355,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/loadprofiles/{loadProfileId}/validationrules")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public Response getValidationRulesForLoadProfile(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -379,7 +380,7 @@ public class DeviceConfigurationResource {
     public ValidationRuleSetResource getValidationsRuleSetResource() {
         return validationRuleSetResourceProvider.get();
     }
-    
+
     @Path("/{deviceConfigurationId}/devicemessageenablements")
     public DeviceMessagesResource getDeviceMessagesResource() {
         return deviceMessagesResourceProvider.get();
@@ -388,7 +389,7 @@ public class DeviceConfigurationResource {
     @GET
     @Path("/{deviceConfigurationId}/linkablevalidationrulesets")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public Response getLinkableValidationsRuleSets(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -399,8 +400,8 @@ public class DeviceConfigurationResource {
         List<ValidationRuleSet> linkedRuleSets = deviceConfiguration.getValidationRuleSets();
         List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration);
         List<ValidationRuleSet> validationRuleSets = validationService.getValidationRuleSets();
-        for(ValidationRuleSet validationRuleSet : validationRuleSets) {
-            if(!validationRuleSet.getRules(readingTypes).isEmpty() && !linkedRuleSets.contains(validationRuleSet)) {
+        for (ValidationRuleSet validationRuleSet : validationRuleSets) {
+            if (!validationRuleSet.getRules(readingTypes).isEmpty() && !linkedRuleSets.contains(validationRuleSet)) {
                 validationRuleSetInfos.add(validationRuleSet);
             }
         }

@@ -1,9 +1,12 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -21,11 +24,6 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.Checks;
-import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -48,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Path("/devicetypes")
@@ -80,7 +79,7 @@ public class DeviceTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getAllDeviceTypes(@BeanParam QueryParameters queryParameters) {
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
         List<DeviceType> allDeviceTypes = deviceTypeFinder.from(queryParameters).find();
@@ -135,7 +134,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public DeviceTypeInfo findDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes());
@@ -150,7 +149,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/logbooktypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         final List<LogBookType> logbookTypes = new ArrayList<>();
@@ -262,7 +261,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public PagedInfoList getRegisterTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Boolean available = availableFilter.getBoolean("available");
@@ -271,7 +270,7 @@ public class DeviceTypeResource {
             registerTypes.addAll(ListPager.of(deviceType.getRegisterTypes(), new RegisterTypeComparator()).from(queryParameters).find());
         } else {
             Long deviceConfiguationId = availableFilter.getLong("deviceconfigurationid");
-            if(deviceConfiguationId!=null){
+            if (deviceConfiguationId != null) {
                 findAllAvailableRegisterTypesForDeviceConfiguration(deviceType, registerTypes, deviceConfiguationId);
             } else {
                 findAllAvailableRegisterTypesForDeviceType(queryParameters, deviceType, registerTypes);
@@ -324,6 +323,7 @@ public class DeviceTypeResource {
     @DELETE
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
     public Response unlinkRegisterTypesFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);

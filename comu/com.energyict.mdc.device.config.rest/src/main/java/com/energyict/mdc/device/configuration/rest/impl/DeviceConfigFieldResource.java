@@ -1,24 +1,24 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.interval.Phenomenon;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.masterdata.MasterDataService;
+
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Why the wrapped return value? JavaScript people didn't want to see a naked JSON list, had to be
@@ -26,7 +26,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
  */
 
 @Path("/field")
-public class DeviceConfigFieldResource extends FieldResource{
+public class DeviceConfigFieldResource extends FieldResource {
 
     private final MasterDataService masterDataService;
 
@@ -37,8 +37,9 @@ public class DeviceConfigFieldResource extends FieldResource{
     }
 
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/unitOfMeasure")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public Object getUnitValues() {
         List<Long> allUnitsWithPhenomena = new ArrayList<>();
         List<String> translationKeys = new ArrayList<>();
@@ -54,13 +55,14 @@ public class DeviceConfigFieldResource extends FieldResource{
     }
 
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/timeOfUse")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
     public Object getTimeOfUseValues() {
         List<Map<String, Object>> list = new ArrayList<>(255);
         HashMap<String, Object> map = new HashMap<>();
         map.put("timeOfUse", list);
-        for (int i=0; i< 255; i++) {
+        for (int i = 0; i < 255; i++) {
             HashMap<String, Object> subMap = new HashMap<>();
             subMap.put("timeOfUse", i);
             subMap.put("localizedValue", i);
@@ -71,8 +73,9 @@ public class DeviceConfigFieldResource extends FieldResource{
 
     @GET
     @Path("/connectionStrategy")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
-    public Object getConnectionStrategies() {
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<String, Object> getConnectionStrategies() {
         return asJsonArrayObjectWithTranslation("connectionStrategies", "connectionStrategy", new ConnectionStrategyAdapter().getClientSideValues());
     }
 }
