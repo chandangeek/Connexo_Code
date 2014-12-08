@@ -11,35 +11,35 @@ import java.util.List;
 public interface BaseDevice<C extends BaseChannel, LP extends BaseLoadProfile<C>, R extends BaseRegister> {
 
     /**
-     * Returns number that uniquely identifies this DeviceType.
+     * Gets the number that uniquely identifies this Device.
      *
      * @return the id
      */
     long getId();
 
     /**
-     * Returns the receiver's Channels
+     * Gets the receiver's Channels.
      *
      * @return a <CODE>List</CODE> of <CODE>Channel</CODE> objects in ordinal order
      */
     List<C> getChannels();
 
     /**
-     * Returns the device serial number.
+     * Gets the device serial number.
      *
      * @return the serial number.
      */
     String getSerialNumber();
 
     /**
-     * Returns the {@link BaseRegister}s defined for this device.
+     * Gets the {@link BaseRegister}s defined for this device.
      *
      * @return a List of Register objects
      */
     List<R> getRegisters();
 
     /**
-     * returns the {@link BaseRegister} with the given obis code which is known by the Device
+     * Gets the {@link BaseRegister} with the given obis code which is known by the Device.
      *
      * @param code Obis code to match
      * @return the register or null.
@@ -47,27 +47,21 @@ public interface BaseDevice<C extends BaseChannel, LP extends BaseLoadProfile<C>
     R getRegisterWithDeviceObisCode(ObisCode code);
 
     /**
-     * Returns the list of Devices which are <i>Physically</i> connected to this device.
-     *
-     * @return the list of physically connected Devices
-     */
-    List<? extends BaseDevice<C, LP, R>> getPhysicalConnectedDevices();
-
-    /**
-     * returns the {@link BaseLoadProfile}s defined for this device.
+     * Gets the {@link BaseLoadProfile}s defined for this device.
      *
      * @return the LoadProfiles
      */
     List<LP> getLoadProfiles();
 
     /**
-     * Checks if this device is a logical Slave (depends on settings in its device type)
-     * @return
+     * Checks if this device is a logical Slave (depends on settings in its device type).
+     *
+     * @return A flag that indicates if this Device is a logical slave
      */
     public boolean isLogicalSlave();
 
     /**
-     * return the Logbooks defined for this rtu
+     * Gets the Logbooks defined for this Device.
      *
      * @return the LogBooks
      */

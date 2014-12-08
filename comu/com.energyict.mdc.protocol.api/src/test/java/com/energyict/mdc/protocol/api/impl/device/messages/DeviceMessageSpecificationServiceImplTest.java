@@ -228,11 +228,6 @@ public class DeviceMessageSpecificationServiceImplTest {
         }
 
         @Override
-        public List<BaseChannel> getAllChannels() {
-            return null;
-        }
-
-        @Override
         public long getLoadProfileTypeId() {
             return 0;
         }
