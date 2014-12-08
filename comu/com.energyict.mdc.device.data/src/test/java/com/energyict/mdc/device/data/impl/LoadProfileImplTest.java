@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the persistent {@link com.energyict.mdc.device.data.impl.LoadProfileImpl} component
+ * Tests the persistent {@link LoadProfileImpl} component.
  * <p>
  * Copyrights EnergyICT
  * Date: 3/18/14
@@ -202,20 +202,6 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         assertThat(reloadedLoadProfile.isVirtualLoadProfile()).isTrue();
     }
 
-    @Test
-    @Transactional
-    public void isNotVirtualLoadProfileBecauseDeviceProtocolNotLogicalSlaveTest() {
-        Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "dwl");
-        masterWithLoadProfile.save();
-        Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "Slave", "slave");
-        slaveWithLoadProfile.setPhysicalGateway(masterWithLoadProfile);
-        slaveWithLoadProfile.save();
-
-        LoadProfile reloadedLoadProfile = getReloadedLoadProfile(slaveWithLoadProfile);
-
-        assertThat(reloadedLoadProfile.isVirtualLoadProfile()).isFalse();
-    }
-
     private Device createSlaveDeviceWithSameLoadProfileType(Device masterWithLoadProfile) {
         DeviceProtocolPluggableClass slaveDeviceProtocolPluggableClass = createSlaveDeviceProtocol();
 
@@ -232,7 +218,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         deviceConfiguration.activate();
 
         Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", MRID);
-        slaveWithLoadProfile.setPhysicalGateway(masterWithLoadProfile);
+        inMemoryPersistence.getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
         slaveWithLoadProfile.save();
         return slaveWithLoadProfile;
     }
@@ -258,7 +244,7 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         deviceConfiguration.activate();
 
         Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", "S");
-        slaveWithLoadProfile.setPhysicalGateway(masterWithLoadProfile);
+        inMemoryPersistence.getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
         slaveWithLoadProfile.save();
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(slaveWithLoadProfile);
@@ -404,4 +390,5 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
 
         assertThat(inMemoryPersistence.getDataModel().mapper(LoadProfile.class).find()).isEmpty();
     }
+
 }
