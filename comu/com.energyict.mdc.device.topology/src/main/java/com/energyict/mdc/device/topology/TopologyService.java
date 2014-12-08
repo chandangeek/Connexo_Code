@@ -4,7 +4,10 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
+
+import com.elster.jupiter.util.time.Interval;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -80,5 +83,14 @@ public interface TopologyService {
     public G3CommunicationPathSegment addIntermediateCommunicationSegment(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost);
 
     public G3CommunicationPathSegment addFinalCommunicationSegment(Device source, Device target, Duration timeToLive, int cost);
+
+    /**
+     * Counts the number of communication errors that have occurred in the specified
+     * {@link Interval} within the topology that starts from the speified Device.
+     *
+     * @param interval The Interval during which the communication errors have occurred
+     * @return The number of communication errors
+     */
+    public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, Device device, Interval interval);
 
 }

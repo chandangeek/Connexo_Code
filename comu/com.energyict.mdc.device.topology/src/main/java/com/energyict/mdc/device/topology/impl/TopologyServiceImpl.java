@@ -6,9 +6,12 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.TopologyTimeslice;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -27,6 +30,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -265,7 +269,8 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
                 ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
                 comTaskExecutionUpdater.useDefaultConnectionTask(dct);
                 comTaskExecutionUpdater.update();
-            }});
+            }
+        });
     }
 
     private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
@@ -338,6 +343,66 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         Save.CREATE.validate(this.dataModel, segment);
         mapper.persist(segment);
         return segment;
+    }
+
+    @Override
+    public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, Device device, Interval interval) {
+        if (CommunicationErrorType.CONNECTION_SETUP_FAILURE.equals(errorType)) {
+            /* Slaves always setup the connection via the master.
+             * The logging records the failure against the master
+             * so there is no way to count the number of slave devices
+             * that had a connection setup failure. */
+            return 0;
+        }
+        else {
+            int numberOfDevices = 0;
+            List<TopologyTimeslice> communicationTopologies = device.getCommunicationTopology(interval.toClosedRange()).timelined().getSlices();
+            for (TopologyTimeslice topologyTimeslice : communicationTopologies) {
+                List<Device> devices = new ArrayList<>(topologyTimeslice.getDevices());
+                devices.add(device);
+                numberOfDevices = numberOfDevices + this.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(errorType, devices, topologyTimeslice.getPeriod());
+            }
+            return numberOfDevices;
+        }
+    }
+
+    private int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, List<Device> devices, Range<Instant> range) {
+        switch (errorType) {
+            case CONNECTION_FAILURE: {
+                return this.countNumberOfDevicesWithConnectionFailures(range, devices);
+            }
+            case COMMUNICATION_FAILURE: {
+                return this.countNumberOfDevicesWithCommunicationFailuresInGatewayTopology(devices, range);
+            }
+            case CONNECTION_SETUP_FAILURE: {
+                // Intended fall-through
+            }
+            default: {
+                throw new RuntimeException("Unsupported CommunicationErrorType " + errorType);
+            }
+        }
+    }
+
+    private int countNumberOfDevicesWithConnectionFailures(Range<Instant> range, List<Device> devices) {
+        return this.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(
+                devices,
+                range,
+                where(this.comSessionSuccessIndicatorFieldName()).isEqualTo(ComSession.SuccessIndicator.Broken));
+    }
+
+    private int countNumberOfDevicesWithCommunicationFailuresInGatewayTopology(List<Device> devices, Range<Instant> range) {
+        return this.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(
+                devices,
+                range,
+                where(this.comSessionSuccessIndicatorFieldName()).isNotEqual(ComSession.SuccessIndicator.Success));
+    }
+
+    private String comSessionSuccessIndicatorFieldName() {
+        return "comSession.successIndicator";
+    }
+
+    private int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(List<Device> devices, Range<Instant> range, Condition successIndicatorCondition) {
+        return this.communicationTaskService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(devices, range, successIndicatorCondition);
     }
 
     @Reference
