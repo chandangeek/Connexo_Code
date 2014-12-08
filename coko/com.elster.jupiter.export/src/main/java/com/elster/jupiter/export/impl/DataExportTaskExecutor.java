@@ -16,6 +16,7 @@ import com.elster.jupiter.transaction.TransactionService;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -97,20 +98,24 @@ class DataExportTaskExecutor implements TaskExecutor {
         ItemExporter itemExporter = new TransactionItemExporter(transactionService, exceptionGuardItemExporter);
         LoggingItemExporter loggingItemExporter = new LoggingItemExporter(thesaurus, transactionService, logger, itemExporter);
 
-        try {
-            dataFormatter.startExport(occurrence, logger);
+        catchingUnexpected(loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger))).run();
 
-            activeItems.forEach(item -> doProcess(loggingItemExporter, occurrence, item));
+        catchingUnexpected(() -> activeItems.forEach(item -> doProcess(loggingItemExporter, occurrence, item))).run();
 
-            dataFormatter.endExport();
-        } catch (RuntimeException e) {
-            throw new FatalDataExportException(e);
-        }
+        catchingUnexpected(loggingExceptions(logger, dataFormatter::endExport)).run();
 
         try (TransactionContext transactionContext = transactionService.getContext()) {
             activeItems.forEach(IReadingTypeDataExportItem::update);
             transactionContext.commit();
         }
+    }
+
+    private LoggingExceptions loggingExceptions(Logger logger, Runnable runnable) {
+        return new LoggingExceptions(runnable, logger);
+    }
+
+    private ExceptionsToFatallyFailed catchingUnexpected(Runnable decorated) {
+        return new ExceptionsToFatallyFailed(decorated);
     }
 
     private Set<IReadingTypeDataExportItem> getActiveItems(IReadingTypeDataExportTask task, DataExportOccurrence occurrence) {
@@ -148,6 +153,50 @@ class DataExportTaskExecutor implements TaskExecutor {
                                 .findAny()
                                 .orElseGet(() -> task.addExportItem(meter, r))
                 );
+    }
+
+    private static class ExceptionsToFatallyFailed implements Runnable {
+
+        private final Runnable decorated;
+
+        private ExceptionsToFatallyFailed(Runnable decorated) {
+            this.decorated = decorated;
+        }
+
+        @Override
+        public void run() {
+            try {
+                decorated.run();
+            } catch (FatalDataExportException e) {
+                throw e;
+            } catch (RuntimeException e) {
+                throw new FatalDataExportException(e);
+            }
+        }
+    }
+
+    private class LoggingExceptions implements Runnable {
+
+        private final Runnable decorated;
+        private final Logger logger;
+
+        private LoggingExceptions(Runnable decorated, Logger logger) {
+            this.decorated = decorated;
+            this.logger = logger;
+        }
+
+        @Override
+        public void run() {
+            try {
+                decorated.run();
+            } catch (RuntimeException e) {
+                try (TransactionContext context = transactionService.getContext()) {
+                    logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
+                    context.commit();
+                }
+                throw e;
+            }
+        }
     }
 
 }
