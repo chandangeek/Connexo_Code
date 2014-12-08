@@ -1,9 +1,8 @@
-package com.elster.jupiter.metering.impl;
+package com.elster.jupiter.metering;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.TransactionRequired;
 
 public enum EventType {

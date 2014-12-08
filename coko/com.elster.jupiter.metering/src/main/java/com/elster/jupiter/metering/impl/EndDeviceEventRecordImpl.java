@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;

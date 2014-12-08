@@ -2,11 +2,11 @@ package com.elster.jupiter.metering.impl;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+import com.elster.jupiter.metering.EventType;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;

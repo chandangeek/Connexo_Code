@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
