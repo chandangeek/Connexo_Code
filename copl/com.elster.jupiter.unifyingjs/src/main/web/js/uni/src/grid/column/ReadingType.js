@@ -21,7 +21,7 @@ Ext.define('Uni.grid.column.ReadingType', {
                 return item.$className === 'Uni.grid.column.ReadingType';
             }),
             field = new Uni.form.field.ReadingTypeDisplay();
-
+        me.link = me.makeLink(record);
         return field.renderer.apply(me, [value, field, view, record]);
     },
 
