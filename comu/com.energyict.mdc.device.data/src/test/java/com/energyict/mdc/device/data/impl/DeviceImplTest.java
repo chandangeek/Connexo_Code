@@ -530,41 +530,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void updateMultipleOriginsWithSameCommunicationGatewayTest() {
-        Device masterDevice = createSimpleDeviceWithName("Physical_MASTER","m");
-        Device slaveDevice1 = createSimpleDeviceWithName("SLAVE_1","s1");
-        Device slaveDevice2 = createSimpleDeviceWithName("SLAVE_2","s2");
-
-        slaveDevice1.setCommunicationGateway(masterDevice);
-        slaveDevice1.save();
-        slaveDevice2.setCommunicationGateway(masterDevice);
-        slaveDevice2.save();
-
-        Device reloadedSlave1 = getReloadedDevice(slaveDevice1);
-        Device reloadedSlave2 = getReloadedDevice(slaveDevice2);
-
-        assertThat(reloadedSlave1.getCommunicationGateway().getId()).isEqualTo(reloadedSlave2.getCommunicationGateway().getId()).isEqualTo(masterDevice.getId());
-    }
-
-    @Test
-    @Transactional
-    public void removeCommunicationGatewayTest() {
-        Device communicationMaster = createSimpleDeviceWithName("CommunicationMaster","1");
-        Device origin = createSimpleDeviceWithName("Origin", "2");
-        origin.setCommunicationGateway(communicationMaster);
-        origin.save();
-
-        Device originWithMaster = getReloadedDevice(origin);
-        originWithMaster.clearCommunicationGateway();
-        originWithMaster.save();
-
-        Device originWithoutMaster = getReloadedDevice(originWithMaster);
-
-        assertThat(originWithoutMaster.getCommunicationGateway()).isNull();
-    }
-
-    @Test
-    @Transactional
     public void updateWithSecondCommunicationGatewayTest() {
         Device communicationMaster1 = createSimpleDeviceWithName("CommunicationMaster1", "1");
         Device communicationMaster2 = createSimpleDeviceWithName("CommunicationMaster2", "2");
@@ -579,15 +544,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Device originWithMaster2 = getReloadedDevice(originWithMaster1);
 
         assertThat(originWithMaster2.getCommunicationGateway().getId()).isEqualTo(communicationMaster2.getId());
-    }
-
-    @Test
-    @Transactional
-    public void clearCommunicationGatewayWhenThereIsNoGatewayTest() {
-        Device originWithoutCommunicationGateway = createSimpleDevice();
-        originWithoutCommunicationGateway.clearCommunicationGateway();
-        // no exception should be thrown
-        assertThat(getReloadedDevice(originWithoutCommunicationGateway).getCommunicationGateway()).isNull();
     }
 
     @Test
