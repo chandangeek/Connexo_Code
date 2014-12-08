@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataProcessor;
 import com.elster.jupiter.export.DataProcessorFactory;
 import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -16,6 +17,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -23,6 +25,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,7 +42,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -96,10 +101,13 @@ public class DataExportTaskExecutorTest {
     private TaskLogHandler taskLogHandler;
     @Mock
     private DataExportStrategy strategy;
-    @Mock(extraInterfaces = {IntervalReading.class})
+    @Mock(extraInterfaces = {IntervalReadingRecord.class})
     private ReadingRecord reading1, reading2;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Thesaurus thesaurus;
+
+    public static final Predicate<IntervalReading> READING_1 = r -> r.getSource().equals("reading1");
+    public static final Predicate<IntervalReading> READING_2 = r -> r.getSource().equals("reading2");
 
     @Before
     public void setUp() {
@@ -129,6 +137,9 @@ public class DataExportTaskExecutorTest {
         when(meter1.is(meter1)).thenReturn(true);
         when(meter2.is(meter2)).thenReturn(true);
         when(meter3.is(meter3)).thenReturn(true);
+        when(meter1.getMeter(any())).thenReturn(Optional.of(meter1));
+        when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
+        when(meter3.getMeter(any())).thenReturn(Optional.of(meter3));
         doReturn(Arrays.asList(existingItem, obsoleteItem)).when(task).getExportItems();
         when(existingItem.getReadingType()).thenReturn(readingType1);
         when(existingItem.getReadingContainer()).thenReturn(meter2);
@@ -146,6 +157,8 @@ public class DataExportTaskExecutorTest {
         doReturn(Arrays.asList(reading1)).when(meter1).getReadings(exportPeriod, readingType1);
         doReturn(Arrays.asList(reading2)).when(meter2).getReadings(exportPeriod, readingType1);
         when(dataProcessor.processData(any())).thenReturn(Optional.of(exportPeriodEnd.toInstant()));
+        when(reading1.getSource()).thenReturn("reading1");
+        when(reading2.getSource()).thenReturn("reading2");
     }
 
     @After
@@ -228,8 +241,8 @@ public class DataExportTaskExecutorTest {
         assertThat(logRecord.getLevel()).isEqualTo(Level.WARNING);
         assertThat(logRecord.getMessage()).isEqualTo("testHandler");
 
-        assertThat(readingCaptor1.getValue().getReadings()).contains(reading1);
-        assertThat(readingCaptor2.getValue().getReadings()).contains(reading2);
+        assertThat(readingCaptor1.getValue().getReadings()).has(new ReadingFor(reading1));
+        assertThat(readingCaptor2.getValue().getReadings()).has(new ReadingFor(reading2));
     }
 
     @Test
@@ -264,9 +277,9 @@ public class DataExportTaskExecutorTest {
         assertThat(logRecord.getMessage()).isEqualTo("testHandler");
 
         assertThat(readingCaptor1.getValue().getIntervalBlocks()).hasSize(1);
-        assertThat(readingCaptor1.getValue().getIntervalBlocks().get(0).getIntervals()).contains((IntervalReading) reading1);
+        assertThat(readingCaptor1.getValue().getIntervalBlocks().get(0).getIntervals()).has(new IntervalReadingFor(reading1));
         assertThat(readingCaptor2.getValue().getIntervalBlocks()).hasSize(1);
-        assertThat(readingCaptor2.getValue().getIntervalBlocks().get(0).getIntervals()).contains((IntervalReading) reading2);
+        assertThat(readingCaptor2.getValue().getIntervalBlocks().get(0).getIntervals()).has(new IntervalReadingFor(reading2));
     }
 
     @Test
@@ -280,10 +293,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataProcessor, transactionService.notInTransaction()).startExport(eq(dataExportOccurrence), any());
         verify(dataProcessor, transactionService.inTransaction(3)).startItem(newItem);
-        verify(dataProcessor, transactionService.inTransaction(3)).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor, transactionService.inTransaction(3)).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
         verify(dataProcessor, transactionService.inTransaction(3)).endItem(newItem);
         verify(dataProcessor, transactionService.inTransaction(5)).startItem(existingItem);
-        verify(dataProcessor, transactionService.inTransaction(5)).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor, transactionService.inTransaction(5)).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
         verify(dataProcessor, transactionService.inTransaction(5)).endItem(existingItem);
         verify(dataProcessor, transactionService.notInTransaction()).endExport();
 
@@ -366,10 +379,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
         verify(dataProcessor).startItem(newItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
         verify(dataProcessor).endItem(newItem);
         verify(dataProcessor).startItem(existingItem);
-        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
@@ -397,10 +410,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
         verify(dataProcessor).startItem(newItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
         verify(dataProcessor).endItem(newItem);
         verify(dataProcessor).startItem(existingItem);
-        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
@@ -423,10 +436,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
         verify(dataProcessor).startItem(newItem);
-        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor, never()).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
         verify(dataProcessor, never()).endItem(newItem);
         verify(dataProcessor).startItem(existingItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor).endExport();
 
@@ -437,7 +450,7 @@ public class DataExportTaskExecutorTest {
 
     @Test
     public void testProcessItemThrowsFatalException() {
-        doThrow(new FatalDataExportException(new RuntimeException())).when(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        doThrow(new FatalDataExportException(new RuntimeException())).when(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
 
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
 
@@ -453,10 +466,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
         verify(dataProcessor).startItem(newItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
         verify(dataProcessor).endItem(newItem);
         verify(dataProcessor).startItem(existingItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
@@ -467,7 +480,7 @@ public class DataExportTaskExecutorTest {
 
     @Test
     public void testProcessItemThrowsRuntimeException() {
-        doThrow(new RuntimeException()).when(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        doThrow(new RuntimeException()).when(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
 
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
 
@@ -483,10 +496,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
         verify(dataProcessor).startItem(newItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
         verify(dataProcessor).endItem(newItem);
         verify(dataProcessor).startItem(existingItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
         verify(dataProcessor, never()).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
@@ -497,7 +510,7 @@ public class DataExportTaskExecutorTest {
 
     @Test
     public void testProcessItemThrowsDataExportException() {
-        doThrow(DataExportException.class).when(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        doThrow(DataExportException.class).when(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
 
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, thesaurus);
 
@@ -508,10 +521,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
         verify(dataProcessor).startItem(newItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
         verify(dataProcessor, never()).endItem(newItem);
         verify(dataProcessor).startItem(existingItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor).endExport();
 
@@ -538,10 +551,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
         verify(dataProcessor).startItem(newItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
         verify(dataProcessor).endItem(newItem);
         verify(dataProcessor).startItem(existingItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
@@ -568,10 +581,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
         verify(dataProcessor).startItem(newItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
         verify(dataProcessor).endItem(newItem);
         verify(dataProcessor).startItem(existingItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor, never()).endExport();
 
@@ -593,10 +606,10 @@ public class DataExportTaskExecutorTest {
 
         verify(dataProcessor).startExport(eq(dataExportOccurrence), any());
         verify(dataProcessor).startItem(newItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading1))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading1")))));
         verify(dataProcessor).endItem(newItem);
         verify(dataProcessor).startItem(existingItem);
-        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().contains(reading2))));
+        verify(dataProcessor).processData(argThat(matches(r -> r.getReadings().stream().anyMatch(rd -> rd.getSource().equals("reading2")))));
         verify(dataProcessor).endItem(existingItem);
         verify(dataProcessor).endExport();
 
@@ -605,4 +618,29 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasCommitted();
     }
 
+    private static class IntervalReadingFor extends Condition<List<IntervalReading>> {
+        private final IntervalReading intervalReading;
+
+        private IntervalReadingFor(Object intervalReading) {
+            this.intervalReading = (IntervalReading) intervalReading;
+        }
+
+        @Override
+        public boolean matches(List<IntervalReading> intervalReadings) {
+            return intervalReadings.stream().anyMatch(r -> r.getSource().equals(intervalReading.getSource()));
+        }
+    }
+
+    private static class ReadingFor extends Condition<List<Reading>> {
+        private final Reading reading;
+
+        private ReadingFor(Reading reading) {
+            this.reading = reading;
+        }
+
+        @Override
+        public boolean matches(List<Reading> intervalReadings) {
+            return intervalReadings.stream().anyMatch(r -> r.getSource().equals(reading.getSource()));
+        }
+    }
 }
