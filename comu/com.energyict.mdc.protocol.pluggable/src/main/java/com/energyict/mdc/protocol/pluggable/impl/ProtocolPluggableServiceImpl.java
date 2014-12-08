@@ -159,11 +159,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public Class<?> loadProtocolClass(String javaClassName) {
+    public Object createProtocol(String javaClassName) {
         for (DeviceProtocolService service : this.deviceProtocolServices) {
             try {
-                return service.loadProtocolClass(javaClassName);
-            } catch (ProtocolCreationException e) {
+                return service.createProtocol(javaClassName);
+            }
+            catch (ProtocolCreationException e) {
                 // Try the next DeviceProtocolService
             }
         }
