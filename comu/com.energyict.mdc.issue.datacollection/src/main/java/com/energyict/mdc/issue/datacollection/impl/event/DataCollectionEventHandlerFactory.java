@@ -56,6 +56,7 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
             DeviceService deviceService,
             IssueDataCollectionService issueDataCollectionService,
             NlsService nlsService) {
+        this();
         setJsonService(jsonService);
         setIssueCreationService(issueCreationService);
         setIssueService(issueService);

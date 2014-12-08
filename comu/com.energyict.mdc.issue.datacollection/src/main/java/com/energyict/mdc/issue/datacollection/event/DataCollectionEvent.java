@@ -80,6 +80,10 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         return communicationTaskService;
     }
 
+    protected TopologyService getTopologyService() {
+        return topologyService;
+    }
+
     protected DeviceService getDeviceService() {
         return deviceService;
     }
@@ -163,7 +167,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         try {
             DataCollectionEventDescription description = DataCollectionEventDescription.valueOf(this.eventDescription.getUniqueKey());
             if (description != null && description.getErrorType() != null) {
-                numberOfDevicesWithEvents = this.getCommunicationTaskService().
+                numberOfDevicesWithEvents = this.getTopologyService().
                         countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(
                                 description.getErrorType(),
                                 concentrator,

@@ -38,11 +38,15 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
 
+    // For OSGi purposes
     public DataCollectionActionsFactory() {
+        super();
     }
 
+    // For unit testing purposes
     @Inject
-    public DataCollectionActionsFactory(NlsService nlsService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, IssueService issueService) {
+    public DataCollectionActionsFactory(NlsService nlsService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService) {
+        this();
         setThesaurus(nlsService);
         setConnectionTaskService(connectionTaskService);
         setCommunicationTaskService(communicationTaskService);
