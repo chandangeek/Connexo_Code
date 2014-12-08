@@ -18,7 +18,7 @@ public class DeviceGroupDeletionEventHandler implements TopicHandler {
 
     @Override
     public String getTopicMatcher() {
-        return "com/energyict/mdc/engine/config/devicegroup/VALIDATE_DELETE";
+        return "com/elster/jupiter/metering/enddevicegroup/VALIDATE_DELETE";
     }
 
 
