@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -15,6 +16,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.tasks.ComTask;
 
 public class ComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoFactory<ComTaskExecutionInfo>{
 
@@ -33,6 +35,10 @@ public class ComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoFactory
     
     @Override
     protected void initExtraFields(ComTaskExecutionInfo info, ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession) {
+        info.comTasks = new ArrayList<>(comTaskExecution.getComTasks().size());
+        for (ComTask comTask : comTaskExecution.getComTasks()) {
+            info.comTasks.add(new IdWithNameInfo(comTask));
+        }
         Device device = comTaskExecution.getDevice();
         info.device = new IdWithNameInfo(device.getmRID(), device.getName());
         info.deviceConfiguration = new DeviceConfigurationIdInfo(device.getDeviceConfiguration());
