@@ -23418,19 +23418,21 @@ h2 {
 /* line 26, ../../sass/src/Headings.scss */
 h3 {
   font-size: 14px;
+  font-weight: bold;
+  font-family: 'Lato', helvetica, arial, verdana, sans-serif;
 }
 
-/* line 30, ../../sass/src/Headings.scss */
+/* line 32, ../../sass/src/Headings.scss */
 h4 {
   font-size: 14px;
 }
 
-/* line 34, ../../sass/src/Headings.scss */
+/* line 36, ../../sass/src/Headings.scss */
 h5 {
   font-size: 14px;
 }
 
-/* line 38, ../../sass/src/Headings.scss */
+/* line 40, ../../sass/src/Headings.scss */
 h6 {
   font-size: 14px;
 }
