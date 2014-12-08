@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -34,6 +35,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -41,6 +43,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,8 +53,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.ws.rs.core.Application;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -61,6 +67,7 @@ public class DeviceApplication extends Application implements InstallService {
 
     private final Logger logger = Logger.getLogger(DeviceApplication.class.getName());
 
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DDR";
 
     private volatile MasterDataService masterDataService;
@@ -85,6 +92,8 @@ public class DeviceApplication extends Application implements InstallService {
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile Clock clock;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile FavoritesService favoritesService;
+    private volatile License license;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -112,7 +121,8 @@ public class DeviceApplication extends Application implements InstallService {
                 ConnectionMethodResource.class,
                 ComSessionResource.class,
                 DeviceMessageResource.class,
-                DeviceProtocolPropertyResource.class
+                DeviceProtocolPropertyResource.class,
+                DeviceLabelResource.class
         );
     }
 
@@ -224,17 +234,28 @@ public class DeviceApplication extends Application implements InstallService {
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
+    
+    @Reference
+    public void setFavoritesService(FavoritesService favoritesService) {
+        this.favoritesService = favoritesService;
+    }
+
+    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
+    }
 
     @Override
     public void install() {
         Installer installer = new Installer();
         installer.createTranslations(COMPONENT_NAME, thesaurus, Layer.REST, MessageSeeds.values());
         createTranslations();
+        createLabelCategories();
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("NLS");
+        return Arrays.asList(NlsService.COMPONENTNAME, FavoritesService.COMPONENTNAME);
     }
 
 
@@ -262,6 +283,14 @@ public class DeviceApplication extends Application implements InstallService {
             thesaurus.addTranslations(translations.values());
         } catch (Exception e) {
             logger.severe(e.getMessage());
+        }
+    }
+    
+    private void createLabelCategories() {
+        try {
+            favoritesService.createLabelCategory(MessageSeeds.MDC_LABEL_CATEGORY_FAVORITES.getKey());
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
@@ -305,6 +334,7 @@ public class DeviceApplication extends Application implements InstallService {
             bind(DeviceMessageSpecInfoFactory.class).to(DeviceMessageSpecInfoFactory.class);
             bind(taskService).to(TaskService.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
+            bind(favoritesService).to(FavoritesService.class);
         }
     }
 

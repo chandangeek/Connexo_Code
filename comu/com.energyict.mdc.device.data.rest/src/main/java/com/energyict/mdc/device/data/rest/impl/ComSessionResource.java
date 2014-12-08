@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.*;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
@@ -9,10 +13,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.engine.model.ComServer;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -20,6 +21,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -57,7 +62,7 @@ public class ComSessionResource {
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         List<ComSession> comSessions = connectionTaskService.findAllSessionsFor(connectionTask).stream().sorted((c1, c2) -> c2.getStartDate().compareTo(c1.getStartDate())).collect(toList());
         List<ComSessionInfo> comSessionsInPage = ListPager.of(comSessions).from(queryParameters).find().stream()
-                .sorted((cs1, cs2)->cs2.getStartDate().compareTo(cs1.getStartDate()))
+                .sorted((cs1, cs2) -> cs2.getStartDate().compareTo(cs1.getStartDate()))
                 .map(comSessionInfoFactory::from).collect(toList());
         PagedInfoList pagedInfoList = PagedInfoList.asJson("comSessions", comSessionsInPage, queryParameters);
         ComSessionsInfo info = new ComSessionsInfo();
@@ -90,9 +95,9 @@ public class ComSessionResource {
         List<ComTaskExecutionSessionInfo> comTaskExecutionSessionInfos = comTaskExecutionSessionsInPage.stream().map(comTaskExecutionSessionInfoFactory::from).collect(toList());
         ComTaskExecutionSessionsInfo info = new ComTaskExecutionSessionsInfo();
         PagedInfoList pagedInfoList = PagedInfoList.asJson("comTaskExecutionSessions", comTaskExecutionSessionInfos, queryParameters);
-        info.device=device.getName();
-        info.total=pagedInfoList.getTotal();
-        info.comTaskExecutionSessions= pagedInfoList.getInfos();
+        info.device = device.getName();
+        info.total = pagedInfoList.getTotal();
+        info.comTaskExecutionSessions = pagedInfoList.getInfos();
         return info;
     }
 
@@ -107,22 +112,22 @@ public class ComSessionResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
-        int start=0;
-        int limit=Integer.MAX_VALUE;
-        if (queryParameters.getStart()!=null && queryParameters.getLimit()!=0) {
-            start=queryParameters.getStart()+1;
-            limit=queryParameters.getLimit();
+        int start = 0;
+        int limit = Integer.MAX_VALUE;
+        if (queryParameters.getStart() != null && queryParameters.getLimit() != 0) {
+            start = queryParameters.getStart() + 1;
+            limit = queryParameters.getLimit();
         }
 
         List<JournalEntryInfo> infos = new ArrayList<>();
         EnumSet<ComServer.LogLevel> logLevels = EnumSet.noneOf(ComServer.LogLevel.class);
-        if (jsonQueryFilter.getProperty(LOG_LEVELS_FILTER_PROPERTY) != null) {
+        if (jsonQueryFilter.hasProperty(LOG_LEVELS_FILTER_PROPERTY)) {
             jsonQueryFilter.getPropertyList(LOG_LEVELS_FILTER_PROPERTY, new LogLevelAdapter()).stream().forEach(logLevels::add);
         } else {
-            logLevels=EnumSet.allOf(ComServer.LogLevel.class);
+            logLevels = EnumSet.allOf(ComServer.LogLevel.class);
         }
-        if (jsonQueryFilter.getProperty(LOG_TYPES_FILTER_PROPERTY) != null) {
-            List<String> logTypes = jsonQueryFilter.getPropertyList(LOG_TYPES_FILTER_PROPERTY);
+        if (jsonQueryFilter.hasProperty(LOG_TYPES_FILTER_PROPERTY)) {
+            List<String> logTypes = jsonQueryFilter.getStringList(LOG_TYPES_FILTER_PROPERTY);
             if (logTypes.contains(CONNECTIONS_FILTER_ITEM)) {
                 if (logTypes.contains(COMMUNICATIONS_FILTER_ITEM)) {
                     comSession.getAllLogs(logLevels, start, limit).stream().forEach(e -> infos.add(journalEntryInfoFactory.asInfo(e)));

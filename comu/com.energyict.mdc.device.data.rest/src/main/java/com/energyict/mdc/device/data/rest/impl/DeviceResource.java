@@ -2,9 +2,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.rest.JsonQueryFilter;
-import com.energyict.mdc.common.rest.LongAdapter;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
@@ -47,7 +46,20 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/devices")
 public class DeviceResource {
@@ -69,6 +81,7 @@ public class DeviceResource {
     private final Provider<SecurityPropertySetResource> securityPropertySetResourceProvider;
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<DeviceMessageResource> deviceCommandResourceProvider;
+    private final Provider<DeviceLabelResource> deviceLabelResourceProvider;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
@@ -94,6 +107,7 @@ public class DeviceResource {
             DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
             DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory,
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
+            Provider<DeviceLabelResource> deviceLabelResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider) {
 
@@ -113,6 +127,7 @@ public class DeviceResource {
         this.securityPropertySetResourceProvider = securityPropertySetResourceProvider;
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
         this.deviceCommandResourceProvider = deviceCommandResourceProvider;
+        this.deviceLabelResourceProvider = deviceLabelResourceProvider;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
@@ -122,7 +137,7 @@ public class DeviceResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
         Condition condition = null;
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
@@ -141,7 +156,7 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
-    public DeviceInfo addDevice(DeviceInfo info) {
+    public DeviceInfo addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
         Optional<DeviceConfiguration> deviceConfiguration = Optional.empty();
         if (info.deviceConfigurationId != null) {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
@@ -158,9 +173,9 @@ public class DeviceResource {
         return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, deviceService, issueService);
     }
 
-    private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device){
+    private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
         List<DeviceTopologyInfo> slaves;
-        if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())){
+        if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
             slaves = DeviceTopologyInfo.from(deviceService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
         } else {
             slaves = DeviceTopologyInfo.from(device.getPhysicalConnectedDevices());
@@ -171,6 +186,7 @@ public class DeviceResource {
     @DELETE
     @Path("/{mRID}")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response deleteDevice(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         device.delete();
@@ -180,8 +196,8 @@ public class DeviceResource {
     @GET
     @Path("/{mRID}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
-    public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id) {
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService);
     }
@@ -191,6 +207,7 @@ public class DeviceResource {
      * - that are supported by the device protocol defined on the device's device type
      * - that have device messages specs on them (enablement)
      * - that the user has the required privileges for
+     *
      * @param mrid Device's mRID
      * @return List of categories + device message specs, indicating if message spec will be picked up by a comtask or not
      */
@@ -205,13 +222,13 @@ public class DeviceResource {
         List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
 
-        deviceMessageSpecificationService.allCategories().stream().sorted((c1,c2)->c1.getName().compareToIgnoreCase(c2.getName())).forEach(category-> {
+        deviceMessageSpecificationService.allCategories().stream().sorted((c1, c2) -> c1.getName().compareToIgnoreCase(c2.getName())).forEach(category -> {
             List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
                     .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
                     .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
-                    .filter(dms->device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
+                    .filter(dms -> device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
                     .sorted((dms1, dms2) -> dms1.getName().compareToIgnoreCase(dms2.getName()))
-                    .map(dms->deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
+                    .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
                     .collect(Collectors.toList());
             if (!deviceMessageSpecs.isEmpty()) {
                 DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
@@ -283,7 +300,11 @@ public class DeviceResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         return devicePropertyResourceProvider.get().with(device);
     }
-
+    
+    @Path("/{mRID}/devicelabels")
+    public DeviceLabelResource getDeviceLabelResource() {
+        return deviceLabelResourceProvider.get();
+    }
 
     @GET
     @Path("/{mRID}/topology/communication")
@@ -295,17 +316,17 @@ public class DeviceResource {
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
         Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate)
                 .sorted(Comparator.comparing(Device::getmRID));
-        if(queryParameters.getStart() != null && queryParameters.getStart() > 0) {
+        if (queryParameters.getStart() != null && queryParameters.getStart() > 0) {
             stream = stream.skip(queryParameters.getStart());
         }
-        if (queryParameters.getLimit() != null && queryParameters.getLimit() > 0){
+        if (queryParameters.getLimit() != null && queryParameters.getLimit() > 0) {
             stream = stream.limit(queryParameters.getLimit() + 1);
         }
-        List<DeviceTopologyInfo> topologyList =  stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d))).collect(Collectors.toList());
+        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d))).collect(Collectors.toList());
         return PagedInfoList.asJson("slaveDevices", topologyList, queryParameters);
     }
 
-    private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter){
+    private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {
         Predicate<Device> predicate = d -> true;
         predicate = addPropertyStringFilterIfAvailabale(filter, "mrid", predicate, Device::getmRID);
         predicate = addPropertyStringFilterIfAvailabale(filter, "serialNumber", predicate, Device::getSerialNumber);
@@ -314,12 +335,12 @@ public class DeviceResource {
         return predicate;
     }
 
-    private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, String> extractor){
-        Pattern filterPattern = getFilterPattern(name, filter.getProperty(name));
-        if (filterPattern != null){
+    private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, String> extractor) {
+        Pattern filterPattern = getFilterPattern(name, filter.getString(name));
+        if (filterPattern != null) {
             return predicate.and(d -> {
                 String stringToSearch = extractor.apply(d);
-                if (stringToSearch == null){
+                if (stringToSearch == null) {
                     stringToSearch = "";
                 }
                 return filterPattern.matcher(stringToSearch).matches();
@@ -328,10 +349,10 @@ public class DeviceResource {
         return predicate;
     }
 
-    private Predicate<Device> addPropertyListFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, Long> extractor){
-        if (filter.getFilterProperties().get(name) != null){
-            List<Long> list = filter.getPropertyList(name, new LongAdapter());
-            if (list != null){
+    private Predicate<Device> addPropertyListFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, Long> extractor) {
+        if (filter.hasProperty(name)) {
+            List<Long> list = filter.getLongList(name);
+            if (list != null) {
                 return predicate.and(d -> list.contains(extractor.apply(d)));
             }
         }
@@ -352,11 +373,12 @@ public class DeviceResource {
      * <li>A percent sign (%) or asterix sign ( * ) in the pattern can match zero or more characters. The pattern '%' or '*' cannot match a null.</li>
      * </ul>
      * See <a href='http://confluence.eict.vpdc/display/JUP/Filter+communication+topology+on+MRID'>Filter communication topology on MRID</a>
+     *
      * @param filter the filter expression
      * @return search pattern
      */
-    private Pattern getFilterPattern(String name, String filter){
-        if (filter != null){
+    private Pattern getFilterPattern(String name, String filter) {
+        if (filter != null) {
             filter = Pattern.quote(filter.replace('%', '*'));
             return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
         }

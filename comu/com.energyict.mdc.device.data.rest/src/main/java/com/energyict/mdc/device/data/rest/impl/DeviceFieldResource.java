@@ -4,6 +4,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.device.data.rest.LogLevelAdapter;
+import com.energyict.mdc.device.data.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -21,6 +24,7 @@ public class DeviceFieldResource extends FieldResource {
     @GET
     @Path("/enddevicedomains")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public Object getAllEndDeviceDomains() {
         return asJsonArrayObjectWithTranslation("domains", "domain", new EndDeviceDomainAdapter().getClientSideValues());
     }
@@ -28,6 +32,7 @@ public class DeviceFieldResource extends FieldResource {
     @GET
     @Path("/enddevicesubdomains")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public Object getAllEndDeviceSubDomains() {
         return asJsonArrayObjectWithTranslation("subDomains", "subDomain", new EndDeviceSubDomainAdapter().getClientSideValues());
     }
@@ -35,6 +40,7 @@ public class DeviceFieldResource extends FieldResource {
     @GET
     @Path("/enddeviceeventoractions")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public Object getAllEndDeviceEventOrActions() {
         return asJsonArrayObjectWithTranslation("eventOrActions", "eventOrAction", new EndDeviceEventOrActionAdapter().getClientSideValues());
     }
@@ -42,6 +48,7 @@ public class DeviceFieldResource extends FieldResource {
     @GET
     @Path("/loglevels")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public Object getLogLevels() {
         return asJsonArrayObjectWithTranslation("logLevels", "logLevel", new LogLevelAdapter().getClientSideValues());
     }

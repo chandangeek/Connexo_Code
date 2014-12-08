@@ -15,7 +15,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -81,37 +80,40 @@ public class SecurityPropertySetResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
         //TypedProperties typedProperties = TypedProperties.empty();
-        boolean status = true;
-        TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
-        for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
-            Object newPropertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, securityPropertySetInfo.properties);
-            if (newPropertyValue != null) {
-                // propertySpec.validateValue(newPropertyValue);
-                typedProperties.setProperty(propertySpec.getName(), newPropertyValue);
-            } else {
-                if (!propertyHasValue(propertySpec, securityPropertySetInfo.properties)) {
-                    typedProperties.removeProperty(propertySpec.getName());
-                    status = false;
+        if (securityPropertySet.currentUserIsAllowedToEditDeviceProperties()) {
+            boolean status = true;
+            TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
+            for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
+                Object newPropertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, securityPropertySetInfo.properties);
+                if (newPropertyValue != null) {
+                    // propertySpec.validateValue(newPropertyValue);
+                    typedProperties.setProperty(propertySpec.getName(), newPropertyValue);
+                } else {
+                    if (!propertyHasValue(propertySpec, securityPropertySetInfo.properties)) {
+                        typedProperties.removeProperty(propertySpec.getName());
+                        status = false;
+                    }
                 }
-
             }
-        }
 
-        if (status) {
-            device.setSecurityProperties(securityPropertySet, typedProperties);
-        } else {
-            if (securityPropertySetInfo.saveAsIncomplete) {
+            if (status) {
                 device.setSecurityProperties(securityPropertySet, typedProperties);
             } else {
-                throw new LocalizedFieldValidationException(MessageSeeds.INCOMPLETE, "status");
+                if (securityPropertySetInfo.saveAsIncomplete) {
+                    device.setSecurityProperties(securityPropertySet, typedProperties);
+                } else {
+                    throw new LocalizedFieldValidationException(MessageSeeds.INCOMPLETE, "status");
+                }
             }
+
+            // Reload
+            device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+            securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
+            return Response.ok(securityPropertySetInfoFactory.asInfo(device, uriInfo, securityPropertySet)).build();
         }
-
-        // Reload
-        device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
-
-        return Response.ok(securityPropertySetInfoFactory.asInfo(device, uriInfo, securityPropertySet)).build();
+        else {
+            throw exceptionFactory.newException(MessageSeeds.UPDATE_SECURITY_PROPERTY_SET_NOT_ALLOWED);
+        }
     }
 
     private SecurityPropertySet getSecurityPropertySetOrThrowException(long securityPropertySetId, Device device) {
@@ -133,7 +135,7 @@ public class SecurityPropertySetResource {
     public boolean propertyHasValue(PropertySpec<?> propertySpec, PropertyInfo[] propertyInfos) {
         for (PropertyInfo propertyInfo : propertyInfos) {
             if (propertyInfo.key.equals(propertySpec.getName())) {
-                if (propertyInfo.getPropertyValueInfo() != null) {
+                if (propertyInfo.getPropertyValueInfo() != null && propertyInfo.getPropertyValueInfo().propertyHasValue!=null) {
                     return propertyInfo.getPropertyValueInfo().propertyHasValue;
                 } else {
                     return false;

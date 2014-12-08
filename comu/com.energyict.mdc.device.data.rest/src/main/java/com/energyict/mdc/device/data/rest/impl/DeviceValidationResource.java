@@ -6,8 +6,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.orm.associations.Effectivity;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -67,7 +65,7 @@ public class DeviceValidationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_VALIDATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.VIEW_VALIDATION_CONFIGURATION,com.energyict.mdc.device.data.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION})
     public Response getValidationRulsetsForDevice(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         List<DeviceValidationRuleSetInfo> result = new ArrayList<>();
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -93,7 +91,7 @@ public class DeviceValidationResource {
     @Path("/{validationRuleSetId}/status")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.energyict.mdc.device.data.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION})
     public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mrid, @PathParam("validationRuleSetId") long validationRuleSetId, boolean status) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
@@ -118,7 +116,7 @@ public class DeviceValidationResource {
     @Path("/validationstatus")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_VALIDATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.VIEW_VALIDATION_CONFIGURATION,com.energyict.mdc.device.data.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION})
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
 
@@ -190,7 +188,7 @@ public class DeviceValidationResource {
     @Path("/validationstatus")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.energyict.mdc.device.data.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION})
     public Response setValidationFeatureStatus(@PathParam("mRID") String mrid, DeviceValidationStatusInfo deviceValidationStatusInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = getMeterFor(device);
@@ -264,6 +262,7 @@ public class DeviceValidationResource {
             meter = meterRef.get();
         } else {
             meter = amrSystem.newMeter(String.valueOf(device.getId()), device.getmRID());
+            meter.setSerialNumber(device.getSerialNumber());
             meter.save();
         }
         return meter;
