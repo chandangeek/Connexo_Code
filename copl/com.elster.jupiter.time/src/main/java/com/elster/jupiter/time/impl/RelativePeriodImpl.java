@@ -122,7 +122,7 @@ public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
         while (relativePeriodCategoryUsageIterator.hasNext()) {
             RelativePeriodCategoryUsage relativePeriodCategoryUsage = relativePeriodCategoryUsageIterator.next();
             if (relativePeriodCategoryUsage.sameRelativePeriodCategory(relativePeriodCategory)) {
-                eventService.postEvent(EventType.CATEGORY_USAGE_DELETED.topic(), relativePeriodCategoryUsage);
+                eventService.postEvent(EventType.CATEGORY_USAGE_DELETED.topic(), new RelativePeriodCategoryUsageEvent(relativePeriodCategoryUsage));
                 relativePeriodCategoryUsageIterator.remove();
             }
         }
