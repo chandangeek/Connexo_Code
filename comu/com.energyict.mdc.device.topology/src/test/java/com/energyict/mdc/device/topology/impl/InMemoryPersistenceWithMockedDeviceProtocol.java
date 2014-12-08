@@ -11,6 +11,7 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -129,6 +130,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
     private DeviceDataModelServiceImpl deviceDataModelService;
+    private TopologyService topologyService;
     private TaskService taskService;
     private SchedulingService schedulingService;
     private ValidationService validationService;
@@ -196,6 +198,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             this.validationService = injector.getInstance(ValidationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.schedulingService = injector.getInstance(SchedulingService.class);
+            this.topologyService = injector.getInstance(TopologyService.class);
             this.dataModel = this.createNewDeviceDataService(injector);
             ctx.commit();
         }
@@ -266,6 +269,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public ServerDeviceService getDeviceService() {
         return deviceDataModelService.deviceService();
+    }
+
+    public TopologyService getTopologyService() {
+        return this.topologyService;
     }
 
     public EventService getEventService() {
