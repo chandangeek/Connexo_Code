@@ -22,22 +22,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
-
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +30,23 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -88,10 +89,13 @@ public class DeviceGroupResource {
         return PagedInfoList.asJson("devicegroups", deviceGroupInfos, queryParameters);
     }
 
-    private List<EndDeviceGroup> queryEndDeviceGroups(com.elster.jupiter.rest.util.QueryParameters queryParameters) {
-        Query<EndDeviceGroup> query = meteringGroupsService.getEndDeviceGroupQuery();
-        RestQuery<EndDeviceGroup> restQuery = restQueryService.wrap(query);
-        return restQuery.select(queryParameters, Order.ascending("upper(name)"));
+    @DELETE
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{mRID}")
+    public Response getDeviceGroups(@PathParam("mRID") String mRID) {
+        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(mRID).orElseThrow(()->exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, mRID));
+        endDeviceGroup.delete();
+        return Response.ok().build();
     }
 
     @PUT
