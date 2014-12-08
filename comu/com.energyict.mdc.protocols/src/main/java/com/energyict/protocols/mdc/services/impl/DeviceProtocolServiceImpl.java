@@ -51,8 +51,22 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     private Injector injector;
 
+    // For OSGi purposes
     public DeviceProtocolServiceImpl() {
         super();
+    }
+
+    // For testing purposes
+    @Inject
+    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, TopologyService topologyService) {
+        this();
+        this.setOrmService(ormService);
+        this.setNlsService(nlsService);
+        this.setIssueService(issueService);
+        this.setClock(clock);
+        this.setTopologyService(topologyService);
+        this.activate();
+        this.install();
     }
 
     @Activate
@@ -69,18 +83,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         Bus.clearIssueService(this.issueService);
         Bus.clearMdcReadingTypeUtilService(this.mdcReadingTypeUtilService);
         Bus.clearThesaurus(this.thesaurus);
-    }
-
-    @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, TopologyService topologyService) {
-        this();
-        this.setOrmService(ormService);
-        this.setNlsService(nlsService);
-        this.setIssueService(issueService);
-        this.setClock(clock);
-        this.setTopologyService(topologyService);
-        this.activate();
-        this.install();
     }
 
     private Module getModule() {

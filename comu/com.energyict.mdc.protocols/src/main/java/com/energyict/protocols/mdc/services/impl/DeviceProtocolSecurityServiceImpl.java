@@ -4,6 +4,14 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.ConfigurationException;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.ProvisionException;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -22,11 +30,33 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
 
     private volatile PropertySpecService propertySpecService;
 
+    private Injector injector;
+
+    // For OSGi purposes
     public DeviceProtocolSecurityServiceImpl(){}
 
+    // For testing purposes
     @Inject
-    public DeviceProtocolSecurityServiceImpl(PropertySpecService propertySpecService){
+    public DeviceProtocolSecurityServiceImpl(PropertySpecService propertySpecService) {
+        this();
         this.setPropertySpecService(propertySpecService);
+        this.activate();
+    }
+
+    @Activate
+    public void activate() {
+        Module module = this.getModule();
+        this.injector = Guice.createInjector(module);
+    }
+
+    private Module getModule() {
+        return new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(DeviceProtocolSecurityService.class).toInstance(DeviceProtocolSecurityServiceImpl.this);
+            }
+        };
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -41,7 +71,9 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
     @Override
     public Object createDeviceProtocolSecurityFor(String javaClassName) {
         try {
-            Object object = Class.forName(javaClassName).newInstance();
+            // Attempt to load the class to verify that this class is managed by this bundle
+            Class<?> securityClass = Class.forName(javaClassName);
+            Object object = this.injector.getInstance(securityClass);
             if (object instanceof DeviceProtocolSecurityCapabilities) {
                 DeviceProtocolSecurityCapabilities securityCapabilities = (DeviceProtocolSecurityCapabilities) object;
                 securityCapabilities.setPropertySpecService(this.propertySpecService);
@@ -51,7 +83,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
                 return object;
             }
         }
-        catch (InstantiationException | IllegalAccessException e) {
+        catch (ConfigurationException | ProvisionException e) {
             throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, e, javaClassName);
         }
         catch (ClassNotFoundException e) {
