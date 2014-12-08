@@ -184,7 +184,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         List<Register> allRegisters = device.getRegisters();
         allRegisters.addAll(
                 this.topologyService
-                    .getPhysicalConnectedDevices(device)
+                    .findPhysicalConnectedDevices(device)
                     .stream()
                     .flatMap(slave -> slave.getRegisters().stream())
                     .collect(Collectors.toList()));

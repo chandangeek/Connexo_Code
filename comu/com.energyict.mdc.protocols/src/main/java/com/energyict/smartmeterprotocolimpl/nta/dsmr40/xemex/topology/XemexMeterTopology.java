@@ -103,7 +103,7 @@ public class XemexMeterTopology extends MeterTopology {
     private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusMap) {
         Device gatewayDevice = getRtuFromDatabaseBySerialNumber();
         if (gatewayDevice != null) {
-            List<Device> mbusSlaves = this.getTopologyService().getPhysicalConnectedDevices(gatewayDevice);
+            List<Device> mbusSlaves = this.getTopologyService().findPhysicalConnectedDevices(gatewayDevice);
             mbusSlaves.stream()
                     .filter(mbus -> !mbusMap.contains(new DeviceMapping(mbus.getSerialNumber())))
                     .forEach(mbus -> {
