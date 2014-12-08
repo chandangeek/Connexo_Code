@@ -19,7 +19,9 @@ import org.mockito.internal.verification.VerificationModeFactory;
 
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -55,9 +57,9 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List<?>>get("$.communications")).hasSize(1);
         assertThat(jsonModel.<Integer>get("$.communications[0].id")).isEqualTo(13);
-        assertThat(jsonModel.<String>get("$.communications[0].name")).isEqualTo("Read 1 + Read 2");
-        assertThat(jsonModel.<List<Integer>>get("$.communications[0].comTasks[*].id")).containsExactly(1, 2);
-        assertThat(jsonModel.<List<String>>get("$.communications[0].comTasks[*].name")).containsExactly("Read 1", "Read 2");
+        assertThat(jsonModel.<String>get("$.communications[0].name")).isEqualTo("Read all");
+        assertThat(jsonModel.<Integer>get("$.communications[0].comTask.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.communications[0].comTask.name")).isEqualTo("Read all");
         assertThat(jsonModel.<String>get("$.communications[0].comScheduleName")).isEqualTo("Individual");
         assertThat(jsonModel.<Integer>get("$.communications[0].comScheduleFrequency.every.count")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.communications[0].comScheduleFrequency.every.timeUnit")).isEqualTo("hours");
@@ -74,6 +76,30 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<String>get("$.communications[0].connectionStrategy.id")).isEqualTo("asSoonAsPossible");
         assertThat(jsonModel.<String>get("$.communications[0].connectionStrategy.displayValue")).isEqualTo("As soon as possible");
         assertThat(jsonModel.<Boolean>get("$.communications[0].isOnHold")).isTrue();
+    }
+    
+    @Test
+    public void testGetDeviceCommunicationsSeveralComTasksPerComTaskExec() {
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(device);
+        ComTaskExecution comTaskExecution = mockComTaskExecution();
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        List<ComTask> comTasks = Arrays.asList(mockComTask(1, "Read 1"), mockComTask(2, "Read 2"));
+        when(comTaskExecution.getComTasks()).thenReturn(comTasks);
+        when(comTaskExecution.getDevice()).thenReturn(device);
+        DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
+        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(mockComTask(2L, "Read 2"));
+        when(deviceConfig.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        
+        String response = target("/devices/ZABF0000000/communications").request().get(String.class);
+        
+        JsonModel jsonModel = JsonModel.model(response);
+        
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<?>>get("$.communications")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.communications[0].comTask.id")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("$.communications[0].comTask.name")).isEqualTo("Read 2");
     }
     
     @Test
@@ -220,7 +246,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution.getLastSession()).thenReturn(Optional.of(comTaskExecutionSession));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         doReturn(connectionTask).when(comTaskExecution).getConnectionTask();
-        List<ComTask> comTasks = Arrays.asList(mockComTask(1L, "Read 1"), mockComTask(2L, "Read 2"));
+        List<ComTask> comTasks = Arrays.asList(mockComTask(1L, "Read all"));
         when(comTaskExecution.getComTasks()).thenReturn(comTasks);
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
@@ -248,6 +274,12 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTask.getId()).thenReturn(id);
         when(comTask.getName()).thenReturn(name);
         return comTask;
+    }
+    
+    private ComTaskEnablement mockComTaskEnablement(ComTask comTask) {
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        return comTaskEnablement;
     }
 
 }

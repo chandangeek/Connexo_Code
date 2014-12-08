@@ -1,12 +1,10 @@
 package com.energyict.mdc.device.data.rest;
 
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -32,10 +30,6 @@ public abstract class BaseComTaskExecutionInfoFactory <T extends BaseComTaskExec
     public final T from(ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession) {
         T info = getInfoSupplier().get();
         
-        info.comTasks = new ArrayList<>(comTaskExecution.getComTasks().size());
-        for (ComTask comTask : comTaskExecution.getComTasks()) {
-            info.comTasks.add(new IdWithNameInfo(comTask));
-        }
         if(comTaskExecution.usesSharedSchedule()){
             info.name = ((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getName();
         } else {
