@@ -22,7 +22,7 @@ public interface TopologyService {
 
     public Optional<Device> getPhysicalGateway(Device slave);
 
-    public Optional<Device> getPhysicalGateway(Device slave, Instant timestamp);
+    public Optional<Device> getPhysicalGateway(Device slave, Instant when);
 
     /**
      * Sets the physical gateway of the slave {@link Device} to the specified Device.
@@ -40,7 +40,13 @@ public interface TopologyService {
      */
     public void clearPhysicalGateway(Device slave);
 
-    public List<Device> getPhysicalConnectedDevices(Device gateway);
+    /**
+     * Finds the {@link Device}s which are physically connected to the specified Device.
+     *
+     * @param device the 'master' device
+     * @return The List of physically connected devices
+     */
+    public List<Device> findPhysicalConnectedDevices(Device device);
 
     /**
      * Finds the default {@link ConnectionTask} for the specified Device.

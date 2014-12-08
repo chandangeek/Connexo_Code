@@ -1,20 +1,15 @@
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataServices;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.users.UserService;
 
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
-import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 /**
  * Models the database tables that hold the data of the
@@ -25,7 +20,7 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
  */
 public enum TableSpecs {
 
-    DDC_PHYSICALGATEWAYREFERENCE {
+    DTL_PHYSICALGATEWAYREFERENCE {
         @Override
         void addTo(DataModel dataModel) {
             Table<PhysicalGatewayReference> table = dataModel.addTable(name(), PhysicalGatewayReference.class);
@@ -36,17 +31,16 @@ public enum TableSpecs {
             table.primaryKey("PK_DDC_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).add();
             table.foreignKey("FK_DDC_PHYSGATEWAYREF_ORIGIN").
                     on(originId).
-                    references(DDC_DEVICE.name()).
+                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
                     onDelete(CASCADE).
-                    map(GatewayReferenceImpl.Field.ORIGIN.fieldName()).
-                    reverseMap("physicalGatewayReferenceDevice").
+                    map(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).
                     composition().
                     add();
             table.foreignKey("FK_DDC_PHYSGATEWAYREF_GATEWAY").
                     on(physicalGatewayId).
-                    references(DDC_DEVICE.name()).
+                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
                     onDelete(CASCADE).
-                    map(GatewayReferenceImpl.Field.GATEWAY.fieldName()).
+                    map(PhysicalGatewayReferenceImpl.Field.GATEWAY.fieldName()).
                     add();
         }
     },

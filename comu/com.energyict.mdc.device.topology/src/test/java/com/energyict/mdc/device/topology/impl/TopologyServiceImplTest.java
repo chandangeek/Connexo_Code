@@ -1,13 +1,20 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.TopologyTimeline;
+import com.energyict.mdc.device.data.TopologyTimeslice;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import org.fest.assertions.core.Condition;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.*;
 
@@ -34,7 +41,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_GATEWAY_FOR_ITSELF + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF + "}")
     public void setPhysicalGatewaySameAsOriginDeviceTest() {
         Device origin = createSimpleDeviceWithName("Origin");
 
@@ -44,7 +51,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_GATEWAY_FOR_ITSELF + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF + "}")
     public void updatePhysicalGatewayWithSameAsOriginDeviceTest() {
         Device physicalGateway = createSimpleDeviceWithName("PhysicalGateway");
         Device device = getDeviceService().newDevice(deviceConfiguration, "Slave", "SlaveMrid");
@@ -134,19 +141,162 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void createWithSamePhysicalAndCommunicationGatewayTest() {
         Device gatewayForBoth = createSimpleDeviceWithName("GatewayForBoth");
         Device device = getDeviceService().newDevice(deviceConfiguration, "Origin", MRID);
-        device.setPhysicalGateway(gatewayForBoth);
+
+        // Business methods
+        this.getTopologyService().setPhysicalGateway(device, gatewayForBoth);
         device.setCommunicationGateway(gatewayForBoth);
 
-        Device reloadedDevice = getReloadedDevice(device);
-
-        assertThat(reloadedDevice.getPhysicalGateway().getId()).isEqualTo(reloadedDevice.getCommunicationGateway().getId()).isEqualTo(gatewayForBoth.getId());
+        assertThat(this.getTopologyService().getPhysicalGateway(device).isPresent()).isTrue();
+        assertThat(this.getTopologyService().getPhysicalGateway(device).get().getId()).isEqualTo(device.getCommunicationGateway().getId()).isEqualTo(gatewayForBoth.getId());
     }
 
     @Test
     @Transactional
     public void getDefaultPhysicalGatewayNullTest() {
         Device simpleDevice = createSimpleDevice();
-        assertThat(simpleDevice.getPhysicalGateway()).isNull();
+
+        // Business method
+        Optional<Device> gateway = this.getTopologyService().getPhysicalGateway(simpleDevice);
+
+        // Asserts
+        assertThat(gateway.isPresent()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void findDownstreamDevicesWhenNoneArePresentTest() {
+        Device device = createSimpleDevice();
+
+        // Business method
+        List<Device> physicalConnectedDevices = this.getTopologyService().findPhysicalConnectedDevices(device);
+
+        // Asserts
+        assertThat(physicalConnectedDevices).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void findPhysicalConnectedDevicesTest() {
+        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
+        Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
+        this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
+        Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", MRID+"2");
+        this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
+
+        // Business method
+        List<Device> downstreamDevices = this.getTopologyService().findPhysicalConnectedDevices(physicalMaster);
+
+        // Asserts
+        assertThat(downstreamDevices).hasSize(2);
+        assertThat(downstreamDevices).has(new Condition<List<Device>>() {
+            @Override
+            public boolean matches(List<Device> value) {
+                boolean bothMatch = true;
+                for (BaseDevice baseDevice : value) {
+                    bothMatch &= ((baseDevice.getId() == device1.getId()) || (baseDevice.getId() == device2.getId()));
+                }
+                return bothMatch;
+            }
+        });
+    }
+
+    @Test
+    @Transactional
+    public void findDownstreamDevicesAfterRemovalOfOneTest() {
+        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
+        Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
+        this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
+        Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
+        this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
+
+        //business method
+        device1.delete();
+
+        // Asserts
+        List<Device> downstreamDevices = this.getTopologyService().findPhysicalConnectedDevices(physicalMaster);
+        assertThat(downstreamDevices).hasSize(1);
+        assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
+    }
+
+    @Test
+    @Transactional
+    public void findDownstreamDevicesAfterRemovingGatewayReferenceTest() {
+        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
+        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
+        this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
+        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
+        this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
+
+        // Business method
+        this.getTopologyService().clearPhysicalGateway(device1);
+
+        // Asserts
+        List<Device> downstreamDevices = this.getTopologyService().findPhysicalConnectedDevices(physicalMaster);
+        assertThat(downstreamDevices).hasSize(1);
+        assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
+    }
+
+    @Test
+    @Transactional
+    public void findDownstreamDevicesAfterSettingToOtherPhysicalGatewayTest() {
+        Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster","pm");
+        Device otherPhysicalMaster = createSimpleDeviceWithName("OtherPhysicalMaster", "opm");
+        Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
+        this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
+        Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
+        this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
+
+        //business method
+        this.getTopologyService().setPhysicalGateway(device1, otherPhysicalMaster);
+        List<Device> downstreamDevices = this.getTopologyService().findPhysicalConnectedDevices(physicalMaster);
+
+        // Asserts
+        assertThat(downstreamDevices).hasSize(1);
+        assertThat(downstreamDevices.get(0).getId()).isEqualTo(device2.getId());
+    }
+
+    @Test
+    @Transactional
+    //@Ignore // H2 can't handle the SQL queries
+    public void testGetSortedPhysicalGatewayReferences() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway");
+        gateway.save();
+
+        Device slave = deviceService.newDevice(deviceConfiguration, "slave1", "slave1");
+        slave.save();
+        topologyService.setPhysicalGateway(slave, gateway);
+
+        slave = deviceService.newDevice(deviceConfiguration, "slave2", "slave2");
+        slave.save();
+        topologyService.setPhysicalGateway(slave, gateway);
+
+        slave = deviceService.newDevice(deviceConfiguration, "slave3", "slave3");
+        slave.save();
+        topologyService.setPhysicalGateway(slave, gateway);
+
+        slave = deviceService.newDevice(deviceConfiguration, "slave4", "slave4");
+        slave.save();
+        topologyService.setPhysicalGateway(slave, gateway);
+
+        slave = deviceService.newDevice(deviceConfiguration, "slave5", "slave5");
+        slave.save();
+        topologyService.setPhysicalGateway(slave, gateway);
+
+        TopologyTimeline timeline = inMemoryPersistence.getDeviceService().getPhysicalTopologyTimelineAdditions(gateway, 3);
+        List<TopologyTimeslice> timeslices = timeline.getSlices();
+        assertThat(timeslices).hasSize(1);
+        TopologyTimeslice topologyTimeslice = timeslices.get(0);
+        List<Device> devicesInTimeslice = topologyTimeslice.getDevices();
+        assertThat(devicesInTimeslice).hasSize(3);
+        Set<String> deviceNames = devicesInTimeslice.stream().map(Device::getName).collect(Collectors.toSet());
+        assertThat(deviceNames).containsOnly("slave5", "slave4", "slave3");
+
+        timeslices = inMemoryPersistence.getDeviceService().getPhysicalTopologyTimelineAdditions(gateway, 20).getSlices();
+        assertThat(timeslices).hasSize(1);
+        topologyTimeslice = timeslices.get(0);
+        assertThat(topologyTimeslice.getDevices()).hasSize(5);
     }
 
     private ServerDeviceService getDeviceService() {
