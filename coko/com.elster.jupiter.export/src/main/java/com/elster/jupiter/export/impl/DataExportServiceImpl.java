@@ -22,9 +22,9 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Operator;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -43,6 +43,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 
 @Component(name = "com.elster.jupiter.export", service = {DataExportService.class, IDataExportService.class, InstallService.class}, property = "name=" + DataExportService.COMPONENTNAME, immediate = true)
 public class DataExportServiceImpl implements IDataExportService, InstallService {
@@ -246,14 +249,14 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public Optional<IDataExportOccurrence> findDataExportOccurrence(TaskOccurrence occurrence) {
-        return dataModel.query(IDataExportOccurrence.class, IReadingTypeDataExportTask.class).select(Operator.EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
+        return dataModel.query(IDataExportOccurrence.class, IReadingTypeDataExportTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
     }
 
     @Override
     public Optional<IDataExportOccurrence> findDataExportOccurrence(ReadingTypeDataExportTask task, Instant triggerTime) {
         return dataModel.stream(IDataExportOccurrence.class).join(TaskOccurrence.class).join(IReadingTypeDataExportTask.class)
-                .filter(Operator.EQUAL.compare("readingTask", task))
-                .filter(Operator.EQUAL.compare("taskOccurrence.triggerTime", triggerTime))
+                .filter(EQUAL.compare("readingTask", task))
+                .filter(EQUAL.compare("taskOccurrence.triggerTime", triggerTime))
                 .findFirst();
     }
 
@@ -272,6 +275,13 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    @Override
+    public List<ReadingTypeDataExportTask> findExportTaskUsing(RelativePeriod relativePeriod) {
+        return dataModel.stream(ReadingTypeDataExportTask.class)
+                .filter(EQUAL.compare("exportPeriod", relativePeriod).or(EQUAL.compare("updatePeriod", relativePeriod)))
+                .collect(Collectors.toList());
     }
 
     private Optional<IReadingTypeDataExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
