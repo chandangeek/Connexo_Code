@@ -167,7 +167,7 @@ public class DeviceResource {
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
             slaves = DeviceTopologyInfo.from(deviceService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
         } else {
-            slaves = DeviceTopologyInfo.from(device.getPhysicalConnectedDevices());
+            slaves = DeviceTopologyInfo.from(topologyService.findPhysicalConnectedDevices(device));
         }
         return slaves;
     }
