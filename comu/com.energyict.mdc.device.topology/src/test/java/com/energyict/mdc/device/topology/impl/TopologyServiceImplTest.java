@@ -4,6 +4,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.TopologyTimeline;
 import com.energyict.mdc.device.data.TopologyTimeslice;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.topology.G3CommunicationPath;
+import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
@@ -11,6 +13,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import org.fest.assertions.core.Condition;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -264,25 +267,25 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway");
         gateway.save();
 
-        Device slave = deviceService.newDevice(deviceConfiguration, "slave1", "slave1");
-        slave.save();
-        topologyService.setPhysicalGateway(slave, gateway);
+        Device slave1 = deviceService.newDevice(deviceConfiguration, "slave1", "slave1");
+        slave1.save();
+        topologyService.setPhysicalGateway(slave1, gateway);
 
-        slave = deviceService.newDevice(deviceConfiguration, "slave2", "slave2");
-        slave.save();
-        topologyService.setPhysicalGateway(slave, gateway);
+        Device slave2 = deviceService.newDevice(deviceConfiguration, "slave2", "slave2");
+        slave2.save();
+        topologyService.setPhysicalGateway(slave2, gateway);
 
-        slave = deviceService.newDevice(deviceConfiguration, "slave3", "slave3");
-        slave.save();
-        topologyService.setPhysicalGateway(slave, gateway);
+        Device slave3 = deviceService.newDevice(deviceConfiguration, "slave3", "slave3");
+        slave3.save();
+        topologyService.setPhysicalGateway(slave3, gateway);
 
-        slave = deviceService.newDevice(deviceConfiguration, "slave4", "slave4");
-        slave.save();
-        topologyService.setPhysicalGateway(slave, gateway);
+        Device slave4 = deviceService.newDevice(deviceConfiguration, "slave4", "slave4");
+        slave4.save();
+        topologyService.setPhysicalGateway(slave4, gateway);
 
-        slave = deviceService.newDevice(deviceConfiguration, "slave5", "slave5");
-        slave.save();
-        topologyService.setPhysicalGateway(slave, gateway);
+        Device slave5 = deviceService.newDevice(deviceConfiguration, "slave5", "slave5");
+        slave5.save();
+        topologyService.setPhysicalGateway(slave5, gateway);
 
         TopologyTimeline timeline = inMemoryPersistence.getDeviceService().getPhysicalTopologyTimelineAdditions(gateway, 3);
         List<TopologyTimeslice> timeslices = timeline.getSlices();
@@ -297,6 +300,85 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(timeslices).hasSize(1);
         topologyTimeslice = timeslices.get(0);
         assertThat(topologyTimeslice.getDevices()).hasSize(5);
+    }
+
+    @Test
+    @Transactional
+    public void addFinalCommunicationPathSegment() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway");
+        gateway.save();
+        Device slave = deviceService.newDevice(deviceConfiguration, "slave", "slave");
+        slave.save();
+        int expectedCost = 13;
+        Duration expectedTimeToLive = Duration.ofMinutes(1);
+
+        // Business method
+        G3CommunicationPathSegment segment = topologyService.addFinalCommunicationSegment(slave, gateway, expectedTimeToLive, expectedCost);
+
+        // Asserts
+        assertThat(segment).isNotNull();
+        assertThat(segment.getCost()).isEqualTo(expectedCost);
+        assertThat(segment.getTimeToLive()).isEqualTo(expectedTimeToLive);
+        assertThat(segment.getNextHopDevice()).isNotNull();
+        assertThat(segment.getNextHopDevice().isPresent()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void addIntermediateCommunicationPathSegment() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway");
+        gateway.save();
+        Device slave1 = deviceService.newDevice(deviceConfiguration, "slave1", "slave1");
+        slave1.save();
+        topologyService.setPhysicalGateway(slave1, gateway);
+        Device slave2 = deviceService.newDevice(deviceConfiguration, "slave2", "slave2");
+        slave2.save();
+        int expectedCost = 17;
+        Duration expectedTimeToLive = Duration.ofMinutes(1);
+
+        // Business method
+        G3CommunicationPathSegment segment = topologyService.addIntermediateCommunicationSegment(slave1, gateway, slave2, expectedTimeToLive, expectedCost);
+
+        // Asserts
+        assertThat(segment).isNotNull();
+        assertThat(segment.getCost()).isEqualTo(expectedCost);
+        assertThat(segment.getTimeToLive()).isEqualTo(expectedTimeToLive);
+        assertThat(segment.getNextHopDevice()).isNotNull();
+        assertThat(segment.getNextHopDevice().isPresent()).isTrue();
+        assertThat(segment.getNextHopDevice().get()).isEqualTo(slave2);
+    }
+
+    @Test
+    @Transactional
+    public void addBuildCommunicationPath() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device gateway = deviceService.newDevice(deviceConfiguration, "gateway", "physGateway");
+        gateway.save();
+        Device slave1 = deviceService.newDevice(deviceConfiguration, "slave1", "slave1");
+        slave1.save();
+        topologyService.setPhysicalGateway(slave1, gateway);
+        Device slave2 = deviceService.newDevice(deviceConfiguration, "slave2", "slave2");
+        slave2.save();
+        topologyService.setPhysicalGateway(slave2, gateway);
+        Device slave3 = deviceService.newDevice(deviceConfiguration, "slave3", "slave3");
+        slave3.save();
+        topologyService.setPhysicalGateway(slave3, gateway);
+        int cost = 17;
+        Duration timeToLive = Duration.ofMinutes(1);
+        topologyService.addIntermediateCommunicationSegment(slave1, gateway, slave2, timeToLive, cost);
+        topologyService.addIntermediateCommunicationSegment(slave2, gateway, slave3, timeToLive, cost);
+        topologyService.addFinalCommunicationSegment(slave3, gateway, timeToLive, cost);
+
+        // Business method
+        G3CommunicationPath communicationPath = topologyService.getCommunicationPath(slave1, gateway);
+
+        // Asserts
+        assertThat(communicationPath.getNumberOfHops()).isEqualTo(2);
     }
 
     private ServerDeviceService getDeviceService() {

@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +42,7 @@ public interface TopologyService {
     public void clearPhysicalGateway(Device slave);
 
     /**
-     * Finds the {@link Device}s which are physically connected to the specified Device.
+     * Finds the {@link Device}s that are physically connected to the specified Device.
      *
      * @param device the 'master' device
      * @return The List of physically connected devices
@@ -65,5 +66,19 @@ public interface TopologyService {
      * @return a <CODE>List</CODE> of <CODE>Channel</CODE> objects
      */
     public List<Channel> getAllChannels(LoadProfile loadProfile);
+
+    /**
+     * Gets the {@link G3CommunicationPath} that was used to communication
+     * from the source to the target {@link Device}.
+     *
+     * @param source The source Device
+     * @param target The target Device
+     * @return The G3CommunicationPath
+     */
+    public G3CommunicationPath getCommunicationPath(Device source, Device target);
+
+    public G3CommunicationPathSegment addIntermediateCommunicationSegment(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost);
+
+    public G3CommunicationPathSegment addFinalCommunicationSegment(Device source, Device target, Duration timeToLive, int cost);
 
 }

@@ -9,10 +9,11 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.topology.G3CommunicationPath;
+import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -24,6 +25,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -33,6 +35,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +45,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.conditions.Where.*;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link TopologyService} interface.
@@ -56,7 +59,6 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
-    private volatile EventService eventService;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
 
@@ -67,12 +69,11 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     // For unit testing purposes only
     @Inject
-    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, EventService eventService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService) {
+    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setClock(clock);
-        this.setEventService(eventService);
         this.setConnectionTaskService(connectionTaskService);
         this.setCommunicationTaskService(communicationTaskService);
         this.activate();
@@ -292,6 +293,53 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         this.dataModel = dataModel;
     }
 
+    @Override
+    public G3CommunicationPath getCommunicationPath(Device source, Device target) {
+        G3CommunicationPathImpl communicationPath = new G3CommunicationPathImpl(source, target);
+        DataMapper<G3CommunicationPathSegment> mapper = this.dataModel.mapper(G3CommunicationPathSegment.class);
+        SqlBuilder sqlBuilder = mapper.builder("cps");
+        sqlBuilder.append("where cps.discriminator = ");
+        sqlBuilder.addObject(CommunicationPathSegmentImpl.G3_DISCRIMINATOR);
+        sqlBuilder.append("start with (cps.srcdevice = ");
+        sqlBuilder.addLong(source.getId());
+        sqlBuilder.append("and cps.targetdevice = ");
+        sqlBuilder.addLong(target.getId());
+        sqlBuilder.append(") connect by (cps.srcdevice = prior cps.nexthopdevice and cps.targetdevice = ");
+        sqlBuilder.addLong(target.getId());
+        sqlBuilder.append(")");
+        mapper.fetcher(sqlBuilder).forEach(communicationPath::addSegment);
+        return communicationPath;
+    }
+
+    @Override
+    public G3CommunicationPathSegment addIntermediateCommunicationSegment(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost) {
+        return this.addCommunicationSegment(source, target, Optional.of(intermediateHop), timeToLive, cost);
+    }
+
+    @Override
+    public G3CommunicationPathSegment addFinalCommunicationSegment(Device source, Device target, Duration timeToLive, int cost) {
+        return this.addCommunicationSegment(source, target, Optional.empty(), timeToLive, cost);
+    }
+
+    private G3CommunicationPathSegment addCommunicationSegment(Device source, Device target, Optional<Device> intermediateHop, Duration timeToLive, int cost) {
+        Instant now = this.clock.instant();
+        DataMapper<G3CommunicationPathSegment> mapper = this.dataModel.mapper(G3CommunicationPathSegment.class);
+        G3CommunicationPathSegmentImpl segment;
+        if (intermediateHop.isPresent()) {
+            segment = this.dataModel
+                    .getInstance(G3CommunicationPathSegmentImpl.class)
+                    .createIntermediate(source, target, Interval.startAt(now), intermediateHop.get(), timeToLive.getSeconds(), cost);
+        }
+        else {
+            segment = this.dataModel
+                    .getInstance(G3CommunicationPathSegmentImpl.class)
+                    .createFinal(source, target, Interval.startAt(now), timeToLive.getSeconds(), cost);
+        }
+        Save.CREATE.validate(this.dataModel, segment);
+        mapper.persist(segment);
+        return segment;
+    }
+
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(TopologyService.COMPONENT_NAME, Layer.DOMAIN);
@@ -300,11 +348,6 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
-    }
-
-    @Reference
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
     }
 
     @Reference
