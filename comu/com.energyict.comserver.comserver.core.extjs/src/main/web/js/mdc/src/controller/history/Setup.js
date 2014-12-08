@@ -404,6 +404,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 messages: {
                                                     title: 'Commands',
                                                     route: 'messages',
+                                                    privileges: ['privilege.administrate.deviceCommand','privilege.view.deviceCommand'],
                                                     controller: 'Mdc.controller.setup.Messages',
                                                     action: 'showMessagesOverview'
                                                 }
