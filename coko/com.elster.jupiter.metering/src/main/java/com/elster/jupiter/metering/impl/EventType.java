@@ -13,6 +13,7 @@ public enum EventType {
     USAGEPOINT_CREATED("usagepoint/CREATED", true),
     USAGEPOINT_UPDATED("usagepoint/UPDATED", true),
     USAGEPOINT_DELETED("usagepoint/DELETED", true),
+    ENDDEVICEGROUP_VALIDATE_DELETED("enddevicegroup/DELETED"),
     CHANNEL_CREATED("channel/CREATED"),
     CHANNEL_UPDATED("channel/UPDATED"),
     CHANNEL_DELETED("channel/DELETED"),
