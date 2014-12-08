@@ -67,7 +67,7 @@ public class MdcPropertyUtils {
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, Device device) {
         List<PropertyInfo> propertyInfoList = new ArrayList<>();
         for (PropertySpec<?> propertySpec : propertySpecs) {
-            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, true, false);
+            PropertyValueInfo<?> propertyValueInfo = getThePropertyValueInfo(properties, propertySpec, SHOW_VALUES, WITHOUT_PRIVILEGES);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(null, propertySpec, simplePropertyType, device);
             PropertyInfo propertyInfo = new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
