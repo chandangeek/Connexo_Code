@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.metering.EventType;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -18,7 +19,7 @@ public class DeviceGroupDeletionEventHandler implements TopicHandler {
 
     @Override
     public String getTopicMatcher() {
-        return "com/elster/jupiter/metering/enddevicegroup/VALIDATE_DELETE";
+        return EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic();
     }
 
 
