@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -35,6 +36,7 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -87,6 +89,8 @@ public class OfflineDeviceImplTest {
     private DeviceService deviceService;
     @Mock
     private DeviceMessageFactory deviceMessageFactory;
+    @Mock
+    private TopologyService topologyService;
     @Mock
     private OfflineDeviceImpl.ServiceProvider offlineDeviceServiceProvider;
     @Mock
@@ -150,6 +154,10 @@ public class OfflineDeviceImplTest {
         when(applicationContext.getModulesImplementing(DeviceMessageFactory.class)).thenReturn(Arrays.asList(deviceMessageFactory));
         Environment.DEFAULT.set(mockedEnvironment);
         when(this.offlineDeviceServiceProvider.findProtocolCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
+        when(this.offlineDeviceServiceProvider.topologyService()).thenReturn(this.topologyService);
+        when(this.topologyService.getPhysicalGateway(any(Device.class))).thenReturn(Optional.empty());
+        when(this.topologyService.getPhysicalGateway(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(this.topologyService.findPhysicalConnectedDevices(any(Device.class))).thenReturn(Collections.<Device>emptyList());
     }
 
     private int getTotalSizeOfProperties() {
@@ -200,18 +208,16 @@ public class OfflineDeviceImplTest {
         when(slave1.getDeviceType()).thenReturn(slaveRtuType);
         Device slaveFromSlave1 = createMockDevice(789, "slaveFromSlave1");
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
-//        OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
-        when(slave1.getPhysicalConnectedDevices()).thenReturn(Arrays.asList(slaveFromSlave1));
-//        OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
+        when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Arrays.asList(slaveFromSlave1));
 
         Device slave2 = createMockDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
-//        OfflineDevice offlineSlave2 = new OfflineDeviceImpl(slave2, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
-        when(rtu.getPhysicalConnectedDevices()).thenReturn(Arrays.asList(slave1, slave2));
+        when(this.topologyService.findPhysicalConnectedDevices(rtu)).thenReturn(Arrays.asList(slave1, slave2));
 
+        // Business method
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(rtu, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
-        //asserts
+        // Asserts
         assertNotNull(offlineRtu.getAllSlaveDevices());
         assertEquals("Expected three slave devices", 3, offlineRtu.getAllSlaveDevices().size());
 //        assertThat(offlineRtu.getAllSlaveDevices().contains(offlineSlave1)).isTrue();
@@ -232,12 +238,12 @@ public class OfflineDeviceImplTest {
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
         OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
-        when(slave1.getPhysicalConnectedDevices()).thenReturn(Arrays.asList(slaveFromSlave1));
+        when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Arrays.asList(slaveFromSlave1));
 
         Device slave2 = createMockDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
         OfflineDevice offlineSlave2 = new OfflineDeviceImpl(slave2, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
-        when(device.getPhysicalConnectedDevices()).thenReturn(Arrays.asList(slave1, slave2));
+        when(this.topologyService.findPhysicalConnectedDevices(device)).thenReturn(Arrays.asList(slave1, slave2));
 
         ObisCode obisCode1 = ObisCode.fromString("1.0.99.1.0.255");
         ObisCode obisCode2 = ObisCode.fromString("1.0.99.2.0.255");
@@ -302,7 +308,7 @@ public class OfflineDeviceImplTest {
         Register registerSlave2 = createMockedRegister(createMockedRegisterSpec(registerType), device);
         when(slaveWithoutNeedProxy.getDeviceType()).thenReturn(notASlaveRtuType);
         when(slaveWithoutNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave2));
-        when(device.getPhysicalConnectedDevices()).thenReturn(Arrays.asList(slaveWithNeedProxy, slaveWithoutNeedProxy));
+        when(this.topologyService.findPhysicalConnectedDevices(device)).thenReturn(Arrays.asList(slaveWithNeedProxy, slaveWithoutNeedProxy));
 
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
@@ -413,7 +419,7 @@ public class OfflineDeviceImplTest {
         DeviceType deviceTypeSlave = mock(DeviceType.class);
         when(slaveWithoutCapability.getDeviceType()).thenReturn(deviceTypeSlave);
         when(slaveWithoutCapability.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
-        when(master.getPhysicalConnectedDevices()).thenReturn(Arrays.asList(slaveWithoutCapability));
+        when(this.topologyService.findPhysicalConnectedDevices(master)).thenReturn(Arrays.asList(slaveWithoutCapability));
 
         // business method
         OfflineDevice offlineDevice = new OfflineDeviceImpl(master, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG), this.offlineDeviceServiceProvider);
@@ -433,7 +439,7 @@ public class OfflineDeviceImplTest {
         Device slaveWithCapability = createMockDevice();
         when(slaveWithCapability.getId()).thenReturn(slaveId);
         when(slaveWithCapability.getDeviceType()).thenReturn(deviceTypeSlave);
-        when(master.getPhysicalConnectedDevices()).thenReturn(Arrays.asList(slaveWithCapability));
+        when(this.topologyService.findPhysicalConnectedDevices(master)).thenReturn(Arrays.asList(slaveWithCapability));
 
         // business method
         OfflineDevice offlineDevice = new OfflineDeviceImpl(master, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG), this.offlineDeviceServiceProvider);

@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
@@ -12,8 +11,6 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
@@ -140,7 +137,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
         addProperties(this.device.getDeviceProtocolProperties());
 
         if (context.needsSlaveDevices()) {
-            List<Device> downstreamDevices = this.device.getPhysicalConnectedDevices();
+            List<Device> downstreamDevices = serviceProvider.topologyService().findPhysicalConnectedDevices(this.device);
             List<Device> downStreamEndDevices = new ArrayList<>(downstreamDevices.size());
             for (Device downstreamDevice : downstreamDevices) {
                 downStreamEndDevices.add(downstreamDevice);
@@ -151,13 +148,13 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setMasterLoadProfiles(convertToOfflineLoadProfiles(this.device.getLoadProfiles(), serviceProvider.topologyService()));
         }
         if (context.needsAllLoadProfiles()) {
-            setAllLoadProfiles(convertToOfflineLoadProfiles((List)getAllLoadProfilesIncludingDownStreams(this.device), serviceProvider.topologyService()));
+            setAllLoadProfiles(convertToOfflineLoadProfiles(getAllLoadProfilesIncludingDownStreams(this.device, serviceProvider.topologyService()), serviceProvider.topologyService()));
         }
         if (context.needsLogBooks()) {
             setAllLogBooks(convertToOfflineLogBooks(this.device.getLogBooks()));
         }
         if (context.needsRegisters()) {
-            setAllRegisters(convertToOfflineRegister((List)createCompleteRegisterList()));
+            setAllRegisters(convertToOfflineRegister(createCompleteRegisterList(serviceProvider.topologyService())));
         }
         if (context.needsPendingMessages()) {
             setAllPendingMessages(createPendingMessagesList());
@@ -190,35 +187,37 @@ public class OfflineDeviceImpl implements OfflineDevice {
      *
      * @return the list of all RtuRegisters
      */
-    private List<BaseRegister> createCompleteRegisterList() {
-        List<BaseRegister> registers = new ArrayList<>();
+    private List<Register> createCompleteRegisterList(TopologyService topologyService) {
+        List<Register> registers = new ArrayList<>();
         registers.addAll(this.device.getRegisters());
-        for (Device slave : this.device.getPhysicalConnectedDevices()) {
-            if (checkTheNeedToGoOffline(slave)) {
-                registers.addAll(slave.getRegisters());
-            }
-        }
+        registers.addAll(
+            topologyService
+                .findPhysicalConnectedDevices(device)
+                .stream()
+                .filter(this::checkTheNeedToGoOffline)
+                .flatMap(slave -> slave.getRegisters().stream())
+                .collect(Collectors.toList()));
         return registers;
     }
 
     /**
-     * Create a <CODE>List</CODE> of all the <CODE>LoadProfiles</CODE> an <CODE>Device</CODE> has,
-     * including his {@link com.energyict.mdc.protocol.api.device.BaseDevice#getPhysicalConnectedDevices()} which have the
+     * Create a <CODE>List</CODE> of all the <CODE>LoadProfiles</CODE> a <CODE>Device</CODE> has,
+     * including the physically connected devices which have the
      * {@link com.energyict.mdc.device.config.DeviceType#isLogicalSlave()} flag checked.
      *
      * @param device the <CODE>Device</CODE> to collect the <CODE>LoadProfiles</CODE> from
      * @return a List of <CODE>LoadProfiles</CODE>
      */
-    private List<BaseLoadProfile<Channel>> getAllLoadProfilesIncludingDownStreams(Device device) {
-        List<BaseLoadProfile<Channel>> allLoadProfiles = new ArrayList<BaseLoadProfile<Channel>>(device.getLoadProfiles());
-        for (Device slave : device.getPhysicalConnectedDevices()) {
+    private List<LoadProfile> getAllLoadProfilesIncludingDownStreams(Device device, TopologyService topologyService) {
+        List<LoadProfile> allLoadProfiles = new ArrayList<>(device.getLoadProfiles());
+        for (Device slave : topologyService.findPhysicalConnectedDevices(device)) {
             if (checkTheNeedToGoOffline(slave)) {
-                for (BaseLoadProfile<Channel> lp : getAllLoadProfilesIncludingDownStreams(slave)) {
+                for (LoadProfile lp : getAllLoadProfilesIncludingDownStreams(slave, topologyService)) {
                     if (lp.getLoadProfileTypeObisCode().anyChannel()) {
                         allLoadProfiles.add(lp);
                     } else {
                         boolean doesNotExist = true;
-                        for (BaseLoadProfile<Channel> lpListItem : allLoadProfiles) {
+                        for (LoadProfile lpListItem : allLoadProfiles) {
                             if (lp.getLoadProfileTypeObisCode().equals(lpListItem.getLoadProfileTypeObisCode())) {
                                 doesNotExist = false;
                             }
