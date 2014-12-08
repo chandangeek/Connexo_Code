@@ -57,7 +57,3 @@ public class DeviceConnectionTaskInfo {
         public ConnectionTaskLifecycleStatus status;
     }
 }
-
-
-
-

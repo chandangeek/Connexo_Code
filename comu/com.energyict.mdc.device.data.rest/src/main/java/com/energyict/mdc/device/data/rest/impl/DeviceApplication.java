@@ -120,7 +120,8 @@ public class DeviceApplication extends Application implements InstallService {
                 ComSessionResource.class,
                 DeviceMessageResource.class,
                 DeviceLabelResource.class,
-                ConnectionResource.class
+                ConnectionResource.class,
+                CommunicationResource.class
         );
     }
 
@@ -329,6 +330,7 @@ public class DeviceApplication extends Application implements InstallService {
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(favoritesService).to(FavoritesService.class);
             bind(DeviceConnectionTaskInfoFactory.class).to(DeviceConnectionTaskInfoFactory.class);
+            bind(DeviceComTaskExecutionInfoFactory.class).to(DeviceComTaskExecutionInfoFactory.class);
         }
     }
 

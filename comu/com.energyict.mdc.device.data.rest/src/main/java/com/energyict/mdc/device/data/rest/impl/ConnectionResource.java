@@ -62,7 +62,7 @@ public class ConnectionResource {
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
     public Response activateDeactivateConnection(@PathParam("mRID") String mrid, @PathParam("id") long connectionTaskId, @Context UriInfo uriInfo, DeviceConnectionTaskInfo connectionTaskInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> task = resourceHelper.findConnectionTaskOrThrowException(device, connectionTaskId);
+        ConnectionTask<?, ?> task = resourceHelper.findConnectionTaskOrThrowException(device, connectionTaskId);
         switch (connectionTaskInfo.connectionMethod.status) {
         case ACTIVE:
             task.activate();

@@ -190,7 +190,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_DEVICE_LABEL(220, "NoSuchDeviceLabel", "No such device label of category ''{0}'' on a device {1}"),
     NOT_APPLICABLE(221, "NotApplicable", "Not applicable"),
     NO_RESTRICTIONS(222, "NoRestrictions", "No restrictions"),
-    RUN_CONNECTIONTASK_IMPOSSIBLE(223,"runConTaskImpossible", "Running of this connection task is impossible"),
+    RUN_CONNECTIONTASK_IMPOSSIBLE(224,"runConTaskImpossible", "Running of this connection task is impossible"),
+    NO_SUCH_COMMUNICATION(223, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),
     ;
 
 
