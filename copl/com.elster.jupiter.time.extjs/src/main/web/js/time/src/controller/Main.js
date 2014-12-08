@@ -28,33 +28,21 @@ Ext.define('Tme.controller.Main', {
     },
 
     initMenu: function () {
-        var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
-            portal: 'administration',
-            glyph: 'settings',
-            index: 10
-        });
-
-        //if (Uni.Auth.hasAnyPrivilege(['privilege.upload.license', 'privilege.view.license'])) {
-/*            var relativePeriodItem = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.licenses', 'TME', 'Relative Period'),
+        var relativePeriodItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.relativePeriod', 'TME', 'Relative period'),
                 portal: 'administration',
-                route: 'relativeperiods',
                 items: [
                     {
-                        text: Uni.I18n.translate('general.licenses', 'TME', 'Relative Periods'),
-                        href: '#/administration/relativeperiods/add',
-                        route: 'licenses'
+                        text: Uni.I18n.translate('general.relativePeriods', 'TME', 'Relative periods'),
+                        href: '#/administration/relativeperiods',
+                        route: 'relativeperiods'
                     }
                 ]
             });
 
-            Uni.store.PortalItems.add(
-                relativePeriodItem
-            );*/
-        //}
-
-        //Uni.store.MenuItems.add(menuItem);
+        Uni.store.PortalItems.add(
+            relativePeriodItem
+        );
     }
 });
 

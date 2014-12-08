@@ -5,7 +5,9 @@ Ext.define('Tme.controller.RelativePeriods', {
     ],
 
     views: [
-        'Tme.view.relativeperiod.Edit'
+        'Tme.view.relativeperiod.Setup',
+        'Tme.view.relativeperiod.Edit',
+        'Tme.view.relativeperiod.Details'
     ],
 
     stores: [
@@ -21,15 +23,21 @@ Ext.define('Tme.controller.RelativePeriods', {
 
     refs: [
         {ref: 'page', selector: 'tme-relativeperiod-edit'},
-        {ref: 'categoriesTextFields', selector: 'tme-relativeperiod-edit #categories-combo-box'}
+        {ref: 'categoriesTextFields', selector: 'tme-relativeperiod-edit #categories-combo-box'},
+        {ref: 'periodsPage', selector: 'relative-periods-setup'}
     ],
 
     init: function () {
         this.control({
             'tme-relativeperiod-edit #create-edit-button': {
                 click: this.createEditPeriod
+            },
+            'relative-periods-setup relative-periods-grid': {
+                select: this.showPreview
+            },
+            'relative-periods-action-menu': {
+                click: this.chooseAction
             }
-
         });
     },
 
@@ -75,10 +83,12 @@ Ext.define('Tme.controller.RelativePeriods', {
                     } else {
                         messageText = Uni.I18n.translate('relativeperiod.addSuccess.msg', 'TME', 'Relative period added');
                     }
-                    if (!me.fromEditTask) {
+                    if (me.fromAddTask) {
                         location.href = '#/administration/dataexporttasks/add';
-                    } else {
+                    } else if (me.fromEditTask) {
                         location.href = '#/administration/dataexporttasks/' + me.taskId + '/edit';
+                    } else {
+                        location.href = '#/administration/relativeperiods';
                     }
 
                     me.getApplication().fireEvent('acknowledge', messageText);
@@ -122,21 +132,20 @@ Ext.define('Tme.controller.RelativePeriods', {
         }
     },
 
-    showOverview: function () {
-        // Nothing to do here, placeholder for now.
-    },
-
     showAddRelativePeriod: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             cancelLink,
             view;
         me.fromEditTask = router.queryParams.fromEdit === 'true';
-        if (!me.fromEditTask) {
+        me.fromAddTask = router.queryParams.fromEdit === 'false';
+        if (me.fromAddTask) {
             cancelLink = '#/administration/dataexporttasks/add';
-        } else {
+        } else if (me.fromEditTask) {
             me.taskId = router.queryParams.taskId;
             cancelLink = '#/administration/dataexporttasks/' + me.taskId + '/edit';
+        } else {
+            cancelLink = '#/administration/relativeperiods';
         }
         view = Ext.create('Tme.view.relativeperiod.Edit', {
             returnLink: cancelLink
@@ -164,6 +173,102 @@ Ext.define('Tme.controller.RelativePeriods', {
                     single: true
                 }
             });
+        });
+    },
+
+    showRelativePeriods: function () {
+        var me = this,
+            view = Ext.widget('relative-periods-setup', {
+                router: me.getController('Uni.controller.history.Router')
+            });
+
+        me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    showPreview: function (selectionModel, record) {
+        var me = this,
+            page = me.getPeriodsPage(),
+            preview = page.down('relative-periods-preview'),
+            previewForm = page.down('relative-periods-preview-form');
+
+        preview.setTitle(record.get('name'));
+        previewForm.loadRecord(record);
+        preview.down('relative-periods-action-menu').record = record;
+    },
+
+    chooseAction: function (menu, item) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            route;
+
+        router.arguments.periodId = menu.record.getId();
+
+        switch (item.action) {
+            case 'removePeriod':
+                me.removePeriod(menu.record);
+                break;
+            case 'viewDetails':
+                route = 'administration/relativeperiods/relativeperiod';
+                break;
+        }
+
+        route && (route = router.getRoute(route));
+        route && route.forward(router.arguments);
+    },
+
+    removePeriod: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+
+        confirmationWindow.show({
+            msg: Uni.I18n.translate('relativeperiod.removeMsg', 'TME', 'This relative period will no longer be available.'),
+            title: Uni.I18n.translate('general.remove', 'TME', 'Remove') + ' ' + record.data.name + ' ?',
+            fn: function (state) {
+                if (state === 'confirm') {
+                    record.destroy({
+                        success: function () {
+                            if (me.getPeriodsPage()) {
+                                var grid = me.getPeriodsPage().down('relative-periods-grid');
+                                grid.down('pagingtoolbartop').totalCount = 0;
+                                grid.down('pagingtoolbarbottom').resetPaging();
+                                grid.getStore().load();
+                            } else {
+                                me.getController('Uni.controller.history.Router').getRoute('administration/relativeperiods').forward();
+                            }
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('relativePeriod.confirm.msg', 'DXP', 'Relative period removed'));
+                        }
+                    });
+                } else if (state === 'cancel') {
+                    this.close();
+                }
+            }
+        });
+    },
+
+    showRelativePeriodDetails: function (periodId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            taskModel = me.getModel('Tme.model.RelativePeriod'),
+            view = Ext.widget('relative-periods-details', {
+                router: router
+            }),
+            relativePeriodPreview = view.down('uni-form-relativeperiodpreview'),
+            actionsMenu = view.down('relative-periods-action-menu'),
+            sideMenu = view.down('relative-periods-menu');
+
+        me.getApplication().fireEvent('changecontentevent', view);
+        taskModel.load(periodId, {
+            success: function (record) {
+                var detailsForm = view.down('relative-periods-preview-form');
+                actionsMenu.record = record;
+                actionsMenu.down('#view-details').hide();
+                me.getApplication().fireEvent('relativeperiodload', record);
+                detailsForm.loadRecord(record);
+                sideMenu.setTitle(record.get('name'));
+                relativePeriodPreview.updateStartPeriodValue(record.data.from);
+                relativePeriodPreview.updateEndPeriodValue(record.data.to);
+                relativePeriodPreview.updatePreview();
+            }
         });
     }
 });

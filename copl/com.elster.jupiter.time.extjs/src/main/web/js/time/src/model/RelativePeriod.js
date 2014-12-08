@@ -3,11 +3,31 @@ Ext.define('Tme.model.RelativePeriod', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string', useNull: true},
-        //{name: 'categories', type: 'string', useNull: true},
         'from',
         'to',
-        'categories'
+        'categories',
+        {
+            name: 'listOfCategories',
+            persist: false,
+            mapping: function (data) {
+                var arr = data.categories;
+                if (!Ext.isEmpty(arr)) {
+                    var str = '';
+                    Ext.Array.each(arr, function (item) {
+                        if (item !== arr[arr.length - 1]) {
+                            str += item.name + ', ';
+                        } else {
+                            str += item.name;
+                        }
+                    });
+                    return str;
+                } else {
+                    return ''
+                }
+            }
+        }
     ],
+
     idProperty: 'id',
     associations: [
         {
