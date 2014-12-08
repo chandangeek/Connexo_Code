@@ -184,7 +184,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
             return -1;
         }
         int numberOfEvents = getNumberOfDevicesWithEvents(concentrator.get());
-        int numberOfConnectedDevices = this.topologyService.getPhysicalConnectedDevices(concentrator.get()).size();
+        int numberOfConnectedDevices = this.topologyService.findPhysicalConnectedDevices(concentrator.get()).size();
         if (numberOfConnectedDevices == 0) {
             LOG.log(Level.WARNING, "Number of connected devices for concentrator[id={0}] equals 0", concentrator.get().getId());
             return -1;
