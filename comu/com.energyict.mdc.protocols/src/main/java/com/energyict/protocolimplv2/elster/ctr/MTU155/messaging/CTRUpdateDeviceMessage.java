@@ -4,11 +4,11 @@ import com.energyict.comserver.commands.UpdateDeviceMessage;
 import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.comserver.issues.WarningImpl;
 import com.energyict.mdc.journal.CompletionCode;
-import com.energyict.mdc.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.DeviceProtocolMessageAcknowledgement;
 import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
 import com.energyict.mdc.tasks.ComTaskExecution;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
 /**
  * @author sva

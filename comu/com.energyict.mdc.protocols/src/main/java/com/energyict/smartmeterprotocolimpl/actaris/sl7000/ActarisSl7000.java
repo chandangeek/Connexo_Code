@@ -48,7 +48,7 @@ import java.util.logging.Level;
  * Date: 17/07/12
  * Time: 16:41
  */
-public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol, TimeOfUseMessaging {
+public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol {
 
     /**
      * Contains properties related to the Actaris SL7000 protocol
@@ -191,16 +191,11 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         return logbook.getMeterEvents(dc);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Actaris SL7000 DLMS";
-    }
-
     /**
      * Returns the protocol version
      */
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-11-28 15:19:52 +0100 (Fri, 28 Nov 2014) $";
     }
 
     /**
@@ -255,7 +250,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
     public StoredValues getStoredValues() {
         if (storedValues == null) {
-            storedValues = new StoredValuesImpl(getDlmsSession().getCosemObjectFactory());
+            storedValues = new StoredValuesImpl(this);
         }
         return storedValues;
     }
@@ -289,13 +284,5 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
             messageProtocol = new Messages(this);
         }
         return messageProtocol;
-    }
-
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return getMessageProtocol().getTimeOfUseMessageBuilder();
-    }
-
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        return getMessageProtocol().getTimeOfUseMessagingConfig();
     }
 }

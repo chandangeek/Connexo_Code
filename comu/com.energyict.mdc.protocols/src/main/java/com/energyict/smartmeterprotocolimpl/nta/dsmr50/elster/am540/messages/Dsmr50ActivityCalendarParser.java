@@ -4,8 +4,8 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeDayType;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.codetables.CodeDayType;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Map;

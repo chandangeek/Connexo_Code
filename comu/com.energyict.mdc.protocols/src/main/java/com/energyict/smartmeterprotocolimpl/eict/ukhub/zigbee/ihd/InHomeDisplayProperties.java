@@ -54,9 +54,6 @@ public class InHomeDisplayProperties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
         optional.add(UkHubSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
         optional.add(UkHubSecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
-        optional.add(UkHubSecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
-        optional.add(UkHubSecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
-        optional.add(UkHubSecurityProvider.NEW_HLS_SECRET);
         return optional;
     }
 

@@ -7,7 +7,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;

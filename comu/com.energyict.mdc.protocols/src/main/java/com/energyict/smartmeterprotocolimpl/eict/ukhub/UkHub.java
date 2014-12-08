@@ -51,7 +51,7 @@ import java.util.logging.Logger;
  * The UK hub has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE, more specifically Zigbee HAN functionality
  * and Prepayment
  */
-public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, SmartMeterToolProtocol, WakeUpProtocolSupport {
+public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
     /**
      * The properties to use for this protocol
@@ -71,11 +71,6 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private UkHubRegisterFactory registerFactory = null;
     private UkHubEventProfiles ukHubEventProfiles = null;
     private boolean reboot = false;
-
-    @Override
-    public void addProperties(Properties properties) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
 
     /**
      * Getter for the MessageProtocol implementation
@@ -272,18 +267,13 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         return new ArrayList<>();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT AM110R (SSWG IC) DLMS";
-    }
-
     /**
      * Returns the version
      *
      * @return the version string
      */
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     /**

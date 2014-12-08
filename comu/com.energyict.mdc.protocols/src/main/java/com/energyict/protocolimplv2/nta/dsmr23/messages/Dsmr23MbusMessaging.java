@@ -1,14 +1,14 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;

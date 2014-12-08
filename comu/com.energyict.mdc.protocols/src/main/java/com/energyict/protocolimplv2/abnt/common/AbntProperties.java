@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;

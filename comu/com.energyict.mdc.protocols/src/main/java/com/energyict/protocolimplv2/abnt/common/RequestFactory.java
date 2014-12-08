@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocolimplv2.MdcManager;
+
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.exception.UnknownFunctionCodeParsingException;
@@ -41,6 +42,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandR
 import com.energyict.protocolimplv2.abnt.common.structure.field.DstConfigurationRecord;
 import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileDataSelector;
 import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileReadSizeArgument;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -367,7 +369,7 @@ public class RequestFactory {
             response.doParseData();    // Parsing of the frame data content is done here
             return response;
         } catch (UnknownFunctionCodeParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -377,7 +379,7 @@ public class RequestFactory {
             response.doParseData();    // Parsing of the frame data content is done here
             return response;
         } catch (UnknownFunctionCodeParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 

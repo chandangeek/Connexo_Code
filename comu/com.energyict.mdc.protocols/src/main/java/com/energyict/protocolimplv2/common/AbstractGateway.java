@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.common;
 
-import com.energyict.cpo.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -11,7 +11,7 @@ import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.*;
 import com.energyict.protocol.*;
-import com.energyict.protocolimplv2.MdcManager;
+
 
 import java.util.Date;
 import java.util.List;

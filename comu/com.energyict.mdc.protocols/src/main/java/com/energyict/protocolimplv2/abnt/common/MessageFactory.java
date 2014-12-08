@@ -1,20 +1,22 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
-import com.energyict.protocol.ProtocolException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.BcdEncodedField;
@@ -29,10 +31,6 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.DstEnablementSta
 import com.energyict.protocolimplv2.abnt.common.structure.field.EventField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.HistoryLogRecord;
 import com.energyict.protocolimplv2.abnt.common.structure.field.HolidayRecord;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;
@@ -42,7 +40,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 
 /**
  * @author sva
@@ -205,7 +203,7 @@ public class MessageFactory implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return MdcManager.getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
     }
 
     private void messageNotSupported(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
@@ -276,7 +274,7 @@ public class MessageFactory implements DeviceMessageSupport {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
     }
 

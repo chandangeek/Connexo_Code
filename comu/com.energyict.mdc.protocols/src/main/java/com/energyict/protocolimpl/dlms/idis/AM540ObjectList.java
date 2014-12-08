@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.dlms.idis;
 
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 /**
  * Copyrights EnergyICT

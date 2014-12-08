@@ -168,7 +168,7 @@ public abstract class AbstractMessageExecutor {
         return (byte) dow;
     }
 
-    private CollectedDataFactory getCollectedDataFactory() {
+    protected CollectedDataFactory getCollectedDataFactory() {
         return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 }

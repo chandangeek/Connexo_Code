@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.a1800;
 
 import com.energyict.dlms.UniversalObject;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.util.ArrayList;
 import java.util.Arrays;

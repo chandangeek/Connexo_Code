@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
-import com.energyict.cbo.Quantity;
+import com.elster.jupiter.users.User;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -37,44 +37,43 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedMessage;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.User;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ProtocolException;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.impl.device.messages.AdvancedTestMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.DisplayDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.LoadBalanceDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.LoadProfileMessage;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+
+import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.NetworkConnectivityMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -87,7 +86,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 
 /**
  * @author sva
@@ -104,7 +103,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         List<OfflineDeviceMessage> masterMessages = getMessagesOfMaster(pendingMessages);
         List<OfflineDeviceMessage> mbusMessages = getMbusMessages(pendingMessages);
@@ -192,7 +191,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                 }
             }
-            result.addCollectedMessage(collectedMessage);
+            result.addCollectedMessages(collectedMessage);
         }
         return result;
     }
@@ -277,9 +276,9 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 return collectedMessage;
             }
 
-            com.energyict.protocol.Register previousRegister = null;
+            Register previousRegister = null;
             List<CollectedRegister> collectedRegisters = new ArrayList<>();
-            for (com.energyict.protocol.Register register : builder.getRegisters()) {
+            for (Register register : builder.getRegisters()) {
                 if (register.equals(previousRegister)) {
                     continue;    //Don't add the same intervals twice if there's 2 channels with the same obiscode
                 }

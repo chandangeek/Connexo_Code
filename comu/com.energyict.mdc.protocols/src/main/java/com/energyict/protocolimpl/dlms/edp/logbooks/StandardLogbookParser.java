@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.edp.logbooks;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.dlms.edp.CX20009;
 

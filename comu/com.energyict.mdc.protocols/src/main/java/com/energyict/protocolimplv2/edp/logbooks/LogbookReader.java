@@ -2,11 +2,11 @@ package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimplv2.edp.CX20009;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 

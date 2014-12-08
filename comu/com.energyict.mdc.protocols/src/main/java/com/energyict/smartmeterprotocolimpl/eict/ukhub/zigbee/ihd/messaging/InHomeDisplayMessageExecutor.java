@@ -3,10 +3,10 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 /**
  * Provides functionality to process messages for the InHomeDisplay
  */
-public class InHomeDisplayMessageExecutor extends GenericMessageExecutor {
+public class InHomeDisplayMessageExecutor extends MessageParser {
 
     public static ObisCode IMAGE_TRANSFER_OBIS = ObisCode.fromString("0.2.44.0.0.255");
     public static ObisCode IMAGE_ACTIVATION_SCHEDULER = ObisCode.fromString("0.0.15.0.2.255");
@@ -76,6 +76,7 @@ public class InHomeDisplayMessageExecutor extends GenericMessageExecutor {
         } catch (InterruptedException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
+            Thread.currentThread().interrupt();
         }
 
         if (success) {

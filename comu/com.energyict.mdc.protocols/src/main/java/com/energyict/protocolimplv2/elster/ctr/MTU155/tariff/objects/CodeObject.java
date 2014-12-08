@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.core.Code;
+import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.CodeDayType;
+import com.energyict.mdc.protocol.api.codetables.CodeDayType;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.edp.registers;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.axrdencoding.util.AXDRTime;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 

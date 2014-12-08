@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;

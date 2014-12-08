@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
@@ -23,7 +23,7 @@ import java.util.List;
  * Date: 20/07/11
  * Time: 16:55
  */
-public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMessaging {
+public class ZigbeeGasMessaging extends GenericMessaging {
 
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
     private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
@@ -131,21 +131,6 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
         tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
-    }
-
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        if (messageBuilder == null) {
-            this.messageBuilder = new ZigbeeTimeOfUseMessageBuilder();
-        }
-        return messageBuilder;
-    }
-
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        TimeOfUseMessagingConfig config = new TimeOfUseMessagingConfig();
-        config.setNeedsName(true);
-        config.setSupportsCodeTables(true);
-        config.setZipContent(true);
-        return config;
     }
 
     @Override

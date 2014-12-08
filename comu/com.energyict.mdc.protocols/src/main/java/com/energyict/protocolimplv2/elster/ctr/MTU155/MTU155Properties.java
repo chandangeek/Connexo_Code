@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.cpo.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.TimeZoneInUse;

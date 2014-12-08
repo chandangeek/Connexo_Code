@@ -44,7 +44,7 @@ import java.util.logging.Logger;
 /**
  * The ZigbeeGas logical device has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE.
  */
-public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, TimeOfUseMessaging, WakeUpProtocolSupport {
+public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
     /**
      * The properties to use for this protocol
@@ -217,17 +217,12 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
         return getZigbeeGasLoadProfile().getLoadProfileData(loadProfilesToRead);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster BK-G4E (SSWG IC) DLMS";
-    }
-
     /**
      * Returns the implementation version
      * @return the version
      */
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     /**
@@ -309,14 +304,6 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
             this.registerFactory = new ZigbeeGasRegisterFactory(this);
         }
         return registerFactory;
-    }
-
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return getMessageProtocol().getTimeOfUseMessageBuilder();
-    }
-
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        return getMessageProtocol().getTimeOfUseMessagingConfig();
     }
 
     /**

@@ -36,11 +36,15 @@ import com.energyict.mdc.protocol.api.impl.device.messages.AlarmConfigurationMes
 import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.FirewallConfigurationMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.GeneralDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.NetworkConnectivityMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.OutputConfigurationMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.PLCConfigurationDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.PPPConfigurationDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.UplinkConfigurationDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -62,14 +66,17 @@ import java.util.logging.Level;
 public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private final DlmsSession session;
-    private List<DeviceMessageSpec> supportedMessages = null;
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
+
+//    private Set<DeviceMessageId> supportedMessages = EnumSet.of(
+//
+//    );
 
     public RtuPlusServerMessages(DlmsSession session) {
         this.session = session;
     }
 
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         if (supportedMessages == null) {
             supportedMessages = new ArrayList<>();
 

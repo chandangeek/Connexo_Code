@@ -2,16 +2,17 @@ package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.lookups.Lookup;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
+
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
@@ -22,7 +23,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 import java.io.IOException;
 import java.util.*;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 
 /**
  * Class that:
@@ -179,7 +180,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
                             (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
                             (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});
                 } catch (IOException e) {
-                    throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+                    throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
                 }
                 long days = dt.getValue().getTimeInMillis() / 1000 / 60 / 60 / 24;
                 struct.addDataType(new Unsigned16((int) days));

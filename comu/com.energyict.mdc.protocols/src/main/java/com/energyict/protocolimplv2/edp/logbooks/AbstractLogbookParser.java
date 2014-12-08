@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.edp.CX20009;

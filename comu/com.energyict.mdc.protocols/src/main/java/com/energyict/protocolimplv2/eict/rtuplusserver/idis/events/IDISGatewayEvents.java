@@ -8,11 +8,11 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocolimplv2.MdcManager;
+
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;

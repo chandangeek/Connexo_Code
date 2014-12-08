@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.comserver.exceptions.CommonExceptionReferences;
-import com.energyict.mdc.meterdata.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CTRDeviceProtocolCache;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -14,7 +14,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.info.SealStatusBit;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Identify;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Segment;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 
 import java.text.DateFormat;

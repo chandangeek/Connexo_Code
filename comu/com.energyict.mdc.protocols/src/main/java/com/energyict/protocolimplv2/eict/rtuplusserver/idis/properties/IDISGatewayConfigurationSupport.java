@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties;
 
-import com.energyict.cpo.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.dlms.idis.IDIS;

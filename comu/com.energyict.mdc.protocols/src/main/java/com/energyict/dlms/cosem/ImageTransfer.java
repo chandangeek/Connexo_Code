@@ -12,6 +12,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -546,7 +547,6 @@ public class ImageTransfer extends AbstractCosemObject {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             }
         }
         throw new ProtocolException("Image verification failed, even after a few polls!");
@@ -581,7 +581,6 @@ public class ImageTransfer extends AbstractCosemObject {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
             }
         }
         throw new ProtocolException("Image activation failed, even after a few polls!");

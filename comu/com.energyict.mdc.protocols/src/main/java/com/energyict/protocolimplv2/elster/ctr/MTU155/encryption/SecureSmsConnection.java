@@ -4,7 +4,7 @@ import com.energyict.mdc.channels.sms.ProximusSmsSender;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CtrConnection;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CtrConnectionState;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;

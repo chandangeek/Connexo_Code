@@ -3,13 +3,19 @@ package com.energyict.protocolimplv2.edp.messages;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.*;
 import com.energyict.dlms.cosem.*;
-import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.PublicLightingDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
@@ -20,7 +26,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Copyrights EnergyICT
@@ -39,7 +44,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -90,7 +95,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
             }
-            result.addCollectedMessage(collectedMessage);
+            result.addCollectedMessages(collectedMessage);
         }
         return result;
     }
@@ -112,7 +117,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void setPassiveEOBDateTime(OfflineDeviceMessage pendingMessage) throws IOException {
-        int contract = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contractAttributeName).getDeviceMessageAttributeValue());
+        int contract = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.contractAttributeName).getDeviceMessageAttributeValue());
         String year = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.year).getDeviceMessageAttributeValue();
         String month = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.month).getDeviceMessageAttributeValue();
         String day = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.day).getDeviceMessageAttributeValue();
@@ -155,9 +160,9 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void writeSpecialDays(OfflineDeviceMessage pendingMessage) throws IOException {
-        int contract = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contractAttributeName).getDeviceMessageAttributeValue());
-        String specialDaysHex = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysCodeTableAttributeName).getDeviceMessageAttributeValue();
-        long activationDate = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue());
+        int contract = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.contractAttributeName).getDeviceMessageAttributeValue());
+        String specialDaysHex = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.specialDaysCodeTableAttributeName).getDeviceMessageAttributeValue();
+        long activationDate = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue());
 
         ObisCode obisCode;
         if (contract == 1) {
@@ -188,10 +193,10 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void writeActivityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
-        int contract = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contractAttributeName).getDeviceMessageAttributeValue());
-        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
-        String profiles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
-        long epoch = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue());
+        int contract = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.contractAttributeName).getDeviceMessageAttributeValue());
+        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
+        String profiles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
+        long epoch = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue());
 
         ObisCode obisCode;
         if (contract == 1) {
@@ -297,11 +302,11 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void setTimeOffsetsTable(OfflineDeviceMessage pendingMessage) throws IOException, ParseException {
-        int relayNumber = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, relayNumberAttributeName).getDeviceMessageAttributeValue());
-        String[] beginDates = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, beginDatesAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR);
-        String[] endDates = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, endDatesAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR);
-        String[] offOffsets = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, offOffsetsAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR);
-        String[] onOffsets = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, onOffsetsAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR);
+        int relayNumber = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.relayNumberAttributeName).getDeviceMessageAttributeValue());
+        String[] beginDates = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.beginDatesAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR);
+        String[] endDates = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.endDatesAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR);
+        String[] offOffsets = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.offOffsetsAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR);
+        String[] onOffsets = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.onOffsetsAttributeName).getDeviceMessageAttributeValue().split(SEPARATOR);
 
         ObisCode obisCode;
         if (relayNumber == 1) {
@@ -331,8 +336,8 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void setTimeSwitchingTable(OfflineDeviceMessage pendingMessage) throws IOException, ParseException {
-        int relayNumber = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, relayNumberAttributeName).getDeviceMessageAttributeValue());
-        String userFileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, configUserFileAttributeName).getDeviceMessageAttributeValue();
+        int relayNumber = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.relayNumberAttributeName).getDeviceMessageAttributeValue());
+        String userFileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.configUserFileAttributeName).getDeviceMessageAttributeValue();
 
         ObisCode obisCode;
         if (relayNumber == 1) {
@@ -383,15 +388,15 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void setRelayControlMode(OfflineDeviceMessage pendingMessage) throws IOException {
-        int relayNumber = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, relayNumberAttributeName).getDeviceMessageAttributeValue());
-        int controlMode = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, contactorModeAttributeName).getDeviceMessageAttributeValue());
+        int relayNumber = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.relayNumberAttributeName).getDeviceMessageAttributeValue());
+        int controlMode = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.contactorModeAttributeName).getDeviceMessageAttributeValue());
         ObisCode obisCode = ProtocolTools.setObisCodeField(RELAY_CONTROL_OBISCODE, 1, (byte) relayNumber);
         getCosemObjectFactory().getDisconnector(obisCode).writeControlMode(new TypeEnum(controlMode));
     }
 
     private void setRelayOperatingMode(OfflineDeviceMessage pendingMessage) throws IOException {
-        int relayNumber = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, relayNumberAttributeName).getDeviceMessageAttributeValue());
-        int operatingMode = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, relayOperatingModeAttributeName).getDeviceMessageAttributeValue());
+        int relayNumber = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.relayNumberAttributeName).getDeviceMessageAttributeValue());
+        int operatingMode = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.relayOperatingModeAttributeName).getDeviceMessageAttributeValue());
 
         ObisCode obisCode;
         if (relayNumber == 1) {

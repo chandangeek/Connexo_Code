@@ -4,7 +4,7 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 

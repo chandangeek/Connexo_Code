@@ -6,9 +6,9 @@ import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.mdc.channels.serial.*;
 import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimplv2.MdcManager;
+
 
 import java.io.IOException;
 import java.math.BigDecimal;

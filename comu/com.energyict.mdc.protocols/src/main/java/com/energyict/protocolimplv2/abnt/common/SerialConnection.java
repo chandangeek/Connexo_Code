@@ -5,7 +5,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
+
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ConnectionException;
 import com.energyict.protocolimplv2.abnt.common.exception.CrcMismatchException;

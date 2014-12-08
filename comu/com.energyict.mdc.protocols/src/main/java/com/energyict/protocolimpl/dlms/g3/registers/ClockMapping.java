@@ -5,7 +5,7 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;

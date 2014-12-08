@@ -2,12 +2,12 @@ package com.energyict.protocolimpl.dlms.a1800;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.common.ProfileCache;
-import com.energyict.protocolimplv2.MdcManager;
+
 
 import java.io.IOException;
 import java.io.InputStream;

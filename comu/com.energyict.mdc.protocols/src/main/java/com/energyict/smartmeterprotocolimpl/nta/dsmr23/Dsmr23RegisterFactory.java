@@ -223,8 +223,8 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                         } else if (!(uo.getObisCode().equalsIgnoreBChannel(MbusClientObisCode) || uo.getObisCode().equals(SecuritySetup.getDefaultObisCode()) || (uo.getObisCode().equals(AssociationLN.getDefaultObisCode())))) {
                             // We get the default 'Value' attribute (2), mostly Data objects
                             this.registerMap.put(register, new DLMSAttribute(uo.getObisCode(), DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
-                        }
                         dlmsAttributes.add(this.registerMap.get(register));
+                        }
                     }
                 } else {
                     if (rObisCode.equals(CONNECT_CONTROL_MODE)) {

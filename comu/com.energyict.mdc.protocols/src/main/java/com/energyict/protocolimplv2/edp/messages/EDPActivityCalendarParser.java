@@ -2,9 +2,9 @@ package com.energyict.protocolimplv2.edp.messages;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.codetables.CodeDayType;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeDayType;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Map;
@@ -40,7 +40,7 @@ public class EDPActivityCalendarParser extends ActivityCalendarMessage {
     @Override
     protected Integer getSeasonProfileName(Map.Entry entry) {
         Integer value = (Integer) entry.getValue();
-        Map<Integer, Integer> seasonIds = (Map<Integer, Integer>) super.seasonIds;
+        Map<Integer, Integer> seasonIds = super.seasonIds;
         return (Integer) seasonIds.get(value);
     }
 

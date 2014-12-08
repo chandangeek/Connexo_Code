@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.mdc.protocol.inbound.crypto.ServerCryptographer;
-import com.energyict.protocolimplv2.MdcManager;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.CTREncryption;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRCipheringException;

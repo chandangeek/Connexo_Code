@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus;
 
 import com.energyict.comserver.time.Clocks;
-import com.energyict.cpo.PropertySpec;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
-import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.*;
@@ -14,7 +14,7 @@ import com.energyict.mdc.tasks.*;
 import com.energyict.mdw.offline.*;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimplv2.MdcManager;
+
 import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 

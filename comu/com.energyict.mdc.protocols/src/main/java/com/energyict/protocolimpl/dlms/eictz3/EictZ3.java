@@ -52,7 +52,7 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.eventhandling.DisconnectControlLog;
 import com.energyict.genericprotocolimpl.nta.eventhandling.EventsLog;
 import com.energyict.genericprotocolimpl.nta.eventhandling.FraudDetectionLog;

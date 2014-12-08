@@ -64,7 +64,7 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-11-25 16:08:19 +0100 (Tue, 25 Nov 2014) $";
     }
 
     @Override

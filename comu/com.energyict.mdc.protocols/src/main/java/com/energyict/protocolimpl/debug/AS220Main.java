@@ -15,7 +15,7 @@ import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.genericprotocolimpl.common.ParseUtils;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;

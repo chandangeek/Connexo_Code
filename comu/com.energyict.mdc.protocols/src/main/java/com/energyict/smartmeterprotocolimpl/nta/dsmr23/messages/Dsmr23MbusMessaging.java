@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.MessageProtocol;

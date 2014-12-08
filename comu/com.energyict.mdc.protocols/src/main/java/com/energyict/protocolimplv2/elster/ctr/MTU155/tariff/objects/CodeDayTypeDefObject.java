@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdw.core.CodeDayTypeDef;
+import com.energyict.mdc.protocol.api.codetables.CodeDayTypeDef;
 
 import java.io.Serializable;
 

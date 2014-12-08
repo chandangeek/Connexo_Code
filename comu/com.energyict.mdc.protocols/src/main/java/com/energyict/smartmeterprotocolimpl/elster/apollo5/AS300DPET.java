@@ -83,11 +83,6 @@ public class AS300DPET extends AS300 {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "Elster AS300D-PET DLMS";
-    }
-
-    @Override
     public String getVersion() {
         return "$Date: 2013-05-06 17:15:55 +0200 (ma, 06 mei 2013) $";
     }

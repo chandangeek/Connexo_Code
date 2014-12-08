@@ -29,7 +29,7 @@ public class ActivityCalendarMessage {
     private Array seasonArray;
     private Array weekArray;
     private DLMSMeterConfig meterConfig;
-    protected Map<Integer, Integer> seasonIds = new HashMap<Integer, Integer>();  //Map the DB id's of the seasons to a proper 0-based index that can be used in the AXDR array
+    public Map<Integer, Integer> seasonIds = new HashMap<>();  //Map the DB id's of the seasons to a proper 0-based index that can be used in the AXDR array
     protected Map<Integer, Integer> dayTypeIds = new HashMap<Integer, Integer>();  //Map the DB id's of the day types to a proper 0-based index that can be used in the AXDR array
 
     public ActivityCalendarMessage(Code ct, DLMSMeterConfig meterConfig) {

@@ -5,7 +5,7 @@ import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.CircularByteBuffer;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
+
 
 import java.io.*;
 import java.util.logging.Level;

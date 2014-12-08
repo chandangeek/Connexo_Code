@@ -66,7 +66,7 @@ public class ZigBeeStatus {
                         throw new IOException("ZigBee backup probably failed, takes too long (30s) before 'HAN Backup Performed'-event is written.");
                     }
                 } catch (InterruptedException e) {
-                    throw new BusinessException(e);
+                    Thread.currentThread().interrupt();
                 }
             }
 

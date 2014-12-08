@@ -9,7 +9,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRTime;
 import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GatewaySetup;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.RegisterMapping;

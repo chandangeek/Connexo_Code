@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;

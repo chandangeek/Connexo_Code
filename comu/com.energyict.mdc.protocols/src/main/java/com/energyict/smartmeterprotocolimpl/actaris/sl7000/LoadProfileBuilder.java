@@ -146,8 +146,7 @@ public class LoadProfileBuilder {
 
         for (CapturedObject capturedObject : captureObjects.subList(4, captureObjects.size())) {
             ObisCode registerObisCode = ObisCode.fromString(capturedObject.getLogicalName().toString());
-            ChannelInfo loadProfileChannelInfo = getLoadProfileChannelInfo(lpr, registerObisCode);
-            if (loadProfileChannelInfo != null) {
+            if (loadProfileContains(lpr, registerObisCode)) {
                 ScalerUnit scalerUnit = loadProfileInformation.get(registerObisCode);
 
                 if (scalerUnit != null) {
@@ -166,13 +165,13 @@ public class LoadProfileBuilder {
     }
 
 
-    private ChannelInfo getLoadProfileChannelInfo(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
+    private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
         for (ChannelInfo channelInfo : lpr.getChannelInfos()) {
             if (channelInfo.getChannelObisCode().equals(obisCode)) {
-                return channelInfo;
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
     /**

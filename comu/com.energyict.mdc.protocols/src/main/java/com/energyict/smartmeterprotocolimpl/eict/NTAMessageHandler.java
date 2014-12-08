@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta;
+package com.energyict.smartmeterprotocolimpl.eict;
 
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;

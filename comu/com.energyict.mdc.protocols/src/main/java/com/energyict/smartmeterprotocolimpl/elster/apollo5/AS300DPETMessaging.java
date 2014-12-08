@@ -23,6 +23,7 @@ public class AS300DPETMessaging extends AS300Messaging {
     public static final String KEY = "Key";
 
     private static final String ID_OF_THE_METER_GROUP = "ID of the meter group";
+    private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
 
     public AS300DPETMessaging(final AS300MessageExecutor messageExecutor) {
         super(messageExecutor);

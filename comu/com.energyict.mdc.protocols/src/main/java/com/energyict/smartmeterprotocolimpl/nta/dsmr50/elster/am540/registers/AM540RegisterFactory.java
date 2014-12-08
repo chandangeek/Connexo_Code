@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.registers;
 
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;

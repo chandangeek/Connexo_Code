@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.dlms.edp;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.*;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.*;
 
 import java.io.IOException;

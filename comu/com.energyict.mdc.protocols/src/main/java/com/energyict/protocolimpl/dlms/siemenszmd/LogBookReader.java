@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.dlms.siemenszmd;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.dlms.DLMSZMD;
 

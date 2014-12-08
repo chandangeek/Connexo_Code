@@ -4,7 +4,7 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.*;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.edp.CX20009;
 import com.energyict.protocolimpl.utils.ProtocolTools;

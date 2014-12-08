@@ -1,22 +1,36 @@
 package com.energyict.protocolimplv2.edp.messages;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdw.core.*;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
+import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.PublicLightingDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * Class that:
@@ -31,38 +45,25 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
-    private final static List<DeviceMessageSpec> supportedMessages;
-
-    static {
-        supportedMessages = new ArrayList<>();
-
-        // relay control
-        supportedMessages.add(ContactorDeviceMessage.CLOSE_RELAY);
-        supportedMessages.add(ContactorDeviceMessage.OPEN_RELAY);
-        supportedMessages.add(ContactorDeviceMessage.SET_RELAY_CONTROL_MODE);
-
-        // public lighting
-        supportedMessages.add(PublicLightingDeviceMessage.SET_RELAY_OPERATING_MODE);
-        supportedMessages.add(PublicLightingDeviceMessage.SET_TIME_SWITCHING_TABLE);
-        supportedMessages.add(PublicLightingDeviceMessage.SET_THRESHOLD_OVER_CONSUMPTION);
-        supportedMessages.add(PublicLightingDeviceMessage.SET_OVERALL_MINIMUM_THRESHOLD);
-        supportedMessages.add(PublicLightingDeviceMessage.SET_OVERALL_MAXIMUM_THRESHOLD);
-        supportedMessages.add(PublicLightingDeviceMessage.SET_RELAY_TIME_OFFSETS_TABLE);
-        supportedMessages.add(PublicLightingDeviceMessage.WRITE_GPS_COORDINATES);
-
-        // firmware upgrade related
-        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
-
-        // activity calendar related
-        supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT);
-        supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME);
-
-        // billing
-        supportedMessages.add(DeviceActionMessage.BILLING_RESET);
-        supportedMessages.add(DeviceActionMessage.BILLING_RESET_CONTRACT_1);
-        supportedMessages.add(DeviceActionMessage.BILLING_RESET_CONTRACT_2);
-        supportedMessages.add(DeviceActionMessage.SET_PASSIVE_EOB_DATETIME);
-    }
+    private final  Set<DeviceMessageId> supportedMessages = EnumSet.of(
+            ContactorDeviceMessage.CLOSE_RELAY.getId(),
+            ContactorDeviceMessage.OPEN_RELAY.getId(),
+            ContactorDeviceMessage.SET_RELAY_CONTROL_MODE.getId(),
+            PublicLightingDeviceMessage.SET_RELAY_OPERATING_MODE.getId(),
+            PublicLightingDeviceMessage.SET_TIME_SWITCHING_TABLE.getId(),
+            PublicLightingDeviceMessage.SET_THRESHOLD_OVER_CONSUMPTION.getId(),
+            PublicLightingDeviceMessage.SET_OVERALL_MINIMUM_THRESHOLD.getId(),
+            PublicLightingDeviceMessage.SET_OVERALL_MAXIMUM_THRESHOLD.getId(),
+            PublicLightingDeviceMessage.SET_RELAY_TIME_OFFSETS_TABLE.getId(),
+            PublicLightingDeviceMessage.WRITE_GPS_COORDINATES.getId(),
+            FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.getId(),
+            ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT.getId(),
+            ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME.getId(),
+            DeviceActionMessage.BILLING_RESET.getId(),
+            DeviceActionMessage.BILLING_RESET_CONTRACT_1.getId(),
+            DeviceActionMessage.BILLING_RESET_CONTRACT_2.getId(),
+            DeviceActionMessage.SET_PASSIVE_EOB_DATETIME.getId()
+    );
 
     private final AbstractMessageExecutor messageExecutor;
 
@@ -72,7 +73,7 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return supportedMessages;
     }
 
@@ -85,7 +86,7 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
                 try {
                     parser.parse();
                 } catch (IOException e) {
-                    throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+                    throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
                 }
                 String dayProfile = ProtocolTools.getHexStringFromBytes(parser.getDayProfile().getBEREncodedByteArray(), "");
                 String weekProfile = ProtocolTools.getHexStringFromBytes(parser.getWeekProfile().getBEREncodedByteArray(), "");
