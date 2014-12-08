@@ -31,14 +31,11 @@ public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     @NotNull
     private RelativeDate to;
 
-    private final EventService eventService;
-
     private List<RelativePeriodCategoryUsage> relativePeriodCategoryUsages = new ArrayList<>();
 
     @Inject
     public RelativePeriodImpl(DataModel dataModel, EventService eventService) {
-        super(dataModel);
-        this.eventService = eventService;
+        super(dataModel, eventService);
     }
 
     @Override
@@ -122,10 +119,25 @@ public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
         while (relativePeriodCategoryUsageIterator.hasNext()) {
             RelativePeriodCategoryUsage relativePeriodCategoryUsage = relativePeriodCategoryUsageIterator.next();
             if (relativePeriodCategoryUsage.sameRelativePeriodCategory(relativePeriodCategory)) {
-                eventService.postEvent(EventType.CATEGORY_USAGE_DELETED.topic(), new RelativePeriodCategoryUsageEvent(relativePeriodCategoryUsage));
+                getEventService().postEvent(EventType.CATEGORY_USAGE_DELETED.topic(), new RelativePeriodCategoryUsageEvent(relativePeriodCategoryUsage));
                 relativePeriodCategoryUsageIterator.remove();
+                return;
             }
         }
     }
 
+    @Override
+    EventType created() {
+        return EventType.RELATIVE_PERIOD_CREATED;
+    }
+
+    @Override
+    EventType updated() {
+        return EventType.RELATIVE_PERIOD_UPDATED;
+    }
+
+    @Override
+    EventType deleted() {
+        return EventType.RELATIVE_PERIOD_DELETED;
+    }
 }

@@ -84,7 +84,7 @@ public class TimeServiceImpl implements TimeService, InstallService {
         relativePeriod.setRelativeDateFrom(from);
         relativePeriod.setRelativeDateTo(to);
         relativePeriod.setRelativePeriodCategoryUsages(categories);
-        relativePeriod.update();
+        relativePeriod.save();
         return relativePeriod;
     }
 

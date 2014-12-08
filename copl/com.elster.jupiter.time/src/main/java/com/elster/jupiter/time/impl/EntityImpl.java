@@ -1,12 +1,17 @@
 package com.elster.jupiter.time.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.Entity;
+import com.elster.jupiter.time.EventType;
 
 import java.time.Instant;
 
-public class EntityImpl implements Entity {
+abstract class EntityImpl implements Entity {
+
+    private final EventService eventService;
+
     private long id;
 
     // Audit fields
@@ -15,13 +20,14 @@ public class EntityImpl implements Entity {
     private Instant modTime;
     private String userName;
 
-    protected DataModel dataModel;
+    private DataModel dataModel;
 
-    protected EntityImpl(DataModel dataModel){
+    EntityImpl(DataModel dataModel, EventService eventService){
         this.dataModel = dataModel;
+        this.eventService = eventService;
     }
 
-    protected DataModel getDataModel() {
+    final DataModel getDataModel() {
         return dataModel;
     }
 
@@ -72,16 +78,26 @@ public class EntityImpl implements Entity {
 
     @Override
     public void save(){
-        Save.CREATE.save(dataModel, this);
+        if (id == 0) {
+            Save.CREATE.save(dataModel, this);
+            eventService.postEvent(created().topic(), this);
+        } else {
+            Save.UPDATE.save(dataModel, this);
+            eventService.postEvent(updated().topic(), this);
+        }
     }
 
-    @Override
-    public void update(){
-        Save.UPDATE.save(dataModel, this);
+    abstract EventType created();
+    abstract EventType updated();
+    abstract EventType deleted();
+
+    final EventService getEventService() {
+        return eventService;
     }
 
     @Override
     public void delete(){
         dataModel.remove(this);
+        eventService.postEvent(deleted().topic(), this);
     }
 }

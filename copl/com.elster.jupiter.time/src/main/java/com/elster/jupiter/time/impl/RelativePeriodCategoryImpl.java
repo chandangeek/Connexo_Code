@@ -2,7 +2,9 @@ package com.elster.jupiter.time.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.EventType;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 
@@ -21,8 +23,8 @@ public class RelativePeriodCategoryImpl extends EntityImpl implements RelativePe
     private List<RelativePeriodCategoryUsage> relativePeriodCategoryUsages = new ArrayList<>();
 
     @Inject
-    public RelativePeriodCategoryImpl(DataModel dataModel) {
-        super(dataModel);
+    public RelativePeriodCategoryImpl(DataModel dataModel, EventService eventService) {
+        super(dataModel, eventService);
     }
 
     static RelativePeriodCategoryImpl from(DataModel dataModel, String name) {
@@ -40,5 +42,20 @@ public class RelativePeriodCategoryImpl extends EntityImpl implements RelativePe
 
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    EventType created() {
+        return EventType.RELATIVE_PERIOD_CATEGORY_CREATED;
+    }
+
+    @Override
+    EventType updated() {
+        return EventType.RELATIVE_PERIOD_CATEGORY_UPDATED;
+    }
+
+    @Override
+    EventType deleted() {
+        return EventType.RELATIVE_PERIOD_CATEGORY_DELETED;
     }
 }

@@ -16,7 +16,5 @@ public interface Entity {
     // Operational methods
     void save();
 
-    void update();
-
     void delete();
 }
