@@ -45,6 +45,7 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
     @Override
     public void delete() {
         this.validateNotUsed();
+        // TODO Do actual delete
     }
 
     private void validateNotUsed() {
