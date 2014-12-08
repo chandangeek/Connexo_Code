@@ -13,19 +13,15 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -33,13 +29,23 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -88,21 +94,88 @@ public class DeviceGroupResource {
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
 
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    public Response editDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
+        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(deviceGroupInfo.id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+        endDeviceGroup.setName(deviceGroupInfo.name);
+
+        if (deviceGroupInfo.dynamic) {
+            ((QueryEndDeviceGroup) endDeviceGroup).setCondition(getCondition(deviceGroupInfo));
+        } else {
+            syncListWithInfo((EnumeratedEndDeviceGroup) endDeviceGroup, deviceGroupInfo);
+        }
+        endDeviceGroup.save();
+        return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup)).build();
+    }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
     public Response createDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
-        Optional optional = meteringGroupsService.findEndDeviceGroupByName(deviceGroupInfo.name);
-        if (optional.isPresent()) {
+        if (meteringGroupsService.findEndDeviceGroupByName(deviceGroupInfo.name).isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.DEVICEGROUPNAME_ALREADY_EXISTS, deviceGroupInfo.name);
         }
         String name = deviceGroupInfo.name;
         boolean dynamic = deviceGroupInfo.dynamic;
+
+        EndDeviceGroup endDeviceGroup;
+        if (dynamic) {
+            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getCondition(deviceGroupInfo));
+            endDeviceGroup.setName(name);
+            endDeviceGroup.setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider");
+        } else {
+            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(name);
+            syncListWithInfo(enumeratedEndDeviceGroup, deviceGroupInfo);
+            endDeviceGroup = enumeratedEndDeviceGroup;
+        }
+        endDeviceGroup.setLabel("MDC");
+        endDeviceGroup.setMRID("MDC:" + endDeviceGroup.getName());
+        endDeviceGroup.save();
+
+
+        return Response.ok().build();
+    }
+
+    private void syncListWithInfo(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, DeviceGroupInfo deviceGroupInfo) {
+        Stream<? extends Number> deviceIds = Optional.ofNullable((List<Integer>) deviceGroupInfo.devices).map(list -> list.stream()).orElse(null);
+        if (deviceIds == null) {
+            deviceIds = deviceService.findAllDevices(getCondition(deviceGroupInfo)).find().stream()
+                    .map(HasId::getId);
+        }
+        List<EndDevice> endDevices = deviceIds.map(number -> meteringService.findEndDevice(number.longValue()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+
+        Map<Long, EnumeratedEndDeviceGroup.Entry> currentEntries = enumeratedEndDeviceGroup.getEntries().stream()
+                .collect(toMap());
+
+        // remove those no longer mapped
+        currentEntries.entrySet().stream()
+                .filter(entry -> endDevices.stream().mapToLong(EndDevice::getId).noneMatch(id -> id == entry.getKey()))
+                .forEach(entry -> enumeratedEndDeviceGroup.remove(entry.getValue()));
+
+        // add new ones
+        endDevices.stream()
+                .filter(device -> !currentEntries.containsKey(device.getId()))
+                .forEach(device -> enumeratedEndDeviceGroup.add(device, Interval.sinceEpoch().toClosedRange()));
+    }
+
+    private Collector<EnumeratedEndDeviceGroup.Entry, ?, Map<Long, EnumeratedEndDeviceGroup.Entry>> toMap() {
+        return Collectors.toMap(entry -> entry.getEndDevice().getId(), Function.identity());
+    }
+
+    private Condition getCondition(DeviceGroupInfo deviceGroupInfo) {
         Condition condition = Condition.TRUE;
         Object filterParam = deviceGroupInfo.filter;
         if ((filterParam != null) && (filterParam instanceof LinkedHashMap)) {
-            LinkedHashMap filter = (LinkedHashMap) deviceGroupInfo.filter;
+            LinkedHashMap<String, Object> filter = (LinkedHashMap<String, Object>) deviceGroupInfo.filter;
             String mRID = (String) filter.get("mRID");
             if ((mRID != null) && (!"".equals(mRID))) {
                 mRID = replaceRegularExpression(mRID);
@@ -122,8 +195,8 @@ public class DeviceGroupResource {
 
             Object deviceTypesObject = filter.get("deviceTypes");
             if ((deviceTypesObject != null) && (deviceTypesObject instanceof List)) {
-                List<Integer> deviceTypes = (List) deviceTypesObject;
-                if ((deviceTypes != null) && (!deviceTypes.isEmpty())) {
+                List<Integer> deviceTypes = (List<Integer>) deviceTypesObject;
+                if ((!deviceTypes.isEmpty())) {
                     Condition orCondition = Condition.FALSE;
                     for (int deviceTypeId : deviceTypes) {
                         Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceType(deviceTypeId);
@@ -153,40 +226,7 @@ public class DeviceGroupResource {
             }
 
         }
-
-        EndDeviceGroup endDeviceGroup;
-        if (dynamic) {
-            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(condition);
-            endDeviceGroup.setName(name);
-            endDeviceGroup.setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider");
-        } else {
-            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(name);
-            List<Integer> devices = (List<Integer>) deviceGroupInfo.devices;
-            if (devices != null)  {
-                for (int deviceId : devices) {
-                    Optional<EndDevice> deviceOptional = meteringService.findEndDevice(deviceId);
-                    if (deviceOptional.isPresent()) {
-                        ((EnumeratedEndDeviceGroup) endDeviceGroup).add(deviceOptional.get(), Interval.sinceEpoch().toClosedRange());
-                    }
-                }
-            // all devices option selected
-            } else {
-                Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
-                List<Device> allDevices = allDevicesFinder.find();
-                for (Device device : allDevices) {
-                    Optional<EndDevice> deviceOptional = meteringService.findEndDevice(device.getId());
-                    if (deviceOptional.isPresent()) {
-                        ((EnumeratedEndDeviceGroup) endDeviceGroup).add(deviceOptional.get(), Interval.sinceEpoch().toClosedRange());
-                    }
-                }
-            }
-        }
-        endDeviceGroup.setLabel("MDC");
-        endDeviceGroup.setMRID("MDC:" + endDeviceGroup.getName());
-        endDeviceGroup.save();
-
-
-        return Response.ok().build();
+        return condition;
     }
 
     private boolean isRegularExpression(String value) {
