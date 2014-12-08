@@ -136,7 +136,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
                         me.getApplication().fireEvent('loadDevice', device);
                         widget.down('form').loadRecord(protocolDialect);
                         widget.down('property-form').loadRecord(protocolDialect);
-                        widget.down('#deviceProtocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + protocolDialect.get('name') + '\'</h1>');
+                        widget.down('#deviceProtocolDialectEditAddTitle').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + protocolDialect.get('name') + '\'');
                         me.getApplication().fireEvent('changecontentevent', widget);
                         widget.setLoading(false);
                     }

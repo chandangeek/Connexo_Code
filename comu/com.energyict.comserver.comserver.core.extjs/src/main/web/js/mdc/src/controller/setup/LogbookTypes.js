@@ -128,7 +128,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
                 me.getApplication().fireEvent('loadLogbookType', logbookType);
 
                 widget.down('form').loadRecord(logbookType);
-                widget.down('#logbookTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + logbookType.get('name') + '</h1>');
+                widget.down('#logbookTypeEditCreateTitle').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + logbookType.get('name'));
 
                 if (logbookType.get('isInUse') === true) {
                     widget.down('obis-field').disable();
@@ -151,7 +151,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
             returnLink: '#/administration/logbooktypes/'
         });
         this.getApplication().fireEvent('changecontentevent', widget);
-        widget.down('#logbookTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('logbookType.createLogbookType', 'MDC', 'Add logbook type') + '</h1>');
+        widget.down('#logbookTypeEditCreateTitle').setTitle(Uni.I18n.translate('logbookType.createLogbookType', 'MDC', 'Add logbook type'));
     },
 
     createLogbookType: function () {

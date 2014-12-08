@@ -30,17 +30,14 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
         var me = this;
         this.content = [
             {
-                xtype: 'container',
+                xtype: 'panel',
+                ui: 'large',
+                itemId: 'deviceProtocolDialectEditAddTitle',
                 layout: {
                     type: 'vbox'
                 },
 
                 items: [
-                    {
-                        xtype: 'component',
-                        html: '',
-                        itemId: 'deviceProtocolDialectEditAddTitle'
-                    },
                     {
                         xtype: 'form',
                         border: false,

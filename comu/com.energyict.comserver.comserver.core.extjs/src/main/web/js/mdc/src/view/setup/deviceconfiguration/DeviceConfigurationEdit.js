@@ -10,7 +10,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
     initComponent: function () {
         this.content = [
             {
-                xtype: 'container',
+                xtype: 'panel',
+                ui: 'large',
+                itemId: 'deviceConfigurationEditCreateTitle',
                 cls: 'content-container',
                 layout: {
                     type: 'vbox',
@@ -18,11 +20,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                 },
 
                 items: [
-                    {
-                        xtype: 'component',
-                        html: '',
-                        itemId: 'deviceConfigurationEditCreateTitle'
-                    },
                     {
                         xtype: 'container',
                         layout: {

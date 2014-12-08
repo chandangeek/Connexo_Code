@@ -12,11 +12,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
 
     content: [
         {
-            xtype: 'container',
+            xtype: 'panel',
             layout: {
                 type: 'vbox',
                 align: 'stretch'
             },
+            ui: 'large',
+            title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
 
             items: [
                 {
@@ -29,10 +31,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                         xtype: 'container'
                     },
                     items: [
-                        {
-                            html: '<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>',
-                            itemId: 'deviceConfigurationPreviewTitle'
-                        },
                         {
                             flex: 1
                         },

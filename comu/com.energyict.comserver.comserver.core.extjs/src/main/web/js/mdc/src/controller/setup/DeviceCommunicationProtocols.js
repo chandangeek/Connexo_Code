@@ -92,7 +92,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             success: function (protocol) {
                 me.getApplication().fireEvent('loadDeviceCommunicationProtocol', protocol);
                 widget.down('form').loadRecord(protocol);
-                widget.down('#deviceCommunicationProtocolEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + protocol.get('name') + '\'</h1>');
+                widget.down('#deviceCommunicationProtocolEditCreateTitle').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + protocol.get('name') + '\'');
                 var form = widget.down('property-form');
                 if (protocol.properties().count()) {
                     form.show();

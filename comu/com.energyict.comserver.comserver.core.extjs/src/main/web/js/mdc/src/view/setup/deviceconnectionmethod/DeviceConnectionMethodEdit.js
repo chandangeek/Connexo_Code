@@ -21,18 +21,20 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
     initComponent: function () {
         this.content = [
             {
-                xtype: 'container',
+                xtype: 'panel',
+                ui: 'large',
+                itemId: 'deviceConnectionMethodEditAddTitle',
                 layout: {
                     type: 'vbox'
                 },
 
                 items: [
-                    {
-                        xtype: 'component',
-                        html: '',
-                        itemId: 'deviceConnectionMethodEditAddTitle',
-                        margins: '10 10 10 10'
-                    },
+//                    {
+//                        xtype: 'component',
+//                        html: '',
+//
+//                        margins: '10 10 10 10'
+//                    },
                     {
                         xtype: 'form',
                         border: false,
