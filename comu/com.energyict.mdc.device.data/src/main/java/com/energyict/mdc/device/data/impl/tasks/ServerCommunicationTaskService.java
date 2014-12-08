@@ -12,6 +12,10 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.util.conditions.Condition;
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 

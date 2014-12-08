@@ -1,25 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.DefaultFinder;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.data.TopologyTimeslice;
+import com.energyict.mdc.device.data.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskFields;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
@@ -29,12 +19,10 @@ import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
@@ -46,6 +34,17 @@ import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.Range;
 import com.google.inject.Inject;
 import org.joda.time.DateTimeConstants;
@@ -994,61 +993,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, Device device, Interval interval) {
-        if (CommunicationErrorType.CONNECTION_SETUP_FAILURE.equals(errorType)) {
-            /* Slaves always setup the connection via the master.
-             * The logging records the failure against the master
-             * so there is no way to count the number of slave devices
-             * that had a connection setup failure. */
-            return 0;
-        } else {
-            int numberOfDevices = 0;
-            List<TopologyTimeslice> communicationTopologies = device.getCommunicationTopology(interval.toClosedRange()).timelined().getSlices();
-            for (TopologyTimeslice topologyTimeslice : communicationTopologies) {
-                List<Device> devices = new ArrayList<>(topologyTimeslice.getDevices());
-                devices.add(device);
-                numberOfDevices = numberOfDevices + this.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(errorType, devices, topologyTimeslice.getPeriod());
-            }
-            return numberOfDevices;
-        }
-    }
-
-    private int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, List<Device> devices, Range<Instant> range) {
-        switch (errorType) {
-            case CONNECTION_FAILURE: {
-                return this.countNumberOfDevicesWithConnectionFailures(range, devices);
-            }
-            case COMMUNICATION_FAILURE: {
-                return this.countNumberOfDevicesWithCommunicationFailuresInGatewayTopology(devices, range);
-            }
-            case CONNECTION_SETUP_FAILURE: {
-                // Intended fall-through
-            }
-            default: {
-                throw new RuntimeException("Unsupported CommunicationErrorType " + errorType);
-            }
-        }
-    }
-
-    private int countNumberOfDevicesWithConnectionFailures(Range<Instant> range, List<Device> devices) {
-        return this.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(
-                devices,
-                range,
-                where(this.comSessionSuccessIndicatorFieldName()).isEqualTo(ComSession.SuccessIndicator.Broken));
-    }
-
-    private int countNumberOfDevicesWithCommunicationFailuresInGatewayTopology(List<Device> devices, Range<Instant> range) {
-        return this.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(
-                devices,
-                range,
-                where(this.comSessionSuccessIndicatorFieldName()).isNotEqual(ComSession.SuccessIndicator.Success));
-    }
-
-    private String comSessionSuccessIndicatorFieldName() {
-        return ComTaskExecutionSessionImpl.Fields.SESSION.fieldName() + "." + ComSessionImpl.Fields.SUCCESS_INDICATOR.fieldName();
-    }
-
-    private int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(List<Device> devices, Range<Instant> range, Condition successIndicatorCondition) {
+    public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(List<Device> devices, Range<Instant> range, Condition successIndicatorCondition) {
         List<Condition> conditions = new ArrayList<>();
         conditions.add(successIndicatorCondition);
         conditions.add(where(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).in(devices));

@@ -2,8 +2,11 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -20,6 +23,7 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -216,13 +220,16 @@ public interface CommunicationTaskService {
     public Finder<ComTaskExecutionSession> findByComTaskExecution(ComTaskExecution comTaskExecution);
 
     /**
-     * Counts the number of communication errors that have occurred in the specified
-     * {@link Interval} within the topology that starts from the speified Device.
+     * Counts the {@link Device}s from the specified List that have had
+     * communication errors of the specified type
+     * that have occurred in the specified {@link Interval}.
      *
+     * @param devices The List of Devices that are used for counting
      * @param interval The Interval during which the communication errors have occurred
+     * @param successIndicatorCondition The condition that specifies the type of communication error
      * @return The number of communication errors
      */
-    public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, Device device, Interval interval);
+    public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(List<Device> devices, Range<Instant> interval, Condition successIndicatorCondition);
 
     /**
      * Counts the last {@link ComSession} of all {@link ComTaskExecution}s,
@@ -268,4 +275,5 @@ public interface CommunicationTaskService {
     void executionFailedFor(ComTaskExecution comTaskExecution);
 
     void executionStartedFor(ComTaskExecution comTaskExecution, ComPort comPort);
+
 }
