@@ -40,4 +40,6 @@ public interface EndDeviceGroup {
 
     void save();
 
+    void delete();
+
 }

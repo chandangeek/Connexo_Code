@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -16,27 +16,25 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
-
-import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.inject.Inject;
 
 public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEndDeviceGroup {
 
     private List<EndDeviceQueryBuilderOperation> operations;
     private transient QueryBuilder queryBuilder;
 
-    private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupService;
     private final DataModel dataModel;
 
     @Inject
-    public QueryEndDeviceGroupImpl(DataModel dataModel, MeteringService meteringService, MeteringGroupsService meteringGroupService) {
+    public QueryEndDeviceGroupImpl(DataModel dataModel, MeteringGroupsService meteringGroupService, EventService eventService) {
+        super(eventService);
         this.dataModel = dataModel;
-        this.meteringService = meteringService;
         this.meteringGroupService = meteringGroupService;
     }
 

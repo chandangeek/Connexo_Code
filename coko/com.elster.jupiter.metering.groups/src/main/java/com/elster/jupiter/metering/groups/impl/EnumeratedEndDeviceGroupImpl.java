@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
@@ -41,7 +42,8 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     private final DataModel dataModel;
 
     @Inject
-    EnumeratedEndDeviceGroupImpl(DataModel dataModel) {
+    EnumeratedEndDeviceGroupImpl(DataModel dataModel, EventService eventService) {
+        super(eventService);
         this.dataModel = dataModel;
     }
 
