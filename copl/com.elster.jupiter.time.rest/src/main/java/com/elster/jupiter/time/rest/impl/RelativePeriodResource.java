@@ -122,20 +122,26 @@ public class RelativePeriodResource {
     @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
     @Produces(MediaType.APPLICATION_JSON)
     public Response removeRelativePeriod(@PathParam("id") long id) {
-        RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
-        List<RelativePeriodCategory> categories = relativePeriod.getRelativePeriodCategories();
-        try (TransactionContext context = transactionService.getContext()) {
-            for (RelativePeriodCategory category : categories) {
-                try {
-                    relativePeriod.removeRelativePeriodCategory(category);
-                } catch (Exception ex) {
-                    throw new WebApplicationException(ex.getMessage());
+        try {
+            RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
+            List<RelativePeriodCategory> categories = relativePeriod.getRelativePeriodCategories();
+            try (TransactionContext context = transactionService.getContext()) {
+                for (RelativePeriodCategory category : categories) {
+                    try {
+                        relativePeriod.removeRelativePeriodCategory(category);
+                    } catch (Exception ex) {
+                        throw new WebApplicationException(ex.getMessage());
+                    }
                 }
+                relativePeriod.delete();
+                context.commit();
             }
-            relativePeriod.delete();
-            context.commit();
+            return Response.status(Response.Status.OK).build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new WebApplicationException(e.getLocalizedMessage());
         }
-        return Response.status(Response.Status.OK).build();
     }
 
     private RelativePeriod getRelativePeriodOrThrowException(long id) {
