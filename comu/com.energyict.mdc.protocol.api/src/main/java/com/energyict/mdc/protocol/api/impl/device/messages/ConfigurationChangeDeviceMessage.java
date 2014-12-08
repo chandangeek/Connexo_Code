@@ -261,7 +261,27 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
                             BigDecimals.TWO,
                             BigDecimals.THREE));
         }
-    };
+    }, EnableSSL(DeviceMessageId.CONFIGURATION_CHANGE_ENABLE_SSL, "Enable SSL"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.enableSSL, true, new BooleanFactory()));
+        }
+    }
+    , SetDeviceName(DeviceMessageId.CONFIGURATION_CHANGE_SET_DEVICENAME, "Set device name"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.deviceName, true, ""));
+        }
+    }, SetNTPAddress(DeviceMessageId.CONFIGURATION_CHANGE_SET_NTPADDRESS, "Set NTP address" ){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.ntpAddress, true, ""));
+        }
+    }
+    , SyncNTPServer(DeviceMessageId.CONFIGURATION_CHANGE_SYNC_NTPSERVER, "Synchronize NTP server");
 
     private DeviceMessageId id;
     private String defaultTranslation;

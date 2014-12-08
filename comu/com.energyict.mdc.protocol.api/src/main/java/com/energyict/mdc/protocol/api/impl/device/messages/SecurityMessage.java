@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -97,6 +98,13 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(newHexPasswordAttributeName, true, new HexStringFactory()));
+        }
+    },
+    CHANGE_HLS_SECRET_PASSWORD(DeviceMessageId.SECURITY_CHANGE_HLS_SECRET_WITH_PASSWORD, "Change HLS secret with new secret"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, new PasswordFactory()));
         }
     },
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(DeviceMessageId.SECURITY_ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY, "Enable/disable temporary encryption key") {
@@ -221,6 +229,20 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.basicPropertySpec(preparedDataAttributeName, true, factory));
             propertySpecs.add(propertySpecService.basicPropertySpec(signatureAttributeName, true, factory));
             propertySpecs.add(propertySpecService.basicPropertySpec(verificationKeyAttributeName, true, new StringFactory()));
+        }
+    },
+    CHANGE_WEBPORTAL_PASSWORD1(DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD, "Change the webportal password"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, new PasswordFactory()));
+        }
+    },
+    CHANGE_WEBPORTAL_PASSWORD2(DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD2, "Change the webportal password 2"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, new PasswordFactory()));
         }
     };
 

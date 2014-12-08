@@ -82,7 +82,7 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecEnum {
         protected String propertyName() {
             return DeviceMessageConstants.SetPPPOptionsAttributeName;
         }
-    };
+    }, SetPPPIdleTime(, );
 
     private DeviceMessageId id;
     private String defaultTranslation;

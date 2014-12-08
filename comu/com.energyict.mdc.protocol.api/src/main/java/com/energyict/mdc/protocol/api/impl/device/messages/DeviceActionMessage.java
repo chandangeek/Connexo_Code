@@ -134,7 +134,24 @@ public enum DeviceActionMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, true, analogOutPossibleValues()));
             propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.AnalogOutValue, true, new StringFactory()));
         }
-    };
+    },
+    BILLING_RESET_CONTRACT_1(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET_CONTRACT_1, "Billing reset contract 1"),
+    BILLING_RESET_CONTRACT_2(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET_CONTRACT_1, "Billing reset contract 2"),
+    SET_PASSIVE_EOB_DATETIME(DeviceMessageId.DEVICE_ACTIONS_SET_PASSIVE_EOB_DATETIME, "Set passive EOB date") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(DeviceMessageConstants.contractAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.year, true, ""));
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.month, true, ""));
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.day, true, ""));
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.dayOfWeek, true, ""));
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.hour, true, ""));
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.minute, true, ""));
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.second, true, ""));
+        }
+    },
+    RebootApplication(DeviceMessageId.DEVICE_ACTIONS_REBOOT_APPLICATIOn, "Reboot the application");
 
     private static BigDecimal[] analogOutPossibleValues() {
         BigDecimal[] result = new BigDecimal[16];

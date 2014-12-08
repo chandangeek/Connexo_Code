@@ -150,7 +150,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetNTPOptionsAttributeName, true, new StringFactory()));
         }
-    };
+    }, SyncTime(DeviceMessageId.CLOCK_SET_SYNCHRONIZE_TIME, "Synchronize the time");
 
     private DeviceMessageId id;
     private String defaultTranslation;

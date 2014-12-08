@@ -1,13 +1,16 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.properties.BooleanFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -192,6 +195,27 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(NetworkConnectivityIPAddressAttributeName, true, new StringFactory()));
             propertySpecs.add(propertySpecService.basicPropertySpec(NetworkConnectivityIntervalAttributeName, true, new BigDecimalFactory()));
+        }
+    }, PreferGPRSUpstreamCommunication(DeviceMessageId.NETWORK_CONNECTIVITY_PREFER_GPRS_UPSTREAM_COMMUNICATION, "Prefer GPRS upstream communication"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.preferGPRSUpstreamCommunication, true, new BooleanFactory()));
+        }
+    }, EnableModemWatchdog(DeviceMessageId.NETWORK_CONNECTIVITY_ENABLE_MODEM_WATCHDOG, "Enable the modem watchdog"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.enableModemWatchdog, true, new BooleanFactory()));
+        }
+    }, SetModemWatchdogParameters(DeviceMessageId.NETWORK_CONNECTIVITY_SET_MODEM_WATCHDOG_PARAMETERS, "Set modem watchdog parameters"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.modemWatchdogInterval, true, BigDecimal.ZERO));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.PPPDaemonResetThreshold, true, BigDecimal.ZERO));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.modemResetThreshold, true, BigDecimal.ZERO));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.systemRebootThreshold, true, BigDecimal.ZERO));
         }
     };
 

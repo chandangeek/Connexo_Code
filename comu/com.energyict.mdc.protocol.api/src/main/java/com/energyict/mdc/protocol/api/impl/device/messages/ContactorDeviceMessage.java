@@ -92,6 +92,14 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(relayNumberAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
         }
+    }, SET_RELAY_CONTROL_MODE(DeviceMessageId.CONTACTOR_SET_RELAY_CONTROL_MODE, "Set relay control mode"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(relayNumberAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(contactorModeAttributeName, true,
+                    BigDecimal.ONE, BigDecimals.TWO, BigDecimals.THREE, BigDecimals.FOUR, BigDecimals.FIVE, BigDecimals.SIX));
+        }
     };
 
     private DeviceMessageId id;

@@ -11,6 +11,7 @@ public class DeviceMessageConstants {
     public static final String digitalOutputAttributeName = "ContactorDeviceMessage.digitalOutput";
     public static final String contactorModeAttributeName = "ContactorDeviceMessage.changemode.mode";
     public static final String relayNumberAttributeName = "ContactorDeviceMessage.relayNumber";
+    public static final String relayOperatingModeAttributeName = "ContactorDeviceMessage.relayoperatingmode";
     public static final String firmwareUpdateActivationDateAttributeName = "FirmwareDeviceMessage.upgrade.activationdate";
     public static final String meterTimeAttributeName = "ClockDeviceMessage.meterTime";
     public static final String dstStartAlgorithmAttributeName = "ClockDeviceMessage.dstStartAlgorithm";
@@ -20,6 +21,7 @@ public class DeviceMessageConstants {
     public static final String resumeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.resume";
     public static final String plcTypeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.plc";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
+    public static final String contractAttributeName = "contract";
     public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";
     public static final String activityCalendarNameAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.name";
     public static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
@@ -29,7 +31,9 @@ public class DeviceMessageConstants {
     public static final String encryptionLevelAttributeName = "SecurityMessage.dlmsencryption.encryptionlevel";
     public static final String authenticationLevelAttributeName = "SecurityMessage.dlmsauthentication.authenticationlevel";
     public static final String newEncryptionKeyAttributeName = "SecurityMessage.new.encryptionkey";
+    public static final String newWrappedEncryptionKeyAttributeName = "SecurityMessage.new.wrapped.encryptionkey";
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
+    public static final String newWrappedAuthenticationKeyAttributeName = "SecurityMessage.new.wrapped.authenticationkey";
     public static final String pskAttributeName = "SecurityMessage.psk";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
     public static final String newHexPasswordAttributeName = "SecurityMessage.newHexPassword";
@@ -67,6 +71,21 @@ public class DeviceMessageConstants {
     public static final String passwordAttributeName = "password";   // commonly used translation key
     public static final String apnAttributeName = "NetworkConnectivityMessage.apn";
     public static final String whiteListPhoneNumbersAttributeName = "NetworkConnectivityMessage.whitelist.phonenumbers";
+    public static final String discoverDuration = "NetworkConnectivityMessage.discover.duration";
+    public static final String discoverInterval = "NetworkConnectivityMessage.discover.interval";
+    public static final String repeaterCallInterval = "NetworkConnectivityMessage.repeater.call.interval";
+    public static final String repeaterCallThreshold = "NetworkConnectivityMessage.repeater.call.threshold";
+    public static final String repeaterCallTimeslots = "NetworkConnectivityMessage.repeater.call.timeslots";
+    public static final String systemRebootThreshold = "ConfigurationChangeDeviceMessage.systemRebootThreshold";
+    public static final String enableSSL = "ConfigurationChangeDeviceMessage.enableSSL";
+    public static final String deviceName = "ConfigurationChangeDeviceMessage.deviceName";
+    public static final String ntpAddress = "ConfigurationChangeDeviceMessage.ntpAddress";
+    public static final String enableAutomaticDemandResetAttributeName = "ConfigurationChangeDeviceMessage.enabledemandreset";
+    public static final String localMacAddress = "ConfigurationChangeDeviceMessage.localMacAddress";
+    public static final String maxCredit = "ConfigurationChangeDeviceMessage.maxCredit";
+    public static final String zeroCrossDelay = "ConfigurationChangeDeviceMessage.zeroCrossDelay";
+    public static final String synchronisationBit = "ConfigurationChangeDeviceMessage.synchronisationBit";
+
     public static final String managedWhiteListPhoneNumbersAttributeName = "NetworkConnectivityMessage.managed.whitelist.phonenumbers";
     public static final String smsCenterPhoneNumberAttributeName = "NetworkConnectivityMessage.smscenter.phonenumber";
     public static final String devicePhoneNumberAttributeName = "NetworkConnectivityMessage.device.phonenumber";
@@ -78,6 +97,14 @@ public class DeviceMessageConstants {
     public static final String DisplayMessageAttributeName = "DisplayDeviceMessage.displayMessage";
     public static final String DisplayMessageTimeDurationAttributeName = "DisplayMessage.TimeDuration";
     public static final String DisplayMessageActivationDate = "DisplayMessage.ActivationDate";
+
+    public static final String threshold = "Threshold"; //Can be reused
+    public static final String beginDatesAttributeName = "BeginDates";
+    public static final String endDatesAttributeName = "EndDates";
+    public static final String offOffsetsAttributeName = "OffOffsets";
+    public static final String onOffsetsAttributeName = "OnOffsets";
+    public static final String latitudeAttributeName = "latitude";
+    public static final String longitudeAttributeName = "longitude";
 
     public static final String DemandCloseToContractPowerThresholdAttributeName = "LoadBalanceDeviceMessage.DemandCloseToContractPowerThreshold";
     public static final String readFrequencyInMinutesAttributeName = "LoadBalanceDeviceMessage.parameters.readFrequencyInMinutes";
@@ -144,6 +171,10 @@ public class DeviceMessageConstants {
     public static final String SetHttpPortAttributeName = "NetworkConnectivityMessage.SetHttpPort";
     public static final String NetworkConnectivityIPAddressAttributeName = "NetworkConnectivityMessage.IPAddress";
     public static final String NetworkConnectivityIntervalAttributeName = "NetworkConnectivityMessage.Interval";
+    public static final String preferGPRSUpstreamCommunication = "NetworkConnectivityMessage.preferGPRSUpstreamCommunication";
+    public static final String enableModemWatchdog = "NetworkConnectivityMessage.enableModemWatchdog";
+    public static final String modemWatchdogInterval = "NetworkConnectivityMessage.modemWatchdogInterval";
+    public static final String modemResetThreshold = "NetworkConnectivityMessage.modemResetThreshold";
 
     public static final String SetDSTAttributeName = "ClockDeviceMessage.SetDST";
     public static final String SetTimezoneAttributeName = "ClockDeviceMessage.SetTimezone";
@@ -226,6 +257,7 @@ public class DeviceMessageConstants {
     public static final String SetPPPIdleTimeoutAttributeName = "PPPConfigurationDeviceMessage.SetPPPIdleTimeout";
     public static final String SetPPPRetryIntervalAttributeName = "PPPConfigurationDeviceMessage.SetPPPRetryInterval";
     public static final String SetPPPOptionsAttributeName = "PPPConfigurationDeviceMessage.SetPPPOptions";
+    public static final String PPPDaemonResetThreshold = "PPPConfigurationDeviceMessage.pppDaemonResetThreshold";
 
     public static final String SetFunctionAttributeName = "ChannelConfigurationDeviceMessage.SetFunction";
     public static final String SetParametersAttributeName = "ChannelConfigurationDeviceMessage.SetParameters";
@@ -417,6 +449,9 @@ public class DeviceMessageConstants {
 
     public static final String alarmFilterAttributeName = "AlarmConfigurationMessage.alarmFilter";
     public static final String configUserFileAttributeName = "GeneralDeviceMessage.configUserFile";
+    public static final String transportTypeAttributeName = "AlarmConfigurationMessage.transportType";
+    public static final String destinationAddressAttributeName = "AlarmConfigurationMessage.destinationAddress";
+    public static final String messageTypeAttributeName = "AlarmConfigurationMessage.messageType";
 
     public static final String activeScanDurationAttributeName = "PLCConfigurationDeviceMessage.activeScanDuration";
     public static final String broadCastLogTableEntryTTLAttributeName = "PLCConfigurationDeviceMessage.broadCastLogTableEntryTTL";
@@ -430,4 +465,87 @@ public class DeviceMessageConstants {
     public static final String plcG3TimeoutAttributeName = "PLCConfigurationDeviceMessage.plcG3Timeout";
     public static final String G3PanIdAttributename = "PLCConfigurationDeviceMessage.G3PanId";
     public static final String MaxOrphanTimerAttributeName = "PLCConfigurationDeviceMessage.MaxOrphanTimer";
+    public static final String adp_Kr = "PLCConfigurationDeviceMessage.adp_Kr";
+    public static final String adp_Km = "PLCConfigurationDeviceMessage.adp_Km";
+    public static final String adp_Kc = "PLCConfigurationDeviceMessage.adp_Kc";
+    public static final String adp_Kq = "PLCConfigurationDeviceMessage.adp_Kq";
+    public static final String adp_Kh = "PLCConfigurationDeviceMessage.adp_Kh";
+    public static final String adp_Krt = "PLCConfigurationDeviceMessage.adp_Krt";
+    public static final String adp_RREQ_retries = "PLCConfigurationDeviceMessage.adp_RREQ_retries";
+    public static final String adp_RLC_enabled = "PLCConfigurationDeviceMessage.adp_RLC_enabled";
+    public static final String adp_net_traversal_time = "PLCConfigurationDeviceMessage.adp_net_traversal_time";
+    public static final String adp_routing_table_entry_TTL = "PLCConfigurationDeviceMessage.adp_routing_table_entry_TTL";
+    public static final String adp_RREQ_RERR_wait = "PLCConfigurationDeviceMessage.adp_RREQ_RERR_wait";
+    public static final String adp_Blacklist_table_entry_TTL = "PLCConfigurationDeviceMessage.adp_Blacklist_table_entry_TTL";
+    public static final String adp_unicast_RREQ_gen_enable = "PLCConfigurationDeviceMessage.adp_unicast_RREQ_gen_enable";
+    public static final String adp_add_rev_link_cost = "PLCConfigurationDeviceMessage.adp_add_rev_link_cost";
+    public static final String disableDefaultRouting = "PLCConfigurationDeviceMessage.disableDefaultRouting";
+    public static final String deviceType = "PLCConfigurationDeviceMessage.deviceType";
+    public static final String pingEnabled = "PLCConfigurationDeviceMessage.pingEnabled";
+    public static final String routeRequestEnabled = "PLCConfigurationDeviceMessage.routeRequestEnabled";
+    public static final String pathRequestEnabled = "PLCConfigurationDeviceMessage.pathRequestEnabled";
+    public static final String EnableSNR = "PLCConfigurationDeviceMessage.enableSNR";
+    public static final String SNRPacketInterval = "PLCConfigurationDeviceMessage.snrPacketInterval";
+    public static final String SNRQuietTime = "PLCConfigurationDeviceMessage.snrQuietTime";
+    public static final String SNRPayload = "PLCConfigurationDeviceMessage.snrPayload";
+    public static final String EnableKeepAlive = "PLCConfigurationDeviceMessage.enableKeepAlive";
+    public static final String KeepAliveScheduleInterval = "PLCConfigurationDeviceMessage.keepAliveScheduleInterval";
+    public static final String KeepAliveBucketSize = "PLCConfigurationDeviceMessage.keepAliveBucketSize";
+    public static final String minInactiveMeterTime = "PLCConfigurationDeviceMessage.minInactiveMeterTime";
+    public static final String maxInactiveMeterTime = "PLCConfigurationDeviceMessage.maxInactiveMeterTime";
+    public static final String KeepAliveRetries = "PLCConfigurationDeviceMessage.keepAliveRetries";
+    public static final String KeepAliveTimeout = "PLCConfigurationDeviceMessage.keepAliveTimeout";
+    public static final String plcSecurityLevel = "PLCConfigurationDeviceMessage.plcSecurityLevel";
+    public static final String maxJoinWaitTime = "PLCConfigurationDeviceMessage.maxJoinWaitTime";
+    public static final String pathDiscoveryTime = "PLCConfigurationDeviceMessage.pathDiscoveryTime";
+    public static final String metricType = "PLCConfigurationDeviceMessage.metricType";
+    public static final String TMRTTL = "PLCConfigurationDeviceMessage.mtrTTL";
+    public static final String MaxFrameRetries = "PLCConfigurationDeviceMessage.maxFrameRetries";
+    public static final String NeighbourTableEntryTTL = "PLCConfigurationDeviceMessage.neighbourTableEntryTTL";
+    public static final String HighPriorityWindowSize = "PLCConfigurationDeviceMessage.highPriorityWindowSize";
+    public static final String CSMAFairnessLimit = "PLCConfigurationDeviceMessage.csmaFairnessLimit";
+    public static final String BeaconRandomizationWindowLength = "PLCConfigurationDeviceMessage.beaconRandomizationWindowLength";
+    public static final String MacA = "PLCConfigurationDeviceMessage.macA";
+    public static final String MacK = "PLCConfigurationDeviceMessage.macK";
+    public static final String MinimumCWAttempts = "PLCConfigurationDeviceMessage.minimumCWAttempts";
+    public static final String maxBe = "PLCConfigurationDeviceMessage.maxBe";
+    public static final String maxCSMABackOff = "PLCConfigurationDeviceMessage.maxCSMABackOff";
+    public static final String minBe = "PLCConfigurationDeviceMessage.minBe";
+    public static final String deviceGroupPathRequestAttributeName = "PLCConfigurationDeviceMessage.devicegroup.pathrequest";
+
+    public static final String interval = "interval";
+    public static final String duration = "duration";
+    public static final String deviceId = "rtuDeviceId";
+    public static final String trackingId = "trackingId";
+    public static final String delete = "delete";
+    public static final String startTime = "startTime";
+    public static final String macAddress = "macAddress";
+    public static final String output = "output";
+    public static final String outputId = "OutputConfigurationMessage.outputId";
+    public static final String newState = "OutputConfigurationMessage.newState";
+
+    public static final String EnableDLMS = "FirewallConfigurationMessage.enableDLMS";
+    public static final String EnableHTTP = "FirewallConfigurationMessage.enableHTTP";
+    public static final String EnableSSH = "FirewallConfigurationMessage.enableSSH";
+    public static final String defaultEnabled = "FirewallConfigurationMessage.defaultEnabled";
+
+    public static final String receptionThreshold = "receptionThreshold";
+    public static final String numberOfTimeSlotsForNewSystems = "numberOfTimeSlotsForNewSystems";
+    public static final String outputBitMap = "outputBitMap";
+    public static final String endTime = "endTime";
+    public static final String rfAddress = "rfAddress";
+    public static final String waveCardFirmware = "waveCardFirmware";
+    public static final String nodeListUserFile = "nodeListUserFile";
+    public static final String enableWavenis = "enableWavenis";
+    public static final String rfCommand = "rfCommand";
+    public static final String friendlyName = "friendlyName";
+    public static final String preferredL1NodeList = "preferredL1NodeList";
+    public static final String enablePLC = "enablePLC";
+    public static final String enableBootSync = "enableBootSync";
+    public static final String frequencyPair = "frequencyPair";
+    public static final String discoveryMaxCredits = "discoveryMaxCredits";
+    public static final String fileInfo = "fileInfo";
+    public static final String sslCertificateUserFile = "sslCertificateUserFile";
+    public static final String servletURL = "servletURL";
+    public static final String logLevel = "logLevel";
 }
