@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
@@ -40,7 +41,10 @@ public class DataExportTaskHistoryInfo {
 
         this.trigger = (dataExportOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
         if (dataExportOccurrence.wasScheduled()) {
-            this.trigger = this.trigger + " (" + this.getScheduledTriggerDescription(dataExportOccurrence, thesaurus) + ")";
+            String scheduledTriggerDescription = this.getScheduledTriggerDescription(dataExportOccurrence, thesaurus);
+            if (scheduledTriggerDescription != null) {
+                this.trigger = this.trigger + " (" + scheduledTriggerDescription + ")";
+            }
         }
         this.startedOn = dataExportOccurrence.getStartDate().map(this::toLong).orElse(null);
         this.finishedOn = dataExportOccurrence.getEndDate().map(this::toLong).orElse(null);
@@ -86,6 +90,9 @@ public class DataExportTaskHistoryInfo {
 
     private String getScheduledTriggerDescription(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
         ScheduleExpression scheduleExpression = dataExportOccurrence.getTask().getScheduleExpression();
+        if (Never.NEVER.equals(scheduleExpression)) {
+            return null;
+        }
         TimeDuration every = ((TemporalExpression) scheduleExpression).getEvery();
         int count = every.getCount();
         TimeDuration.TimeUnit unit = every.getTimeUnit();
