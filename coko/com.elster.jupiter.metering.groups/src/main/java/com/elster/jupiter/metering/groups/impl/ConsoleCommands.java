@@ -24,6 +24,8 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
+import static com.elster.jupiter.util.streams.Functions.asStream;
+
 @Component(name = "com.elster.jupiter.metering.groups.console", service = ConsoleCommands.class, property = {"osgi.command.scope=metering", "osgi.command.function=createEnumeratedEndDeviceGroup", "osgi.command.function=updateEnumeratedEndDeviceGroup", "osgi.command.function=endDeviceGroups"}, immediate = true)
 public class ConsoleCommands {
 
@@ -59,8 +61,7 @@ public class ConsoleCommands {
         final List<EnumeratedEndDeviceGroup.Entry> entries = new ArrayList<>();
         LongStream deviceIds = Arrays.stream(ids);
         List<EndDevice> endDevices = deviceIds.mapToObj(meteringService::findEndDevice)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(asStream())
                 .collect(Collectors.toList());
 
         Map<Long, EnumeratedEndDeviceGroup.Entry> currentEntries = enumeratedEndDeviceGroup.getEntries().stream()
