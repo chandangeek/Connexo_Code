@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.impl.CompleteTopologyTimesliceImpl;
 
 import java.time.Instant;
 import java.util.Arrays;

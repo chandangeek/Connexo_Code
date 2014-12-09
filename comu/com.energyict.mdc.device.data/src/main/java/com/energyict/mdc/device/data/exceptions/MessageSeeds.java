@@ -160,8 +160,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW_KEY = "outboundConnectionTask.nextExecutionSpecs.longOffsetNotWithinWindow";
         public static final String VALUE_IS_REQUIRED_KEY = "X.value.required";
         public static final String DUPLICATE_DEVICE_MRID = "deviceDuplicateMrid";
-        public static final String PHYSICAL_GATEWAY_STILL_IN_USE = "device.delete.linked.physical.gateway";
-        public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "device.delete.linked.communication.gateway";
         public static final String INFOTYPE_DOESNT_EXIST = "device.property.infotype.required";
         public static final String PROPERTY_NOT_ON_DEVICE_PROTOCOL = "not.deviceprotocol.property";
         public static final String CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE = "cannotDeleteIfNotFromDevice";

@@ -1,11 +1,11 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.impl.DeviceTopologyImpl;
 
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneOffset;

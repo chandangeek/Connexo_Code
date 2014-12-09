@@ -28,7 +28,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
@@ -58,7 +57,6 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceTopology;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -86,7 +84,6 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -102,7 +99,6 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -535,83 +531,6 @@ public class DeviceImpl implements Device, CanLock {
             }
         }
         return RegisterFactory.Numerical.newRegister(this, registerSpec);
-    }
-
-    @Override
-    public void setCommunicationGateway(Device gateway) {
-        if (gateway != null) {
-            Instant currentTime = clock.instant();
-            terminateTemporal(currentTime, this.communicationGatewayReferenceDevice);
-            CommunicationGatewayReferenceImpl communicationGatewayReference =
-                    this.dataModel.getInstance(CommunicationGatewayReferenceImpl.class)
-                            .createFor(Interval.startAt(currentTime), gateway, this);
-            saveCommunicationGateway(communicationGatewayReference);
-            topologyChanged();
-        }
-    }
-
-    private void saveCommunicationGateway(CommunicationGatewayReferenceImpl communicationGatewayReference) {
-        Save.action(getId()).validate(this.dataModel, communicationGatewayReference);
-        this.communicationGatewayReferenceDevice.add(communicationGatewayReference);
-    }
-
-    @Override
-    public void clearCommunicationGateway() {
-        terminateTemporal(clock.instant(), this.communicationGatewayReferenceDevice);
-        topologyChanged();
-    }
-
-    @Override
-    public List<Device> getCommunicationReferencingDevices() {
-        return this.deviceService.findCommunicationReferencingDevicesFor(this);
-    }
-
-    @Override
-    public List<Device> getCommunicationReferencingDevices(Instant timestamp) {
-        return this.deviceService.findCommunicationReferencingDevicesFor(this, timestamp);
-    }
-
-    @Override
-    public List<Device> getAllCommunicationReferencingDevices() {
-        return this.getAllCommunicationReferencingDevices(clock.instant());
-    }
-
-    @Override
-    public List<Device> getAllCommunicationReferencingDevices(Instant timestamp) {
-        Map<Long, Device> allDevicesInTopology = new HashMap<>();
-        this.collectAllCommunicationReferencingDevices(timestamp, this, allDevicesInTopology);
-        return new ArrayList<>(allDevicesInTopology.values());
-    }
-
-    private void collectAllCommunicationReferencingDevices(Instant timestamp, Device topologyRoot, Map<Long, Device> devices) {
-        topologyRoot.getCommunicationReferencingDevices(timestamp)
-                .stream()
-                // Filter the devices that were not encountered yet
-                .filter(device -> !devices.containsKey(device.getId()))
-                // and collect the referencing devices for those
-                .forEach(device -> {
-                    devices.put(device.getId(), device);
-                    this.collectAllCommunicationReferencingDevices(timestamp, device, devices);
-        });
-    }
-
-    @Override
-    public DeviceTopology getCommunicationTopology(Range<Instant> period) {
-        return this.deviceService.buildCommunicationTopology(this, period);
-    }
-
-    @Override
-    public Device getCommunicationGateway() {
-        return this.getCommunicationGateway(clock.instant());
-    }
-
-    @Override
-    public Device getCommunicationGateway(Instant timestamp) {
-        Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(timestamp);
-        if (communicationGatewayReferenceOptional.isPresent()) {
-            return communicationGatewayReferenceOptional.get().getGateway();
-        }
-        return null;
     }
 
     @Override

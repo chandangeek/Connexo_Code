@@ -15,8 +15,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.TopologyTimeline;
-import com.energyict.mdc.device.data.TopologyTimeslice;
+import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.topology.StillGatewayException;
@@ -25,7 +24,6 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
@@ -52,7 +50,6 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
-import org.fest.assertions.core.Condition;
 import org.joda.time.DateTimeConstants;
 
 import java.math.BigDecimal;
@@ -493,123 +490,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void defaultCommunicationGatewayNullTest() {
-        Device simpleDevice = createSimpleDevice();
-
-        assertThat(simpleDevice.getCommunicationGateway()).isNull();
-    }
-
-    @Test
-    @Transactional
-    public void createWithCommunicationGatewayTest() {
-        Device communicationMaster = createSimpleDevice();
-
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave", MRID);
-        device.setCommunicationGateway(communicationMaster);
-        device.save();
-        Device reloadedDevice = getReloadedDevice(device);
-
-        assertThat(reloadedDevice.getCommunicationGateway()).isNotNull();
-        assertThat(reloadedDevice.getCommunicationGateway().getId()).isEqualTo(communicationMaster.getId());
-    }
-
-    @Test
-    @Transactional
-    public void updateWithCommunicationGatewayTest() {
-        Device communicationGateway = createSimpleDeviceWithName("CommunicationGateway","cg");
-        Device origin = createSimpleDeviceWithName("Origin","o");
-        Device reloadedOrigin = getReloadedDevice(origin);
-        reloadedOrigin.setCommunicationGateway(communicationGateway);
-        reloadedOrigin.save();
-
-        Device updatedDevice = getReloadedDevice(reloadedOrigin);
-
-        assertThat(updatedDevice.getCommunicationGateway()).isNotNull();
-        assertThat(updatedDevice.getCommunicationGateway().getId()).isEqualTo(communicationGateway.getId());
-    }
-
-    @Test
-    @Transactional
-    public void updateWithSecondCommunicationGatewayTest() {
-        Device communicationMaster1 = createSimpleDeviceWithName("CommunicationMaster1", "1");
-        Device communicationMaster2 = createSimpleDeviceWithName("CommunicationMaster2", "2");
-        Device origin = createSimpleDeviceWithName("Origin");
-
-        origin.setCommunicationGateway(communicationMaster1);
-        origin.save();
-
-        Device originWithMaster1 = getReloadedDevice(origin);
-        originWithMaster1.setCommunicationGateway(communicationMaster2);
-
-        Device originWithMaster2 = getReloadedDevice(originWithMaster1);
-
-        assertThat(originWithMaster2.getCommunicationGateway().getId()).isEqualTo(communicationMaster2.getId());
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
-    public void setCommunicationGatewaySameAsOriginTest() {
-        Device origin = createSimpleDeviceWithName("Origin");
-
-        origin.setCommunicationGateway(origin);
-        origin.save();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.GATEWAY_CANT_BE_SAME_AS_ORIGIN_KEY + "}")
-    public void updateCommunicationGatewayWithSameAsOriginDeviceTest() {
-        Device communicationMaster = createSimpleDevice();
-
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Slave", MRID);
-        device.setCommunicationGateway(communicationMaster);
-        device.save();
-
-        Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.setCommunicationGateway(reloadedDevice);
-    }
-
-    @Test(expected = StillGatewayException.class)
-    @Transactional
-    public void cannotDeleteBecauseStillUsedAsCommunicationGatewayTest() {
-        Device communicationMaster = createSimpleDeviceWithName("CommunicationMaster");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
-        device.setCommunicationGateway(communicationMaster);
-        device.save();
-
-        //business method
-        try {
-            communicationMaster.delete();
-        } catch (StillGatewayException e) {
-            if (!e.getMessageSeed().equals(MessageSeeds.DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY)) {
-                fail("Should have gotten an exception indicating that the device was still linked as a physical gateway, but was " + e.getMessage());
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    @Test
-    @Transactional
-    public void deleteCommunicationMasterAfterDeletingSlaveTest() {
-        Device communicationMaster = createSimpleDeviceWithName("CommunicationMaster");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
-        device.setCommunicationGateway(communicationMaster);
-        device.save();
-
-        Device reloadedSlave = getReloadedDevice(device);
-        reloadedSlave.delete();
-
-        Device reloadedCommunicationMaster = getReloadedDevice(communicationMaster);
-        long masterId = reloadedCommunicationMaster.getId();
-        reloadedCommunicationMaster.delete();
-
-        assertThat(inMemoryPersistence.getDeviceService().findDeviceById(masterId)).isNull();
-    }
-
-    @Test
-    @Transactional
     public void getChannelsForConfigWithNoChannelSpecsTest() {
         Device simpleDevice = createSimpleDevice();
 
@@ -940,48 +820,6 @@ public class DeviceImplTest extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(new Interval(dayStart, dayEnd));
         assertThat(readings).hasSize(4 * 6);  // 4 per hour, during 6 hours
-    }
-
-    @Test
-    @Transactional
-    @Ignore // H2 can't handle the SQL queries
-    public void testGetSortedCommunicationGatewayReference() {
-        Device gateway = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "gateway", "commGateway");
-        gateway.save();
-
-        Device slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave1", "slave1");
-        slave.save();
-        slave.setCommunicationGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave2", "slave2");
-        slave.save();
-        slave.setCommunicationGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave3", "slave3");
-        slave.save();
-        slave.setCommunicationGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave4", "slave4");
-        slave.save();
-        slave.setCommunicationGateway(gateway);
-
-        slave = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave5", "slave5");
-        slave.save();
-        slave.setCommunicationGateway(gateway);
-
-        List<TopologyTimeslice> timeslices = inMemoryPersistence.getDeviceService().getCommunicationTopologyTimelineAdditions(gateway, 3).getSlices();
-        assertThat(timeslices).hasSize(1);
-        TopologyTimeslice topologyTimeslice = timeslices.get(0);
-        List<Device> devicesInTimeslice = topologyTimeslice.getDevices();
-        assertThat(devicesInTimeslice).hasSize(3);
-        Set<String> deviceNames = devicesInTimeslice.stream().map(Device::getName).collect(Collectors.toSet());
-        assertThat(deviceNames).containsOnly("slave5", "slave4", "slave3");
-
-        timeslices = inMemoryPersistence.getDeviceService().getCommunicationTopologyTimelineAdditions(gateway, 20).getSlices();
-        assertThat(timeslices).hasSize(1);
-        topologyTimeslice = timeslices.get(0);
-        devicesInTimeslice = topologyTimeslice.getDevices();
-        assertThat(devicesInTimeslice).hasSize(5);
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
