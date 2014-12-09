@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.TypedProperties;
@@ -8,6 +9,7 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbus
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -19,12 +21,13 @@ import java.util.Properties;
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
-    public MbusDevice() {
-        super();
+    @Inject
+    public MbusDevice(TopologyService topologyService) {
+        super(topologyService);
     }
 
-    public MbusDevice(final AbstractSmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
-        super(meterProtocol, serialNumber, physicalAddress);
+    public MbusDevice(AbstractSmartNtaProtocol meterProtocol, TopologyService topologyService, String serialNumber, int physicalAddress) {
+        super(meterProtocol, topologyService, serialNumber, physicalAddress);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -7,6 +8,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 
+import javax.inject.Inject;
 import java.util.Map;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.authenticationLevelAttributeName;
@@ -19,11 +21,9 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
  */
 public class Dsmr40MessageConverter extends Dsmr23MessageConverter {
 
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public Dsmr40MessageConverter() {
-        super();
+    @Inject
+    public Dsmr40MessageConverter(TopologyService topologyService) {
+        super(topologyService);
     }
 
     @Override

@@ -78,7 +78,7 @@ public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.contactorActivationDateAttributeName:
                 return Long.toString(((Date) messageAttribute).getTime() / 1000);
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
                 return dateTimeFormatWithTimeZone.format((Date) messageAttribute);

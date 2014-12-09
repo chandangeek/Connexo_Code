@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
+import com.energyict.mdc.device.topology.TopologyService;
+
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 
 /**
@@ -10,6 +12,10 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNt
  */
 public class KaifaDsmr40MessageExecutor extends Dsmr40MessageExecutor {
 
+    public KaifaDsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
+        super(protocol, topologyService);
+    }
+
     /**
      * The IBM Kaifa meter only accepts value 0x01 as boolean TRUE.
      */
@@ -17,7 +23,4 @@ public class KaifaDsmr40MessageExecutor extends Dsmr40MessageExecutor {
         return 0x01;
     }
 
-    public KaifaDsmr40MessageExecutor(final AbstractSmartNtaProtocol protocol) {
-        super(protocol);
-    }
 }

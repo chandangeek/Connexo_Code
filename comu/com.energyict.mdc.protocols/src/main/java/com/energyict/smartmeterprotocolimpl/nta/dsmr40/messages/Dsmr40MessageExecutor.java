@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
@@ -49,14 +50,14 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     private static final ObisCode OBISCODE_PUSH_SCRIPT = ObisCode.fromString("0.0.10.0.108.255");
     private static final ObisCode OBISCODE_GLOBAL_RESET = ObisCode.fromString("0.1.94.31.5.255");
 
-    public Dsmr40MessageExecutor(final AbstractSmartNtaProtocol protocol) {
-        super(protocol);
+    public Dsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
+        super(protocol, topologyService);
     }
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
             //Execute messages for MBus device
-            Dsmr40MbusMessageExecutor mbusMessageExecutor = new Dsmr40MbusMessageExecutor(protocol);
+            Dsmr40MbusMessageExecutor mbusMessageExecutor = new Dsmr40MbusMessageExecutor(protocol, this.getTopologyService());
             return mbusMessageExecutor.executeMessageEntry(msgEntry);
         } else {
             return super.executeMessageEntry(msgEntry);

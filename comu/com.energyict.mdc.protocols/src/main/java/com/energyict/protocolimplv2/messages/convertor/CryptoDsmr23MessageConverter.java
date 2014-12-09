@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -8,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 
+import javax.inject.Inject;
 import java.util.Map;
 
 /**
@@ -19,8 +21,9 @@ import java.util.Map;
  */
 public class CryptoDsmr23MessageConverter extends Dsmr23MessageConverter {
 
-    public CryptoDsmr23MessageConverter() {
-        super();
+    @Inject
+    public CryptoDsmr23MessageConverter(TopologyService topologyService) {
+        super(topologyService);
     }
 
     @Override

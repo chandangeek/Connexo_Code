@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  */
 public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuilder {
 
-    private static final String MESSAGETAG = "PartialLoadProfile";
+    public static final String MESSAGETAG = "PartialLoadProfile";
     private static final String ProfileObisCodeTag = "LPObisCode";
     private static final String MeterSerialNumberTag = "MSerial";
     private static final String StartReadingTimeTag = "StartTime";

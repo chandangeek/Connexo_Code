@@ -26,7 +26,7 @@ public class Mx382 extends AbstractSmartNtaProtocol implements PartialLoadProfil
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
+        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, this.getTopologyService()));
     }
 
     /**

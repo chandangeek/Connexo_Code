@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -19,7 +20,7 @@ import java.util.Map;
  */
 public class CryptoDsmr23MBusMessageConverter extends Dsmr23MBusDeviceMessageConverter {
 
-    public CryptoDsmr23MBusMessageConverter() {
+    public CryptoDsmr23MBusMessageConverter(TopologyService topologyService) {
         super(topologyService);
     }
 

@@ -1,5 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster;
 
+import com.energyict.mdc.device.topology.TopologyService;
+
+import javax.inject.Inject;
+
 /**
  * Protocol for the Elster g-meter, following the DSMR 4.0 spec.
  * This meter should behave exactly the same as the L+G DSMR 4.0 g-meter
@@ -11,7 +15,8 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster;
  */
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
-    public MBusDevice() {
+    @Inject
+    public MBusDevice(TopologyService topologyService) {
         super(topologyService);
     }
 
@@ -24,4 +29,5 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
     public String getVersion() {
         return "$Date: 2013-04-02 09:27:19 +0200 (di, 02 apr 2013) $";
     }
+
 }

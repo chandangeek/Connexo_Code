@@ -4,6 +4,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.UserFile;
@@ -80,6 +81,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
@@ -92,12 +94,18 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
     protected final DlmsSession dlmsSession;
     protected final AbstractSmartNtaProtocol protocol;
+    private final TopologyService topologyService;
 
     private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
-    public Dsmr23MessageExecutor(final AbstractSmartNtaProtocol protocol) {
+    public Dsmr23MessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
         this.protocol = protocol;
         this.dlmsSession = this.protocol.getDlmsSession();
+        this.topologyService = topologyService;
+    }
+
+    protected TopologyService getTopologyService() {
+        return topologyService;
     }
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
@@ -106,132 +114,164 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol, topologyService);
             return mbusMessageExecutor.executeMessageEntry(msgEntry);
         } else {
-
             MessageResult msgResult = null;
             String content = msgEntry.getContent();
             MessageHandler messageHandler = new NTAMessageHandler();
             try {
                 importMessage(content, messageHandler);
-
-                /* All eMeter related messages */
-                boolean xmlConfig = messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
-                boolean firmware = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
-                boolean p1Text = messageHandler.getType().equals(RtuMessageConstant.P1TEXTMESSAGE);
-                boolean p1Code = messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
-                boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
-                boolean disconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-                boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
-                boolean llConfig = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
-                boolean llClear = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
-                boolean llSetGrId = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
-                boolean touCalendar = messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
-                boolean touSpecialDays = messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS);
-                boolean specialDelEntry = messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
-                boolean setTime = messageHandler.getType().equals(RtuMessageConstant.SET_TIME);
-                boolean fillUpDB = messageHandler.getType().equals(RtuMessageConstant.ME_MAKING_ENTRIES);
-                boolean gprsParameters = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_SETUP);
-                boolean gprsCredentials = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
-                boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
-                boolean testSecurityMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_SECURITY_MESSAGE);
-                boolean globalReset = messageHandler.getType().equals(RtuMessageConstant.GLOBAL_METER_RESET);
-                boolean factorySettings = messageHandler.getType().equals(RtuMessageConstant.RESTORE_FACTORY_SETTINGS);
-                boolean wakeUpWhiteList = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
-                boolean changeHLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
-                boolean changeLLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
-                boolean changeGlobalkey = messageHandler.getType().equals(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY);
-                boolean changeAuthkey = messageHandler.getType().equals(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY);
-                boolean activateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ACTIVATE);
-                boolean deActivateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
-                boolean actSecuritLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
-                boolean changeAuthLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
-                boolean enableAuthLevelP0 = messageHandler.getType().equals(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0);
-                boolean disableAuthLevelP0 = messageHandler.getType().equals(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0);
-                boolean enableAuthLevelP3 = messageHandler.getType().equals(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P3);
-                boolean disableAuthLevelP3 = messageHandler.getType().equals(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3);
-                boolean partialLoadProfile = messageHandler.getType().equals(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag());
-                boolean loadProfileRegisterRequest = messageHandler.getType().equals(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag());
-                boolean resetAlarmRegisterRequest = messageHandler.getType().equals(RtuMessageConstant.RESET_ALARM_REGISTER);
-                boolean isChangeDefaultResetWindow = messageHandler.getType().equals(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW);
-
-                /* All MbusMeter related messages */
-                if (xmlConfig) {
-                    doXmlConfig(content);
-                } else if (firmware) {
-                    doFirmwareUpgrade(messageHandler);
-                } else if (p1Code) {
-                    setP1Code(messageHandler);
-                } else if (p1Text) {
-                    setP1Text(messageHandler);
-                } else if (connect) {
-                    doConnect(messageHandler);
-                } else if (disconnect) {
-                    doDisconnect(messageHandler);
-                } else if (connectMode) {
-                    setConnectMode(messageHandler);
-                } else if (llConfig) {
-                    loadLimitConfiguration(messageHandler);
-                } else if (llClear) {
-                    clearLoadLimiting(messageHandler);
-                } else if (llSetGrId) {
-                    setLoadLimitGroupId(messageHandler);
-                } else if (touCalendar) {
-                    upgradeCalendar(messageHandler);
-                } else if (touSpecialDays) {
-                    upgradeSpecialDays(messageHandler);
-                } else if (specialDelEntry) {
-                    deleteSpecialDay(messageHandler);
-                } else if (setTime) {
-                    setTime(messageHandler);
-                } else if (fillUpDB) {
-                    createDataBaseEntries(messageHandler);
-                } else if (gprsParameters) {
-                    setGPRSParameters(messageHandler);
-                } else if (gprsCredentials) {
-                    setGPRSCredentials(messageHandler);
-                } else if (globalReset) {
-                    doGlobalReset();
-                } else if (factorySettings) {
-                    restoreFactorySettings();
-                } else if (wakeUpWhiteList) {
-                    setWakeUpWhiteList(messageHandler);
-                } else if (changeHLSSecret) {
-                    changeHLSSecret();
-                } else if (changeAuthkey) {
-                    changeAuthenticationKey();
-                } else if (changeGlobalkey) {
-                    changeGlobalKey();
-                } else if (changeLLSSecret) {
-                    changeLLSSecret();
-                } else if (activateSMS) {
-                    activateSms();
-                } else if (deActivateSMS) {
-                    deactivateSms();
-                } else if (actSecuritLevel) {
-                    getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
-                } else if (changeAuthLevel) {
-                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler);
-                } else if (enableAuthLevelP0) {
-                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 0, true);
-                } else if (disableAuthLevelP0) {
-                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 0, false);
-                } else if (enableAuthLevelP3) {
-                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 3, true);
-                } else if (disableAuthLevelP3) {
-                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 3, false);
-                } else if (partialLoadProfile) {
-                    msgResult = doReadPartialLoadProfile(msgEntry);
-                } else if (loadProfileRegisterRequest) {
-                    msgResult = doReadLoadProfileRegisters(msgEntry);
-                } else if (resetAlarmRegisterRequest) {
-                    resetAlarmRegister();
-                } else if (isChangeDefaultResetWindow) {
-                    changeDefaultResetWindow(messageHandler);
-                } else {
-                    msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
-                    log(Level.INFO, "Message not supported : " + content);
+                switch (messageHandler.getType()) {
+                    case RtuMessageConstant.XMLCONFIG: {
+                        doXmlConfig(content);
+                        break;
+                    }
+                    case RtuMessageConstant.FIRMWARE_UPGRADE: {
+                        doFirmwareUpgrade(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.P1CODEMESSAGE: {
+                        setP1Code(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.P1TEXTMESSAGE: {
+                        setP1Text(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.CONNECT_LOAD: {
+                        doConnect(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.DISCONNECT_LOAD: {
+                        doDisconnect(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.CONNECT_CONTROL_MODE: {
+                        setConnectMode(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.LOAD_LIMIT_CONFIGURE: {
+                        loadLimitConfiguration(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.LOAD_LIMIT_DISABLE: {
+                        clearLoadLimiting(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST: {
+                        setLoadLimitGroupId(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.TOU_ACTIVITY_CAL: {
+                        upgradeCalendar(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.TOU_SPECIAL_DAYS: {
+                        upgradeSpecialDays(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE: {
+                        deleteSpecialDay(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.SET_TIME: {
+                        setTime(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.ME_MAKING_ENTRIES: {
+                        createDataBaseEntries(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.GPRS_MODEM_SETUP: {
+                        setGPRSParameters(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.GPRS_MODEM_CREDENTIALS: {
+                        setGPRSCredentials(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.GLOBAL_METER_RESET: {
+                        doGlobalReset();
+                        break;
+                    }
+                    case RtuMessageConstant.RESTORE_FACTORY_SETTINGS: {
+                        restoreFactorySettings();
+                        break;
+                    }
+                    case RtuMessageConstant.WAKEUP_ADD_WHITELIST: {
+                        setWakeUpWhiteList(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_CHANGE_HLS_SECRET: {
+                        changeHLSSecret();
+                        break;
+                    }
+                    case RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY: {
+                        changeAuthenticationKey();
+                        break;
+                    }
+                    case RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY: {
+                        changeGlobalKey();
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_CHANGE_LLS_SECRET: {
+                        changeLLSSecret();
+                        break;
+                    }
+                    case RtuMessageConstant.WAKEUP_ACTIVATE: {
+                        activateSms();
+                        break;
+                    }
+                    case RtuMessageConstant.WAKEUP_DEACTIVATE: {
+                        deactivateSms();
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_ACTIVATE_SECURITY: {
+                        getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL: {
+                        msgResult = changeAuthenticationLevel(msgEntry, messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0: {
+                        msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 0, true);
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0: {
+                        msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 0, false);
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P3: {
+                        msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 3, true);
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3: {
+                        msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 3, false);
+                        break;
+                    }
+                    case LegacyPartialLoadProfileMessageBuilder.MESSAGETAG: {
+                        msgResult = doReadPartialLoadProfile(msgEntry);
+                        break;
+                    }
+                    case LegacyLoadProfileRegisterMessageBuilder.MESSAGETAG: {
+                        msgResult = doReadLoadProfileRegisters(msgEntry);
+                        break;
+                    }
+                    case RtuMessageConstant.RESET_ALARM_REGISTER: {
+                        resetAlarmRegister();
+                        break;
+                    }
+                    case RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW: {
+                        changeDefaultResetWindow(messageHandler);
+                        break;
+                    }
+                    default: {
+                        msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
+                        log(Level.INFO, "Message not supported : " + content);
+                        break;
+                    }
                 }
 
-                // Some message create their own messageResult
+                // Some messages create their own messageResult
                 if (msgResult == null) {
                     msgResult = MessageResult.createSuccess(msgEntry);
                     log(Level.INFO, "Message has finished.");
@@ -561,7 +601,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             int entries = messageHandler.getMEEntries();
             String type = messageHandler.getMEInterval();
             long millis = Long.parseLong(messageHandler.getMEStartDate()) * 1000;
-            Date startTime = new Date(Long.parseLong(messageHandler.getMEStartDate()) * 1000);
+            Date startTime = new Date(millis);
             startTime = getFirstDate(startTime, type);
             while (entries > 0) {
                 log(Level.INFO, "Setting meterTime to: " + startTime);
@@ -603,47 +643,39 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         if (codeTable == null) {
             throw new IOException("CodeTable-ID can not be empty.");
         } else {
-
             Code ct = this.findCode(codeTable);
-            if (ct == null) {
-                throw new IOException("No CodeTable defined with id '" + codeTable + "'");
-            } else {
+            List calendars = ct.getCalendars();
+            Array sdArray = new Array();
 
-                List calendars = ct.getCalendars();
-                Array sdArray = new Array();
-
-                SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-
-                for (int i = 0; i < calendars.size(); i++) {
-                    CodeCalendar cc = (CodeCalendar) calendars.get(i);
-                    if (cc.getSeason() == 0) {
-                        OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
-                                (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
-                                (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek())});
-                        Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
-                        Structure struct = new Structure();
-                        AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte) 0x09, (byte) 0x0C, (byte) ((cc.getYear() == -1) ? 0x07 : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xB2 : (cc.getYear()) & 0xFF),
-                                (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
-                                (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});
-                        long days = dt.getValue().getTimeInMillis() / 1000 / 60 / 60 / 24;
-                        struct.addDataType(new Unsigned16((int) days));
-                        struct.addDataType(os);
-                        struct.addDataType(dayType);
-//								sdt.insert(struct);
-                        sdArray.addDataType(struct);
-                    }
+            SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+            for (int i = 0; i < calendars.size(); i++) {
+                CodeCalendar cc = (CodeCalendar) calendars.get(i);
+                if (cc.getSeason() == 0) {
+                    OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
+                            (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
+                            (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek())});
+                    Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
+                    Structure struct = new Structure();
+                    AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte) 0x09, (byte) 0x0C, (byte) ((cc.getYear() == -1) ? 0x07 : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xB2 : (cc.getYear()) & 0xFF),
+                            (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
+                            (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});
+                    long days = dt.getValue().getTimeInMillis() / 1000 / 60 / 60 / 24;
+                    struct.addDataType(new Unsigned16((int) days));
+                    struct.addDataType(os);
+                    struct.addDataType(dayType);
+                    sdArray.addDataType(struct);
                 }
+            }
 
-                if (sdArray.nrOfDataTypes() != 0) {
-                    sdt.writeSpecialDays(sdArray);
-                }
+            if (sdArray.nrOfDataTypes() != 0) {
+                sdt.writeSpecialDays(sdArray);
             }
         }
     }
 
-    private Code findCode(String codeTable) {
+    private Code findCode(String codeTable) throws IOException {
         // Todo: port Code to jupiter, return null as the previous code would have returned null too.
-        return null;
+        throw new IOException("No CodeTable defined with id '" + codeTable + "'");
     }
 
     protected void upgradeCalendar(MessageHandler messageHandler) throws IOException {
@@ -661,30 +693,23 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
 
         if (codeTable != null) {
-
             Code ct = this.findCode(codeTable);
-            if (ct == null) {
-                throw new IOException("No CodeTable defined with id '" + codeTable + "'");
-            } else {
+            ActivityCalendarMessage acm = new ActivityCalendarMessage(ct, getMeterConfig());
+            acm.parse();
 
-                ActivityCalendarMessage acm = new ActivityCalendarMessage(ct, getMeterConfig());
-                acm.parse();
+            ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
+            ac.writeSeasonProfilePassive(acm.getSeasonProfile());
+            ac.writeWeekProfileTablePassive(acm.getWeekProfile());
+            ac.writeDayProfileTablePassive(acm.getDayProfile());
 
-                ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
-                ac.writeSeasonProfilePassive(acm.getSeasonProfile());
-                ac.writeWeekProfileTablePassive(acm.getWeekProfile());
-                ac.writeDayProfileTablePassive(acm.getDayProfile());
-
-                if (name != null) {
-                    if (name.length() > 8) {
-                        name = name.substring(0, 8);
-                    }
-                    ac.writeCalendarNamePassive(OctetString.fromString(name));
+            if (name != null) {
+                if (name.length() > 8) {
+                    name = name.substring(0, 8);
                 }
-                if (activateDate != null) {
-//							ac.writeActivatePassiveCalendarTime(new OctetString(convertStringToDateTimeOctetString(activateDate).getBEREncodedByteArray(), 0, true));
-                    ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
-                }
+                ac.writeCalendarNamePassive(OctetString.fromString(name));
+            }
+            if (activateDate != null) {
+                ac.writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activateDate).getBEREncodedByteArray(), 0));
             }
         } else if (userFile != null) {
             throw new IOException("ActivityCalendar by userfile is not supported yet.");

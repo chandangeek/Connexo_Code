@@ -11,6 +11,7 @@ import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMbusMessaging;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +21,9 @@ import java.util.List;
  */
 public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
-    private final TopologyService topologyService;
-
+    @Inject
     public MbusDevice(TopologyService topologyService) {
-        super();
-        this.topologyService = topologyService;
+        super(topologyService);
     }
 
     @Override
@@ -61,11 +60,11 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+        return new LegacyLoadProfileRegisterMessageBuilder(this.getTopologyService());
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(topologyService);
+        return new LegacyPartialLoadProfileMessageBuilder(this.getTopologyService());
     }
 
 }

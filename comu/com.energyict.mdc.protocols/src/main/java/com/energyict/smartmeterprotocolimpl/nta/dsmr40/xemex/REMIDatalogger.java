@@ -82,7 +82,7 @@ public class REMIDatalogger extends E350 {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new XemexMessaging(new XemexMessageExecutor(this));
+        return new XemexMessaging(new XemexMessageExecutor(this, this.getTopologyService()));
     }
 
     @Override
@@ -106,7 +106,7 @@ public class REMIDatalogger extends E350 {
     @Override
     public MeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
-            this.meterTopology = new XemexMeterTopology(this);
+            this.meterTopology = new XemexMeterTopology(this, this.getTopologyService());
         }
         return meterTopology;
     }

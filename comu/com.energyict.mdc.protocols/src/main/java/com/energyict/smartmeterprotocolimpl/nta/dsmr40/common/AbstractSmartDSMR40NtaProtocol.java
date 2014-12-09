@@ -28,7 +28,7 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getTopologyService()));
     }
 
     /**

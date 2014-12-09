@@ -34,7 +34,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadPro
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
+        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, this.getTopologyService()));
     }
 
     /**

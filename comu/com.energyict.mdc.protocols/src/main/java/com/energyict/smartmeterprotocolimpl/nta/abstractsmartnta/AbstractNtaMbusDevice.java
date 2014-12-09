@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -45,25 +46,28 @@ import java.util.logging.Logger;
 public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterProtocol, MessageProtocol {
 
     private final AbstractSmartNtaProtocol meterProtocol;
-
+    private final TopologyService topologyService;
     private final String serialNumber;
     private final int physicalAddress;
 
     public abstract MessageProtocol getMessageProtocol();
 
-    /**
-     * Only for dummy instantiations
-     */
-    protected AbstractNtaMbusDevice() {
-        this.meterProtocol = new WebRTUKP();
+    protected AbstractNtaMbusDevice(TopologyService topologyService) {
+        this.topologyService = topologyService;
+        this.meterProtocol = new WebRTUKP(topologyService);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }
 
-    public AbstractNtaMbusDevice(final AbstractSmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
+    public AbstractNtaMbusDevice(AbstractSmartNtaProtocol meterProtocol, TopologyService topologyService, final String serialNumber, final int physicalAddress) {
         this.meterProtocol = meterProtocol;
+        this.topologyService = topologyService;
         this.serialNumber = serialNumber;
         this.physicalAddress = physicalAddress;
+    }
+
+    protected TopologyService getTopologyService() {
+        return topologyService;
     }
 
     /**

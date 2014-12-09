@@ -3,6 +3,8 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -12,6 +14,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.logging.Level;
@@ -23,13 +26,14 @@ import java.util.logging.Level;
  */
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
-    public Dsmr40Protocol() {
+    @Inject
+    public Dsmr40Protocol(TopologyService topologyService) {
         super(topologyService);
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getTopologyService()));
     }
 
     /**

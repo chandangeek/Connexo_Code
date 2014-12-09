@@ -1,6 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
+import com.energyict.mdc.device.topology.TopologyService;
+
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice;
+
+import javax.inject.Inject;
 
 /**
  * Copyrights EnergyICT
@@ -9,7 +13,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice;
  */
 public class Dsmr40MbusProtocol extends MbusDevice {
 
-    public Dsmr40MbusProtocol() {
+    @Inject
+    public Dsmr40MbusProtocol(TopologyService topologyService) {
         super(topologyService);
     }
 

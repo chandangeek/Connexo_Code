@@ -4,6 +4,7 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.MeterData;
@@ -29,7 +30,7 @@ public class Dsmr40MbusMessageExecutor extends Dsmr23MbusMessageExecutor {
 
     private static final ObisCode MBUS_VALUE_OBISCODE = ObisCode.fromString("0.x.24.2.1.255");
 
-    public Dsmr40MbusMessageExecutor(final AbstractSmartNtaProtocol protocol) {
+    public Dsmr40MbusMessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
         super(protocol, topologyService);
     }
 

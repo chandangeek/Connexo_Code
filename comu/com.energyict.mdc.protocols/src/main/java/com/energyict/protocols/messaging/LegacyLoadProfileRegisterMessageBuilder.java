@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  */
 public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuilder {
 
-    private static final String MESSAGETAG = "LoadProfileRegister";
+    public static final String MESSAGETAG = "LoadProfileRegister";
     private static final String ProfileObisCodeTag = "LPObisCode";
     private static final String ProfileObisCodeTag_TYPO = "LPObiscode";
     private static final String MeterSerialNumberTag = "MSerial";

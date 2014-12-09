@@ -25,12 +25,9 @@ import java.util.List;
  */
 public class MBusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
-    private final TopologyService topologyService;
-
     @Inject
     public MBusDevice(TopologyService topologyService) {
-        super();
-        this.topologyService = topologyService;
+        super(topologyService);
     }
 
     @Override
@@ -57,11 +54,11 @@ public class MBusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+        return new LegacyLoadProfileRegisterMessageBuilder(this.getTopologyService());
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder(topologyService);
+        return new LegacyPartialLoadProfileMessageBuilder(this.getTopologyService());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
@@ -10,6 +11,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.KaifaDsmr40MessageExecutor;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 /**
@@ -19,6 +21,11 @@ import java.io.IOException;
  * Author: khe
  */
 public class Kaifa extends E350 {
+
+    @Inject
+    public Kaifa(TopologyService topologyService) {
+        super(topologyService);
+    }
 
     @Override
     public String getProtocolDescription() {
@@ -45,7 +52,7 @@ public class Kaifa extends E350 {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this));
+        return new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this, this.getTopologyService()));
     }
 
     @Override
