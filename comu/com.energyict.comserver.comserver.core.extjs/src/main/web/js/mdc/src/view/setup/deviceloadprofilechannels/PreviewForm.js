@@ -70,7 +70,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
                                     loadProfile.getProxy().setUrl(me.device.get('mRID'));
                                     loadProfile.load(value, {
                                         success: function (record) {
-                                            debugger;
                                             me.down('[name=loadProfileId]').setValue(record)
                                         }
                                     })
