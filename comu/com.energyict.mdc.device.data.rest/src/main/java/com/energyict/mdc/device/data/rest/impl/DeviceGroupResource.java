@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Functions.asStream;
 
 @Path("/devicegroups")
 public class DeviceGroupResource {
@@ -149,8 +150,7 @@ public class DeviceGroupResource {
                     .map(HasId::getId);
         }
         List<EndDevice> endDevices = deviceIds.map(number -> meteringService.findEndDevice(number.longValue()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(asStream())
                 .collect(Collectors.toList());
 
         Map<Long, EnumeratedEndDeviceGroup.Entry> currentEntries = enumeratedEndDeviceGroup.getEntries().stream()
