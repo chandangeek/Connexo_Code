@@ -31,6 +31,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -47,6 +49,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -88,6 +91,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -104,12 +108,15 @@ public class PartialInboundConnectiontaskCrudIT {
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
-    MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    private MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
-    DeviceProtocol deviceProtocol;
+    private DeviceProtocol deviceProtocol;
     @Mock
     private LicenseService licenseService;
-
+    @Mock
+    private LicensedProtocolService licensedProtocolService;
+    @Mock
+    private ConnectionTypeService connectionTypeService;
     @Mock
     private BundleContext bundleContext;
     @Mock
@@ -144,6 +151,7 @@ public class PartialInboundConnectiontaskCrudIT {
     }
 
     public void initializeDatabase(boolean showSqlLogging) {
+        this.initializeMocks();
         bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
@@ -201,6 +209,14 @@ public class PartialInboundConnectiontaskCrudIT {
         environment.setApplicationContext(applicationContext);
     }
 
+    private void initializeMocks() {
+        this.licensedProtocolService = mock(LicensedProtocolService.class);
+        when(this.licensedProtocolService.isValidJavaClassName(anyString(), any(License.class))).thenReturn(true);
+        this.connectionTypeService = mock(ConnectionTypeService.class);
+        when(this.connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
+        when(this.connectionTypeService.createConnectionType(InboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new InboundNoParamsConnectionTypeImpl());
+    }
+
     @Before
     public void setUp() {
         when(principal.getName()).thenReturn("test");
@@ -217,6 +233,8 @@ public class PartialInboundConnectiontaskCrudIT {
 
         try (TransactionContext context = transactionService.getContext()) {
             ((ProtocolPluggableServiceImpl) protocolPluggableService).addInboundDeviceProtocolService(new InboundDeviceProtocolService());
+            ((ProtocolPluggableServiceImpl) protocolPluggableService).addLicensedProtocolService(this.licensedProtocolService);
+            ((ProtocolPluggableServiceImpl) protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType", InboundNoParamsConnectionTypeImpl.class.getName());
             connectionTypePluggableClass.save();
             connectionTypePluggableClass2 = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType2", InboundNoParamsConnectionTypeImpl.class.getName());
@@ -523,7 +541,7 @@ public class PartialInboundConnectiontaskCrudIT {
 
     @Test
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC + '}')
-    public void testCreateWithUnspeccedProperty() {
+    public void testCreateWithUnspecifiedProperty() {
         DeviceCommunicationConfiguration communicationConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
@@ -599,7 +617,7 @@ public class PartialInboundConnectiontaskCrudIT {
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
 
-    private class InboundDeviceProtocolService implements com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService {
+    private static class InboundDeviceProtocolService implements com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService {
         @Override
         public InboundDeviceProtocol createInboundDeviceProtocolFor(String javaClassName) {
             if (DummyInboundDiscoveryProtocol.class.getName().equals(javaClassName)) {
@@ -623,4 +641,5 @@ public class PartialInboundConnectiontaskCrudIT {
             return Arrays.asList(pluggableClassDefinition);
         }
     }
+
 }

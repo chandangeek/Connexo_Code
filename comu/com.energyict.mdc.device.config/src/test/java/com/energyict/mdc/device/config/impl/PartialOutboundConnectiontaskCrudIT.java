@@ -6,6 +6,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -64,11 +65,14 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
@@ -123,9 +127,9 @@ public class PartialOutboundConnectiontaskCrudIT {
     public final TestRule thereIsNOOOORuleNumber6 = new ExpectedConstraintViolationRule();
 
     @Mock
-    MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    private MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
-    DeviceProtocol deviceProtocol;
+    private DeviceProtocol deviceProtocol;
 
     @Mock
     private BundleContext bundleContext;
@@ -149,6 +153,10 @@ public class PartialOutboundConnectiontaskCrudIT {
     private IdBusinessObjectFactory businessObjectFactory;
     @Mock
     private LicenseService licenseService;
+    @Mock
+    private LicensedProtocolService licensedProtocolService;
+    @Mock
+    private ConnectionTypeService connectionTypeService;
 
     private class MockModule extends AbstractModule {
 
@@ -208,11 +216,13 @@ public class PartialOutboundConnectiontaskCrudIT {
             eventService = (SpyEventService) injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
             propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
+            this.initializeMocks(this.propertySpecService);
             injector.getInstance(MeteringService.class);
             injector.getInstance(MdcReadingTypeUtilService.class);
             engineModelService = injector.getInstance(EngineModelService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-            injector.getInstance(InboundDeviceProtocolService.class);
+            ((ProtocolPluggableServiceImpl) protocolPluggableService).addLicensedProtocolService(this.licensedProtocolService);
+            ((ProtocolPluggableServiceImpl) protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
@@ -226,6 +236,15 @@ public class PartialOutboundConnectiontaskCrudIT {
         Environment environment = injector.getInstance(Environment.class);
         environment.put(InMemoryPersistence.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
         environment.setApplicationContext(applicationContext);
+    }
+
+    private void initializeMocks(PropertySpecService propertySpecService) {
+        this.licensedProtocolService = mock(LicensedProtocolService.class);
+        when(this.licensedProtocolService.isValidJavaClassName(anyString(), any(License.class))).thenReturn(true);
+        this.connectionTypeService = mock(ConnectionTypeService.class);
+        when(this.connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
+        when(this.connectionTypeService.createConnectionType(InboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new InboundNoParamsConnectionTypeImpl());
+        when(this.connectionTypeService.createConnectionType(IpConnectionType.class.getName())).thenReturn(new IpConnectionType(propertySpecService));
     }
 
     @Before
@@ -843,7 +862,7 @@ public class PartialOutboundConnectiontaskCrudIT {
 
     @Test
     @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC + '}')
-    public void testCreateWithNonSpeccedProperty() {
+    public void testCreateWithNonSpecifiedProperty() {
         DeviceConfiguration deviceConfiguration;
         try (TransactionContext context = transactionService.getContext()) {
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("IPConnectionType", IpConnectionType.class.getName());

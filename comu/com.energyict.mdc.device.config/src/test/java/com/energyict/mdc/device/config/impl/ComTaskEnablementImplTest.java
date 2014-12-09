@@ -79,8 +79,11 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
     }
 
     private void registerNoParamsConnectionType() {
-        this.noParamsConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class.getSimpleName(), OutboundNoParamsConnectionTypeImpl.class
-                .getName());
+        this.noParamsConnectionTypePluggableClass =
+                inMemoryPersistence.getProtocolPluggableService()
+                        .newConnectionTypePluggableClass(
+                                OutboundNoParamsConnectionTypeImpl.class.getSimpleName(),
+                                OutboundNoParamsConnectionTypeImpl.class.getName());
         this.noParamsConnectionTypePluggableClass.save();
     }
 

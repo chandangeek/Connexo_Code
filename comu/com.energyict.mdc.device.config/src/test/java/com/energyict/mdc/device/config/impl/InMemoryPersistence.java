@@ -17,8 +17,11 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -125,6 +128,8 @@ public class InMemoryPersistence {
     private ChannelTypeDeleteFromLoadProfileTypeEventHandler channelTypeDeleteFromLoadProfileTypeEventHandler;
     private OrmService ormService;
     private LicenseService licenseService;
+    private LicensedProtocolService licensedProtocolService;
+    private ConnectionTypeService connectionTypeService;
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -154,6 +159,8 @@ public class InMemoryPersistence {
             this.injector.getInstance(PluggableService.class);
             if (!mockedProtocolPluggableService) {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+                ((ProtocolPluggableServiceImpl) this.protocolPluggableService).addLicensedProtocolService(this.licensedProtocolService);
+                ((ProtocolPluggableServiceImpl) this.protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
             }
             this.dataModel = this.createNewDeviceConfigurationService();
             ctx.commit();
@@ -242,6 +249,10 @@ public class InMemoryPersistence {
         when(this.applicationContext.getTranslator()).thenReturn(translator);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
+        this.licensedProtocolService = mock(LicensedProtocolService.class);
+        when(this.licensedProtocolService.isValidJavaClassName(anyString(), any(License.class))).thenReturn(true);
+        this.connectionTypeService = mock(ConnectionTypeService.class);
+        when(this.connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
     }
 
     public void cleanUpDataBase() throws SQLException {

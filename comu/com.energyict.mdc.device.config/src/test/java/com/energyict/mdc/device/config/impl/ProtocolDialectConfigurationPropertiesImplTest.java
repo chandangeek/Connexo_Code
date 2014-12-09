@@ -45,6 +45,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -139,7 +140,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     private Principal principal;
     private ProtocolPluggableServiceImpl protocolPluggableService;
     private EngineModelService engineModelService;
-    private InboundDeviceProtocolService inboundDeviceProtocolService;
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     @Mock
     private ApplicationContext applicationContext;
@@ -147,6 +147,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     private LicenseService licenseService;
     @Mock
     private LicensedProtocolService licensedProtocolService;
+    @Mock
+    private DeviceProtocolService deviceProtocolService;
     @Mock
     private License license;
 
@@ -199,7 +201,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             engineModelService = injector.getInstance(EngineModelService.class);
             protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
-            inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
+            when(this.deviceProtocolService.createProtocol(MyDeviceProtocolPluggableClass.class.getName())).thenReturn(new MyDeviceProtocolPluggableClass());
+            protocolPluggableService.addDeviceProtocolService(this.deviceProtocolService);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
