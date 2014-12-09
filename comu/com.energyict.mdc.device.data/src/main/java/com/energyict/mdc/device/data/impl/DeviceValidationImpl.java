@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -16,24 +15,22 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.does;
-import static java.util.Comparator.*;
+import static com.elster.jupiter.util.streams.Functions.asStream;
+import static java.util.Comparator.naturalOrder;
 
 /**
  * Created by tgr on 9/09/2014.
@@ -225,9 +222,8 @@ public class DeviceValidationImpl implements DeviceValidation {
     private Optional<Instant> getLastChecked(Meter meter) {
         return getMeterActivationsMostRecentFirst(meter)
                 .map(validationService::getLastChecked)  // may be use evaluator to allow caching this
-                .filter(Optional::isPresent)
-                .findAny()
-                .flatMap(Function.identity());
+                .flatMap(asStream())
+                .findAny();
     }
 
     private Optional<Instant> getLastChecked(ReadingType readingType) {
