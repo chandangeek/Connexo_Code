@@ -19,9 +19,6 @@ import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.SCHEDULED;
 
 public class DataExportTaskHistoryInfo {
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withLocale(new Locale("en")).withZone(ZoneId.systemDefault());
-    //Locale "en" because it would be similar to extjs date formatting, otherwise day and month are not capitalized.
-
     public Long id;
     public String trigger;
     public Long startedOn;
@@ -32,7 +29,8 @@ public class DataExportTaskHistoryInfo {
     public Long lastRun;
     public Long exportPeriodFrom;
     public Long exportPeriodTo;
-    public String statusOnDate;
+    public Long statusDate;
+    public String statusPrefix;
 
     public DataExportTaskHistoryInfo() {
     }
@@ -61,15 +59,13 @@ public class DataExportTaskHistoryInfo {
         String statusTranslation =
                 thesaurus.getStringBeyondComponent(dataExportStatus.toString(), dataExportStatus.toString());
         if (DataExportStatus.BUSY.equals(dataExportStatus)) {
-            this.statusOnDate = statusTranslation + " " +
-                    thesaurus.getStringBeyondComponent("since", "since") + " " +
-                    DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(startedOn));
+            this.statusPrefix = statusTranslation + " " + thesaurus.getString("since", "since");
+            this.statusDate = startedOn;
         } else if ((DataExportStatus.FAILED.equals(dataExportStatus)) || (DataExportStatus.SUCCESS.equals(dataExportStatus))) {
-            this.statusOnDate = statusTranslation + " " +
-                    thesaurus.getStringBeyondComponent("on", "on") + " " +
-                    DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(finishedOn));
+            this.statusPrefix = statusTranslation + " " + thesaurus.getString("on", "on");
+            this.statusDate = finishedOn;
         } else {
-            this.statusOnDate = statusTranslation;
+            this.statusPrefix = statusTranslation;
         }
     }
 
@@ -93,35 +89,35 @@ public class DataExportTaskHistoryInfo {
         TimeDuration every = ((TemporalExpression) scheduleExpression).getEvery();
         int count = every.getCount();
         TimeDuration.TimeUnit unit = every.getTimeUnit();
-        String everyTranslation = thesaurus.getStringBeyondComponent("every", "every");
+        String everyTranslation = thesaurus.getString("every", "every");
 
         String unitTranslation = unit.getDescription();
         if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getStringBeyondComponent("day", "day");
+                unitTranslation = thesaurus.getString("day", "day");
             } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("multipleDays", "days");
+                unitTranslation = thesaurus.getString("multipleDays", "days");
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getStringBeyondComponent("week", "week");
+                unitTranslation = thesaurus.getString("week", "week");
             } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("multipleWeeks", "weeks");
+                unitTranslation = thesaurus.getString("multipleWeeks", "weeks");
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getStringBeyondComponent("month", "month");
+                unitTranslation = thesaurus.getString("month", "month");
             } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("multipleMonths", "months");
+                unitTranslation = thesaurus.getString("multipleMonths", "months");
             }
         }
         else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
             if (count == 1) {
-                unitTranslation = thesaurus.getStringBeyondComponent("year", "year");
+                unitTranslation = thesaurus.getString("year", "year");
             } else {
-                unitTranslation = thesaurus.getStringBeyondComponent("multipleYears", "years");
+                unitTranslation = thesaurus.getString("multipleYears", "years");
             }
         }
          if (count == 1) {
