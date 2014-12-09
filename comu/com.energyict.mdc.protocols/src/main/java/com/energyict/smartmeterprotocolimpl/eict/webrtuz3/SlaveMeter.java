@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 
 import java.util.Collections;

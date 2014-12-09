@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Sms;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
@@ -97,7 +97,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
 
             return DiscoverResultType.DATA;
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw new CommunicationException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
     }
 

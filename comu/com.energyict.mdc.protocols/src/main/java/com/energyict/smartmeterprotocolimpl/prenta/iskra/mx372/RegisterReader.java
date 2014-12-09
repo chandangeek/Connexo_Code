@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
-import com.energyict.protocol.*;
+import com.energyict.mdc.protocol.api.device.data.*;
 
 import java.io.IOException;
 import java.util.ArrayList;

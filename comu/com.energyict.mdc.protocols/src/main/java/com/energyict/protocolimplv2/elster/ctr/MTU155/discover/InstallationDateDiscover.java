@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.text.ParseException;

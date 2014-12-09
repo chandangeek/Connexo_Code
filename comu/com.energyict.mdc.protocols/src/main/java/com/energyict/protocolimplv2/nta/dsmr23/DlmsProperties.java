@@ -15,7 +15,7 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import java.math.BigDecimal;
 import java.util.TimeZone;
 
-import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.protocolimplv2.dlms.common.DlmsProtocolProperties.*;
 
 /**
  * Class that holds all DLMS device properties (general, dialect & security related)

@@ -8,6 +8,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -60,6 +61,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private Dsmr23Messaging dsmr23Messaging;
     protected OfflineDevice offlineDevice;
     private DlmsSecuritySupport dlmsSecuritySupport;
+    private PropertySpecService propertySpecService;
 
     /**
      * Connect to the device, check the cached object lost and discover its MBus slaves.
@@ -272,7 +274,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         return meterInfo;
     }
 
-    protected DlmsSessionProperties getDlmsSessionProperties() {
+    protected DlmsProperties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new DlmsProperties();
         }
@@ -344,16 +346,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         logOff();
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getDlmsConfigurationSupport().getRequiredProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getDlmsConfigurationSupport().getOptionalProperties();
-    }
-
     /**
      * A collection of general DLMS properties.
      * These properties are not related to the security or the protocol dialects.
@@ -371,5 +363,25 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public OfflineDevice getOfflineDevice() {
         return offlineDevice;
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Override
+    public void copyProperties(TypedProperties properties) {
+        getDlmsSessionProperties().addProperties(properties);
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String s) {
+        return getDlmsSessionProperties().;
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return null;
     }
 }

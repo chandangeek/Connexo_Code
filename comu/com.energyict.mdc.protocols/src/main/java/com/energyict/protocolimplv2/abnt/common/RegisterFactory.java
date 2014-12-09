@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
-import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -79,7 +79,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
         List<CollectedRegister> collectedRegisters = new ArrayList<>(registers.size());
         for (OfflineRegister register : registers) {
-            CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+            CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
             readRegister(register, collectedRegister);
             collectedRegisters.add(collectedRegister);
         }
@@ -107,7 +107,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 registerNotSupported(register, collectedRegister);
             }
         } catch (ParsingException e) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(collectedRegister, "CouldNotParseRegisterData"));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(collectedRegister, "CouldNotParseRegisterData"));
         }
     }
 
@@ -340,7 +340,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private void registerNotSupported(OfflineRegister register, CollectedRegister collectedRegister) {
-        collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register, "registerXnotsupported", register.getObisCode()));
+        collectedRegister.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register, "registerXnotsupported", register.getObisCode()));
     }
 
     private boolean registerNotYetCollected(CollectedRegister collectedRegister) {

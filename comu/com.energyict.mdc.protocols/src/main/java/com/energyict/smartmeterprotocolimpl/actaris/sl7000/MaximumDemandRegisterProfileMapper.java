@@ -1,13 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.cbo.Quantity;
+import com.energyict.mdc.common.Quantity;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.io.IOException;
 import java.util.Date;

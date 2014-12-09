@@ -1,12 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.profiles;
 
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.Register;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
@@ -16,7 +19,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 /**
- * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
+ * Provides functionality to fetch and create ProfileData objects for a SmartMeterProtocol
  * <p/>
  * <pre>
  * Copyrights EnergyICT
@@ -41,12 +44,12 @@ public class LoadProfileBuilder {
     private final WebRTUZ3 meterProtocol;
 
     /**
-     * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a {@link com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig}
+     * Keeps track of the link between a LoadProfileReader} and a {@link com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig}
      */
     private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
 
     /**
-     * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a list of {@link com.energyict.protocol.Register} which
+     * Keeps track of the link between a LoadProfileReader} and a list of Register} which
      * will represent the 'data' channels of the Profile
      */
     private Map<LoadProfileReader, List<Register>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<Register>>();
@@ -57,7 +60,7 @@ public class LoadProfileBuilder {
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
 
     /**
-     * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
+     * Keeps track of the link between a Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
     private Map<Register, DLMSAttribute> registerUnitMap = new HashMap<Register, DLMSAttribute>();
 
@@ -225,7 +228,7 @@ public class LoadProfileBuilder {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), registerUnit.);
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
@@ -286,7 +289,7 @@ public class LoadProfileBuilder {
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * channels(LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
      * if not then all channels may be returned in the <CODE>ProfileData</CODE>.
      * </p>
      * <p>

@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
 import com.energyict.protocolimpl.dlms.g3.messaging.messages.PlcOfdmMacSetupMessages;
 import com.energyict.protocolimpl.dlms.g3.messaging.messages.SixLoWPanMessages;

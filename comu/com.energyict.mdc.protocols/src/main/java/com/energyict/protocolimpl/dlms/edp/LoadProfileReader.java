@@ -1,10 +1,12 @@
 package com.energyict.protocolimpl.dlms.edp;
 
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.*;
 
 import java.io.IOException;
 import java.util.*;

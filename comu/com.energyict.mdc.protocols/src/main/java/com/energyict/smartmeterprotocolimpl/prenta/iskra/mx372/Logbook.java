@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.*;
 import java.util.logging.Level;

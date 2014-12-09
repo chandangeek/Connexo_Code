@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.exception;
 
-import com.energyict.protocol.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers;
 
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
-import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.RegisterMapping;
 
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping.GprsModemSetupMapping;
@@ -67,18 +67,18 @@ public class IDISGatewayRegisters {
     }
 
     private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister register) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
         collectedRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         collectedRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return collectedRegister;
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
     }

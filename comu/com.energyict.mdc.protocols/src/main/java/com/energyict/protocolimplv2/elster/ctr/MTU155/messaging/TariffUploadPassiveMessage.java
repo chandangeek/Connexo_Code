@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;

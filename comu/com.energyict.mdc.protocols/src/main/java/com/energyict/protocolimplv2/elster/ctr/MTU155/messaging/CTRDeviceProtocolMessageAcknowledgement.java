@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.comserver.commands.DeviceCommand;
-import com.energyict.mdc.meterdata.DeviceProtocolMessageAcknowledgement;
-import com.energyict.mdc.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.data.DeviceProtocolMessageAcknowledgement;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 
 /**
  * @author sva

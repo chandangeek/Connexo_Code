@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.edmi.mk10.streamfilters;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.CircularByteBuffer;

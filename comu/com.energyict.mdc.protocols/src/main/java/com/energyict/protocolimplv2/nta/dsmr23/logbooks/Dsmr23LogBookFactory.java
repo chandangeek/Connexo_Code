@@ -50,7 +50,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBookReader : logBooks) {
-            CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
+            CollectedLogBook collectedLogBook = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
             if (isSupported(logBookReader)) {
                 ProfileGeneric profileGeneric;
                 try {
@@ -66,11 +66,11 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
                     collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                        collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }

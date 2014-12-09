@@ -1,33 +1,32 @@
 package com.energyict.protocolimplv2.abnt.elster;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
-import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
-import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
 import com.energyict.protocolimplv2.abnt.common.LoadProfileBuilder;
@@ -43,10 +42,19 @@ import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.NoSecuritySupport;
+import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.protocols.mdc.services.impl.Bus;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 
 /**
@@ -110,10 +118,10 @@ public class A1055 extends AbstractAbntProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         return Arrays.<ConnectionType>asList(
-                new SioSerialConnectionType(),
-                new RxTxSerialConnectionType(),
-                new SioOpticalConnectionType(),
-                new RxTxOpticalConnectionType()
+                new SioPlainSerialConnectionType(Bus.getSerialComponentService()),
+                new RxTxPlainSerialConnectionType(Bus.getSerialComponentService()),
+                new SioOpticalConnectionType(Bus.getSerialComponentService()),
+                new RxTxOpticalConnectionType(Bus.getSerialComponentService())
         );
     }
 
@@ -198,7 +206,7 @@ public class A1055 extends AbstractAbntProtocol {
             DateTimeField dateTimeField = (DateTimeField) getRequestFactory().readDefaultParameters().getField(ReadParameterFields.currentDateTime);
             return dateTimeField.getDate(getProperties().getTimeZone());
         } catch (ParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw new CommunicationException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
     }
 
@@ -207,7 +215,7 @@ public class A1055 extends AbstractAbntProtocol {
         try {
             getRequestFactory().setTime(timeToSet);
         } catch (ParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw new CommunicationException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         } catch (AbntException e) {
             throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("date/time change", e);
         }
@@ -234,7 +242,7 @@ public class A1055 extends AbstractAbntProtocol {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return getMessageFactory().getSupportedMessages();
     }
 
@@ -255,7 +263,7 @@ public class A1055 extends AbstractAbntProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
 
     public AbntProperties getProperties() {

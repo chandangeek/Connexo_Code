@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdw.core.LoadProfile;
@@ -85,7 +85,7 @@ public class Messaging implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             boolean messageFound = false;
@@ -99,7 +99,7 @@ public class Messaging implements DeviceMessageSupport {
             }
             if (!messageFound) {
                 collectedMessage = createCollectedMessage(pendingMessage);
-                collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
+                collectedMessage.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.notSupported",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
                         pendingMessage.getSpecification().getName()));
@@ -111,12 +111,12 @@ public class Messaging implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here...
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here...
     }
 
     @Override

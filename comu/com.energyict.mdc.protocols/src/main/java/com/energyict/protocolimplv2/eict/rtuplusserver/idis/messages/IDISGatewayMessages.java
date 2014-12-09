@@ -108,7 +108,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
@@ -386,7 +386,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
     }
 
     private Issue messageFailed(OfflineDeviceMessage pendingMessage, Exception e) {
@@ -394,7 +394,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     private Issue messageFailed(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.failed",
+        return com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -402,7 +402,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     private Issue messageUnsupported(OfflineDeviceMessage pendingMessage) throws IOException {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
+        return com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
@@ -410,7 +410,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override

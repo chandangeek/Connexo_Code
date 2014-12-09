@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.events;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.Date;
 import java.util.HashMap;

@@ -1,13 +1,14 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.TimeDuration;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdw.core.TimeZoneInUse;
-import com.energyict.protocol.MeterProtocol;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
+import com.energyict.mdw.cpo.BasicPropertySpec;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -15,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.protocolimplv2.dlms.common.DlmsProtocolProperties.*;
 
 /**
  * @author sva
@@ -24,9 +25,9 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
 public class AbntProperties implements ConfigurationSupport {
 
     public static final String READER_SERIAL_NUMBER_PROPERTY = "ReaderSerialNumber";
-    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.SECONDS);
-    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(50, TimeDuration.MILLISECONDS);
-    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.MILLISECONDS);
+    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
+    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(50, TimeDuration.TimeUnit.MILLISECONDS);
+    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
     private static final BigDecimal DEFAULT_READER_SERIAL_NUMBER = new BigDecimal(1);
 
     private TypedProperties properties;
@@ -136,6 +137,7 @@ public class AbntProperties implements ConfigurationSupport {
     }
 
     private PropertySpec timeZonePropertySpec() {
+        return new ReferenceP
         return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
     }
 

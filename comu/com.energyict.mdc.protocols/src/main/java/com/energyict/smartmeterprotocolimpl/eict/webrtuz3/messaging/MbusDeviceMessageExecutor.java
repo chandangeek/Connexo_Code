@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.*;
@@ -8,8 +8,8 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter;

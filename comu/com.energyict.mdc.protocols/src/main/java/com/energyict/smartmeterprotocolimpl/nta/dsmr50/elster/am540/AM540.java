@@ -8,6 +8,9 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
@@ -108,14 +111,9 @@ public class AM540 extends E350 {
     @Override
     public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
-            Transaction tr = new Transaction() {
-                public Object doExecute() throws BusinessException, SQLException {
-                    AM540Cache dc = (AM540Cache) cacheObject;
-                    new RTUCache(rtuid).setBlob(dc);
-                    return null;
-                }
-            };
-            MeteringWarehouse.getCurrent().execute(tr);
+            AM540Cache dc = (AM540Cache) cacheObject;
+            new RTUCache(rtuid).setBlob(dc);
+
         } else {
             throw new BusinessException("invalid RtuId!");
         }

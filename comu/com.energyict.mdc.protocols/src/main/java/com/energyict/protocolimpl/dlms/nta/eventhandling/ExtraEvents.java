@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.dlms.nta.eventhandling;
 import java.util.Date;
 import java.util.HashMap;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 /**
  * 

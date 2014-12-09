@@ -1,38 +1,43 @@
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
-import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialect;
+import com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
+import com.energyict.protocols.impl.channels.ComChannelType;
+import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * General error handling principle:
@@ -55,12 +60,12 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
         HHUSignOnV2 hhuSignOn = null;
         if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
-            hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
+            hhuSignOn = getHHUSignOn((SerialComChannel) comChannel);
         }
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, getProperDeviceId()));
     }
 
-    private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
+    private HHUSignOnV2 getHHUSignOn(SerialComChannel serialPortComChannel) {
         HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
@@ -85,9 +90,9 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType());
-        result.add(new SioOpticalConnectionType());
-        result.add(new RxTxOpticalConnectionType());
+        result.add(new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService()));
+        result.add(new SioOpticalConnectionType(Bus.getSerialComponentService()));
+        result.add(new RxTxOpticalConnectionType(Bus.getSerialComponentService()));
         return result;
     }
 
@@ -107,7 +112,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return getDsmr23Messaging().getSupportedMessages();
     }
 

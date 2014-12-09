@@ -1,5 +1,6 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.HDLC2Connection;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
@@ -8,8 +9,10 @@ import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 
@@ -78,9 +81,9 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
         try {
             super.sendUnconfirmedRequest(request);
         } catch (ProtocolException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getMaxTries());
+            throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, getMaxTries());
         }
     }
 
@@ -90,9 +93,9 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
         try {
             return receiveInformationField(new ReceiveBuffer());
         } catch (DLMSConnectionException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new ProtocolException(e));
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getMaxTries());
+            throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, getMaxTries());
         }
     }
 
@@ -101,9 +104,9 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
         try {
             return super.sendRequest(byteRequestBuffer);
         } catch (ProtocolException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getMaxTries());
+            throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, getMaxTries());
         }
     }
 
@@ -112,9 +115,9 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
         try {
             super.connectMAC();
         } catch (DataAccessResultException | DLMSConnectionException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, e);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getMaxTries());
+            throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, getMaxTries());
         }
     }
 
@@ -128,9 +131,9 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
         try {
             super.disconnectMAC();
         } catch (AssociationControlServiceElement.ACSEParsingException | DataAccessResultException | DLMSConnectionException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolDisconnectFailed(e);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_DISCONNECT_FAILED, e);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getMaxTries());
+            throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, getMaxTries());
         }
     }
 
@@ -144,9 +147,9 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
         try {
             return super.readResponseWithRetries(retryRequest);
         } catch (ProtocolException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getMaxTries());
+            throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, getMaxTries());
         }
     }
 

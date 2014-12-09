@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.cbo.Quantity;
+import com.energyict.mdc.common.Quantity;
 import com.energyict.protocol.meteridentification.MeterType;
 
 import java.math.BigDecimal;

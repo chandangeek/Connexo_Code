@@ -15,13 +15,14 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * A default DLMS {@link com.energyict.dlms.cosem.ProfileGeneric} buffer parser to a list of {@link com.energyict.protocol.IntervalData}.
+ * A default DLMS {@link com.energyict.dlms.cosem.ProfileGeneric} buffer parser to a list of IntervalData.
  * Depending on the default or given masks, a profile can be build.
  * <br/>
  * Copyrights EnergyICT<br/>

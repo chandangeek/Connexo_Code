@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -12,6 +13,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuild
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
 import java.io.IOException;
 

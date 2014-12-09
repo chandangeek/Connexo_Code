@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.events;
 
-import com.energyict.cbo.NestedIOException;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;

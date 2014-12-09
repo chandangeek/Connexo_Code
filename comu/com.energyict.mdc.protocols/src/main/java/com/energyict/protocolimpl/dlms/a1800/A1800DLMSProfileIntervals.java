@@ -6,8 +6,8 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 

@@ -2,17 +2,17 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus;
 
 import com.energyict.comserver.time.Clocks;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdc.tasks.*;
 import com.energyict.mdw.offline.*;
-import com.energyict.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
 import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
@@ -141,12 +141,12 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
     }
 
     @Override

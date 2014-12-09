@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
+import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdw.cpo.PropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -23,31 +23,31 @@ import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.*;
  * Time: 15:41
  * Author: khe
  */
-public class DlmsConfigurationSupport implements ConfigurationSupport {
+public class DlmsConfigurationSupport implements HasDynamicProperties {
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Arrays.asList(
-                this.forcedDelayPropertySpec(),
-                this.maxRecPduSizePropertySpec(),
-                this.bulkRequestPropertySpec(),
-                this.cipheringTypePropertySpec(),
-                this.ntaSimulationToolPropertySpec(),
-                this.fixMbusHexShortIdPropertySpec(),
-                this.manufacturerPropertySpec(),
-                this.conformanceBlockValuePropertySpec(),
-                this.requestTimeZonePropertySpec(),
-                this.timeZonePropertySpec(),
-                this.validateInvokeIdPropertySpec(),
-                this.deviceId());
-    }
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return Collections.emptyList();
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return Arrays.asList(
+//                this.forcedDelayPropertySpec(),
+//                this.maxRecPduSizePropertySpec(),
+//                this.bulkRequestPropertySpec(),
+//                this.cipheringTypePropertySpec(),
+//                this.ntaSimulationToolPropertySpec(),
+//                this.fixMbusHexShortIdPropertySpec(),
+//                this.manufacturerPropertySpec(),
+//                this.conformanceBlockValuePropertySpec(),
+//                this.requestTimeZonePropertySpec(),
+//                this.timeZonePropertySpec(),
+//                this.validateInvokeIdPropertySpec(),
+//                this.deviceId());
+//    }
 
     protected PropertySpec timeZonePropertySpec() {
         return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
@@ -97,5 +97,15 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
 
     protected PropertySpec fixMbusHexShortIdPropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(FIX_MBUS_HEX_SHORT_ID);
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return null;
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String s) {
+        return null;
     }
 }

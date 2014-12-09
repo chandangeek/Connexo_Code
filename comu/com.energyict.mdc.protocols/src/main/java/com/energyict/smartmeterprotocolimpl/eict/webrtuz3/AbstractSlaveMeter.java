@@ -1,17 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  * Date: 9/04/13
  * Time: 11:39
  */
-public abstract class AbstractSlaveMeter implements SmartMeterProtocol{
+public abstract class AbstractSlaveMeter implements SmartMeterProtocol {
 
     @Override
     public void validateProperties() throws InvalidPropertyException, MissingPropertyException {

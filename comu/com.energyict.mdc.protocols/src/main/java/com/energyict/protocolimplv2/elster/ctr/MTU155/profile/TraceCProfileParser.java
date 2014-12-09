@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.profile;
 
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;

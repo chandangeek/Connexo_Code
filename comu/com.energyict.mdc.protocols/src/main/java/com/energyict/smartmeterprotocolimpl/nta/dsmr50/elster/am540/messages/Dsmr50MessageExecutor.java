@@ -5,7 +5,7 @@ import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.mdc.protocol.api.codetables.CodeDayType;
-import com.energyict.protocol.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;

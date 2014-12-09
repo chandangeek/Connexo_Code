@@ -19,9 +19,7 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
-import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
-import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
@@ -220,7 +218,7 @@ public class MeterTopology {
     public CollectedTopology getDeviceTopology() {
         if (deviceTopology == null) {
             deviceTopology = getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
-            deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning("devicetopologynotsupported"));
+            deviceTopology.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(deviceTopology, "devicetopologynotsupported"));
         }
         return deviceTopology;
     }

@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.events;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.ArrayList;
 import java.util.Date;

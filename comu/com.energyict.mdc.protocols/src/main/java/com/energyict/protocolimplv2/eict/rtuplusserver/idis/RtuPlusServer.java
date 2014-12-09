@@ -1,26 +1,15 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.events.IDISGatewayEvents;
@@ -167,7 +156,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        CollectedTopology deviceTopology = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
 
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
         try {
@@ -180,14 +169,14 @@ public class RtuPlusServer implements DeviceProtocol {
                 DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName().trim().toUpperCase());
                 deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
                 deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
                                 getConfigurationSupport().callingAPTitlePropertySpec(),
                                 getDlmsSessionProperties().getDeviceId()    // The DeviceID of the gateway
                         )
                 );
                 deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                        com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
                                 getConfigurationSupport().nodeAddressPropertySpec(),
                                 Integer.toString(sapAssignmentItem.getSap())
@@ -219,7 +208,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType());
+        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService()));
     }
 
     @Override

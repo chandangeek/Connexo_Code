@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.protocol.LogBookReader;
@@ -56,7 +56,7 @@ public class LogbookReader implements DeviceLogBookSupport {
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBookReader : logBooks) {
-            CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
+            CollectedLogBook collectedLogBook = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
             AbstractLogbookParser logBookParser = getLogBookParser(logBookReader);
             if (logBookParser != null) {
                 ProfileGeneric profileGeneric;
@@ -72,11 +72,11 @@ public class LogbookReader implements DeviceLogBookSupport {
                     collectedLogBook.setCollectedMeterEvents(logBookParser.parseEvents(bufferData));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                        collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }

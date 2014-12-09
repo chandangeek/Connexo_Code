@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -70,11 +70,11 @@ public abstract class AbstractMTU155Message {
     }
 
     public CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
     }
 
     public CollectedMessage createCollectedMessageWithCollectedLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
     }
 
     public CollectedMessage executeMessage(OfflineDeviceMessage message) {
@@ -91,7 +91,7 @@ public abstract class AbstractMTU155Message {
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
              collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.Other,
-                    MdcManager.getIssueCollector().addWarning(message, "DeviceMessage.failed",   //Device message ({0}, {1} - {2})) failed: {3}
+                    com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(message, "DeviceMessage.failed",   //Device message ({0}, {1} - {2})) failed: {3}
                             message.getDeviceMessageId(),
                             message.getSpecification().getCategory().getName(),
                             message.getSpecification().getName(),

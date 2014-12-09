@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.nta.eventhandling;
 
 import com.energyict.dlms.DataContainer;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.Date;
 import java.util.List;

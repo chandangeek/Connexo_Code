@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 

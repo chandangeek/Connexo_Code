@@ -24,7 +24,7 @@ import javax.inject.Named;
 public class RxTxOpticalConnectionType extends RxTxSerialConnectionType implements OpticalDriver {
 
     @Inject
-    public RxTxOpticalConnectionType(@Named(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService, PropertySpecService propertySpecService) {
+    public RxTxOpticalConnectionType(@Named(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService) {
         super(serialComponentService);
     }
 

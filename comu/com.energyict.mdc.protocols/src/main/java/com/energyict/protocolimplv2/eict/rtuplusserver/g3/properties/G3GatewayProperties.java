@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties;
 
 
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.protocolimplv2.edp.EDPProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 /**

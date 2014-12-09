@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
@@ -11,7 +12,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.genericprotocolimpl.common.EncryptionStatus;
+import com.energyict.protocolimpl.generic.EncryptionStatus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;

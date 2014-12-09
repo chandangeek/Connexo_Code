@@ -167,7 +167,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
@@ -858,7 +858,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
@@ -866,7 +866,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.failed",
+        return com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -874,7 +874,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) throws IOException {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
+        return com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
@@ -882,7 +882,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override

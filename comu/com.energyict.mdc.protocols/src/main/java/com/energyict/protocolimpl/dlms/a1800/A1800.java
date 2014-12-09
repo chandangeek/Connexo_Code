@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.dlms.a1800;
 
-import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.common.ProfileCache;
 
@@ -62,7 +62,7 @@ public class A1800 extends AbstractDlmsSessionProtocol {
                 Thread.sleep(3000);
             } catch (InterruptedException interrupt) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(interrupt);
+
             }
         }
 

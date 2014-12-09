@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;

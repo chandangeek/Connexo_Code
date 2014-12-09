@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.dialer.core.Link;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.ComChannel;

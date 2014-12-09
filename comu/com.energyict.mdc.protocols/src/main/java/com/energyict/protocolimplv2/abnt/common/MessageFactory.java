@@ -78,7 +78,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList collectedMessages = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList collectedMessages = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
@@ -203,12 +203,12 @@ public class MessageFactory implements DeviceMessageSupport {
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return MdcManager.getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
     }
 
     private void messageNotSupported(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
         collectedMessage.setFailureInformation(ResultType.NotSupported,
-                MdcManager.getIssueCollector().addWarning(
+                com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(
                         pendingMessage, "DeviceMessage.notSupported",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
@@ -219,7 +219,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     protected void messageFailed(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String errorMessage) {
         collectedMessage.setFailureInformation(ResultType.InCompatible,
-                MdcManager.getIssueCollector().addWarning(
+                com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(
                         pendingMessage, "DeviceMessage.failed",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
@@ -231,7 +231,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     /**

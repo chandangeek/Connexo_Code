@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
-import com.energyict.protocol.IntervalStateBits;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 /**

@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.AbstractEvent;
 
 import java.util.Date;

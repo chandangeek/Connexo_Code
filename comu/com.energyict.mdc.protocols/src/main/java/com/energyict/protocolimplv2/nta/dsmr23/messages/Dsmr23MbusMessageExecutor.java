@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
-import com.energyict.cbo.Quantity;
+import com.energyict.mdc.common.Quantity;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -11,19 +11,19 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
@@ -60,7 +60,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
+        CollectedMessageList result = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageList(pendingMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic

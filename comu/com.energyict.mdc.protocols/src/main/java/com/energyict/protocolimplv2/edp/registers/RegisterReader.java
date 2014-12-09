@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.edp.registers;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Float64;
@@ -11,12 +11,12 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
-import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -136,24 +136,24 @@ public class RegisterReader implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
     }
 
     private CollectedRegister createCollectedRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Date eventTime) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(offlineRegister));
+        CollectedRegister deviceRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(offlineRegister));
         deviceRegister.setCollectedData(quantity, text);
         deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
         return deviceRegister;
     }
 
     private CollectedRegister createMaxDemandRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Date eventTime) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
+        CollectedRegister deviceRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
         deviceRegister.setCollectedData(quantity, text);
         deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
         return deviceRegister;

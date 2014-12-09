@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom;
 
-import com.energyict.protocol.MessageProtocol;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages.SagemComMessaging;
 

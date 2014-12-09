@@ -18,7 +18,7 @@ public class SioOpticalConnectionTypeTest extends ConnectionTypePropertiesTest{
 
     @Override
     protected SioOpticalConnectionType newConnectionType () {
-        return new SioOpticalConnectionType();
+        return new SioOpticalConnectionType(Bus.getSerialComponentService());
     }
 
     @Override

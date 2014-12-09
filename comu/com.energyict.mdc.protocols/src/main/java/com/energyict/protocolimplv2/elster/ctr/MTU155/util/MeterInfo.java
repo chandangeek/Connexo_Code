@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.util;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;

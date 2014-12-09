@@ -1,20 +1,20 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.base.CachedMeterTime;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -144,8 +144,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      *
      * @return the version of the meter firmware
      * @throws java.io.IOException Thrown in case of an exception
-     * @throws com.energyict.protocol.UnsupportedException
-     *                             Thrown if method is not supported
+     * @throws UnsupportedException Thrown if method is not supported
      */
     public String getFirmwareVersion() throws IOException {
         try {
@@ -302,7 +301,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * channels(LoadProfileReader#channelInfos) to read. If it is possible then only these channels should be read,
      * if not then all channels may be returned in the <CODE>ProfileData</CODE>. If {@link LoadProfileReader#channelInfos} contains an empty list
      * or null, then all channels from the corresponding LoadProfile should be fetched.
      * </p>

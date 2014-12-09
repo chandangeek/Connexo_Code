@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.dlms.edp.registers;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.dlms.edp.CX20009;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 

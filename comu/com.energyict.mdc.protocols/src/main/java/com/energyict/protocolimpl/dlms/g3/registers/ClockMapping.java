@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.io.IOException;
 import java.util.Date;

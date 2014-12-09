@@ -4,7 +4,7 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.dlms.DLMSZMD;
 
 import java.io.IOException;

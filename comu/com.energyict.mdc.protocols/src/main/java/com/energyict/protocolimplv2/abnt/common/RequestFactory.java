@@ -77,7 +77,7 @@ public class RequestFactory {
             this.meterSerialNumber = response.getMeterSerialNumber().getSerialNumber().getText();
             this.defaultParameters = (ReadParametersResponse) response.getData();
         } catch (ParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT_FAILED, e);
         }
     }
 

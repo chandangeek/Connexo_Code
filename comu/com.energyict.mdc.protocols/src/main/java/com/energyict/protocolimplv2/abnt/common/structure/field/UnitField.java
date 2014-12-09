@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.abnt.common.structure.field;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.AbstractField;

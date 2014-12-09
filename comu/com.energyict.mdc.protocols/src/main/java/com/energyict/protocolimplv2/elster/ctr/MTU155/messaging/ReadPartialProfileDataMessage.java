@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.LoadProfileMessage;

@@ -1,14 +1,15 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
@@ -18,7 +19,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.LoadProfileReadoutResp
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParametersResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.field.UnitField;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
         for (LoadProfileReader reader : loadProfilesToRead) {
-            DeviceLoadProfileConfiguration config = (DeviceLoadProfileConfiguration) MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(reader.getProfileObisCode(), reader.getMeterSerialNumber());
+            CollectedLoadProfileConfiguration config = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfileConfiguration(reader.getProfileObisCode(), reader.getDeviceIdentifier());
             if (reader.getProfileObisCode().equals(LOAD_PROFILE_OBIS)) {
                 fetchLoadProfileConfiguration(reader, config);
             } else {
@@ -80,7 +81,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         return loadProfileConfigurations;
     }
 
-    private void fetchLoadProfileConfiguration(LoadProfileReader reader, DeviceLoadProfileConfiguration loadProfileConfig) {
+    private void fetchLoadProfileConfiguration(LoadProfileReader reader, CollectedLoadProfileConfiguration loadProfileConfig) {
         try {
             int numberOfLoadProfileChannelGroups = (int) ((BcdEncodedField) getRequestFactory().getDefaultParameters().getField(ReadParameterFields.numberOfLoadProfileChannelGroups)).getValue();
             loadProfileConfig.setProfileInterval((int) (((BcdEncodedField) getRequestFactory().getDefaultParameters().getField(ReadParameterFields.loadProfileInterval)).getValue() * SECONDS_PER_MINUTE));
@@ -97,7 +98,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             getChannelInfoMap().put(reader, channelInfos);
         } catch (ParsingException e) {
             loadProfileConfig.setSupportedByMeter(false);
-            loadProfileConfig.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(reader, "CouldNotParseLoadProfileData"));
+            loadProfileConfig.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(reader, "CouldNotParseLoadProfileData"));
         }
     }
 
@@ -109,7 +110,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 unitField.getCorrespondingObisCode().toString(),
                 unitField.getEisUnit(),
                 reader.getMeterSerialNumber(),
-                unitField.isCumulative()
+                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(unitField.getCorrespondingObisCode(), unitField.getEisUnit())
         );
         channelInfos.add(channelInfo);
         channelGroupChannelInfos.add(channelInfo);
@@ -119,7 +120,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>(loadProfiles.size());
         for (LoadProfileReader reader : loadProfiles) {
-            CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(reader.getLoadProfileId()));
+            CollectedLoadProfile collectedLoadProfile = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(reader.getLoadProfileIdentifier());
             if (getChannelInfoMap().containsKey(reader)) {
                 readLoadProfileData(reader, collectedLoadProfile);
             } else {
@@ -144,22 +145,18 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             }
 
             List<IntervalData> intervalData = composeAndFilterIntervalDataList(reader, intervalDataMap, channelGroupsWhoShouldBeRead.size());
-            collectedLoadProfile.setCollectedIntervalData(intervalData, channelInfos);
+            collectedLoadProfile.setCollectedData(intervalData, channelInfos);
         } catch (ParsingException e) {
-            collectedLoadProfile.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(collectedLoadProfile, "CouldNotParseLoadProfileData"));
+            collectedLoadProfile.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(collectedLoadProfile, "CouldNotParseLoadProfileData"));
         }
     }
 
     private List<Integer> findChannelGroupsWhoShouldBeRead(LoadProfileReader loadProfileReader) {
         List<Integer> channelGroupsWhoShouldBeRead = new ArrayList<>();
         for (ChannelInfo channelInfo : loadProfileReader.getChannelInfos()) {
-            try {
-                UnitField.UnitMapping unitMapping = UnitField.UnitMapping.fromObisCode(channelInfo.getChannelObisCode());
-                if (!channelGroupsWhoShouldBeRead.contains(getUnitMappingMappedToChannelGroup().get(unitMapping))) {
-                    channelGroupsWhoShouldBeRead.add(getUnitMappingMappedToChannelGroup().get(unitMapping));
-                }
-            } catch (IOException e) {
-                throw new IllegalArgumentException(channelInfo + e.getMessage());
+            UnitField.UnitMapping unitMapping = UnitField.UnitMapping.fromObisCode(channelInfo.getChannelObisCode());
+            if (!channelGroupsWhoShouldBeRead.contains(getUnitMappingMappedToChannelGroup().get(unitMapping))) {
+                channelGroupsWhoShouldBeRead.add(getUnitMappingMappedToChannelGroup().get(unitMapping));
             }
         }
         return channelGroupsWhoShouldBeRead;
@@ -256,7 +253,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     }
 
     private void loadProfileNotSupported(LoadProfileReader reader, CollectedLoadProfile collectedLoadProfile) {
-        collectedLoadProfile.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(reader, "loadProfileXnotsupported", reader.getProfileObisCode()));
+        collectedLoadProfile.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(reader, "loadProfileXnotsupported", reader.getProfileObisCode()));
     }
 
     public AbstractAbntProtocol getMeterProtocol() {

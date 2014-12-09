@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -9,15 +9,15 @@ import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.ProximusSmsComChannel;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -32,10 +32,10 @@ import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
@@ -260,8 +260,8 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-        deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(getOfflineDevice(), "devicetopologynotsupported"));
+        final CollectedTopology deviceTopology = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
+        deviceTopology.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(getOfflineDevice(), "devicetopologynotsupported"));
         return deviceTopology;
     }
 
@@ -340,7 +340,7 @@ public class MTU155 implements DeviceProtocol {
         CollectedLogBook collectedLogBook;
 
         for (LogBookReader logBook : logBooks) {
-            collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            collectedLogBook = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
             if (logBook.getLogBookObisCode().equals(LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                 try {
                     Date lastLogBookReading = logBook.getLastLogBook();
@@ -350,12 +350,12 @@ public class MTU155 implements DeviceProtocol {
 
                     collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
                 } catch (CTRException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
                 }
 
                 collectedLogBooks.add(collectedLogBook);
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode()));
                 collectedLogBooks.add(collectedLogBook);
             }
         }
@@ -404,7 +404,7 @@ public class MTU155 implements DeviceProtocol {
         connectionTypes.add(new CTRInboundDialHomeIdConnectionType());
         connectionTypes.add(new InboundProximusSmsConnectionType());
         connectionTypes.add(new OutboundProximusSmsConnectionType());
-        connectionTypes.add(new SioOpticalConnectionType());
+        connectionTypes.add(new SioOpticalConnectionType(Bus.getSerialComponentService()));
         connectionTypes.add(new RxTxOpticalConnectionType());
         return connectionTypes;
     }

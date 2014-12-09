@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.dlms.a1800;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.VisibleString;
@@ -11,8 +11,8 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;

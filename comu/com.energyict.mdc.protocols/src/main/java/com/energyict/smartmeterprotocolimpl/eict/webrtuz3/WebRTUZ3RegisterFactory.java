@@ -1,14 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;

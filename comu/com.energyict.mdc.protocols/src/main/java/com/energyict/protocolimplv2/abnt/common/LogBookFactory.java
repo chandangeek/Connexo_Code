@@ -1,20 +1,21 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.cim.EndDeviceEventTypeFactory;
-import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
+import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Function;
 import com.energyict.protocolimplv2.abnt.common.structure.HistoryLogResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.PowerFailLogResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.field.HistoryLogRecord;
 import com.energyict.protocolimplv2.abnt.common.structure.field.PowerFailRecord;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         List<CollectedLogBook> collectedLogBooks = new ArrayList<>(logBooks.size());
         for (LogBookReader logBook : logBooks) {
-            CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            CollectedLogBook deviceLogBook = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
             if (logBook.getLogBookObisCode().equals(HISTORY_LOG_OBIS)) {
                 readHistoryLog(logBook, deviceLogBook);
             } else if (logBook.getLogBookObisCode().equals(POWER_FAIL_LOG_OBIS)) {
@@ -117,11 +118,11 @@ public class LogBookFactory implements DeviceLogBookSupport {
     }
 
     private void logBookNotSupported(CollectedLogBook deviceLogBook, ObisCode logBookObisCode) {
-        deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(deviceLogBook, "logBookXnotsupported", logBookObisCode));
+        deviceLogBook.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(deviceLogBook, "logBookXnotsupported", logBookObisCode));
     }
 
     private void logBookParsingException(CollectedLogBook deviceLogBook) {
-        deviceLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(deviceLogBook, "CouldNotParseLogBookData"));
+        deviceLogBook.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(deviceLogBook, "CouldNotParseLogBookData"));
     }
 
     public AbstractAbntProtocol getMeterProtocol() {

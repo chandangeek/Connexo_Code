@@ -1,6 +1,5 @@
 package com.energyict.mdw.cpo;
 
-import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.Password;

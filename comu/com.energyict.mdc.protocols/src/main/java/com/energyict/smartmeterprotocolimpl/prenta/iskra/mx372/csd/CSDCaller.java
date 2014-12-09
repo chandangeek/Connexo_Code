@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.csd;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdw.core.Device;
 
 import java.io.IOException;

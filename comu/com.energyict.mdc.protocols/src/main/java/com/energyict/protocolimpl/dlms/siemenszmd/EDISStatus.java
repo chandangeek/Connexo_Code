@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.ArrayList;
 import java.util.Calendar;

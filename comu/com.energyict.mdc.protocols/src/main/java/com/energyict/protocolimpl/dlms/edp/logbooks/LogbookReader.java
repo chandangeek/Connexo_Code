@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.edp.logbooks;
 
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.dlms.edp.CX20009;
 
 import java.io.IOException;

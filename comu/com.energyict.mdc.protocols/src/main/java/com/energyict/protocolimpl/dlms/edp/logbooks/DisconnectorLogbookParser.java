@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.dlms.edp.logbooks;
 
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.dlms.edp.CX20009;
 import com.energyict.protocolimpl.dlms.edp.registers.DisconnectControlState;
 

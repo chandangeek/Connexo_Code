@@ -29,7 +29,7 @@ public class CTRCryptographer implements ServerCryptographer {
             CTREncryption ctrEncryption = new CTREncryption(properties);
             return (SMSFrame) ctrEncryption.decryptFrame(smsFrame);
         } catch (CTRParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw new CommunicationException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         } catch (CTRCipheringException e) {
             throw MdcManager.getComServerExceptionFactory().createCipheringException(e);
         }

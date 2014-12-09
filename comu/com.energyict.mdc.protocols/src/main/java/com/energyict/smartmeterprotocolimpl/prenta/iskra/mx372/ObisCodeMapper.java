@@ -5,8 +5,8 @@ import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.Register;
+import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

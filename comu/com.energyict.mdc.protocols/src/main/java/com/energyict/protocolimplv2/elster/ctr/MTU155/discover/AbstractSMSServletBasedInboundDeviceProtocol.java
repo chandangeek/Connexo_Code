@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol;
 

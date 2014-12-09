@@ -478,12 +478,12 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
-                        Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
+                        Issue<LoadProfileReader> problem = com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
                     collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }
             } else {
-                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue<LoadProfileReader> problem = com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             collectedLoadProfileList.add(collectedLoadProfile);

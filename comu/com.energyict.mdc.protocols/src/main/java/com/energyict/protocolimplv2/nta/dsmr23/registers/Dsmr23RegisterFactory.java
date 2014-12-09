@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr23.registers;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
@@ -22,15 +20,15 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.meterdata.identifiers.RegisterIdentifierById;
-import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
 
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
@@ -87,7 +85,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     /**
      * Collect the values of the given <code>Registers</code>.
-     * If for some reason the <code>Register</code> is not supported, a proper {@link com.energyict.mdc.meterdata.ResultType resultType}
+     * If for some reason the <code>Register</code> is not supported, a proper ResultType
      * <b>and</b> {@link com.energyict.mdc.issues.Issue issue} should be returned so proper logging of this action can be performed.
      *
      * @param allRegisters The OfflineRtuRegisters for which to request a value
@@ -124,7 +122,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                 }
 
                 if (rv != null) {
-                    CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
+                    CollectedRegister deviceRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
                     deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
                     deviceRegister.setCollectedTimeStamps(rv.getReadTime(), rv.getFromTime(), rv.getToTime(), rv.getEventTime());
                     collectedRegisters.add(deviceRegister);
@@ -364,11 +362,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
     }

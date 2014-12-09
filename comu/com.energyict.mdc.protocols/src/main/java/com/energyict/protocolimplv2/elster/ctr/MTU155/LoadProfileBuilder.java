@@ -1,16 +1,16 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
@@ -178,7 +178,7 @@ public class LoadProfileBuilder {
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);
-                CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId()));
+                CollectedLoadProfile collectedLoadProfile = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId()));
                 List<IntervalData> collectedIntervalData = new ArrayList<>();
 
                 for (ChannelInfo channel : channelInfos) {
@@ -191,7 +191,7 @@ public class LoadProfileBuilder {
                         channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                         collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);
                     } catch (IOException e) {   // A non-blocking issue occurred during readout of this loadProfile, but it is still possible to read out the other loadProfiles.
-                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e));
+                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e));
                         collectedIntervalData.clear();
                         break;
                     }
@@ -200,8 +200,8 @@ public class LoadProfileBuilder {
                 collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 collectedLoadProfileList.add(collectedLoadProfile);
             } else {
-                CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId()));
-                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                CollectedLoadProfile collectedLoadProfile = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId()));
+                Issue<LoadProfileReader> problem = com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
                 collectedLoadProfileList.add(collectedLoadProfile);
             }

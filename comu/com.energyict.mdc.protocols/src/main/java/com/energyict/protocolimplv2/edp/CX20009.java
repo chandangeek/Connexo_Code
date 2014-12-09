@@ -3,16 +3,13 @@ package com.energyict.protocolimplv2.edp;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
-import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
@@ -22,7 +19,7 @@ import com.energyict.mdc.tasks.EDPSerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.protocol.LogBookReader;
 
 import com.energyict.protocolimplv2.edp.logbooks.LogbookReader;
@@ -31,6 +28,9 @@ import com.energyict.protocolimplv2.edp.messages.EDPMessaging;
 import com.energyict.protocolimplv2.edp.registers.RegisterReader;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.serialio.SioSerialConnectionType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,15 +56,15 @@ public class CX20009 extends AbstractDlmsProtocol {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getDlmsConfigurationSupport().getOptionalProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getDlmsConfigurationSupport().getRequiredProperties();
-    }
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return getDlmsConfigurationSupport().getOptionalProperties();
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return getDlmsConfigurationSupport().getRequiredProperties();
+//    }
 
     /**
      * A collection of general DLMS properties.
@@ -125,7 +125,7 @@ public class CX20009 extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType());
+        result.add(new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService()));
         result.add(new SioSerialConnectionType());
         result.add(new RxTxSerialConnectionType());
         return result;
@@ -201,7 +201,7 @@ public class CX20009 extends AbstractDlmsProtocol {
      */
     @Override
     public CollectedTopology getDeviceTopology() {
-        return MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
 
     private LogbookReader getLogbookReader() {
