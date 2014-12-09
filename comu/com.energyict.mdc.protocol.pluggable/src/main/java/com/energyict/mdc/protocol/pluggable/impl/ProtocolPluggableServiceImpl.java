@@ -164,7 +164,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         for (DeviceProtocolMessageService service : this.deviceProtocolMessageServices) {
             try {
                 return service.createDeviceProtocolMessagesFor(javaClassName);
-            } catch (ProtocolCreationException e) {
+            }
+            catch (ProtocolCreationException e) {
                 // Try the next DeviceProtocolMessageService
             }
         }
@@ -176,7 +177,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         for (DeviceProtocolSecurityService service : this.deviceProtocolSecurityServices) {
             try {
                 return service.createDeviceProtocolSecurityFor(javaClassName);
-            } catch (DeviceProtocolAdapterCodingExceptions e) {
+            }
+            catch (DeviceProtocolAdapterCodingExceptions e) {
                 // Try the next DeviceProtocolSecurityService
             }
         }
@@ -222,7 +224,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 licensedProtocols.addAll(licensedProtocolService.getAllLicensedProtocols(mdcLicense.get()));
             }
             return licensedProtocols;
-        } else {
+        }
+        else {
             return Collections.emptyList();
         }
     }
@@ -281,7 +284,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         if (pluggableClass.isPresent()) {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass.get());
             return Optional.of(deviceProtocolPluggableClass);
-        } else {
+        }
+        else {
             return Optional.empty();
         }
     }
@@ -300,8 +304,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public void deleteDeviceProtocolPluggableClass(long id) {
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(id);
         deviceProtocolPluggableClass
-            .orElseThrow(() -> new NotFoundException("DeviceProtocolPluggableClass with id " + id + " cannot be deleted because it does not exist"))
-            .delete();
+                .orElseThrow(() -> new NotFoundException("DeviceProtocolPluggableClass with id " + id + " cannot be deleted because it does not exist"))
+                .delete();
     }
 
     @Override
@@ -693,16 +697,17 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         for (ConnectionTypeService connectionTypeService : getConnectionTypeServices()) {
             try {
                 connectionType = connectionTypeService.createConnectionType(javaClassName);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 throwable = e;
                 // silently ignore, will try other service
             }
         }
         if (connectionType != null) {
             return connectionType;
-        } else {
+        }
+        else {
             throw new UnableToCreateConnectionType(throwable, javaClassName);
-
         }
     }
 
@@ -713,14 +718,16 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         for (InboundDeviceProtocolService inboundDeviceProtocolService : getInboundDeviceProtocolService()) {
             try {
                 inboundDeviceProtocol = inboundDeviceProtocolService.createInboundDeviceProtocolFor(pluggableClass);
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 throwable = e;
                 // silently ignore, will try other service
             }
         }
         if (inboundDeviceProtocol != null) {
             return inboundDeviceProtocol;
-        } else {
+        }
+        else {
             throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, throwable, pluggableClass.getJavaClassName());
         }
     }
@@ -831,7 +838,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         public byte[] decrypt(String encrypted) {
             if (encrypted != null) {
                 return encrypted.getBytes();
-            } else {
+            }
+            else {
                 return new byte[0];
             }
         }
