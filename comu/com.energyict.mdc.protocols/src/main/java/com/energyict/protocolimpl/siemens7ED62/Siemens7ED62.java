@@ -26,7 +26,7 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdw.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;

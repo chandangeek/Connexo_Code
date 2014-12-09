@@ -107,7 +107,7 @@ public abstract class AbstractValueFactory<S> implements ValueFactory<S> {
     }
 
     public Seed getCellRendererSeed() {
-        throw new UnsupportedOperationException("ThreeStateFactory#getCellRendererSeed(DynamicAttributeOwner) is no longer supported");
+        throw new UnsupportedOperationException("ValueFactory#getCellRendererSeed(DynamicAttributeOwner) is no longer supported");
     }
 
     protected boolean isNull(String strToTest) {

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.kenda.meteor;
 
-import com.energyict.mdw.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.dialer.core.impl.DialerCarrierException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
