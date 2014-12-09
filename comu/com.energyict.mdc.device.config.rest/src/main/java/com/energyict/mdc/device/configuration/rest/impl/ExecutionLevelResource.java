@@ -7,14 +7,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.google.common.base.Joiner;
 
-import java.util.Optional;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -25,6 +17,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.elster.jupiter.util.streams.Functions.asStream;
 
 /**
  * Created by bvn on 9/15/14.
@@ -79,7 +79,7 @@ public class ExecutionLevelResource {
             throw exceptionFactory.newException(MessageSeeds.UNKNOWN_PRIVILEGE_ID, Joiner.on(",").join(unknownPrivileges));
         }
 
-        privilegeIds.stream().map(DeviceSecurityUserAction::forPrivilege).filter(Optional::isPresent).map(Optional::get).forEach(securityPropertySet::addUserAction);
+        privilegeIds.stream().map(DeviceSecurityUserAction::forPrivilege).flatMap(asStream()).forEach(securityPropertySet::addUserAction);
         return Response.status(Response.Status.CREATED).build();
     }
 
