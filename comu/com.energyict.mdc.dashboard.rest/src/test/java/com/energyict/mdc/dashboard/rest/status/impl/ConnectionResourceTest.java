@@ -1,9 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -20,22 +16,21 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.jayway.jsonpath.JsonModel;
 import org.joda.time.DateTime;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -47,9 +42,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.dashboard.rest.status.ComServerStatusResource} component.
@@ -60,10 +61,6 @@ import static org.mockito.Mockito.*;
 public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
     private static final String CONNECTION_TYPE_PLUGGABLE_CLASS_NAME = ConnectionResourceTest.class.getSimpleName();
-    @Mock
-    private PropertySpecService propertySpecService;
-    @Mock
-    private SocketService socketService;
 
     @Test
     public void testDeviceTypesAddedToFilter() throws Exception {
@@ -270,7 +267,9 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.OnHold);
         when(connectionTask.getCurrentRetryCount()).thenReturn(7);
         when(connectionTask.getExecutingComServer()).thenReturn(comServer);
-        when(connectionTask.getConnectionType()).thenReturn(new OutboundTcpIpConnectionType(this.propertySpecService, this.socketService));
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
+        when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(comSession.getComPort()).thenReturn(comPort);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);

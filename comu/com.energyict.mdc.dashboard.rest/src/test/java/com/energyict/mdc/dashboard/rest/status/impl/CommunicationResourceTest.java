@@ -30,7 +30,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -275,7 +274,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getName()).thenReturn("comPortPool");
         when(comPortPool.getId()).thenReturn(1111L);
-        OutboundTcpIpConnectionType connectionType = mock(OutboundTcpIpConnectionType.class);
+        ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
         ComWindow window = mock(ComWindow.class);
         when(window.getStart()).thenReturn(PartialTime.fromHours(9));
@@ -356,7 +355,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.Busy);
         when(connectionTask.getSuccessIndicator()).thenReturn(ConnectionTask.SuccessIndicator.SUCCESS);
-        OutboundTcpIpConnectionType connectionType = mock(OutboundTcpIpConnectionType.class);
+        ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
