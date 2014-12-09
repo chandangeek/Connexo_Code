@@ -193,7 +193,7 @@
         <groupId>com.elster.jupiter</groupId>
         <artifactId>orm</artifactId>
         <version>${jupiter.version}</version>
-      </dependency>     
+      </dependency>
       <dependency>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parties</artifactId>
@@ -505,6 +505,7 @@
         <module>../com.energyict.mdc.device.config</module>
         <module>../com.energyict.mdc.device.config.rest</module>
         <module>../com.energyict.mdc.device.data</module>
+        <module>../com.energyict.mdc.device.topology</module>
         <module>../com.energyict.mdc.favorites</module>
         <module>../com.energyict.mdc.device.data.rest</module>
         <module>../com.energyict.mdc.device.data.imp</module>
