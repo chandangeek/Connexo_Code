@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.elster.jupiter.util.streams.Functions.asStream;
+
 public class CompositeScheduleExpressionParser implements ScheduleExpressionParser {
 
     private List<ScheduleExpressionParser> members = new CopyOnWriteArrayList<>();
@@ -12,8 +14,7 @@ public class CompositeScheduleExpressionParser implements ScheduleExpressionPars
     public Optional<? extends ScheduleExpression> parse(String string) {
         return members.stream()
                 .map(m -> m.parse(string))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(asStream())
                 .findFirst();
     }
 
