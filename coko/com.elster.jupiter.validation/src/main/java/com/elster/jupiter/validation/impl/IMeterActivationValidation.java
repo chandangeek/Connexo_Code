@@ -1,14 +1,14 @@
 package com.elster.jupiter.validation.impl;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationRuleSet;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public interface IMeterActivationValidation  {
 	ValidationRuleSet getRuleSet();
@@ -21,7 +21,7 @@ public interface IMeterActivationValidation  {
     boolean isActive();
     void activate();
     void deactivate();
-    Optional<? extends IChannelValidation> getChannelValidation(Channel channel);
+    Optional<IChannelValidation> getChannelValidation(Channel channel);
     IChannelValidation addChannelValidation(Channel channel);
     void setRuleSet(ValidationRuleSet ruleSet);
     void makeObsolete();
