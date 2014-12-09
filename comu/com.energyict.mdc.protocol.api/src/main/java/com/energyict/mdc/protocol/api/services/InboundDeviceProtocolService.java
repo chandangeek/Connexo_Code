@@ -20,7 +20,7 @@ public interface InboundDeviceProtocolService {
      * @param pluggableClass the pluggableClass to use as model for the InboundDeviceProtocol
      * @return the created InboundDeviceProtocol
      */
-    InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass);
+    public InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass);
 
     /**
      * Create an InboundDeviceProtocol for the given javaClassName
@@ -28,13 +28,12 @@ public interface InboundDeviceProtocolService {
      * @param javaClassName the javaClassName to use as model for the InboundDeviceProtocol
      * @return the created InboundDeviceProtocol
      */
-    InboundDeviceProtocol createInboundDeviceProtocolFor(String javaClassName);
+    public InboundDeviceProtocol createInboundDeviceProtocolFor(String javaClassName);
 
     /**
      * Return a list of all known InboundDeviceProtocol pluggable classes
      * @return list of all known InboundDeviceProtocol pluggable classes
      */
     public Collection<PluggableClassDefinition> getExistingInboundDeviceProtocolPluggableClasses();
-
 
 }
