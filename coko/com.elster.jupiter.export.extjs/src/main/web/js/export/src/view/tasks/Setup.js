@@ -15,26 +15,10 @@ Ext.define('Dxp.view.tasks.Setup', {
     initComponent: function () {
         var me = this;
 
-        me.side = [
-            {
-                xtype: 'panel',
-                title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'tasks-menu',
-                        itemId: 'tasks-view-menu',
-                        router: me.router,
-                        toggle: 0
-                    }
-                ]
-            }
-        ];
-
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
+            title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
             items: [
                 {
                     xtype: 'preview-container',
