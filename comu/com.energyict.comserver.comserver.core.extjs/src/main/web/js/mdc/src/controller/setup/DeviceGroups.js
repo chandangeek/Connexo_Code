@@ -5,13 +5,16 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         'Ext.ux.window.Notification',
         'Mdc.view.setup.devicegroup.DeviceGroupsGrid',
         'Mdc.view.setup.devicegroup.DeviceGroupSetup',
-        'Mdc.view.setup.devicegroup.DeviceGroupPreview'
+        'Mdc.view.setup.devicegroup.DeviceGroupPreview',
+        'Mdc.view.setup.devicegroup.Details',
+        'Mdc.view.setup.devicegroup.PreviewForm'
     ],
     views: [
         'setup.devicegroup.DeviceGroupsGrid',
         'setup.devicegroup.DeviceGroupsGrid',
         'setup.devicegroup.DeviceGroupPreview',
-        'Mdc.view.setup.devicegroup.Details'
+        'setup.devicegroup.Details',
+        'setup.devicegroup.PreviewForm'
     ],
 
     stores: [
@@ -165,7 +168,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         var router = me.getController('Uni.controller.history.Router');
         var widget = Ext.widget('device-groups-details', {
                 router: router,
-                devicegroupId: currentDeviceGroupId
+                deviceGroupId: currentDeviceGroupId
             });
 
         var actionsMenu = widget.down('device-group-action-menu');
@@ -174,7 +177,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         model.load(currentDeviceGroupId, {
             success: function (record) {
                 actionsMenu.record = record;
-                widget.down('#devicegroups-view-menu').setTitle(record.get('name'));
+                //widget.down('#devicegroups-view-menu').setTitle(record.get('name'));
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.down('form').loadRecord(record);
                 me.getApplication().fireEvent('loadDeviceGroup', record);
