@@ -18,8 +18,6 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -32,6 +30,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements EnumeratedEndDeviceGroup {
 
@@ -39,12 +40,9 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
     private final List<EndDeviceMembershipImpl> memberships = new ArrayList<>();
 
-    private final DataModel dataModel;
-
     @Inject
     EnumeratedEndDeviceGroupImpl(DataModel dataModel, EventService eventService) {
-        super(eventService);
-        this.dataModel = dataModel;
+        super(eventService, dataModel);
     }
 
     public List<EntryImpl> getEntries() {
@@ -219,38 +217,32 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
     @Override
     public List<EndDevice> getMembers(final Instant instant) {
-        return FluentIterable.from(getMemberships())
+        return getMemberships().stream()
                 .filter(Active.at(instant))
-                .transform(To.END_DEVICE)
-                .toList();
+                .map(To.END_DEVICE)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<EndDeviceMembership> getMembers(Range<Instant> range) {
-        return FluentIterable.from(getMemberships())
+        return getMemberships().stream()
                 .filter(Active.during(range))
-                .transform(new Function<EndDeviceMembershipImpl, EndDeviceMembership>() {
-                    @Override
-                    public EndDeviceMembership apply(EndDeviceMembershipImpl input) {
-                        return input.withRanges(input.getRanges().subRangeSet(range));
-                    }
-                })
-                .toList();
+                .map(input -> input.withRanges(input.getRanges().subRangeSet(range)))
+                .collect(Collectors.toList());
     }
 
     @Override
     public boolean isMember(final EndDevice endDevice, Instant instant) {
-        return !FluentIterable.from(getMemberships())
-                .filter(With.endDevice(endDevice))
+        return getMemberships().stream()
                 .filter(Active.at(instant))
-                .isEmpty();
+                .noneMatch(With.endDevice(endDevice));
     }
 
     @Override
     public void endMembership(EndDevice endDevice, Instant instant) {
         getMemberships().stream()
-                .filter(member -> member.getEndDevice().equals(endDevice))
-                .filter(member -> member.getRanges().contains(instant))
+                .filter(With.endDevice(endDevice))
+                .filter(Active.at(instant))
                 .findFirst()
                 .ifPresent(member -> member.removeRange(Range.atLeast(instant)));
     }
@@ -271,9 +263,10 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     }
 
     private EndDeviceMembershipImpl forEndDevice(EndDevice endDevice) {
-        return FluentIterable.from(getMemberships())
+        return getMemberships().stream()
                 .filter(With.endDevice(endDevice))
-                .first().orNull();
+                .findFirst()
+                .orElse(null);
     }
 
     private static abstract class Active implements Predicate<EndDeviceMembershipImpl> {
@@ -295,7 +288,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         }
 
         @Override
-        public boolean apply(EndDeviceMembershipImpl membership) {
+        public boolean test(EndDeviceMembershipImpl membership) {
             return membership != null && !membership.getRanges().subRangeSet(range).isEmpty();
         }
     }
@@ -309,7 +302,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         }
 
         @Override
-        public boolean apply(EndDeviceMembershipImpl membership) {
+        public boolean test(EndDeviceMembershipImpl membership) {
             return membership != null && membership.getRanges().contains(instant);
         }
     }
@@ -337,7 +330,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         }
 
         @Override
-        public boolean apply(EndDeviceMembership membership) {
+        public boolean test(EndDeviceMembership membership) {
             return membership.getEndDevice().equals(endDevice);
         }
     }

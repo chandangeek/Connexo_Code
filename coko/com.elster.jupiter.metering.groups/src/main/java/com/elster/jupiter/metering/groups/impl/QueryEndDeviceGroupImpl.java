@@ -16,12 +16,13 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+
+import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.inject.Inject;
 
 public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEndDeviceGroup {
 
@@ -29,12 +30,10 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     private transient QueryBuilder queryBuilder;
 
     private final MeteringGroupsService meteringGroupService;
-    private final DataModel dataModel;
 
     @Inject
     public QueryEndDeviceGroupImpl(DataModel dataModel, MeteringGroupsService meteringGroupService, EventService eventService) {
-        super(eventService);
-        this.dataModel = dataModel;
+        super(eventService, dataModel);
         this.meteringGroupService = meteringGroupService;
     }
 
