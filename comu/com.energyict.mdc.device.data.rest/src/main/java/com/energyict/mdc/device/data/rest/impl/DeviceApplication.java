@@ -33,6 +33,7 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -72,6 +73,7 @@ public class DeviceApplication extends Application implements InstallService {
 
     private volatile ConnectionTaskService connectionTaskService;
     private volatile DeviceService deviceService;
+    private volatile TopologyService topologyService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile DeviceImportService deviceImportService;
@@ -90,7 +92,7 @@ public class DeviceApplication extends Application implements InstallService {
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile Clock clock;
     private volatile CommunicationTaskService communicationTaskService;
-    private volatile FavoritesService favoritesService; 
+    private volatile FavoritesService favoritesService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -148,6 +150,11 @@ public class DeviceApplication extends Application implements InstallService {
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
     }
 
     @Reference
@@ -230,7 +237,7 @@ public class DeviceApplication extends Application implements InstallService {
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
-    
+
     @Reference
     public void setFavoritesService(FavoritesService favoritesService) {
         this.favoritesService = favoritesService;
@@ -276,7 +283,7 @@ public class DeviceApplication extends Application implements InstallService {
             logger.severe(e.getMessage());
         }
     }
-    
+
     private void createLabelCategories() {
         try {
             favoritesService.createLabelCategory(MessageSeeds.MDC_LABEL_CATEGORY_FAVORITES.getKey());
