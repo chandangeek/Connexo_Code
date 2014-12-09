@@ -1,0 +1,54 @@
+@include extjs-tab-panel-ui($ui: 'large');
+@include extjs-tab-panel-ui($ui: 'medium');
+@include extjs-tab-panel-ui($ui: 'small');
+
+@mixin skyline-tab-ui($ui) {
+    .#{$prefix}tab-#{$ui} {
+        .#{$prefix}tab-inner {
+            font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            color: #686868;
+        }
+    }
+
+    .#{$prefix}tab-#{$ui}-top {
+        border-bottom: transparent solid 4px !important;
+        background-color: transparent;
+        min-width: 120px;
+        color: #333333;
+
+        margin: {
+            right: 16px;
+        }
+
+        padding: {
+            right: 21px;
+            left: 21px;
+        }
+
+        &:hover {
+            border-bottom: #c9dbe3 solid 4px !important;
+
+            .#{$prefix}tab-inner {
+                font-weight: bold;
+                color: #686868;
+            }
+        }
+
+        &.#{$prefix}tab-#{$ui}-active {
+            border-bottom: #70bb51 solid 4px !important;
+            background-color: transparent;
+
+            .#{$prefix}tab-inner {
+                font-weight: bold;
+                color: #333333;
+            }
+        }
+    }
+}
+
+@include skyline-tab-ui($ui: 'default');
+@include skyline-tab-ui($ui: 'large');
+@include skyline-tab-ui($ui: 'medium');
+@include skyline-tab-ui($ui: 'small');

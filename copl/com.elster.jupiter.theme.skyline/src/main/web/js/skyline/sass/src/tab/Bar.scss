@@ -1,0 +1,25 @@
+@mixin skyline-tab-bar-ui($ui) {
+    $strip-width: 1px;
+    $strip-color: #e2e2e2;
+
+    .#{$prefix}tab-bar-strip-#{$ui} {
+        border-style: solid;
+        border-color: $strip-color;
+        border-width: $strip-width;
+        background-color: $strip-color;
+        height: $strip-width;
+    }
+
+    .#{$prefix}tab-bar-body-#{$ui}-top {
+        padding-bottom: $strip-width * 2;
+    }
+
+    .#{$prefix}tab-bar-#{$ui} {
+        background-color: transparent;
+    }
+}
+
+@include skyline-tab-bar-ui($ui: 'default');
+@include skyline-tab-bar-ui($ui: 'large');
+@include skyline-tab-bar-ui($ui: 'medium');
+@include skyline-tab-bar-ui($ui: 'small');
