@@ -45,4 +45,6 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
 
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
 
+    public PropertySpec<Boolean> booleanPropertySpec(String name, boolean required, Boolean defaultValue);
+
 }

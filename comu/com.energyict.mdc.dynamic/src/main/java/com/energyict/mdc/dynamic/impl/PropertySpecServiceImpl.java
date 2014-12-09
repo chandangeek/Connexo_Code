@@ -1,5 +1,6 @@
 package com.energyict.mdc.dynamic.impl;
 
+import com.elster.jupiter.properties.BooleanFactory;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
@@ -162,4 +163,16 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return basicPropertySpecService.listValuePropertySpec(name, required, finder, values);
     }
 
+    @Override
+    public PropertySpec<Boolean> booleanPropertySpec(String name, boolean required, Boolean defaultValue) {
+        PropertySpecBuilder<Boolean> booleanPropertySpecBuilder = PropertySpecBuilderImpl.
+                forClass(new BooleanFactory()).
+                name(name).
+                setDefaultValue(defaultValue);
+        if (required) {
+            booleanPropertySpecBuilder.markRequired();
+        }
+        return booleanPropertySpecBuilder.finish();
+
+    }
 }
