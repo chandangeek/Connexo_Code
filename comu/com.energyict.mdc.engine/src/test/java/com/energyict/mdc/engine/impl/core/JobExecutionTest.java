@@ -54,7 +54,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.protocols.impl.channels.VoidComChannel;
 import org.joda.time.DateTime;
 
 import java.time.Clock;
@@ -208,7 +207,7 @@ public class JobExecutionTest {
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        when(connectionTask.connect(eq(comPort), anyList())).thenReturn(new VoidComChannel());
+        when(connectionTask.connect(eq(comPort), anyList())).thenReturn(new VoidTestComChannel());
         doNothing().when(comServerDAO).executionCompleted(comTaskExecution);
         when(comPort.getComServer()).thenReturn(this.comServer);
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.TRACE);

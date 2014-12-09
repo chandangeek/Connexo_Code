@@ -16,7 +16,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,12 +41,13 @@ import static org.mockito.Mockito.*;
 public class CollectedDeviceTopologyDeviceCommandTest {
     private static final String SLAVE_1_SERIAL_NUMBER = "Slave_1";
     private static final String SLAVE_2_SERIAL_NUMBER = "Slave_2";
-    private static final DeviceIdentifier SLAVE_1_IDENTIFIER = new SerialNumberDeviceIdentifier(SLAVE_1_SERIAL_NUMBER);
-    private static final DeviceIdentifier SLAVE_2_IDENTIFIER = new SerialNumberDeviceIdentifier(SLAVE_2_SERIAL_NUMBER);
 
     @Mock
+    private DeviceIdentifier slave1Identifier;
+    @Mock
+    private DeviceIdentifier slave2Identifier;
+    @Mock
     public IssueService issueService;
-
     @Mock
     private BaseDevice device;
     @Mock
@@ -67,12 +67,14 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
     @Before
     public void setUp () {
+        when(slave1Identifier.getIdentifier()).thenReturn(SLAVE_1_SERIAL_NUMBER);
+        when(slave2Identifier.getIdentifier()).thenReturn(SLAVE_2_SERIAL_NUMBER);
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setIssueService(issueService);
         when(comServerDAO.findDevice(deviceIdentifier)).thenReturn(offlineDevice);
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        when(comServerDAO.findDevice(SLAVE_1_IDENTIFIER)).thenReturn(offlineSlave_1);
-        when(comServerDAO.findDevice(SLAVE_2_IDENTIFIER)).thenReturn(offlineSlave_2);
+        when(comServerDAO.findDevice(slave1Identifier)).thenReturn(offlineSlave_1);
+        when(comServerDAO.findDevice(slave2Identifier)).thenReturn(offlineSlave_2);
 
         when(offlineSlave_1.getSerialNumber()).thenReturn(SLAVE_1_SERIAL_NUMBER);
         when(offlineSlave_2.getSerialNumber()).thenReturn(SLAVE_2_SERIAL_NUMBER);
@@ -101,12 +103,12 @@ public class CollectedDeviceTopologyDeviceCommandTest {
      */
     @Test
     public void testAddedSlave_UpdateAction() throws Exception {
-        when(comServerDAO.findDevice(SLAVE_1_IDENTIFIER)).thenReturn(offlineSlave_1);  // Already known in EIServer
-        when(comServerDAO.findDevice(SLAVE_2_IDENTIFIER)).thenReturn(null);            // Not yet present in EIServer
+        when(comServerDAO.findDevice(slave1Identifier)).thenReturn(offlineSlave_1);  // Already known in EIServer
+        when(comServerDAO.findDevice(slave2Identifier)).thenReturn(null);            // Not yet present in EIServer
 
-        when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<OfflineDevice>());
+        when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<>());
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(SLAVE_1_IDENTIFIER, SLAVE_2_IDENTIFIER);
+        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(slave1Identifier, slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
@@ -118,8 +120,8 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         command.execute(comServerDAO);
 
         // Asserts
-        verify(comServerDAO, times(1)).updateGateway(SLAVE_1_IDENTIFIER, deviceIdentifier);
-        verify(comServerDAO, times(1)).signalEvent(eq(EventType.UNKNOWN_SLAVE_DEVICE.topic()), (UnknownSlaveDeviceEvent) any());
+        verify(comServerDAO, times(1)).updateGateway(slave1Identifier, deviceIdentifier);
+        verify(comServerDAO, times(1)).signalEvent(eq(EventType.UNKNOWN_SLAVE_DEVICE.topic()), any());
         verify(mockedExecutionLogger).addIssue(eq(CompletionCode.ConfigurationWarning), any(Issue.class), eq(comTaskExecution));
     }
 
@@ -143,12 +145,12 @@ public class CollectedDeviceTopologyDeviceCommandTest {
      */
     @Test
     public void testAddedSlave_VerifyAction() throws Exception {
-        when(comServerDAO.findDevice(SLAVE_1_IDENTIFIER)).thenReturn(offlineSlave_1);  // Already known in EIServer
-        when(comServerDAO.findDevice(SLAVE_2_IDENTIFIER)).thenReturn(null);            // Not yet present in EIServer
+        when(comServerDAO.findDevice(slave1Identifier)).thenReturn(offlineSlave_1);  // Already known in EIServer
+        when(comServerDAO.findDevice(slave2Identifier)).thenReturn(null);            // Not yet present in EIServer
 
         when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<OfflineDevice>());
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(SLAVE_1_IDENTIFIER, SLAVE_2_IDENTIFIER);
+        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(slave1Identifier, slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
@@ -189,7 +191,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         slaveDevices.add(offlineSlave_2);
         when(offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(SLAVE_2_IDENTIFIER);
+        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
@@ -226,7 +228,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         slaveDevices.add(offlineSlave_2);
         when(offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(SLAVE_2_IDENTIFIER);
+        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
@@ -248,7 +250,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         slaveDevices.add(this.offlineSlave_2);
         when(this.offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
 
-        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(SLAVE_2_IDENTIFIER);
+        List<DeviceIdentifier> slaveDeviceIdentifiers = Arrays.asList(slave2Identifier);
 
         DeviceTopology deviceTopology = new DeviceTopology(this.deviceIdentifier, slaveDeviceIdentifiers);
         TopologyAction topologyAction = TopologyAction.VERIFY;

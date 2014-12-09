@@ -327,7 +327,7 @@ public class MultiThreadedScheduledComPortTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
 
         DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
-        when(deviceProtocolService.loadProtocolClass(MultiThreadedScheduledComPortTest.class.getName())).thenReturn(MultiThreadedScheduledComPortTest.class);
+        when(deviceProtocolService.createProtocol(MultiThreadedScheduledComPortTest.class.getName())).thenReturn(new MultiThreadedScheduledComPortTest());
 
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(this.comPortPool.getComPortType()).thenReturn(ComPortType.TCP);

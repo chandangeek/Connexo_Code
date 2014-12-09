@@ -14,7 +14,6 @@ import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.engine.model.TCPBasedInboundComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
-import com.energyict.protocols.impl.channels.VoidComChannel;
 import com.energyict.mdc.io.SocketService;
 
 import org.junit.*;
@@ -467,7 +466,7 @@ public class MultiThreadedComPortListenerTest {
                     Thread.currentThread().interrupt();
                 }
             }
-            return new ComPortRelatedComChannelImpl(new VoidComChannel(), this.comPort, hexService);
+            return new ComPortRelatedComChannelImpl(new VoidTestComChannel(), this.comPort, hexService);
         }
     }
 

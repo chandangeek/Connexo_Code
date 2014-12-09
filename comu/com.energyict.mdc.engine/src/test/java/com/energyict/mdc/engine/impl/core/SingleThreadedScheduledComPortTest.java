@@ -298,7 +298,7 @@ public class SingleThreadedScheduledComPortTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
 
         DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
-        when(deviceProtocolService.loadProtocolClass(SingleThreadedScheduledComPortTest.class.getName())).thenReturn(SingleThreadedScheduledComPortTest.class);
+        when(deviceProtocolService.createProtocol(SingleThreadedScheduledComPortTest.class.getName())).thenReturn(new SingleThreadedScheduledComPortTest());
 
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(this.comPortPool.getComPortType()).thenReturn(ComPortType.TCP);

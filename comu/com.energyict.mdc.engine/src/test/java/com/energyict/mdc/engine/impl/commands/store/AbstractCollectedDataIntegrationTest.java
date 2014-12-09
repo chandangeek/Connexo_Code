@@ -41,7 +41,6 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -55,7 +54,6 @@ import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import java.time.Clock;
 
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -65,7 +63,6 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import java.security.Principal;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -140,7 +137,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new EngineModelModule(),
                 new EngineModule(),
                 new ProtocolApiModule(),
-                new ProtocolsModule(),
                 new PluggableModule(),
                 new ValidationModule(),
                 new DeviceConfigurationModule(),
@@ -196,38 +192,15 @@ public abstract class AbstractCollectedDataIntegrationTest {
             }
         });
     }
-    protected Date freezeClock (int year, int month, int day) {
-        return freezeClock(year, month, day, 0, 0, 0, 0);
-    }
-
-    protected Date freezeClock (int year, int month, int day, TimeZone timeZone) {
-        return freezeClock(year, month, day, 0, 0, 0, 0, timeZone);
-    }
-
-    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
-        return freezeClock(year, month, day, hour, minute, second, millisecond, utcTimeZone);
-    }
 
     protected Date freezeClock(Date timeStamp) {
         when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
         when(clock.instant()).thenReturn(timeStamp.toInstant());
         return timeStamp;
     }
-    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
-        Calendar calendar = Calendar.getInstance(timeZone);
-        calendar.set(year, month, day, hour, minute, second);
-        calendar.set(Calendar.MILLISECOND, millisecond);
-        when(clock.getZone()).thenReturn(timeZone.toZoneId());
-        when(clock.instant()).thenReturn(calendar.getTime().toInstant());
-        return calendar.getTime();
-    }
 
     protected static Injector getInjector(){
         return injector;
-    }
-
-    protected <T> T executeInTransaction(Transaction<T> transaction) {
-        return injector.getInstance(TransactionService.class).execute(transaction);
     }
 
     static Clock getClock() {

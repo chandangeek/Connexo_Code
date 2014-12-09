@@ -3,9 +3,11 @@ package com.energyict.mdc.engine.impl.core.online;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.FakeServiceProvider;
 import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -14,7 +16,6 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.OutboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 import com.elster.jupiter.transaction.TransactionService;
@@ -60,7 +61,7 @@ public class ComServerDAOImplTest {
     @Mock
     private ComTaskExecution scheduledComTask;
     @Mock
-    private BaseDevice device;
+    private Device device;
     @Mock
     private DeviceIdentifier deviceIdentifier;
     @Mock
@@ -71,6 +72,8 @@ public class ComServerDAOImplTest {
     private ConnectionTaskService connectionTaskService;
     @Mock
     private ServerCommunicationTaskService communicationTaskService;
+    @Mock
+    private TopologyService topologyService;
 
     private final FakeServiceProvider serviceProvider = new FakeServiceProvider();
     private TransactionService transactionService;
@@ -87,6 +90,7 @@ public class ComServerDAOImplTest {
         this.serviceProvider.setEngineModelService(this.engineModelService);
         this.serviceProvider.setConnectionTaskService(this.connectionTaskService);
         this.serviceProvider.setCommunicationTaskService(this.communicationTaskService);
+        this.serviceProvider.setTopologyService(this.topologyService);
         when(this.engineModelService.findComServerBySystemName()).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineModelService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineModelService.findComPort(COMPORT_ID)).thenReturn(this.comPort);
@@ -267,19 +271,20 @@ public class ComServerDAOImplTest {
         this.comServerDAO.updateGateway(this.deviceIdentifier, this.gatewayDeviceIdentifier);
 
         // Asserts
-        verify(this.device).setPhysicalGateway(null);
+        verify(this.topologyService).clearPhysicalGateway(this.device);
     }
 
     @Test
     public void testUpdateGateway_DifferentGateway() throws Exception {
         when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
-        when(this.gatewayDeviceIdentifier.findDevice()).thenReturn(this.device);
+        Device gateway = mock(Device.class);
+        when(this.gatewayDeviceIdentifier.findDevice()).thenReturn(gateway);
 
         // Business method
         this.comServerDAO.updateGateway(this.deviceIdentifier, this.gatewayDeviceIdentifier);
 
         // Asserts
-        verify(this.device).setPhysicalGateway(this.device);
+        verify(this.topologyService).setPhysicalGateway(this.device, gateway);
     }
 
     @Test
