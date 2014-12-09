@@ -48,18 +48,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Path("/devices")
 public class DeviceResource {
@@ -295,7 +283,7 @@ public class DeviceResource {
         return securityPropertySetResourceProvider.get();
     }
 
-    @Path("/{mRID}/protocolproperties")
+    @Path("/{mRID}/protocols")
     public DeviceProtocolPropertyResource getDevicePropertyResource(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         return devicePropertyResourceProvider.get().with(device);

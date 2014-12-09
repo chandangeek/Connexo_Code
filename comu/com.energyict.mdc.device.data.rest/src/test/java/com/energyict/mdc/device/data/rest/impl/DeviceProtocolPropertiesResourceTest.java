@@ -9,6 +9,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -52,6 +53,8 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocolPluggableClass.getId()).thenReturn(17L);
+        when(deviceProtocolPluggableClass.getName()).thenReturn("some protocol");
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         typedProperties = TypedProperties.empty();
@@ -73,16 +76,16 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
     @Test
     public void testGetDeviceProtocolProperties() {
 
-        String response = target("/devices/ZABF010000080004/protocolproperties").request().get(String.class);
+        String response = target("/devices/ZABF010000080004/protocols").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(17);
         assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo("callHomeId");
         assertThat(jsonModel.<String>get("$.properties[0].propertyValueInfo.value")).isEqualTo("0x7");
     }
 
     @Test
     public void testGetDeviceProtocolPropertiesNonExistingDevice() {
-        Response response = target("/devices/FAKE/protocolproperties").request().get();
+        Response response = target("/devices/FAKE/protocols").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -94,8 +97,10 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
         propertyInfo.propertyTypeInfo.simplePropertyType= SimplePropertyType.TEXT;
 
+        ProtocolInfo protocolInfo = new ProtocolInfo();
+        protocolInfo.properties = Arrays.asList(propertyInfo);
 
-        Response response = target("devices/ZABF010000080004/protocolproperties").request().put(Entity.json(Arrays.asList(propertyInfo)));
+        Response response = target("devices/ZABF010000080004/protocols/17").request().put(Entity.json(protocolInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device).setProtocolProperty("callHomeId", "0x99");
         verify(device).save();
