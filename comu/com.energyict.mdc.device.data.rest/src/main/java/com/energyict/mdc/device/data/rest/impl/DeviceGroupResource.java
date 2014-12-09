@@ -42,6 +42,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -101,9 +102,9 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
-    @Path("/{mRID}")
-    public Response editDeviceGroup(@PathParam("mRID") String mRID, DeviceGroupInfo deviceGroupInfo) {
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(mRID).orElseThrow(()->exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, mRID));
+    public Response editDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
+        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(deviceGroupInfo.id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
         endDeviceGroup.setName(deviceGroupInfo.name);
 
