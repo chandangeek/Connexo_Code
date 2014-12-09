@@ -77,6 +77,18 @@ public class DeviceGroupResource {
     }
 
     @GET
+    @Path("/{id}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id, @Context SecurityContext securityContext) {
+        return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext));
+    }
+
+    private EndDeviceGroup fetchDeviceGroup(long id, SecurityContext securityContext) {
+        return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public PagedInfoList getDeviceGroups(@BeanParam QueryParameters queryParameters, @QueryParam("type") String typeName, @Context UriInfo uriInfo) {
