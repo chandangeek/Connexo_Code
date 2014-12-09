@@ -29,13 +29,8 @@ public class ProtocolPluggableModule extends AbstractModule {
         requireBinding(EventService.class);
         requireBinding(PluggableService.class);
         requireBinding(RelationService.class);
-        requireBinding(DeviceProtocolService.class);
-        requireBinding(ConnectionTypeService.class);
-        requireBinding(InboundDeviceProtocolService.class);
         requireBinding(LicenseService.class);
-        requireBinding(LicensedProtocolService.class);
         requireBinding(IssueService.class);
-        requireBinding(DeviceCacheMarshallingService.class);
 
         bind(ProtocolPluggableService.class).to(ProtocolPluggableServiceImpl.class).in(Scopes.SINGLETON);
     }

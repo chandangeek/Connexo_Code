@@ -115,10 +115,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile boolean active = false;
     private List<ReferencePropertySpecFinderProvider> factoryProviders = new ArrayList<>();
 
+    // For OSGi purposes
     public ProtocolPluggableServiceImpl() {
         super();
     }
 
+    // For unit testing purposes
     @Inject
     public ProtocolPluggableServiceImpl(
             OrmService ormService,
@@ -128,14 +130,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             PropertySpecService propertySpecService,
             PluggableService pluggableService,
             RelationService relationService,
-            DeviceProtocolService deviceProtocolService,
-            DeviceProtocolMessageService deviceProtocolMessageService,
-            DeviceProtocolSecurityService deviceProtocolSecurityService,
-            InboundDeviceProtocolService inboundDeviceProtocolService,
-            ConnectionTypeService connectionTypeService,
-            DeviceCacheMarshallingService deviceCacheMarshallingService,
             LicenseService licenseService,
-            LicensedProtocolService licensedProtocolService,
             UserService userService) {
         this();
         this.setOrmService(ormService);
@@ -146,14 +141,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setRelationService(relationService);
         this.setPluggableService(pluggableService);
         this.setUserService(userService);
-        this.addDeviceProtocolService(deviceProtocolService);
-        this.addDeviceProtocolMessageService(deviceProtocolMessageService);
-        this.addDeviceProtocolSecurityService(deviceProtocolSecurityService);
-        this.addInboundDeviceProtocolService(inboundDeviceProtocolService);
-        this.addConnectionTypeService(connectionTypeService);
-        this.addDeviceCacheMarshallingService(deviceCacheMarshallingService);
         this.setLicenseService(licenseService);
-        this.addLicensedProtocolService(licensedProtocolService);
         this.activate();
         this.install();
     }

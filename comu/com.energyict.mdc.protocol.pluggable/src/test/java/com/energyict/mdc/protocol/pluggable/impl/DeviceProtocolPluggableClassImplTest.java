@@ -110,8 +110,9 @@ public class DeviceProtocolPluggableClassImplTest {
     private static final String SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY = "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty";
 
     private TransactionService transactionService;
-    private ProtocolPluggableService protocolPluggableService;
-    private DeviceProtocolService deviceProtocolService = mock(DeviceProtocolService.class);
+    private ProtocolPluggableServiceImpl protocolPluggableService;
+    @Mock
+    private DeviceProtocolService deviceProtocolService;
     private PropertySpecServiceImpl propertySpecService;
 
     @Rule
@@ -157,9 +158,11 @@ public class DeviceProtocolPluggableClassImplTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(OrmService.class);
             transactionService = injector.getInstance(TransactionService.class);
-            protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+            protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
+            protocolPluggableService.addDeviceProtocolService(this.deviceProtocolService);
+            protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
-            dataModel = ((ProtocolPluggableServiceImpl) protocolPluggableService).getDataModel();
+            dataModel = protocolPluggableService.getDataModel();
             createOracleMetaDataTables(dataModel.getConnection(true));
             ctx.commit();
         }

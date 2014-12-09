@@ -51,10 +51,10 @@ public class LegacyValueFactoryMapping {
 
     private static void initializeMappings () {
         List<ValueFactoryPair> temp = new ArrayList<>();
+        temp.add(new ValueFactoryPair<>(StringFactory.class, "com.energyict.mdc.protocol.api.legacy.dynamic.StringFactory"));
         temp.add(new ValueFactoryPair<>(Ean13Factory.class, "com.energyict.mdw.dynamicattributes.Ean13Factory"));
         temp.add(new ValueFactoryPair<>(Ean18Factory.class, "com.energyict.mdw.dynamicattributes.Ean18Factory"));
         temp.add(new ValueFactoryPair<>(LargeStringFactory.class, "com.energyict.mdw.dynamicattributes.LargeStringFactory"));
-        temp.add(new ValueFactoryPair<>(StringFactory.class, "com.energyict.mdw.dynamicattributes.StringFactory"));
         temp.add(new ValueFactoryPair<>(HexStringFactory.class, "com.energyict.mdw.dynamicattributes.HexStringFactory"));
         temp.add(new ValueFactoryPair<>(BigDecimalFactory.class, "com.energyict.mdw.dynamicattributes.BigDecimalFactory"));
         temp.add(new ValueFactoryPair<>(TimeDurationValueFactory.class, "com.energyict.mdw.dynamicattributes.TimeDurationValueFactory"));

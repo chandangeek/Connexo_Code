@@ -173,12 +173,15 @@ public class InMemoryPersistence {
                         this.propertySpecService,
                         this.pluggableService,
                         this.relationService,
-                        this.deviceProtocolService,
-                        this.deviceProtocolMessageService,
-                        this.deviceProtocolSecurityService,
-                        this.inboundDeviceProtocolService,
-                        this.connectionTypeService,
-                        this.deviceCacheMarshallingService, licenseService, licensedProtocolService, userService);
+                        this.licenseService,
+                        this.userService);
+        this.protocolPluggableService.addInboundDeviceProtocolService(this.inboundDeviceProtocolService);
+        this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
+        this.protocolPluggableService.addDeviceCacheMarshallingService(this.deviceCacheMarshallingService);
+        this.protocolPluggableService.addDeviceProtocolSecurityService(this.deviceProtocolSecurityService);
+        this.protocolPluggableService.addDeviceProtocolMessageService(this.deviceProtocolMessageService);
+        this.protocolPluggableService.addDeviceProtocolService(this.deviceProtocolService);
+        this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
         return this.protocolPluggableService.getDataModel();
     }
 
