@@ -42,7 +42,6 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('overview.widget.favoriteDeviceGroups.selectBtn', 'DSH', 'Select'),
-                        ui: 'action',
                         style: 'margin-top: 15px',
                         href: '#/dashboard/selectfavoritedevicegroups'
                     }
