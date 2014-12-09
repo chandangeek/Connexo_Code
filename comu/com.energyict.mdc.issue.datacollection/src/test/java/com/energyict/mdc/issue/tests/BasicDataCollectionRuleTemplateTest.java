@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
@@ -173,10 +174,11 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
 
     private UnknownSlaveDeviceEvent getUnknownDeviceEvent(Long amrId) {
         DeviceService mockDeviceDataService = mock(DeviceService.class);
+        TopologyService mockTopologyService = mock(TopologyService.class);
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(amrId);
         when(mockDeviceDataService.findDeviceById(Matchers.anyLong())).thenReturn(device);
-        UnknownSlaveDeviceEvent event = new UnknownSlaveDeviceEvent(getIssueDataCollectionService(), getIssueService(), getMeteringService(), mockDeviceDataService, getCommunicationTaskService(), getThesaurus(), mock(Injector.class));
+        UnknownSlaveDeviceEvent event = new UnknownSlaveDeviceEvent(getIssueDataCollectionService(), getIssueService(), getMeteringService(), mockDeviceDataService, mockTopologyService, getCommunicationTaskService(), getThesaurus(), mock(Injector.class));
         Map messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, amrId.toString());

@@ -61,7 +61,6 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -141,7 +140,6 @@ public abstract class BaseTest {
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new EngineModelModule(),
-                new ProtocolsModule(),
                 new PluggableModule(),
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
