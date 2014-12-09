@@ -17,6 +17,6 @@ public interface YellowfinService {
 
     List<YellowfinReportInfo> getUserReports(String userName, String category, String subCategory,String reportUUId);
     List<YellowfinFilterInfo> getReportFilters(int reportId);
-    ReportRow[] getFilterList(String filterId,int reportId);
+    List<YellowfinFilterListItemInfo> getFilterListItems(String filterId,int reportId);
 
 }

@@ -3,6 +3,7 @@ package com.elster.jupiter.yellowfin.impl;
 //import com.elster.jupiter.http.whiteboard.App;
 
 import com.elster.jupiter.yellowfin.YellowfinFilterInfo;
+import com.elster.jupiter.yellowfin.YellowfinFilterListItemInfo;
 import com.elster.jupiter.yellowfin.YellowfinReportInfo;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.hof.mi.web.service.*;
@@ -315,7 +316,8 @@ public class YellowfinServiceImpl implements YellowfinService {
                             if(rs[i].getFilterId()!=null){
                                 YellowfinFilterInfoImpl userFilter = new YellowfinFilterInfoImpl();
                                 userFilter.setId(rs[i].getFilterId());
-                                userFilter.setFilterDataValues(rs[i].getDefaultValue1());
+                                userFilter.setFilterDataValue1(rs[i].getDefaultValue1());
+                                userFilter.setFilterDataValue2(rs[i].getDefaultValue2());
                                 userFilter.setFilterDisplayType(rs[i].getFilterDisplayType());
                                 userFilter.setFilterName(rs[i].getColumnName());
                                 userFilter.setFilterType(rs[i].getFilterType());
@@ -326,11 +328,11 @@ public class YellowfinServiceImpl implements YellowfinService {
                                 userFilter.setFilterMaxValue(rs[i].getMaximumValue());
                                 userFilter.setFilterMinValue(rs[i].getMinimumValue());
                                 userFilters.add(userFilter);
-                                ReportRow[] reportRows = getFilterList(rs[i].getFilterId().toString(),reportId);
-                                for(int j=0;j<reportRows.length;j++){
-                                    System.out.println(reportRows[j].getDataValue()[0]);
+                                //ReportRow[] reportRows = getFilterList(rs[i].getFilterId().toString(),reportId);
+                                //for(int j=0;j<reportRows.length;j++){
+                                //    System.out.println(reportRows[j].getDataValue()[0]);
 
-                                }
+                                //}
                             }
                         }
                     }
@@ -375,5 +377,46 @@ public class YellowfinServiceImpl implements YellowfinService {
         }
         return reportRows;
     }
+
+
+    public List<YellowfinFilterListItemInfo> getFilterListItems(String filterId,int reportId) {
+        ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/ReportService", false);
+        ReportServiceSoapBindingStub rssbs;
+        ReportServiceRequest rsr = new ReportServiceRequest();
+        List<YellowfinFilterListItemInfo> listItems = new ArrayList<>();
+        try {
+            rssbs = (ReportServiceSoapBindingStub) ts.getReportService();
+            ReportServiceResponse reportServiceResponse = null;
+            rsr.setLoginId(yellowfinWebServiceUser);
+            rsr.setPassword(yellowfinWebServicePassword);
+            rsr.setOrgId(new Integer(1));
+            rsr.setReportRequest("FILTEROPTIONS");
+            rsr.setObjectName(filterId);
+            rsr.setReportId(reportId);
+            try {
+                reportServiceResponse = rssbs.remoteReportCall(rsr);
+                if (reportServiceResponse != null) {
+                    if ("SUCCESS".equals(reportServiceResponse.getStatusCode())) {
+                        ReportRow[] reportRows = reportServiceResponse.getResults();
+                        for(int i=0;i<reportRows.length;i++){
+                            String[] dataValues = reportRows[i].getDataValue();
+                            YellowfinFilterListItemInfo listItem = new YellowfinFilterListItemInfoImpl();
+                            listItem.setValue1(dataValues[0]);
+                            listItem.setValue2(dataValues[1]);
+                            listItems.add(listItem);
+                        }
+                    }
+                }
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return listItems;
+    }
+
+
 
 }

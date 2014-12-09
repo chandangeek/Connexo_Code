@@ -16,8 +16,11 @@ public interface YellowfinFilterInfo {
     public void setFilterName(String filterName);
     public boolean isFilterOmittable();
     public void setFilterOmittable(boolean filterOmittable);
-    public String getFilterDataValues();
-    public void setFilterDataValues(String filterDataValues);
+    public String getFilterDataValue1();
+    public String getFilterDataValue2();
+    public void setFilterDataValue1(String filterDataValue1);
+    public void setFilterDataValue2(String filterDataValue2);
+
     public boolean isFilterPrompt();
     public void setFilterPrompt(boolean filterPrompt);
     public String getFilterDisplayName() ;

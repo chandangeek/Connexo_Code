@@ -13,7 +13,8 @@ public class YellowfinFilterInfoImpl implements YellowfinFilterInfo {
     private String filterDisplayType;
     private String filterName;
     private boolean filterOmittable;
-    private String filterDataValues;
+    private String filterDataValue1;
+    private String filterDataValue2;
     private boolean filterPrompt;
     private String filterDisplayName;
     private boolean filterAllowPrompt;
@@ -73,13 +74,23 @@ public class YellowfinFilterInfoImpl implements YellowfinFilterInfo {
     }
 
     @Override
-    public String getFilterDataValues() {
-        return filterDataValues;
+    public String getFilterDataValue1() {
+        return this.filterDataValue1;
     }
 
     @Override
-    public void setFilterDataValues(String filterDataValues) {
-        this.filterDataValues = filterDataValues;
+    public String getFilterDataValue2() {
+        return this.filterDataValue2;
+    }
+
+    @Override
+    public void setFilterDataValue1(String filterDataValue1) {
+        this.filterDataValue1 = filterDataValue1;
+    }
+
+    @Override
+    public void setFilterDataValue2(String filterDataValue2) {
+        this.filterDataValue2 = filterDataValue2;
     }
 
 
