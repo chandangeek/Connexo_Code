@@ -24,7 +24,8 @@ Ext.define('Yfn.view.generatereport.Step4', {
             text: Uni.I18n.translate('generatereport.noDevicesSelected', 'MDC', 'Please select at least one device.')
         },
         {
-            xtype: 'filter-top-panel'
+            xtype: 'container',
+            itemId:'step4-summary'
         }
     ]
 

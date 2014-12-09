@@ -18,13 +18,18 @@ Ext.define('Yfn.view.generatereport.Step2', {
 
     items: [
         {
-            itemId: 'step2-generatereport-errors',
+            itemId: 'step3-generatereport-errors',
             xtype: 'uni-form-error-message',
             hidden: true,
-            text: Uni.I18n.translate('generatereport.noReportPrompts', 'MDC', 'Please select at least one device.')
+            text: Uni.I18n.translate('generatereport.noDevicesSelected', 'YFN', 'Please select at least one device.')
         },
         {
-            xtype: 'filter-top-panel'
+            xtype: 'uni-form-info-message',
+            itemId: 'info-no-fields',
+            title: Uni.I18n.translate('generatereport.noReportPrompts', 'YFN', 'No report prompts defined.'),
+            text:Uni.I18n.translate('generatereport.noReportPrompts', 'YFN', 'There are no user prompts for this report. You could continue with next step'),
+            hidden: false
+
         },
         {
             xtype: 'form',

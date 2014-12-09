@@ -26,6 +26,8 @@ Ext.define('Yfn.view.generatereport.RadioGroup', {
                     name: item.name,
                     checked: !me.disabled && item.checked,
                     disabled:me.groupDisabled,
+                    record:item.record,
+                    fieldType:item.fieldType,
                     listeners:{
                         afterrender:function(component){
                             new Ext.ToolTip({

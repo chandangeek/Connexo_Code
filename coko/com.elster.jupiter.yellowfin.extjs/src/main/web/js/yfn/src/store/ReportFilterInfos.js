@@ -1,5 +1,5 @@
 /**
- * @class Uni.store.ReportFilterInfos
+ * @class Yfn.store.ReportFilterInfos
  */
 Ext.define('Yfn.store.ReportFilterInfos', {
     extend: 'Ext.data.Store',

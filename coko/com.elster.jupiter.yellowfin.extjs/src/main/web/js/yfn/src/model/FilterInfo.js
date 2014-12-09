@@ -8,6 +8,11 @@ Ext.define('Yfn.model.FilterInfo', {
         'filterType',
         'filterDisplayType',
         'filterName',
-        'filterOmittable'
+        'filterOmittable',
+        'filterPrompt',
+        'filterAllowPrompt',
+        'filterDisplayName',
+        'filterDefaultValue1',
+        'filterDefaultValue2'
     ]
 });

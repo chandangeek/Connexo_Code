@@ -12,9 +12,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     requires: [
         'Uni.view.window.Wizard',
         'Yfn.view.generatereport.RadioGroup',
-        'Dsh.view.widget.common.SideFilterCombo',
-        'Dsh.view.widget.common.SideFilterDateTime',
-        'Dsh.view.widget.common.DateTimeField',
+        'Uni.form.filter.FilterCombobox',
+        'Uni.form.field.DateTime',
         'Dsh.store.filter.DeviceGroup'
     ],
 
@@ -86,7 +85,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     ],
 
     generateReportWizardWidget: null,
-    selectedReportID:null,
+    selectedReportID: null,
+    reportsStore:null,
 
     init: function () {
         this.control({
@@ -110,24 +110,24 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             },
 
 
-            'generatereport-wizard-step1':{
-                activate:this.activateStep1
+            'generatereport-wizard-step1': {
+                activate: this.activateStep1
             },
-            'generatereport-wizard-step2':{
-                activate:this.activateStep2
+            'generatereport-wizard-step2': {
+                activate: this.activateStep2
             },
-            'generatereport-wizard-step3':{
-                activate:this.activateStep3
+            'generatereport-wizard-step3': {
+                activate: this.activateStep3
             },
-            'generatereport-wizard-step4':{
-                activate:this.activateStep4
+            'generatereport-wizard-step4': {
+                activate: this.activateStep4
             }
         });
     },
 
-    moveToStep : function(step){
+    moveToStep: function (step) {
         var layout = this.getWizard().getLayout();
-        layout.setActiveItem(step-1);
+        layout.setActiveItem(step - 1);
     },
     backClick: function () {
         var layout = this.getWizard().getLayout(),
@@ -137,13 +137,17 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     },
 
     nextClick: function () {
-        var layout = this.getWizard().getLayout(),
+        var me=this, layout = this.getWizard().getLayout(),
             currentCmp = layout.getActiveItem();
 
         //this.getStep1FormErrorMessage().setVisible(false);
         //this.getStep1FormNameErrorMessage().setVisible(false);
-        this.getNavigationMenu().moveNextStep();
-        this.changeContent(layout.getNext(), layout.getActiveItem());
+
+        if(me.validatePage(currentCmp)){
+            this.getNavigationMenu().moveNextStep();
+            this.changeContent(layout.getNext(), layout.getActiveItem());
+        }
+
         //this.getStep2FormErrorMessage().setVisible(false);
     },
 
@@ -163,7 +167,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
 
     showGenerateReportWizard: function () {
         //if (this.generateReportWizardWidget == null) {
-            this.generateReportWizardWidget = Ext.widget('generatereport-browse');
+        this.generateReportWizardWidget = Ext.widget('generatereport-browse');
         //}
 
         this.loadReportTypes();
@@ -196,22 +200,26 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         finishBtn.setVisible(isLast);
     },
 
-    loadReportTypes : function(){
+    validatePage : function(page){
+        var form = page.down("form") ;
+        form = form && form.getForm();
+        return (!form || form.isValid());
+    },
+
+    loadReportTypes: function () {
         var me = this;
         var router = me.getController('Uni.controller.history.Router');
         var selectedReportUUID = router.queryParams.reportUUID;
         var selectedReportGroup = router.queryParams.subCategory;
 
-
-        //var reportsStore = Ext.getStore('ReportInfos');
-        var reportsStore = Ext.create('Yfn.store.ReportInfos',{});
-        if(reportsStore) {
-            var proxy = reportsStore.getProxy();
+        me.reportsStore = me.reportsStore || Ext.create('Yfn.store.ReportInfos', {});
+        if (me.reportsStore) {
+            var proxy = me.reportsStore.getProxy();
             delete proxy.extraParams.category;
             delete proxy.extraParams.subCategory;
             proxy.setExtraParam('category', 'MDC');
             //proxy.setExtraParam('subCategory', 'Device Connections');
-            reportsStore.load(function (records) {
+            me.reportsStore.load(function (records) {
                 var allReports = {};
                 Ext.each(records, function (record) {
                     var reportDescription = record.get('description');
@@ -220,25 +228,27 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     var subCategory = record.get('subCategory');
 
                     var reportGroup = allReports[subCategory];
-                    if(!reportGroup){
-                        allReports[subCategory] = {checked:false, reportsList:[]};
+                    if (!reportGroup) {
+                        allReports[subCategory] = {checked: false, reportsList: []};
                         reportGroup = allReports[subCategory];
                         reportGroup.title = subCategory;
                         reportGroup.name = reportName;
                         reportGroup.disabled = selectedReportGroup && selectedReportGroup != subCategory;
 
                     }
-                    if(reportUUID == selectedReportUUID){
+                    if (reportUUID == selectedReportUUID) {
                         reportGroup.checked = true;
                     }
-                    if(reportName && reportName.length) {
+                    if (reportName && reportName.length) {
                         reportGroup.reportsList.push(
                             {
                                 boxLabel: reportName,
                                 tooltip: reportDescription,
                                 inputValue: reportUUID,
-                                name:'reportUUID',
-                                checked: reportUUID == selectedReportUUID
+                                name: 'reportUUID',
+                                fieldType:'title',
+                                checked: reportUUID == selectedReportUUID,
+                                record:record
                             });
                     }
                 });
@@ -256,134 +266,398 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         }
 
     },
-    addReportGroup : function(reportGroup){
+    addReportGroup: function (reportGroup) {
         var me = this;
         var reportGroupsContainer = me.getReportGroupsContainer();
 
         var widget = Ext.widget('radio-group', {
             groupLabel: reportGroup.title,
-            groupName:reportGroup.name,
-            groupName:'reportGroup',
-            groupItems:reportGroup.reportsList,
-            groupDisabled:reportGroup.disabled,
-            groupSelected:reportGroup.checked,
+            groupName: reportGroup.name,
+            groupName: 'reportGroup',
+            groupItems: reportGroup.reportsList,
+            groupDisabled: reportGroup.disabled,
+            groupSelected: reportGroup.checked,
             columnWidth: 0.5
         });
 
         reportGroupsContainer.add(widget);
     },
 
-    loadReportFilters:function(reportUUID){
+    loadReportFilters: function (reportUUID) {
         var me = this;
         var step2 = me.getStep2();
         var step2Form = step2.down('form');
         step2Form.removeAll();
         var step3 = me.getStep3();
         var step3Form = step3.down('form');
-        step3form.removeAll();
+        step3Form.removeAll();
 
-
-        var reportFiltersStore = Ext.create('Yfn.store.ReportFilterInfos',{});
-        if(reportFiltersStore) {
+        var reportFiltersStore = Ext.create('Yfn.store.ReportFilterInfos', {});
+        if (reportFiltersStore) {
             var proxy = reportFiltersStore.getProxy();
             proxy.setExtraParam('reportUUID', reportUUID);
-            reportFiltersStore.load(function(records){
+            reportFiltersStore.load(function (records) {
                 Ext.each(records, function (record) {
-
-                    var filterType = record.get('filterType');
-                    var filterName = record.get('filterName');
-                    var filterDisplayType = record.get('filterDisplayType');
+                    console.log(record);
                     var filterOmittable = record.get('filterOmittable');
-                    var formField = 
+                    var formFields = me.createFormControls(record, filterOmittable ? "filter": "prompt");
+                    var fieldContainer = {
+                        xtype: 'container',
+                        columnWidth: 0.5,
+                        maxWidth: 250,
+                        padding:20,
+                        items:formFields,
+
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        }
+
+                    };
+                    if (filterOmittable) {
+                        step3Form.add(fieldContainer);
+                        step3.down('#info-no-fields').setVisible(false);
+
+                    }
+                    else {
+                        step2Form.add(fieldContainer);
+                        step2.down('#info-no-fields').setVisible(false);
+                    }
 
 
                 });
             });
         }
 
-        step2Form.add({
-            xtype: 'side-filter-combo',
-            itemId: 'device-groups',
-            wTitle: Uni.I18n.translate('generate.widget.sideFilter.finishedBetween', 'YFN', 'Select a period'),
-            name: 'deviceGroup',
-            displayField: 'name',
-            valueField: 'id',
-            store: 'Dsh.store.filter.DeviceGroup',
-            columnWidth: 0.5,
-            maxWidth: 250
-        });
-
-        step2Form.add({
-            xtype: 'side-filter-date-time',
-            itemId: 'finished-between',
-            wTitle: Uni.I18n.translate('generate.widget.sideFilter.finishedBetween', 'YFN', 'Select a period'),
-            name: 'finishedBetween',
-            columnWidth: 0.5,
-            maxWidth: 250
-        });
-
-        step2Form.add({
-            xtype: 'datetime-field',
-            itemId: 'one',
-            //label: Uni.I18n.translate('connection.widget.sideFilter.finishedBetween', 'YFN', 'Select a date'),
-            hideEmptyLabel: false,
-            padding: 0,
-            margin: 0,
-            name: 'finishedBetween',
-            border:false,
-            columnWidth: 0.5,
-            maxWidth: 250
-        });
-
-
-        /*
-
-        xtype: 'side-filter-combo',
-            labelAlign: 'top'
     },
-        items: [
-            {
-                itemId: 'device-group',
-                name: 'deviceGroup',
-                fieldLabel: Uni.I18n.translate('connection.widget.sideFilter.deviceGroup', 'DSH', 'Device group'),
-                displayField: 'name',
-                valueField: 'id',
-                store: 'Dsh.store.filter.DeviceGroup'
-            },
-
-        {
-            xtype: 'side-filter-date-time',
-                itemId: 'finished-between',
-            name: 'finishedBetween',
-            wTitle: Uni.I18n.translate('connection.widget.sideFilter.finishedBetween', 'DSH', 'Finished successfully between')
-        }
-
-        */
-
-
-    },
-    activateStep1 : function(component){
+    activateStep1: function (component) {
         console.log('Step 1 selected');
+        return true;
     },
-    activateStep2 : function(component){
+    activateStep2: function (component) {
         console.log('Step 2 selected');
         var me = this;
         var step1 = me.getStep1();
         var step1Form = step1.down('form').getForm();
         var step1Values = step1Form.getFieldValues();
         console.log(step1Values);
-        if(me.selectedReportID != step1Values.reportUUID){
+       // if (me.selectedReportID != step1Values.reportUUID) {
             me.selectedReportID = step1Values.reportUUID;
             me.loadReportFilters(me.selectedReportID);
+        //}
+
+        return true;
+
+    },
+
+    activateStep3: function (component) {
+        console.log('Step 3 selected');
+        return true;
+    },
+    activateStep4: function (component) {
+        console.log('Step 4 selected');
+
+        this.populateSummaryStep();
+        return true;
+    },
+    createFormControls: function (filterRecord, fieldType) {
+        var me = this;
+        var filterType = filterRecord.get('filterType');
+        var filterDisplayType = filterRecord.get('filterDisplayType');
+
+        if(filterType == "INLIST" || filterType == "NOTINLIST")
+            return me.createMultiSelectListControls(filterRecord, fieldType);
+        switch (filterDisplayType) {
+            case "DATE":
+                if(filterType == "BETWEEN")
+                    return me.createDateBetweenControls(filterRecord, fieldType);
+                else
+                    return me.createDateControls(filterRecord, fieldType);
+            case "TEXT":
+                return me.createMultiSelectListControls(filterRecord, fieldType);
+        }
+    },
+    createDateControls: function (filterRecord, fieldType) {
+
+        var me = this;
+        fieldType = fieldType || 'filter';
+        var filterType = filterRecord.get('filterType');
+        var filterName = filterRecord.get('filterName');
+        var filterDescription = filterRecord.get('filterDisplayName') || filterName;
+
+        var controls =
+            [
+                {
+                    xtype: 'displayfield',
+                    labelAlign: 'left',
+                    labelWidth:300,
+                    fieldLabel: filterDescription + ' ' + me.translateFilterType(filterType)
+                },
+                {
+                    xtype: 'date-time',
+                    padding: 0,
+                    margin: 0,
+                    name: filterName,
+                    fieldType:fieldType,
+                    record:filterRecord,
+                    dateTimeSeparatorConfig: {
+                        margin: '0 50 0 10'
+                    },
+                    value:filterRecord.get('filterDefaultValue1'),
+                    border: false,
+                    getFieldValue : function (){
+                        return this.getValue();
+                    },
+                    getFieldDisplayValue : function(){
+                        var rawValue = this.getValue();
+                        return Ext.Date.format(rawValue,'n/j/Y g:i A');
+                    }
+                },
+            ];
+
+        return controls;
+    },
+    createDateBetweenControls: function (filterRecord, fieldType) {
+        var me = this;
+        fieldType = fieldType || 'filter';
+        var filterType = filterRecord.get('filterType');
+        var filterName = filterRecord.get('filterName');
+        var filterDescription = filterRecord.get('filterDisplayName') || filterName;
+
+        var controls =
+            [
+                {
+                    xtype: 'displayfield',
+                    labelAlign: 'left',
+                    labelWidth:300,
+                    fieldLabel: filterDescription + ' ' + me.translateFilterType(filterType)
+                },
+                {
+                    xtype: 'fieldset',
+                    fieldType:fieldType,
+                    record:filterRecord,
+                    border: false,
+                    margin:0,
+                    padding:0,
+                    defaults: {
+                        border: false
+                    },
+                    items: [
+                        {
+                            xtype: 'date-time',
+                            value:filterRecord.get('filterDefaultValue1'),
+                            dateTimeSeparatorConfig: {
+                                margin: '0 50 0 10'
+                            },
+                            name: 'from'
+                        },
+                        {
+                            xtype: 'date-time',
+                            value:filterRecord.get('filterDefaultValue2'),
+                            dateTimeSeparatorConfig: {
+                                margin: '0 50 0 10'
+                            },
+                            name: 'to'
+                        }
+                    ],
+                    setValue : function(value){
+
+                    },
+                    getRawValue : function(){
+                        return {
+                            from:this.query('date-time')[0].getValue(),
+                            to:this.query('date-time')[1].getValue()
+                        };
+                    },
+                    getValue : function(){
+                        return {
+                            from:  Ext.Date.format(this.query('date-time')[0].getValue(),'c'),
+                            to:Ext.Date.format(this.query('date-time')[1].getValue(),'c')
+                        };
+                    },
+                    getFieldValue : function (){
+                        return this.getValue();
+                    },
+                    getFieldDisplayValue : function(){
+                        var rawValue = this.getRawValue();
+                        return Ext.String.format("{0} - {1}",
+                            Ext.Date.format(rawValue.from, 'n/j/Y g:i A'),
+                            Ext.Date.format(rawValue.to, 'n/j/Y g:i A')
+                        );
+                    }
+                }
+            ];
+        return controls;
+    },
+    createTextControls: function (filterRecord, fieldType) {
+        fieldType = fieldType || 'filter';
+        var filterType = filterRecord.get('filterType');
+        var filterName = filterRecord.get('filterName');
+        var filterDescription = filterRecord.get('filterDisplayName')  || filterName;
+
+        var controls =
+            [
+                {
+                    xtype: 'displayfield',
+                    labelAlign: 'left',
+                    fieldLabel: filterDescription + ' ' + me.translateFilterType(filterType)
+                },
+                {
+                    xtype: 'textfield',
+                    maxWidth: 250,
+                    fieldType:fieldType,
+                    record:filterRecord,
+                    name: filterName
+                }
+            ];
+        return controls;
+    },
+    createMultiSelectListControls: function (filterRecord, fieldType) {
+        var me = this;
+        fieldType = fieldType || 'filter';
+        var filterType = filterRecord.get('filterType');
+        var filterName = filterRecord.get('filterName');
+        var filterDescription = filterRecord.get('filterDisplayName')  || filterName;
+
+        var store =  Ext.create('Yfn.store.ReportFilterListItems',{});
+        store.getProxy().setExtraParam('reportUUID', me.selectedReportID);
+        store.getProxy().setExtraParam('filterId', filterRecord.get('id'));
+        var controls =
+            [
+                {
+                    xtype: 'displayfield',
+                    labelAlign: 'left',
+                    labelWidth:300,
+                    fieldLabel: filterDescription + ' ' + me.translateFilterType(filterType)
+                },
+                {
+                    xtype: 'uni-filter-combo',
+                    name: filterName,
+                    loadStore:true,
+                    displayField: 'value1',
+                    fieldType:fieldType,
+                    record:filterRecord,
+                    value: filterRecord.get('filterDefaultValue1').split('|'),
+                    valueField: 'value2',
+                    getFieldValue : function(){
+                        if (!_.isEmpty(this.getRawValue())) {
+                            return this.getRawValue();
+                        }
+                        return undefined;
+                    },
+                    getFieldDisplayValue : function(){
+                        return this.getFieldValue();
+                    },
+                    store: store
+                }
+            ];
+        return controls;
+    },
+
+    populateSummaryStep : function() {
+        var me = this;
+
+        var step4 = me.getStep4();
+        var summaryContainer = step4.down('#step4-summary');
+        summaryContainer.removeAll();
+
+        var reportRecord = me.reportsStore.findRecord("reportUUID", me.selectedReportID);
+
+        summaryContainer.add(
+            {
+                xtype: 'displayfield',
+                labelAlign: 'left',
+                fieldLabel: Uni.I18n.translate('generatereport.reportNameTitle', 'YFN', 'Report'),
+                value: reportRecord.get('name')
+            });
+        var hasPrompts = false;
+        var hasFilters = false;
+
+        var
+        fieldsContainer = summaryContainer.add({
+            xtype: 'fieldcontainer',
+            labelAlign: 'left',
+            fieldLabel: Uni.I18n.translate('generatereport.reportPromptsTitle', 'YFN', 'Prompts')
+        });
+        var prompts = me.getWizard().query('[fieldType = prompt]');
+
+        for (var prompt in prompts) {
+            if (prompts.hasOwnProperty(prompt)) {
+                var field = prompts[prompt];
+                fieldsContainer.add({
+                    xtype: 'displayfield',
+                    labelAlign: 'left',
+                    labelWidth:150,
+                    fieldLabel: field.record.get('filterDisplayName') + ' ' + me.translateFilterType(field.record.get('filterType')),
+                    value: field.getFieldDisplayValue()
+                });
+                hasPrompts = true;
+            }
+        }
+
+        if(!hasPrompts) {
+            fieldsContainer.add({
+                xtype: 'displayfield',
+                value: Uni.I18n.translate('generatereport.reportNoFilters', 'YFN', 'No prompts')
+            });
+        }
+
+        var filters = me.getWizard().query('[fieldType = filter]');
+
+        fieldsContainer = summaryContainer.add({
+            xtype: 'fieldcontainer',
+            labelAlign: 'left',
+            fieldLabel: Uni.I18n.translate('generatereport.reportFiltersTitle', 'YFN', 'Filters')
+        });
+
+        for (var filter in filters) {
+            if (filters.hasOwnProperty(filter)) {
+                var field = filters[filter];
+                fieldsContainer.add({
+                    xtype: 'displayfield',
+                    labelAlign: 'left',
+                    labelWidth:150,
+                    fieldLabel: field.record.get('filterDisplayName') + ' ' + me.translateFilterType(field.record.get('filterType')),
+                    value: field.getFieldDisplayValue()
+                });
+
+                hasFilters = true;
+            }
+        }
+
+        if(!hasFilters) {
+            fieldsContainer.add({
+                xtype: 'displayfield',
+                value: Uni.I18n.translate('generatereport.reportNoFilters', 'YFN', 'No filters')
+            });
         }
 
     },
-
-    activateStep3 : function(component){
-        console.log('Step 3 selected');
-    },
-    activateStep4 : function(component){
-        console.log('Step 4 selected');
+    translateFilterType : function(filterType){
+        switch(filterType){
+            case 'EQUAL': return Uni.I18n.translate('generatereport.reportTypeEQUAL', 'YFN', 'Equal to');
+            case 'NOTEQUAL': return Uni.I18n.translate('generatereport.reportTypeNOTEQUAL', 'YFN', 'Different from');
+            case 'GREATER': return Uni.I18n.translate('generatereport.reportTypeGREATER', 'YFN', 'Greater than');
+            case 'GREATEREQUAL': return Uni.I18n.translate('generatereport.reportTypeGREATEREQUAL', 'YFN', 'Greater than or equal to');
+            case 'LESS': return Uni.I18n.translate('generatereport.reportTypeLESS', 'YFN', 'Less than');
+            case 'LESSEQUAL': return Uni.I18n.translate('generatereport.reportTypeLESSEQUAL', 'YFN', 'Less than or equal to');
+            case 'BETWEEN': return Uni.I18n.translate('generatereport.reportTypeBETWEEN', 'YFN', 'Between');
+            case 'NOTBETWEEN': return Uni.I18n.translate('generatereport.reportTypeNOTBETWEEN', 'YFN', 'Not Between');
+            case 'INLIST': return Uni.I18n.translate('generatereport.reportTypeINLIST', 'YFN', 'In List');
+            case 'NOTINLIST': return Uni.I18n.translate('generatereport.reportTypeNOTINLIST', 'YFN', 'Not In List');
+            case 'ISNULL': return Uni.I18n.translate('generatereport.reportTypeISNULL', 'YFN', 'Is Null');
+            case 'ISNOTNULL': return Uni.I18n.translate('generatereport.reportTypeISNOTNULL', 'YFN', 'Is Not Null');
+            case 'EQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeEQUALCOLUMN', 'YFN', 'Equals Column');
+            case 'NOTEQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeNOTEQUALCOLUMN', 'YFN', 'Different from Column');
+            case 'GREATERCOLUMN': return Uni.I18n.translate('generatereport.reportTypeGREATERCOLUMN', 'YFN', 'Greater than Column');
+            case 'GREATEREQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeGREATEREQUALCOLUMN', 'YFN', 'Greater than or Equal to Column');
+            case 'LESSCOLUMN': return Uni.I18n.translate('generatereport.reportTypeLESSCOLUMN', 'YFN', 'Less than Column');
+            case 'LESSEQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeLESSEQUALCOLUMN', 'YFN', 'Less than or Equal to Column');
+            case 'MINIMUMDATE': return Uni.I18n.translate('generatereport.reportTypeMINIMUMDATE', 'YFN', 'Minimum Date');
+            case 'MAXIMUMDATE': return Uni.I18n.translate('generatereport.reportTypeMAXIMUMDATE', 'YFN', 'Maximum Date');
+            case 'LINKFILTER': return Uni.I18n.translate('generatereport.reportTypeLINKFILTER', 'YFN', 'Link to Filter');
+            return filterType;
+        }
     }
 
 })
