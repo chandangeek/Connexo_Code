@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.topology.StillGatewayException;
+import com.energyict.mdc.device.topology.TopologyService;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -28,8 +30,8 @@ public class CannotDeletePhysicalGatewayEventHandlerIT extends PersistenceIntegr
     @ExpectedConstraintViolation(messageId = MessageSeeds.Keys.DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY)
     public void cannotDeleteBecauseStillUsedAsPhysicalGatewayTest() {
         Device physicalMaster = this.createSimpleDeviceWithName("PhysicalMaster");
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
-        device1.setPhysicalGateway(physicalMaster);
+        Device device1 = getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
+        this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
 
         // Business method
         physicalMaster.delete();
@@ -41,8 +43,8 @@ public class CannotDeletePhysicalGatewayEventHandlerIT extends PersistenceIntegr
     @Transactional
     public void deletePhysicalMasterAfterDeletingSlaveTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin", MRID);
-        device.setPhysicalGateway(physicalMaster);
+        Device device = getDeviceService().newDevice(deviceConfiguration, "Origin", MRID);
+        this.getTopologyService().setPhysicalGateway(device, physicalMaster);
         device.save();
 
         Device reloadedSlave = getReloadedDevice(device);
@@ -52,7 +54,15 @@ public class CannotDeletePhysicalGatewayEventHandlerIT extends PersistenceIntegr
         long masterId = reloadedMaster.getId();
         reloadedMaster.delete();
 
-        assertThat(inMemoryPersistence.getDeviceService().findDeviceById(masterId)).isNull();
+        assertThat(getDeviceService().findDeviceById(masterId)).isNull();
+    }
+
+    private ServerDeviceService getDeviceService() {
+        return inMemoryPersistence.getDeviceService();
+    }
+
+    private TopologyService getTopologyService() {
+        return inMemoryPersistence.getTopologyService();
     }
 
 }
