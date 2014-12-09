@@ -13,5 +13,5 @@ public interface RelativePeriod extends Entity {
 
     List<RelativePeriodCategory> getRelativePeriodCategories();
     void addRelativePeriodCategory(RelativePeriodCategory relativePeriodCategory);
-    void removeRelativePeriodCategory(RelativePeriodCategory relativePeriodCategory) throws Exception;
+    void removeRelativePeriodCategory(RelativePeriodCategory relativePeriodCategory);
 }
