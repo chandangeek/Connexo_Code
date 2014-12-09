@@ -6,7 +6,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,10 +41,8 @@ public class ConnectionTypePluggableClassRegistrarTest {
     public void testRegistration() {
         ConnectionTypePluggableClassRegistrar registrar = this.testRegistrar();
         PluggableClassDefinition pluggableClassDefinition = mock(PluggableClassDefinition.class);
-        Class<OutboundIpConnectionType> expectedConnectionTypeClass = OutboundIpConnectionType.class;
-        String expectedConnectionTypeClassName = expectedConnectionTypeClass.getName();
-        when(pluggableClassDefinition.getProtocolTypeClass()).thenReturn(expectedConnectionTypeClass);
-        String expectedPluggableClassName = expectedConnectionTypeClass.getSimpleName();
+        String expectedConnectionTypeClassName = "com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType";
+        String expectedPluggableClassName = "OutboundIpConnectionType";
         when(pluggableClassDefinition.getName()).thenReturn(expectedPluggableClassName);
         when(this.connectionTypeService.getExistingConnectionTypePluggableClasses()).thenReturn(Arrays.asList(pluggableClassDefinition));
         // Make sure the ConnectionTypePluggableClass does not exist yet
@@ -66,10 +63,8 @@ public class ConnectionTypePluggableClassRegistrarTest {
     public void testNoRegistrationWhenAlreadyExists() {
         ConnectionTypePluggableClassRegistrar registrar = this.testRegistrar();
         PluggableClassDefinition pluggableClassDefinition = mock(PluggableClassDefinition.class);
-        Class<OutboundIpConnectionType> expectedConnectionTypeClass = OutboundIpConnectionType.class;
-        String expectedConnectionTypeClassName = expectedConnectionTypeClass.getName();
-        when(pluggableClassDefinition.getProtocolTypeClass()).thenReturn(expectedConnectionTypeClass);
-        String expectedPluggableClassName = expectedConnectionTypeClass.getSimpleName();
+        String expectedConnectionTypeClassName = "com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType";
+        String expectedPluggableClassName = "OutboundIpConnectionType";
         when(pluggableClassDefinition.getName()).thenReturn(expectedPluggableClassName);
         when(this.connectionTypeService.getExistingConnectionTypePluggableClasses()).thenReturn(Arrays.asList(pluggableClassDefinition));
         // Mock that the ConnectionTypePluggableClass already exists

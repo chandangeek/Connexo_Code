@@ -3,9 +3,9 @@ package com.energyict.mdc.protocol.pluggable.impl;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,7 +40,7 @@ public class DeviceProtocolPluggableClassRegistrarTest {
     @Test
     public void testRegistration() {
         DeviceProtocolPluggableClassRegistrar registrar = this.testRegistrar();
-        Class<SDKDeviceProtocol> expectedDeviceProtocolClass = SDKDeviceProtocol.class;
+        Class<MockMeterProtocol> expectedDeviceProtocolClass = MockMeterProtocol.class;
         String expectedDeviceProtocolClassName = expectedDeviceProtocolClass.getName();
         when(this.licensedProtocol.getClassName()).thenReturn(expectedDeviceProtocolClassName);
         when(this.licensedProtocol.getName()).thenReturn(expectedDeviceProtocolClassName);
@@ -59,7 +59,7 @@ public class DeviceProtocolPluggableClassRegistrarTest {
     @Test
     public void testNoRegistrationWhenAlreadyExists() {
         DeviceProtocolPluggableClassRegistrar registrar = this.testRegistrar();
-        Class<SDKDeviceProtocol> expectedDeviceProtocolClass = SDKDeviceProtocol.class;
+        Class<MockMeterProtocol> expectedDeviceProtocolClass = MockMeterProtocol.class;
         String expectedDeviceProtocolClassName = expectedDeviceProtocolClass.getName();
         when(this.licensedProtocol.getClassName()).thenReturn(expectedDeviceProtocolClassName);
         when(this.licensedProtocol.getName()).thenReturn(expectedDeviceProtocolClassName);

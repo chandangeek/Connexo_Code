@@ -18,7 +18,6 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLogBook;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
 import java.util.Optional;
 import org.joda.time.DateMidnight;
 import org.junit.*;
@@ -153,9 +152,12 @@ public class SmartMeterProtocolLogBookAdapterTest {
     @Test
     public void testGetLogBookData() throws IOException {
         List<LogBookReader> logBookReaders = new ArrayList<>();
-        logBookReaders.add(new LogBookReader(LOGBOOK1_OBIS, LAST_LOGBOOK1, new LogBookIdentifierById(LOGBOOK1_ID), serialNumberDeviceIdentifier));
-        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, LAST_LOGBOOK2, new LogBookIdentifierById(LOGBOOK2_ID), serialNumberDeviceIdentifier));
-        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, LAST_LOGBOOK3, new LogBookIdentifierById(LOGBOOK3_ID), serialNumberDeviceIdentifier));
+        LogBookIdentifier logBookIdentifier1 = mock(LogBookIdentifier.class);
+        LogBookIdentifier logBookIdentifier2 = mock(LogBookIdentifier.class);
+        LogBookIdentifier logBookIdentifier3 = mock(LogBookIdentifier.class);
+        logBookReaders.add(new LogBookReader(LOGBOOK1_OBIS, LAST_LOGBOOK1, logBookIdentifier1, serialNumberDeviceIdentifier));
+        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, LAST_LOGBOOK2, logBookIdentifier2, serialNumberDeviceIdentifier));
+        logBookReaders.add(new LogBookReader(LOGBOOK_OBIS, LAST_LOGBOOK3, logBookIdentifier3, serialNumberDeviceIdentifier));
 
         List<MeterEvent> meterEvents = new ArrayList<>(2);
         meterEvents.add(new MeterEvent(EVENT1_DATE, MeterEvent.BATTERY_VOLTAGE_LOW, PROTOCOL_CODE_EVENT1));
@@ -176,10 +178,10 @@ public class SmartMeterProtocolLogBookAdapterTest {
         assertThat(logBookReaders.get(1).getDeviceIdentifier().getIdentifier()).isEqualTo(SERIAL_NUMBER);
         assertThat(logBookReaders.get(2).getDeviceIdentifier().getIdentifier()).isEqualTo(SERIAL_NUMBER);
 
-        assertThat(LOGBOOK1_ID).isEqualTo(((LogBookIdentifierById) logBookData.get(0).getLogBookIdentifier()).getLogBookId());
+        assertThat(logBookData.get(0).getLogBookIdentifier()).isEqualTo(logBookIdentifier1);
         assertThat(ResultType.NotSupported).isEqualTo(logBookData.get(0).getResultType());
 
-        assertThat(LOGBOOK2_ID).isEqualTo(((LogBookIdentifierById) logBookData.get(1).getLogBookIdentifier()).getLogBookId());
+        assertThat(logBookData.get(1).getLogBookIdentifier()).isEqualTo(logBookIdentifier2);
         assertThat(ResultType.Supported).isEqualTo(logBookData.get(1).getResultType());
         assertThat(logBookData.get(1).getIssues()).isEmpty();
         assertThat(meterEvents.size()).isEqualTo(logBookData.get(1).getCollectedMeterEvents().size());
@@ -192,7 +194,7 @@ public class SmartMeterProtocolLogBookAdapterTest {
         assertThat(MeterEvent.TAMPER).isEqualTo(logBookData.get(1).getCollectedMeterEvents().get(1).getEiCode());
         assertThat(PROTOCOL_CODE_EVENT2).isEqualTo(logBookData.get(1).getCollectedMeterEvents().get(1).getProtocolCode());
 
-        assertThat(LOGBOOK3_ID).isEqualTo(((LogBookIdentifierById) logBookData.get(2).getLogBookIdentifier()).getLogBookId());
+        assertThat(logBookData.get(2).getLogBookIdentifier()).isEqualTo(logBookIdentifier3);
         assertThat(ResultType.InCompatible).isEqualTo(logBookData.get(2).getResultType());
         assertThat(logBookData.get(2).getIssues().get(0).getDescription()).isNotEmpty();
         assertEquals(logBookData.get(2).getIssues().get(0).getSource(), LOGBOOK_OBIS);

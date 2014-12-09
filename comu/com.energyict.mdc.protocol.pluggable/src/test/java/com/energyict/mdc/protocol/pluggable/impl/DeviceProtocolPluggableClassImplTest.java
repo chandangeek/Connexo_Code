@@ -11,7 +11,6 @@ import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -19,6 +18,7 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
@@ -37,6 +37,7 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocolWithTestProp
 import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol;
+import com.energyict.mdc.protocol.pluggable.mocks.SDKDeviceProtocolTestWithMandatoryProperty;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -55,15 +56,11 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty;
-import com.energyict.protocols.mdc.services.impl.Bus;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -79,6 +76,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -172,15 +170,11 @@ public class DeviceProtocolPluggableClassImplTest {
         if (Environment.DEFAULT.get().getApplicationContext() != null) {
             fail("Application context was not cleaned up properly by previous test");
         }
-        Bus.setPropertySpecService(propertySpecService);
-        propertySpecService.addFactoryProvider(new ReferencePropertySpecFinderProvider() {
-            @Override
-            public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-                List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-                finders.add(new ProtocolDialectPropertiesFinder());
-                finders.add(new CodeFinder());
-                return finders;
-            }
+        propertySpecService.addFactoryProvider(() -> {
+            List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+            finders.add(new ProtocolDialectPropertiesFinder());
+            finders.add(new CodeFinder());
+            return finders;
         });
 
         Translator translator = mock(Translator.class);
@@ -211,23 +205,20 @@ public class DeviceProtocolPluggableClassImplTest {
 
     @Before
     public void initializeDeviceProtocolService() {
-        when(deviceProtocolService.loadProtocolClass(MOCK_DEVICE_PROTOCOL)).thenReturn(MockDeviceProtocol.class);
-        when(deviceProtocolService.loadProtocolClass(MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES)).thenReturn(MockDeviceProtocolWithTestPropertySpecs.class);
-        when(deviceProtocolService.loadProtocolClass(MOCK_METER_PROTOCOL)).thenReturn(MockMeterProtocol.class);
-        when(deviceProtocolService.loadProtocolClass(MOCK_SMART_METER_PROTOCOL)).thenReturn(MockSmartMeterProtocol.class);
-        when(deviceProtocolService.loadProtocolClass(MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(NotADeviceProtocol.class);
-        when(deviceProtocolService.loadProtocolClass(SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY)).thenReturn(SDKDeviceProtocolTestWithMandatoryProperty.class);
+        when(deviceProtocolService.createProtocol(MOCK_DEVICE_PROTOCOL)).thenReturn(new MockDeviceProtocol());
+        when(deviceProtocolService.createProtocol(MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES)).thenReturn(new MockDeviceProtocolWithTestPropertySpecs());
+        when(deviceProtocolService.createProtocol(MOCK_METER_PROTOCOL)).thenReturn(new MockMeterProtocol());
+        when(deviceProtocolService.createProtocol(MOCK_SMART_METER_PROTOCOL)).thenReturn(new MockSmartMeterProtocol());
+        when(deviceProtocolService.createProtocol(MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(new NotADeviceProtocol());
+        when(deviceProtocolService.createProtocol(SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY)).thenReturn(new SDKDeviceProtocolTestWithMandatoryProperty(this.propertySpecService, mock(CollectedDataFactory.class)));
     }
 
     @After
     public void cleanUp() throws BusinessException, SQLException {
         for (final DeviceProtocolPluggableClass pluggableClass : protocolPluggableService.findAllDeviceProtocolPluggableClasses().find()) {
-            transactionService.execute(new Transaction<Object>() {
-                @Override
-                public Object perform() {
-                    pluggableClass.delete();
-                    return null;
-                }
+            transactionService.execute(() -> {
+                pluggableClass.delete();
+                return null;
             });
         }
         bootstrapModule.deactivate();
@@ -237,12 +228,7 @@ public class DeviceProtocolPluggableClassImplTest {
     public void newInstanceDeviceProtocolTest() throws BusinessException, SQLException {
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
-                transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {
-                    @Override
-                    public DeviceProtocolPluggableClass perform() {
-                        return protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL);
-                    }
-                });
+                transactionService.execute(() -> protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL));
 
         // asserts
         assertThat(deviceProtocolPluggableClass).isNotNull();
@@ -264,12 +250,7 @@ public class DeviceProtocolPluggableClassImplTest {
 
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = transactionService.
-                execute(new Transaction<DeviceProtocolPluggableClass>() {
-                    @Override
-                    public DeviceProtocolPluggableClass perform() {
-                        return protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES, creationProperties);
-                    }
-                });
+                execute(() -> protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES, creationProperties));
 
         // asserts
         assertThat(deviceProtocolPluggableClass).isNotNull();
@@ -295,17 +276,14 @@ public class DeviceProtocolPluggableClassImplTest {
 
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = transactionService.
-                execute(new Transaction<DeviceProtocolPluggableClass>() {
-                    @Override
-                    public DeviceProtocolPluggableClass perform() {
-                        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES);
-                        deviceProtocolPluggableClass.setProperty(
-                                DeviceMessageTestSpec.extendedSpecs(propertySpecService).getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME),
-                                activationDate);
-                        deviceProtocolPluggableClass.save();
-                        return deviceProtocolPluggableClass;
+                execute(() -> {
+                    DeviceProtocolPluggableClass deviceProtocolPluggableClass1 = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES);
+                    deviceProtocolPluggableClass1.setProperty(
+                            DeviceMessageTestSpec.extendedSpecs(propertySpecService).getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME),
+                            activationDate);
+                    deviceProtocolPluggableClass1.save();
+                    return deviceProtocolPluggableClass1;
 
-                    }
                 });
 
         // asserts
@@ -331,12 +309,7 @@ public class DeviceProtocolPluggableClassImplTest {
 
         // Business method
         transactionService.
-                execute(new Transaction<DeviceProtocolPluggableClass>() {
-                    @Override
-                    public DeviceProtocolPluggableClass perform() {
-                        return protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES, creationProperties);
-                    }
-                });
+                execute(() -> protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES, creationProperties));
 
         // Expected UnknownPluggableClassPropertiesException
     }
@@ -355,14 +328,11 @@ public class DeviceProtocolPluggableClassImplTest {
 
         // Business method
         transactionService.
-                execute(new Transaction<DeviceProtocolPluggableClass>() {
-                    @Override
-                    public DeviceProtocolPluggableClass perform() {
-                        DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES);
-                        deviceProtocolPluggableClass.setProperty(foo, "bar");
-                        deviceProtocolPluggableClass.save();
-                        return deviceProtocolPluggableClass;
-                    }
+                execute(() -> {
+                    DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES);
+                    deviceProtocolPluggableClass.setProperty(foo, "bar");
+                    deviceProtocolPluggableClass.save();
+                    return deviceProtocolPluggableClass;
                 });
 
         // Expected UnknownPluggableClassPropertiesException
@@ -372,12 +342,7 @@ public class DeviceProtocolPluggableClassImplTest {
     public void newInstanceMeterProtocolTest() throws BusinessException, SQLException {
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
-                transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {
-                    @Override
-                    public DeviceProtocolPluggableClass perform() {
-                        return protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_METER_PROTOCOL);
-                    }
-                });
+                transactionService.execute(() -> protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_METER_PROTOCOL));
 
         // asserts
         assertThat(deviceProtocolPluggableClass).isNotNull();
@@ -391,12 +356,7 @@ public class DeviceProtocolPluggableClassImplTest {
     public void newInstanceSmartMeterProtocolTest() throws BusinessException, SQLException {
         // Business method
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
-                transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {
-                    @Override
-                    public DeviceProtocolPluggableClass perform() {
-                        return protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_SMART_METER_PROTOCOL);
-                    }
-                });
+                transactionService.execute(() -> protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_SMART_METER_PROTOCOL));
 
         // asserts
         assertThat(deviceProtocolPluggableClass).isNotNull();
@@ -409,16 +369,12 @@ public class DeviceProtocolPluggableClassImplTest {
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE_KEY+"}")
     public void newInstanceSmartMeterProtocolIllegalPropertyTest() throws BusinessException, SQLException {
-        transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {
-            @Override
-            public DeviceProtocolPluggableClass perform() {
-                DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("SDKDeviceProtocolTestWithMandatoryProperty", SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY);
-                PropertySpec<?> deviceTimeZone = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpec("SDKObisCodeProperty");
-                deviceProtocolPluggableClass.setProperty(deviceTimeZone, new ObisCode(1,1,1,1,1,1));
-                deviceProtocolPluggableClass.save();
-                return deviceProtocolPluggableClass;
-            }
-
+        transactionService.execute(() -> {
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("SDKDeviceProtocolTestWithMandatoryProperty", SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY);
+            PropertySpec<?> deviceTimeZone = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpec("SDKObisCodeProperty");
+            deviceProtocolPluggableClass.setProperty(deviceTimeZone, new ObisCode(1,1,1,1,1,1));
+            deviceProtocolPluggableClass.save();
+            return deviceProtocolPluggableClass;
         });
     }
 
@@ -426,12 +382,7 @@ public class DeviceProtocolPluggableClassImplTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PLUGGABLE_CLASS_NEW_INSTANCE_FAILURE + "}")
     public void newInstanceNotADeviceProtocolTest() throws BusinessException, SQLException {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass =
-                transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {
-                    @Override
-                    public DeviceProtocolPluggableClass perform() {
-                        return protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_NOT_A_DEVICE_PROTOCOL);
-                    }
-                });
+                transactionService.execute(() -> protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_NOT_A_DEVICE_PROTOCOL));
 
         // Business method
         deviceProtocolPluggableClass.getDeviceProtocol();

@@ -13,7 +13,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,7 +57,7 @@ public class InboundDeviceProtocolPluggableClassRegistrarTest {
         when(pluggableClassDefinition.getName()).thenReturn(expectedPluggableClassName);
         when(this.inboundDeviceProtocolService.getExistingInboundDeviceProtocolPluggableClasses()).thenReturn(Arrays.asList(pluggableClassDefinition));
         // Make sure the InboundDeviceProtocolPluggableClass does not exist yet
-        when(this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(OutboundIpConnectionType.class.getName())).thenReturn(Collections.emptyList());
+        when(this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.emptyList());
         InboundDeviceProtocolPluggableClass expectedCreated = mock(InboundDeviceProtocolPluggableClass.class);
         when(this.protocolPluggableService.newInboundDeviceProtocolPluggableClass(anyString(), anyString())).thenReturn(expectedCreated);
 

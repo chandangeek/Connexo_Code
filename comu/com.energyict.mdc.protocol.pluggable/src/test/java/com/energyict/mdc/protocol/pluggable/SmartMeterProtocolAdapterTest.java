@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExce
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
@@ -39,7 +40,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import com.energyict.mdw.cpo.PropertySpecFactory;
 import org.fest.assertions.api.Assertions;
 import org.fest.assertions.core.Condition;
 
@@ -94,11 +94,8 @@ public class SmartMeterProtocolAdapterTest {
         this.inMemoryPersistence = new InMemoryPersistence();
         this.inMemoryPersistence.initializeDatabase(
                 "SmartMeterProtocolAdapterTest.mdc.protocol.pluggable",
-                new DataModelInitializer() {
-                    @Override
-                    public void initializeDataModel(DataModel dataModel) {
-                        dataModel.persist(new DeviceCapabilityAdapterMappingImpl(MockDeviceProtocol.class.getCanonicalName(), 6));
-                    }
+                dataModel -> {
+                    dataModel.persist(new DeviceCapabilityAdapterMappingImpl(MockDeviceProtocol.class.getCanonicalName(), 6));
                 });
         this.protocolPluggableService = this.inMemoryPersistence.getProtocolPluggableService();
         this.initializeMocks();
