@@ -1,17 +1,17 @@
 package com.elster.jupiter.validation.impl;
 
-import static java.util.Comparator.naturalOrder;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.validation.ValidationRuleSet;
+import static com.elster.jupiter.util.streams.Functions.asStream;
+import static java.util.Comparator.naturalOrder;
 
 public class MeterActivationValidationContainer {
 	
@@ -82,8 +82,7 @@ public class MeterActivationValidationContainer {
     private List<IChannelValidation> getChannelValidations(Channel channel) {
     	return meterActivationValidations.stream()
     		.map(meterActivation -> meterActivation.getChannelValidation(channel))
-    		.filter(Optional::isPresent)
-    		.map(Optional::get)
+    		.flatMap(asStream())
     		.map(IChannelValidation.class::cast)
     		.collect(Collectors.toList());
     }

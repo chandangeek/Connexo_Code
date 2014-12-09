@@ -1,8 +1,22 @@
 package com.elster.jupiter.validation.impl;
 
-import static com.elster.jupiter.util.streams.Predicates.notNull;
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsFirst;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationEvaluator;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,28 +31,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.Range;
+import static com.elster.jupiter.util.streams.Functions.asStream;
+import static java.util.Comparator.naturalOrder;
 
 /**
  * Created by tgr on 5/09/2014.
@@ -131,8 +125,7 @@ class ValidationEvaluatorForMeter implements ValidationEvaluator {
                 .map(channel -> getMapChannelToValidation().get(channel.getId()))
                 .filter(Objects::nonNull)
                 .map(ChannelValidationContainer::getLastChecked)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(asStream())
                 .max(naturalOrder());
     }
 

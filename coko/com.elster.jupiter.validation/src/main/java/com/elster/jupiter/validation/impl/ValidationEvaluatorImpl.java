@@ -1,19 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsFirst;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
@@ -31,6 +17,21 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.streams.Functions.asStream;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsFirst;
 
 /**
 * Created by tgr on 5/09/2014.
@@ -200,8 +201,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
     public boolean isValidationEnabled(Channel channel) {
         return validationService.getMeterActivationValidations(channel.getMeterActivation()).stream()
                 .map(m -> m.getChannelValidation(channel))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(asStream())
                 .anyMatch(IChannelValidation::hasActiveRules);
 
     }
@@ -213,8 +213,7 @@ class ValidationEvaluatorImpl implements ValidationEvaluator {
                 .filter(k -> k.getReadingTypes().contains(readingType))
                 .filter(validationService::isValidationActive)
                 .map(validationService::getLastChecked)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(asStream())
                 .max(naturalOrder());
     }
 }
