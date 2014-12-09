@@ -1367,37 +1367,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void updateWithDefaultWhenNoDefaultYetExistsTest() {
-        ScheduledConnectionTaskImpl task1 =
-                this.createAsapWithNoPropertiesWithoutViolations("updateWithDefaultWhenNoDefaultYetExistsTest-1");
-        task1.save();
-        ScheduledConnectionTaskImpl task2 =
-                this.createAsapWithNoPropertiesWithoutViolations(
-                        "updateWithDefaultWhenNoDefaultYetExistsTest-2",
-                        this.partialScheduledConnectionTask2);
-        task2.save();
-
-        // Business method
-        ConnectionTaskService connectionTaskService = inMemoryPersistence.getConnectionTaskService();
-        List<ConnectionTask> outboundConnectionTasks = connectionTaskService.findConnectionTasksByDevice(this.device);
-        ConnectionTask defaultConnectionTaskForDevice = connectionTaskService.findDefaultConnectionTaskForDevice(this.device);
-
-        // prologue asserts
-        this.assertConnectionTask(outboundConnectionTasks, task1, task2);
-        assertThat(defaultConnectionTaskForDevice).isNull();
-
-        // update to one task to the default task
-        connectionTaskService.setDefaultConnectionTask(task2);
-
-        defaultConnectionTaskForDevice = connectionTaskService.findDefaultConnectionTaskForDevice(this.device);
-
-        // asserts
-        assertThat(defaultConnectionTaskForDevice).isNotNull();
-        assertThat(defaultConnectionTaskForDevice.getId()).isEqualTo(task2.getId());
-    }
-
-    @Test
-    @Transactional
     public void testApplyComWindowWhenTaskDoesNotHaveAComWindow() throws SQLException, BusinessException {
         Date nextExecutionTimestamp = Date.from(clock.instant());
         ScheduledConnectionTaskImpl connectionTask = this.createWithCommunicationWindowWithoutViolations("testApplyComWindowWithoutNextExecutionSpecs", null);

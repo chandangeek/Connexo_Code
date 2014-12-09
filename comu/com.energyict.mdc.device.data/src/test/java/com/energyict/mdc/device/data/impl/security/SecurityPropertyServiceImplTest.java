@@ -300,7 +300,7 @@ public class SecurityPropertyServiceImplTest {
             when(this.principal.getName()).thenReturn("SecurityPropertyServiceImplTest");
             this.licenseService = mock(LicenseService.class);
             when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
-            when(deviceProtocolService.loadProtocolClass(TestProtocolWithOnlySecurityProperties.class.getName())).thenReturn(TestProtocolWithOnlySecurityProperties.class);
+            when(deviceProtocolService.createProtocol(TestProtocolWithOnlySecurityProperties.class.getName())).thenReturn(new TestProtocolWithOnlySecurityProperties());
         }
 
         private void createOracleAliases(OrmServiceImpl ormService) throws SQLException {
