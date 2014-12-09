@@ -99,7 +99,7 @@ enum TableSpecs {
 
             table.primaryKey("DES_PK_EXPOCC").on(taskOccurrence).add();
             table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE").onDelete(DeleteRule.CASCADE)
-                    .map("taskOccurrence").add();
+                    .map("taskOccurrence").refPartition().add();
             table.foreignKey("DES_FK_EXPOCC_RTEXPORTTASK").on(task).references(DES_RTDATAEXPORTTASK.name()).onDelete(DeleteRule.CASCADE)
                     .map("readingTask").add();
 
