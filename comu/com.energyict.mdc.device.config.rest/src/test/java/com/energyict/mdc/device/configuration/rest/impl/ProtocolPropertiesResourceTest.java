@@ -9,6 +9,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.jayway.jsonpath.JsonModel;
 import java.util.ArrayList;
@@ -30,9 +31,9 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
     public void testGetDeviceProtocolProperties() {
         DeviceProtocolConfigurationProperties properties = mock(DeviceProtocolConfigurationProperties.class);
         mockDeviceConfiguration(properties);
-        String response = target("/devicetypes/11/deviceconfigurations/12/protocolproperties").request().get(String.class);
+        String response = target("/devicetypes/11/deviceconfigurations/12/protocols").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(7);
         assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo("callHomeId");
         assertThat(jsonModel.<String>get("$.properties[0].propertyValueInfo.value")).isEqualTo("0x7");
     }
@@ -47,8 +48,10 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
         propertyInfo.propertyTypeInfo.simplePropertyType= SimplePropertyType.TEXT;
 
+        ProtocolInfo protocolInfo = new ProtocolInfo();
+        protocolInfo.properties = Arrays.asList(propertyInfo);
 
-        Response response = target("/devicetypes/11/deviceconfigurations/12/protocolproperties").request().put(Entity.json(Arrays.asList(propertyInfo)));
+        Response response = target("/devicetypes/11/deviceconfigurations/12/protocols/7").request().put(Entity.json(protocolInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(properties).setProperty("callHomeId", "0x99");
         verify(deviceConfiguration).save();

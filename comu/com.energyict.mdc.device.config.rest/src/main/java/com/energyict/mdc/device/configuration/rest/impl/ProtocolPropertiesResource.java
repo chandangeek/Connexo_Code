@@ -2,18 +2,18 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,21 +39,25 @@ public class ProtocolPropertiesResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PagedInfoList getDeviceProperties(@BeanParam QueryParameters queryParameters) {
+    public Response getDeviceProperties() {
         DeviceProtocolConfigurationProperties deviceProperties = deviceConfiguration.getDeviceProtocolProperties();
         List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs() ,deviceProperties.getTypedProperties());
         Collections.sort(propertyInfos, (o1, o2) -> o1.key.compareToIgnoreCase(o2.key));
-        return PagedInfoList.asJson("properties", propertyInfos, queryParameters);
+        ProtocolInfo protocolInfo = new ProtocolInfo();
+        protocolInfo.properties=propertyInfos;
+        protocolInfo.id=this.deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getId();
+        protocolInfo.name=this.deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getName();
+        return Response.ok(protocolInfo).build();
     }
 
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateDeviceProperties(List<PropertyInfo> propertyInfos) {
+    public Response updateDeviceProperties(ProtocolInfo protocolInfo) {
         List<PropertySpec> propertySpecs = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs();
         DeviceProtocolConfigurationProperties deviceProtocolProperties = deviceConfiguration.getDeviceProtocolProperties();
         for (PropertySpec propertySpec : propertySpecs) {
-            Object value = mdcPropertyUtils.findPropertyValue(propertySpec, propertyInfos);
+            Object value = mdcPropertyUtils.findPropertyValue(propertySpec, protocolInfo.properties);
             if (value == null || "".equals(value)) {
                 deviceProtocolProperties.removeProperty(propertySpec.getName());
             } else {
@@ -62,6 +66,14 @@ public class ProtocolPropertiesResource {
         }
         deviceConfiguration.save();
         return Response.ok().build();
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{protocolId}")
+    public Response updateDeviceProperties(ProtocolInfo protocolInfo, @PathParam("protocolId") Long protocolId) {
+        return this.updateDeviceProperties(protocolInfo);
     }
 
 }

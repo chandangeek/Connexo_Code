@@ -109,6 +109,8 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getPropertySpecs()).thenReturn(specs);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocolPluggableClass.getId()).thenReturn(7L);
+        when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol pluggeable class");
         return deviceType;
     }
 

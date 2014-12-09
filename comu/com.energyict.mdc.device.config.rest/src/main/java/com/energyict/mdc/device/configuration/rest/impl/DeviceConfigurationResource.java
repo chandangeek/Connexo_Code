@@ -368,7 +368,7 @@ public class DeviceConfigurationResource {
         return Response.ok(PagedInfoList.asJson("validationRules", infos, queryParameters)).build();
     }
 
-    @Path("/{deviceConfigurationId}/protocolproperties")
+    @Path("/{deviceConfigurationId}/protocols")
     @Produces(MediaType.APPLICATION_JSON)
     public ProtocolPropertiesResource getDeviceProtocolPropertiesResource(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
