@@ -5,14 +5,12 @@ import com.energyict.mdc.device.topology.CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 
+import com.elster.jupiter.util.streams.Functions;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link CommunicationPath} interface.
@@ -47,12 +45,8 @@ public class G3CommunicationPathImpl extends CommunicationPathImpl implements G3
         return this.segments
                 .stream()
                 .map(G3CommunicationPathSegment::getNextHopDevice)
-                .flatMap(this.optionalToStream())
+                .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
-    }
-
-    private <T> Function<Optional<T>, Stream<T>> optionalToStream () {
-        return op -> op.map(Stream::of).orElseGet(Stream::empty);
     }
 
 }
