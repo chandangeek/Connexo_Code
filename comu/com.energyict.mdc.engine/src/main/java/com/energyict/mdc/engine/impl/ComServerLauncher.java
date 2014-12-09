@@ -8,6 +8,7 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
@@ -48,7 +49,6 @@ import java.util.logging.Logger;
 public final class ComServerLauncher {
 
     private static final String LOG4J_PROPERTIES_FILE_NAME = "./comserver-log4j.properties";
-    private static final int MAXIMUM_CONNECT_ATTEMPTS = 6;
     private final RunningComServerImpl.ServiceProvider serviceProvider;
 
     private ComServerLauncherLogger logger;
@@ -179,6 +179,11 @@ public final class ComServerLauncher {
         @Override
         public Clock clock() {
             return serviceProvider.clock();
+        }
+
+        @Override
+        public TopologyService topologyService() {
+            return serviceProvider.topologyService();
         }
 
         @Override
