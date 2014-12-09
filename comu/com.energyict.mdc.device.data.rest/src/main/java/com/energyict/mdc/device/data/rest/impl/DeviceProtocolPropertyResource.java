@@ -43,7 +43,7 @@ public class DeviceProtocolPropertyResource {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
         List <PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs() ,deviceProperties);
         Collections.sort(propertyInfos, (o1, o2) -> o1.key.compareToIgnoreCase(o2.key));
-        return PagedInfoList.asJson("protocolProperties", propertyInfos, queryParameters);
+        return PagedInfoList.asJson("properties", propertyInfos, queryParameters);
     }
 
     @PUT
