@@ -33,8 +33,8 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
         String response = target("/devicetypes/11/deviceconfigurations/12/protocolproperties").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.protocolProperties[0].key")).isEqualTo("callHomeId");
-        assertThat(jsonModel.<String>get("$.protocolProperties[0].propertyValueInfo.value")).isEqualTo("0x7");
+        assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo("callHomeId");
+        assertThat(jsonModel.<String>get("$.properties[0].propertyValueInfo.value")).isEqualTo("0x7");
     }
 
     @Test
