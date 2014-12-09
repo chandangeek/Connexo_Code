@@ -320,8 +320,17 @@ public class YellowfinServiceImpl implements YellowfinService {
                                 userFilter.setFilterName(rs[i].getColumnName());
                                 userFilter.setFilterType(rs[i].getFilterType());
                                 userFilter.setFilterOmittable(rs[i].getFilterOmittable());
+                                userFilter.setFilterDisplayName(rs[i].getDisplayName());
+                                userFilter.setFilterPrompt(rs[i].getPrompt());
+                                userFilter.setFilterAllowPrompt(rs[i].getAllowPrompt());
+                                userFilter.setFilterMaxValue(rs[i].getMaximumValue());
+                                userFilter.setFilterMinValue(rs[i].getMinimumValue());
                                 userFilters.add(userFilter);
+                                ReportRow[] reportRows = getFilterList(rs[i].getFilterId().toString(),reportId);
+                                for(int j=0;j<reportRows.length;j++){
+                                    System.out.println(reportRows[j].getDataValue()[0]);
 
+                                }
                             }
                         }
                     }
@@ -334,6 +343,37 @@ public class YellowfinServiceImpl implements YellowfinService {
         }
         return userFilters;
 
+    }
+
+    public ReportRow[] getFilterList(String filterId,int reportId) {
+        ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, "/services/ReportService", false);
+        ReportServiceSoapBindingStub rssbs;
+        ReportServiceRequest rsr = new ReportServiceRequest();
+        ReportRow[] reportRows = null;
+        try {
+            rssbs = (ReportServiceSoapBindingStub) ts.getReportService();
+            ReportServiceResponse reportServiceResponse = null;
+            rsr.setLoginId(yellowfinWebServiceUser);
+            rsr.setPassword(yellowfinWebServicePassword);
+            rsr.setOrgId(new Integer(1));
+            rsr.setReportRequest("FILTEROPTIONS");
+            rsr.setObjectName(filterId);
+            rsr.setReportId(reportId);
+            try {
+                reportServiceResponse = rssbs.remoteReportCall(rsr);
+                if (reportServiceResponse != null) {
+                    if ("SUCCESS".equals(reportServiceResponse.getStatusCode())) {
+                        reportRows= reportServiceResponse.getResults();
+                    }
+                }
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return reportRows;
     }
 
 }

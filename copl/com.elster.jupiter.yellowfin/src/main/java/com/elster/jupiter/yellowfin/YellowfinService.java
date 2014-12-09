@@ -1,6 +1,7 @@
 package com.elster.jupiter.yellowfin;
 
 import com.elster.jupiter.yellowfin.impl.YellowfinReportInfoImpl;
+import com.hof.mi.web.service.ReportRow;
 
 import java.util.List;
 
@@ -16,6 +17,6 @@ public interface YellowfinService {
 
     List<YellowfinReportInfo> getUserReports(String userName, String category, String subCategory,String reportUUId);
     List<YellowfinFilterInfo> getReportFilters(int reportId);
-
+    ReportRow[] getFilterList(String filterId,int reportId);
 
 }
