@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -27,14 +28,12 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.time.Instant;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
@@ -69,6 +68,25 @@ public class DeviceGroupResource {
 
     private EndDeviceGroup fetchDeviceGroup(long id, SecurityContext securityContext) {
         return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    @GET
+    @Path("/{id}/devices")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    public List<DeviceInfo> getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId, @Context SecurityContext securityContext) {
+        EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId, securityContext);
+        List<? extends EndDevice> endDevices = endDeviceGroup.getMembers(Instant.now());
+        if (queryParameters.getLimit() != null) {
+            endDevices =
+                    ListPager.of(endDevices).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+            endDevices = endDevices.subList(0, Math.min(queryParameters.getLimit(), endDevices.size()));
+        }
+        List<DeviceInfo> deviceInfos = new ArrayList<DeviceInfo>();
+        for (EndDevice endDevice : endDevices) {
+            deviceInfos.add(DeviceInfo.from(deviceService.findDeviceById(endDevice.getId())));
+        }
+        return deviceInfos;
     }
 
     @GET
