@@ -44,15 +44,42 @@ public class YellowfinReportInfoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/filter")
-    public FilterInfos getFiltersInfo(@QueryParam("id") int id,
+    public FilterInfos getFiltersInfo(@QueryParam("reportId") int reportId,
                                       @QueryParam("reportUUID") String reportUUID,
                                       @QueryParam("listAll") boolean listAll,
                                       @Context SecurityContext securityContext){
         FilterInfos filterInfos = new FilterInfos();
         User user = (User) securityContext.getUserPrincipal();
 
-        if (id!=0) {
-            filterInfos.addAll(yellowfinService.getReportFilters(id));
+        if (reportId!=0) {
+            filterInfos.addAll(yellowfinService.getReportFilters(reportId));
+        }else {
+            if (reportUUID != null) {
+                ReportInfos reportInfos = new ReportInfos();
+                reportInfos.addAll(yellowfinService.getUserReports(user.getName(), null, null, reportUUID));
+                if (reportInfos.total > 0) {
+                    List<ReportInfo> reportInfo = reportInfos.reports;
+                    filterInfos.addAll(yellowfinService.getReportFilters(reportInfo.get(0).getReportId()));
+                }
+
+            }
+        }
+        return filterInfos;
+
+
+    }
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/filterlistitems")
+    public FilterListItemInfos getFiltersInfo(@QueryParam("reportId") int reportId,
+                                      @QueryParam("reportUUID") String reportUUID,
+                                      @QueryParam("filterId") String filterId,
+                                      @Context SecurityContext securityContext){
+        FilterListItemInfos filterInfos = new FilterListItemInfos();
+        User user = (User) securityContext.getUserPrincipal();
+
+        if (reportId!=0) {
+            filterInfos.addAll(yellowfinService.getFilterListItems(filterId, reportId));
         }else {
             if (reportUUID != null) {
                 ReportInfos reportInfos = new ReportInfos();
@@ -60,7 +87,7 @@ public class YellowfinReportInfoResource {
                 if (reportInfos.total > 0) {
                     List<ReportInfo> reportInfo = new ArrayList<>();
                     reportInfo = reportInfos.reports;
-                    filterInfos.addAll(yellowfinService.getReportFilters(reportInfo.get(0).getReportId()));
+                    filterInfos.addAll(yellowfinService.getFilterListItems(filterId, reportInfo.get(0).getReportId()));
                 }
 
             }

@@ -13,7 +13,8 @@ public class FilterInfo {
     private String filterDisplayType;
     private String filterName;
     private boolean filterOmittable;
-    private String filterDataValues;
+    private String filterDefaultValue1;
+    private String filterDefaultValue2;
     private boolean filterPrompt;
     private boolean filterAllowPrompt;
     private String filterDisplayName;
@@ -28,7 +29,8 @@ public class FilterInfo {
         this.setFilterDisplayType(filterInfo.getFilterDisplayType());
         this.setFilterName(filterInfo.getFilterName());
         this.setFilterOmittable(filterInfo.isFilterOmittable());
-        this.setFilterDataValues(filterInfo.getFilterDataValues());
+        this.setFilterDefaultValue1(filterInfo.getFilterDataValue1());
+        this.setFilterDefaultValue2(filterInfo.getFilterDataValue2());
         this.setFilterPrompt(filterInfo.isFilterPrompt());
         this.setFilterDisplayName(filterInfo.getFilterDisplayName());
         this.setFilterAllowPrompt(filterInfo.isFilterAllowPrompt());
@@ -78,12 +80,20 @@ public class FilterInfo {
         this.filterOmittable = filterOmittable;
     }
 
-    public String getFilterDataValues() {
-        return filterDataValues;
+    public String getFilterDefaultValue1() {
+        return filterDefaultValue1;
     }
 
-    public void setFilterDataValues(String filterDataValues) {
-        this.filterDataValues = filterDataValues;
+    public void setFilterDefaultValue1(String filterDataValue1) {
+        this.filterDefaultValue1 = filterDataValue1;
+    }
+
+    public String getFilterDefaultValue2() {
+        return filterDefaultValue2;
+    }
+
+    public void setFilterDefaultValue2(String filterDataValue2) {
+        this.filterDefaultValue2 = filterDataValue2;
     }
 
 
