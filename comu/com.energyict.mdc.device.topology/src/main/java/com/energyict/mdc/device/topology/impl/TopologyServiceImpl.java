@@ -6,12 +6,14 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.TopologyTimeslice;
+import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -48,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -179,6 +182,78 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     @Override
+    public DeviceTopology getPhysicalTopology(Device root, Range<Instant> period) {
+        return this.buildTopology(root, period, this::findPhysicallyReferencingDevicesFor);
+    }
+
+    private List<ServerTopologyTimeslice> findPhysicallyReferencingDevicesFor(Device device, Range<Instant> period) {
+        Condition condition = this.getDevicesInTopologyInIntervalCondition(device, period);
+        List<PhysicalGatewayReference> gatewayReferences = this.dataModel.mapper(PhysicalGatewayReference.class).select(condition);
+        return this.toTopologyTimeslices(gatewayReferences);
+    }
+
+    private Condition getDevicesInTopologyInIntervalCondition(Device device, Range<Instant> period) {
+        return where("gateway").isEqualTo(device).and(where("interval").isEffective(period));
+    }
+
+    private List<ServerTopologyTimeslice> toTopologyTimeslices(List<PhysicalGatewayReference> gatewayReferences) {
+        return gatewayReferences.stream().map(this::toTopologyTimeslice).collect(Collectors.toList());
+    }
+
+    private ServerTopologyTimeslice toTopologyTimeslice(PhysicalGatewayReference gatewayReference) {
+        return new SimpleTopologyTimesliceImpl(gatewayReference.getOrigin(), gatewayReference.getInterval());
+    }
+
+    private DeviceTopologyImpl buildTopology(Device root, Range<Instant> period, FirstLevelTopologyTimeslicer firstLevelTopologyTimeslicer) {
+        List<ServerTopologyTimeslice> firstLevelTopologyEntries = firstLevelTopologyTimeslicer.firstLevelTopologyTimeslices(root, period);
+        Range<Instant> spanningInterval = this.intervalSpanOf(firstLevelTopologyEntries);
+        DeviceTopologyImpl topology = new DeviceTopologyImpl(root, period.intersection(spanningInterval));
+        for (TopologyTimeslice firstLevelTopologyEntry : firstLevelTopologyEntries) {
+            for (Device device : firstLevelTopologyEntry.getDevices()) {
+                topology.addChild(this.buildTopology(device, period.intersection(firstLevelTopologyEntry.getPeriod()), firstLevelTopologyTimeslicer));
+            }
+        }
+        return topology;
+    }
+
+    private Range<Instant> intervalSpanOf(List<ServerTopologyTimeslice> topologyEntries) {
+        List<Instant> timeslicePeriodEndPoints =
+                topologyEntries
+                        .stream()
+                        .map(TopologyTimeslice::getPeriod)
+                        .flatMap(this::periodEndPoints)
+                        .collect(Collectors.toList());
+        if (timeslicePeriodEndPoints.isEmpty()) {
+            return Range.all();
+        }
+        else {
+            return Range.encloseAll(timeslicePeriodEndPoints);
+        }
+    }
+
+    private Stream<Instant> periodEndPoints (Range<Instant> period) {
+        return Stream.of(this.lowerEndpoint(period), this.upperEndpoint(period));
+    }
+
+    private Instant lowerEndpoint(Range<Instant> period) {
+        if (period.hasLowerBound()) {
+            return period.lowerEndpoint();
+        }
+        else {
+            return Instant.MIN;
+        }
+    }
+
+    private Instant upperEndpoint(Range<Instant> period) {
+        if (period.hasUpperBound()) {
+            return period.upperEndpoint();
+        }
+        else {
+            return Instant.MAX;
+        }
+    }
+
+    @Override
     public List<Channel> getAllChannels(LoadProfile loadProfile) {
         List<Channel> channels = loadProfile.getChannels();
         channels.addAll(
@@ -289,15 +364,6 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         this.slaveTopologyChanged(slave, Optional.empty());
     }
 
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(TopologyService.COMPONENT_NAME, "Device topology");
-        for (TableSpecs tableSpecs : TableSpecs.values()) {
-            tableSpecs.addTo(dataModel);
-        }
-        this.dataModel = dataModel;
-    }
-
     @Override
     public G3CommunicationPath getCommunicationPath(Device source, Device target) {
         G3CommunicationPathImpl communicationPath = new G3CommunicationPathImpl(source, target);
@@ -346,6 +412,26 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     @Override
+    public TopologyTimeline getPysicalTopologyTimeline(Device device) {
+        return TopologyTimelineImpl.merge(this.findPhysicallyReferencingDevicesFor(device, Range.all()));
+    }
+
+    @Override
+    public TopologyTimeline getPhysicalTopologyTimelineAdditions(Device device, int maximumNumberOfAdditions) {
+        return TopologyTimelineImpl.merge(this.findRecentPhysicallyReferencingDevicesFor(device, maximumNumberOfAdditions));
+    }
+
+    private List<ServerTopologyTimeslice> findRecentPhysicallyReferencingDevicesFor(Device device, int maxRecentCount) {
+        Condition condition = this.getDevicesInTopologyCondition(device);
+        Order[] ordering = new Order[]{Order.descending("interval.start")};
+        List<PhysicalGatewayReference> gatewayReferences =
+                this.dataModel
+                        .query(PhysicalGatewayReference.class)
+                        .select(condition, ordering, false, new String[0], 1, maxRecentCount);
+        return this.toTopologyTimeslices(gatewayReferences);
+    }
+
+    @Override
     public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, Device device, Interval interval) {
         if (CommunicationErrorType.CONNECTION_SETUP_FAILURE.equals(errorType)) {
             /* Slaves always setup the connection via the master.
@@ -356,7 +442,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         }
         else {
             int numberOfDevices = 0;
-            List<TopologyTimeslice> communicationTopologies = device.getCommunicationTopology(interval.toClosedRange()).timelined().getSlices();
+            List<TopologyTimeslice> communicationTopologies = this.getPhysicalTopology(device, interval.toClosedRange()).timelined().getSlices();
             for (TopologyTimeslice topologyTimeslice : communicationTopologies) {
                 List<Device> devices = new ArrayList<>(topologyTimeslice.getDevices());
                 devices.add(device);
@@ -406,6 +492,15 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     @Reference
+    public void setOrmService(OrmService ormService) {
+        DataModel dataModel = ormService.newDataModel(TopologyService.COMPONENT_NAME, "Device topology");
+        for (TableSpecs tableSpecs : TableSpecs.values()) {
+            tableSpecs.addTo(dataModel);
+        }
+        this.dataModel = dataModel;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(TopologyService.COMPONENT_NAME, Layer.DOMAIN);
     }
@@ -423,6 +518,10 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    private interface FirstLevelTopologyTimeslicer {
+        List<ServerTopologyTimeslice> firstLevelTopologyTimeslices(Device device, Range<Instant> period);
     }
 
 }

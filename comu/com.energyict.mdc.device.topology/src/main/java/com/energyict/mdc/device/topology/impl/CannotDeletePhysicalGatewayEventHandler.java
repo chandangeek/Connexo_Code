@@ -41,7 +41,7 @@ public class CannotDeletePhysicalGatewayEventHandler implements TopicHandler {
     private void validateGatewayUsage(Device gateway) {
         List<Device> physicalConnectedDevices = this.topologyService.findPhysicalConnectedDevices(gateway);
         if (!physicalConnectedDevices.isEmpty()) {
-            throw StillGatewayException.forPhysicalGateway(this.thesaurus, gateway, physicalConnectedDevices.toArray(new Device[physicalConnectedDevices.size()]));
+            throw StillGatewayException.forPhysicalGateway(this.thesaurus, gateway, MessageSeeds.DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY, physicalConnectedDevices.toArray(new Device[physicalConnectedDevices.size()]));
         }
     }
 

@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.TopologyTimeline;
-import com.energyict.mdc.device.data.TopologyTimeslice;
+import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
@@ -141,20 +141,6 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void createWithSamePhysicalAndCommunicationGatewayTest() {
-        Device gatewayForBoth = createSimpleDeviceWithName("GatewayForBoth");
-        Device device = getDeviceService().newDevice(deviceConfiguration, "Origin", MRID);
-
-        // Business methods
-        this.getTopologyService().setPhysicalGateway(device, gatewayForBoth);
-        device.setCommunicationGateway(gatewayForBoth);
-
-        assertThat(this.getTopologyService().getPhysicalGateway(device).isPresent()).isTrue();
-        assertThat(this.getTopologyService().getPhysicalGateway(device).get().getId()).isEqualTo(device.getCommunicationGateway().getId()).isEqualTo(gatewayForBoth.getId());
-    }
-
-    @Test
-    @Transactional
     public void getDefaultPhysicalGatewayNullTest() {
         Device simpleDevice = createSimpleDevice();
 
@@ -287,7 +273,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         slave5.save();
         topologyService.setPhysicalGateway(slave5, gateway);
 
-        TopologyTimeline timeline = inMemoryPersistence.getDeviceService().getPhysicalTopologyTimelineAdditions(gateway, 3);
+        TopologyTimeline timeline = inMemoryPersistence.getTopologyService().getPhysicalTopologyTimelineAdditions(gateway, 3);
         List<TopologyTimeslice> timeslices = timeline.getSlices();
         assertThat(timeslices).hasSize(1);
         TopologyTimeslice topologyTimeslice = timeslices.get(0);
@@ -296,7 +282,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Set<String> deviceNames = devicesInTimeslice.stream().map(Device::getName).collect(Collectors.toSet());
         assertThat(deviceNames).containsOnly("slave5", "slave4", "slave3");
 
-        timeslices = inMemoryPersistence.getDeviceService().getPhysicalTopologyTimelineAdditions(gateway, 20).getSlices();
+        timeslices = inMemoryPersistence.getTopologyService().getPhysicalTopologyTimelineAdditions(gateway, 20).getSlices();
         assertThat(timeslices).hasSize(1);
         topologyTimeslice = timeslices.get(0);
         assertThat(topologyTimeslice.getDevices()).hasSize(5);

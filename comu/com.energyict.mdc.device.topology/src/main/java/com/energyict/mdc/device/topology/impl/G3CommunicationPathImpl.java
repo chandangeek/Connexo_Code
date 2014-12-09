@@ -9,7 +9,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link CommunicationPath} interface.
@@ -43,9 +46,13 @@ public class G3CommunicationPathImpl extends CommunicationPathImpl implements G3
     public List<Device> getIntermediateDevices() {
         return this.segments
                 .stream()
-                .filter(s -> s.getNextHopDevice() != null)
                 .map(G3CommunicationPathSegment::getNextHopDevice)
+                .flatMap(this.optionalToStream())
                 .collect(Collectors.toList());
+    }
+
+    private <T> Function<Optional<T>, Stream<T>> optionalToStream () {
+        return op -> op.map(Stream::of).orElseGet(Stream::empty);
     }
 
 }

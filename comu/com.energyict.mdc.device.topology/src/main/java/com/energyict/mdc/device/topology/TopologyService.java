@@ -5,9 +5,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
 
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -53,22 +53,35 @@ public interface TopologyService {
     public List<Device> findPhysicalConnectedDevices(Device device);
 
     /**
-     * Finds the default {@link ConnectionTask} for the specified Device.
-     * The search will start at the Device but if none is found there,
-     * it will continue to the gateway level (if the Device has a gateway of course).
+     * Gets the {@link DeviceTopology physical topology} for this Device
+     * during the specified Interval, organized (or sorted) along the timeline.
      *
-     * @param device The Device for which we need to search the default ConnectionTask
-     * @return The default ConnectionTask for the given Device if one exists
+     * @param root The Device for which the physical topology should be built
+     * @param period The period in time during which the devices were physically linked to this Device
+     * @return The DeviceTopology
      */
-    public Optional<ConnectionTask> findDefaultConnectionTaskForTopology(Device device);
+    public DeviceTopology getPhysicalTopology(Device root, Range<Instant> period);
 
     /**
-     * Gets the {@link Device}'s {@link Channel}s AND the Channels of all
-     * <i>physical</i> slave devices belonging to {@link LoadProfile}s of the same type.
+     * Gets the {@link TopologyTimeline} of the devices that are
+     * directly physically connected to the specified gateway.
      *
-     * @return a <CODE>List</CODE> of <CODE>Channel</CODE> objects
+     * @param device The gateway
+     * @return The TopologyTimeline
+     * @see #getPhysicalGateway(Device)
      */
-    public List<Channel> getAllChannels(LoadProfile loadProfile);
+    public TopologyTimeline getPysicalTopologyTimeline(Device device);
+
+    /**
+     * Gets the most recent additions to the {@link TopologyTimeline}
+     * of the devices that are directly physically connected to the specified gateway.
+     *
+     * @param device The gateway
+     * @param maximumNumberOfAdditions The maximum number of additions to the timeline
+     * @return The TopologyTimeline
+     * @see #getPhysicalGateway(Device)
+     */
+    public TopologyTimeline getPhysicalTopologyTimelineAdditions(Device device, int maximumNumberOfAdditions);
 
     /**
      * Gets the {@link G3CommunicationPath} that was used to communication
@@ -92,5 +105,23 @@ public interface TopologyService {
      * @return The number of communication errors
      */
     public int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType errorType, Device device, Interval interval);
+
+    /**
+     * Gets the {@link Device}'s {@link Channel}s AND the Channels of all
+     * <i>physical</i> slave devices belonging to {@link LoadProfile}s of the same type.
+     *
+     * @return a <CODE>List</CODE> of <CODE>Channel</CODE> objects
+     */
+    public List<Channel> getAllChannels(LoadProfile loadProfile);
+
+    /**
+     * Finds the default {@link ConnectionTask} for the specified Device.
+     * The search will start at the Device but if none is found there,
+     * it will continue to the gateway level (if the Device has a gateway of course).
+     *
+     * @param device The Device for which we need to search the default ConnectionTask
+     * @return The default ConnectionTask for the given Device if one exists
+     */
+    public Optional<ConnectionTask> findDefaultConnectionTaskForTopology(Device device);
 
 }
