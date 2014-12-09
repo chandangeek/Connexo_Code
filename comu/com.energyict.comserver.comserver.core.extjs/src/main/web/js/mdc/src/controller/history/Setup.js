@@ -1116,61 +1116,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                         return this;
                                     },
                                     items: {
-                                        channels: {
-                                            title: Uni.I18n.translate('routing.channels', 'MDC', 'Channels'),
-                                            route: 'channels',
-                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannels',
-                                            privileges: ['privilege.administrate.device','privilege.view.device'],
-                                            action: 'showOverview',
-                                            items: {
-                                                channel: {
-                                                    title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
-                                                    route: '{channelId}',
-                                                    controller: 'Mdc.controller.setup.DeviceLoadProfileChannelOverview',
-                                                    privileges: ['privilege.administrate.device','privilege.view.device'],
-                                                    action: 'showOverview',
-                                                    callback: function (route) {
-                                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
-                                                            route.setTitle(record.get('name'));
-                                                            return true;
-                                                        }, {single: true});
-                                                        return this;
-                                                    },
-                                                    items: {
-                                                        data: {
-                                                            title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                                            route: 'graph',
-                                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
-                                                            privileges: ['privilege.administrate.device','privilege.view.device'],
-                                                            action: 'showGraphOverview',
-                                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
-                                                        },
-                                                        tableData: {
-                                                            title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
-                                                            route: 'table',
-                                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
-                                                            privileges: ['privilege.administrate.device','privilege.view.device'],
-                                                            action: 'showTableOverview',
-                                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
-                                                            items: {
-                                                                editreadings: {
-                                                                    title: Uni.I18n.translate('routing.editReadings', 'MDC', 'Edit readings'),
-                                                                    route: 'editreadings',
-                                                                    controller: 'Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings',
-                                                                    privileges: ['privilege.administrate.device'],
-                                                                    action: 'showOverview',
-                                                                    filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
-                                                                }
-                                                            }
-                                                        },
-                                                        validation: {
-                                                            title: Uni.I18n.translate('routing.channelValidation', 'MDC', 'Channel validation'),
-                                                            route: 'validation'
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
                                         data: {
                                             title: 'Load profile data',
                                             route: 'graph',
@@ -1189,6 +1134,61 @@ Ext.define('Mdc.controller.history.Setup', {
                                         },
                                         validation: {
                                             title: 'Load profile validation',
+                                            route: 'validation'
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        channels: {
+                            title: Uni.I18n.translate('routing.channels', 'MDC', 'Channels'),
+                            route: 'channels',
+                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannels',
+                            privileges: ['privilege.administrate.device','privilege.view.device'],
+                            action: 'showOverview',
+                            items: {
+                                channel: {
+                                    title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
+                                    route: '{channelId}',
+                                    controller: 'Mdc.controller.setup.DeviceLoadProfileChannelOverview',
+                                    privileges: ['privilege.administrate.device','privilege.view.device'],
+                                    action: 'showOverview',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
+                                            route.setTitle(record.get('name'));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    },
+                                    items: {
+                                        data: {
+                                            title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
+                                            route: 'graph',
+                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
+                                            privileges: ['privilege.administrate.device','privilege.view.device'],
+                                            action: 'showGraphOverview',
+                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
+                                        },
+                                        tableData: {
+                                            title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
+                                            route: 'table',
+                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
+                                            privileges: ['privilege.administrate.device','privilege.view.device'],
+                                            action: 'showTableOverview',
+                                            filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
+                                            items: {
+                                                editreadings: {
+                                                    title: Uni.I18n.translate('routing.editReadings', 'MDC', 'Edit readings'),
+                                                    route: 'editreadings',
+                                                    controller: 'Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings',
+                                                    privileges: ['privilege.administrate.device'],
+                                                    action: 'showOverview',
+                                                    filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
+                                                }
+                                            }
+                                        },
+                                        validation: {
+                                            title: Uni.I18n.translate('routing.channelValidation', 'MDC', 'Channel validation'),
                                             route: 'validation'
                                         }
                                     }

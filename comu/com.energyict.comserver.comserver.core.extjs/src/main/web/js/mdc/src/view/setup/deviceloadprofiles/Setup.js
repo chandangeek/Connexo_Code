@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
     itemId: 'deviceLoadProfilesSetup',
 
     router: null,
-
+    device: null,
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.device.DeviceMenu',

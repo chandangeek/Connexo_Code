@@ -17,6 +17,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         {name: 'lastReading', dateFormat: 'time', type: 'date'},
         {name: 'lastChecked', dateFormat: 'time', type: 'date'},
         {name: 'validationInfo', type: 'auto'},
+        {name: 'loadProfileId', type: 'auto'},
         {
             name: 'validationInfo_validationActive',
             persist: false,
@@ -76,13 +77,13 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/loadprofiles/{loadProfileId}/channels',
+        urlTpl: '/api/ddr/devices/{mRID}/channels',
         reader: {
             type: 'json'
         },
 
         setUrl: function (params) {
-            this.url = this.urlTpl.replace('{mRID}', params.mRID).replace('{loadProfileId}', params.loadProfileId);
+            this.url = this.urlTpl.replace('{mRID}', params.mRID);
         }
     }
 });

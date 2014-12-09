@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Preview', {
     ],
     layout: 'fit',
     frame: true,
-
+    device: null,
     router: null,
 
     tools: [
@@ -29,7 +29,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Preview', {
 
         me.items = {
             xtype: 'deviceLoadProfileChannelsPreviewForm',
-            router: me.router
+            router: me.router,
+            device: me.device
         };
 
         me.callParent(arguments);

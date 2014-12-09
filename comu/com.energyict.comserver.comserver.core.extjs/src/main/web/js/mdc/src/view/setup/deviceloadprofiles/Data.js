@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
     alias: 'widget.deviceLoadProfilesData',
     itemId: 'deviceLoadProfilesData',
     requires: [
-        'Mdc.view.setup.deviceloadprofiles.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofiles.TableView',
         'Mdc.view.setup.deviceloadprofiles.GraphView',
         'Mdc.view.setup.deviceloadprofiles.SideFilter'
@@ -76,8 +75,10 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
             ui: 'medium',
             items: [
                 {
-                    xtype: 'deviceLoadProfilesSubMenuPanel',
-                    router: me.router
+                    xtype: 'deviceMenu',
+                    itemId: 'stepsMenu',
+                    device: me.device,
+                    toggleId: 'loadProfilesLink'
                 },
                 {
                     xtype: 'deviceLoadProfileDataSideFilter'

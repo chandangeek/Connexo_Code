@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
     alias: 'widget.deviceLoadProfileChannelData',
     itemId: 'deviceLoadProfileChannelData',
     requires: [
-        'Mdc.view.setup.deviceloadprofilechannels.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofilechannels.TableView',
         'Mdc.view.setup.deviceloadprofilechannels.GraphView',
         'Mdc.view.setup.deviceloadprofilechannels.SideFilter',
@@ -66,8 +65,18 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
             ui: 'medium',
             items: [
                 {
-                    xtype: 'deviceLoadProfileChannelSubMenuPanel',
-                    router: me.router
+                    xtype: 'panel',
+                    title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
+                    ui: 'medium',
+                    items: [
+                        {
+                            xtype: 'deviceMenu',
+                            itemId: 'stepsMenu',
+                            device: me.device,
+                            toggleId: 'channelsLink',
+                            mRID: me.mRID
+                        }
+                    ]
                 },
                 {
                     xtype: 'deviceLoadProfileChannelDataSideFilter'

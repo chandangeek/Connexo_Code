@@ -3,21 +3,14 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Overview', {
     alias: 'widget.deviceLoadProfilesOverview',
     itemId: 'deviceLoadProfilesOverview',
     requires: [
-        'Mdc.view.setup.deviceloadprofiles.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofiles.PreviewForm',
         'Mdc.view.setup.deviceloadprofiles.ActionMenu'
     ],
-
+    device: null,
     mRID: null,
     router: null,
-
-    side: {
-        xtype: 'deviceLoadProfilesSubMenuPanel'
-    },
-
     initComponent: function () {
         var me = this;
-
         me.content = [
             {
                 xtype: 'container',
@@ -48,8 +41,16 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Overview', {
         ];
 
         me.side = {
-            xtype: 'deviceLoadProfilesSubMenuPanel',
-            router: me.router
+            xtype: 'panel',
+            ui: 'medium',
+            items: [
+                {
+                    xtype: 'deviceMenu',
+                    itemId: 'stepsMenu',
+                    device: me.device,
+                    toggleId: 'loadProfilesLink'
+                }
+            ]
         };
 
         me.callParent(arguments);

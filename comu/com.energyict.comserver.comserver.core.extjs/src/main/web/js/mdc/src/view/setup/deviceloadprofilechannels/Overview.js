@@ -4,13 +4,12 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
     itemId: 'deviceLoadProfileChannelOverview',
 
     requires: [
-        'Mdc.view.setup.deviceloadprofilechannels.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofilechannels.ValidationOverview',
         'Mdc.view.setup.deviceloadprofilechannels.ActionMenu'
     ],
 
     router: null,
-
+    device: null,
     initComponent: function () {
         var me = this;
 
@@ -117,9 +116,17 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
         ];
 
         me.side = {
-            xtype: 'deviceLoadProfileChannelSubMenuPanel',
-            router: me.router
-        };
+            xtype: 'panel',
+            ui: 'medium',
+            items: [
+                {
+                    xtype: 'deviceMenu',
+                    itemId: 'stepsMenu',
+                    device: me.device,
+                    toggleId: 'channelsLink'
+                }
+            ]
+        }
 
         me.callParent(arguments);
     }

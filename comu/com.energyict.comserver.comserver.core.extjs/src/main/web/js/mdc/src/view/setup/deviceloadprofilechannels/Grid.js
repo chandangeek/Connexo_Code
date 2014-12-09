@@ -13,7 +13,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Grid', {
 
     mRID: null,
     router: null,
-    loadProfileId: null,
 
     initComponent: function () {
         var me = this;
@@ -24,7 +23,17 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Grid', {
                 flex: 2,
                 showTimeAttribute: false,
                 makeLink: function (record) {
-                    return me.router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data').buildUrl({mRID: me.mRID, loadProfileId: me.loadProfileId, channelId: record.getId()});
+                    return me.router.getRoute('devices/device/channels/channel/data').buildUrl({mRID: me.mRID, channelId: record.getId()});
+                }
+            },
+            {
+                dataIndex: 'interval',
+                flex: 1,
+                header: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval'),
+                renderer: function (value) {
+                    var res = '';
+                    value ? res = '{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit) : null;
+                    return res
                 }
             },
             {

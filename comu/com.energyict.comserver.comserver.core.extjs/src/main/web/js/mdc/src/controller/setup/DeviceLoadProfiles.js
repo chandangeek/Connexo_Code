@@ -6,7 +6,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
     ],
 
     requires: [
-        'Mdc.store.TimeUnits'
+        'Mdc.store.TimeUnits',
+        'Mdc.view.setup.deviceloadprofiles.DataValidationContent'
     ],
 
     models: [
@@ -112,16 +113,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         routeParams.loadProfileId = menu.record.getId();
 
         switch (item.action) {
-            case 'viewChannels':
-                route = 'devices/device/loadprofiles/loadprofile/channels';
-                break;
-            case 'viewData':
-                filterParams.onlySuspect = false;
-                route = 'devices/device/loadprofiles/loadprofile/tableData';
-                break;
-            case 'viewDetails':
-                route = 'devices/device/loadprofiles/loadprofile';
-                break;
             case 'validateNow':
                 me.showValidateNowMessage(menu.record);
                 break;
@@ -180,39 +171,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
 
     getValidationContent: function () {
         var me = this;
-        return Ext.create('Ext.container.Container', {
-            defaults: {
-                labelAlign: 'left',
-                labelStyle: 'font-weight: normal; padding-left: 50px'
-            },
-            items: [
-                {
-                    xtype: 'datefield',
-                    itemId: 'validateLoadProfileFromDate',
-                    editable: false,
-                    showToday: false,
-                    value: me.dataValidationLastChecked,
-                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item1', 'MDC', 'The data of load profile will be validated starting from'),
-                    labelWidth: 375,
-                    labelPad: 0.5
-                },
-                {
-                    xtype: 'panel',
-                    itemId: 'validateLoadProfileDateErrors',
-                    hidden: true,
-                    bodyStyle: {
-                        color: '#eb5642',
-                        padding: '0 0 15px 65px'
-                    },
-                    html: ''
-                },
-                {
-                    xtype: 'displayfield',
-                    value: '',
-                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item2', 'MDC', 'Note: The date displayed by default is the last checked (the moment when the last interval was checked in the validation process).'),
-                    labelWidth: 500
-                }
-            ]
+        return Ext.create('Mdc.view.setup.deviceloadprofiles.DataValidationContent', {
+            dataValidationLastChecked: me.dataValidationLastChecked
         });
     },
 

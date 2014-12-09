@@ -8,7 +8,7 @@ Ext.define('Mdc.store.ChannelOfLoadProfileOfDeviceData', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/loadprofiles/{loadProfileId}/channels/{channelId}/data',
+        urlTpl: '/api/ddr/devices/{mRID}/channels/{channelId}/data',
         reader: {
             type: 'json',
             root: 'data'
@@ -20,7 +20,7 @@ Ext.define('Mdc.store.ChannelOfLoadProfileOfDeviceData', {
         limitParam: false,
 
         setUrl: function (params) {
-            this.url = this.urlTpl.replace('{mRID}', params.mRID).replace('{loadProfileId}', params.loadProfileId).replace('{channelId}', params.channelId);
+            this.url = this.urlTpl.replace('{mRID}', params.mRID).replace('{channelId}', params.channelId);
         }
     },
     setFilterModel: function (model) {

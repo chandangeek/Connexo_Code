@@ -44,43 +44,28 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
         });
     },
 
-    showOverview: function (mRID, loadProfileId) {
+    showOverview: function (mRID) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
-            loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             channelsOfLoadProfilesOfDeviceStore = me.getStore('Mdc.store.ChannelsOfLoadProfilesOfDevice'),
             timeUnitsStore = me.getStore('TimeUnits'),
             widget,
             showPage = function () {
-                channelsOfLoadProfilesOfDeviceStore.getProxy().setUrl({
-                    mRID: mRID,
-                    loadProfileId: loadProfileId
-                });
+                channelsOfLoadProfilesOfDeviceStore.getProxy().setUrl(mRID);
                 channelsOfLoadProfilesOfDeviceStore.load();
-                widget = Ext.widget('deviceLoadProfileChannelsSetup', {
-                    mRID: mRID,
-                    loadProfileId: loadProfileId,
-                    router: me.getController('Uni.controller.history.Router')
-                });
-                me.getApplication().fireEvent('changecontentevent', widget);
                 deviceModel.load(mRID, {
                     success: function (record) {
                         me.getApplication().fireEvent('loadDevice', record);
-                    }
-                });
-                loadProfileOfDeviceModel.getProxy().setUrl(mRID);
-                loadProfileOfDeviceModel.load(loadProfileId, {
-                    success: function (record) {
-                        if (!widget.isDestroyed) {
-                            me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-                            widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
-                            widget.down('#deviceLoadProfileChannelsIntervalAndLastReading').loadRecord(record);
-                        }
+                        widget = Ext.widget('deviceLoadProfileChannelsSetup', {
+                            mRID: mRID,
+                            router: me.getController('Uni.controller.history.Router'),
+                            device: record
+                        });
+                        me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
             };
         me.mRID = mRID;
-        me.loadProfileId = loadProfileId;
         timeUnitsStore.load({
             callback: function () {
                 showPage();
@@ -109,13 +94,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
             filterParams = {};
 
         switch (item.action) {
-            case 'viewData':
-                route = 'devices/device/loadprofiles/loadprofile/channels/channel/tableData';
-                break;
-            case 'viewDetails':
-                filterParams.onlySuspect = false;
-                route = 'devices/device/loadprofiles/loadprofile/channels/channel';
-                break;
             case 'validateNow':
                 me.showValidateNowMessage(menu.record);
                 break;

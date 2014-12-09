@@ -31,6 +31,15 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 hrefTarget: '_self'
             });
         }
+        if (this.device.get('hasLoadProfiles')) {
+            this.add({
+                text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device']),
+                itemId: 'channelsLink',
+                href: '#/devices/' + mRID + '/channels',
+                hrefTarget: '_self'
+            });
+        }
         if (this.device.get('hasLogBooks')) {
             this.add({
                 text: Uni.I18n.translate('devicemenu.logbooks', 'MDC', 'Logbooks'),
