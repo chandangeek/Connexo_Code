@@ -2,9 +2,9 @@ package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.MessageSeeds;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -12,8 +12,6 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public abstract class AbstractEndDeviceGroup extends AbstractGroup implements EndDeviceGroup {
 
