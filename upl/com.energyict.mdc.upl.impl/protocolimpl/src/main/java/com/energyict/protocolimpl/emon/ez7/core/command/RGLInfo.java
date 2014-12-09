@@ -82,8 +82,7 @@ public class RGLInfo extends AbstractCommand {
 
     protected String extractIdentificationNumber(List values) {
         if (values.get(2).equals("0000") &&
-                values.get(3).equals("0000") &&
-                values.get(4).equals("0000")) {
+                values.get(3).equals("0000")) {
             // Numerical identification - e.g.: 0000 0000 0000 2300 1234 5678 is for "230012345678"
             return (String) values.get(5) + (String) values.get(6) + (String) values.get(7);
         } else {

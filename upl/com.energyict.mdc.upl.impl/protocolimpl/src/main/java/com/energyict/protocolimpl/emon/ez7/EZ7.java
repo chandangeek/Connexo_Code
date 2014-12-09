@@ -58,6 +58,9 @@ public class EZ7 extends AbstractProtocol {
     public EZ7() {
     }
 
+    /**
+     * The protocol version
+     */
     public String getProtocolVersion() {
         return "$Date$";
     }
