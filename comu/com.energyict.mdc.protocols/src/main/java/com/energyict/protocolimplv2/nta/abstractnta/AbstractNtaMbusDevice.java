@@ -2,14 +2,17 @@ package com.energyict.protocolimplv2.nta.abstractnta;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -280,4 +283,37 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
         throw new UnsupportedMethodException(this.getClass(), "getDeviceTopology");
     }
 
+
+
+    @Override
+    public void copyProperties(TypedProperties properties) {
+
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return null;
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String s) {
+        return null;
+    }
+
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+
+    }
 }

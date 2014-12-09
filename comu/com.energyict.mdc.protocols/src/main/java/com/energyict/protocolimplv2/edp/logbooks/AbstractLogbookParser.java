@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.edp.logbooks;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.protocolimplv2.edp.CX20009;
 
 import java.io.IOException;

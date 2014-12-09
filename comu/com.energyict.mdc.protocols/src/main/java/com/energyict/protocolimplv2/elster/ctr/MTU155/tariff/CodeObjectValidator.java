@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeCalendarObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeDayTypeDefObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeDayTypeObject;
@@ -35,8 +35,12 @@ public class CodeObjectValidator {
     public static final int MAX_START_YEAR = 2099;
 
     public static void validateCodeTable(int codeTableId) throws IOException, BusinessException {
-        Code code = MeteringWarehouse.getCurrent().getCodeFactory().find(codeTableId);
+        Code code = getCode(codeTableId);
         validateCodeTable(code);
+    }
+
+    private static Code getCode(int codeTableId) throws UnsupportedException {
+        throw new UnsupportedException("CodeTables are not supported yet in Connexo");
     }
 
     private static void validateCodeTable(Code code) throws IOException, BusinessException {
@@ -259,7 +263,7 @@ public class CodeObjectValidator {
     }
 
     public static void main(String[] args) throws BusinessException, IOException {
-        MeteringWarehouse.createBatchContext();
+//        MeteringWarehouse.createBatchContext();
         validateCodeTable(1);
     }
 

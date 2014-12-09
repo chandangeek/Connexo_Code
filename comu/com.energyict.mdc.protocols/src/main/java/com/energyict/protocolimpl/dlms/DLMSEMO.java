@@ -1,3 +1,24 @@
+package com.energyict.protocolimpl.dlms;
+
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Properties;
+
 /**
  * @version  2.0
  * @author   Koenraad Vanderschaeve
@@ -11,27 +32,6 @@ KV|23032005|Changed header to be compatible with protocol version tool
 KV|31032005|Handle DataContainerException
  *  @endchanges
  */
-package com.energyict.protocolimpl.dlms;
-
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.protocols.util.ProtocolUtils;
-
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Properties;
-
 public class DLMSEMO extends DLMSSN {
 
     private static final byte DEBUG=0;

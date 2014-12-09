@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.edp;
 
 import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.cbo.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 

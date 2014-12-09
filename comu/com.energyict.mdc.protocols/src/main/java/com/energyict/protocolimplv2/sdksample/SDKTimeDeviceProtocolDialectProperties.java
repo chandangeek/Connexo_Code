@@ -22,6 +22,10 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
 
     public static final String clockOffsetToReadPropertyName = "ClockOffsetWhenWriting";
 
+    public SDKTimeDeviceProtocolDialectProperties() {
+        super(propertySpecService);
+    }
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.SDK_SAMPLE_TIME_DEVICE_PROTOCOL_DIALECT_NAME.getName();

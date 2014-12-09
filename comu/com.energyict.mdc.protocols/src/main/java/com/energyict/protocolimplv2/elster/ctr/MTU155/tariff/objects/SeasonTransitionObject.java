@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdw.core.SeasonTransition;
+import com.energyict.mdc.protocol.api.codetables.SeasonTransition;
 
 import java.io.Serializable;
 import java.util.Calendar;

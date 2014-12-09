@@ -1,7 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.csd;
 
-import com.energyict.dialer.core.*;
-import com.energyict.dialer.coreimpl.ModemConnection;
+import com.energyict.dialer.core.impl.DialerCarrierException;
+import com.energyict.dialer.core.impl.ModemConnection;
+import com.energyict.mdc.protocol.api.dialer.core.DialerException;
+import com.energyict.mdc.protocol.api.dialer.core.Link;
+import com.energyict.mdc.protocol.api.dialer.core.LinkException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 
 import java.io.IOException;
 
@@ -13,7 +17,7 @@ import java.io.IOException;
  */
 
 
-public class CSDCall extends ModemConnection{
+public class CSDCall extends ModemConnection {
 
 	private SerialCommunicationChannel serialCommChannel;
 	private Link link;

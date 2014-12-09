@@ -1,9 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 

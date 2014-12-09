@@ -31,6 +31,10 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public static final String SEND_END_OF_SESSION_PROPERTY_NAME = "SendEndOfSession";
     public static final String MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME = "MaxAllowedInvalidProfileResponses";
 
+    public CTRDeviceProtocolDialect() {
+        super(propertySpecService);
+    }
+
 
     @Override
     public String getDeviceProtocolDialectName() {

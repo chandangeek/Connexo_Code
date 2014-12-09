@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.nta.elster;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
+
 /**
  * The AM100 implementation of the NTA spec
  *

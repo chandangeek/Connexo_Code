@@ -1,5 +1,6 @@
 package com.energyict.dlms.protocolimplv2;
 
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -13,7 +14,7 @@ import java.util.TimeZone;
  * Date: 8/02/12
  * Time: 15:08
  */
-public interface DlmsSessionProperties extends CommunicationSessionProperties {
+public interface DlmsSessionProperties extends HasDynamicProperties, CommunicationSessionProperties {
 
     /**
      * The device timezone

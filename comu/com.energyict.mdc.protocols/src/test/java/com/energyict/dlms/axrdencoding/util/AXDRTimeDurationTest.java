@@ -20,7 +20,7 @@ import com.energyict.dlms.axrdencoding.Structure;
  */
 public class AXDRTimeDurationTest {
 
-	private static final TimeDuration	TIMEDURATION	= new TimeDuration(3600, TimeDuration.SECONDS);
+	private static final TimeDuration	TIMEDURATION	= new TimeDuration(3600, TimeDuration.TimeUnit.SECONDS);
 	private static final Structure STRUCTURE = new Structure();
 
 	static {

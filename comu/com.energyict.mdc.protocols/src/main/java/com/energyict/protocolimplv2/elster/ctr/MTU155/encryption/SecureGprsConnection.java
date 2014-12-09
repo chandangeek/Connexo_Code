@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
-import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsConnection;

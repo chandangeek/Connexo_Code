@@ -3,11 +3,11 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.mdc.protocol.api.impl.device.messages.LoadProfileMessage;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.getId());
     }
 
     @Override

@@ -23,6 +23,10 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
      */
     public final String doSomeThingPropertyName = "DoSomeThing";
 
+    public SDKStandardDeviceProtocolDialectProperties() {
+        super(propertySpecService);
+    }
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.SDK_SAMPLE_STANDARD_DEVICE_PROTOCOL_DIALECT_NAME.getName();

@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.dialer.core.Link;
-import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.SecureSmsConnection;

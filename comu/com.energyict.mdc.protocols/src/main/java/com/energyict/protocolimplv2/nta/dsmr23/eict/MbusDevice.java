@@ -43,13 +43,4 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>(0);
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>(0);
-    }
 }

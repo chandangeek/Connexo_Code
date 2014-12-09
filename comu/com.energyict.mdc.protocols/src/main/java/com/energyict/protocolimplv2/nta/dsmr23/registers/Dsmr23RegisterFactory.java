@@ -22,18 +22,22 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -115,14 +119,16 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                                 new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
                                         su.getEisUnit()), eventTime);
                     } else {
-                        this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit.");
+                        this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getDeviceSerialNumber() + "] does not provide a proper Unit.");
                     }
                 } else if (this.registerMap.containsKey(register)) {
                     rv = convertCustomAbstractObjectsToRegisterValues(register, registerComposedCosemObject.getAttribute(this.registerMap.get(register)));
                 }
 
                 if (rv != null) {
-                    CollectedRegister deviceRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
+                    CollectedRegister deviceRegister = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory()
+                            .createMaximumDemandCollectedRegister(getRegisterIdentifier(register),
+                                    Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
                     deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
                     deviceRegister.setCollectedTimeStamps(rv.getReadTime(), rv.getFromTime(), rv.getToTime(), rv.getEventTime());
                     collectedRegisters.add(deviceRegister);
@@ -157,10 +163,10 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         List<OfflineRegister> validRegisters = new ArrayList<>();
 
         for (OfflineRegister register : registers) {
-            if (protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) != -1) {
+            if (protocol.getPhysicalAddressFromSerialNumber(register.getDeviceSerialNumber()) != -1) {
                 validRegisters.add(register);
             } else {
-                protocol.getLogger().severe("Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
+                protocol.getLogger().severe("Register " + register + " is not supported because MbusDevice " + register.getDeviceSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validRegisters;
@@ -168,7 +174,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     /**
      * Construct a ComposedCosemObject from a list of <CODE>Registers</CODE>.
-     * If the {@link com.energyict.protocol.Register} is a DLMS {@link com.energyict.dlms.cosem.Register} or {@link com.energyict.dlms.cosem.ExtendedRegister},
+     * If the Register is a DLMS {@link com.energyict.dlms.cosem.Register} or {@link com.energyict.dlms.cosem.ExtendedRegister},
      * and the ObisCode is listed in the ObjectList(see {@link com.energyict.dlms.DLMSMeterConfig#getInstance(String)}, then we define a ComposedRegister and add
      * it to the {@link #composedRegisterMap}. Otherwise if it is not a DLMS <CODE>Register</CODE> or <CODE>ExtendedRegister</CODE>, but the ObisCode exists in the
      * ObjectList, then we just add it to the {@link #registerMap}. The handling of the <CODE>registerMap</CODE> should be done by the {@link #readRegisters(java.util.List)}
@@ -265,7 +271,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     public ObisCode getCorrectedRegisterObisCode(OfflineRegister register) {
-        return this.protocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getSerialNumber());
+        return this.protocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getDeviceSerialNumber());
     }
 
     /**
@@ -358,11 +364,12 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
-        return new RegisterIdentifierById(offlineRtuRegister.getRegisterId(), offlineRtuRegister.getObisCode());
+        return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), offlineRtuRegister.getObisCode(), offlineRtuRegister.getDeviceIdentifier());
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register),
+                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else {

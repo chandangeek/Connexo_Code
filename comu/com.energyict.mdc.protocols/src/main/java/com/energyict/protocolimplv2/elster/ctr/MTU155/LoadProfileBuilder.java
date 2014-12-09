@@ -1,15 +1,17 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.impl.MessageSeeds;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.DeviceLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.protocol.IntervalValue;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -17,7 +19,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.ProfileChannel;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.StartOfGasDayParser;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.CTRObjectInfo;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -81,7 +83,8 @@ public class LoadProfileBuilder {
 
         for (LoadProfileReader lpr : expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            DeviceLoadProfileConfiguration lpc = new DeviceLoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getOfflineDevice().getSerialNumber());
+            CollectedLoadProfileConfiguration lpc = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());
+
 
             try {
                 List<ChannelInfo> channelInfos = constructChannelInfos(lpr);
@@ -127,7 +130,7 @@ public class LoadProfileBuilder {
                 // Correct the Channel object ID, cause the ID retrieved from the RegisterMapping refers to the instant object and not the hourly/daily one
                 CTRObjectID objectId = getCorrectedChannelObjectID(ctrRegisterMapping.getObjectId(), getProfileInterval(lpr.getProfileObisCode()));
                 Unit unit = CTRObjectInfo.getUnit(objectId.toString());
-                channelInfos.add(new ChannelInfo(i, obisCode.toString(), unit, lpr.getMeterSerialNumber()));
+                channelInfos.add(new ChannelInfo(i, obisCode.toString(), unit, lpr.getMeterSerialNumber(), lprChannelInfo.getReadingType()));
             } else {
                 throw new CTRException("Channel with obisCode " + obisCode + " is not supported by this profile!");
             }
@@ -160,12 +163,12 @@ public class LoadProfileBuilder {
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
-     * if not then all channels may be returned in the <CODE>ProfileData</CODE>. If {@link com.energyict.protocol.LoadProfileReader#channelInfos} contains an empty list
+     * channels(LoadProfileReader#channelInfos) to read. If it is possible then only these channels should be read,
+     * if not then all channels may be returned in the <CODE>ProfileData</CODE>. If LoadProfileReader#channelInfos contains an empty list
      * or null, then all channels from the corresponding LoadProfile should be fetched.
      * </p>
      * <p>
-     * <b>Implementors should throw an exception if all data since {@link com.energyict.protocol.LoadProfileReader#getStartReadingTime()} can NOT be fetched</b>,
+     * <b>Implementors should throw an exception if all data since LoadProfileReader#getStartReadingTime() can NOT be fetched</b>,
      * as the collecting system will update its lastReading setting based on the returned ProfileData
      * </p>
      *
@@ -178,7 +181,7 @@ public class LoadProfileBuilder {
             CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);
-                CollectedLoadProfile collectedLoadProfile = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId()));
+                CollectedLoadProfile collectedLoadProfile = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(lpr.getLoadProfileIdentifier());
                 List<IntervalData> collectedIntervalData = new ArrayList<>();
 
                 for (ChannelInfo channel : channelInfos) {
@@ -191,17 +194,17 @@ public class LoadProfileBuilder {
                         channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                         collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);
                     } catch (IOException e) {   // A non-blocking issue occurred during readout of this loadProfile, but it is still possible to read out the other loadProfiles.
-                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e));
+                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, Bus.getIssueService().newProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e));
                         collectedIntervalData.clear();
                         break;
                     }
                 }
 
-                collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
+                collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);
                 collectedLoadProfileList.add(collectedLoadProfile);
             } else {
-                CollectedLoadProfile collectedLoadProfile = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId()));
-                Issue<LoadProfileReader> problem = com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                CollectedLoadProfile collectedLoadProfile = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(lpr.getLoadProfileIdentifier());
+                Issue problem = Bus.getIssueService().newWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
                 collectedLoadProfileList.add(collectedLoadProfile);
             }
@@ -241,7 +244,7 @@ public class LoadProfileBuilder {
      */
     private CollectedLoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (CollectedLoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getDeviceIdentifier().equals(lpc.getDeviceIdentifier())) {
                 return lpc;
             }
         }
@@ -254,7 +257,7 @@ public class LoadProfileBuilder {
                 startOfGasDayParser = new StartOfGasDayParser(meterProtocol.getRequestFactory());
             } catch (CTRException e) {
                 meterProtocol.getLogger().severe("Failed to read DST parameters: " + e.getMessage());
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
             }
         }
         return startOfGasDayParser;

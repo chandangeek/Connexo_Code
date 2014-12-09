@@ -1,29 +1,34 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
-import com.energyict.cbo.Password;
-import com.energyict.cbo.TimeDuration;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.common.Password;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
+import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
+import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.lookups.Lookup;
+import com.energyict.mdc.protocol.api.lookups.LookupEntry;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-import com.energyict.mdw.core.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
-import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
-import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.util.*;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * Class that:
@@ -38,68 +43,42 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  */
 public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
-    private final static List<DeviceMessageSpec> supportedMessages;
+    private final Set<DeviceMessageId> supportedMessages = EnumSet.of(
+            DeviceMessageId.CONTACTOR_OPEN,
+            DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE,
+            DeviceMessageId.CONTACTOR_CLOSE,
+            DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE,
+            DeviceMessageId.CONTACTOR_CHANGE_CONNECT_CONTROL_MODE,
+            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE,
+            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE,
+            DeviceMessageId.ACTIVITY_CALENDER_SEND,
+            DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME,
+            DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND,
+            DeviceMessageId.SECURITY_ACTIVATE_DLMS_ENCRYPTION,
+            DeviceMessageId.SECURITY_CHANGE_DLMS_AUTHENTICATION_LEVEL,
+            DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY,
+            DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY,
+            DeviceMessageId.SECURITY_CHANGE_PASSWORD_WITH_NEW_PASSWORD,
+            DeviceMessageId.NETWORK_CONNECTIVITY_ACTIVATE_WAKEUP_MECHANISM,
+            DeviceMessageId.NETWORK_CONNECTIVITY_DEACTIVATE_SMS_WAKEUP,
+            DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_GPRS_USER_CREDENTIALS,
+            DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_GPRS_APN_CREDENTIALS,
+            DeviceMessageId.NETWORK_CONNECTIVITY_ADD_PHONENUMBERS_TO_WHITE_LIST,
+            DeviceMessageId.DISPLAY_CONSUMER_MESSAGE_CODE_TO_PORT_P1,
+            DeviceMessageId.DISPLAY_CONSUMER_MESSAGE_TEXT_TO_PORT_P1,
+            DeviceMessageId.DEVICE_ACTIONS_GLOBAL_METER_RESET,
+            DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_PARAMETERS,
+            DeviceMessageId.LOAD_BALANCING_SET_EMERGENCY_PROFILE_GROUP_IDS,
+            DeviceMessageId.LOAD_BALANCING_CLEAR_LOAD_LIMIT_CONFIGURATION,
+            DeviceMessageId.ADVANCED_TEST_XML_CONFIG,
+            DeviceMessageId.CLOCK_SET_TIME,
+            DeviceMessageId.CONFIGURATION_CHANGE_CHANGE_DEFAULT_RESET_WINDOW,
+            DeviceMessageId.DEVICE_ACTIONS_ALARM_REGISTER_RESET,
+            DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST,
+            DeviceMessageId.LOAD_PROFILE_REGISTER_REQUEST
+
+    );
     public static final String SEPARATOR = ";";
-
-    static {
-        supportedMessages = new ArrayList<>();
-
-        // contactor related
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
-        supportedMessages.add(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
-
-        // firmware upgrade related
-        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
-        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE);
-
-        // activity calendar related
-        supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND);
-        supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
-        supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
-
-        // security related
-        supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION);
-        supportedMessages.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
-        supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY);
-        supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY);
-        supportedMessages.add(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD);
-
-        // network and connectivity
-        supportedMessages.add(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM);
-        supportedMessages.add(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP);
-        supportedMessages.add(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS);
-        supportedMessages.add(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
-        supportedMessages.add(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST);
-
-        // display P1
-        supportedMessages.add(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1);
-        supportedMessages.add(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1);
-
-        // Device Actions
-        supportedMessages.add(DeviceActionMessage.GLOBAL_METER_RESET);
-
-        // Load balance
-        supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS);
-        supportedMessages.add(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS);
-        supportedMessages.add(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION);
-
-        // Advanced test
-        supportedMessages.add(AdvancedTestMessage.XML_CONFIG);
-
-        // LoadProfiles
-        supportedMessages.add(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST);
-        supportedMessages.add(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST);
-
-        // clock related
-        supportedMessages.add(ClockDeviceMessage.SET_TIME);
-
-        // reset
-        supportedMessages.add(ConfigurationChangeDeviceMessage.ChangeDefaultResetWindow);
-        supportedMessages.add(DeviceActionMessage.ALARM_REGISTER_RESET);
-    }
 
     private final AbstractMessageExecutor messageExecutor;
 
@@ -109,7 +88,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return supportedMessages;
     }
 
@@ -138,7 +117,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case specialDaysCodeTableAttributeName:
                 return parseSpecialDays(((Code) messageAttribute));
             case loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
             case fromDateAttributeName:
             case toDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());

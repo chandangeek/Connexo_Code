@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
-import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.messaging.*;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;

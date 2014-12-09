@@ -7,7 +7,7 @@ import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.Bus;
@@ -49,6 +49,10 @@ public class Dsmr23DeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public static final String WAKE_UP_PROPERTY_NAME = DlmsProtocolProperties.WAKE_UP;
     public static final String OLD_MBUS_DISCOVERY = "OldMbusDiscovery";
     public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
+
+    public Dsmr23DeviceProtocolDialect() {
+        super(propertySpecService);
+    }
 
     @Override
     public String getDeviceProtocolDialectName() {

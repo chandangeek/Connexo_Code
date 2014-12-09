@@ -27,7 +27,6 @@ import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
@@ -149,8 +148,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             supportedMessages.add(ClockDeviceMessage.SyncTime);
             supportedMessages.add(ConfigurationChangeDeviceMessage.SetDeviceName);
             supportedMessages.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.SyncNTPServer);
-            supportedMessages.add(DeviceActionMessage.RebootApplication);
+            supportedMessages.add(ConfigurationChangeDeviceMessage.SYNC_NTP_SERVER);
+            supportedMessages.add(DeviceActionMessage.REBOOT_APPLICATION);
 
             supportedMessages.add(FirewallConfigurationMessage.ActivateFirewall);
             supportedMessages.add(FirewallConfigurationMessage.DeactivateFirewall);
@@ -255,13 +254,13 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     syncTime(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.REBOOT_DEVICE)) {
                     rebootDevice(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.RebootApplication)) {
+                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.REBOOT_APPLICATION)) {
                     rebootApplication(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetDeviceName)) {
                     setDeviceName(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetNTPAddress)) {
                     setNTPAddress(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SyncNTPServer)) {
+                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SYNC_NTP_SERVER)) {
                     syncNTPServer(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement)) {
                     setAutomaticRouteManagement(pendingMessage);

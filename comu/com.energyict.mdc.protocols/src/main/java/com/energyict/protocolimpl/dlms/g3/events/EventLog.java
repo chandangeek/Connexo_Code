@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.events;
 
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.io.IOException;

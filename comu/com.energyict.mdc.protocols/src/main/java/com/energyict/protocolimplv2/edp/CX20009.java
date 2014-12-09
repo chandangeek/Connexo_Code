@@ -3,6 +3,12 @@ package com.energyict.protocolimplv2.edp;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -10,31 +16,30 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdc.tasks.EDPSerialDeviceProtocolDialect;
-import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.protocol.LogBookReader;
 
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocolimplv2.edp.logbooks.LogbookReader;
 import com.energyict.protocolimplv2.edp.messages.EDPMessageExecutor;
 import com.energyict.protocolimplv2.edp.messages.EDPMessaging;
 import com.energyict.protocolimplv2.edp.registers.RegisterReader;
+import com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxSerialConnectionType;
+import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Copyrights EnergyICT
@@ -52,8 +57,8 @@ public class CX20009 extends AbstractDlmsProtocol {
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+        getDlmsProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        setDlmsSession(new DlmsSession(comChannel, getDlmsProperties()));
     }
 
 //    @Override
@@ -81,7 +86,7 @@ public class CX20009 extends AbstractDlmsProtocol {
      * Class that holds all DLMS device properties (general, dialect & security related)
      */
     @Override
-    protected EDPProperties getDlmsSessionProperties() {
+    protected EDPProperties getDlmsProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new EDPProperties();
         }
@@ -106,7 +111,7 @@ public class CX20009 extends AbstractDlmsProtocol {
             setDeviceCache(new DLMSCache());
         }
         DLMSCache dlmsCache = (DLMSCache) getDeviceCache();
-        if (dlmsCache.getObjectList() == null || getDlmsSessionProperties().isReadCache()) {
+        if (dlmsCache.getObjectList() == null || getDlmsProperties().isReadCache()) {
             readObjectList();
             dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
         } else {
@@ -126,8 +131,8 @@ public class CX20009 extends AbstractDlmsProtocol {
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
         result.add(new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService()));
-        result.add(new SioSerialConnectionType());
-        result.add(new RxTxSerialConnectionType());
+        result.add(new SioPlainSerialConnectionType(Bus.getSerialComponentService()));
+        result.add(new RxTxPlainSerialConnectionType(Bus.getSerialComponentService()));
         return result;
     }
 
@@ -152,12 +157,12 @@ public class CX20009 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<com.energyict.protocol.LoadProfileReader> loadProfilesToRead) {
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
     @Override
-    public List<CollectedLoadProfile> getLoadProfileData(List<com.energyict.protocol.LoadProfileReader> loadProfiles) {
+    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
@@ -167,7 +172,7 @@ public class CX20009 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return getMessaging().getSupportedMessages();
     }
 

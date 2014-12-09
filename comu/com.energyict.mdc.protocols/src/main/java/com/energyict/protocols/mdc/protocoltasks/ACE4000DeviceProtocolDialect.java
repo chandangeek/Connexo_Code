@@ -23,6 +23,10 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     public static final String TIMEOUT_PROPERTY_NAME = "Timeout";
     public static final String RETRIES_PROPERTY_NAME = "Retries";
 
+    public ACE4000DeviceProtocolDialect() {
+        super(propertySpecService);
+    }
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.ACE4000_DEVICE_PROTOCOL_DIALECT_NAME.getName();

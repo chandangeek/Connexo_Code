@@ -2,15 +2,17 @@ package com.energyict.protocolimplv2.abnt.elster;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -43,9 +45,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.NoSecuritySupport;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
-import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
-import com.energyict.protocols.impl.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.mdc.services.impl.Bus;
@@ -70,10 +70,21 @@ public class A1055 extends AbstractAbntProtocol {
     private LoadProfileBuilder loadProfileBuilder;
     private MessageFactory messageFactory;
     private DeviceProtocolSecurityCapabilities securitySupport;
+    private PropertySpecService propertySpecService;
 
     @Override
     public String getProtocolDescription() {
         return "Elster A1055 ABNT";
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
     }
 
     /**
@@ -82,6 +93,16 @@ public class A1055 extends AbstractAbntProtocol {
     @Override
     public String getVersion() {
         return "$Date: 2014-11-17 10:33:16 +0100 (Mon, 17 Nov 2014) $";
+    }
+
+    @Override
+    public void copyProperties(TypedProperties properties) {
+        getProperties().addProperties(properties);
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -101,21 +122,6 @@ public class A1055 extends AbstractAbntProtocol {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getProperties().getRequiredProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getProperties().getOptionalProperties();
-    }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        getProperties().addProperties(properties);
-    }
-
-    @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         return Arrays.<ConnectionType>asList(
                 new SioPlainSerialConnectionType(Bus.getSerialComponentService()),
@@ -127,7 +133,7 @@ public class A1055 extends AbstractAbntProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new AbntSerialDeviceProtocolDialect(), new AbntOpticalDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new AbntSerialDeviceProtocolDialect(), new AbntOpticalDeviceProtocolDialect(propertySpecService));
     }
 
     @Override
@@ -217,7 +223,7 @@ public class A1055 extends AbstractAbntProtocol {
         } catch (ParsingException e) {
             throw new CommunicationException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         } catch (AbntException e) {
-            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("date/time change", e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e, "date/time change");
         }
     }
 
@@ -285,7 +291,7 @@ public class A1055 extends AbstractAbntProtocol {
 
     public RequestFactory getRequestFactory() {
         if (this.requestFactory == null) {
-            this.requestFactory = new RequestFactory();
+            this.requestFactory = new RequestFactory(propertySpecService);
         }
         return this.requestFactory;
     }
@@ -327,5 +333,15 @@ public class A1055 extends AbstractAbntProtocol {
             this.securitySupport = new NoSecuritySupport();
         }
         return this.securitySupport;
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return getProperties().getPropertySpecs();
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String s) {
+        return getProperties().getPropertySpec(s);
     }
 }

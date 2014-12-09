@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.dialer.core.Link;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
-import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import com.energyict.protocolimplv2.elster.ctr.EK155.EK155Properties;

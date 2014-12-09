@@ -7,10 +7,10 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocol.LogBookReader;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -50,7 +50,7 @@ public class IDISGatewayEvents {
                             meterEvents.add(basicEvent.getMeterEvent());
                         }
                     }
-                    collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
+                    collectedLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
                         collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));

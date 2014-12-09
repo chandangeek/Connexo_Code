@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdw.core.Season;
-import com.energyict.mdw.core.SeasonSet;
+import com.energyict.mdc.protocol.api.codetables.Season;
+import com.energyict.mdc.protocol.api.codetables.SeasonSet;
 
 import java.io.Serializable;
 import java.util.ArrayList;

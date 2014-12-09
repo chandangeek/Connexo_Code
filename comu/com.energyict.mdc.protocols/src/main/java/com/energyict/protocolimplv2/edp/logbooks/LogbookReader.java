@@ -1,14 +1,17 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.impl.MessageSeeds;
+import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
-import com.energyict.protocol.LogBookReader;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.protocolimplv2.edp.CX20009;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
+import oracle.net.ns.Communication;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,13 +66,13 @@ public class LogbookReader implements DeviceLogBookSupport {
                 try {
                     profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(logBookReader.getLogBookObisCode());
                 } catch (IOException e) {
-                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                    throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
                 }
                 Calendar fromDate = getCalendar();
                 fromDate.setTime(logBookReader.getLastLogBook());
                 try {
                     byte[] bufferData = profileGeneric.getBufferData(fromDate, getCalendar());
-                    collectedLogBook.setCollectedMeterEvents(logBookParser.parseEvents(bufferData));
+                    collectedLogBook.setMeterEvents(logBookParser.parseEvents(bufferData));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
                         collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));

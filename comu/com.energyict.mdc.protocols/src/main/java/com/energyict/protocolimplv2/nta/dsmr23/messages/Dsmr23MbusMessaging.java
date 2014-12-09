@@ -1,23 +1,27 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.LoadProfileMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Implementation of {@link DeviceMessageSupport} for the DSMR 2.3 Mbus slave device, that:
@@ -31,35 +35,26 @@ import java.util.List;
  */
 public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
-    private final static List<DeviceMessageSpec> supportedMessages;
-
-    static {
-        supportedMessages = new ArrayList<>();
-
-        // contactor related
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
-        supportedMessages.add(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
-
-        // Mbus setup
-        supportedMessages.add(MBusSetupDeviceMessage.Decommission);
-        supportedMessages.add(MBusSetupDeviceMessage.SetEncryptionKeys);
-        supportedMessages.add(MBusSetupDeviceMessage.UseCorrectedValues);
-        supportedMessages.add(MBusSetupDeviceMessage.UseUncorrectedValues);
-
-        // LoadProfiles
-        supportedMessages.add(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST);
-        supportedMessages.add(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST);
-    }
+    private final Set<DeviceMessageId> supportedMessages = EnumSet.of(
+            DeviceMessageId.CONTACTOR_OPEN,
+            DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE,
+            DeviceMessageId.CONTACTOR_CLOSE,
+            DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE,
+            DeviceMessageId.CONTACTOR_CHANGE_CONNECT_CONTROL_MODE,
+            DeviceMessageId.MBUS_SETUP_DECOMMISSION,
+            DeviceMessageId.MBUS_SETUP_SET_ENCRYPTION_KEYS,
+            DeviceMessageId.MBUS_SETUP_USE_CORRECTED_VALUES,
+            DeviceMessageId.MBUS_SETUP_USE_UNCORRECTED_VALUES,
+            DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST,
+            DeviceMessageId.LOAD_PROFILE_REGISTER_REQUEST
+    );
 
     public Dsmr23MbusMessaging(AbstractNtaMbusDevice mbusProtocol) {
         super(mbusProtocol.getMeterProtocol());
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return supportedMessages;
     }
 
@@ -67,7 +62,7 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((com.energyict.mdc.protocol.api.device.BaseLoadProfile) messageAttribute);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());
@@ -80,11 +75,11 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "updateSentMessages");
+        throw new CommunicationException(MessageSeeds.UNSUPPORTED_METHOD, "updateSentMessages", this.getClass());
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "executePendingMessages");
+        throw new CommunicationException(MessageSeeds.UNSUPPORTED_METHOD, "executePendingMessages", this.getClass());
     }
 }

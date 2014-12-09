@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.abnt.common.dialects;
 
-import com.energyict.cbo.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for a Optical connection type
+ * Models a DeviceProtocolDialect for a Optical connection type
  * (SioOpticalConnectionType, RxTxOpticalConnectionType)
  *
  * @author sva
@@ -22,9 +22,14 @@ import java.util.List;
 public class AbntOpticalDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
-    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.SECONDS);
-    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(100, TimeDuration.MILLISECONDS);
-    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(250, TimeDuration.MILLISECONDS);
+    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
+    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
+    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(250, TimeDuration.TimeUnit.MILLISECONDS);
+
+    public AbntOpticalDeviceProtocolDialect(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
 
     @Override
     public String getDeviceProtocolDialectName() {
@@ -37,12 +42,7 @@ public class AbntOpticalDeviceProtocolDialect extends AbstractDeviceProtocolDial
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
+    public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.retriesPropertySpec(),
                 this.timeoutPropertySpec(),
@@ -52,19 +52,19 @@ public class AbntOpticalDeviceProtocolDialect extends AbstractDeviceProtocolDial
     }
 
     protected PropertySpec retriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.RETRIES, DEFAULT_RETRIES);
+        return getPropertySpecService().bigDecimalPropertySpec(DlmsProtocolProperties.RETRIES, false, DEFAULT_RETRIES);
     }
 
     protected PropertySpec timeoutPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DlmsProtocolProperties.TIMEOUT, DEFAULT_TIMEOUT);
+        return getPropertySpecService().timeDurationPropertySpec(DlmsProtocolProperties.TIMEOUT, false, DEFAULT_TIMEOUT);
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DlmsProtocolProperties.FORCED_DELAY, DEFAULT_FORCED_DELAY);
+        return getPropertySpecService().timeDurationPropertySpec(DlmsProtocolProperties.FORCED_DELAY, false, DEFAULT_FORCED_DELAY);
     }
 
     protected PropertySpec delayAfterErrorPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DlmsProtocolProperties.DELAY_AFTER_ERROR, DEFAULT_DELAY_AFTER_ERROR);
+        return getPropertySpecService().timeDurationPropertySpec(DlmsProtocolProperties.DELAY_AFTER_ERROR, false, DEFAULT_DELAY_AFTER_ERROR);
     }
 
     @Override

@@ -1,33 +1,25 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.energyict.cbo.Password;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.common.Password;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceMessageIdentifierById;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.NetworkConnectivityMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Implementation for {@link DeviceMessageSupport} interface for MTU155 CTR protocol
@@ -37,6 +29,29 @@ import java.util.List;
  */
 public class Messaging implements DeviceMessageSupport {
 
+    private Set<DeviceMessageId> supportedMessageIds = EnumSet.of(
+            DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_GPRS_APN_CREDENTIALS,
+            DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_SMS_CENTER_NUMBER,
+            DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_DEVICE_PHONENUMBER,
+            DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_GPRS_IP_ADDRESS_AND_PORT,
+            DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_WAKEUP_FREQUENCY,
+            DeviceMessageId.CONFIGURATION_CHANGE_CONFIGURE_CONVERTER_MASTER_DATA,
+            DeviceMessageId.CONFIGURATION_CHANGE_CONFIGURE_GAS_METER_MASTER_DATA,
+            DeviceMessageId.CONFIGURATION_CHANGE_CONFIGURE_GAS_PARAMETERS,
+            DeviceMessageId.CLOCK_ENABLE_OR_DISABLE_DST,
+            DeviceMessageId.CONFIGURATION_CHANGE_WRITE_NEW_PDR_NUMBER,
+            DeviceMessageId.SECURITY_ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY,
+            DeviceMessageId.SECURITY_CHANGE_EXECUTION_KEY,
+            DeviceMessageId.SECURITY_CHANGE_TEMPORARY_KEY,
+            DeviceMessageId.SECURITY_BREAK_OR_RESTORE_SEALS,
+            DeviceMessageId.SECURITY_TEMPORARY_BREAK_SEALS,
+            DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF,
+            DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATE,
+            DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST,
+            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_VERSION_AND_ACTIVATE
+
+    );
+
     private final MTU155 protocol;
 
     public Messaging(MTU155 protocol) {
@@ -44,43 +59,8 @@ public class Messaging implements DeviceMessageSupport {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        List<DeviceMessageSpec> result = new ArrayList<>();
-
-        // Change connectivity setup
-        result.add(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
-        result.add(NetworkConnectivityMessage.CHANGE_SMS_CENTER_NUMBER);
-        result.add(NetworkConnectivityMessage.CHANGE_DEVICE_PHONENUMBER);
-        result.add(NetworkConnectivityMessage.CHANGE_GPRS_IP_ADDRESS_AND_PORT);
-        result.add(NetworkConnectivityMessage.CHANGE_WAKEUP_FREQUENCY);
-
-        // Device Configuration
-        result.add(ConfigurationChangeDeviceMessage.ConfigureConverterMasterData);
-        result.add(ConfigurationChangeDeviceMessage.ConfigureGasMeterMasterData);
-        result.add(ConfigurationChangeDeviceMessage.ConfigureGasParameters);
-        result.add(ClockDeviceMessage.EnableOrDisableDST);
-        result.add(ConfigurationChangeDeviceMessage.WriteNewPDRNumber);
-
-        // Key management
-        result.add(SecurityMessage.ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY);
-        result.add(SecurityMessage.CHANGE_EXECUTION_KEY);
-        result.add(SecurityMessage.CHANGE_TEMPORARY_KEY);
-
-        // Seals management
-        result.add(SecurityMessage.BREAK_OR_RESTORE_SEALS);
-        result.add(SecurityMessage.TEMPORARY_BREAK_SEALS);
-
-        // Tariff management
-        result.add(ActivityCalendarDeviceMessage.CLEAR_AND_DISABLE_PASSIVE_TARIFF);
-        result.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE);
-
-        // LoadProfile group
-        result.add(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST);
-
-        // Firmware upgrade
-        result.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE);
-
-        return result;
+    public Set<DeviceMessageId> getSupportedMessages() {
+        return this.supportedMessageIds;
     }
 
     @Override
@@ -105,13 +85,13 @@ public class Messaging implements DeviceMessageSupport {
                         pendingMessage.getSpecification().getName()));
             }
 
-            result.addCollectedMessage(collectedMessage);
+            result.addCollectedMessages(collectedMessage);
         }
         return result;
     }
 
     private CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
     }
 
     @Override
@@ -132,7 +112,7 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
                 return CodeTableBase64Builder.getXmlStringFromCodeTable((Code) messageAttribute);
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                 UserFile userFile = (UserFile) messageAttribute;
                 return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string

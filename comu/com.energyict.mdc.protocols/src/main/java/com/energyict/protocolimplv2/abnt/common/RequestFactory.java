@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.ComChannel;
 
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
@@ -42,6 +42,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandR
 import com.energyict.protocolimplv2.abnt.common.structure.field.DstConfigurationRecord;
 import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileDataSelector;
 import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileReadSizeArgument;
+import com.energyict.protocols.impl.channels.ComChannelType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.Calendar;
@@ -55,6 +56,8 @@ import java.util.TimeZone;
 public class RequestFactory {
 
     private static final int NUMBER_OF_MILLIS_IN_5_MIN = 300000;
+    private final PropertySpecService propertySpecService;
+
     private Connection connection;
     private ComChannel comChannel;
     private AbntProperties properties;
@@ -62,10 +65,12 @@ public class RequestFactory {
     private String meterSerialNumber;
     private ReadParametersResponse defaultParameters;
 
-    public RequestFactory() {
+    public RequestFactory(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
-    public RequestFactory(Connection connection, ComChannel comChannel, AbntProperties properties) {
+    public RequestFactory(PropertySpecService propertySpecService, Connection connection, ComChannel comChannel, AbntProperties properties) {
+        this.propertySpecService = propertySpecService;
         this.connection = connection;
         this.comChannel = comChannel;
         this.properties = properties;
@@ -390,7 +395,7 @@ public class RequestFactory {
             } else if (ComChannelType.SerialComChannel.is(comChannel)) {
                 this.connection = new SerialConnection(getComChannel(), getProperties());
             } else {
-                throw MdcManager.getComServerExceptionFactory().createUnexpectedComChannel(ComChannelType.SerialComChannel.name() + ", " + ComChannelType.OpticalComChannel.name(), comChannel.getClass().getSimpleName());
+                throw new CommunicationException(MessageSeeds.UNEXPECTED_COMCHANNEL, ComChannelType.SerialComChannel.name() + ", " + ComChannelType.OpticalComChannel.name(), comChannel.getClass().getSimpleName());
             }
         }
         return connection;
@@ -406,7 +411,7 @@ public class RequestFactory {
 
     public AbntProperties getProperties() {
         if (properties == null) {
-            properties = new AbntProperties();
+            properties = new AbntProperties(this.propertySpecService);
         }
         return properties;
     }

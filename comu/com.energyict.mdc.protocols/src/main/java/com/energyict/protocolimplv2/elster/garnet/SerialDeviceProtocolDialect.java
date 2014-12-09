@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.cbo.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.common.DlmsProtocolProperties;
@@ -21,9 +21,13 @@ import java.util.List;
 public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
-    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.SECONDS);
-    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(100, TimeDuration.MILLISECONDS);
-    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.MILLISECONDS);
+    public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
+    public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
+    public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
+
+    public SerialDeviceProtocolDialect() {
+        super(propertySpecService);
+    }
 
     @Override
     public String getDeviceProtocolDialectName() {

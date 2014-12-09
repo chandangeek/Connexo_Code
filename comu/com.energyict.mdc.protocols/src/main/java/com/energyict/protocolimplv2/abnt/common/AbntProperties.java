@@ -1,30 +1,27 @@
 package com.energyict.protocolimplv2.abnt.common;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
-import com.energyict.mdw.cpo.BasicPropertySpec;
-import com.energyict.mdw.cpo.PropertySpecFactory;
+import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
-
-import static com.energyict.protocolimplv2.dlms.common.DlmsProtocolProperties.*;
 
 /**
  * @author sva
  * @since 17/06/2014 - 13:40
  */
-public class AbntProperties implements ConfigurationSupport {
+public class AbntProperties extends BasicDynamicPropertySupport {
 
     public static final String READER_SERIAL_NUMBER_PROPERTY = "ReaderSerialNumber";
+
     public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
     public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(50, TimeDuration.TimeUnit.MILLISECONDS);
     public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
@@ -32,6 +29,10 @@ public class AbntProperties implements ConfigurationSupport {
 
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
+
+    public AbntProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     /**
      * The security set of a device. It contains all properties related to security.
@@ -123,25 +124,29 @@ public class AbntProperties implements ConfigurationSupport {
         return this.properties;
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
+    private PropertySpec<BigDecimal> readerSerialNumberPropertySpec() {
+        return getPropertySpecService().bigDecimalPropertySpec(READER_SERIAL_NUMBER_PROPERTY, false, DEFAULT_READER_SERIAL_NUMBER);
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Arrays.asList(
-                this.timeZonePropertySpec(),
-                this.readerSerialNumberPropertySpec()
-        );
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(readerSerialNumberPropertySpec());
+        return propertySpecs;
     }
 
-    private PropertySpec timeZonePropertySpec() {
-        return new ReferenceP
-        return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE);
+    @Override
+    public TimeDuration getDefaultTimeout() {
+        return DEFAULT_TIMEOUT;
     }
 
-    private PropertySpec readerSerialNumberPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(READER_SERIAL_NUMBER_PROPERTY, DEFAULT_READER_SERIAL_NUMBER);
+    @Override
+    public TimeDuration getDefaultForcedDelay() {
+        return DEFAULT_FORCED_DELAY;
+    }
+
+    @Override
+    public TimeDuration getDefaultDelayAfterError() {
+        return DEFAULT_DELAY_AFTER_ERROR;
     }
 }

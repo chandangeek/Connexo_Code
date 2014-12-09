@@ -5,12 +5,13 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -104,7 +105,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
      */
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        getDlmsSessionProperties().addProperties(dialectProperties);
+        getDlmsProperties().addProperties(dialectProperties);
     }
 
     /**
@@ -115,8 +116,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
      */
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        getDlmsSessionProperties().addProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-        getDlmsSessionProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
+        getDlmsProperties().addProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+        getDlmsProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
     }
 
     private DeviceProtocolSecurityCapabilities getSecuritySupport() {
@@ -174,14 +175,14 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     protected Dsmr23RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new Dsmr23RegisterFactory(this, getDlmsSessionProperties().isBulkRequest());
+            this.registerFactory = new Dsmr23RegisterFactory(this, getDlmsProperties().isBulkRequest());
         }
         return registerFactory;
     }
 
     protected LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, getDlmsSessionProperties().isBulkRequest());
+            this.loadProfileBuilder = new LoadProfileBuilder(this, getDlmsProperties().isBulkRequest());
         }
         return loadProfileBuilder;
     }
@@ -269,20 +270,20 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
      */
     protected ComposedMeterInfo getMeterInfo() {
         if (meterInfo == null) {
-            meterInfo = new ComposedMeterInfo(getDlmsSession(), getDlmsSessionProperties().isBulkRequest());
+            meterInfo = new ComposedMeterInfo(getDlmsSession(), getDlmsProperties().isBulkRequest());
         }
         return meterInfo;
     }
 
-    protected DlmsProperties getDlmsSessionProperties() {
+    protected DlmsProperties getDlmsProperties() {
         if (dlmsProperties == null) {
-            dlmsProperties = new DlmsProperties();
+            dlmsProperties = new DlmsProperties(this.propertySpecService);
         }
         return dlmsProperties;
     }
 
     public TimeZone getTimeZone() {
-        return getDlmsSessionProperties().getTimeZone();
+        return getDlmsProperties().getTimeZone();
     }
 
     /**
@@ -372,16 +373,26 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     @Override
     public void copyProperties(TypedProperties properties) {
-        getDlmsSessionProperties().addProperties(properties);
+        getDlmsProperties().addProperties(properties);
     }
 
     @Override
-    public PropertySpec getPropertySpec(String s) {
-        return getDlmsSessionProperties().;
+    public PropertySpec getPropertySpec(String propertySpecName) {
+        return getDlmsProperties().getPropertySpec(propertySpecName);
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return null;
+        return getDlmsProperties().getPropertySpecs();
+    }
+
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.GATEWAY;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return new ManufacturerInformation();
     }
 }

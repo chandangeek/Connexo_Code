@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -33,6 +33,11 @@ public abstract class AbstractMTU155Message {
     private static final OfflineDeviceMessageAttribute emptyOfflineDeviceMessageAttribute = new OfflineDeviceMessageAttribute() {
 
         @Override
+        public PropertySpec getPropertySpec() {
+            return null;
+        }
+
+        @Override
         public String getName() {
             return "";
         }
@@ -40,20 +45,6 @@ public abstract class AbstractMTU155Message {
         @Override
         public String getDeviceMessageAttributeValue() {
             return "";
-        }
-
-        @Override
-        public int getDeviceMessageId() {
-            return 0;
-        }
-
-        @Override
-        public String getXmlType() {
-            return this.getClass().getName();
-        }
-
-        @Override
-        public void setXmlType(String ignore) {
         }
     };
 
@@ -70,11 +61,11 @@ public abstract class AbstractMTU155Message {
     }
 
     public CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
     }
 
     public CollectedMessage createCollectedMessageWithCollectedLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageWithLoadProfileData(message.getIdentifier(), collectedLoadProfile);
     }
 
     public CollectedMessage executeMessage(OfflineDeviceMessage message) {

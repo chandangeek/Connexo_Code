@@ -16,6 +16,10 @@ import java.util.List;
  */
 public class NoParamsDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
+    public NoParamsDeviceProtocolDialect() {
+        super(propertySpecService);
+    }
+
     @Override
     public List<PropertySpec> getPropertySpecs () {
         return Collections.emptyList();

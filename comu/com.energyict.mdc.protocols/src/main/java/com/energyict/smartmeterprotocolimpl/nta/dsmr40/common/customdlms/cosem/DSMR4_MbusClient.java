@@ -2,7 +2,8 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;

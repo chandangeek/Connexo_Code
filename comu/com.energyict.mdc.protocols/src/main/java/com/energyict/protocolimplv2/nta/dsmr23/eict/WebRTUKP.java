@@ -17,9 +17,6 @@ import com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocols.impl.channels.ComChannelType;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxSerialConnectionType;
-import com.energyict.protocols.impl.channels.serial.direct.serialio.SioSerialConnectionType;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -56,17 +53,17 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        getDlmsProperties().setSerialNumber(offlineDevice.getSerialNumber());
 
         HHUSignOnV2 hhuSignOn = null;
         if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
             hhuSignOn = getHHUSignOn((SerialComChannel) comChannel);
         }
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, getProperDeviceId()));
+        setDlmsSession(new DlmsSession(comChannel, getDlmsProperties(), hhuSignOn, getProperDeviceId()));
     }
 
     private HHUSignOnV2 getHHUSignOn(SerialComChannel serialPortComChannel) {
-        HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
+        HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsProperties());
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(false);
@@ -74,7 +71,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     }
 
     private String getProperDeviceId() {
-        String deviceId = getDlmsSessionProperties().getDeviceId();
+        String deviceId = getDlmsProperties().getDeviceId();
         if (deviceId != null && !deviceId.equalsIgnoreCase("")) {
             return deviceId;
         } else {

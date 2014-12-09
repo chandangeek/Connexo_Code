@@ -2,12 +2,12 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.DefaultDeviceRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.DeviceStatus;
@@ -20,6 +20,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -339,26 +340,26 @@ public abstract class ObisCodeMapper {
         return null;
     }
 
-    protected CollectedRegister createDeviceRegister(ObisCode obisCode) {
-        CollectedRegister deviceRegister = new DefaultDeviceRegister(new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier()));
-        return deviceRegister;
+    private CollectedRegister createDeviceRegister(ObisCode obisCode, Unit unit) {
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(obisCode, obisCode, getDeviceIdentifier()),
+                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(obisCode, unit));
     }
 
     protected CollectedRegister createCollectedRegister(RegisterValue registerValue) {
-        CollectedRegister deviceRegister = createDeviceRegister(registerValue.getObisCode());
+        CollectedRegister deviceRegister = createDeviceRegister(registerValue.getObisCode(), registerValue.getQuantity().getUnit());
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
         return deviceRegister;
     }
 
-    protected CollectedRegister createNotSupportedCollectedRegister(ObisCode obisCode) {
-        CollectedRegister failedRegister = createDeviceRegister(obisCode);
+    protected CollectedRegister createNotSupportedCollectedRegister(ObisCode obisCode, Unit unit) {
+        CollectedRegister failedRegister = createDeviceRegister(obisCode, unit);
         failedRegister.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(obisCode, "registerXnotsupported", obisCode));
         return failedRegister;
     }
 
     protected CollectedRegister createIncompatibleCollectedRegister(ObisCode obisCode, String message) {
-        CollectedRegister failedRegister = createDeviceRegister(obisCode);
+        CollectedRegister failedRegister = createDeviceRegister(obisCode, Unit.getUndefined());
         failedRegister.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(obisCode, "registerXincompatible", obisCode, message));
         return failedRegister;
     }

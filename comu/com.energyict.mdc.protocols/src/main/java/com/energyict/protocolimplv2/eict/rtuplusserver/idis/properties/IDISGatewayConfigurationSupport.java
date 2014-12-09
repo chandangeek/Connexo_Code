@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
-import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
+import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,29 +19,28 @@ import java.util.List;
  * @author sva
  * @since 15/10/2014 - 11:16
  */
-public class IDISGatewayConfigurationSupport extends DlmsConfigurationSupport {
+public class IDISGatewayConfigurationSupport extends DlmsProperties {
 
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
+    public IDISGatewayConfigurationSupport(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Arrays.asList(
-                this.forcedDelayPropertySpec(),
-                this.maxRecPduSizePropertySpec(),
-                this.timeZonePropertySpec(),
-                this.validateInvokeIdPropertySpec()
-        );
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.addAll(Arrays.asList(
+                callingAPTitlePropertySpec(),
+                nodeAddressPropertySpec()
+        ));
+        return propertySpecs;
     }
 
     public PropertySpec callingAPTitlePropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(IDIS.CALLING_AP_TITLE, IDIS.CALLING_AP_TITLE_DEFAULT);
+        return getPropertySpecService().stringPropertySpec(IDIS.CALLING_AP_TITLE, false, IDIS.CALLING_AP_TITLE_DEFAULT);
     }
 
     public PropertySpec nodeAddressPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(MeterProtocol.NODEID, "");
+        return getPropertySpecService().stringPropertySpec(MeterProtocol.NODEID, false, "");
     }
 }

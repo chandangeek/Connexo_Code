@@ -1,14 +1,17 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdw.core.TimeZoneInUse;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -17,14 +20,9 @@ import java.util.TimeZone;
  * Date: 29-sep-2010
  * Time: 15:58:55
  */
-public class MTU155Properties {
+public class MTU155Properties extends BasicDynamicPropertySupport{
 
-    public static final String TIMEZONE_PROPERTY_NAME = "TimeZone";
     public static final String LEGACY_TIMEZONE_PROPERTY_NAME = "LegacyTimeZone";
-    public static final String TIMEOUT_PROPERTY_NAME = "Timeout";
-    public static final String RETRIES_PROPERTY_NAME = "Retries";
-    public static final String DELAY_AFTER_ERROR_PROPERTY_NAME = "DelayAfterError";
-    public static final String FORCED_DELAY_PROPERTY_NAME = "ForcedDelay";
     public static final String ENCRTYPTION_KEY_C_PROPERTY_NAME = "KeyC";
     public static final String ENCRTYPTION_KEY_F_PROPERTY_NAME = "KeyF";
     public static final String ENCRYPTION_KEY_T_PROPERTY_NAME = "KeyT";
@@ -62,51 +60,45 @@ public class MTU155Properties {
 
     private TypedProperties typedProperties;
 
-    public MTU155Properties() {
-        this.typedProperties = TypedProperties.empty();
-    }
-
-    public MTU155Properties(TypedProperties typedProperties) {
+    public MTU155Properties(TypedProperties typedProperties, PropertySpecService propertySpecService) {
+        super(propertySpecService);
         this.typedProperties = typedProperties;
     }
 
-    public List<PropertySpec> getRequiredGeneralProperties() {
-        List<PropertySpec> required = new ArrayList<>();
-        required.add(timeZonePropertySpec());
-        return required;
+    public MTU155Properties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+        this.typedProperties = TypedProperties.empty();
     }
 
-    public List<PropertySpec> getOptionalGeneralProperties() {
-        List<PropertySpec> optional = new ArrayList<>();
-        optional.add(debugPropertySpec());
-        optional.add(channelBacklogPropertySpec());
-        optional.add(extractInstallationDatePropertySpec());
-        optional.add(removeDayProfileOffsetPropertySpec());
-        return optional;
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.addAll(Arrays.asList(debugPropertySpec(), channelBacklogPropertySpec(), extractInstallationDatePropertySpec(), removeDayProfileOffsetPropertySpec()));
+        return propertySpecs;
     }
 
-    private PropertySpec timeZonePropertySpec() {
-        return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE_PROPERTY_NAME);
+    public PropertySpec timeZonePropertySpec() {
+        return getPropertySpecService().referencePropertySpec(TIMEZONE, true, FactoryIds.TIMEZONE_IN_USE);
     }
 
     private PropertySpec debugPropertySpec() {
-        return PropertySpecFactory.notNullableBooleanPropertySpec(DEBUG_PROPERTY_NAME);
+        return getPropertySpecService().booleanPropertySpec(DEBUG_PROPERTY_NAME, false, DEFAULT_DEBUG);
     }
 
     private PropertySpec channelBacklogPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(CHANNEL_BACKLOG_PROPERTY_NAME);
+        return getPropertySpecService().bigDecimalPropertySpec(CHANNEL_BACKLOG_PROPERTY_NAME, false, DEFAULT_CHANNEL_BACKLOG);
     }
 
     private PropertySpec extractInstallationDatePropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME);
+        return getPropertySpecService().booleanPropertySpec(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME, false, DEFAULT_EXTRACT_INSTALLATION_DATE);
     }
 
     private PropertySpec removeDayProfileOffsetPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME);
+        return getPropertySpecService().booleanPropertySpec(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME, false, DEFAULT_REMOVE_DAY_PROFILE_OFFSET);
     }
 
     public TimeZone getTimeZone() {
-        TimeZoneInUse timeZoneInUse = (TimeZoneInUse) typedProperties.getProperty(TIMEZONE_PROPERTY_NAME);
+        TimeZoneInUse timeZoneInUse = (TimeZoneInUse) typedProperties.getProperty(TIMEZONE);
         String legacyTimeZone = (String) typedProperties.getProperty(LEGACY_TIMEZONE_PROPERTY_NAME);
         if (timeZoneInUse != null) {
             return timeZoneInUse.getTimeZone();
@@ -118,19 +110,19 @@ public class MTU155Properties {
     }
 
     public int getTimeout() {
-        return ((BigDecimal) typedProperties.getProperty(TIMEOUT_PROPERTY_NAME, DEFAULT_TIMEOUT)).intValue();
+        return ((BigDecimal) typedProperties.getProperty(TIMEOUT, DEFAULT_TIMEOUT)).intValue();
     }
 
     public int getRetries() {
-        return ((BigDecimal) typedProperties.getProperty(RETRIES_PROPERTY_NAME, DEFAULT_RETRIES)).intValue();
+        return ((BigDecimal) typedProperties.getProperty(RETRIES, DEFAULT_RETRIES)).intValue();
     }
 
     public int getDelayAfterError() {
-        return ((BigDecimal) typedProperties.getProperty(DELAY_AFTER_ERROR_PROPERTY_NAME, DEFAULT_DELAY_AFTER_ERROR)).intValue();
+        return ((BigDecimal) typedProperties.getProperty(DELAY_AFTER_ERROR, DEFAULT_DELAY_AFTER_ERROR)).intValue();
     }
 
     public int getForcedDelay() {
-        return ((BigDecimal) typedProperties.getProperty(FORCED_DELAY_PROPERTY_NAME, DEFAULT_FORCED_DELAY)).intValue();
+        return ((BigDecimal) typedProperties.getProperty(FORCED_DELAY, DEFAULT_FORCED_DELAY)).intValue();
     }
 
     public String getKeyC() {

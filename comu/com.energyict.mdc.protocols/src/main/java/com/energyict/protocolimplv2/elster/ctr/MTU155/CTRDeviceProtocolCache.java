@@ -1,8 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.DeviceProtocolCacheXmlMarshallAdapter;
-import com.energyict.mdc.protocol.ServerDeviceProtocolCache;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.xml.DeviceProtocolCacheXmlMarshallAdapter;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
@@ -14,7 +13,7 @@ import java.io.Serializable;
  * @since 21/06/13 - 15:44
  */
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
-public class CTRDeviceProtocolCache implements ServerDeviceProtocolCache, Serializable {
+public class CTRDeviceProtocolCache implements DeviceProtocolCache, Serializable {
 
     /** The last WriteDataBlock ID used in SMS communication. **/
     int smsWriteDataBlockID = 0;
@@ -56,7 +55,7 @@ public class CTRDeviceProtocolCache implements ServerDeviceProtocolCache, Serial
     }
 
     @Override
-    public void setContentChanged(boolean contentChanged) {
-        this.contentChanged = contentChanged;
+    public void setChanged(boolean flag) {
+        this.contentChanged = flag;
     }
 }

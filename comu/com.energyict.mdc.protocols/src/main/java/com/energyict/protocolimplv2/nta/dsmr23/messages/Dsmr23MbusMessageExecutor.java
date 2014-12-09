@@ -10,6 +10,7 @@ import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -18,17 +19,17 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.MBusSetupDeviceMessage;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.mdc.protocol.api.impl.device.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -42,7 +43,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * @author sva
@@ -97,7 +98,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                 }
             }
-            result.addCollectedMessage(collectedMessage);
+            result.addCollectedMessages(collectedMessage);
         }
         return result;
     }
@@ -193,7 +194,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(fullLoadProfileContent);
 
             LoadProfileReader lpr = builder.getLoadProfileReader();  //Does not contain the correct from & to date yet, they were stored in separate attributes
-            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
+            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), lpr.getMeterSerialNumber(), lpr.getLoadProfileIdentifier());
 
             fullLpr = checkLoadProfileReader(fullLpr, builder.getMeterSerialNumber());
             List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
@@ -226,7 +227,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
      */
     private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, String serialNumber) {
         if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
-            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), serialNumber, lpr.getChannelInfos());
+            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), serialNumber, lpr.getLoadProfileIdentifier());
         } else {
             return lpr;
         }
@@ -247,7 +248,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             }
 
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
-            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
+            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), lpr.getMeterSerialNumber(), lpr.getLoadProfileIdentifier());
 
             List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
             for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
@@ -276,16 +277,16 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
                 return collectedMessage;
             }
 
-            com.energyict.protocol.Register previousRegister = null;
+            Register previousRegister = null;
             List<CollectedRegister> collectedRegisters = new ArrayList<>();
-            for (com.energyict.protocol.Register register : builder.getRegisters()) {
+            for (Register register : builder.getRegisters()) {
                 if (register.equals(previousRegister)) {
                     continue;    //Don't add the same intervals twice if there's 2 channels with the same obiscode
                 }
                 for (int i = 0; i < collectedLoadProfile.getChannelInfo().size(); i++) {
                     final ChannelInfo channel = collectedLoadProfile.getChannelInfo().get(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(intervalDatas.get(i), channel.getUnit()), intervalDatas.getEndTime(), null, intervalDatas.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(intervalDatas.get(i), channel.getUnit()), intervalDatas.getEndTime(), null, intervalDatas.getEndTime(), new Date(), register.getRegisterSpecId());
                         collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
                     }
                 }
@@ -311,7 +312,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
     protected LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
         Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
         Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
-        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
+        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getDeviceIdentifier(), loadProfileReader.getChannelInfos(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getLoadProfileIdentifier());
     }
 
     private enum ContactorAction {

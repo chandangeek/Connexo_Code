@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdw.core.Season;
-import com.energyict.mdw.core.SeasonTransition;
+import com.energyict.mdc.protocol.api.codetables.Season;
+import com.energyict.mdc.protocol.api.codetables.SeasonTransition;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,8 +26,8 @@ public class SeasonObject implements Serializable {
         SeasonObject so = new SeasonObject();
         so.setId(season.getId());
         so.setName(season.getName());
-        so.setTransitions(new ArrayList<SeasonTransitionObject>());
-        List<SeasonTransition> eis = season.getTransitions();
+        so.setTransitions(new ArrayList<>());
+        List<? extends SeasonTransition> eis = season.getTransitions();
         for (SeasonTransition trans : eis) {
             so.getTransitions().add(SeasonTransitionObject.fromSeasonTransition(trans));
         }

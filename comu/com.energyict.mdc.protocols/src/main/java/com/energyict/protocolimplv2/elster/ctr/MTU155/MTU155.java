@@ -2,13 +2,19 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
-import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
-import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
-import com.energyict.mdc.channels.sms.ProximusSmsComChannel;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -16,37 +22,37 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.tasks.CTRDeviceProtocolDialect;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.core.LogBookTypeFactory;
-import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocol.MeterProtocolEvent;
-
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
+import com.energyict.protocols.impl.channels.ip.CTRInboundDialHomeIdConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.protocols.impl.channels.sms.InboundProximusSmsConnectionType;
+import com.energyict.protocols.impl.channels.sms.OutboundProximusSmsConnectionType;
+import com.energyict.protocols.impl.channels.sms.ProximusSmsComChannel;
+import com.energyict.protocols.mdc.protocoltasks.CTRDeviceProtocolDialect;
+import com.energyict.protocols.mdc.services.impl.Bus;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -87,11 +93,17 @@ public class MTU155 implements DeviceProtocol {
     private GprsObisCodeMapper obisCodeMapper;
     private LoadProfileBuilder loadProfileBuilder;
     private Messaging messaging;
+    private PropertySpecService propertySpecService;
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        this.addProperties(offlineDevice.getAllProperties());
+        this.copyProperties(offlineDevice.getAllProperties());
         updateRequestFactory(comChannel);
     }
 
@@ -103,16 +115,6 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getMTU155Properties().getRequiredGeneralProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getMTU155Properties().getOptionalGeneralProperties();
     }
 
     @Override
@@ -169,7 +171,7 @@ public class MTU155 implements DeviceProtocol {
         try {
             getRequestFactory().getMeterInfo().setTime(timeToSet);
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -189,12 +191,12 @@ public class MTU155 implements DeviceProtocol {
         try {
             return getRequestFactory().getMeterInfo().getTime();
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return getMessaging().getSupportedMessages();
     }
 
@@ -278,22 +280,28 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
     public String getVersion() {
         return "$Date: 2014-05-05 13:34:19 +0200 (Mon, 05 May 2014) $";
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        if (this.allProperties != null) {
-            this.allProperties.setAllProperties(properties); // this will add the properties to the existing properties
-        } else {
-            this.allProperties = properties;
-        }
+    public void copyProperties(TypedProperties properties) {
+        this.allProperties.setAllProperties(properties);
     }
 
     public MTU155Properties getMTU155Properties() {
         if (this.properties == null) {
-            this.properties = new MTU155Properties(allProperties);
+            this.properties = new MTU155Properties(allProperties, propertySpecService);
         }
         return this.properties;
     }
@@ -341,14 +349,14 @@ public class MTU155 implements DeviceProtocol {
 
         for (LogBookReader logBook : logBooks) {
             collectedLogBook = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
-            if (logBook.getLogBookObisCode().equals(LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
+            if (logBook.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                 try {
                     Date lastLogBookReading = logBook.getLastLogBook();
                     CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
                     List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(
                             meterEvent.getMeterEvents(lastLogBookReading));
 
-                    collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
+                    collectedLogBook.setMeterEvents(meterProtocolEvents);
                 } catch (CTRException e) {
                     collectedLogBook.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
                 }
@@ -401,15 +409,25 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> connectionTypes = new ArrayList<>();
-        connectionTypes.add(new CTRInboundDialHomeIdConnectionType());
-        connectionTypes.add(new InboundProximusSmsConnectionType());
-        connectionTypes.add(new OutboundProximusSmsConnectionType());
+        connectionTypes.add(new CTRInboundDialHomeIdConnectionType(Bus.getPropertySpecService()));
+        connectionTypes.add(new InboundProximusSmsConnectionType(Bus.getPropertySpecService()));
+        connectionTypes.add(new OutboundProximusSmsConnectionType(Bus.getPropertySpecService()));
         connectionTypes.add(new SioOpticalConnectionType(Bus.getSerialComponentService()));
-        connectionTypes.add(new RxTxOpticalConnectionType());
+        connectionTypes.add(new RxTxOpticalConnectionType(Bus.getSerialComponentService()));
         return connectionTypes;
     }
 
     public OfflineDevice getOfflineDevice() {
         return offlineDevice;
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return null;
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String s) {
+        return null;
     }
 }

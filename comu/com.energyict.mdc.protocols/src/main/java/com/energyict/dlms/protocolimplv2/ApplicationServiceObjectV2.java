@@ -132,6 +132,8 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     replyToHLSAuthentication(this.securityContext.getSecurityProvider().associationEncryptionByManufacturer(this.acse.getRespondingAuthenticationValue()));
                 } catch (UnsupportedException e) {
                     throw new ProtocolAuthenticationException(e, MessageSeeds.UNSUPPORTED_AUTHENTICATION_TYPE);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
                 // the association object will fail if we don't get a proper response.
                 this.associationStatus = ASSOCIATION_CONNECTED;

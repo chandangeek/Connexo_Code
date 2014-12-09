@@ -127,7 +127,7 @@ public class NTASecurityProvider implements SecurityProvider {
      * @param respondingAuthenticationValue the response value from the meter OR null
      * @return the encrypted Value to send back to the meter
      */
-    public byte[] associationEncryptionByManufacturer(final byte[] respondingAuthenticationValue) throws UnsupportedException {
+    public byte[] associationEncryptionByManufacturer(final byte[] respondingAuthenticationValue) throws IOException {
         throw new UnsupportedException("High level security 2 is not supported.");
     }
 

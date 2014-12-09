@@ -25,6 +25,10 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
      */
     public static final String notSupportedLoadProfileObisCodePropertyName = "NotSupportedLoadProfile";
 
+    public SDKLoadProfileProtocolDialectProperties() {
+        super(propertySpecService);
+    }
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.SDK_SAMPLE_LOAD_PROFILE_DEVICE_PROTOCOL_DIALECT_NAME.getName();

@@ -45,7 +45,7 @@ public class GprsObisCodeMapper extends ObisCodeMapper {
 
             CTRRegisterMapping regMap = searchRegisterMapping(obisCode);
             if (regMap == null) {
-                collectedRegisters.add(createNotSupportedCollectedRegister(obisCode));
+                collectedRegisters.add(createNotSupportedCollectedRegister(obisCode, register.getUnit()));
                 String message = "Register with obisCode [" + obisCode + "] is not supported by the meter.";
                 getLogger().log(Level.WARNING, message);
             } else if (regMap.getObjectId() == null) {
@@ -53,7 +53,7 @@ public class GprsObisCodeMapper extends ObisCodeMapper {
                     collectedRegisters.add(createCollectedRegister(readSpecialRegister(regMap)));
                 } catch (NoSuchRegisterException e) {
                     String message = "Register with obisCode [" + obisCode + "] is not supported by the meter.";
-                    collectedRegisters.add(createNotSupportedCollectedRegister(obisCode));
+                    collectedRegisters.add(createNotSupportedCollectedRegister(obisCode, register.getUnit()));
                     getLogger().log(Level.WARNING, message);
                 }
             } else {

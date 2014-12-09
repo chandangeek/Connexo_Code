@@ -52,7 +52,7 @@ public interface SecurityProvider {
      * @throws UnsupportedException when method is not supported
      * @throws java.io.IOException  some of the encryption values aren't correct, or something went wrong while encrypting the value
      */
-    public byte[] associationEncryptionByManufacturer(byte[] respondingAuthenticationValue) throws UnsupportedException;
+    public byte[] associationEncryptionByManufacturer(byte[] respondingAuthenticationValue) throws IOException;
 
     /**
      * @return the initial frameCounter

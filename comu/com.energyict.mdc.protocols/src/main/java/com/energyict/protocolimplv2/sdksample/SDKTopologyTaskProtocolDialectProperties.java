@@ -19,6 +19,10 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     public static final String slaveOneSerialNumberPropertyName = "SlaveOneSerialNumber";
     public static final String slaveTwoSerialNumberPropertyName = "SlaveTwoSerialNumber";
 
+    public SDKTopologyTaskProtocolDialectProperties() {
+        super(propertySpecService);
+    }
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.SDK_SAMPLE_TOPOLOGY_DIALECT_NAME.getName();

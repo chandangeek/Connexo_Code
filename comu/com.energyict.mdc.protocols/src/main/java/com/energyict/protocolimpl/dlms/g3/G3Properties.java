@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.energyict.dlms.DLMSReference;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
@@ -36,10 +36,10 @@ public class G3Properties extends DlmsProtocolProperties {
     private G3SecurityProvider g3SecurityProvider;
 
     public G3Properties() {
-        this(TypedProperties.empty());
+        this(null);
     }
 
-    public G3Properties(TypedProperties properties) {
+    public G3Properties(Properties properties) {
         super(properties);
     }
 

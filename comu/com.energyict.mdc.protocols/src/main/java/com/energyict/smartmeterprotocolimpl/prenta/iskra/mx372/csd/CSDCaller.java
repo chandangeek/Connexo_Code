@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.csd;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdw.core.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -17,7 +17,7 @@ import java.util.Date;
 public class CSDCaller {
 
 //    private CommunicationScheduler csdCaller = null;
-    private Device rtu;
+    private BaseDevice rtu;
     private int timeOut;
     private int pollFreq;
     private int csdCallTimeout;
@@ -34,13 +34,16 @@ public class CSDCaller {
      *
      * @param rtu
      */
-    public CSDCaller(Device rtu) {
-        this.rtu = rtu;
-        this.timeOut = Integer.parseInt((String) this.rtu.getProtocolProperties().getProperty("PollTimeOut", "900000"));
-        this.pollFreq = Integer.parseInt((String) this.rtu.getProtocolProperties().getProperty("CsdPollFrequency", "20000"));
-        this.csdCallTimeout = Integer.parseInt((String) this.rtu.getProtocolProperties().getProperty("CsdCallTimeOut", "900000"));
-//        this.phone = this.rtu.getPhoneNumber();
-        this.fixedIp = ((String) this.rtu.getProtocolProperties().getProperty("FixedIpAddress", "0")).equalsIgnoreCase("1");
+    public CSDCaller(BaseDevice rtu) {
+
+        //TODO need to validate how we are going to do this...
+
+//        this.rtu = rtu;
+//        this.timeOut = Integer.parseInt((String) this.rtu.getProtocolProperties().getProperty("PollTimeOut", "900000"));
+//        this.pollFreq = Integer.parseInt((String) this.rtu.getProtocolProperties().getProperty("CsdPollFrequency", "20000"));
+//        this.csdCallTimeout = Integer.parseInt((String) this.rtu.getProtocolProperties().getProperty("CsdCallTimeOut", "900000"));
+////        this.phone = this.rtu.getPhoneNumber();
+//        this.fixedIp = ((String) this.rtu.getProtocolProperties().getProperty("FixedIpAddress", "0")).equalsIgnoreCase("1");
     }
 
     /**

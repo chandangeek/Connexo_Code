@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
-import com.energyict.cbo.TimeDuration;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
@@ -19,9 +19,9 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
     public static final int HOURLY_SECOND_PART = 0x81;
 
     private static final int LENGTH = 1;
-    private static final TimeDuration HOUR = new TimeDuration(1, TimeDuration.HOURS);
-    private static final TimeDuration DAY = new TimeDuration(1, TimeDuration.DAYS);
-    private static final TimeDuration MONTH = new TimeDuration(1, TimeDuration.MONTHS);
+    private static final TimeDuration HOUR = new TimeDuration(1, TimeDuration.TimeUnit.HOURS);
+    private static final TimeDuration DAY = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+    private static final TimeDuration MONTH = new TimeDuration(1, TimeDuration.TimeUnit.MONTHS);
 
     private int period;
 
