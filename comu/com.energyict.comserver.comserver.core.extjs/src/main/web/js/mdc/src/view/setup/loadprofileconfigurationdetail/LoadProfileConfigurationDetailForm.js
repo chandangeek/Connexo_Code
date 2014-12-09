@@ -32,16 +32,9 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 },
                 {
                     xtype: 'reading-type-displayfield',
+                    name: 'readingType',
                     hidden: true
                 },
-//                {
-//                    xtype: 'displayfield',
-//                    required: true,
-//                    fieldLabel: 'Measurement type',
-//                    name: 'measurementtype',
-//                    value: 'measurementType',
-//                    hidden: true
-//                },
                 {
                     xtype: 'reading-type-combo',
                     required: true,
@@ -49,21 +42,29 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     submitValue: false
                 },
                 {
+                    xtype: 'reading-type-displayfield',
+                    name: 'calculatedReadingType',
+                    fieldLabel: Uni.I18n.translate('channelConfig.channelConfigForm.calculatedReadingType', 'MDC', 'Calculated reading type'),
+                    required: true,
+                    submitValue: false,
+                    hidden: true
+                },
+                {
                     xtype: 'obis-displayfield',
                     name: 'obiscode',
-                    value: 'Select a reading type first'
+                    value: Uni.I18n.translate('channelConfig.channelConfigForm.obisCodeEmptyTxt', 'MDC', 'Select a reading type first')
                 },
                 {
                     xtype: 'obis-field',
-                    fieldLabel: 'Overruled OBIS code',
-                    name: 'overruledObisCode'
+                    name: 'overruledObisCode',
+                    fieldLabel: Uni.I18n.translate('channelConfig.channelConfigForm.overruledObisCodeLabel', 'MDC', 'Overruled OBIS code')
                 },
                 {
                     xtype: 'combobox',
                     required: true,
                     allowBlank: false,
-                    fieldLabel: 'Unit of measure ',
-                    emptyText: 'Select a unit of measure',
+                    fieldLabel: Uni.I18n.translate('channelConfig.channelConfigForm.unitOfMeasureLabel', 'MDC', 'Unit of measure'),
+                    emptyText: Uni.I18n.translate('channelConfig.channelConfigForm.unitOfMeasureEmptyTxt', 'MDC', 'Select a unit of measure'),
                     name: 'unitOfMeasure',
                     forceSelection: true,
                     displayField: 'localizedValue',
@@ -93,7 +94,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     xtype: 'textfield',
                     required: true,
                     allowBlank: false,
-                    fieldLabel: 'Multiplier',
+                    fieldLabel: Uni.I18n.translate('channelConfig.channelConfigForm.multiplierLabel', 'MDC', 'Multiplier'),
                     name: 'multiplier',
                     msgTarget: 'under',
                     vtype: 'multiplier',
@@ -167,8 +168,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     return false
                 }
             },
-            overflowValueText: 'Overflow value is wrong',
-            multiplierText: 'Multiplier is wrong'
+            overflowValueText: Uni.I18n.translate('channelConfig.channelConfigForm.overflowValueText', 'MDC', 'Overflow value is wrong'),
+            multiplierText: Uni.I18n.translate('channelConfig.channelConfigForm.multiplierText', 'MDC', 'Multiplier is wrong')
         });
     }
 });
