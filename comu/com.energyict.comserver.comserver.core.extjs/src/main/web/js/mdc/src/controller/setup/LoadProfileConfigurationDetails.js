@@ -53,7 +53,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 itemclick: this.loadGridItemDetail
             },
             'loadProfileConfigurationDetailForm reading-type-combo': {
-                change: this.onReadingTypeChange
+                change: this.changeDisplayedObisCodeAndUnitOfMeasure
             },
             'loadProfileConfigurationDetailForm button[name=loadprofilechannelaction]': {
                 click: this.onSubmit
@@ -158,41 +158,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         return associatedMeasurementType;
     },
 
-    onReadingTypeChange: function (combo) {
-        var readingType = combo.valueModels[0];
-        if (readingType) {
+    changeDisplayedObisCodeAndUnitOfMeasure: function (combo) {
+        if (combo.valueModels[0]) {
             var form = this.getChannelForm(),
-                measurementType = this.getAssociatedMeasurementType(readingType);
-
-            Ext.Ajax.request({
-                url: '/api/mtr/readingtypes/' + readingType.get('mRID') + '/calculated',
-                method: 'GET',
-                success: function (response) {
-                    var resp = Ext.JSON.decode(response.responseText);
-                    if (!Ext.isEmpty(resp.readingTypes)) {
-                        var calculatedReadingType = resp.readingTypes[0],
-                            calculatedReadingTypeDisplayField = form.down('reading-type-displayfield[name=calculatedReadingType]'),
-                            calculatedReadingTypeDisplayFieldEl = calculatedReadingTypeDisplayField.el.down('[role=textbox]');
-
-                        calculatedReadingTypeDisplayField.setValue(calculatedReadingType);
-                        calculatedReadingTypeDisplayField.show();
-
-                        Ext.DomHelper.append(calculatedReadingTypeDisplayFieldEl, {
-                            tag: 'span',
-                            html: Uni.I18n.translate('channelConfig.bulkQuantityReadingTypeDescription', 'MDC', 'Selected reading type is bulk quantity reading type. Calculated reading type will hold a delta between two neighbour interval readings.'),
-                            style: {
-                                position: 'absolute',
-                                top: '2em',
-                                left: '0',
-                                width: '1000px',
-                                lineHeight: '1em',
-                                color: '#999'
-                            }
-                        });
-                    }
-                }
-            });
-
+                measurementType = this.getAssociatedMeasurementType(combo.valueModels[0]);
             if (measurementType) {
                 form.down('[name=obiscode]').setValue(measurementType.get('obisCode'));
                 form.down('[name=unitOfMeasure]').setValue(measurementType.get('phenomenon').id);
@@ -358,7 +327,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     itemId: 'rulesForChannelPreviewContainer',
                     grid: {
                         xtype: 'load-profile-configuration-detail-rules-grid',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration']),
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration']),
                         deviceTypeId: me.deviceTypeId,
                         deviceConfigId: me.deviceConfigurationId,
                         channelConfigId: channelId
@@ -367,7 +336,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('validation.empty.rules.title', 'CFG', 'No validation rules found'),
                         reasons: [
-                            Uni.I18n.translate('channelConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.')
+                            Uni.I18n.translate('channelConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.'),
                         ]
                     },
                     previewComponent: {
@@ -543,7 +512,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                             overruledObisField = widget.down('textfield[name=overruledObisCode]'),
                                             overflowValueField = widget.down('textfield[name=overflowValue]'),
                                             multiplierField = widget.down('textfield[name=multiplier]');
-                                        readingTypeDisplayField = widget.down('reading-type-displayfield[name=readingType]');
+                                            readingTypeDisplayField = widget.down('reading-type-displayfield');
 
                                         me.getApplication().fireEvent('changecontentevent', widget);
                                         preloader.show();
