@@ -48,9 +48,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -138,6 +140,8 @@ public class ComSessionCrudIT {
     private LicenseService licenseService;
     @Mock
     private KpiService kpiService;
+    @Mock
+    private ConnectionTypeService connectionTypeService;
     private TransactionService transactionService;
     private OrmService ormService;
     private PartialScheduledConnectionTask partialScheduledConnectionTask;
@@ -243,6 +247,8 @@ public class ComSessionCrudIT {
             deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
             deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+            ((ProtocolPluggableServiceImpl) protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
+            when(this.connectionTypeService.createConnectionType(NoParamsConnectionType.class.getName())).thenReturn(new NoParamsConnectionType());
             engineModelService = injector.getInstance(EngineModelService.class);
             deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             taskService = injector.getInstance(TaskService.class);

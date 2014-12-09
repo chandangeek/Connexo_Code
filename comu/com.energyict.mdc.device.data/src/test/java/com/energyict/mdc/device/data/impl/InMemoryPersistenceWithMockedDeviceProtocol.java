@@ -311,7 +311,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Inject
-        private MockProtocolPluggableService(OrmService ormService, EventService eventService, NlsService nlsService, RelationService relationService, ConnectionTypeService connectionTypeService, InboundDeviceProtocolService inboundDeviceProtocolService, DeviceProtocolSecurityService deviceProtocolSecurityService, DeviceProtocolMessageService deviceProtocolMessageService, DeviceProtocolService deviceProtocolService, PluggableService pluggableService, PropertySpecService propertySpecService, IssueService issueService) {
+        private MockProtocolPluggableService() {
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
         }
 
