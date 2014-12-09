@@ -8,17 +8,14 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingContainer;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.IntervalBlock;
-import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.readings.*;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.Before;
@@ -32,6 +29,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -54,6 +52,15 @@ public class StandardCsvDataProcessorTest {
 
     @Mock
     private DataExportService dataExportService;
+
+    @Mock
+    private ValidationService validationService;
+
+    @Mock
+    private ValidationEvaluator validationEvaluator;
+
+    @Mock
+    private Channel channel;
 
     @Mock
     private AppService appService;
@@ -101,6 +108,9 @@ public class StandardCsvDataProcessorTest {
     private Thesaurus thesaurus;
 
     @Mock
+    DataValidationStatus dataValidationStatus, dataValidationStatus1, dataValidationStatus2, dataValidationStatus3;
+
+    @Mock
     private AppServer appServer;
 
 
@@ -115,6 +125,23 @@ public class StandardCsvDataProcessorTest {
         fileSystem = Jimfs.newFileSystem(Configuration.windows());
         Path root = fileSystem.getRootDirectories().iterator().next();
         tempDirectory = Files.createTempDirectory(root, "tmp");
+        when(validationService.getEvaluator(meter, Interval.sinceEpoch().toOpenClosedRange())).thenReturn(validationEvaluator);
+        when(validationService.getEvaluator(meter1, Interval.sinceEpoch().toOpenClosedRange())).thenReturn(validationEvaluator);
+        doReturn(Optional.of(meterActivation)).when(meter).getMeterActivation(Instant.ofEpochMilli(EPOCH_MILLI));
+        doReturn(Optional.of(meterActivation)).when(meter1).getMeterActivation(Instant.ofEpochMilli(EPOCH_MILLI));
+
+        List<? extends BaseReading> listReadings = Arrays.asList(reading, reading1, reading2);
+        when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel));
+        doReturn(Arrays.asList(readingType, readingType1)).when(channel).getReadingTypes();
+        when(readingQuality.isMissing()).thenReturn(true);
+        when(readingQuality1.isMissing()).thenReturn(false);
+        when(validationEvaluator.getValidationStatus(channel, listReadings)).thenReturn(Arrays.asList(dataValidationStatus, dataValidationStatus1, dataValidationStatus2, dataValidationStatus3));
+        when(dataValidationStatus.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
+        when(dataValidationStatus.getReadingTimestamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
+        when(dataValidationStatus1.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
+        when(dataValidationStatus1.getReadingTimestamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
+        when(dataValidationStatus2.getValidationResult()).thenReturn(ValidationResult.VALID);
+        when(dataValidationStatus3.getValidationResult()).thenReturn(ValidationResult.NOT_VALIDATED);
 
         properties = Arrays.asList(propertyPrefix, propertyExtension, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile, propertyPath);
         when(propertyExtension.getName()).thenReturn("fileFormat.fileExtension");
@@ -181,7 +208,7 @@ public class StandardCsvDataProcessorTest {
 
     @Test
     public  void testExportToCsvWithAbsolutePath() {
-        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory);
+        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory, validationService);
 
         runExport();
 
@@ -195,7 +222,7 @@ public class StandardCsvDataProcessorTest {
     @Test
     public  void testExportToCsvWithRelativePath() {
         when(propertyPath.getValue()).thenReturn("dailies");
-        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory);
+        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory, validationService);
 
         runExport();
 
@@ -208,7 +235,7 @@ public class StandardCsvDataProcessorTest {
     @Test
     public  void testExportToCsvWithoutPath() {
         properties = Arrays.asList(propertyPrefix, propertyExtension, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile);
-        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory);
+        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory, validationService);
 
         runExport();
 
@@ -231,7 +258,7 @@ public class StandardCsvDataProcessorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testIllegalArgumentException() {
-        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory);
+        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory, validationService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
@@ -242,7 +269,7 @@ public class StandardCsvDataProcessorTest {
     @Test(expected = DataExportException.class)
     public void testNoMeter() {
         when(readingContainer.getMeter(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(Optional.empty());
-        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory);
+        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory, validationService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);

@@ -3,11 +3,14 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.*;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.*;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import java.io.*;
@@ -24,6 +27,7 @@ public class StandardCsvDataProcessor implements DataProcessor {
 
     private final DataExportService dataExportService;
     private final AppService appService;
+    private final ValidationService validationService;
 
     private Path tempDirectory;
     private String fileSeparator;
@@ -38,22 +42,25 @@ public class StandardCsvDataProcessor implements DataProcessor {
     private BufferedWriter writer;
     private Path tempUpdatedFile;
     private BufferedWriter updatedWriter;
-    private String readingType;
+    private ReadingType readingType;
     private Instant fileNameTimestamp;
     private ReadingContainer readingContainer;
     private final Thesaurus thesaurus;
     private FileSystem fileSystem;
+    private Meter meter;
 
     @Inject
-    public StandardCsvDataProcessor(DataExportService dataExportService, AppService appService, Thesaurus thesaurus) {
+    public StandardCsvDataProcessor(DataExportService dataExportService, AppService appService, Thesaurus thesaurus, ValidationService validationService) {
         this.dataExportService = dataExportService;
         this.appService = appService;
         this.thesaurus = thesaurus;
+        this.validationService = validationService;
     }
 
-    public StandardCsvDataProcessor(DataExportService dataExportService, AppService appService, List<DataExportProperty> properties, Thesaurus thesaurus, FileSystem fileSystem, Path tempDirectory) {
+    public StandardCsvDataProcessor(DataExportService dataExportService, AppService appService, List<DataExportProperty> properties, Thesaurus thesaurus, FileSystem fileSystem, Path tempDirectory, ValidationService validationService) {
         this.dataExportService = dataExportService;
         this.appService = appService;
+        this.validationService = validationService;
         this.thesaurus = thesaurus;
         this.fileSystem = fileSystem;
         this.tempDirectory = tempDirectory;
@@ -103,45 +110,60 @@ public class StandardCsvDataProcessor implements DataProcessor {
     @Override
     public void startItem(ReadingTypeDataExportItem item) {
         readingContainer = item.getReadingContainer();
-        readingType = item.getReadingType().getMRID();
+        readingType = item.getReadingType();
     }
 
     @Override
     public Optional<Instant> processData(MeterReading data) {
+
         List<Reading> readings = data.getReadings();
-        Optional<Instant> latestProcessedTimestamp = readings.stream().map(Reading::getTimeStamp).max(Comparator.naturalOrder());
-        readings.stream().forEach(this::writeReading);
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
+        Optional<Instant> latestProcessedTimestamp = readings.stream().map(Reading::getTimeStamp).max(Comparator.naturalOrder());
+        setMeter(latestProcessedTimestamp);
+        Map<Instant, DataValidationStatus> statuses = getDataValidationStatusMap(latestProcessedTimestamp, readings);
+        for (BaseReading reading : readings) {
+            writeReading(reading, statuses.get(reading.getTimeStamp()));
+        }
+
         if (!intervalBlocks.isEmpty()) {
             latestProcessedTimestamp = intervalBlocks.stream().flatMap(i -> i.getIntervals().stream()).map(IntervalReading::getTimeStamp).max(Comparator.naturalOrder());
-            intervalBlocks.stream().forEach(block -> block.getIntervals().stream().forEach(this::writeReading));
+            setMeter(latestProcessedTimestamp);
+            for (IntervalBlock block : intervalBlocks) {
+                statuses = getDataValidationStatusMap(latestProcessedTimestamp, block.getIntervals());
+                for (BaseReading reading : block.getIntervals()) {
+                    writeReading(reading, statuses.get(reading.getTimeStamp()));
+                }
+            }
         }
         writeMainFile |= latestProcessedTimestamp.isPresent();
         return latestProcessedTimestamp;
     }
 
-    private void writeReading(BaseReading reading) {
-        Optional<Meter> meterOptional = readingContainer.getMeter(reading.getTimeStamp());
-        if (!meterOptional.isPresent()) {
-            throw new DataExportException(new LocalizedException(thesaurus, MessageSeeds.INVALID_READING_CONTAINER, new IllegalArgumentException()) {});
-        }
+    private void writeReading(BaseReading reading, DataValidationStatus status) {
+
         try {
             if (reading.getValue() != null) {
-                Long timestamp = reading.getTimeStamp().toEpochMilli();
-                writer.write(timestamp.toString());
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                // TODO correct ZoneId
+                ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
+                writer.write(date.format(formatter));
                 writer.write(fileSeparator);
-                writer.write(meterOptional.get().getMRID());
+                writer.write(meter.getMRID());
                 writer.write(fileSeparator);
-                writer.write(readingType);
+                writer.write(readingType.getMRID());
                 writer.write(fileSeparator);
                 writer.write(reading.getValue().toString());
                 writer.write(fileSeparator);
-                List<? extends ReadingQuality> readingQualities = reading.getReadingQualities();
-                //TODO handle readingQualities properly
-                for (ReadingQuality readingQuality : readingQualities) {
-                    //ReadingQualityRecord record = ReadingQualityRecord.class.cast(readingQuality);
-                    writer.write(readingQuality.getTypeCode());
-                    writer.write("-");
+                if (status != null) {
+                    ValidationResult validationResult = status.getValidationResult();
+                    switch (validationResult) {
+                        case VALID:
+                            writer.write("valid");
+                            break;
+                        case SUSPECT:
+                            writer.write("suspect");
+                            break;
+                    }
                 }
                 writer.write(fileSeparator);
                 writer.newLine();
@@ -158,11 +180,12 @@ public class StandardCsvDataProcessor implements DataProcessor {
 
     @Override
     public void endItem(ReadingTypeDataExportItem item) {
-        if (!item.getReadingType().getMRID().equals(readingType)) {
+        if (!item.getReadingType().getMRID().equals(readingType.getMRID())) {
             throw new IllegalArgumentException("ReadingTypeDataExportItems passed to startItem() and EndItem() methods are different");
         }
         readingContainer = null;
         readingType = null;
+        meter = null;
     }
 
     @Override
@@ -235,5 +258,39 @@ public class StandardCsvDataProcessor implements DataProcessor {
                 this.fileSeparator = ",";
                 break;
         }
+    }
+
+    private Map<Instant, DataValidationStatus> getDataValidationStatusMap(Optional<Instant> instantRef, List<? extends BaseReading> readings) {
+        Map<Instant, DataValidationStatus> statuses = new HashMap<>();
+        if(instantRef.isPresent()) {
+            List<DataValidationStatus> dataValidationStatuses = validationService.getEvaluator(meter, Interval.sinceEpoch().toOpenClosedRange())
+                    .getValidationStatus(forValidation(instantRef.get(), meter), readings);
+            dataValidationStatuses.stream().forEach(s -> statuses.put(s.getReadingTimestamp(), s));
+        }
+        return statuses;
+    }
+
+    private Channel forValidation(Instant latestProcessedTimestamp, Meter meter) {
+        MeterActivation meterActivation = meter.getMeterActivation(latestProcessedTimestamp).orElseThrow(IllegalArgumentException::new);
+        return findChannel(meterActivation).orElseThrow(IllegalArgumentException::new);
+    }
+
+    private void setMeter(Optional<Instant> latestProcessedTimestamp) {
+        if (latestProcessedTimestamp.isPresent()) {
+            Optional<Meter> meterOptional = readingContainer.getMeter(latestProcessedTimestamp.get());
+            if (!meterOptional.isPresent()) {
+                throw new DataExportException(new LocalizedException(thesaurus, MessageSeeds.INVALID_READING_CONTAINER, new IllegalArgumentException()) {});
+            }
+            meter = meterOptional.get();
+        }
+    }
+
+    private Optional<Channel> findChannel(MeterActivation meterActivation) {
+        for(Channel channel : meterActivation.getChannels()) {
+            if(channel.getReadingTypes().contains(readingType)) {
+                return Optional.of(channel);
+            }
+        }
+        return Optional.empty();
     }
 }

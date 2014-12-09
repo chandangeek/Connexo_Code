@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.streams.FancyJoiner;
+import com.elster.jupiter.validation.ValidationService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -36,6 +37,7 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
 
     private volatile PropertySpecService propertySpecService;
     private volatile DataExportService dataExportService;
+    private volatile ValidationService validationService;
     private volatile AppService appService;
     private volatile Thesaurus thesaurus;
 
@@ -59,6 +61,11 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
         this.appService = appService;
     }
 
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
     @Override
     public List<PropertySpec<?>> getProperties() {
         List<PropertySpec<?>> propertySpecs = new ArrayList<>();
@@ -71,7 +78,7 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
 
     @Override
     public DataProcessor createDataFormatter(List<DataExportProperty> properties) {
-        return new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, FileSystems.getDefault(), getTempDir());
+        return new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, FileSystems.getDefault(), getTempDir(), validationService);
     }
 
     private Path getTempDir() {
