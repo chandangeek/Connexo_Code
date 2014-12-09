@@ -14,7 +14,7 @@ import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -165,7 +165,7 @@ public class DeviceResource {
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
         List<DeviceTopologyInfo> slaves;
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
-            slaves = DeviceTopologyInfo.from(deviceService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
         } else {
             slaves = DeviceTopologyInfo.from(topologyService.findPhysicalConnectedDevices(device));
         }
@@ -295,7 +295,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        TopologyTimeline timeline = deviceService.getPysicalTopologyTimeline(device);
+        TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
         Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate)
                 .sorted(Comparator.comparing(Device::getmRID));
@@ -319,7 +319,7 @@ public class DeviceResource {
     }
 
     private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, String> extractor) {
-        Pattern filterPattern = getFilterPattern(name, filter.getString(name));
+        Pattern filterPattern = getFilterPattern(filter.getString(name));
         if (filterPattern != null) {
             return predicate.and(d -> {
                 String stringToSearch = extractor.apply(d);
@@ -360,11 +360,12 @@ public class DeviceResource {
      * @param filter the filter expression
      * @return search pattern
      */
-    private Pattern getFilterPattern(String name, String filter) {
+    private Pattern getFilterPattern(String filter) {
         if (filter != null) {
             filter = Pattern.quote(filter.replace('%', '*'));
             return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
         }
         return null;
     }
+
 }

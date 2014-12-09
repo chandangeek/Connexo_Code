@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.Instant;
