@@ -86,7 +86,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<String>get("$.connections[0].connectionType")).isEqualTo("Pluggable class");
         assertThat(jsonModel.<Integer>get("$.connections[0].connectionMethod.id")).isEqualTo(991);
         assertThat(jsonModel.<String>get("$.connections[0].connectionMethod.name")).isEqualTo("partial connection task name");
-        assertThat(jsonModel.<Boolean>get("$.connections[0].connectionMethod.default")).isTrue();
+        assertThat(jsonModel.<Boolean>get("$.connections[0].connectionMethod.isDefault")).isTrue();
         assertThat(jsonModel.<String>get("$.connections[0].connectionMethod.status")).isEqualTo("active");
         assertThat(jsonModel.<String>get("$.connections[0].window")).isEqualTo("00:01 - 00:02");
         assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.id")).isEqualTo("asSoonAsPossible");

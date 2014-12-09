@@ -10,7 +10,6 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycleStatus;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DeviceConnectionTaskInfo {
     public long id;
@@ -51,7 +50,6 @@ public class DeviceConnectionTaskInfo {
     }
     
     public static class ConnectionMethodInfo extends IdWithNameInfo {
-        @JsonProperty("default")
         public boolean isDefault;
         @XmlJavaTypeAdapter(ConnectionTaskLifecycleStatusAdapter.class)
         public ConnectionTaskLifecycleStatus status;
