@@ -15,14 +15,15 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.google.inject.Injector;
 
 public class UnknownDeviceResolvedEvent extends UnknownSlaveDeviceEvent {
     @Inject
-    public UnknownDeviceResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
-        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, thesaurus, injector);
+    public UnknownDeviceResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, Thesaurus thesaurus, Injector injector) {
+        super(issueDataCollectionService, issueService, meteringService, deviceService, topologyService, communicationTaskService, thesaurus, injector);
     }
 
     @Override
@@ -34,7 +35,7 @@ public class UnknownDeviceResolvedEvent extends UnknownSlaveDeviceEvent {
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
         //do nothing
     }
-    
+
     @Override
     protected void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> deviceId = getLong(rawEvent, "id");
@@ -52,4 +53,5 @@ public class UnknownDeviceResolvedEvent extends UnknownSlaveDeviceEvent {
     public boolean isResolveEvent(){
         return true;
     }
+
 }

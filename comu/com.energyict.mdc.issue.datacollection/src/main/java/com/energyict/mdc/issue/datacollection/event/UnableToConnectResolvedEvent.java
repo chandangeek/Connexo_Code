@@ -9,23 +9,25 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.google.inject.Injector;
 
 public class UnableToConnectResolvedEvent extends UnableToConnectEvent {
 
     @Inject
-    public UnableToConnectResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
-        super(issueDataCollectionService, issueService, meteringService, deviceService, communicationTaskService, connectionTaskService, thesaurus, injector);
+    public UnableToConnectResolvedEvent(IssueDataCollectionService issueDataCollectionService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, TopologyService topologyService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService, Thesaurus thesaurus, Injector injector) {
+        super(issueDataCollectionService, issueService, meteringService, deviceService, topologyService, communicationTaskService, connectionTaskService, thesaurus, injector);
     }
 
     @Override
     public void apply(Issue issue) {
         // do nothing, this event shouldn't produce any issues
     }
-    
+
     @Override
     public boolean isResolveEvent() {
         return true;
     }
+
 }
