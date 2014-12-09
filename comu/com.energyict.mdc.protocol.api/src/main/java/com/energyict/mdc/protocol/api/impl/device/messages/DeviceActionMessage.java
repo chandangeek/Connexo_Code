@@ -151,7 +151,10 @@ public enum DeviceActionMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.second, true, ""));
         }
     },
-    RebootApplication(DeviceMessageId.DEVICE_ACTIONS_REBOOT_APPLICATIOn, "Reboot the application");
+    REBOOT_APPLICATION(DeviceMessageId.DEVICE_ACTIONS_REBOOT_APPLICATION, "Reboot the application"),
+    DEMAND_RESET_WITH_FORCE_CLOCK(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET_WITH_FORCE_CLOCK, "Demand reset with force clock"),
+    HARD_RESET_DEVICE(DeviceMessageId.DEVICE_ACTIONS_HARD_RESET_DEVICE, "Hard reset the device"),
+    ;
 
     private static BigDecimal[] analogOutPossibleValues() {
         BigDecimal[] result = new BigDecimal[16];

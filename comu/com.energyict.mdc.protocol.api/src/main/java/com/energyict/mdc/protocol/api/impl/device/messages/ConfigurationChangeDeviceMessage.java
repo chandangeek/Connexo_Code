@@ -281,7 +281,30 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.ntpAddress, true, ""));
         }
     }
-    , SyncNTPServer(DeviceMessageId.CONFIGURATION_CHANGE_SYNC_NTPSERVER, "Synchronize NTP server");
+    , SYNC_NTP_SERVER(DeviceMessageId.CONFIGURATION_CHANGE_SYNC_NTPSERVER, "Synchronize NTP server")
+    , CLEAR_FAULTS_FLAGS(DeviceMessageId.CONFIGURATION_CHANGE_CLEAR_FAULTS_FLAGS, "Clear faults flags")
+    , CLEAR_STATISTICAL_VALUES(DeviceMessageId.CONFIGURATION_CHANGE_CLEAR_STATISTICAL_VALUES, "Clear statistical values")
+    , ENABLE_DISCOVERY_ON_POWER_UP(DeviceMessageId.CONFIGURATION_CHANGE_ENABLE_DISCOVERY_ON_POWER_UP, "Enable discovery on power up")
+    , DISABLE_DISCOVERY_ON_POWER_UP(DeviceMessageId.CONFIGURATION_CHANGE_DISABLE_DISCOVERY_ON_POWER_UP, "Disable discovery on power up")
+    , CONFIGURE_AUTOMATIC_DEMAND_RESET(DeviceMessageId.CONFIGURATION_CHANGE_CONFIGURE_AUTOMATIC_DEMAND_RESET, "Configure automatic demand reset"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.booleanPropertySpec(DeviceMessageConstants.enableAutomaticDemandResetAttributeName, true, false));
+            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(DeviceMessageConstants.day, true, BigDecimal.valueOf(0), BigDecimal.valueOf(31)));
+            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(DeviceMessageConstants.hour, true, BigDecimal.valueOf(0), BigDecimal.valueOf(23)));
+        }
+    }, CONFIGURE_MASTER_BOARD_PARAMETERS(DeviceMessageId.CONFIGURATION_CHANGE_CONFIGURE_MASTER_BOARD_PARAMETERS, "Configure master board parameters") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.localMacAddress, true, BigDecimal.valueOf(-1)));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.maxCredit, true, BigDecimal.valueOf(-1)));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.zeroCrossDelay, true, BigDecimal.valueOf(-1)));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.synchronisationBit, true, BigDecimal.valueOf(-1)));
+        }
+    }
+    ;
 
     private DeviceMessageId id;
     private String defaultTranslation;

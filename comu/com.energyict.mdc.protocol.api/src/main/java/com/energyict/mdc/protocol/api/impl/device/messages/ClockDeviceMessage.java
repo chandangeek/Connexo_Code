@@ -4,6 +4,7 @@ import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -150,7 +151,27 @@ public enum ClockDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(SetNTPOptionsAttributeName, true, new StringFactory()));
         }
-    }, SyncTime(DeviceMessageId.CLOCK_SET_SYNCHRONIZE_TIME, "Synchronize the time");
+    },
+    SyncTime(DeviceMessageId.CLOCK_SET_SYNCHRONIZE_TIME, "Synchronize the time"),
+    CONFIGURE_DST(DeviceMessageId.CLOCK_SET_CONFIGURE_DST, "Configure DST"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.booleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName, true, false));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.StartOfDSTAttributeName, true, new DateAndTimeFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.EndOfDSTAttributeName, true, new DateAndTimeFactory()));
+        }
+    },
+    CONFIGURE_DST_WITHOUT_HOUR(DeviceMessageId.CLOCK_SET_CONFIRUE_DST_WITHOUT_HOUR, "Configure DST without hour"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.booleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName, true, false));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.StartOfDSTAttributeName, true, new DateAndTimeFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.EndOfDSTAttributeName, true, new DateAndTimeFactory()));
+        }
+    },
+    ;
 
     private DeviceMessageId id;
     private String defaultTranslation;

@@ -290,6 +290,8 @@ public class DeviceMessageConstants {
     public static final String NewValueAttributeName = "PeakShaverConfigurationDeviceMessage.NewValue";
 
     public static final String enableDSTAttributeName = "ConfigurationChangeDeviceMessage.EnableDST";
+    public static final String StartOfDSTAttributeName = "ClockDeviceMessage.startofdst";
+    public static final String EndOfDSTAttributeName = "ClockDeviceMessage.endofdst";
     public static final String newPDRAttributeName = "ConfigurationChangeDeviceMessage.pdr";
     public static final String converterTypeAttributeName = "ConfigurationChangeDeviceMessage.convertertype";
     public static final String converterSerialNumberAttributeName = "ConfigurationChangeDeviceMessage.converter.serialnumber";

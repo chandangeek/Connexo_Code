@@ -1,8 +1,10 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.properties.BooleanFactory;
+import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.TimeOfDayFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -14,29 +16,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.NetworkConnectivityIPAddressAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.NetworkConnectivityIntervalAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetDHCPAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetDHCPTimeoutAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetGatewayAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetHttpPortAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetIPAddressAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetNameServerAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetProxyPasswordAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetProxyServerAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetProxyUsernameAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SetSubnetMaskAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.apnAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.devicePhoneNumberAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.inactivityTimeoutAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ipAddressAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.managedWhiteListPhoneNumbersAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.passwordAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.portNumberAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.smsCenterPhoneNumberAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.usernameAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.wakeupPeriodAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * Provides a summary of all messages related to <i>Network</i> and <i>Connectivity</i>
@@ -216,6 +196,39 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.PPPDaemonResetThreshold, true, BigDecimal.ZERO));
             propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.modemResetThreshold, true, BigDecimal.ZERO));
             propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.systemRebootThreshold, true, BigDecimal.ZERO));
+        }
+    },
+    CLEAR_WHITE_LIST(DeviceMessageId.NETWORK_CONNECTIVITY_CLEAR_WHITE_LIST, "Clear the white list"),
+    ENABLE_WHITE_LIST(DeviceMessageId.NETWORK_CONNECTIVITY_ENABLE_WHITE_LIST, "Enable the white list"),
+    DISABLE_WHITE_LIST(DeviceMessageId.NETWORK_CONNECTIVITY_DISABLE_WHITE_LIST, "Disable the white list"),
+    ENABLE_OPERATING_WINDOW(DeviceMessageId.NETWORK_CONNECTIVITY_ENABLE_OPERATING_WINDOW, "Enable operating mode"),
+    DISABLE_OPERATING_WINDOW(DeviceMessageId.NETWORK_CONNECTIVITY_DISABLE_OPERATING_WINDOW, "Disable operating mode"),
+    SET_OPERATING_WINDOW_START_TIME(DeviceMessageId.NETWORK_CONNECTIVITY_SET_OPERATING_WINDOW_START_TIME, "Set operating window start time") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.startTime, true, new TimeOfDayFactory()));
+        }
+    },
+    SET_OPERATING_WINDOW_END_TIME(DeviceMessageId.NETWORK_CONNECTIVITY_SET_OPERATING_WINDOW_END_TIME, "Set operating window end time") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.endTime, true, new TimeOfDayFactory()));
+        }
+    },
+    RUN_METER_DISCOVERY(DeviceMessageId.NETWORK_CONNECTIVITY_RUN_METER_DISCOVERY, "Run meter discovery"),
+    RUN_ALARM_METER_DISCOVERY(DeviceMessageId.NETWORK_CONNECTIVITY_RUN_ALARM_METER_DISCOVERY, "Run alarm meter discovery"),
+    RUN_REPEATER_CALL(DeviceMessageId.NETWORK_CONNECTIVITY_RUN_REPEATER_CALL, "Run repeater call"),
+    SET_NETWORK_MANAGEMENT_PARAMETERS(DeviceMessageId.NETWORK_CONNECTIVITY_SET_NETWORK_MANAGEMENT_PARAMETERS, "Set the network management parameters") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.discoverDuration, true, BigDecimal.ZERO));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.discoverInterval, true, BigDecimal.ZERO));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.repeaterCallInterval, true, BigDecimal.ZERO));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.repeaterCallThreshold, true, BigDecimal.ZERO));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.repeaterCallTimeslots, true, BigDecimal.ZERO));
         }
     };
 
