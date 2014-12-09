@@ -43,9 +43,14 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("/relativeperiods")
 public class RelativePeriodResource {
+
+    private static final Logger LOGGER = Logger.getLogger(RelativePeriodResource.class.getName());
+
     private final TimeService timeService;
     private final RestQueryService restQueryService;
     private final TransactionService transactionService;
@@ -127,11 +132,7 @@ public class RelativePeriodResource {
             List<RelativePeriodCategory> categories = relativePeriod.getRelativePeriodCategories();
             try (TransactionContext context = transactionService.getContext()) {
                 for (RelativePeriodCategory category : categories) {
-                    try {
-                        relativePeriod.removeRelativePeriodCategory(category);
-                    } catch (Exception ex) {
-                        throw new WebApplicationException(ex.getMessage());
-                    }
+                    relativePeriod.removeRelativePeriodCategory(category);
                 }
                 relativePeriod.delete();
                 context.commit();
@@ -140,6 +141,7 @@ public class RelativePeriodResource {
         } catch (WebApplicationException e) {
             throw e;
         } catch (RuntimeException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new WebApplicationException(e.getLocalizedMessage());
         }
     }
