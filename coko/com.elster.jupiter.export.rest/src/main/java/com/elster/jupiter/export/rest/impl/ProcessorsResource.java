@@ -40,7 +40,7 @@ public class ProcessorsResource {
         List<DataProcessorFactory> processors = dataExportService.getAvailableProcessors();
         PropertyUtils propertyUtils = new PropertyUtils();
         for (DataProcessorFactory processor : processors) {
-            infos.add(processor.getName(), thesaurus.getString(processor.getName(), processor.getName()),
+            infos.add(processor.getName(), thesaurus.getStringBeyondComponent(processor.getName(), processor.getName()),
                     propertyUtils.convertPropertySpecsToPropertyInfos(processor.getProperties()));
         }
         infos.total = processors.size();
