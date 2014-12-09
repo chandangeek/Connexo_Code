@@ -25,19 +25,8 @@ import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +57,18 @@ public class DeviceGroupResource {
         this.restQueryService = restQueryService;
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
+    }
+
+    @GET
+    @Path("/{id}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id, @Context SecurityContext securityContext) {
+        return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext));
+    }
+
+    private EndDeviceGroup fetchDeviceGroup(long id, SecurityContext securityContext) {
+        return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @GET
