@@ -14,7 +14,6 @@ public class CompositeScheduleExpressionParser implements ScheduleExpressionPars
     public Optional<ScheduleExpression> parse(String string) {
         return members.stream()
                 .map(m -> m.parse(string))
-                .map(op -> op.map(ScheduleExpression.class::cast))
                 .flatMap(asStream())
                 .findFirst();
     }
