@@ -82,35 +82,34 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public class FavoritesServiceImplTest {
-    
+
     private Injector injector;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    
+
     private UserService userService;
 
     private MeteringGroupsService meteringGroupsService;
-    
+
     private DeviceConfigurationService deviceConfigurationService;
-    
+
     private DeviceService deviceService;
 
     private FavoritesService favoritesService;
-    
+
     private LabelCategory labelCategory;
-    
+
     private User user, user1;
-    
+
     private Device device, device1;
-    
+
     private EndDeviceGroup endDeviceGroup, endDeviceGroup1;
-    
+
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
@@ -136,7 +135,7 @@ public class FavoritesServiceImplTest {
             return Level.INFO;
         }
     };
-    
+
     private class MockModule extends AbstractModule {
 
         @Override
@@ -171,7 +170,6 @@ public class FavoritesServiceImplTest {
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new IssuesModule(),
-                new ProtocolsModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
@@ -189,7 +187,7 @@ public class FavoritesServiceImplTest {
                 new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
-                new SchedulingModule(), 
+                new SchedulingModule(),
                 new FavoritesModule());
 
         try (TransactionContext ctx = getTransactionService().getContext()) {
@@ -197,15 +195,15 @@ public class FavoritesServiceImplTest {
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             deviceService = injector.getInstance(DeviceService.class);
             favoritesService = injector.getInstance(FavoritesService.class);
-            
+
             labelCategory = favoritesService.createLabelCategory("test.label.category");
-            
+
             user = userService.createUser("user", "user descr");
             user1 = userService.createUser("user1", "user1 descr");
-            
+
             endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(Condition.TRUE);
             endDeviceGroup.save();
-            
+
             endDeviceGroup1 = meteringGroupsService.createQueryEndDeviceGroup(Where.where("MRID").isEqualTo("ZABF0000100001"));
             endDeviceGroup1.save();
 
@@ -222,10 +220,10 @@ public class FavoritesServiceImplTest {
 
             device = deviceService.newDevice(configuration, "ZABF0000100001", "ZABF0000100001");
             device.save();
-            
+
             device1 = deviceService.newDevice(configuration, "ZABF0000100002", "ZABF0000100002");
             device1.save();
-            
+
             ctx.commit();
         }
     }
@@ -234,17 +232,17 @@ public class FavoritesServiceImplTest {
     public void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();
     }
-    
+
     @Test
     public void testInstall() {
         FavoritesServiceImpl favDevicesServiceImpl = (FavoritesServiceImpl)favoritesService;
         assertThat(favDevicesServiceImpl.getPrerequisiteModules()).contains("ORM", "USR", "NLS", "MTG", "DDC");
-        
+
         //double installation
         favDevicesServiceImpl.install();
         //no exceptions
     }
-    
+
     @Test
     public void testTranslationKeys() {
         FavoritesServiceImpl favoritesServiceImpl = (FavoritesServiceImpl) favoritesService;
@@ -252,15 +250,15 @@ public class FavoritesServiceImplTest {
         assertThat(favoritesServiceImpl.getComponentName()).isEqualTo("FAV");
         assertThat(favoritesServiceImpl.getKeys()).containsExactly(MessageSeeds.values());
     }
-    
+
     @Test
     public void testGetLabelCategories() {
         List<LabelCategory> labelCategories = favoritesService.getLabelCategories();
-        
+
         assertThat(labelCategories).hasSize(1);
         assertThat(labelCategories.get(0).getName()).isEqualTo("test.label.category");
     }
-    
+
     @Test
     public void testCreateLabelCategory() {
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -274,7 +272,7 @@ public class FavoritesServiceImplTest {
             assertThat(category.get().getName()).isEqualTo("category_name");
         }
     }
-    
+
     @Test
     @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.CAN_NOT_BE_EMPTY + "}", property = "name", strict = false)
     public void testCreateLabelCategoryWithNullName() {
@@ -282,7 +280,7 @@ public class FavoritesServiceImplTest {
             favoritesService.createLabelCategory(null);
         }
     }
-    
+
     @Test
     @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}", property = "name", strict = false)
     public void testCreateLabelCategoryWithEmptyName() {
@@ -290,7 +288,7 @@ public class FavoritesServiceImplTest {
             favoritesService.createLabelCategory("");
         }
     }
-    
+
     @Test
     @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}", property = "name", strict = false)
     public void testCreateLabelCategoryWithTooLongName() {
@@ -298,7 +296,7 @@ public class FavoritesServiceImplTest {
             favoritesService.createLabelCategory("1234567890123456789012345678901234567890123456789012345678901234567890123456789021");
         }
     }
-    
+
     @Test
     @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.DUPLICATE_LABEL_CATEGORY + "}", property = "name", strict = false)
     public void testDuplicateLabelCategory() {
@@ -315,10 +313,10 @@ public class FavoritesServiceImplTest {
             favoritesService.findOrCreateFavoriteDeviceGroup(endDeviceGroup1, user);
             context.commit();
         }
-        
+
         List<FavoriteDeviceGroup> favoriteDeviceGroupsUser = favoritesService.getFavoriteDeviceGroups(user);
         List<FavoriteDeviceGroup> favoriteDeviceGroupsUser1 = favoritesService.getFavoriteDeviceGroups(user1);
-        
+
         assertThat(favoriteDeviceGroupsUser).hasSize(2);
         assertThat(favoriteDeviceGroupsUser.get(0).getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
         assertThat(favoriteDeviceGroupsUser.get(1).getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup1.getId());
@@ -333,12 +331,12 @@ public class FavoritesServiceImplTest {
         }
 
         Optional<FavoriteDeviceGroup> foundFavoriteDeviceGroup = favoritesService.findFavoriteDeviceGroup(endDeviceGroup, user);
-        
+
         assertThat(foundFavoriteDeviceGroup.isPresent()).isTrue();
         assertThat(foundFavoriteDeviceGroup.get().getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
         assertThat(foundFavoriteDeviceGroup.get().getUser().getId()).isEqualTo(user.getId());
     }
-    
+
     @Test
     public void testRemoveFavoriteDeviceGroup() {
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -351,15 +349,15 @@ public class FavoritesServiceImplTest {
             favoritesService.removeFavoriteDeviceGroup(favoriteDeviceGroup);
             context.commit();
         }
-        
+
         List<FavoriteDeviceGroup> favoriteDeviceGroups = favoritesService.getFavoriteDeviceGroups(user);
         assertThat(favoriteDeviceGroups).hasSize(1);
         assertThat(favoriteDeviceGroups.get(0).getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup1.getId());
-        
+
         Optional<FavoriteDeviceGroup> removedFavoriteDeviceGroup = favoritesService.findFavoriteDeviceGroup(endDeviceGroup, user);
         assertThat(removedFavoriteDeviceGroup.isPresent()).isFalse();
     }
-    
+
     @Test
     public void testGetDeviceLabels() {
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -367,32 +365,32 @@ public class FavoritesServiceImplTest {
             favoritesService.findOrCreateDeviceLabel(device1, user, labelCategory, "comment");
             context.commit();
         }
-        
+
         List<DeviceLabel> deviceLabelsOfUser = favoritesService.getDeviceLabelsOfCategory(user, labelCategory);
         List<DeviceLabel> deviceLabelsOfUser1 = favoritesService.getDeviceLabelsOfCategory(user1, labelCategory);
-        
+
         assertThat(deviceLabelsOfUser).hasSize(2);
         assertThat(deviceLabelsOfUser.get(0).getDevice().getId()).isEqualTo(device.getId());
         assertThat(deviceLabelsOfUser.get(1).getDevice().getId()).isEqualTo(device1.getId());
         assertThat(deviceLabelsOfUser1).isEmpty();
     }
-    
+
     @Test
     public void testCreateDeviceLabel() {
         try (TransactionContext context = getTransactionService().getContext()) {
             favoritesService.findOrCreateDeviceLabel(device, user, labelCategory, "Some comment...");
             context.commit();
         }
-        
+
         Optional<DeviceLabel> foundDeviceLabel = favoritesService.findDeviceLabel(device, user, labelCategory);
-        
+
         assertThat(foundDeviceLabel.isPresent()).isTrue();
         assertThat(foundDeviceLabel.get().getDevice().getId()).isEqualTo(device.getId());
         assertThat(foundDeviceLabel.get().getUser().getId()).isEqualTo(user.getId());
         assertThat(foundDeviceLabel.get().getComment()).isEqualTo("Some comment...");
         assertThat(foundDeviceLabel.get().getCreationDate()).isNotNull();
     }
-    
+
     @Test
     public void testRemoveDeviceLabel() {
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -405,11 +403,11 @@ public class FavoritesServiceImplTest {
             favoritesService.removeDeviceLabel(deviceLabel);
             context.commit();
         }
-        
+
         List<DeviceLabel> deviceLabels = favoritesService.getDeviceLabelsOfCategory(user, labelCategory);
         assertThat(deviceLabels).hasSize(1);
         assertThat(deviceLabels.get(0).getDevice().getId()).isEqualTo(device1.getId());
-        
+
         Optional<DeviceLabel> removedDeviceLabel = favoritesService.findDeviceLabel(device, user, labelCategory);
         assertThat(removedDeviceLabel.isPresent()).isFalse();
     }
