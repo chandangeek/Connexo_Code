@@ -47,7 +47,7 @@ class DueTaskFetcher {
 
     private Iterable<RecurrentTaskImpl> dueTasks(Connection connection) throws SQLException {
         Instant now = clock.instant();
-        try (PreparedStatement statement = connection.prepareStatement("select id, name, cronstring, nextexecution, payload, destination from TSK_RECURRENT_TASK where nextExecution < ?")) {
+        try (PreparedStatement statement = connection.prepareStatement("select id, name, cronstring, nextexecution, payload, destination from TSK_RECURRENT_TASK where nextExecution < ? for update skip locked")) {
             statement.setLong(1, now.toEpochMilli());
             try (ResultSet resultSet = statement.executeQuery()) {
                 return getRecurrentTasks(resultSet);
