@@ -257,6 +257,7 @@ public class DeviceMessageConstants {
     public static final String SetPPPIdleTimeoutAttributeName = "PPPConfigurationDeviceMessage.SetPPPIdleTimeout";
     public static final String SetPPPRetryIntervalAttributeName = "PPPConfigurationDeviceMessage.SetPPPRetryInterval";
     public static final String SetPPPOptionsAttributeName = "PPPConfigurationDeviceMessage.SetPPPOptions";
+    public static final String SetPPPIdleTime = "PPPConfigurationDeviceMessage.setPPPIdleTime";
     public static final String PPPDaemonResetThreshold = "PPPConfigurationDeviceMessage.pppDaemonResetThreshold";
 
     public static final String SetFunctionAttributeName = "ChannelConfigurationDeviceMessage.SetFunction";
@@ -346,6 +347,11 @@ public class DeviceMessageConstants {
     public static final String VoltageSwellThresholdAttributeName = "PowerConfigurationDeviceMessage.VoltageSwellThreshold";
     public static final String LongPowerFailureTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.LongPowerFailureTimeThreshold";
     public static final String LongPowerFailureThresholdAttributeName = "PowerConfigurationDeviceMessage.LongPowerFailureThreshold";
+
+    public static final String enableUplinkPing = "UplinkConfigurationDeviceMessage.enableUplinkPing";
+    public static final String uplinkPingDestinationAddress = "UplinkConfigurationDeviceMessage.uplinkPingDestinationAddress";
+    public static final String uplinkPingInterval = "UplinkConfigurationDeviceMessage.uplinkPingInterval";
+    public static final String uplinkPingTimeout = "UplinkConfigurationDeviceMessage.uplinkPingTimeout";
 
     public static final String SetMmEveryAttributeName = "ModbusConfigurationDeviceMessage.SetMmEvery";
     public static final String SetMmTimeoutAttributeName = "ModbusConfigurationDeviceMessage.SetMmTimeout";

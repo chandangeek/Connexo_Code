@@ -1,17 +1,14 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.latitudeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.longitudeAttributeName;
 
 /**
  * Copyrights EnergyICT
@@ -19,23 +16,34 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
  * Time: 12:08 PM
  */
 public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecEnum {
-
-//    SET_RELAY_OPERATING_MODE(DeviceMessageId.PUBLIC_LIGHTING_SET_RELAY_OPERATING_MODE, "Public lighting set relay operating mode"){
-//        @Override
-//        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-//            super.addPropertySpecs(propertySpecs, propertySpecService);
-//            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(relayNumberAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
-//            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(relayOperatingModeAttributeName, true, BigDecimal.ZERO, BigDecimal.ONE, BigDecimals.TWO, BigDecimals.THREE));
-//        }
-//    },
-
-    EnableUplinkPing(0, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableUplinkPing)),
-    WriteUplinkPingDestinationAddress(1, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.uplinkPingDestinationAddress)),
-    WriteUplinkPingInterval(2, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.uplinkPingInterval)),
-    WriteUplinkPingTimeout(3, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.uplinkPingTimeout));
-
-
-    ;
+    EnableUplinkPing(DeviceMessageId.UPLINK_CONFIGURATION_ENABLE_PING, "Enable uplink ping"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.enableUplinkPing, true, new BooleanFactory()));
+        }
+    },
+    WriteUplinkPingDestinationAddress(DeviceMessageId.UPLINK_CONFIGURATION_WRITE_UPLINK_PING_DESTINATION_ADDRESS, "Write uplink ping destination address"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.uplinkPingDestinationAddress, true, ""));
+        }
+    },
+    WriteUplinkPingInterval(DeviceMessageId.UPLINK_CONFIGURATION_WRITE_UPLINK_PING_INTERVAL, "Write uplink ping interval"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.uplinkPingInterval, true, BigDecimal.ZERO));
+        }
+    },
+    WriteUplinkPingTimeout(DeviceMessageId.UPLINK_CONFIGURATION_WRITE_UPLINK_PING_TIMEOUT, "Write uplink ping timeout"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.uplinkPingTimeout, true, BigDecimal.ZERO));
+        }
+    };
 
     private DeviceMessageId id;
     private String defaultTranslation;
@@ -67,7 +75,7 @@ public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
         // Default behavior is not to add anything
-    };
+    }
 
     @Override
     public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {

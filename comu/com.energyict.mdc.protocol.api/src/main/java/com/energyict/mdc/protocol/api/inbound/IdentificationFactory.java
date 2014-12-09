@@ -10,8 +10,6 @@
 
 package com.energyict.mdc.protocol.api.inbound;
 
-import com.energyict.mdc.protocol.api.inbound.MeterId;
-import com.energyict.mdc.protocol.api.inbound.MeterType;
 
 import java.io.IOException;
 
