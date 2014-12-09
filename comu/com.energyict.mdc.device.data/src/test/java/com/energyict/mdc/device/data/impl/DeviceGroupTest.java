@@ -188,7 +188,6 @@ public class DeviceGroupTest {
                 new IdsModule(),
                 new MeteringModule(),
                 new InMemoryMessagingModule(),
-                new EventsModule(),
                 new ValidationModule(),
                 new SchedulingModule(),
                 new ProtocolPluggableModule(),
