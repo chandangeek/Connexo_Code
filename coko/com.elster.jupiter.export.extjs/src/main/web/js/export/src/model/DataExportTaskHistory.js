@@ -12,7 +12,18 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
         {name: 'reason', type: 'string'},
         {name: 'exportPeriodFrom', type: 'number'},
         {name: 'exportPeriodTo', type: 'number'},
-        {name: 'statusOnDate', type: 'string'},
+        {name: 'statusDate', type: 'number'},
+        {name: 'statusPrefix', type: 'string'},
+        {
+            name: 'statusOnDate',
+            persist: false,
+            mapping: function (data) {
+                if (data.statusDate && (data.statusDate !== 0)) {
+                    return data.statusPrefix + ' ' + moment(data.statusDate).format('ddd, DD MMM YYYY hh:mm:ss');
+                }
+                return data.statusPrefix;
+            }
+        },
         {
             name: 'startedOn_formatted',
             persist: false,

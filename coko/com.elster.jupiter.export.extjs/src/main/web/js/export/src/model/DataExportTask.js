@@ -50,8 +50,10 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'statusOnDate',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.statusOnDate) {
-                    return data.lastExportOccurence.statusOnDate;
+                if (data.lastExportOccurence && data.lastExportOccurence.statusDate && data.lastExportOccurence.statusDate != 0) {
+                    return data.lastExportOccurence.statusPrefix + ' ' + moment(data.lastExportOccurence.statusDate).format('ddd, DD MMM YYYY hh:mm:ss');
+                } else if (data.lastExportOccurence) {
+                    return data.lastExportOccurence.statusPrefix
                 } else {
                     return Uni.I18n.translate('general.notPerformed', 'DES', 'Not performed yet');
                 }
