@@ -56,7 +56,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -201,7 +200,6 @@ public class InMemoryPersistence {
             modules.add(new BasicPropertiesModule());
             modules.add(new MdcDynamicModule());
             modules.add(new ProtocolPluggableModule());
-            modules.add(new ProtocolsModule());
         }
         return modules.toArray(new Module[modules.size()]);
     }

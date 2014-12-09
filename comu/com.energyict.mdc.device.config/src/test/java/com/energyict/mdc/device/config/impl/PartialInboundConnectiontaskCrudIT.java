@@ -21,6 +21,8 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -28,11 +30,12 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
@@ -64,9 +67,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -75,7 +75,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.*;
@@ -172,7 +175,6 @@ public class PartialInboundConnectiontaskCrudIT {
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
                 new IssuesModule(),
-                new ProtocolsModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule(),
@@ -214,11 +216,12 @@ public class PartialInboundConnectiontaskCrudIT {
         engineModelService = injector.getInstance(EngineModelService.class);
 
         try (TransactionContext context = transactionService.getContext()) {
+            ((ProtocolPluggableServiceImpl) protocolPluggableService).addInboundDeviceProtocolService(new InboundDeviceProtocolService());
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType", InboundNoParamsConnectionTypeImpl.class.getName());
             connectionTypePluggableClass.save();
             connectionTypePluggableClass2 = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType2", InboundNoParamsConnectionTypeImpl.class.getName());
             connectionTypePluggableClass2.save();
-            discoveryPluggable = protocolPluggableService.newInboundDeviceProtocolPluggableClass("MyDiscoveryName", DlmsSerialNumberDiscover.class.getName());
+            discoveryPluggable = protocolPluggableService.newInboundDeviceProtocolPluggableClass("MyDiscoveryName", DummyInboundDiscoveryProtocol.class.getName());
             discoveryPluggable.save();
             inboundComPortPool = engineModelService.newInboundComPortPool();
             inboundComPortPool.setActive(true);
@@ -234,7 +237,6 @@ public class PartialInboundConnectiontaskCrudIT {
             inboundComPortPool2.save();
             context.commit();
         }
-
 
     }
 
@@ -597,4 +599,28 @@ public class PartialInboundConnectiontaskCrudIT {
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
 
+    private class InboundDeviceProtocolService implements com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService {
+        @Override
+        public InboundDeviceProtocol createInboundDeviceProtocolFor(String javaClassName) {
+            if (DummyInboundDiscoveryProtocol.class.getName().equals(javaClassName)) {
+                return new DummyInboundDiscoveryProtocol();
+            }
+            else {
+                throw new RuntimeException("Class " + javaClassName + " not known or supported by this bundle");
+            }
+        }
+
+        @Override
+        public InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass) {
+            return this.createInboundDeviceProtocolFor(pluggableClass.getJavaClassName());
+        }
+
+        @Override
+        public Collection<PluggableClassDefinition> getExistingInboundDeviceProtocolPluggableClasses() {
+            PluggableClassDefinition pluggableClassDefinition = mock(PluggableClassDefinition.class);
+            when(pluggableClassDefinition.getName()).thenReturn(DummyInboundDiscoveryProtocol.class.getSimpleName());
+            when(pluggableClassDefinition.getProtocolTypeClass()).thenReturn(DummyInboundDiscoveryProtocol.class);
+            return Arrays.asList(pluggableClassDefinition);
+        }
+    }
 }

@@ -79,7 +79,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -192,7 +191,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new ProtocolPluggableModule(),
                 new IssuesModule(),
                 new ValidationModule(),
-                new ProtocolsModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule());
@@ -206,7 +204,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
-            SchedulingService schedulingService = injector.getInstance(SchedulingService.class);
+            injector.getInstance(SchedulingService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
@@ -295,8 +293,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         }
 
         private static State actual;
-
-
 
         public SharedData() {
             if (actual == null) {

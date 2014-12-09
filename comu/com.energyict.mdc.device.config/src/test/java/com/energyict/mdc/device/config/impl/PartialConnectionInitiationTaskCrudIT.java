@@ -64,8 +64,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -114,7 +112,6 @@ public class PartialConnectionInitiationTaskCrudIT {
     private ProtocolPluggableService protocolPluggableService;
     private EngineModelService engineModelService;
     private InMemoryBootstrapModule bootstrapModule;
-    private InboundDeviceProtocolPluggableClass discoveryPluggable;
     @Mock
     private LicenseService licenseService;
 
@@ -165,7 +162,6 @@ public class PartialConnectionInitiationTaskCrudIT {
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
                 new IssuesModule(),
-                new ProtocolsModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule(),
@@ -210,8 +206,6 @@ public class PartialConnectionInitiationTaskCrudIT {
             connectionTypePluggableClass.save();
             connectionTypePluggableClass2 = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType2", OutboundNoParamsConnectionTypeImpl.class.getName());
             connectionTypePluggableClass2.save();
-            discoveryPluggable = protocolPluggableService.newInboundDeviceProtocolPluggableClass("MyDiscoveryName", DlmsSerialNumberDiscover.class.getName());
-            discoveryPluggable.save();
             outboundComPortPool = engineModelService.newOutboundComPortPool();
             outboundComPortPool.setActive(true);
             outboundComPortPool.setComPortType(ComPortType.TCP);

@@ -74,8 +74,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -147,7 +145,6 @@ public class PartialOutboundConnectiontaskCrudIT {
     private ProtocolPluggableService protocolPluggableService;
     private EngineModelService engineModelService;
     private InMemoryBootstrapModule bootstrapModule;
-    private InboundDeviceProtocolPluggableClass discoveryPluggable;
     @Mock
     private IdBusinessObjectFactory businessObjectFactory;
     @Mock
@@ -201,7 +198,6 @@ public class PartialOutboundConnectiontaskCrudIT {
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
                 new IssuesModule(),
-                new ProtocolsModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule(),
@@ -257,8 +253,6 @@ public class PartialOutboundConnectiontaskCrudIT {
             connectionTypePluggableClass.save();
             connectionTypePluggableClass2 = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType2", OutboundNoParamsConnectionTypeImpl.class.getName());
             connectionTypePluggableClass2.save();
-            discoveryPluggable = protocolPluggableService.newInboundDeviceProtocolPluggableClass("MyDiscoveryName", DlmsSerialNumberDiscover.class.getName());
-            discoveryPluggable.save();
             outboundComPortPool = engineModelService.newOutboundComPortPool();
             outboundComPortPool.setActive(true);
             outboundComPortPool.setComPortType(ComPortType.TCP);
