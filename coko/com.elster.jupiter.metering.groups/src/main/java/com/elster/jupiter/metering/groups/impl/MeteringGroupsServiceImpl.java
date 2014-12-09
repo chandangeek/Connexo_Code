@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
+import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
@@ -21,6 +22,14 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -28,15 +37,10 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.inject.Inject;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-
 @Component(name = "com.elster.jupiter.metering", service = {MeteringGroupsService.class, InstallService.class}, property = "name=" + MeteringGroupsService.COMPONENTNAME, immediate = true)
 public class MeteringGroupsServiceImpl implements MeteringGroupsService, InstallService {
+
+    private static final Logger LOGGER = Logger.getLogger(MeteringGroupsServiceImpl.class.getSimpleName());
 
     private volatile DataModel dataModel;
     private volatile MeteringService meteringService;
@@ -62,6 +66,17 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     @Override
     public void install() {
         dataModel.install(true, true);
+        createEventTypes();
+    }
+
+    private void createEventTypes() {
+        for (EventType eventType : EventType.values()) {
+            try {
+                eventType.install(eventService);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Could not create event type : " + eventType.name(), e);
+            }
+        }
     }
 
     @Override

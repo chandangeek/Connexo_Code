@@ -61,6 +61,4 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
     // ORM inheritance map
     static final Map<String, Class<? extends EndDeviceGroup>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends EndDeviceGroup>>of(QueryEndDeviceGroup.TYPE_IDENTIFIER, QueryEndDeviceGroupImpl.class, EnumeratedEndDeviceGroup.TYPE_IDENTIFIER, EnumeratedEndDeviceGroupImpl.class);
 
-
-
 }
