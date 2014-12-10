@@ -2,7 +2,6 @@ Ext.define('Idc.view.Detail', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.data-collection-issue-detail',
     requires: [
-        'Isu.view.issues.DetailNavigation',
         'Isu.view.issues.DetailTop',
         'Idc.view.DetailForm',
         'Isu.view.issues.CommentsList',
