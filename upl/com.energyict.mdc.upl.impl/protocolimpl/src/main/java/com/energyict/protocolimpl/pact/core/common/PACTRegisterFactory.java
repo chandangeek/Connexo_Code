@@ -6,14 +6,12 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import java.io.*;
-import java.util.*;
-
 import com.energyict.cbo.NestedIOException;
-import com.energyict.protocolimpl.pact.core.common.*;
-import com.energyict.protocolimpl.pact.core.meterreading.*;
-import com.energyict.protocolimpl.base.*;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
+
+import java.io.IOException;
+import java.util.Date;
 /**
  *
  * @author  Koen
@@ -86,7 +84,9 @@ public class PACTRegisterFactory {
             
             meterReadingsInterpreter = new MeterReadingsInterpreter(data,getProtocolLink());
             meterReadingsInterpreter.parse();
-            setOldMeterDate(meterReadingsInterpreter.getCounters().getMeterDateTime());
+            if (meterReadingsInterpreter.getCounters() != null) {
+                setOldMeterDate(meterReadingsInterpreter.getCounters().getMeterDateTime());
+            }
             
             if (protocolLink.isExtendedLogging())
                 protocolLink.getLogger().info(meterReadingsInterpreter.toString());

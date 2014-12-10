@@ -6,15 +6,10 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
@@ -25,6 +20,12 @@ import com.energyict.protocolimpl.pact.core.survey.ascii.AsciiSurvey;
 import com.energyict.protocolimpl.pact.core.survey.binary.BinarySurvey;
 import com.energyict.protocolimpl.pact.core.survey.discrete.DiscreteSurvey;
 import com.energyict.protocolimpl.pact.core.survey.link.LinkSurvey;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
@@ -716,7 +717,7 @@ public class MeterReadingsInterpreter {
    
     public RegisterValue getValue(ObisCode obisCode) throws IOException {
         if (!registersRead) {
-			throw new IOException("MeterReadingsInterpreter, getValue, No registers to read!");
+			throw new NoSuchRegisterException("MeterReadingsInterpreter, getValue, No registers to read!");
 		}
         MeterReadingProcessor mrp = new MeterReadingProcessor(this, new MeterReadingIdentifier(obisCode));
         return mrp.getValue();

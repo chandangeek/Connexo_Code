@@ -166,7 +166,6 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     }
 
     public String getProtocolVersion() {
-        // return "$Revision: 1.29 $";
         return "$Date$";
     }
 
