@@ -167,7 +167,6 @@ Ext.define('Cfg.controller.Validation', {
             readingTypes = [];
 
 
-
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
             record.propertiesStore = propertyForm.getRecord().properties();
@@ -718,6 +717,8 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     previewValidationRuleSet: function (selectionModel, record) {
+        Ext.suspendLayouts();
+
         this.getRuleSetBrowsePreviewCt().removeAll(true);
         var rulesPreviewContainerPanel = Ext.widget('rule-preview-container-panel', {
             ruleSetId: record.getId(),
@@ -731,9 +732,13 @@ Ext.define('Cfg.controller.Validation', {
             item.hide();
         });
         this.getRuleSetBrowsePreviewCt().add(rulesPreviewContainerPanel);
+
+        Ext.resumeLayouts();
     },
 
     previewValidationRule: function (grid, record) {
+        Ext.suspendLayouts();
+
         var me = this,
             itemPanel = me.getRulePreviewContainer() || me.getRuleSetBrowsePanel(),
             itemForm = itemPanel.down('validation-rule-preview'),
@@ -752,6 +757,8 @@ Ext.define('Cfg.controller.Validation', {
         } else if (me.getRulePreviewContainer()) {
             itemForm.down('validation-rule-action-menu').record = record;
         }
+
+        Ext.resumeLayouts();
     },
 
     showEditRuleOverview: function (id, ruleId) {
