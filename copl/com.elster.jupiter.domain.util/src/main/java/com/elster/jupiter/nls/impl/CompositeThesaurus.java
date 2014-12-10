@@ -5,7 +5,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.streams.Predicates;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class CompositeThesaurus implements IThesaurus {
 
@@ -38,7 +38,7 @@ public class CompositeThesaurus implements IThesaurus {
     public String getString(String key, String defaultMessage) {
         return components.stream()
                 .map(th -> th.getString(key, null))
-                .filter(Predicates.notNull())
+                .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(defaultMessage);
     }
@@ -47,7 +47,7 @@ public class CompositeThesaurus implements IThesaurus {
     public String getString(Locale locale, String key, String defaultMessage) {
         return components.stream()
                 .map(th -> th.getString(locale, key, null))
-                .filter(Predicates.notNull())
+                .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(defaultMessage);
     }
