@@ -19,6 +19,13 @@ Ext.define('Yfn.controller.history.YellowfinReports', {
                     action: 'showGenerateReportWizard'
                 }
             }
+        },
+        viewreport: {
+            title: Uni.I18n.translate('generatereport.title', 'YFN', 'View Report'),
+            route: 'reports/view',
+            controller: 'Yfn.controller.YellowfinReportsController',
+            privileges: ['privilege.view.device'],
+            action: 'showReport'
         }
     }
 });

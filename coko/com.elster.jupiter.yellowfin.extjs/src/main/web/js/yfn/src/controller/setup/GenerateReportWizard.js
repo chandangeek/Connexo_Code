@@ -13,8 +13,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         'Uni.view.window.Wizard',
         'Yfn.view.generatereport.RadioGroup',
         'Uni.form.filter.FilterCombobox',
-        'Uni.form.field.DateTime',
-        'Dsh.store.filter.DeviceGroup'
+        'Uni.form.field.DateTime'
     ],
 
     stores: [
@@ -153,7 +152,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         var me = this;
         console.log(me.selectedFilterValues);
         var link = me.getGenerateReportLink();
-        var href = '../reports/index.html#/reports/showReport?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues));
+        var href = '../reports/index.html#/reports/view?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues));
         link.getEl().dom.href = href;
         link.getEl().dom.target = '_blank';
         link.getEl().dom.click();
