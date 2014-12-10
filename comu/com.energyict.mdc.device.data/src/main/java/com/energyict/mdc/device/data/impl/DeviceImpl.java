@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -151,7 +152,6 @@ import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.streams.Functions.asStream;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
 import static java.util.stream.Collectors.toList;
 
@@ -1042,7 +1042,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Optional<AmrSystem> getMdcAmrSystem() {
-        return this.meteringService.findAmrSystem(1);
+        return this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
     }
 
     List<ReadingRecord> getReadingsFor(Register<?> register, Range<Instant> interval) {
@@ -1108,12 +1108,11 @@ public class DeviceImpl implements Device, CanLock {
         return Lists.reverse(loadProfileReadings);
     }
 
-    List<EndDeviceEventRecord> getLogBookDeviceEventsByFilter(LogBook logBook, EndDeviceEventRecordFilterSpecification filter) {
+    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter){
         Optional<AmrSystem> amrSystem = getMdcAmrSystem();
         if (amrSystem.isPresent()) {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
-                filter.logBookId = logBook.getId();
                 return meter.get().getDeviceEventsByFilter(filter);
             }
         }

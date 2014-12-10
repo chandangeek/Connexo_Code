@@ -15,8 +15,10 @@ import com.energyict.mdc.masterdata.LogBookType;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Copyrights EnergyICT
@@ -112,7 +114,11 @@ public class LogBookImpl implements LogBook {
     
     @Override
     public List<EndDeviceEventRecord> getEndDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
-        return this.device.get().getLogBookDeviceEventsByFilter(this, filter);
+        if (filter == null){
+            return Collections.emptyList();
+        }
+        filter.logBookId = this.getId();
+        return this.device.get().getDeviceEventsByFilter(filter);
     }
 
     abstract static class LogBookUpdater implements LogBook.LogBookUpdater {
