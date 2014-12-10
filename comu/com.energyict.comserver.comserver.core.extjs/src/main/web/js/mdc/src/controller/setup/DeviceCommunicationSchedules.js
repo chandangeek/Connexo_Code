@@ -191,6 +191,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 }
             }
         });
+
+        Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
+            success: function (device) {
+                me.getApplication().fireEvent('loadDevice', device);
+            }
+        });
     },
 
     previewDeviceCommunicationSchedule: function () {
