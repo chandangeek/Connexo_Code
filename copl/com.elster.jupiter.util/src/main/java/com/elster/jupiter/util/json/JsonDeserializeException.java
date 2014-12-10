@@ -8,7 +8,8 @@ import com.elster.jupiter.util.exception.BaseException;
  */
 public class JsonDeserializeException extends BaseException {
 
-    public static final String JSON_STRING = "jsonString";
+	private static final long serialVersionUID = 1L;
+	public static final String JSON_STRING = "jsonString";
     public static final String TARGET_CLASS = "targetClass";
 
     public JsonDeserializeException(Throwable cause, String jsonString, Class<?> targetClass) {

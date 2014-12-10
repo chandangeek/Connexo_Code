@@ -8,7 +8,8 @@ import com.elster.jupiter.util.exception.BaseException;
  */
 public class JsonGenerationException extends BaseException {
 
-    public static final String OBJECT_TO_SERIALIZE = "objectToSerialize";
+	private static final long serialVersionUID = 1L;
+	public static final String OBJECT_TO_SERIALIZE = "objectToSerialize";
 
     public JsonGenerationException(Throwable cause, Object toSerialize) {
         super(MessageSeeds.JSON_GENERATION_FAILED, cause, toSerialize.toString());

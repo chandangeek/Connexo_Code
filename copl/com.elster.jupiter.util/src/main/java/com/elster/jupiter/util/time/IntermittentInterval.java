@@ -27,8 +27,11 @@ import java.util.NoSuchElementException;
  * {@link Interval}.
  * IntermittentInterval will always interpret intervals as CLOSED_OPEN.
  *
+ * @deprecated 
+ * use RangeSet<Instant>
  * @author Tom De Greyt
  */
+
 public final class IntermittentInterval implements Iterable<Interval> {
 
     public static final IntermittentInterval ALWAYS = new IntermittentInterval(Interval.of(null, null));

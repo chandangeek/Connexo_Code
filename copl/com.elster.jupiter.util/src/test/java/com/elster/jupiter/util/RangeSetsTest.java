@@ -47,7 +47,7 @@ public class RangeSetsTest	{
 	
 	@Test
 	public void testIntersectionAll() {
-		RangeSet<Instant> union1 = RangeSets.of(ONE_TO_TWO, THREE_TO_EIGHT, NINE_TO_INFINITY);
+		RangeSet<Instant> union1 = of(ONE_TO_TWO, THREE_TO_EIGHT, NINE_TO_INFINITY);
 		RangeSet<Instant> union2 = ImmutableRangeSet.of(ALWAYS);
 		assertEquals(union1, RangeSets.intersection(union1, union2));
 		assertEquals(union1, RangeSets.intersection(union2, union1));
@@ -57,32 +57,32 @@ public class RangeSetsTest	{
 	
 	@Test
 	public void testIntersectionComplex() {
-		RangeSet<Instant> union1 = RangeSets.of(ONE_TO_TWO, THREE_TO_EIGHT, NINE_TO_INFINITY);
-		RangeSet<Instant> union2 = RangeSets.of(ONE_TO_FOUR, FIVE_TO_SIX, SEVEN_TO_INFINITY);
-		RangeSet<Instant> expected = RangeSets.of(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX, SEVEN_TO_EIGHT, NINE_TO_INFINITY);
+		RangeSet<Instant> union1 = of(ONE_TO_TWO, THREE_TO_EIGHT, NINE_TO_INFINITY);
+		RangeSet<Instant> union2 = of(ONE_TO_FOUR, FIVE_TO_SIX, SEVEN_TO_INFINITY);
+		RangeSet<Instant> expected = of(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX, SEVEN_TO_EIGHT, NINE_TO_INFINITY);
 		assertEquals(expected, RangeSets.intersection(union1,union2));
 		assertEquals(expected, RangeSets.intersection(union2,union1));
 	}
 	
 	@Test
 	public void testIntersection() {
-		assertEquals(RangeSets.of(THREE_TO_FIVE), RangeSets.intersection(RangeSets.of(ONE_TO_FIVE), RangeSets.of(THREE_TO_EIGHT, NINE_TO_INFINITY)));
-		assertEquals(RangeSets.of(THREE_TO_FIVE), RangeSets.intersection(RangeSets.of(THREE_TO_EIGHT, NINE_TO_INFINITY), RangeSets.of(ONE_TO_FIVE)));
+		assertEquals(of(THREE_TO_FIVE), RangeSets.intersection(of(ONE_TO_FIVE), of(THREE_TO_EIGHT, NINE_TO_INFINITY)));
+		assertEquals(of(THREE_TO_FIVE), RangeSets.intersection(of(THREE_TO_EIGHT, NINE_TO_INFINITY), of(ONE_TO_FIVE)));
 	}
 	
 	
 	@Test
 	public void testIntersectionSimple1() {
-		assertEquals(RangeSets.of(THREE_TO_FIVE), RangeSets.intersection(RangeSets.of(ONE_TO_FIVE), RangeSets.of(THREE_TO_EIGHT, NINE_TO_INFINITY)));
-		assertEquals(RangeSets.of(THREE_TO_FIVE), RangeSets.intersection(RangeSets.of(THREE_TO_EIGHT, NINE_TO_INFINITY), RangeSets.of(ONE_TO_FIVE)));
+		assertEquals(of(THREE_TO_FIVE), RangeSets.intersection(of(ONE_TO_FIVE), of(THREE_TO_EIGHT, NINE_TO_INFINITY)));
+		assertEquals(of(THREE_TO_FIVE), RangeSets.intersection(of(THREE_TO_EIGHT, NINE_TO_INFINITY), of(ONE_TO_FIVE)));
 	}
 	
 	
 	@Test
 	public void testIntersectionSimple2() {
-		RangeSet<Instant> union1 = RangeSets.of(ONE_TO_THREE, SEVEN_TO_EIGHT, NINE_TO_INFINITY);
-		RangeSet<Instant> union2 = RangeSets.of(ONE_TO_THREE, SIX_TO_SEVEN);
-		RangeSet<Instant> expected = RangeSets.of(ONE_TO_THREE);
+		RangeSet<Instant> union1 = of(ONE_TO_THREE, SEVEN_TO_EIGHT, NINE_TO_INFINITY);
+		RangeSet<Instant> union2 = of(ONE_TO_THREE, SIX_TO_SEVEN);
+		RangeSet<Instant> expected = of(ONE_TO_THREE);
 		assertEquals(expected, RangeSets.intersection(union1,union2));
 		assertEquals(expected, RangeSets.intersection(union2,union1));
 	}
@@ -90,21 +90,21 @@ public class RangeSetsTest	{
 	
 	@Test
 	public void testIntersectionEmptyResult() {
-		RangeSet<Instant> union1 = RangeSets.of(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX);
-		RangeSet<Instant> union2 = RangeSets.of(TWO_TO_THREE, FOUR_TO_FIVE, SIX_TO_SEVEN);
-		assertEquals(RangeSets.of(), RangeSets.intersection(union1,union2));
-		assertEquals(RangeSets.of(), RangeSets.intersection(union2,union1));
+		RangeSet<Instant> union1 = of(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX);
+		RangeSet<Instant> union2 = of(TWO_TO_THREE, FOUR_TO_FIVE, SIX_TO_SEVEN);
+		assertEquals(of(), RangeSets.intersection(union1,union2));
+		assertEquals(of(), RangeSets.intersection(union2,union1));
 	}
 	
 	@Test
 	public void testIntersectionEqual() {
-		assertEquals(RangeSets.of(ONE_TO_FIVE), RangeSets.intersection(RangeSets.of(ONE_TO_FIVE), RangeSets.of(ONE_TO_FIVE)));
+		assertEquals(of(ONE_TO_FIVE), RangeSets.intersection(of(ONE_TO_FIVE), of(ONE_TO_FIVE)));
 	}
 	
 	@Test
 	public void testIntersectionWithEmpty() {
-		assertEquals(RangeSets.of(), RangeSets.intersection(RangeSets.of(ONE_TO_FIVE), RangeSets.of()));
-		assertEquals(RangeSets.of(), RangeSets.intersection(RangeSets.of(), RangeSets.of(ONE_TO_FIVE)));
+		assertEquals(of(), RangeSets.intersection(of(ONE_TO_FIVE), of()));
+		assertEquals(of(), RangeSets.intersection(of(), of(ONE_TO_FIVE)));
 	}
 	
 }

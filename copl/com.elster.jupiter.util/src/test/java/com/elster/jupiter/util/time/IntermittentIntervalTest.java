@@ -1,28 +1,29 @@
 package com.elster.jupiter.util.time;
 
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashSet;
 
 import static org.junit.Assert.*;
 
 public class IntermittentIntervalTest {
-	private static final Instant ONE = new DateMidnight(2010, 1, 1).toDate().toInstant();
-	private static final Instant TWO = new DateMidnight(2010, 1, 2).toDate().toInstant();
-	private static final Instant THREE = new DateMidnight(2010, 1, 3).toDate().toInstant();
-	private static final Instant FOUR = new DateMidnight(2010, 1, 4).toDate().toInstant();
-	private static final Instant FIVE = new DateMidnight(2010, 1, 5).toDate().toInstant();
-	private static final Instant SIX = new DateMidnight(2010, 1, 6).toDate().toInstant();
-	private static final Instant SEVEN = new DateMidnight(2010, 1, 7).toDate().toInstant();
-	private static final Instant EIGHT = new DateMidnight(2010, 1, 8).toDate().toInstant();
-	private static final Instant NINE = new DateMidnight(2010, 1, 9).toDate().toInstant();
-	private static final Instant BETWEEN_ONE_AND_TWO = new DateTime(ONE.toEpochMilli()).plusHours(12).toDate().toInstant();
-	private static final Instant BETWEEN_TWO_AND_THREE = new DateTime(TWO.toEpochMilli()).plusHours(12).toDate().toInstant();
-	private static final Instant BETWEEN_THREE_AND_FOUR = new DateTime(THREE.toEpochMilli()).plusHours(12).toDate().toInstant();
+	private static final Instant ONE = LocalDate.of(2010, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+	private static final Instant TWO = LocalDate.of(2010, 1, 2).atStartOfDay(ZoneId.systemDefault()).toInstant();
+	private static final Instant THREE = LocalDate.of(2010, 1, 3).atStartOfDay(ZoneId.systemDefault()).toInstant();
+	private static final Instant FOUR = LocalDate.of(2010, 1, 4).atStartOfDay(ZoneId.systemDefault()).toInstant();
+	private static final Instant FIVE = LocalDate.of(2010, 1, 5).atStartOfDay(ZoneId.systemDefault()).toInstant();
+	private static final Instant SIX = LocalDate.of(2010, 1, 6).atStartOfDay(ZoneId.systemDefault()).toInstant();
+	private static final Instant SEVEN = LocalDate.of(2010, 1, 7).atStartOfDay(ZoneId.systemDefault()).toInstant();
+	private static final Instant EIGHT = LocalDate.of(2010, 1, 8).atStartOfDay(ZoneId.systemDefault()).toInstant();
+	private static final Instant NINE = LocalDate.of(2010, 1, 9).atStartOfDay(ZoneId.systemDefault()).toInstant();
+	private static final Instant BETWEEN_ONE_AND_TWO = ONE.plus(12, ChronoUnit.HOURS);
+	private static final Instant BETWEEN_TWO_AND_THREE = TWO.plus(12, ChronoUnit.HOURS);
+	private static final Instant BETWEEN_THREE_AND_FOUR = THREE.plus(12, ChronoUnit.HOURS);
 	private static final Interval NINE_TO_INFINITY = Interval.of(NINE, null);
 	private static final Interval SEVEN_TO_INFINITY = Interval.of(SEVEN, null);
 	private static final Interval SEVEN_TO_EIGHT = Interval.of(SEVEN, EIGHT);
