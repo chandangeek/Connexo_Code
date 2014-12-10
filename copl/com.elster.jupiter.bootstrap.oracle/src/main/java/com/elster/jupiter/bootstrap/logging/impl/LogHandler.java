@@ -1,11 +1,11 @@
 package com.elster.jupiter.bootstrap.logging.impl;
 
-import com.elster.jupiter.util.OsgiLogLevelMapper;
 import org.osgi.service.log.LogService;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 class LogHandler extends Handler {
@@ -28,7 +28,7 @@ class LogHandler extends Handler {
 
 	@Override
 	public void publish(LogRecord logRecord) {
-        int osgiLevel = OsgiLogLevelMapper.mapLevel(logRecord.getLevel());
+        int osgiLevel = mapLevel(logRecord.getLevel());
 		logService.log(osgiLevel, format(logRecord) , logRecord.getThrown());
 	}
 
@@ -113,4 +113,15 @@ class LogHandler extends Handler {
         return format;
     }
 
+    private int mapLevel(Level level) {
+        if (level.intValue() <= Level.FINE.intValue()) {
+            return LogService.LOG_DEBUG;
+        } else if (level.intValue() <= Level.INFO.intValue()) {
+            return LogService.LOG_INFO;
+        } else if (level.intValue() <= Level.WARNING.intValue()) {
+            return LogService.LOG_WARNING;
+        } else {
+            return LogService.LOG_ERROR;
+        }
+    }
 }
