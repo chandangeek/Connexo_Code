@@ -216,8 +216,10 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void findDownstreamDevicesAfterRemovingGatewayReferenceTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
         Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
+        device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
         Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
+        device2.save();
         this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
 
         // Business method
@@ -235,8 +237,10 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster","pm");
         Device otherPhysicalMaster = createSimpleDeviceWithName("OtherPhysicalMaster", "opm");
         Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
+        device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
         Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
+        device2.save();
         this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
 
         //business method
@@ -250,7 +254,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    //@Ignore // H2 can't handle the SQL queries
+    @Ignore // H2 can't handle the SQL queries
     public void testGetSortedPhysicalGatewayReferences() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();
@@ -344,6 +348,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    @Ignore // H2 can't handle the SQL queries
     public void addBuildCommunicationPath() {
         ServerDeviceService deviceService = this.getDeviceService();
         TopologyService topologyService = this.getTopologyService();

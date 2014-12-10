@@ -28,6 +28,18 @@ public class CannotDeletePhysicalGatewayEventHandler implements TopicHandler {
     private volatile TopologyService topologyService;
     private volatile Thesaurus thesaurus;
 
+    // For OSGi purposes
+    public CannotDeletePhysicalGatewayEventHandler() {
+        super();
+    }
+
+    // For unit testing purposes
+    public CannotDeletePhysicalGatewayEventHandler(TopologyService topologyService, Thesaurus thesaurus) {
+        this();
+        this.topologyService = topologyService;
+        this.thesaurus = thesaurus;
+    }
+
     @Override
     public String getTopicMatcher() {
         return "com/energyict/mdc/device/data/device/BEFORE_DELETE";

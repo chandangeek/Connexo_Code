@@ -16,7 +16,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-05 (14:28)
  */
-@Component(name="com.energyict.mdc.device.topology.create.comtaskexecution", service = TopicHandler.class, immediate = true)
+@Component(name="com.energyict.mdc.device.topology.update.comtaskexecution", service = TopicHandler.class, immediate = true)
 @SuppressWarnings("unused")
 public class ComTaskExecutionUpdateEventHandler extends ComTaskExecutionEventHandler {
 
