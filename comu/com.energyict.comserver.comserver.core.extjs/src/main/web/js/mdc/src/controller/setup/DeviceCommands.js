@@ -99,6 +99,9 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             '#empty_grid_deviceAddCommandButton': {
                 click: this.navigateAdd
             },
+            '#deviceAddCommandButton': {
+                click: this.navigateAdd
+            },
             '#device-command-action-menu': {
                 click: this.selectAction
             }
@@ -230,12 +233,14 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                             if (store.proxy.reader.rawData.hasCommandsWithPrivileges) {
                                 if (store.count() === 0) {
                                     widget.down('#empty_grid_deviceAddCommandButton').show();
+                                    widget.down('#no-items-found-panel-steps-label').show()
                                 } else {
                                     widget.down('#deviceAddCommandButton').show();
                                 }
                             } else {
                                 if (store.count() === 0) {
                                     widget.down('#empty_grid_deviceAddCommandButton').hide();
+                                    widget.down('#no-items-found-panel-steps-label').hide();
                                 } else {
                                     widget.down('#deviceAddCommandButton').hide();
                                 }
