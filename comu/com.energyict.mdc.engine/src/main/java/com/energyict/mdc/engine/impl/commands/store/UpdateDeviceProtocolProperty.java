@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -10,12 +10,11 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolProperty;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.issues.impl.WarningImpl;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
- * that will update a protocol property of a {@link Device device}
+ * that will update a protocol property of a Device
  * from information that was collected during the device communication session.
  *
  * @author sva
@@ -27,9 +26,11 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
     private final DeviceIdentifier deviceIdentifier;
     private final PropertySpec propertySpec;
     private final Object propertyValue;
+    private final ComTaskExecution comTaskExecution;
 
-    public UpdateDeviceProtocolProperty(DeviceProtocolProperty deviceProtocolProperty) {
+    public UpdateDeviceProtocolProperty(DeviceProtocolProperty deviceProtocolProperty, ComTaskExecution comTaskExecution) {
         super();
+        this.comTaskExecution = comTaskExecution;
         this.deviceIdentifier = deviceProtocolProperty.getDeviceIdentifier();
         this.propertySpec = deviceProtocolProperty.getPropertySpec();
         this.propertyValue = deviceProtocolProperty.getPropertyValue();
@@ -37,22 +38,22 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
-        if (comServerDAO.findOfflineDevice(deviceIdentifier) != null) {
+        if (comServerDAO.findDevice(deviceIdentifier) != null) {
             try {
-                if (propertySpec.validateValue(propertyValue, false)) {
+                if (propertySpec.validateValueIgnoreRequired(propertyValue)) {
                     comServerDAO.updateDeviceProtocolProperty(deviceIdentifier, propertySpec.getName(), propertyValue);
                 }
             } catch (InvalidValueException e) {
-                addIssueToExecutionLogger(comServerDAO, CompletionCode.ConfigurationWarning,
-                        new WarningImpl(this, "invalidDeviceProtocolPropertyCollected", propertySpec)
-                );
+                getExecutionLogger().addIssue(
+                        CompletionCode.ConfigurationWarning,
+                        getIssueService().newWarning(this, "invalidDeviceProtocolPropertyCollected", propertySpec), comTaskExecution);
             } catch (NotFoundException e) {
-                ;   //Do nothing, move on. We can't update the property on a non-existing device.
+                   //Do nothing, move on. We can't update the property on a non-existing device.
             }
         } else {
-            addIssueToExecutionLogger(comServerDAO, CompletionCode.ConfigurationWarning,
-                    new WarningImpl(this, "collectedDeviceProtocolPropertyForUnknownDevice", deviceIdentifier)
-            );
+            getExecutionLogger().addIssue(
+                    CompletionCode.ConfigurationWarning,
+                    getIssueService().newWarning(this, "collectedDeviceProtocolPropertyForUnknownDevice", deviceIdentifier), comTaskExecution);
         }
     }
 
