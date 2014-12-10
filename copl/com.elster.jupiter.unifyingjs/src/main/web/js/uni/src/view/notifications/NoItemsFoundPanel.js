@@ -135,6 +135,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
             if (typeof stepItems[0].privileges === 'undefined' || Uni.Auth.hasAnyPrivilege(stepItems[0].privileges)) {
                 wrapper.add({
                     xtype: 'component',
+                    itemId: 'no-items-found-panel-steps-label',
                     html: '<span class="steps-text">' + me.stepsText + '</span>'
                 });
 
