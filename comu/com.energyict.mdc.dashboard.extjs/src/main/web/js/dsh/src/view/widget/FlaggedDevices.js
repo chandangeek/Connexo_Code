@@ -96,16 +96,16 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             elm = me.down('#devices-dataview'),
             store = elm.getStore();
 
-        me.setLoading();
         store.load(function () {
             var title = Uni.I18n.translatePlural('overview.widget.flaggedDevices.header', store.count(), 'DSH',  '<h3>' + 'My flagged devices ({0})' + '</h3>');
             me.setTitle(title);
-            me.setLoading(false);
 
             store.each(function(item) {
                 item.set('href', me.router.getRoute('devices/device').buildUrl({mRID: item.getId()}));
                 item.set('tooltip', me.tooltipTpl.apply(item.getData(true)));
             });
+
+            elm.bindStore(store);
         });
     }
 });
