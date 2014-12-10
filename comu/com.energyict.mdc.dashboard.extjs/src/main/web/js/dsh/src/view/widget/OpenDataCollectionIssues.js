@@ -18,11 +18,14 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             titleContainer = me.down('#connection-summary-title-panel'),
             assigned = record.getAssignedToMeIssues(),
             unassigned = record.getUnassignedIssues(),
-            issuesCount;
-        
-        if( assigned.topMyIssues().count() > 0 ) {
-            grid.reconfigure(assigned.topMyIssues());
+            store = assigned.topMyIssues(),
+            issuesCount = store.getCount();
+
+        if(this.rendered) Ext.suspendLayouts();
+        if( issuesCount > 0 ) {
+            grid.reconfigure(store);
         }
+        if(!this.rendered) Ext.suspendLayouts();
         issuesCount = grid.getStore().getCount();
         countContainer.removeAll();
         dockedLinksContainer.removeAll();
@@ -64,6 +67,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                 href: me.router.getRoute('workspace/datacollection/issues').buildUrl(null, {filter: unassignedFilter})
             }
         ]);
+        Ext.resumeLayouts();
     },
 
     initComponent: function() {

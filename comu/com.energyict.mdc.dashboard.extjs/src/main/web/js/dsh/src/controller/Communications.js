@@ -79,10 +79,18 @@ Ext.define('Dsh.controller.Communications', {
         store.load();
     },
 
-    initMenu: function (record, menuItems, me) {
-        this.getCommunicationsGridActionMenu().menu.removeAll();
-        this.getCommunicationPreviewActionMenu().menu.removeAll();
-        this.getConnectionsPreviewActionMenu().menu.removeAll()
+    initMenu: function (record, menuItems) {
+        var me = this,
+            gridActionsMenu = this.getCommunicationsGridActionMenu().menu,
+            previewCommActionsMenu = this.getCommunicationPreviewActionMenu().menu,
+            previewConnActionsMenu = this.getConnectionsPreviewActionMenu().menu;
+
+        Ext.suspendLayouts();
+
+        gridActionsMenu.removeAll();
+        previewCommActionsMenu.removeAll();
+        previewConnActionsMenu.removeAll();
+
         Ext.each(record.get('comTasks'), function (item) {
             if (record.get('sessionId') !== 0) {
                 menuItems.push({
@@ -117,11 +125,15 @@ Ext.define('Dsh.controller.Communications', {
                 click: me.viewConnectionLog
             }
         };
-        this.getCommunicationsGridActionMenu().menu.add(menuItems);
-        this.getCommunicationPreviewActionMenu().menu.add(menuItems);
+
+        gridActionsMenu.add(menuItems);
+        previewCommActionsMenu.add(menuItems);
+
         if(record.get('connectionTask').comSessionId!==0){
-            this.getConnectionsPreviewActionMenu().menu.add(connectionMenuItem);
+            previewConnActionsMenu.add(connectionMenuItem);
         }
+
+        Ext.resumeLayouts();
     },
 
     onSelectionChange: function (grid, selected) {
@@ -131,7 +143,7 @@ Ext.define('Dsh.controller.Communications', {
             record = selected[0],
             menuItems = [];
         if (record ) {
-            this.initMenu(record, menuItems, me);
+            this.initMenu(record, menuItems);
             preview.loadRecord(record);
             preview.setTitle(record.get('name') + ' on ' + record.get('device').name);
             if (record.getData().connectionTask) {

@@ -46,6 +46,8 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
         this.callParent(arguments);
 
         var button = me.down('#device-group');
+        Ext.suspendLayouts();
+
         store.load(function () {
             var menu = button.menu;
             menu.removeAll();
@@ -63,5 +65,7 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
 
             button.setValue(me.router.filter.get('deviceGroup'));
         });
+
+        Ext.resumeLayouts();
     }
 });

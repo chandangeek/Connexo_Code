@@ -122,33 +122,35 @@ Ext.define('Dsh.controller.OperatorDashboard', {
     },
 
     loadData: function () {
+        var me = this,
+            dashboard = me.getDashboard(),
+            lastUpdateField = dashboard.down('#last-updated-field');
+
         if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure', 'privilege.view.communicationInfrastructure',
             'privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
-            var me = this,
-                connectionModel = me.getModel('Dsh.model.connection.Overview'),
+            var connectionModel = me.getModel('Dsh.model.connection.Overview'),
                 communicationModel = me.getModel('Dsh.model.communication.Overview'),
                 myOpenIssuesModel = me.getModel('Dsh.model.opendatacollectionissues.Overview'),
                 issuesWidget = me.getIssuesWidget(),
                 router = this.getController('Uni.controller.history.Router');
+
             if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure', 'privilege.view.communicationInfrastructure'])) {
                 connectionModel.setFilter(router.filter);
                 communicationModel.setFilter(router.filter);
-                me.getDashboard().setLoading();
+                dashboard.setLoading();
                 me.getFlaggedDevices().reload();
-                Ext.getStore('Dsh.store.FavoriteDeviceGroups').load();
                 me.getCommunicationServers().reload();
                 connectionModel.load(null, {
                         success: function (connections) {
                             me.getConnectionSummary().setRecord(connections.getSummary());
-                            me.getHeader().down('#last-updated-field').setValue('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
 
                             communicationModel.load(null, {
                                 success: function (communications) {
                                     me.getCommunicationSummary().setRecord(communications.getSummary());
-                                    me.getHeader().down('#last-updated-field').setValue('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
                                 },
                                 callback: function () {
-                                    me.getDashboard().setLoading(false);
+                                    lastUpdateField.update('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
+                                    dashboard.setLoading(false);
                                 }
                             });
                         }

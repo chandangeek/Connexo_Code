@@ -101,20 +101,29 @@ Ext.define('Dsh.controller.Connections', {
             record = selected[0],
             preview = me.getCommunicationPreview(),
             menuItems = [];
+
         commPanel.show();
         record.data.devConfig = {
             config: record.data.deviceConfiguration,
             devType: record.data.deviceType
         };
+
         record.data.title = record.data.name + ' on ' + record.data.device.name;
         preview.setTitle(record.data.title);
         preview.loadRecord(record);
-        this.initMenu(record, menuItems, me);
+        this.initMenu(record, menuItems);
     },
 
-    initMenu: function (record, menuItems, me) {
-        this.getCommunicationsGridActionMenu().menu.removeAll();
-        this.getCommunicationPreviewActionMenu().menu.removeAll();
+    initMenu: function (record, menuItems) {
+        var me = this,
+            gridActionMenu = this.getCommunicationsGridActionMenu().menu,
+            previewActionMenu = this.getCommunicationPreviewActionMenu().menu;
+
+        Ext.suspendLayouts();
+
+        gridActionMenu.removeAll();
+        previewActionMenu.removeAll();
+
         Ext.each(record.get('comTasks'), function (item) {
             if (record.get('sessionId') !== 0) {
                 menuItems.push({
@@ -133,8 +142,11 @@ Ext.define('Dsh.controller.Connections', {
                 });
             }
         });
-        this.getCommunicationsGridActionMenu().menu.add(menuItems);
-        this.getCommunicationPreviewActionMenu().menu.add(menuItems);
+
+        gridActionMenu.add(menuItems);
+        previewActionMenu.add(menuItems);
+
+        Ext.resumeLayouts();
     },
 
     onSelectionChange: function (grid, selected) {
@@ -143,19 +155,21 @@ Ext.define('Dsh.controller.Connections', {
             commPanel = me.getCommunicationsPanel(),
             commStore = me.getStore('Dsh.store.Communications'),
             record = selected[0];
+
         if (!_.isEmpty(record)) {
             me.getConnectionsPreviewActionMenu().record = record;
             var id = record.get('id'),
                 title = ' ' + record.get('title');
+
             preview.loadRecord(record);
             preview.setTitle(title);
             commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationsOf', 'DSH', 'Communications of') + title);
+
             if (id) {
                 commStore.setConnectionId(id);
                 commStore.load();
                 commPanel.hide()
             }
-
         }
     },
 

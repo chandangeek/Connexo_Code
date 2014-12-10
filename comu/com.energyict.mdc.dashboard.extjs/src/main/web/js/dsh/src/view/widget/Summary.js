@@ -52,6 +52,7 @@ Ext.define('Dsh.view.widget.Summary', {
                     '</table>',
                 listeners: {
                     refresh: function (view) {
+                        Ext.suspendLayouts();
                         Ext.each(view.getNodes(), function (node, index) {
                             var record = view.getRecord(node),
                                 pos = index + 1;
@@ -75,6 +76,7 @@ Ext.define('Dsh.view.widget.Summary', {
                                 label: Math.round(!view.total ? 0 : record.get('count') * 100 / view.total) + '% (' + record.get('count') + ')'
                             });
                             bar.render(view.getEl().down('#bar-' + pos));
+                            Ext.resumeLayouts();
                         });
                     }
                 }
@@ -125,6 +127,7 @@ Ext.define('Dsh.view.widget.Summary', {
         var diff = successRate - target;
         var direction = diff > 0 ? 'above' : 'below';
 
+        Ext.suspendLayouts();
         targetContainer.removeAll();
         targetContainer.add([
             {
@@ -145,6 +148,6 @@ Ext.define('Dsh.view.widget.Summary', {
                 html: Uni.I18n.translatePlural('overview.widget.' + me.parent + '.label.' + direction, Math.abs(diff), 'DSH', '<b>{0}%</b> ' + direction)
             }
         ]);
-
+        Ext.resumeLayouts();
     }
 });

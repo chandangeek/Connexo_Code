@@ -1,5 +1,5 @@
 Ext.define('Dsh.view.OperatorDashboard', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     requires: [
         'Dsh.view.widget.HeaderSection',
         'Dsh.view.widget.Summary',
@@ -22,50 +22,49 @@ Ext.define('Dsh.view.OperatorDashboard', {
         align: 'stretch'
     },
     style: {
-        padding: '0px 20px'
+        'padding-left': '20px'
     },
     initComponent: function () {
         var me = this;
+
         me.items = [
             {
-                xtype: 'container',
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
+                xtype: 'toolbar',
+                style: 'top: 40px !important', // Andrea: Should be fixed with CSS
                 items: [
+                    '->',
                     {
-                        xtype: 'container',
-                        flex: 1,
-                        items: [
-                            {
-                                xtype: 'panel',
-                                ui: 'large',
-                                title: me.router.getRoute().title
-                            }
-                        ]
+                        xtype: 'component',
+                        itemId: 'last-updated-field',
+                        width: 150,
+                        style: {
+                            'font': 'normal 13px/17px Lato',
+                            'color': '#686868',
+                            'margin-right': '10px'
+                        }
                     },
                     {
-                        xtype: 'toolbar',
-                        itemId: 'header-section',
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'last-updated-field',
-                                style: 'margin-right: 10px'
-                            },
-                            {
-                                xtype: 'button',
-                                itemId: 'refresh-btn',
-                                style: {
-                                    'background-color': '#71adc7'
-                                },
-                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
-                                icon: '/apps/sky/resources/images/form/restore.png'
-                            }
-                        ]
+                        xtype: 'button',
+                        itemId: 'refresh-btn',
+                        style: {
+                            'background-color': '#71adc7'
+                        },
+                        text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
+                        icon: '/apps/sky/resources/images/form/restore.png'
                     }
                 ]
+            },
+            {
+                xtype: 'component',
+                html: me.router.getRoute().title,
+                // Andrea: Should be created a Component "large" ui
+                style: {
+                    'color': 'rgb(0, 125, 195)',
+                    'font-size': '60px',
+                    'font-family': 'Open Sans Condensed',
+                    'width': '250px !important',
+                    'top': '20px !important'
+                }
             },
             {
                 xtype: 'panel',
@@ -110,69 +109,59 @@ Ext.define('Dsh.view.OperatorDashboard', {
             {
                 xtype: 'panel',
                 layout: {
-                    type: 'hbox',
+                    type: 'vbox',
                     align: 'stretch'
                 },
+                height: 500,
+                defaults: {
+                    flex: 1,
+                    style: {
+                        marginRight: '20px',
+                        padding: '20px'
+                    }
+                },
+                style: {'margin-right': '20px'},
                 items: [
                     {
-                        flex: 3,
-                        xtype: 'panel',
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
-                        defaults: {
-                            style: {
-                                marginRight: '20px',
-                                padding: '20px'
-                            },
-                            flex: 1
-                        },
-                        items: [
-                            {
-                                xtype: 'summary',
-                                itemId: 'connection-summary',
-                                title: Uni.I18n.translate('dashboard.widget.connections.title', 'DSH', 'Active connections'),
-                                router: me.router,
-                                parent: 'connections',
-                                buttonAlign: 'left',
-                                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure', 'privilege.view.communicationInfrastructure']),
-                                buttons: [
-                                    {
-                                        text: Uni.I18n.translate('dashboard.widget.connections.link', 'DSH', 'View connections overview'),
-                                        ui: 'link',
-                                        href: typeof me.router.getRoute('workspace/connections') !== 'undefined'
-                                            ? me.router.getRoute('workspace/connections').buildUrl(null, me.router.queryParams) : ''
-                                    }
-                                ]
-                            },
-                            {
-                                xtype: 'summary',
-                                itemId: 'communication-summary',
-                                title: Uni.I18n.translate('dashboard.widget.communications.title', 'DSH', 'Active communications'),
-                                parent: 'communications',
-                                router: me.router,
-                                buttonAlign: 'left',
-                                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure', 'privilege.view.communicationInfrastructure']),
-                                buttons: [
-                                    {
-                                        text: Uni.I18n.translate('dashboard.widget.communications.link', 'DSH', 'View communications overview'),
-                                        ui: 'link',
-                                        href: typeof me.router.getRoute('workspace/communications') !== 'undefined'
-                                            ? me.router.getRoute('workspace/communications').buildUrl(null, me.router.queryParams) : ''
-                                    }
-                                ]
-                            }
-                        ]
+                        xtype: 'summary',
+                        itemId: 'connection-summary',
+                        wTitle: Uni.I18n.translate('dashboard.widget.connections.title', 'DSH', 'Active connections'),
+                        router: me.router,
+                        parent: 'connections',
+                        buttonAlign: 'left',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
+                        buttons: [{
+                            text: Uni.I18n.translate('dashboard.widget.connections.link', 'DSH', 'View connections overview'),
+                            ui: 'link',
+                            href: typeof me.router.getRoute('workspace/connections') !== 'undefined'
+                                ? me.router.getRoute('workspace/connections').buildUrl(null, me.router.queryParams) : ''
+                        }]
                     },
                     {
-                        flex: 1,
-                        xtype: 'communication-servers',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure', 'privilege.view.communicationInfrastructure']),
-                        itemId: 'communication-servers',
-                        router: me.router
+                        xtype: 'summary',
+                        itemId: 'communication-summary',
+                        wTitle: Uni.I18n.translate('dashboard.widget.communications.title', 'DSH', 'Active communications'),
+                        parent: 'communications',
+                        router: me.router,
+                        buttonAlign: 'left',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
+                        buttons: [{
+                            text: Uni.I18n.translate('dashboard.widget.communications.link', 'DSH', 'View communications overview'),
+                            ui: 'link',
+                            href: typeof me.router.getRoute('workspace/communications') !== 'undefined'
+                                ? me.router.getRoute('workspace/communications').buildUrl(null, me.router.queryParams) : ''
+                        }]
                     }
-                ]
+                ],
+                dockedItems: [{
+                    xtype: 'communication-servers',
+                    width: 300,
+                    dock: 'right',
+                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
+                    itemId: 'communication-servers',
+                    router: me.router,
+                    style: 'border-width: 1px !important'   // Andrea: Should be fixed with CSS
+                }]
             }
         ];
 
