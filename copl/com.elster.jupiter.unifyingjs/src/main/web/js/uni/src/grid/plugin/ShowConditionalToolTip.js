@@ -37,13 +37,12 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                 Ext.Array.each(grid.getEl().query('.x-grid-cell-headerId-' + (column.itemId || column.id)), function (item) {
                     var cell = Ext.get(item),
                         inner = cell.down('.x-grid-cell-inner'),
-                        text = inner ? Ext.util.Format.stripTags(inner.getHTML()) : false,
-                        tooltip = cell.getAttribute('data-qtip');
+                        text = inner ? Ext.util.Format.stripTags(inner.getHTML()) : false;
 
                     if (text && (cell.getWidth(true) < cell.getTextWidth())) {
-                        cell.set({'data-qtip': tooltip || text});
+                        cell.set({'data-qtip': text});
                     } else {
-                        cell.set({'data-qtip': (tooltip !== text ? tooltip : null) || undefined});
+                        cell.set({'data-qtip': undefined});
                     }
                 });
             }
