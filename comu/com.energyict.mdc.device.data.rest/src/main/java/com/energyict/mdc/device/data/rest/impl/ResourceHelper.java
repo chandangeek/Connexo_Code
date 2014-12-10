@@ -5,16 +5,9 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -31,6 +24,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Functions.asStream;
 
 public class ResourceHelper {
 
@@ -206,8 +200,7 @@ public class ResourceHelper {
         return this.getMeterActivationsMostCurrentFirst(meter)
                 .stream()
                 .map(ma -> getChannel(ma, register.getRegisterSpec().getRegisterType().getReadingType()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(asStream())
                 .findFirst();
     }
 
@@ -215,8 +208,7 @@ public class ResourceHelper {
         return this.getMeterActivationsMostCurrentFirst(meter)
                 .stream()
                 .map(ma -> getChannel(ma, channel.getReadingType()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(asStream())
                 .findFirst();
     }
 
