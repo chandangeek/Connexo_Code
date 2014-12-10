@@ -848,6 +848,20 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: ['privilege.administrate.deviceGroup'],
                             action: 'showAddDeviceGroupAction',
                             filter: 'Mdc.model.DeviceFilter'
+                        },
+                        view: {
+                            title: 'Overview',
+                            route: '{deviceGroupId}',
+                            controller: 'Mdc.controller.setup.DeviceGroups',
+                            action: 'showDevicegroupDetailsView',
+                            callback: function (route) {
+                                this.getApplication().on('loadDeviceGroup', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
                         }
                     }
                 },
