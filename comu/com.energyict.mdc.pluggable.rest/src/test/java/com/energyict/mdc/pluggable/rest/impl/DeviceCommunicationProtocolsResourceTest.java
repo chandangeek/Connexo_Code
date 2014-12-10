@@ -55,7 +55,7 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         ConnectionTypePluggableClass connectionTypePluggableCass3 = createMockedConnectionTypePluggableCass(outboundConnectionType3);
         inConnectionType1 = new DummyInboundConnectionType1();
         ConnectionTypePluggableClass connectionTypePluggableCass4 = createMockedConnectionTypePluggableCass(inConnectionType1);
-        inConnectionType2 = new DummyInboundConnectionType1();
+        inConnectionType2 = new DummyInboundConnectionType2();
         ConnectionTypePluggableClass connectionTypePluggableCass5 = createMockedConnectionTypePluggableCass(inConnectionType2);
 
         List<ConnectionType> deviceProtocolSupportedConnectionTypes = Arrays.asList(outboundConnectionType1, outboundConnectionType3, inConnectionType2);
