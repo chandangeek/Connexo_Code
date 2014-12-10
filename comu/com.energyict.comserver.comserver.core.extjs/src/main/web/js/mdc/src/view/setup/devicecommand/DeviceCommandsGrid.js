@@ -101,7 +101,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                     {
                         xtype: 'button',
                         text: 'Add command',
-                        itemId: 'deviceAddCommandButton',
+                        itemId: 'empty_grid_deviceAddCommandButton',
                         mRID: me.mRID
                     }
                 ]

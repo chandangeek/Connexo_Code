@@ -96,7 +96,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             '#device-command-add-panel button[action=cancel]': {
                 click: this.cancelClick
             },
-            '#deviceAddCommandButton': {
+            '#empty_grid_deviceAddCommandButton': {
                 click: this.navigateAdd
             },
             '#device-command-action-menu': {
