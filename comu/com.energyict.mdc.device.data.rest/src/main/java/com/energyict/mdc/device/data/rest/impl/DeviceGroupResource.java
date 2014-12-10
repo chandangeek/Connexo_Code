@@ -29,29 +29,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.*;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,8 +40,6 @@ import static com.elster.jupiter.util.streams.Functions.asStream;
 
 @Path("/devicegroups")
 public class DeviceGroupResource {
-
-    private static final Logger LOGGER = Logger.getLogger(DeviceGroupResource.class.getName());
 
     private final MeteringGroupsService meteringGroupsService;
     private final RestQueryService restQueryService;
@@ -155,26 +131,6 @@ public class DeviceGroupResource {
         }
         endDeviceGroup.save();
         return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup)).build();
-    }
-
-    @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
-    @Path("/{id}")
-    public Response removeDeviceGroup(DeviceGroupInfo deviceGroupInfo, @PathParam("id") long id) {
-        try {
-            EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
-                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-
-            endDeviceGroup.delete();
-            return Response.ok().build();
-        } catch (WebApplicationException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new WebApplicationException(e.getLocalizedMessage());
-        }
     }
 
     @POST
