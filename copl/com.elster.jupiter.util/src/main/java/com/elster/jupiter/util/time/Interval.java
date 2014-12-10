@@ -46,6 +46,7 @@ public final class Interval {
         this.end = end == null ? ETERNITY : getEndValue(end.toInstant());
     }
 
+    @Deprecated
     public static Interval of(Instant start, Instant end) {
         return new Interval(start, end);
     }
@@ -62,6 +63,7 @@ public final class Interval {
      * @param start
      * @return
      */
+    @Deprecated
     public static Interval startAt(Instant start) {
         return new Interval(start, null);
     }
@@ -72,18 +74,22 @@ public final class Interval {
      * @param end
      * @return
      */
+    @Deprecated
     public static Interval endAt(Instant end) {
         return new Interval(null, end);
     }
 
+    @Deprecated
     public static Interval sinceEpoch() {
         return SINCE_EPOCH;
     }
 
+    @Deprecated
     public Instant getEnd() {
         return end == ETERNITY ? null : Instant.ofEpochMilli(end);
     }
 
+    @Deprecated
     public Instant getStart() {
         return start == -ETERNITY ? null : Instant.ofEpochMilli(start);
     }
@@ -94,11 +100,13 @@ public final class Interval {
      * @param clock
      * @return true if the current time according to the given Clock is contained in this Interval.
      */
+    @Deprecated
     public boolean isCurrent(Clock clock) {
         long now = clock.instant().toEpochMilli();
         return contains(now, EndpointBehavior.CLOSED_OPEN);
     }
 
+    @Deprecated
     public boolean isEffective(Interval interval) {
         return this.overlaps(interval);
     }
@@ -135,10 +143,12 @@ public final class Interval {
                         Range.open(Instant.ofEpochMilli(start), Instant.ofEpochMilli(this.end)));
     }
 
+    @Deprecated
     public Range<Instant> toRange(EndpointBehavior endpointBehavior) {
         return endpointBehavior.toRange(this);
     }
 
+    @Deprecated
     private boolean contains(long when, EndpointBehavior behavior) {
         return behavior.contains(this, when);
     }
@@ -147,6 +157,7 @@ public final class Interval {
      * @param other
      * @return true if there is at least one Date instance different that would be contained in both this Interval, as in the given Interval, false otherwise.
      */
+    @Deprecated
     public boolean overlaps(Interval other) {
         return other.end > start && end > other.start;
     }
@@ -193,18 +204,22 @@ public final class Interval {
      * @param date
      * @return true if the given instance is contained within this Date range.
      */
+    @Deprecated
     public boolean contains(Instant date, EndpointBehavior behavior) {
         return contains(Objects.requireNonNull(date).toEpochMilli(), behavior);
     }
 
+    @Deprecated
     public Interval withEnd(Instant instant) {
         return new Interval(start, getEndValue(instant));
     }
 
+    @Deprecated
     public Interval withStart(Instant instant) {
         return new Interval(getStartValue(instant), end);
     }
 
+    @Deprecated
     public Interval intersection(Interval interval) {
         if (!overlaps(interval)) {
             throw new IllegalArgumentException();
@@ -212,10 +227,12 @@ public final class Interval {
         return new Interval(Ordering.natural().max(start, interval.start), Ordering.natural().min(end, interval.end));
     }
 
+    @Deprecated
     public boolean includes(Interval other) {
         return !(startsAfter(other.getStart()) || endsBefore(other.getEnd()));
     }
 
+    @Deprecated
     public boolean startsAfter(Instant testDate) {
         if (getStart() == null) {
             return false;
@@ -223,6 +240,7 @@ public final class Interval {
         return testDate == null || getStart().isAfter(testDate);
     }
 
+    @Deprecated
     public boolean endsBefore(Instant testDate) {
         if (getEnd() == null) {
             return false;
@@ -230,6 +248,7 @@ public final class Interval {
         return testDate == null || getEnd().isBefore(testDate);
     }
 
+    @Deprecated
     public boolean startsBefore(Instant testDate) {
         if (getStart() == null) {
             return testDate != null;
@@ -237,6 +256,7 @@ public final class Interval {
         return testDate != null && getStart().isBefore(testDate);
     }
 
+    @Deprecated
     public boolean endsAfter(Instant testDate) {
         if (getEnd() == null) {
             return testDate != null;
@@ -252,6 +272,7 @@ public final class Interval {
      * @param contained
      * @return true if the first {@link Interval} envelops the second one.
      */
+    @Deprecated
     public boolean envelops(Interval contained) {
         return startsBefore(contained.getStart()) && endsAfter(contained.getEnd());
     }
@@ -263,6 +284,7 @@ public final class Interval {
      * @param second the second
      * @return true if both {@link Interval}s abut, false otherwise.
      */
+    @Deprecated
     public boolean abuts(Interval second) {
         return fromAbuts(second) || toAbuts(second);
     }
@@ -271,6 +293,7 @@ public final class Interval {
      * @return the duration in milliseconds
      * @throws java.lang.IllegalStateException if the interval is infinite in duration.
      */
+    @Deprecated
     public long durationInMillis() {
         if (isInfinite()) {
             throw new IllegalStateException();
@@ -278,6 +301,7 @@ public final class Interval {
         return end - start;
     }
 
+    @Deprecated
     public boolean isInfinite() {
         return start == -ETERNITY || end == ETERNITY;
     }
@@ -325,10 +349,12 @@ public final class Interval {
         return Objects.hash(start, end);
     }
 
+    @Deprecated
     public boolean isEmpty() {
         return start == end && start != -ETERNITY && end != ETERNITY;
     }
 
+    @Deprecated
     public Interval spanToInclude(Interval other) {
         if (this.includes(other)) {
             return this;
@@ -339,6 +365,7 @@ public final class Interval {
         return new Interval(Ordering.natural().min(start, other.start), Ordering.natural().max(end, other.end));
     }
 
+    @Deprecated
     public Interval spanToInclude(Instant date) {
         if (this.contains(date, EndpointBehavior.CLOSED_CLOSED)) {
             return this;
@@ -346,14 +373,17 @@ public final class Interval {
         return new Interval(Ordering.natural().min(start, date.toEpochMilli()), Ordering.natural().max(end, date.toEpochMilli()));
     }
 
+    @Deprecated
     public long dbStart() {
         return start;
     }
 
+    @Deprecated
     public long dbEnd() {
         return end;
     }
 
+    @Deprecated
     public enum EndpointBehavior {
         CLOSED_OPEN {
             boolean contains(Interval interval, long when) {
@@ -401,7 +431,7 @@ public final class Interval {
 
         public abstract Range<Instant> toRange(Interval interval);
 
-        public static EndpointBehavior fromRange(Range range) {
+        public static EndpointBehavior fromRange(Range<?> range) {
             if (BoundType.CLOSED.equals(range.lowerBoundType())) {
                 if (BoundType.CLOSED.equals(range.upperBoundType())) {
                     return CLOSED_CLOSED;

@@ -36,7 +36,7 @@ public final class ActionBasedJsonParser {
     }
 
     public void parse(Reader reader) throws IOException {
-        try (JsonParser parser = jsonFactory.createJsonParser(reader)) {
+        try (JsonParser parser = jsonFactory.createParser(reader)) {
             doParse(parser);
         }
     }

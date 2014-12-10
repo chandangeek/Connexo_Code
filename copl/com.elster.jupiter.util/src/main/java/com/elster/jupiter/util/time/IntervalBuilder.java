@@ -2,6 +2,7 @@ package com.elster.jupiter.util.time;
 
 import java.time.Instant;
 
+@Deprecated
 public final class IntervalBuilder {
 	private Instant earliest;
 	private Instant latest;

@@ -8,16 +8,8 @@ import java.util.function.Predicate;
 public enum Predicates {
     ;
 
-    public static <T> Predicate<T> notNull() {
-        return r -> r != null;
-    }
-
-    public static <T> Predicate<T> isNull() {
-        return r -> r == null;
-    }
-
     public static <T> Predicate<T> not(Predicate<T> predicate) {
-        return e -> !predicate.test(e);
+        return predicate.negate();
     }
 
 }

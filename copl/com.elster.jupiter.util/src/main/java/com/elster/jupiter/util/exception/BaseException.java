@@ -12,7 +12,8 @@ import java.util.Map;
  */
 public abstract class BaseException extends RuntimeException {
 
-    private final MessageSeed messageSeed;
+	private static final long serialVersionUID = 1L;
+	private final MessageSeed messageSeed;
     private final Map<String, Object> context = new HashMap<>();
 
     protected BaseException(MessageSeed messageSeed, Throwable cause) {

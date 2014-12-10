@@ -103,18 +103,22 @@ public final class Where {
         return compare(date, Operator.LESSTHANOREQUAL);
     }
 
+    @Deprecated
     public Condition inOpen(Interval interval) {
         return after(interval.getStart()).and(before(interval.getEnd()));
     }
 
+    @Deprecated
     public Condition inClosed(Interval interval) {
         return afterOrEqual(interval.getStart()).and(beforeOrEqual(interval.getEnd()));
     }
 
+    @Deprecated
     public Condition inOpenClosed(Interval interval) {
         return after(interval.getStart()).and(beforeOrEqual(interval.getEnd()));
     }
 
+    @Deprecated
     public Condition inClosedOpen(Interval interval) {
         return afterOrEqual(interval.getStart()).and(before(interval.getEnd()));
     }

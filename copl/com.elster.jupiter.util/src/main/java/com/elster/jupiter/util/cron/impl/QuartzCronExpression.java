@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
@@ -766,7 +767,7 @@ class QuartzCronExpression implements Serializable {
         return buf.toString();
     }
 
-    private String getExpressionSetSummary(java.util.Set set) {
+    private String getExpressionSetSummary(Set<Integer> set) {
 
         if (set.contains(NO_SPEC)) {
             return "?";
@@ -777,33 +778,7 @@ class QuartzCronExpression implements Serializable {
 
         StringBuilder buf = new StringBuilder();
 
-        Iterator itr = set.iterator();
-        boolean first = true;
-        while (itr.hasNext()) {
-            Integer iVal = (Integer) itr.next();
-            String val = iVal.toString();
-            if (!first) {
-                buf.append(",");
-            }
-            buf.append(val);
-            first = false;
-        }
-
-        return buf.toString();
-    }
-
-    private String getExpressionSetSummary(java.util.ArrayList list) {
-
-        if (list.contains(NO_SPEC)) {
-            return "?";
-        }
-        if (list.contains(ALL_SPEC)) {
-            return "*";
-        }
-
-        StringBuilder buf = new StringBuilder();
-
-        Iterator itr = list.iterator();
+        Iterator<Integer> itr = set.iterator();
         boolean first = true;
         while (itr.hasNext()) {
             Integer iVal = (Integer) itr.next();

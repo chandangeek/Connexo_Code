@@ -3,6 +3,8 @@ package com.elster.jupiter.util;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -50,12 +52,12 @@ public final class Pair<F, L> {
 
     @Override
     public String toString() {
-        return '(' + NullSafe.of(first).toString() + ',' + NullSafe.of(last).toString() + ')';
+        return new StringJoiner(",", "(", ")").add(Objects.toString(first)).add(Objects.toString(last)).toString();
     }
 
     @Override
     public final int hashCode() {
-        return NullSafe.of(first).hashCode() ^ NullSafe.of(last).hashCode();
+        return Objects.hash(first,last);
     }
 
     @Override

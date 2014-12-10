@@ -8,7 +8,9 @@ import com.elster.jupiter.util.exception.BaseException;
  */
 public final class InvalidCronExpression extends BaseException {
 
-    public InvalidCronExpression(String expression, Throwable cause) {
+	private static final long serialVersionUID = 1L;
+
+	public InvalidCronExpression(String expression, Throwable cause) {
         super(MessageSeeds.INVALID_CRON_EXPRESSION, cause, expression);
     }
 

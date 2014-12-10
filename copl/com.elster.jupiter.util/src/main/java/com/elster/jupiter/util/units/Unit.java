@@ -4,9 +4,6 @@ import static com.elster.jupiter.util.units.Dimension.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.HashSet;
-import java.util.Set;
-
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 

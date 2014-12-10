@@ -11,7 +11,7 @@ public class CompositeScheduleExpressionParser implements ScheduleExpressionPars
     private List<ScheduleExpressionParser> members = new CopyOnWriteArrayList<>();
 
     @Override
-    public Optional<ScheduleExpression> parse(String string) {
+    public Optional<? extends ScheduleExpression> parse(String string) {
         return members.stream()
                 .map(m -> m.parse(string))
                 .flatMap(asStream())
