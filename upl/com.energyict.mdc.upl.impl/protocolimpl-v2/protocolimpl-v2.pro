@@ -68,3 +68,6 @@
 -keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.CTRDeviceProtocolCache
 
 -keepnames class com.energyict.protocolimplv2.abnt.elster.A1055
+-keepnames class com.energyict.protocolimplv2.abnt.common.structure.field.UnitField {
+    public *;
+}
