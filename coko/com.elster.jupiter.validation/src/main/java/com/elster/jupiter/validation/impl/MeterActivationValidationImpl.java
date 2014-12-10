@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import static com.elster.jupiter.util.streams.Predicates.notNull;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
 
@@ -15,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -228,10 +228,10 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     private Stream<Instant> lastCheckedStream() {
         return channelValidations.stream()
-                .filter(notNull())
+                .filter(Objects::nonNull)
                 .filter(IChannelValidation::hasActiveRules)
                 .map(IChannelValidation::getLastChecked)
-                .filter(notNull());
+                .filter(Objects::nonNull);
     }
 
     @Override
