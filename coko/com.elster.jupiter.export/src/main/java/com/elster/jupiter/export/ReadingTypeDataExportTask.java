@@ -71,6 +71,8 @@ public interface ReadingTypeDataExportTask extends HasName {
 
     void setProperty(String key, Object value);
 
+    void removeProperty(String name);
+
     void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
     void removeReadingType(ReadingType readingType);
