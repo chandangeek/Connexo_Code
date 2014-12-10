@@ -14,8 +14,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.util.To;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 
@@ -66,7 +64,7 @@ final class GroupImpl implements Group , PersistenceAware {
 
 	@Override
 	public boolean hasPrivilege(String privilegeCode) {
-        return FluentIterable.from(getPrivileges()).transform(To.NAME).contains(privilegeCode);
+        return getPrivileges().stream().anyMatch(privilege -> privilege.getName().equals(privilegeCode));
 	}
 
     @Override
