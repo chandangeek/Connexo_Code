@@ -138,7 +138,9 @@ public class DataExportTaskResource {
         propertiesSpecs.stream()
                 .forEach(spec -> {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
-                    builder.addProperty(spec.getName()).withValue(value);
+                    if (spec.isRequired() || value != null) {
+                        builder.addProperty(spec.getName()).withValue(value);
+                    }
                 });
 
         info.readingTypes.stream()
@@ -295,7 +297,11 @@ public class DataExportTaskResource {
         propertiesSpecs.stream()
                 .forEach(spec -> {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
-                    task.setProperty(spec.getName(), value);
+                    if (spec.isRequired() || value != null) {
+                        task.setProperty(spec.getName(), value);
+                    } else {
+                        task.removeProperty(spec.getName());
+                    }
                 });
     }
 
