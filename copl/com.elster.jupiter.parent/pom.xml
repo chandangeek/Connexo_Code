@@ -383,6 +383,17 @@
                     <artifactId>buildnumber-maven-plugin</artifactId>
                     <version>1.3</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.qmino</groupId>
+                    <artifactId>miredot-plugin</artifactId>
+                    <version>1.6.0-SNAPSHOT</version>
+                </plugin>
+
             </plugins>
         </pluginManagement>
         <plugins>
@@ -484,13 +495,35 @@
             <plugin>
                 <groupId>com.qmino</groupId>
                 <artifactId>miredot-plugin</artifactId>
-                <version>1.5.1-SNAPSHOT</version>
+                <version>1.6.0-SNAPSHOT</version>
                 <configuration>
                     <licence>
                         T3JnYW5pc2F0aW9ufGNvbS5lbHN0ZXIuanVwaXRlcnwyMDE1LTEwLTAyfHRydWUjTUN3Q0ZEcVFsWEFSY2FTWkd2V29qZm5zTmFvWnkycDlBaFJHL1R1SWtKRHQ5RzA3UVB4d1cxNnIvbTBFN1E9PQ==
                     </licence>
                     <!-- insert other configuration here (optional) -->
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.3.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-no-snapshots</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireReleaseDeps>
+                                    <message>No Snapshots Allowed during release</message>
+                                    <onlyWhenRelease>true</onlyWhenRelease>
+                                </requireReleaseDeps>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
