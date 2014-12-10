@@ -423,11 +423,13 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     private List<ServerTopologyTimeslice> findRecentPhysicallyReferencingDevicesFor(Device device, int maxRecentCount) {
         Condition condition = this.getDevicesInTopologyCondition(device);
-        Order[] ordering = new Order[]{Order.descending("interval.start")};
         List<PhysicalGatewayReference> gatewayReferences =
                 this.dataModel
-                        .query(PhysicalGatewayReference.class)
-                        .select(condition, ordering, false, new String[0], 1, maxRecentCount);
+                        .stream(PhysicalGatewayReference.class)
+                        .filter(condition)
+                        .sorted(Order.descending("interval.start"))
+                        .limit(maxRecentCount)
+                        .select();
         return this.toTopologyTimeslices(gatewayReferences);
     }
 
