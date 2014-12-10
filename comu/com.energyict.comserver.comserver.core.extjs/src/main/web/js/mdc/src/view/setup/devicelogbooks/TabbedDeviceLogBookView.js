@@ -58,7 +58,6 @@ Ext.define('Mdc.view.setup.devicelogbooks.TabbedDeviceLogBookView', {
                                 xtype: 'deviceMenu',
                                 itemId: 'stepsMenu',
                                 device: me.device,
-//                                registerId: me.registerId,
                                 toggleId: 'logbooksLink'
                             }
                         ]

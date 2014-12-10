@@ -44,12 +44,12 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
             success: function (record) {
                 widget = Ext.widget('deviceLogbooksSetup', {
                     device: record,
-                    router: me.getController('Uni.controller.history.Router')
+                    router: me.getController('Uni.controller.history.Router'),
+                    toggleId: 'logbooksLink'
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getApplication().fireEvent('loadDevice', record);
                 viewport.setLoading(false);
-
             }
         });
     },
@@ -70,8 +70,8 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
         routeParams.logbookId = menu.record.getId();
 
         switch (item.action) {
-            case 'viewData':
-                route = 'devices/device/logbooks/logbook/data';
+            case 'viewEvents':
+                route = 'devices/device/logbooks/logbook/events';
                 break;
             case 'viewDetails':
                 route = 'devices/device/logbooks/logbook/overview';

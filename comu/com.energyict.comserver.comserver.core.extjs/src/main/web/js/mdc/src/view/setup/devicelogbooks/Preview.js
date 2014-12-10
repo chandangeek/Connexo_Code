@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.Preview', {
     itemId: 'deviceLogbooksPreview',
     requires: [
         'Mdc.view.setup.devicelogbooks.PreviewForm',
-        'Mdc.view.setup.devicelogbooks.ActionMenu'
+        'Mdc.view.setup.devicelogbooks.ActionMenu',
+        'Mdc.view.setup.devicelogbooks.TabbedDeviceLogBookView'
     ],
     layout: 'fit',
     frame: true,
@@ -20,8 +21,13 @@ Ext.define('Mdc.view.setup.devicelogbooks.Preview', {
             }
         }
     ],
-
-    items: {
-        xtype: 'deviceLogbooksPreviewForm'
+    initComponent: function () {
+        var me = this;
+        me.items = {
+            xtype: 'deviceLogbooksPreviewForm'
+        };
+        me.callParent(arguments)
     }
+
+
 });

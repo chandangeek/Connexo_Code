@@ -32,16 +32,12 @@ Ext.define('Mdc.controller.setup.DeviceLogbookOverview', {
             logbookModel = me.getModel('Mdc.model.LogbookOfDevice'),
             widget;
 
-
-            overview = Ext.widget('deviceLogbookOverview', {
-                router: me.getController('Uni.controller.history.Router')
-            });
-
-
-
         deviceModel.load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
+                var overview = Ext.widget('deviceLogbookOverview', {
+                    router: me.getController('Uni.controller.history.Router')
+                });
                 widget = Ext.widget('tabbedDeviceLogBookView', {
                     device: record,
                     router: me.getController('Uni.controller.history.Router')

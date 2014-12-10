@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Setup', {
     itemId: 'deviceLogbooksSetup',
 
     router: null,
-
+    toggleId: null,
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.device.DeviceMenu',
@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Setup', {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
                         device: me.device,
-                        toggleId: 'logbooksLink'
+                        toggleId: me.toggleId
                     }
                 ]
             }
@@ -40,7 +40,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'deviceLogbooksGrid',
-                        router: me.router
+                        router: me.router,
+                        itemId: 'deviceLogbooksGrid'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
@@ -50,7 +51,8 @@ Ext.define('Mdc.view.setup.devicelogbooks.Setup', {
                         ]
                     },
                     previewComponent: {
-                        xtype: 'deviceLogbooksPreview'
+                        xtype: 'deviceLogbooksPreview',
+                        device: me.device
                     }
                 }
             ]

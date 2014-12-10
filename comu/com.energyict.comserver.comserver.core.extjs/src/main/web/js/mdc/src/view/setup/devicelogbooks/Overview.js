@@ -6,10 +6,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Overview', {
         'Mdc.view.setup.devicelogbooks.SubMenuPanel',
         'Mdc.view.setup.devicelogbooks.PreviewForm'
     ],
-
-    mRID: null,
     router: null,
-
     content: {
         xtype: 'deviceLogbooksPreviewForm',
         ui: 'large'
@@ -17,7 +14,6 @@ Ext.define('Mdc.view.setup.devicelogbooks.Overview', {
 
     initComponent: function () {
         var me = this;
-
         me.callParent(arguments);
     }
 });

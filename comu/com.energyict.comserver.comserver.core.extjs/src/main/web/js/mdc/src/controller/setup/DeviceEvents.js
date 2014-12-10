@@ -1,4 +1,4 @@
-Ext.define('Mdc.controller.setup.DeviceLogbookData', {
+Ext.define('Mdc.controller.setup.DeviceEvents', {
     extend: 'Ext.app.Controller',
 
     requires: [
@@ -6,7 +6,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
     ],
 
     views: [
-        'Mdc.view.setup.devicelogbooks.Data'
+        'Mdc.view.setup.deviceevents.Data'
     ],
 
     models: [
@@ -29,19 +29,15 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
         },
         {
             ref: 'sideFilter',
-            selector: '#logBookFilter'
+            selector: 'deviceLogbookData #deviceLogbookDataSideFilter'
         },
         {
             ref: 'filterForm',
-            selector: '#deviceLogbookDataSideFilterForm'
+            selector: 'deviceLogbookData #deviceLogbookDataSideFilterForm'
         },
         {
             ref: 'filterToolbar',
             selector: 'deviceLogbookData #device-logbook-data-filter-toolbar'
-        },
-        {
-            ref: 'deviceLogBookDetailTitle',
-            selector: '#deviceLogBookDetailTitle'
         }
     ],
 
@@ -52,65 +48,62 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
             'deviceLogbookData #deviceLogbookDataGrid': {
                 select: this.showPreview
             },
-            '#deviceLogbookDataSideFilterApplyBtn': {
+            'deviceLogbookData #deviceLogbookDataSideFilterApplyBtn': {
                 click: this.applyFilter
             },
-            '#deviceLogbookDataSideFilterResetBtn': {
+            'deviceLogbookData #deviceLogbookDataSideFilterResetBtn': {
                 click: this.clearFilter
             },
-            '#device-logbook-data-filter-toolbar': {
+            'deviceLogbookData #device-logbook-data-filter-toolbar': {
                 removeFilter: this.removeFilterItem,
                 clearAllFilters: this.clearFilter
             },
-            '#deviceLogbookDataSideFilterForm [name=intervalStart]': {
+            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=intervalStart]': {
                 change: this.changeFilterByIntervalStart
             },
-            '#deviceLogbookDataSideFilterForm [name=domain]': {
+            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=domain]': {
                 change: this.changeComboFilter
             },
-            '#deviceLogbookDataSideFilterForm [name=subDomain]': {
+            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=subDomain]': {
                 change: this.changeComboFilter
             },
-            '#deviceLogbookDataSideFilterForm [name=eventOrAction]': {
+            'deviceLogbookData #deviceLogbookDataSideFilterForm [name=eventOrAction]': {
                 change: this.changeComboFilter
             }
         });
     },
 
-    showOverview: function (mRID, logbookId, tabController) {
+
+    showOverview: function (mRID, logbookId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             logbookModel = me.getModel('Mdc.model.LogbookOfDevice'),
             dataStore = me.getStore('Mdc.store.LogbookOfDeviceData'),
             dataStoreProxy = dataStore.getProxy(),
             widget,
-            data,
+            toggleId = 'events',
+            title = Uni.I18n.translate('deviceevents.header', 'MDC', 'Events'),
             sideFilter;
 
-        dataStoreProxy.setUrl({
-            mRID: mRID,
-            logbookId: logbookId
-        });
-
-
+        if (Ext.isDefined(logbookId)){
+            dataStoreProxy.setUrl({mRID: mRID, logbookId: logbookId});
+            title = Uni.I18n.translate('devicelogbooks.event.header', 'MDC', 'Logbook events');
+            toggleId = 'logbooksLink'
+        } else {
+            dataStoreProxy.setUrl({mRID: mRID});
+        }
 
         me.getModel('Mdc.model.Device').load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
-                widget = Ext.widget('tabbedDeviceLogBookView', {
-                    device: record,
-                    router: me.getController('Uni.controller.history.Router')
-                });
-
-                data = Ext.widget('deviceLogbookData', {
+                widget = Ext.widget('deviceLogbookData', {
                     router: me.getController('Uni.controller.history.Router'),
                     device: record,
-                    side: false,
-                    eventsView: false
+                    title: title,
+                    toggleId: toggleId,
+                    eventsView: true
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('#logBook-data').add(data);
-                tabController.showTab(1);
                 sideFilter = me.getSideFilter();
                 sideFilter.show();
                 sideFilter.disable();
@@ -127,7 +120,6 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
                 logbookModel.load(logbookId, {
                     success: function (record) {
                         me.getApplication().fireEvent('logbookOfDeviceLoad', record);
-                        widget.down('#logBookTabPanel').setTitle(record.get('name'));
                     }
                 });
             }
@@ -138,14 +130,12 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
 
     showPreview: function (selectionModel, record) {
         var preview = this.getPage().down('#deviceLogbookDataPreview');
-
-        preview.setTitle(Uni.I18n.formatDate('devicelogbooks.eventDate.dateFormat', record.get('eventDate'), 'MDC', 'M d, Y H:i:s'));
+        preview.setTitle(Uni.I18n.formatDate('deviceevents.eventDate.dateFormat', record.get('eventDate'), 'MDC', 'M d, Y H:i:s'));
         preview.down('#deviceLogbookDataPreviewForm').loadRecord(record);
     },
 
     applyFilter: function (button) {
         var filterForm = this.getFilterForm();
-
         filterForm.updateRecord();
         filterForm.getRecord().save();
     },
@@ -157,14 +147,12 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
     removeFilterItem: function (key) {
         var router = this.getController('Uni.controller.history.Router'),
             record = router.filter;
-
         if (key === 'eventDate') {
             record.set('intervalStart', null);
             record.set('intervalEnd', null);
         } else {
             record.set(key, null);
         }
-
         record.save();
     },
 

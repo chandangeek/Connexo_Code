@@ -2,7 +2,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceLoadProfileChannelsSetup',
     itemId: 'deviceLoadProfileChannelsSetup',
-
     mRID: null,
     router: null,
     device: null,
