@@ -211,6 +211,9 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     void setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
         this.useDefaultConnectionTask = useDefaultConnectionTask;
+        if (useDefaultConnectionTask) {
+            this.setConnectionTask(null);
+        }
     }
 
     void setDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {

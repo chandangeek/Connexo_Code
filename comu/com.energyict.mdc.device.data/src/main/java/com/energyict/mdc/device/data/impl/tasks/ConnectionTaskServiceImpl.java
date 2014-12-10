@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionBuilderImpl;
@@ -31,6 +32,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -75,11 +77,13 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     private final DeviceDataModelService deviceDataModelService;
+    private final EventService eventService;
 
     @Inject
-    public ConnectionTaskServiceImpl(DeviceDataModelService deviceDataModelService) {
+    public ConnectionTaskServiceImpl(DeviceDataModelService deviceDataModelService, EventService eventService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
+        this.eventService = eventService;
     }
 
     @Override
@@ -437,6 +441,9 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         this.clearOldDefault(device, newDefaultConnectionTask);
         if (newDefaultConnectionTask != null) {
             newDefaultConnectionTask.setAsDefault();
+        }
+        else {
+            this.eventService.postEvent(EventType.CONNECTIONTASK_CLEARDEFAULT.topic(), device);
         }
     }
 

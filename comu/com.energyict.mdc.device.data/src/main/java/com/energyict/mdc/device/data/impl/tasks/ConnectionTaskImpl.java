@@ -737,8 +737,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.isDefault = true;
     }
 
-    // To be used by the DeviceServiceImpl only that now has the responsibility to switch defaults
-    public void clearDefault() {
+    // To be used by the ConnectionTaskServiceImpl only that now has the responsibility to switch defaults
+    void clearDefault() {
         this.isDefault = false;
         this.post();
     }

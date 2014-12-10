@@ -359,7 +359,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     private void createRealServices() {
-        this.connectionTaskService = new ConnectionTaskServiceImpl(this);
+        this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this);
         this.deviceService = new DeviceServiceImpl(this);
         this.loadProfileService = new LoadProfileServiceImpl(this);
