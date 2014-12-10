@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.pluggable.PluggableClassCreationException;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 
 import java.net.URL;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -79,7 +80,7 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
         return this.getPluggableClass().getJavaClassName();
     }
 
-    public Date getModificationDate() {
+    public Instant getModificationDate() {
         return null;
     }
 

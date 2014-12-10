@@ -1,13 +1,22 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.common.services.WrappingFinder;
-import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
@@ -16,12 +25,10 @@ import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
@@ -29,12 +36,14 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExce
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingException;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
@@ -46,23 +55,21 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationSupport;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -70,31 +77,13 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import java.io.File;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * Provides an interface for the {@link ProtocolPluggableService} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-23 (13:47)
  */
-@Component(name="com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
+@Component(name = "com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, InstallService.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
 public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, InstallService {
 
     private static final Logger LOGGER = Logger.getLogger(ProtocolPluggableServiceImpl.class.getName());
@@ -113,11 +102,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile List<DeviceProtocolMessageService> deviceProtocolMessageServices = new CopyOnWriteArrayList<>();
     private volatile List<DeviceProtocolSecurityService> deviceProtocolSecurityServices = new CopyOnWriteArrayList<>();
     private volatile List<LicensedProtocolService> licensedProtocolServices = new CopyOnWriteArrayList<>();
+    private volatile List<DeviceCacheMarshallingService> deviceCacheMarshallingServices = new CopyOnWriteArrayList<>();
     private volatile IssueService issueService;
-    private volatile DeviceCacheMarshallingService deviceCacheMarshallingService;
     private volatile LicenseService licenseService;
     private volatile TransactionService transactionService;
     private volatile UserService userService;
+    private volatile DataVaultService dataVaultService;
 
     private volatile boolean active = false;
     private List<ReferencePropertySpecFinderProvider> factoryProviders = new ArrayList<>();
@@ -139,7 +129,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             DeviceProtocolMessageService deviceProtocolMessageService,
             DeviceProtocolSecurityService deviceProtocolSecurityService,
             InboundDeviceProtocolService inboundDeviceProtocolService,
-            ConnectionTypeService connectionTypeService, DeviceCacheMarshallingService deviceCacheMarshallingService, LicenseService licenseService, LicensedProtocolService licensedProtocolService, UserService userService) {
+            ConnectionTypeService connectionTypeService,
+            DeviceCacheMarshallingService deviceCacheMarshallingService,
+            LicenseService licenseService,
+            LicensedProtocolService licensedProtocolService,
+            UserService userService,
+            DataVaultService dataVaultService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -154,18 +149,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.addDeviceProtocolSecurityService(deviceProtocolSecurityService);
         this.addInboundDeviceProtocolService(inboundDeviceProtocolService);
         this.addConnectionTypeService(connectionTypeService);
-        this.setDeviceCacheMarshallingService(deviceCacheMarshallingService);
+        this.addDeviceCacheMarshallingService(deviceCacheMarshallingService);
         this.setLicenseService(licenseService);
         this.addLicensedProtocolService(licensedProtocolService);
+        this.setDataVaultService(dataVaultService);
         this.activate();
         this.install();
-    }
-
-    class NoServiceFoundThatCanLoadTheJavaClass extends RuntimeException {
-
-        public NoServiceFoundThatCanLoadTheJavaClass(String javaClassname) {
-            super("No deviceprotocol service found that can load the '" + javaClassname + "'");
-        }
     }
 
     @Override
@@ -173,8 +162,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         for (DeviceProtocolService service : this.deviceProtocolServices) {
             try {
                 return service.loadProtocolClass(javaClassName);
-            }
-            catch (ProtocolCreationException e) {
+            } catch (ProtocolCreationException e) {
                 // Try the next DeviceProtocolService
             }
         }
@@ -186,8 +174,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         for (DeviceProtocolMessageService service : this.deviceProtocolMessageServices) {
             try {
                 return service.createDeviceProtocolMessagesFor(javaClassName);
-            }
-            catch (ProtocolCreationException e) {
+            } catch (ProtocolCreationException e) {
                 // Try the next DeviceProtocolMessageService
             }
         }
@@ -199,8 +186,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         for (DeviceProtocolSecurityService service : this.deviceProtocolSecurityServices) {
             try {
                 return service.createDeviceProtocolSecurityFor(javaClassName);
-            }
-            catch (DeviceProtocolAdapterCodingExceptions e) {
+            } catch (DeviceProtocolAdapterCodingExceptions e) {
                 // Try the next DeviceProtocolSecurityService
             }
         }
@@ -246,8 +232,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 licensedProtocols.addAll(licensedProtocolService.getAllLicensedProtocols(mdcLicense.get()));
             }
             return licensedProtocols;
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -295,25 +280,19 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public DeviceProtocolPluggableClass findDeviceProtocolPluggableClass(long id) {
-        PluggableClass pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.DeviceProtocol, id);
-        if (pluggableClass == null) {
-            return null;
-        }
-        else {
-            return DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
-        }
+    public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long id) {
+        Optional<PluggableClass> pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.DeviceProtocol, id);
+        return pluggableClass.map(pc -> DeviceProtocolPluggableClassImpl.from(this.dataModel, pc));
     }
 
     @Override
     public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassByName(String name) {
         Optional<PluggableClass> pluggableClass = this.pluggableService.findByTypeAndName(PluggableClassType.DeviceProtocol, name);
-        if(pluggableClass.isPresent()){
+        if (pluggableClass.isPresent()) {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass.get());
             return Optional.of(deviceProtocolPluggableClass);
-        }
-        else  {
-            return Optional.absent();
+        } else {
+            return Optional.empty();
         }
     }
 
@@ -329,13 +308,10 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     @Override
     public void deleteDeviceProtocolPluggableClass(long id) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(id);
-        if (deviceProtocolPluggableClass == null) {
-            throw new NotFoundException("DeviceProtocolPluggableClass with id " + id + " cannot be deleted because it does not exist");
-        }
-        else {
-            deviceProtocolPluggableClass.delete();
-        }
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = this.findDeviceProtocolPluggableClass(id);
+        deviceProtocolPluggableClass
+            .orElseThrow(() -> new NotFoundException("DeviceProtocolPluggableClass with id " + id + " cannot be deleted because it does not exist"))
+            .delete();
     }
 
     @Override
@@ -364,21 +340,16 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public InboundDeviceProtocolPluggableClass findInboundDeviceProtocolPluggableClass(long id) {
-        PluggableClass pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.DiscoveryProtocol, id);
-        if (pluggableClass == null) {
-            return null;
-        }
-        else {
-            return InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass);
-        }
+    public Optional<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClass(long id) {
+        Optional<PluggableClass> pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.DiscoveryProtocol, id);
+        return pluggableClass.map(pc -> InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pc));
     }
 
     @Override
     public void deleteInboundDeviceProtocolPluggableClass(long id) {
-        InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = this.findInboundDeviceProtocolPluggableClass(id);
-        if (inboundDeviceProtocolPluggableClass != null) {
-            inboundDeviceProtocolPluggableClass.delete();
+        Optional<InboundDeviceProtocolPluggableClass> inboundDeviceProtocolPluggableClass = this.findInboundDeviceProtocolPluggableClass(id);
+        if (inboundDeviceProtocolPluggableClass.isPresent()) {
+            inboundDeviceProtocolPluggableClass.get().delete();
         }
     }
 
@@ -424,34 +395,24 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public ConnectionTypePluggableClass findConnectionTypePluggableClassByName(String name) {
+    public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByName(String name) {
         Optional<PluggableClass> pluggableClasses = this.pluggableService.findByTypeAndName(PluggableClassType.ConnectionType, name);
-        if (pluggableClasses.isPresent()) {
-            return ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClasses.get());
-        } else {
-            return null;
-        }
+        return pluggableClasses.map(pc -> ConnectionTypePluggableClassImpl.from(this.dataModel, pc));
     }
 
     @Override
-    public ConnectionTypePluggableClass findConnectionTypePluggableClass(long id) {
-        PluggableClass pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.ConnectionType, id);
-        if (pluggableClass == null) {
-            return null;
-        }
-        else {
-            return ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass);
-        }
+    public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClass(long id) {
+        Optional<PluggableClass> pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.ConnectionType, id);
+        return pluggableClass.map(pc -> ConnectionTypePluggableClassImpl.from(this.dataModel, pc));
     }
 
     @Override
     public List<ConnectionTypePluggableClass> findAllConnectionTypePluggableClasses() {
         List<PluggableClass> pluggableClasses = this.pluggableService.findAllByType(PluggableClassType.ConnectionType).find();
-        List<ConnectionTypePluggableClass> connectionTypePluggableClasses = new ArrayList<>(pluggableClasses.size());
-        for (PluggableClass pluggableClass : pluggableClasses) {
-            connectionTypePluggableClasses.add(ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass));
-        }
-        return connectionTypePluggableClasses;
+        return pluggableClasses
+                .stream()
+                .map(pluggableClass -> ConnectionTypePluggableClassImpl.from(this.dataModel, pluggableClass))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -481,7 +442,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public String createConformRelationTypeName (String name) {
+    public String createConformRelationTypeName(String name) {
         return RelationUtils.createConformRelationTypeName(name);
     }
 
@@ -494,8 +455,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public boolean isDefaultAttribute(RelationAttributeType attributeType) {
         List<PluggableClassRelationAttributeTypeUsage> usages =
                 this.dataModel
-                    .mapper(PluggableClassRelationAttributeTypeUsage.class)
-                    .find("relationAttributeTypeId", attributeType.getId());
+                        .mapper(PluggableClassRelationAttributeTypeUsage.class)
+                        .find("relationAttributeTypeId", attributeType.getId());
         return !usages.isEmpty();
     }
 
@@ -514,32 +475,44 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
-    public DeviceProtocolCache unMarshalDeviceProtocolCache(String type, String jsonCache) {
-        DeviceProtocolCache deviceProtocolCache = null;
+    public Optional<Object> unMarshallDeviceProtocolCache(String jsonCache) {
         try {
-            JAXBContext jc = JAXBContext.newInstance(Class.forName(type));
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-            deviceProtocolCache = (DeviceProtocolCache) unmarshaller.unmarshal(new StringReader(jsonCache));
-        } catch (JAXBException | ClassNotFoundException e) {
-            // if some unMarshalling exception occurs, then log it and shove it under the rug
-            LOGGER.log(Level.WARNING, "An error occurred during the UnMarshalling of the DeviceProtocolCache: " + e.getMessage(), e);
+            for (DeviceCacheMarshallingService service : this.deviceCacheMarshallingServices) {
+                try {
+                    return service.unMarshallCache(jsonCache);
+                }
+                catch (NotAppropriateDeviceCacheMarshallingTargetException e) {
+                    // Try the next service
+                }
+            }
         }
-        return deviceProtocolCache;
+        catch (DeviceCacheMarshallingException e) {
+            // A service accepted the
+            LOGGER.severe(e.getMessage());
+            LOGGER.log(Level.FINE, e.getMessage(), e);
+        }
+        return Optional.empty();
     }
 
     @Override
-    public String marshalDeviceProtocolCache(DeviceProtocolCache deviceProtocolCache) {
-        StringWriter stringWriter = new StringWriter();
-        try {
-            JAXBContext jc = JAXBContext.newInstance(deviceProtocolCache.getClass());
-            Marshaller marshaller = jc.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(deviceProtocolCache, stringWriter);
-        } catch (JAXBException e) {
-            // if some marshalling exception occurs, then log it and shove it under the rug
-            LOGGER.log(Level.WARNING, "An error occurred during the Marshalling of the DeviceProtocolCache: " + e.getMessage(), e);
+    public String marshallDeviceProtocolCache(Object legacyCache) {
+        if (legacyCache != null) {
+            for (DeviceCacheMarshallingService service : this.deviceCacheMarshallingServices) {
+                try {
+                    return service.marshall(legacyCache);
+                }
+                catch (NotAppropriateDeviceCacheMarshallingTargetException e) {
+                    // Try the next service
+                }
+                catch (DeviceCacheMarshallingException e) {
+                    /* Some services don't distinguish between DeviceCacheMarshallingException and NotAppropriateDeviceCacheMarshallingTargetException.
+                     * Log the failure and try the next service. */
+                    LOGGER.severe(e.getMessage());
+                    LOGGER.log(Level.FINE, e.getMessage(), e);
+                }
+            }
         }
-        return stringWriter.toString();
+        return "";
     }
 
     @Reference
@@ -574,8 +547,9 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
-    public PluggableService getPluggableService() {
-        return pluggableService;
+    @Reference
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
     }
 
     @Reference
@@ -593,6 +567,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.deviceProtocolServices.add(deviceProtocolService);
     }
 
+    @SuppressWarnings("unused")
     public void removeDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
         this.deviceProtocolServices.remove(deviceProtocolService);
     }
@@ -602,6 +577,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.deviceProtocolMessageServices.add(deviceProtocolMessageService);
     }
 
+    @SuppressWarnings("unused")
     public void removeDeviceProtocolMessageService(DeviceProtocolMessageService deviceProtocolMessageService) {
         this.deviceProtocolMessageServices.remove(deviceProtocolMessageService);
     }
@@ -611,6 +587,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.deviceProtocolSecurityServices.add(deviceProtocolSecurityService);
     }
 
+    @SuppressWarnings("unused")
     public void removeDeviceProtocolSecurityService(DeviceProtocolSecurityService deviceProtocolSecurityService) {
         this.deviceProtocolSecurityServices.remove(deviceProtocolSecurityService);
     }
@@ -623,7 +600,8 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         }
     }
 
-    public void removeLicensedProtocolService (LicensedProtocolService licensedProtocolService) {
+    @SuppressWarnings("unused")
+    public void removeLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
         this.licensedProtocolServices.remove(licensedProtocolService);
     }
 
@@ -639,6 +617,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         }
     }
 
+    @SuppressWarnings("unused")
     public void removeInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
         this.inboundDeviceProtocolServices.remove(inboundDeviceProtocolService);
     }
@@ -678,18 +657,24 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         }
     }
 
+    @SuppressWarnings("unused")
     public void removeConnectionTypeService(ConnectionTypeService connectionTypeService) {
         this.connectionTypeServices.remove(connectionTypeService);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addDeviceCacheMarshallingService(DeviceCacheMarshallingService deviceCacheMarshallingService) {
+        this.deviceCacheMarshallingServices.add(deviceCacheMarshallingService);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeDeviceCacheMarshallingService(DeviceCacheMarshallingService deviceCacheMarshallingService) {
+        this.deviceCacheMarshallingServices.remove(deviceCacheMarshallingService);
     }
 
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
-    }
-
-    @Reference
-    public void setDeviceCacheMarshallingService(DeviceCacheMarshallingService deviceCacheMarshallingService) {
-        this.deviceCacheMarshallingService = deviceCacheMarshallingService;
     }
 
     @Reference
@@ -711,6 +696,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         }
     }
 
+    @SuppressWarnings("unused")
     public void removeFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
         this.factoryProviders.remove(factoryProvider);
     }
@@ -774,9 +760,9 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(IssueService.class).toInstance(issueService);
                 bind(ProtocolPluggableService.class).toInstance(ProtocolPluggableServiceImpl.this);
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class);
-                bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
                 bind(LicenseService.class).toInstance(licenseService);
                 bind(UserService.class).toInstance(userService);
+                bind(DataVaultService.class).toInstance(dataVaultService);
             }
         };
     }
@@ -784,134 +770,35 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Activate
     public void activate() {
         //TODO need a proper implementation of the DataVault!
-
-        DataVaultProvider.instance.set(new TemporaryUnSecureDataVaultProvider());
         this.dataModel.register(this.getModule());
         this.active = this.dataModel.isInstalled();
-        registerAllPluggableClasses();
-
-    }
-
-    @Deactivate
-    public void deactivate() {
+        this.registerAllPluggableClasses();
     }
 
     private void registerAllPluggableClasses() {
         if (active) {
-            registerInboundDeviceProtocolPluggableClasses();
-            registerDeviceProtocolPluggableClasses();
-            registerConnectionTypePluggableClasses();
+            this.registerInboundDeviceProtocolPluggableClasses();
+            this.registerDeviceProtocolPluggableClasses();
+            this.registerConnectionTypePluggableClasses();
         }
     }
 
     private void registerDeviceProtocolPluggableClasses() {
-        Iterator<LicensedProtocol> licensedProtocolIterator = getAllLicensedProtocols().iterator();
-        boolean retryLater = false;
-        while (!retryLater && licensedProtocolIterator.hasNext()) {
-            LicensedProtocol licensedProtocol = licensedProtocolIterator.next();
-            try {
-                if (this.deviceProtocolDoesNotExist(licensedProtocol)) {
-                    this.createDeviceProtocol(licensedProtocol);
-                    LOGGER.fine("Created pluggable class for " + licensedProtocol.getClassName());
-                } else {
-                    LOGGER.fine("Skipping " + licensedProtocol.getClassName() + ": already exists");
-                }
-            } catch (NoFinderComponentFoundException e) {
-                LOGGER.warning("Not all factory components registered, will retry later.");
-                retryLater = true;
-            } catch (NoServiceFoundThatCanLoadTheJavaClass e){
-                LOGGER.warning(e.getMessage() + "; will retry later");
-                retryLater = true;
-            } catch (RuntimeException e) {
-                LOGGER.severe("Failure to register device protocol " + toLogMessage(licensedProtocol) + "see error message below:");
-                if (e.getCause() != null) {
-                    handleCreationException(licensedProtocol.getClassName(), e.getCause());
-                } else {
-                    handleCreationException(licensedProtocol.getClassName(), e);
-                }
-            } catch (Exception e) {
-                LOGGER.severe("Failure to register device protocol " + toLogMessage(licensedProtocol) + "see error message below:");
-                handleCreationException(licensedProtocol.getClassName(), e);
-            }
-        }
-    }
-
-    private DeviceProtocolPluggableClass createDeviceProtocol(final LicensedProtocol licensedProtocol) {
-        return this.transactionService.execute(new Transaction<DeviceProtocolPluggableClass>() {
-            @Override
-            public DeviceProtocolPluggableClass perform() {
-                DeviceProtocolPluggableClass deviceProtocolPluggableClass = newDeviceProtocolPluggableClass(licensedProtocol.getName(), licensedProtocol.getClassName());
-                LOGGER.info("Registered device protocol " + toLogMessage(licensedProtocol));
-                return deviceProtocolPluggableClass;
-
-            }
-        });
-    }
-
-    private String toLogMessage(LicensedProtocol licensedProtocol) {
-        return "(code = " + licensedProtocol.getCode() + "; className = " + licensedProtocol.getClassName() + ")";
-    }
-
-    private boolean deviceProtocolDoesNotExist(LicensedProtocol licensedProtocolRule) {
-        return findDeviceProtocolPluggableClassesByClassName(licensedProtocolRule.getClassName()).isEmpty();
+        new DeviceProtocolPluggableClassRegistrar(this, this.transactionService).registerAll(this.getAllLicensedProtocols());
     }
 
     private void registerInboundDeviceProtocolPluggableClasses() {
-        for (InboundDeviceProtocolService inboundDeviceProtocolService : inboundDeviceProtocolServices) {
-            boolean retryLater = false;
-            Iterator<PluggableClassDefinition> pluggableClassDefinitionIterator = inboundDeviceProtocolService.getExistingInboundDeviceProtocolPluggableClasses().iterator();
-            while (!retryLater && pluggableClassDefinitionIterator.hasNext()) {
-                PluggableClassDefinition definition = pluggableClassDefinitionIterator.next();
-                try {
-                    if (this.inboundDeviceProtocolDoesNotExist(definition)) {
-                        this.createInboundDeviceProtocol(definition);
-                        LOGGER.fine("Created pluggable class for " + definition.getProtocolTypeClass().getSimpleName());
-                    } else {
-                        LOGGER.fine("Skipping  " + definition.getProtocolTypeClass().getName() + ": already exists");
-                    }
-                } catch (NoFinderComponentFoundException e) {
-                    LOGGER.warning("Not all factory components registered, will retry later.");
-                    retryLater = true;
-                } catch (RuntimeException e) {
-                    if (e.getCause() != null) {
-                        handleCreationException(definition, e.getCause());
-                    } else {
-                        handleCreationException(definition, e);
-                    }
-                } catch (Exception e) {
-                    handleCreationException(definition, e);
-                }
-            }
-
-        }
+        new InboundDeviceProtocolPluggableClassRegistrar(this, this.transactionService).
+                registerAll(Collections.unmodifiableList(this.inboundDeviceProtocolServices));
     }
 
-    private boolean inboundDeviceProtocolDoesNotExist(PluggableClassDefinition definition) {
-        return findInboundDeviceProtocolPluggableClassByClassName(definition.getProtocolTypeClass().getName()).isEmpty();
+    private void registerConnectionTypePluggableClasses() {
+        new ConnectionTypePluggableClassRegistrar(this, this.transactionService).
+                registerAll(Collections.unmodifiableList(this.connectionTypeServices));
     }
 
-    private InboundDeviceProtocolPluggableClass createInboundDeviceProtocol(final PluggableClassDefinition definition) {
-        return this.transactionService.execute(new Transaction<InboundDeviceProtocolPluggableClass>() {
-            @Override
-            public InboundDeviceProtocolPluggableClass perform() {
-                InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass =
-                        newInboundDeviceProtocolPluggableClass(
-                                definition.getName(),
-                                definition.getProtocolTypeClass().getName());
-                inboundDeviceProtocolPluggableClass.save();
-                return inboundDeviceProtocolPluggableClass;
-
-
-            }
-        });
-    }
-
-    private void handleCreationException(PluggableClassDefinition definition, Throwable e) {
-        this.handleCreationException(definition.getProtocolTypeClass().getName(), e);
-    }
-
-    private void handleCreationException(String className, Throwable e) {
-        LOGGER.log(Level.SEVERE, "Failed to create pluggable class for " + className + ": " + e.getMessage(), e);
+    @Deactivate
+    public void deactivate() {
     }
 
     @Reference
@@ -919,98 +806,14 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.transactionService = transactionService;
     }
 
-
-    private void registerConnectionTypePluggableClasses() {
-        for (ConnectionTypeService connectionTypeService : connectionTypeServices) {
-            boolean retryLater = false;
-            Iterator<PluggableClassDefinition> pluggableClassDefinitionIterator = connectionTypeService.getExistingConnectionTypePluggableClasses().iterator();
-            while (!retryLater && pluggableClassDefinitionIterator.hasNext()) {
-                PluggableClassDefinition definition = pluggableClassDefinitionIterator.next();
-                try {
-                    if (this.connectionTypeDoesNotExist(definition)) {
-                        this.createConnectionType(definition);
-                        LOGGER.fine("Created pluggable class for " + definition.getProtocolTypeClass().getSimpleName());
-                    } else {
-                        LOGGER.fine("Skipping " + definition.getProtocolTypeClass().getName() + ": already exists");
-                    }
-                } catch (NoFinderComponentFoundException e) {
-                    LOGGER.warning("Not all factory components registered, will retry later.");
-                    retryLater = true;
-                } catch (RuntimeException e) {
-                    if (e.getCause() != null) {
-                        handleCreationException(definition, e.getCause());
-                    } else {
-                        handleCreationException(definition, e);
-                    }
-                } catch (Exception e) {
-                    handleCreationException(definition, e);
-                }
-            }
-        }
-    }
-
-    private ConnectionTypePluggableClass createConnectionType(final PluggableClassDefinition definition) {
-        return this.transactionService.execute(new Transaction<ConnectionTypePluggableClass>() {
-            @Override
-            public ConnectionTypePluggableClass perform() {
-                ConnectionTypePluggableClass connectionTypePluggableClass =
-                        newConnectionTypePluggableClass(
-                                definition.getName(),
-                                definition.getProtocolTypeClass().getName());
-                connectionTypePluggableClass.save();
-                return connectionTypePluggableClass;
-
-            }
-        });
-    }
-
-    private boolean connectionTypeDoesNotExist(PluggableClassDefinition definition) {
-        return findConnectionTypePluggableClassByClassName(definition.getProtocolTypeClass().getName()).isEmpty();
-    }
-
-
     @Override
     public void install() {
         new Installer(this.dataModel, this.eventService, this.thesaurus, this.userService).install(true, true);
     }
 
-    private class TemporaryUnSecureDataVaultProvider implements DataVaultProvider {
-
-        private DataVault soleInstance;
-
-        @Override
-        public DataVault getKeyVault() {
-            if (soleInstance ==null) {
-                soleInstance = new StraightForwardUnSecureDataVault();
-            }
-            return soleInstance;
-        }
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Arrays.asList("ORM", "USR", "EVT", "NLS");
     }
 
-    /**
-     * An unsecure DataVault. The encrypt will just make a String from the given bytes and the decrypt will do the reverse!.
-     * <b>NOT SECURE FOR IN PRODUCTION</b>
-     * @see <a href="http://jira.eict.vpdc/browse/JP-3879">JP-3879</a>
-     */
-    private class StraightForwardUnSecureDataVault implements DataVault{
-
-        @Override
-        public String encrypt(byte[] decrypted) {
-            return new String(decrypted);
-        }
-
-        @Override
-        public byte[] decrypt(String encrypted) {
-            if (encrypted != null) {
-                return encrypted.getBytes();
-            } else {
-                return new byte[0];
-            }
-        }
-
-        @Override
-        public void createVault(File file) {
-
-        }
-    }
 }

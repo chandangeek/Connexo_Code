@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLogBook;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
+import java.util.Optional;
 import org.joda.time.DateMidnight;
 import org.junit.*;
 import org.junit.runner.*;
@@ -102,7 +103,8 @@ public class SmartMeterProtocolLogBookAdapterTest {
         Environment.DEFAULT.set(this.environment);
         when(this.otherEndDeviceEventType.getName()).thenReturn("0.0.0.0");
         when(this.otherEndDeviceEventType.getMRID()).thenReturn("0.0.0.0");
-        when(this.meteringService.getAvailableEndDeviceEventTypes()).thenReturn(Arrays.asList(this.otherEndDeviceEventType));
+        Optional<EndDeviceEventType> optionalEndDeviceEvent = Optional.of(otherEndDeviceEventType);
+        when(this.meteringService.getEndDeviceEventType(anyString())).thenReturn(optionalEndDeviceEvent);
         EndDeviceEventTypeFactory endDeviceEventTypeFactory = new EndDeviceEventTypeFactory();
         endDeviceEventTypeFactory.setMeteringService(this.meteringService);
         endDeviceEventTypeFactory.activate();
@@ -124,6 +126,23 @@ public class SmartMeterProtocolLogBookAdapterTest {
                 return problem;
             }
         });
+    }
+
+    private void initializeEndDeviceEventTypeFactory() {
+        EndDeviceEventType powerUp = mock(EndDeviceEventType.class);
+        String powerUpEventMRID = "0.26.38.49";
+        when(powerUp.getMRID()).thenReturn(powerUpEventMRID);
+        EndDeviceEventType powerDown = mock(EndDeviceEventType.class);
+        String powerDownEventMRID = "0.26.38.47";
+        when(powerDown.getMRID()).thenReturn(powerDownEventMRID);
+        Optional<EndDeviceEventType> hardwareErrorOptional = Optional.of(powerUp);
+        when(meteringService.getEndDeviceEventType(powerUpEventMRID)).thenReturn(hardwareErrorOptional);
+        Optional<EndDeviceEventType> powerDownEventOptional = Optional.of(powerDown);
+        when(meteringService.getEndDeviceEventType(powerDownEventMRID)).thenReturn(powerDownEventOptional);
+        EndDeviceEventTypeFactory endDeviceEventTypeFactory = new EndDeviceEventTypeFactory();
+        endDeviceEventTypeFactory.setMeteringService(meteringService);
+        endDeviceEventTypeFactory.activate();
+        // the getEventType will return null, if a specific result is required, then add it ot the meteringService MOCK
     }
 
     @AfterClass
@@ -159,8 +178,6 @@ public class SmartMeterProtocolLogBookAdapterTest {
 
         assertThat(LOGBOOK1_ID).isEqualTo(((LogBookIdentifierById) logBookData.get(0).getLogBookIdentifier()).getLogBookId());
         assertThat(ResultType.NotSupported).isEqualTo(logBookData.get(0).getResultType());
-        assertThat(logBookData.get(0).getIssues().get(0).getDescription()).isNotEmpty();
-        assertEquals(logBookData.get(0).getIssues().get(0).getSource(), LOGBOOK1_OBIS);
 
         assertThat(LOGBOOK2_ID).isEqualTo(((LogBookIdentifierById) logBookData.get(1).getLogBookIdentifier()).getLogBookId());
         assertThat(ResultType.Supported).isEqualTo(logBookData.get(1).getResultType());

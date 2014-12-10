@@ -1,9 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
@@ -15,11 +12,11 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.impl.DataModelInitializer;
@@ -30,15 +27,10 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageResultEx
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleLegacyMessageConverter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedMessage;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedMessageList;
-import com.energyict.mdc.protocol.pluggable.mocks.DeviceMessageTestSpec;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 import org.fest.assertions.core.Condition;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -46,6 +38,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -105,7 +105,6 @@ public class SmartMeterProtocolMessageAdapterTest {
         ApplicationContext applicationContext = this.inMemoryPersistence.getApplicationContext();
         when(applicationContext.getModulesImplementing(CollectedDataFactory.class)).thenReturn(Arrays.asList(this.collectedDataFactory));
         when(this.codeFactory.getInstanceType()).thenReturn(Code.class);
-        when(applicationContext.findFactory(FactoryIds.CODE.id())).thenReturn(this.codeFactory);
         when(this.collectedDataFactory.createCollectedMessageList(anyList())).thenReturn(new MockCollectedMessageList());
         when(this.collectedDataFactory.createCollectedMessage(any(MessageIdentifier.class))).thenAnswer(
                 new Answer<CollectedMessage>() {
@@ -177,13 +176,10 @@ public class SmartMeterProtocolMessageAdapterTest {
         SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel, this.protocolPluggableService, this.inMemoryPersistence.getIssueService());
 
         // business method
-        List<DeviceMessageSpec> supportedMessages = messageAdapter.getSupportedMessages();
+        Set<DeviceMessageId> supportedMessages = messageAdapter.getSupportedMessages();
 
         // asserts
-        assertThat(supportedMessages).isNotNull();
-        assertThat(supportedMessages).containsOnly(
-                DeviceMessageTestSpec.extendedSpecs(propertySpecService),
-                DeviceMessageTestSpec.allSimpleSpecs());
+        assertThat(supportedMessages).isEmpty();
     }
 
     @Test

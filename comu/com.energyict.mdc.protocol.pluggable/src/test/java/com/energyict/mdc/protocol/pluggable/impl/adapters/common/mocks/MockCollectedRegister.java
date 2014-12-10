@@ -46,6 +46,11 @@ public class MockCollectedRegister implements CollectedRegister {
         return this.readingType;
     }
 
+    @Override
+    public boolean isTextRegister() {
+        return false;
+    }
+
     public void setRegisterIdentifier(RegisterIdentifier registerIdentifier) {
         this.registerIdentifier = registerIdentifier;
     }

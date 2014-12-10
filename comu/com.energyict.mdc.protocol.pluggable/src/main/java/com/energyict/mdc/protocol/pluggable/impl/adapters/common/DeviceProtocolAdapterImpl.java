@@ -1,14 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.DLMSCache;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.OptionalPropertySpecFactory;
-import com.energyict.mdc.dynamic.PropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -21,14 +15,18 @@ import com.energyict.mdc.protocol.api.legacy.DeviceCachingSupport;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Abstract adapter class that can provide general functionality for the {@link SmartMeterProtocol} and {@link MeterProtocol}
@@ -41,10 +39,8 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
 
     public static final String DEVICE_TIMEZONE_PROPERTY_NAME = "deviceTimeZone";
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
-    public static final String NETWORK_ID_PROPERTY_NAME = "networkId";
 
     private DataModel dataModel;
-    private final DeviceCacheMarshallingService deviceCacheMarshallingService;
     private PropertySpecService propertySpecService;
     private ProtocolPluggableService protocolPluggableService;
     private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
@@ -63,12 +59,11 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
      */
     public abstract HHUEnabler getHhuEnabler();
 
-    protected DeviceProtocolAdapterImpl(ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, DeviceCacheMarshallingService deviceCacheMarshallingService) {
+    protected DeviceProtocolAdapterImpl(ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
         super();
         this.protocolPluggableService = protocolPluggableService;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         this.dataModel = dataModel;
-        this.deviceCacheMarshallingService = deviceCacheMarshallingService;
     }
 
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -93,17 +88,16 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
 
     protected List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionTypePluggableClass> connectionTypePluggableClasses = this.getProtocolPluggableService().findAllConnectionTypePluggableClasses();
-        List<ConnectionType> connectionTypes = new ArrayList<>(connectionTypePluggableClasses.size());
-        for (ConnectionTypePluggableClass connectionTypePluggableClass : connectionTypePluggableClasses) {
-            connectionTypes.add(connectionTypePluggableClass.getConnectionType());
-        }
-        return connectionTypes;
+        return connectionTypePluggableClasses
+                .stream()
+                .map(ConnectionTypePluggableClass::getConnectionType)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void setCache(Object cacheObject) {
-        if(cacheObject != null && cacheObject instanceof DLMSCache){
-            ((DLMSCache) cacheObject).setChanged(false);
+        if (cacheObject != null && cacheObject instanceof DeviceProtocolCache) {
+            ((DeviceProtocolCache) cacheObject).setChanged(false);
         }
         getCachingProtocol().setCache(cacheObject);
     }
@@ -117,7 +111,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     public Object fetchCache(int deviceId) throws SQLException, BusinessException {
 
         /*
-       This method will never get called. All cache objects will be fetched during initialization of the task
+       This method will never get called. All cached objects will be fetched during initialization of the task
         */
 
         return getCachingProtocol().fetchCache(deviceId);
@@ -127,7 +121,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     public void updateCache(int deviceId, Object cacheObject) throws SQLException, BusinessException {
 
         /*
-       This method will never get called. All cache objects will be fetched during initialization of the task
+       This method will never get called. All cached objects will be fetched during initialization of the task
         */
 
         getCachingProtocol().updateCache(deviceId, cacheObject);
@@ -160,14 +154,14 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         if (deviceProtocolCache instanceof DeviceProtocolCacheAdapter) {
             DeviceProtocolCacheAdapter deviceCacheAdapter = (DeviceProtocolCacheAdapter) deviceProtocolCache;
-            setCache(deviceCacheMarshallingService.unMarshallCache(deviceCacheAdapter.getLegacyJsonCache()));
+            setCache(this.protocolPluggableService.unMarshallDeviceProtocolCache(deviceCacheAdapter.getLegacyJsonCache()).orElse(null));
         }
     }
 
     @Override
     public DeviceProtocolCache getDeviceCache() {
         DeviceProtocolCacheAdapter deviceCacheAdapter = new DeviceProtocolCacheAdapter();
-        String legacyJsonCache = deviceCacheMarshallingService.marshall(getCache());
+        String legacyJsonCache = this.protocolPluggableService.marshallDeviceProtocolCache(getCache());
         deviceCacheAdapter.setLegacyJsonCache(legacyJsonCache);
         return deviceCacheAdapter;
     }
@@ -216,42 +210,20 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
         return result;
     }
 
-    private PropertySpec deviceTimeZonePropertySpec(boolean required) {
-        PropertySpecFactory factory;
-        if (required) {
-            factory = RequiredPropertySpecFactory.newInstance();
-        }
-        else {
-            factory = OptionalPropertySpecFactory.newInstance();
-        }
-        return factory.stringPropertySpec(DEVICE_TIMEZONE_PROPERTY_NAME);
+    private PropertySpec<String> deviceTimeZonePropertySpec(boolean required) {
+        return this.propertySpecService.basicPropertySpec(DEVICE_TIMEZONE_PROPERTY_NAME, required, new StringFactory());
     }
 
-    private PropertySpec nodeAddressPropertySpec(boolean required) {
-        if (required) {
-            return RequiredPropertySpecFactory.newInstance().stringPropertySpec(MeterProtocol.NODEID);
-        }
-        else {
-            return OptionalPropertySpecFactory.newInstance().stringPropertySpec(MeterProtocol.NODEID);
-        }
+    private PropertySpec<String> nodeAddressPropertySpec(boolean required) {
+        return this.propertySpecService.basicPropertySpec(MeterProtocol.NODEID, required, new StringFactory());
     }
 
-    private PropertySpec deviceIdPropertySpec(boolean required) {
-        if (required) {
-            return RequiredPropertySpecFactory.newInstance().stringPropertySpec(MeterProtocol.ADDRESS);
-        }
-        else {
-            return OptionalPropertySpecFactory.newInstance().stringPropertySpec(MeterProtocol.ADDRESS);
-        }
+    private PropertySpec<String> deviceIdPropertySpec(boolean required) {
+        return this.propertySpecService.basicPropertySpec(MeterProtocol.ADDRESS, required, new StringFactory());
     }
 
-    private PropertySpec callHomeIdPropertySpec(boolean required) {
-        if (required) {
-            return RequiredPropertySpecFactory.newInstance().stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
-        }
-        else {
-            return OptionalPropertySpecFactory.newInstance().stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
-        }
+    private PropertySpec<String> callHomeIdPropertySpec(boolean required) {
+        return this.propertySpecService.basicPropertySpec(CALL_HOME_ID_PROPERTY_NAME, required, new StringFactory());
     }
 
     protected abstract AbstractDeviceProtocolSecuritySupportAdapter getSecuritySupportAdapter();

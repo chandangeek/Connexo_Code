@@ -27,6 +27,10 @@ public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
     }
 
     @Override
+    public void setChanged(boolean flag) {
+    }
+
+    @Override
     public boolean contentChanged() {
         return !this.jsonCache.contains(legacyDlmsCacheCheck);
     }

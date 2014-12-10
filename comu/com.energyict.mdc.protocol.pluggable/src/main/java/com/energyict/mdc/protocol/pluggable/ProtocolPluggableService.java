@@ -8,14 +8,12 @@ import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
-import com.google.common.base.Optional;
-
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides services that relate to {@link com.energyict.mdc.pluggable.PluggableClass}es
@@ -92,7 +90,7 @@ public interface ProtocolPluggableService {
 
     public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
-    public DeviceProtocolPluggableClass findDeviceProtocolPluggableClass(long id);
+    public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long id);
 
     public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassByName(String name);
 
@@ -129,7 +127,7 @@ public interface ProtocolPluggableService {
 
     public List<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClassByClassName(String javaClassName);
 
-    public InboundDeviceProtocolPluggableClass findInboundDeviceProtocolPluggableClass(long id);
+    public Optional<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClass(long id);
 
     public List<InboundDeviceProtocolPluggableClass> findAllInboundDeviceProtocolPluggableClass();
 
@@ -175,9 +173,9 @@ public interface ProtocolPluggableService {
     public void deleteInboundDeviceProtocolPluggableClass(long id);
 
     public List<ConnectionTypePluggableClass> findConnectionTypePluggableClassByClassName(String javaClassName);
-    public ConnectionTypePluggableClass findConnectionTypePluggableClassByName(String name);
+    public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByName(String name);
 
-    public ConnectionTypePluggableClass findConnectionTypePluggableClass(long id);
+    public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClass(long id);
 
     public List<ConnectionTypePluggableClass> findAllConnectionTypePluggableClasses();
 
@@ -248,24 +246,17 @@ public interface ProtocolPluggableService {
     public RelationType findSecurityPropertyRelationType(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     /**
-     * UnMarshals the given jsonCache object. We need the type to be able to set the concrete class
-     * in the JAXBContext
+     * Load the jsoned Cache object for the given string.
+     * The unmarshalling should happen in the bundle which 'knows' the cache objects.
+     * Note that if the bundle that created the cache in the first place
+     * is currently missing, then Optional.empty() is returned.
      *
-     * @param type      the javaClassName of the DeviceProtocolCache implementation
-     * @param jsonCache the json representation of the Cache object
+     * @param jsonCache the json representation of the cache
      * @return the unmarshalled object
      */
-    public DeviceProtocolCache unMarshalDeviceProtocolCache(String type, String jsonCache);
+    public Optional<Object> unMarshallDeviceProtocolCache(String jsonCache);
 
-    /**
-     * Marshals the given DeviceProtocolCache object.
-     * We need to pass it to the protocol bundle as a class instance is required for the JAXBContext
-     *
-     * @param deviceProtocolCache the deviceProtocolCache
-     * @return the json representation of the cache
-     */
-    public String marshalDeviceProtocolCache(DeviceProtocolCache deviceProtocolCache);
-
+    public String marshallDeviceProtocolCache(Object legacyCache);
 
     public ConnectionType createConnectionType(String javaClassName);
 

@@ -47,10 +47,10 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
                         final List<MeterEvent> meterEvents = smartMeterProtocol.getMeterEvents(reader.getLastLogBook());
                         deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                     } else {
-                        deviceLogBook.setFailureInformation(ResultType.NotSupported, getIssue(reader.getLogBookObisCode(), "logBookXnotsupported", reader.getLogBookObisCode()));
+                        deviceLogBook.setFailureInformation(ResultType.NotSupported, getWarning(reader.getLogBookObisCode(), "logBookXnotsupported", reader.getLogBookObisCode()));
                     }
                 } catch (IOException e) {
-                    deviceLogBook.setFailureInformation(ResultType.InCompatible, getIssue(reader.getLogBookObisCode(), "logBookXissue", reader.getLogBookObisCode(), e));
+                    deviceLogBook.setFailureInformation(ResultType.InCompatible, getProblem(reader.getLogBookObisCode(), "logBookXissue", reader.getLogBookObisCode(), e));
                 }
                 collectedLogBooks.add(deviceLogBook);
             }
@@ -62,8 +62,12 @@ public class SmartMeterProtocolLogBookAdapter implements DeviceLogBookSupport {
         return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
-    private Issue getIssue(Object source, String description, Object... arguments){
+    private Issue getProblem(Object source, String description, Object... arguments){
         return this.issueService.newProblem(source, description, arguments);
+    }
+
+    private Issue getWarning(Object source, String description, Object... arguments){
+        return this.issueService.newWarning(source, description, arguments);
     }
 
 }

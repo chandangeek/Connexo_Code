@@ -1,21 +1,18 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.pluggable.mocks.DeviceMessageTestSpec;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 
-import java.util.Arrays;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
+
 import java.util.Date;
-import java.util.List;
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Simple test class to correctly perform tests on the adapters
@@ -35,14 +32,8 @@ public class SimpleLegacyMessageConverter implements LegacyMessageConverter {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        return Arrays.<DeviceMessageSpec>asList(
-                DeviceMessageTestSpec.extendedSpecs(propertySpecService),
-                DeviceMessageTestSpec.allSimpleSpecs());
-    }
-
-    private IdBusinessObjectFactory getCodeFactory() {
-        return (IdBusinessObjectFactory) Environment.DEFAULT.get().findFactory(FactoryIds.CODE.id());
+    public Set<DeviceMessageId> getSupportedMessages() {
+        return EnumSet.noneOf(DeviceMessageId.class);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.Issue;
@@ -165,7 +164,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
      */
     private CollectedLoadProfile createUnSupportedCollectedLoadProfile(final LoadProfileReader loadProfileReader) {
         CollectedLoadProfile deviceLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(null);
-        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
+        deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
         return deviceLoadProfile;
     }
 
@@ -175,7 +174,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         for (LogBookReader reader : logBookReaders) {
             if (!reader.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                 CollectedLogBook deviceLogBook = collectedDataFactory.createCollectedLogBook(reader.getLogBookIdentifier());
-                deviceLogBook.setFailureInformation(ResultType.NotSupported, getIssue(reader.getLogBookObisCode(), "logBookXnotsupported", reader.getLogBookObisCode()));
+                deviceLogBook.setFailureInformation(ResultType.NotSupported, getWarning(reader.getLogBookObisCode(), "logBookXnotsupported", reader.getLogBookObisCode()));
                 collectedLogBookList.add(deviceLogBook);
             }
         }
@@ -204,9 +203,9 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             deviceLoadProfile.setCollectedData(profileData.getIntervalDatas(), convertToProperChannelInfos(profileData));
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
         } catch (IOException e) {
-            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfileReader.getProfileObisCode(), "CouldNotReadoutLoadProfileData", e.getMessage()));
+            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), "CouldNotReadoutLoadProfileData", e.getMessage()));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
-            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getIssue(loadProfileReader.getProfileObisCode(), "CouldNotParseLoadProfileData"));
+            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getProblem(loadProfileReader.getProfileObisCode(), "CouldNotParseLoadProfileData"));
         }
         collectedDataList.add(deviceLoadProfile);
         return collectedDataList;
@@ -235,11 +234,11 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
             deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
         } catch (IOException e) {
-            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getIssue(loadProfileReader.getProfileObisCode(), "CouldNotReadoutLoadProfileData"));
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, getIssue(logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData"));
+            deviceLoadProfile.setFailureInformation(ResultType.NotSupported, getProblem(loadProfileReader.getProfileObisCode(), "CouldNotReadoutLoadProfileData"));
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, getProblem(logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData"));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
-            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getIssue(loadProfileReader.getProfileObisCode(), "CouldNotParseLoadProfileData"));
-            deviceLogBook.setFailureInformation(ResultType.InCompatible, getIssue(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
+            deviceLoadProfile.setFailureInformation(ResultType.InCompatible, getProblem(loadProfileReader.getProfileObisCode(), "CouldNotParseLoadProfileData"));
+            deviceLogBook.setFailureInformation(ResultType.InCompatible, getProblem(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
         }
         collectedDataList.add(deviceLoadProfile);
         collectedDataList.add(deviceLogBook);
@@ -253,9 +252,9 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             ProfileData profileData = this.meterProtocol.getProfileData(logBookReader.getLastLogBook(), true);
             deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
         } catch (IOException e) {
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, getIssue(logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData"));
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, getProblem(logBookReader.getLogBookObisCode(), "CouldNotReadoutLogBookData"));
         } catch (IndexOutOfBoundsException e) { // handles parsing errors
-            deviceLogBook.setFailureInformation(ResultType.InCompatible, getIssue(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
+            deviceLogBook.setFailureInformation(ResultType.InCompatible, getProblem(logBookReader.getLogBookObisCode(), "CouldNotParseLogBookData"));
         }
         collectedDataList.add(deviceLogBook);
         return collectedDataList;
@@ -291,7 +290,11 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
-    private Issue getIssue(Object source, String description, Object... arguments) {
+    private Issue getProblem(Object source, String description, Object... arguments) {
         return this.issueService.newProblem(source, description, arguments);
+    }
+
+    private Issue getWarning(Object source, String description, Object... arguments) {
+        return this.issueService.newWarning(source, description, arguments);
     }
 }

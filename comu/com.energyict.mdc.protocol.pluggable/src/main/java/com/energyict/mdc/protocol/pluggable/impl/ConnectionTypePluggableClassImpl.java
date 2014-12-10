@@ -1,9 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessObjectFactory;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.JupiterReferenceFactory;
@@ -20,16 +18,16 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -318,9 +316,8 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
                 shadow.setObjectFactoryId(finder.factoryId().id());
             }
             else {
-                // Must be a LegacyReferenceFactory
-                BusinessObjectFactory businessObjectFactory = Environment.DEFAULT.get().findFactory(valueFactory.getValueType().getName());
-                shadow.setObjectFactoryId(businessObjectFactory.getId());
+                // Must be a legacy reference factory
+                throw new RuntimeException("Unsupported legacy reference factory: " + valueFactory.getValueType().getName());
             }
         }
         return shadow;

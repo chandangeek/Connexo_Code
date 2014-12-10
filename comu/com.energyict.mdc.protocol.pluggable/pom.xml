@@ -12,13 +12,17 @@
 
   <artifactId>mdc.protocol.pluggable</artifactId>
   <packaging>bundle</packaging>
-  <version>${comserver.version}</version>
   <name>[MDC] mdc.protocol.pluggable [init PPC]</name>
   <description>
     Models the pluggable classes that relate to device protocols.
   </description>
 
   <dependencies>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>datavault</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.common</artifactId>
@@ -27,11 +31,6 @@
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.protocols.api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.energyict</groupId>
-      <artifactId>mdc.protocols</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -62,6 +61,12 @@
     </dependency>
 
     <!-- Testing -->
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.protocols</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert-core</artifactId>

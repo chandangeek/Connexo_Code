@@ -1,13 +1,13 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,6 +67,11 @@ public final class DeviceMessageTestSpec implements DeviceMessageSpec {
     }
 
     @Override
+    public DeviceMessageId getId() {
+        return null;
+    }
+
+    @Override
     public String getName() {
         return this.name;
     }
@@ -84,11 +89,6 @@ public final class DeviceMessageTestSpec implements DeviceMessageSpec {
             }
         }
         return null;
-    }
-
-    @Override
-    public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, this.getName());
     }
 
     @Override

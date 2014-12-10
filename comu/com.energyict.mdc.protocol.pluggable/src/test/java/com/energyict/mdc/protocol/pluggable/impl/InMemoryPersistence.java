@@ -1,6 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -18,7 +20,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
@@ -38,22 +39,17 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.protocols.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
-
+import java.security.Principal;
+import java.sql.SQLException;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.security.Principal;
-import java.sql.SQLException;
-
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -75,8 +71,8 @@ public class InMemoryPersistence {
     private OrmService ormService;
     private EventService eventService;
     private NlsService nlsService;
-    private UserService userService;
     private DataModel dataModel;
+    private UserService userService;
 
     private ConnectionTypeService connectionTypeService;
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
@@ -91,6 +87,7 @@ public class InMemoryPersistence {
     private PluggableService pluggableService;
     private RelationService relationService;
     private DeviceCacheMarshallingService deviceCacheMarshallingService;
+    private DataVaultService dataVaultService;
     private LicenseService licenseService;
 
     private ProtocolPluggableServiceImpl protocolPluggableService;
@@ -108,10 +105,10 @@ public class InMemoryPersistence {
                 new UtilModule(),
                 new NlsModule(),
                 new DomainUtilModule(),
-                new UserModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
+                new DataVaultModule(),
                 new IssuesModule(),
                 new PluggableModule(),
                 new MdcCommonModule(),
@@ -122,7 +119,7 @@ public class InMemoryPersistence {
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
-            this.userService = injector.getInstance(UserService.class);
+            this.dataVaultService = injector.getInstance(DataVaultService.class);
             this.pluggableService = injector.getInstance(PluggableService.class);
             this.relationService = injector.getInstance(RelationService.class);
             this.issueService = injector.getInstance(IssueService.class);
@@ -160,11 +157,11 @@ public class InMemoryPersistence {
         this.inboundDeviceProtocolService = mock(InboundDeviceProtocolService.class);
         this.connectionTypeService = mock(ConnectionTypeService.class);
         this.licensedProtocolService = mock(LicensedProtocolService.class);
-        this.userService = mock(UserService.class);
         this.legacySecurityPropertyConverter = mock(LegacySecurityPropertyConverter.class);
         this.applicationContext = mock(ApplicationContext.class);
         this.deviceCacheMarshallingService = mock(DeviceCacheMarshallingService.class);
         this.licenseService = mock(LicenseService.class);
+        this.userService = mock(UserService.class);
         Translator translator = mock(Translator.class);
         when(translator.getTranslation(anyString())).thenReturn("Translation missing in unit testing");
         when(translator.getErrorMsg(anyString())).thenReturn("Error message translation missing in unit testing");
@@ -186,7 +183,11 @@ public class InMemoryPersistence {
                         this.deviceProtocolSecurityService,
                         this.inboundDeviceProtocolService,
                         this.connectionTypeService,
-                        this.deviceCacheMarshallingService, licenseService, licensedProtocolService, userService);
+                        this.deviceCacheMarshallingService,
+                        licenseService,
+                        licensedProtocolService,
+                        userService,
+                        dataVaultService);
         return this.protocolPluggableService.getDataModel();
     }
 
