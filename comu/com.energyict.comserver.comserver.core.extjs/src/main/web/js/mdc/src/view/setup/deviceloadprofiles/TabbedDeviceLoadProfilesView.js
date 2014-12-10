@@ -3,9 +3,10 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TabbedDeviceLoadProfilesView', {
     alias: 'widget.tabbedDeviceLoadProfilesView',
     itemId: 'tabbedDeviceLoadProfilesView',
     requires: [
-//        'Uni.view.toolbar.PreviousNextNavigation',
+        'Uni.view.toolbar.PreviousNextNavigation',
         'Mdc.view.setup.deviceloadprofiles.SideFilter'
     ],
+    router: null,
     initComponent: function () {
         var me = this;
         me.content = [
@@ -25,19 +26,19 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TabbedDeviceLoadProfilesView', {
                 listeners: {
                     afterrender: function(panel){
                         var bar = panel.tabBar;
-//                        bar.insert(2,[
-//                            {
-//                                xtype: 'tbfill'
-//                            },
-//                            {
-//                                xtype: 'previous-next-navigation-toolbar',
-//                                itemId: 'tabbed-device-register-view-previous-next-navigation-toolbar',
-//                                store: 'RegisterConfigsOfDevice',
-//                                router: me.router,
-//                                routerIdArgument: 'registerId',
-//                                itemsName: '<a href="' + me.router.getRoute('devices/device/registers').buildUrl() + '">' + Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers').toLowerCase() + '</a>'
-//                            }
-//                        ]);
+                        bar.insert(2,[
+                            {
+                                xtype: 'tbfill'
+                            },
+                            {
+                                xtype: 'previous-next-navigation-toolbar',
+                                itemId: 'tabbed-device-loadProfiles-view-previous-next-navigation-toolbar',
+                                store: 'Mdc.store.LoadProfilesOfDevice',
+                                router: me.router,
+                                routerIdArgument: 'loadProfileId',
+                                itemsName: '<a href="' + me.router.getRoute('devices/device/loadprofiles').buildUrl() + '">' + Uni.I18n.translate('deviceloadprofiles.loadProfiles', 'MDC', 'Load profiles').toLowerCase() + '</a>'
+                            }
+                        ]);
                     }
                 }
             }

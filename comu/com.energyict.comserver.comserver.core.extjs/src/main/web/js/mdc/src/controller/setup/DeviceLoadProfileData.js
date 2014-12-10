@@ -82,7 +82,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
     },
 
     showOverview: function (mRID, loadProfileId, isTable,tabController) {
-        debugger;
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             loadProfileModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
@@ -129,7 +128,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
                         device: device,
                         loadProfileId: loadProfileId,
-                        toggleId: 'loadProfileLink'
+                        toggleId: 'loadProfileLink',
+                        router: me.getController('Uni.controller.history.Router')
                     });
 
                     widget = Ext.widget('deviceLoadProfilesData', {
@@ -147,7 +147,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     viewport.setLoading(false);
                     Ext.getBody().mask('Loading...');
                    widget.setLoading();
-                    debugger;
                     widget.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!isTable);
                     widget.down('#deviceLoadProfilesTableViewBtn').setDisabled(isTable);
                     widget.down('#deviceLoadProfilesTableView').setVisible(isTable);

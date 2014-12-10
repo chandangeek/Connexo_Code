@@ -27,7 +27,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileTab', {
     },
 
     initTabDeviceLoadProfileDetailsView: function(mrId,loadProfileId){
-        debugger;
         this.mrId = mrId;
         this.loadProfileId = loadProfileId;
         var c = this.getController('Mdc.controller.setup.DeviceLoadProfileOverview');
@@ -52,7 +51,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileTab', {
     },
 
     changeTab: function (tabPanel,tab) {
-        debugger;
         if(!this.veto) {
             var router = this.getController('Uni.controller.history.Router'),
                 routeParams = router.arguments,

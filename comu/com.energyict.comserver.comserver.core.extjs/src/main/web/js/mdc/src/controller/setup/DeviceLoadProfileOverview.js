@@ -47,7 +47,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                     tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
                         device: device,
                         loadProfileId: loadProfileId,
-                        toggleId: 'loadProfileLink'
+                        toggleId: 'loadProfileLink',
+                        router: me.getController('Uni.controller.history.Router')
                     });
                     widget = Ext.widget('deviceLoadProfilesOverview', {
                         mRID: mRID,
@@ -73,7 +74,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                     });
                 });
             };
-        debugger;
         deviceModel.load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
