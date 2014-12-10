@@ -385,6 +385,11 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+    }
+
+    @Override
     public void storeConfigurationFile (DeviceIdentifier deviceIdentifier, DateFormat timeStampFormat, String fileExtension, byte[] contents) {
         // Not storing any configuration files in mock mode
     }

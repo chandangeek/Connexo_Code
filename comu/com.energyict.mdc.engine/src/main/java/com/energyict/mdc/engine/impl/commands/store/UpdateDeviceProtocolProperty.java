@@ -5,11 +5,11 @@ import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolProperty;
 import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 
 /**
@@ -26,11 +26,11 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
     private final DeviceIdentifier deviceIdentifier;
     private final PropertySpec propertySpec;
     private final Object propertyValue;
-    private final ComTaskExecution comTaskExecution;
+    private final IssueService issueService;
 
-    public UpdateDeviceProtocolProperty(DeviceProtocolProperty deviceProtocolProperty, ComTaskExecution comTaskExecution) {
+    public UpdateDeviceProtocolProperty(DeviceProtocolProperty deviceProtocolProperty, IssueService issueService) {
         super();
-        this.comTaskExecution = comTaskExecution;
+        this.issueService = issueService;
         this.deviceIdentifier = deviceProtocolProperty.getDeviceIdentifier();
         this.propertySpec = deviceProtocolProperty.getPropertySpec();
         this.propertyValue = deviceProtocolProperty.getPropertyValue();
@@ -44,16 +44,14 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
                     comServerDAO.updateDeviceProtocolProperty(deviceIdentifier, propertySpec.getName(), propertyValue);
                 }
             } catch (InvalidValueException e) {
-                getExecutionLogger().addIssue(
-                        CompletionCode.ConfigurationWarning,
-                        getIssueService().newWarning(this, "invalidDeviceProtocolPropertyCollected", propertySpec), comTaskExecution);
+                //TODO this will probably don't log much ..
+                issueService.newIssueCollector().addWarning(this, "invalidDeviceProtocolPropertyCollected", propertySpec);
             } catch (NotFoundException e) {
                    //Do nothing, move on. We can't update the property on a non-existing device.
             }
         } else {
-            getExecutionLogger().addIssue(
-                    CompletionCode.ConfigurationWarning,
-                    getIssueService().newWarning(this, "collectedDeviceProtocolPropertyForUnknownDevice", deviceIdentifier), comTaskExecution);
+            //TODO this will probably don't log much ..
+            issueService.newIssueCollector().addWarning(this, "collectedDeviceProtocolPropertyForUnknownDevice", deviceIdentifier);
         }
     }
 

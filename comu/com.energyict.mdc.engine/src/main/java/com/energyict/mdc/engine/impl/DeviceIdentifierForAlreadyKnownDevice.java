@@ -2,6 +2,9 @@ package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
+
+import javax.xml.bind.annotation.XmlElement;
 
 /**
 * Copyrights EnergyICT
@@ -19,6 +22,22 @@ public final class DeviceIdentifierForAlreadyKnownDevice implements DeviceIdenti
     @Override
     public String getIdentifier() {
         return this.device.getmRID();
+    }
+
+    @Override
+    public DeviceIdentifierType getDeviceIdentifierType() {
+        return DeviceIdentifierType.ActualDevice;
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+
     }
 
     @Override

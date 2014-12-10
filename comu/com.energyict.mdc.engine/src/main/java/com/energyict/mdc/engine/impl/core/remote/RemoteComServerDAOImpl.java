@@ -310,6 +310,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+    }
+
+    @Override
     public void updateGateway (DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
     }
 

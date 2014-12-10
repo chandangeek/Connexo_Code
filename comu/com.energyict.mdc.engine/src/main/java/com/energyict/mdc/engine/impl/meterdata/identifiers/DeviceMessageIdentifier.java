@@ -3,6 +3,11 @@ package com.energyict.mdc.engine.impl.meterdata.identifiers;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.inbound.MessageIdentifierType;
+
+import javax.xml.bind.annotation.XmlElement;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
@@ -24,6 +29,27 @@ public class DeviceMessageIdentifier implements MessageIdentifier {
     @Override
     public DeviceMessage getDeviceMessage() {
         return deviceMessage;
+    }
+
+    @Override
+    public MessageIdentifierType getMessageIdentifierType() {
+        return MessageIdentifierType.ActualMessage;
+    }
+
+    @Override
+    public List<Object> getIdentifier() {
+        return Arrays.asList(deviceMessage);
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+
     }
 
     @Override

@@ -44,7 +44,7 @@ public class DeviceProtocolProperty extends CollectedDeviceData implements Colle
 
     @Override
     public DeviceCommand toDeviceCommand(IssueService issueService, MeterDataStoreCommand meterDataStoreCommand) {
-        return new UpdateDeviceProtocolProperty(this, comTaskExecution);
+        return new UpdateDeviceProtocolProperty(this, issueService);
     }
 
     @Override
