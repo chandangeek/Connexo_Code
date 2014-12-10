@@ -108,8 +108,8 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
                 xtype: 'component',
                 cls: ' previous-next-navigation-items-counter'
             },
-            arguments = me.router.arguments,
-            queryParams = me.router.queryParams,
+            arguments = Ext.clone(me.router.arguments),
+            queryParams = Ext.clone(me.router.queryParams),
             currentIndex = store.indexOfId(arguments[me.routerIdArgument]),
             storeCurrentPage = store.lastOptions.page,
             storePageSize = store.pageSize,
