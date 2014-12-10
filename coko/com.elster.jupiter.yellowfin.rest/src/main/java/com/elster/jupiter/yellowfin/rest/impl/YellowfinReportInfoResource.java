@@ -33,11 +33,12 @@ public class YellowfinReportInfoResource {
     @Path("/info")
     public ReportInfos getReportsInfo(@QueryParam("category") String category,
                                       @QueryParam("subCategory") String subCategory,
+                                      @QueryParam("reportUUID") String reportUUID,
                                       @Context SecurityContext securityContext){
 
         User user = (User) securityContext.getUserPrincipal();
         ReportInfos reportInfos = new ReportInfos();
-        reportInfos.addAll(yellowfinService.getUserReports(user.getName(), category, subCategory,null));
+        reportInfos.addAll(yellowfinService.getUserReports(user.getName(), category, subCategory,reportUUID));
         return reportInfos;
 
     }
