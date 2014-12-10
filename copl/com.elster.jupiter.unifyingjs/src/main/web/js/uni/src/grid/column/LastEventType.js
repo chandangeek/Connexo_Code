@@ -9,21 +9,9 @@ Ext.define('Uni.grid.column.LastEventType', {
         'Uni.form.field.LastEventTypeDisplay'
     ],
 
-    deferredRenderer: function (value, record, view) {
+    renderer: function (value, metaData, record, rowIndex, colIndex) {
         var me = this;
-        var cmp = view.getCell(record, me).down('.x-grid-cell-inner');
-        var field = new Uni.form.field.LastEventTypeDisplay({
-            fieldLabel: false
-        });
-        cmp.setHTML('');
-        field.setValue(value);
-        field.render(cmp);
 
-        Ext.defer(view.updateLayout, 10, view);
-    },
-
-    renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
-        var me = metaData.column;
-        Ext.defer(me.deferredRenderer, 1, me, [value, record, view]);
+        return new Uni.form.field.LastEventTypeDisplay().renderer.apply(me, arguments);
     }
 });
