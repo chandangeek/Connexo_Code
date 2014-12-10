@@ -4,9 +4,12 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.io.IOException;
 import java.util.*;
@@ -57,7 +60,7 @@ public class LoadProfileBuilder {
 
         for (LoadProfileReader lpr : expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());  // meterSerialNumber = serialNumber of the master
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());  // meterSerialNumber = serialNumber of the master
 
             try {
                 ObisCode profileObisCode = lpr.getProfileObisCode();
@@ -110,10 +113,10 @@ public class LoadProfileBuilder {
             List<RegisterValue> registerValues = meterProtocol.readRegisters(registerList);
             for (RegisterValue registerValue : registerValues) {
                 if (registerValue.getQuantity().getBaseUnit().getDlmsCode() != 0) {
-                    ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), getLprChannelObisCode(registerValue, lpr), registerValue.getQuantity().getUnit(), registerValue.getSerialNumber(), true);
+                    ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), getLprChannelObisCode(registerValue, lpr), registerValue.getQuantity().getUnit(), registerValue.getSerialNumber(), Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerValue.getObisCode(), registerValue.getQuantity().getUnit()));
                     channelInfos.add(channelInfo);
                 } else {
-                    ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), getLprChannelObisCode(registerValue, lpr), Unit.getUndefined(), registerValue.getSerialNumber(), true);
+                    ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), getLprChannelObisCode(registerValue, lpr), Unit.getUndefined(), registerValue.getSerialNumber(), Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerValue.getObisCode(), registerValue.getQuantity().getUnit()));
                     channelInfos.add(channelInfo);
                 }
             }
@@ -156,7 +159,7 @@ public class LoadProfileBuilder {
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * channels(LoadProfileReader#channelInfos) to read. If it is possible then only these channels should be read,
      * if not then all channels may be returned in the <CODE>ProfileData</CODE>. If {@link LoadProfileReader#channelInfos} contains an empty list
      * or null, then all channels from the corresponding LoadProfile should be fetched.
      * </p>
@@ -296,7 +299,7 @@ public class LoadProfileBuilder {
      */
     private LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getDeviceIdentifier().equals(lpc.getDeviceIdentifier())) {
                 return lpc;
             }
         }

@@ -1,8 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
-import com.energyict.mdc.channels.sms.ProximusSmsSender;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CtrConnection;
@@ -12,6 +11,9 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRCipheringExce
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRConnectionException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRTimeoutException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
+import com.energyict.protocols.exception.ProtocolEncryptionException;
+import com.energyict.protocols.impl.channels.sms.ProximusSmsSender;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -71,7 +73,7 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
             }
             return null;
         } catch (CTRCipheringException e) {
-            throw MdcManager.getComServerExceptionFactory().createCipheringException(e);
+            throw new ProtocolEncryptionException(e, MessageSeeds.ENCRYPTION_ERROR);
         }
     }
 

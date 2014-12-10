@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
@@ -58,10 +59,10 @@ public class IskraMx372MbusMessaging  extends GenericMessaging implements Messag
     /**
      * Provides the full list of outstanding messages to the protocol.
      * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * At a later timestamp the framework will query each MessageEntry (see #queryMessage(MessageEntry)) to actually
      * perform the message.
      *
-     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @param messageEntries a list of MessageEntrys
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(List messageEntries) throws IOException {

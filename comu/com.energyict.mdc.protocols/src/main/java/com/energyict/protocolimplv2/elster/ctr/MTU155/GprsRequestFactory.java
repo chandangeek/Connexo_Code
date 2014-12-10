@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.dialer.core.Link;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.dialer.core.Link;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import com.energyict.protocolimplv2.elster.ctr.EK155.EK155Properties;
@@ -61,6 +63,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.VF;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.GasQuality;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.MeterInfo;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -90,6 +93,7 @@ import java.util.logging.Logger;
 
 public class GprsRequestFactory implements RequestFactory {
 
+    private PropertySpecService propertySpecService;
     private MeterInfo meterInfo;
     private GasQuality gasQuality;
     private final GprsConnection connection;
@@ -112,9 +116,11 @@ public class GprsRequestFactory implements RequestFactory {
      * @param comChannel
      * @param logger
      * @param properties
+     * @param propertySpecService
      */
-    public GprsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, boolean isEK155Protocol) {
+    public GprsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, boolean isEK155Protocol, PropertySpecService propertySpecService) {
         this(comChannel, logger, properties, timeZone, null, isEK155Protocol);
+        this.propertySpecService = propertySpecService;
     }
 
     /**
@@ -151,7 +157,7 @@ public class GprsRequestFactory implements RequestFactory {
 
     public MTU155Properties getProperties() {
         if (properties == null) {
-            this.properties = new MTU155Properties(TypedProperties.empty());
+            this.properties = new MTU155Properties(TypedProperties.empty(), propertySpecService);
         }
         return properties;
     }
@@ -968,7 +974,7 @@ public class GprsRequestFactory implements RequestFactory {
             }
         } catch (ComServerExecutionException e) {
             getLogger().severe("Failed to close session! " + e.getMessage());
-            throw MdcManager.getComServerExceptionFactory().createProtocolDisconnectFailed(e);
+            throw new CommunicationException(MessageSeeds.PROTOCOL_DISCONNECT_FAILED, e);
         }
     }
 

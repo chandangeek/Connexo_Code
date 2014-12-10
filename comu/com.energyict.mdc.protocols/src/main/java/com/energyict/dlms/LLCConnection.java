@@ -1,5 +1,6 @@
 package com.energyict.dlms;
 
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
 

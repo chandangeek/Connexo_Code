@@ -5,13 +5,17 @@ import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT

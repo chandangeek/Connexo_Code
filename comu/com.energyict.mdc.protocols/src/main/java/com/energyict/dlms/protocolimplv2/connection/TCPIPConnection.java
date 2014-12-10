@@ -7,10 +7,12 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -246,7 +248,7 @@ public class TCPIPConnection implements DlmsV2Connection {
             Thread.sleep(lDelay);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+
         }
     }
 
@@ -278,10 +280,10 @@ public class TCPIPConnection implements DlmsV2Connection {
                 }
                 return receiveData().getData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, maxRetries + 1);
+                    throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, maxRetries+1);
                 }
             }
         }
@@ -298,10 +300,10 @@ public class TCPIPConnection implements DlmsV2Connection {
                 sendOut(data);
                 return receiveData().getRawData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, maxRetries + 1);
+                    throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, maxRetries+1);
                 }
             }
         }
@@ -326,10 +328,10 @@ public class TCPIPConnection implements DlmsV2Connection {
                 sendOut(wpdu.getFrameData());
                 return receiveData().getData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, maxRetries + 1);
+                    throw new CommunicationException(MessageSeeds.NUMBER_OF_RETRIES_REACHED, maxRetries+1);
                 }
             }
         }

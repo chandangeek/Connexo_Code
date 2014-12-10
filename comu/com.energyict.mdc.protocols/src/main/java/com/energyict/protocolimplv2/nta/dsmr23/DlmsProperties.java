@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.dlms.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;

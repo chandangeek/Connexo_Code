@@ -26,7 +26,7 @@ public class ChangeDSTMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ClockDeviceMessage.EnableOrDisableDST.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(ClockDeviceMessage.EnableOrDisableDST.getId());
     }
 
     @Override

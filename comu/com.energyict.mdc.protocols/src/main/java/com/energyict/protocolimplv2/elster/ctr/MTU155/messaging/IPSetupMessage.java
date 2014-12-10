@@ -35,7 +35,7 @@ public class IPSetupMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(NetworkConnectivityMessage.CHANGE_GPRS_IP_ADDRESS_AND_PORT.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(NetworkConnectivityMessage.CHANGE_GPRS_IP_ADDRESS_AND_PORT.getId());
     }
 
     @Override

@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.abnt.common;
 
+import com.elster.jupiter.cbo.MessageSeeds;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.common.ObisCode;
@@ -36,6 +37,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.ReactivePowerCha
 import com.energyict.protocolimplv2.abnt.common.structure.field.SoftwareVersionField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.TariffConfigurationField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.UnitField;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -79,7 +81,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
         List<CollectedRegister> collectedRegisters = new ArrayList<>(registers.size());
         for (OfflineRegister register : registers) {
-            CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+            CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
             readRegister(register, collectedRegister);
             collectedRegisters.add(collectedRegister);
         }
@@ -115,7 +117,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
         ObisCode obisCode = register.getObisCode();
         obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) 0);
         obisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 0);
-        return obisCode.equalsIgnoreBillingField(baseObisCode);
+        return obisCode.equalsIgnoreBChannel(baseObisCode);
     }
 
     private void readParameterReadRegisters(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
@@ -172,7 +174,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             case GROUP_3_DEMAND:
                 return (int) ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn3)).getValue();
             default:
-                throw MdcManager.getComServerExceptionFactory().createUnrecognizedEnumValueError(channelGroup);
+                throw new CommunicationException(MessageSeeds.ILLEGAL_ENUM_VALUE, channelGroup);
         }
     }
 
@@ -188,7 +190,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             case GROUP_3_DEMAND:
                 return (int) ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn3)).getValue();
             default:
-                throw MdcManager.getComServerExceptionFactory().createUnrecognizedEnumValueError(channelGroup);
+                throw new CommunicationException(MessageSeeds.ILLEGAL_ENUM_VALUE, channelGroup);
         }
     }
 
@@ -207,7 +209,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             case GROUP_3_DEMAND:
                 return ((UnitField) parameters.getField(ReadParameterFields.unitChn2)).getEisUnit().getFlowUnit();
             default:
-                throw MdcManager.getComServerExceptionFactory().createUnrecognizedEnumValueError(channelGroup);
+                throw new CommunicationException(MessageSeeds.ILLEGAL_ENUM_VALUE, channelGroup);
         }
     }
 
@@ -348,7 +350,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
-        return new RegisterIdentifierById(offlineRtuRegister.getRegisterId(), offlineRtuRegister.getObisCode());
+        return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), offlineRtuRegister.getAmrRegisterObisCode(), offlineRtuRegister.getDeviceIdentifier());
     }
 
 

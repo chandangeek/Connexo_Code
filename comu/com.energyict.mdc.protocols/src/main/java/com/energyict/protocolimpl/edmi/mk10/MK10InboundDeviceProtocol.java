@@ -12,7 +12,8 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
+import com.energyict.mdw.cpo.PropertySpecFactory;
+import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -20,6 +21,7 @@ import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,7 +46,13 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     private InboundDiscoveryContext context;
     private ComChannel comChannel;
     private TypedProperties typedProperties;
+    private PropertySpecService propertySpecService;
 
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
@@ -144,8 +152,8 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        this.typedProperties = properties;
+    public void copyProperties(TypedProperties properties) {
+        getTypedProperties().setAllProperties(properties);
     }
 
     @Override
@@ -155,19 +163,6 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
     protected ComChannel getComChannel () {
         return comChannel;
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_KEY));
-        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES_KEY));
-        return propertySpecs;
     }
 
     public int getTimeOutProperty() {
@@ -183,5 +178,18 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
             typedProperties = TypedProperties.empty();
         }
         return typedProperties;
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(
+                propertySpecService.bigDecimalPropertySpec(TIMEOUT_KEY, false, new BigDecimal(TIMEOUT_DEFAULT)),
+                propertySpecService.bigDecimalPropertySpec(RETRIES_KEY, false, new BigDecimal(RETRIES_DEFAULT))
+        );
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String s) {
+        return getPropertySpecs().stream().filter(propertySpec -> propertySpec.getName().equals(s)).findAny().orElse(null);
     }
 }

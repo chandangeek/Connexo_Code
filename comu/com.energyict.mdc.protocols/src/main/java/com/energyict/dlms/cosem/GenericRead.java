@@ -9,6 +9,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 

@@ -239,7 +239,7 @@ public class IF2Connection implements DLMSConnection {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+
         }
     }
 

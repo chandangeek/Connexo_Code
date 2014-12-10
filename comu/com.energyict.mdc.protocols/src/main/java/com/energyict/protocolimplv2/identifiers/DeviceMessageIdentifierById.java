@@ -6,8 +6,10 @@ import com.energyict.mdc.protocol.api.device.messages.BaseDeviceMessageFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.io.CommunicationException;
 
+import com.energyict.mdc.protocol.api.inbound.MessageIdentifierType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,6 +31,26 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     @Override
     public DeviceMessage getDeviceMessage() {
         return this.getDeviceMessageFactory().findDeviceMessage(this.messageId);
+    }
+
+    @Override
+    public MessageIdentifierType getMessageIdentifierType() {
+        return MessageIdentifierType.DataBaseId;
+    }
+
+    @Override
+    public List<Object> getIdentifier() {
+        return Arrays.asList(messageId);
+    }
+
+    @Override
+    public String getXmlType() {
+        return null;
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+
     }
 
     @Override

@@ -35,7 +35,7 @@ public class ApnSetupMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.getId());
     }
 
     @Override

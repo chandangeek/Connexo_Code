@@ -206,7 +206,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        ACE4000DeviceProtocolDialect gprsDialect = new ACE4000DeviceProtocolDialect();
+        ACE4000DeviceProtocolDialect gprsDialect = new ACE4000DeviceProtocolDialect(getPropertySpecService());
         ArrayList<DeviceProtocolDialect> dialects = new ArrayList<>();
         dialects.add(gprsDialect);
         return dialects;

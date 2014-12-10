@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 

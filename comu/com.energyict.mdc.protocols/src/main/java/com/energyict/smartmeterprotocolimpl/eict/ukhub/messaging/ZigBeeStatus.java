@@ -96,8 +96,6 @@ public class ZigBeeStatus {
 
         } catch (IOException e) {
             sb.append("Unable to read ZigbeeHanManagement.backupData: ").append(e.getMessage()).append('\n');
-        } catch (BusinessException e) {
-            sb.append("Unable to read ZigbeeHanManagement.backupData: ").append(e.getMessage()).append('\n');
         } finally {
             sb.append("\n\n");
         }

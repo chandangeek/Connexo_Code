@@ -35,8 +35,8 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getPrimaryKey().getValue()) ||
-                message.getDeviceMessageSpecPrimaryKey().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getId()) ||
+                message.getDeviceMessageId().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE.getId());
     }
 
     @Override

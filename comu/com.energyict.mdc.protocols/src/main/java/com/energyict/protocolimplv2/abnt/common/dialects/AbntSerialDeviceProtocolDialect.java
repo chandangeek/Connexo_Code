@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.abnt.common.dialects;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Models a {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for a Serial connection type
+ * Models a DeviceProtocolDialect for a Serial connection type
  * (SioSerialConnectionType, RxTxSerialConnectionType)
  *
  * @author sva
@@ -26,7 +26,7 @@ public class AbntSerialDeviceProtocolDialect extends AbstractDeviceProtocolDiale
     public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
     public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(250, TimeDuration.TimeUnit.MILLISECONDS);
 
-    public AbntSerialDeviceProtocolDialect() {
+    public AbntSerialDeviceProtocolDialect(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 
@@ -40,35 +40,26 @@ public class AbntSerialDeviceProtocolDialect extends AbstractDeviceProtocolDiale
         return "Serial";
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Arrays.asList(
-                this.retriesPropertySpec(),
-                this.timeoutPropertySpec(),
-                this.forcedDelayPropertySpec(),
-                this.delayAfterErrorPropertySpec()
-        );
-    }
 
     protected PropertySpec retriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.RETRIES, DEFAULT_RETRIES);
+        return getPropertySpecService().bigDecimalPropertySpec(DlmsProtocolProperties.RETRIES, false, DEFAULT_RETRIES);
     }
 
     protected PropertySpec timeoutPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DlmsProtocolProperties.TIMEOUT, DEFAULT_TIMEOUT);
+        return getPropertySpecService().timeDurationPropertySpec(DlmsProtocolProperties.TIMEOUT, false, DEFAULT_TIMEOUT);
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DlmsProtocolProperties.FORCED_DELAY, DEFAULT_FORCED_DELAY);
+        return getPropertySpecService().timeDurationPropertySpec(DlmsProtocolProperties.FORCED_DELAY, false, DEFAULT_FORCED_DELAY);
     }
 
     protected PropertySpec delayAfterErrorPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DlmsProtocolProperties.DELAY_AFTER_ERROR, DEFAULT_DELAY_AFTER_ERROR);
+        return getPropertySpecService().timeDurationPropertySpec(DlmsProtocolProperties.DELAY_AFTER_ERROR, false, DEFAULT_DELAY_AFTER_ERROR);
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(retriesPropertySpec(), timeoutPropertySpec(), forcedDelayPropertySpec(), delayAfterErrorPropertySpec());
     }
 
     @Override

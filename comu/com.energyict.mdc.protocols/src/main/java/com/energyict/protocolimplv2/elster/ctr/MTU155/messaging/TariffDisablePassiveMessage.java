@@ -26,7 +26,7 @@ public class TariffDisablePassiveMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ActivityCalendarDeviceMessage.CLEAR_AND_DISABLE_PASSIVE_TARIFF.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(ActivityCalendarDeviceMessage.CLEAR_AND_DISABLE_PASSIVE_TARIFF.getId());
     }
 
     @Override

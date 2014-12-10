@@ -31,7 +31,7 @@ public class WriteMeterMasterDataMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.ConfigureGasMeterMasterData.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(ConfigurationChangeDeviceMessage.ConfigureGasMeterMasterData.getId());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdw.cpo.PropertySpecFactory;

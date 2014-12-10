@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -22,7 +23,7 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
 
     public static final String clockOffsetToReadPropertyName = "ClockOffsetWhenWriting";
 
-    public SDKTimeDeviceProtocolDialectProperties() {
+    public SDKTimeDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 

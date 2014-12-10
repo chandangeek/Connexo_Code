@@ -6,6 +6,7 @@ import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;

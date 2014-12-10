@@ -1,8 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
@@ -44,16 +41,17 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.LookupEntry;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.lookups.Lookup;
+import com.energyict.mdc.protocol.api.lookups.LookupEntry;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
@@ -66,7 +64,6 @@ import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -158,7 +155,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         String str = "Not a valid entry for the current meter message (" + content + ").";
                         throw new IOException(str);
                     }
-                    UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+                    UserFile uf = getUserFile(userFileID);
                     if (!(uf instanceof UserFile)) {
                         String str = "Not a valid entry for the userfileID " + userFileID;
                         throw new IOException(str);
@@ -198,7 +195,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         String str = "Not a valid entry for the current meter message (" + content + ").";
                         throw new IOException(str);
                     }
-                    UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+                    UserFile uf = getUserFile(userFileID);
                     if (!(uf instanceof UserFile)) {
                         String str = "Not a valid entry for the userfileID " + userFileID;
                         throw new IOException(str);
@@ -444,7 +441,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
                     try {
-                        Lookup lut = mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
+                        Lookup lut = getLookup(messageHandler);
                         if (lut == null) {
                             throw new IOException("No lookuptable defined with id '" + messageHandler.getEpGroupIdListLookupTableId() + "'");
                         } else {
@@ -482,7 +479,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     if (codeTable != null) {
 
-                        Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
+                        Code ct = getCodeTable(codeTable);
                         if (ct == null) {
                             throw new IOException("No CodeTable defined with id '" + codeTable + "'");
                         } else {
@@ -529,7 +526,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         throw new IOException("CodeTable-ID can not be empty.");
                     } else {
 
-                        Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
+                        Code ct = getCodeTable(codeTable);
                         if (ct == null) {
                             throw new IOException("No CodeTable defined with id '" + codeTable + "'");
                         } else {
@@ -642,7 +639,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     Date currentTime;
                     if (!userFileId.equalsIgnoreCase("")) {
                         if (ParseUtils.isInteger(userFileId)) {
-                            UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
+                            UserFile uf = getUserFile(userFileId);
                             if (uf != null) {
                                 byte[] data = uf.loadFileInByteArray();
                                 CSVParser csvParser = new CSVParser();
@@ -755,7 +752,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                                 } else {
                                     csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
                                 }
-                                mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getRtuFromDatabaseBySerialNumber().getFolderId()));
+                                createUserFile(uf, csvParser);
                             } else {
                                 throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
                             }
@@ -843,13 +840,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     success = false;
                 }
 
-            } catch (BusinessException e) {
-                log(Level.INFO, "Message has failed. " + e.getMessage());
-            } catch (ConnectionException e) {
-                log(Level.INFO, "Message has failed. " + e.getMessage());
-            } catch (IOException e) {
-                log(Level.INFO, "Message has failed. " + e.getMessage());
-            } catch (SQLException e) {
+            } catch (BusinessException | IOException e) {
                 log(Level.INFO, "Message has failed. " + e.getMessage());
             }
             if (success) {
@@ -859,6 +850,26 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                 return MessageResult.createFailed(messageEntry);
             }
         }
+    }
+
+    private void createUserFile(UserFile uf, CSVParser csvParser) throws IOException {
+        throw new UnsupportedException("Creating userfiles is not supported yet");
+//        mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getRtuFromDatabaseBySerialNumber().getFolderId()));
+    }
+
+    private Code getCodeTable(String codeTable) throws UnsupportedException {
+        throw new UnsupportedException("CodeTables are not supported yet");
+//        return mw().getCodeFactory().find(Integer.parseInt(codeTable));
+    }
+
+    private Lookup getLookup(MessageHandler messageHandler) throws UnsupportedException {
+        throw new UnsupportedException("LookupTables are not supported yet");
+//        return mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
+    }
+
+    private UserFile getUserFile(String userFileID) throws UnsupportedException {
+        throw new UnsupportedException("Userfiles are not supported yet.");
+//        return mw().getUserFileFactory().find(Integer.parseInt(userFileID));
     }
 
     private boolean isEmeterMessage(final String serialNumber) {
@@ -894,11 +905,6 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
     private DLMSMeterConfig getMeterConfig() {
         return this.protocol.getDlmsSession().getMeterConfig();
     }
-
-    private MeteringWarehouse mw() {
-        return ProtocolTools.mw();
-    }
-
 
     private ObisCode getDisconnectControlScheduleObis(String outputId) throws IOException {
         return ObisCode.fromString("0.0.15.0." + (1 + validateAndGetOutputId(outputId)) + ".255");
@@ -1123,8 +1129,4 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
         return this.protocol.getDlmsSession().getProperties().getConnectionMode().getMode();
     }
 
-    private Device getRtuFromDatabaseBySerialNumber() {
-        String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        return mw().getDeviceFactory().findBySerialNumber(serial).get(0);
-    }
 }

@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.*;
 
 import java.io.IOException;

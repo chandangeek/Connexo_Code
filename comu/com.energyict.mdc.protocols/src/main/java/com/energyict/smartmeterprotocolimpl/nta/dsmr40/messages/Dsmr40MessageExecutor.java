@@ -257,7 +257,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         return new ActivityCalendarMessage(ct, getMeterConfig());
     }
 
-    private Code findCode(String codeTable) {
+    public Code findCode(String codeTable) {
         // Todo: port Code to jupiter, return null as the previous code would have returned null too.
         throw new UnsupportedOperationException("Code is not longer supported by Jupiter");
     }

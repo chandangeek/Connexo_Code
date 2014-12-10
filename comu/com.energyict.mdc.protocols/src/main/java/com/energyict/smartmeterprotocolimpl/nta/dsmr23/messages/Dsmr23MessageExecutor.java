@@ -85,7 +85,7 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.smartmeterprotocolimpl.nta.NTAMessageHandler;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import org.xml.sax.SAXException;

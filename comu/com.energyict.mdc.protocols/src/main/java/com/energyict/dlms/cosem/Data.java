@@ -11,6 +11,7 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.Date;

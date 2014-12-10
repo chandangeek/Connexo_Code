@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.messaging.messages;
 
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messaging.AnnotatedMessage;
 import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
 import com.energyict.protocolimpl.messaging.RtuMessageDescription;

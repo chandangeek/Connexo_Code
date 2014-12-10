@@ -5,6 +5,7 @@ import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.attributes.FirewallSetupAttributes;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 

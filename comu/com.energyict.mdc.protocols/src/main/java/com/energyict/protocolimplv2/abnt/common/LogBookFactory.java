@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
+import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.common.ObisCode;
@@ -70,7 +71,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
                     historyLogRecord.getEventDate().getDate(getMeterProtocol().getTimeZone()),
                     MeterEvent.CONFIGURATIONCHANGE,
                     historyLogRecord.getEvent().getEventCode(),
-                    EndDeviceEventTypeFactory.getConfigurationChangeEventType(),
+                    EndDeviceEventTypeMapping.CONFIGURATIONCHANGE.getEventType(),
                     "Reader ".concat(historyLogRecord.getReaderSerialNumber().getSerialNumber().getText()).concat(" - ").concat(historyLogRecord.getEvent().getEventMessage()),
                     Function.FunctionCode.HISTORY_LOG.getFunctionCode(),
                     0
@@ -79,7 +80,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
                 meterEvents.add(protocolEvent);
             }
         }
-        deviceLogBook.addCollectedMeterEvents(meterEvents);
+        deviceLogBook.setMeterEvents(meterEvents);
     }
 
     private void readPowerFailLog(LogBookReader logBook, CollectedLogBook deviceLogBook) {
@@ -92,7 +93,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
                         powerFailRecord.getEndOfPowerFail().getDate(getMeterProtocol().getTimeZone()),
                         MeterEvent.POWERDOWN,
                         0,
-                        EndDeviceEventTypeFactory.getPowerDownEventType(),
+                        EndDeviceEventTypeMapping.POWERDOWN.getEventType(),
                         constructEventMessage(powerFailRecord),
                         Function.FunctionCode.POWER_FAIL_LOG.getFunctionCode(),
                         0
@@ -101,7 +102,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
                     meterEvents.add(protocolEvent);
                 }
             }
-            deviceLogBook.setCollectedMeterEvents(meterEvents);
+            deviceLogBook.setMeterEvents(meterEvents);
         } catch (ParsingException e) {
             logBookParsingException(deviceLogBook);
         }

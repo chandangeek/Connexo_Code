@@ -1,9 +1,3 @@
-/*
- * SAPAssignment.java
- *
- * Created on 30 augustus 2004, 11:19
- */
-
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.DataContainer;
@@ -13,6 +7,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.ArrayList;

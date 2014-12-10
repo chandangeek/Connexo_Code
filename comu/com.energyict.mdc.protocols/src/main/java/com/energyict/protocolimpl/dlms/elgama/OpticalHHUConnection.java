@@ -64,7 +64,7 @@ public class OpticalHHUConnection implements HHUSignOn {
         ProtocolTools.delay(100);
         set7E1(5);
         readLine();
-        return new MeterType(getReceivedIdent());
+        return new MeterTypeImpl(getReceivedIdent());
     }
 
     private void readIdent() throws IOException {

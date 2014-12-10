@@ -13,6 +13,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.Trace_CQueryResponseStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.CTRObjectInfo;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -68,7 +69,7 @@ public class ProfileChannelForSms {
         if (ctrRegisterMapping != null) {
             ObisCode obisCode = ctrRegisterMapping.getObisCode();
             Unit unit = CTRObjectInfo.getUnit(objectId.toString());
-            return Arrays.asList(new ChannelInfo(0, obisCode.toString(), unit, getDeviceSerialNumber()));
+            return Arrays.asList(new ChannelInfo(0, obisCode.toString(), unit, getDeviceSerialNumber(), Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(obisCode, unit)));
         }
         throw new CTRException("SMS contained profile data, but failed to map the data to a device load profile channel");
     }

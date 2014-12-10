@@ -13,7 +13,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -27,8 +26,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.events.IDISGatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.messages.IDISGatewayMessages;
-import com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties.IDISGatewayConfigurationSupport;
-import com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties.IDISGatewayProperties;
+import com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties.IDISGatewayDynamicPropertySupportSupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.IDISGatewayRegisters;
 import com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -54,8 +52,7 @@ public class RtuPlusServer implements DeviceProtocol {
     private IDISGatewayEvents idisGatewayEvents;
     private IDISGatewayMessages idisGatewayMessages;
     private IDISGatewayRegisters idisGatewayRegisters;
-    private IDISGatewayProperties dlmsSessionProperties;
-    private IDISGatewayConfigurationSupport configurationSupport;
+    private IDISGatewayDynamicPropertySupportSupport configurationSupport;
     private PropertySpecService propertySpecService;
 
     @Override
@@ -67,7 +64,7 @@ public class RtuPlusServer implements DeviceProtocol {
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.comChannel = comChannel;
         this.offlineDevice = offlineDevice;
-        this.dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
+        this.dlmsSession = new DlmsSession(comChannel, getDynamicPropertySupport());
     }
 
     @Override
@@ -193,14 +190,14 @@ public class RtuPlusServer implements DeviceProtocol {
                 deviceTopology.addAdditionalCollectedDeviceInfo(
                         com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
-                                getConfigurationSupport().callingAPTitlePropertySpec(),
-                                getDlmsSessionProperties().getDeviceId()    // The DeviceID of the gateway
+                                getDynamicPropertySupport().callingAPTitlePropertySpec(),
+                                getDynamicPropertySupport().getDeviceId()    // The DeviceID of the gateway
                         )
                 );
                 deviceTopology.addAdditionalCollectedDeviceInfo(
                         com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
-                                getConfigurationSupport().nodeAddressPropertySpec(),
+                                getDynamicPropertySupport().nodeAddressPropertySpec(),
                                 Integer.toString(sapAssignmentItem.getSap())
                         )
                 );
@@ -225,18 +222,18 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect(propertySpecService));
     }
 
         @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        getDlmsSessionProperties().addProperties(dialectProperties);
+        getDynamicPropertySupport().addProperties(dialectProperties);
     }
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        getDlmsSessionProperties().addProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-        getDlmsSessionProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
+        getDynamicPropertySupport().addProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+        getDynamicPropertySupport().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
     }
 
     @Override
@@ -289,13 +286,6 @@ public class RtuPlusServer implements DeviceProtocol {
         return this.idisGatewayMessages;
     }
 
-    private IDISGatewayProperties getDlmsSessionProperties() {
-        if (this.dlmsSessionProperties == null) {
-            this.dlmsSessionProperties = new IDISGatewayProperties();
-        }
-        return this.dlmsSessionProperties;
-    }
-
     public DsmrSecuritySupport getDlmsSecuritySupport() {
         if (this.dlmsSecuritySupport == null) {
             this.dlmsSecuritySupport = new DsmrSecuritySupport();
@@ -303,9 +293,9 @@ public class RtuPlusServer implements DeviceProtocol {
         return this.dlmsSecuritySupport;
     }
 
-    public IDISGatewayConfigurationSupport getConfigurationSupport() {
+    public IDISGatewayDynamicPropertySupportSupport getDynamicPropertySupport() {
         if (this.configurationSupport == null) {
-            this.configurationSupport = new IDISGatewayConfigurationSupport(propertySpecService);
+            this.configurationSupport = new IDISGatewayDynamicPropertySupportSupport(propertySpecService);
         }
         return this.configurationSupport;
     }

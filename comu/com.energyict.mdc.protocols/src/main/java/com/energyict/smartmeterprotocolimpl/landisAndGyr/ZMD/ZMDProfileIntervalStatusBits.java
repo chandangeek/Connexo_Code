@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 
 /**

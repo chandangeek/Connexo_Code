@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -51,11 +52,14 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
                     registerObject.getAttribute();
                     ScalerUnit su = getScalerUnitForCapturedRegisterObject(registerObject, ccoRegisterUnits);
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject));
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), su.getEisUnit(), registerObject.getSerialNumber(), isCumulativeChannel(registerObject),
+                                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerObject.getObisCode(), su.getEisUnit()));
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), registerObject.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerObject.getObisCode().toString(), Unit.getUndefined(), registerObject.getSerialNumber(), true,
+                                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerObject.getObisCode(), Unit.getUndefined()));
+
                         channelInfos.add(ci);
 //                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerObject + " - unitCode was 0.");
                     }

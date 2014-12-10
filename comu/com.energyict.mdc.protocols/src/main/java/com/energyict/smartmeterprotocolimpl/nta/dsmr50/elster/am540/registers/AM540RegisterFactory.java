@@ -42,7 +42,7 @@ public class AM540RegisterFactory extends DSMR40RegisterFactory {
                 try {
                     RegisterValue registerValue = getPLCRegisterMapper().readRegister(obisCode);
                     //Now include the serial number
-                    registerValue = new RegisterValue(register, registerValue.getQuantity(), registerValue.getEventTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getReadTime(), registerValue.getRtuRegisterId(), registerValue.getText());
+                    registerValue = new RegisterValue(register, registerValue.getQuantity(), registerValue.getEventTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getReadTime(), register.getRegisterSpecId(), registerValue.getText());
                     result.add(registerValue);
                 } catch (NoSuchRegisterException e) {
                     protocol.getLogger().warning("Register with obiscode " + obisCode + " is not supported: " + e.getMessage());

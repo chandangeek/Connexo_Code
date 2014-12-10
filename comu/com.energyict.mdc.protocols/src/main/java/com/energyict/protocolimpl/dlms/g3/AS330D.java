@@ -267,7 +267,6 @@ public class AS330D extends AbstractDlmsSessionProtocol {
                             G3Cache dc = (G3Cache) cacheObject;
                             new RTUCache(rtuid).setBlob(dc);
                     //new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
-                    return null;
                         }
                         catch (SQLException e) {
                             throw new LocalSQLException(e);

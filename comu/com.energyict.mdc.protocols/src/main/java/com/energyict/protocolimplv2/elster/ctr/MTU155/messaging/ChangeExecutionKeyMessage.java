@@ -26,7 +26,7 @@ public class ChangeExecutionKeyMessage extends AbstractChangeKeyMessage {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(SecurityMessage.CHANGE_EXECUTION_KEY.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(SecurityMessage.CHANGE_EXECUTION_KEY.getId());
     }
 
     @Override

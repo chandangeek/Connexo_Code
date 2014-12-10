@@ -11,6 +11,8 @@ import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.inbound.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 
 import org.xml.sax.Attributes;
@@ -279,6 +281,21 @@ public class LoadProfileRegisterMessageBuilder extends AbstractMessageBuilder {
             }
 
             @Override
+            public DeviceIdentifierType getDeviceIdentifierType() {
+                return DeviceIdentifierType.SerialNumber;
+            }
+
+            @Override
+            public String getXmlType() {
+                return null;
+            }
+
+            @Override
+            public void setXmlType(String ignore) {
+
+            }
+
+            @Override
             public BaseDevice<?, ?, ?> findDevice() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper Device ...");
             }
@@ -286,6 +303,26 @@ public class LoadProfileRegisterMessageBuilder extends AbstractMessageBuilder {
             @Override
             public BaseLoadProfile findLoadProfile() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper LoadProfile ...");
+            }
+
+            @Override
+            public LoadProfileIdentifierType getLoadProfileIdentifierType() {
+                return LoadProfileIdentifierType.Other;
+            }
+
+            @Override
+            public List<Object> getIdentifier() {
+                return null;
+            }
+
+            @Override
+            public String getXmlType() {
+                return null;
+            }
+
+            @Override
+            public void setXmlType(String ignore) {
+
             }
         });
     }

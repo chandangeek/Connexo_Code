@@ -9,15 +9,18 @@ import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -32,16 +35,16 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServerMessages;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.G3GatewayRegisters;
+import com.energyict.protocolimplv2.elster.garnet.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -58,6 +61,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Copyrights EnergyICT
@@ -68,7 +72,6 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private G3GatewayProperties dlmsProperties;
-    private G3GatewayConfigurationSupport configurationSupport;
     private OfflineDevice offlineDevice;
     private DlmsSession dlmsSession;
     private DsmrSecuritySupport dlmsSecuritySupport;
@@ -79,6 +82,7 @@ public class RtuPlusServer implements DeviceProtocol {
     private ComChannel comChannel = null;
 
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
+    private PropertySpecService propertySpecService;
 
     @Override
     public String getProtocolDescription() {
@@ -86,12 +90,32 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     @Override
+    public DeviceFunction getDeviceFunction() {
+        return null;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
     public String getVersion() {
         return "$Date: 2014-11-05 11:51:51 +0100 (Wed, 05 Nov 2014) $";
     }
 
+    @Override
+    public void copyProperties(TypedProperties properties) {
+        getDlmsSessionProperties().addProperties(properties);
+    }
+
     public DlmsSession getDlmsSession() {
         return dlmsSession;
+    }
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -127,7 +151,7 @@ public class RtuPlusServer implements DeviceProtocol {
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
         clone.setProperty(com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         clone.setProperty(com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.SECURITY_LEVEL, "0:0");
-        G3GatewayProperties publicClientProperties = new G3GatewayProperties();
+        G3GatewayProperties publicClientProperties = new G3GatewayProperties(propertySpecService);
         publicClientProperties.addProperties(clone);
         publicClientProperties.setSecurityPropertySet(getDlmsSessionProperties().getSecurityPropertySet());
 
@@ -253,7 +277,7 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
+    public Set<DeviceMessageId> getSupportedMessages() {
         return getRtuPlusServerMessages().getSupportedMessages();
     }
 
@@ -274,7 +298,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect(propertySpecService));
     }
 
     private DeviceProtocolSecurityCapabilities getSecuritySupport() {
@@ -289,14 +313,9 @@ public class RtuPlusServer implements DeviceProtocol {
      */
     private G3GatewayProperties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
-            dlmsProperties = new G3GatewayProperties();
+            dlmsProperties = new G3GatewayProperties(propertySpecService);
         }
         return dlmsProperties;
-    }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        getDlmsSessionProperties().addProperties(properties);
     }
 
     @Override
@@ -308,23 +327,6 @@ public class RtuPlusServer implements DeviceProtocol {
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         getDlmsSessionProperties().addProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
         getDlmsSessionProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return getConfigurationSupport().getRequiredProperties();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return getConfigurationSupport().getOptionalProperties();
-    }
-
-    private ConfigurationSupport getConfigurationSupport() {
-        if (configurationSupport == null) {
-            configurationSupport = new G3GatewayConfigurationSupport();
-        }
-        return configurationSupport;
     }
 
     @Override
@@ -419,5 +421,15 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private CollectedDataFactory getCollectedDataFactory() {
         return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return null;
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String s) {
+        return null;
     }
 }

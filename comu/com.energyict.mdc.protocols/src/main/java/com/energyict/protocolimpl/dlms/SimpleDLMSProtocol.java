@@ -182,9 +182,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * "password"  (MeterProtocol.PASSWORD) </p>
      *
      * @param properties contains a set of protocol specific key value pairs
-     * @throws com.energyict.protocol.InvalidPropertyException
+     * @throws InvalidPropertyException
      *          if a property value is not compatible with the device type
-     * @throws com.energyict.protocol.MissingPropertyException
+     * @throws MissingPropertyException
      *          if a required property is not present
      */
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
@@ -568,6 +568,11 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
+    }
+
     /**
      * Terminates the logical connection with the device.
      * The implementer should not close the inputStream and outputStream. This
@@ -605,7 +610,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the version of the meter firmware
      *         </p>
      * @throws java.io.IOException Thrown in case of an exception
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             Thrown if method is not supported
      */
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -674,7 +679,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return profile data containing interval records and optional meter events between from and to
      *         </p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if meter does not support a to date to request the profile data
      */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
@@ -688,7 +693,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *                  </p><p>
      * @return meter register value as Quantity
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
@@ -701,7 +706,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *
      * @param name register name
      * @return meter register value as Quantity
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             Thrown if the method is not supported by the protocol
      * @throws java.io.IOException Thrown in case of an exception
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
@@ -716,7 +721,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the device's number of logical channels
      *         </p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
      */
     public int getNumberOfChannels() throws UnsupportedException, IOException {
@@ -729,7 +734,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the device's current profile interval in seconds
      *         </p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
      */
     public int getProfileInterval() throws UnsupportedException, IOException {
@@ -755,9 +760,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the value for the specified register
      *         </p><p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
-     * @throws com.energyict.protocol.NoSuchRegisterException
+     * @throws NoSuchRegisterException
      *                             if the device does not support the specified register
      */
     public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
@@ -822,9 +827,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param value to set the register.
      *              </p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
-     * @throws com.energyict.protocol.NoSuchRegisterException
+     * @throws NoSuchRegisterException
      *                             if the device does not support the specified register
      */
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
@@ -877,7 +882,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * </p>
      *
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
      */
     public void initializeDevice() throws IOException, UnsupportedException {
@@ -1016,9 +1021,6 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         optionalKeys.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
         optionalKeys.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
         optionalKeys.add(NTASecurityProvider.MASTERKEY);
-        optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
-        optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
-        optionalKeys.add(NTASecurityProvider.NEW_HLS_SECRET);
         return optionalKeys;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

@@ -7,6 +7,7 @@
 package com.energyict.protocols.util;
 
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import javax.xml.bind.DatatypeConverter;
@@ -184,6 +185,95 @@ public class ProtocolUtils {
     }
 
     /**
+     * System.out.print of the input buffer byte array data. Output as 104F50 ...
+     *
+     * @param byteBuffer byte array
+     */
+    public static void printResponseData(byte[] byteBuffer) {
+        int i;
+        System.out.println("Received data:");
+        for (i = 1; i <= byteBuffer.length; i++) {
+            if ((i % 64) == 0) {
+                System.out.println();
+            }
+            outputHex((int) byteBuffer[i - 1] & 0x000000FF);
+        }
+        System.out.println();
+    }
+
+    /**
+     * System.out.print of the input buffer int array data. The data is interpreted as
+     * a byte array. Output as 104F50 ...
+     *
+     * @param intBuffer int array
+     */
+    public static void printResponseData(int[] intBuffer) {
+        int i;
+        System.out.println("Received data:");
+        for (i = 1; i <= intBuffer.length; i++) {
+
+            if ((i % 64) == 0) {
+                System.out.println();
+            }
+            outputHex(intBuffer[i - 1] & 0x000000FF);
+        }
+        System.out.println();
+    }
+
+    /**
+     * Formatted System.out.print of the input buffer byte array data. Output as 0x10,0x4F,0x50, ...
+     *
+     * @param byteBuffer byte array
+     */
+    public static void printResponseDataFormatted(byte[] byteBuffer) {
+        int i;
+        System.out.println("Received data:");
+        for (i = 1; i <= byteBuffer.length; i++) {
+
+            if ((i % 64) == 0) {
+                System.out.println();
+            }
+            outputHexFormatted((int) byteBuffer[i - 1] & 0x000000FF);
+        }
+        System.out.println();
+    }
+
+    /**
+     * Formatted System.out.print of the input buffer byte array data. Output as 0x10,0x4F,0x50, ...
+     *
+     * @param byteBuffer byte array
+     */
+    public static void printResponseDataFormatted2(byte[] byteBuffer) {
+        int i;
+        for (i = 1; i <= byteBuffer.length; i++) {
+            if ((i % 64) == 0) {
+                System.out.println();
+            }
+            System.out.print("$" + buildStringHex(((int) byteBuffer[i - 1] & 0x000000FF), 2));
+        }
+        System.out.println();
+    }
+
+    /**
+     * Formatted System.out.print of the input buffer int array data. The data is interpreted as
+     * a byte array. Output as 0x10,0x4F,0x50, ...
+     *
+     * @param intBuffer int array
+     */
+    public static void printResponseDataFormatted(int[] intBuffer) {
+        int i;
+        System.out.println("Received data:");
+        for (i = 1; i <= intBuffer.length; i++) {
+
+            if ((i % 64) == 0) {
+                System.out.println();
+            }
+            outputHexFormatted(intBuffer[i - 1] & 0x000000FF);
+        }
+        System.out.println();
+    }
+
+    /**
      * Convert int to byte and build String.
      * E.g. val: 10, String output: "0A"
      *
@@ -209,6 +299,23 @@ public class ProtocolUtils {
     }
 
     /**
+     * System.out int to byte.
+     * E.g. val: 10, System.out.println: "0A"
+     *
+     * @param bKar int value to System.out
+     */
+    public static void outputHex(int bKar) {
+        System.out.print((char) convertHexLSB(bKar));
+        System.out.print((char) convertHexMSB(bKar));
+    }
+
+    public static String outputHexToString(int bKar) {
+        String result = "" + (char) convertHexLSB(bKar);
+        result += (char) convertHexMSB(bKar);
+        return result;
+    }
+
+    /**
      * Convert int to byte to String in hexadecimal notation.
      * E.g. val: 10, System.out.println: "0A"
      *
@@ -217,6 +324,19 @@ public class ProtocolUtils {
      */
     public static String hex2String(int bKar) {
         return String.valueOf((char) convertHexLSB(bKar)) + (char) convertHexMSB(bKar);
+    }
+
+    /**
+     * System.out int to byte.
+     * E.g. val: 10, System.out.println: "0x0A,"
+     *
+     * @param bKar int value to System.out
+     */
+    public static void outputHexFormatted(int bKar) {
+        System.out.print("(byte)0x");
+        System.out.print((char) convertHexLSB(bKar));
+        System.out.print((char) convertHexMSB(bKar));
+        System.out.print(",");
     }
 
     /**
@@ -288,7 +408,7 @@ public class ProtocolUtils {
      */
     public static int BCD2hex(byte bBCDVal) throws IOException {
         if (!isBCD(bBCDVal)) {
-            throw new IOException("ProtocolUtils, BCD2hex, BCD error!");
+            throw new ProtocolException("ProtocolUtils, BCD2hex, BCD error!");
         }
         return ((((((int) bBCDVal & 0x000000FF) / 16) * 10) + (((int) bBCDVal & 0x000000FF) % 16)) & 0x000000FF);
     }
@@ -305,7 +425,7 @@ public class ProtocolUtils {
 
     private static byte toBCD(byte data) throws IOException {
         if (data - 0x30 > 9) {
-            throw new IOException("ProtocolUtils, toBCD, BCD error!");
+            throw new ProtocolException("ProtocolUtils, toBCD, BCD error!");
         }
         return (byte) (data - 0x30);
     }
@@ -322,7 +442,7 @@ public class ProtocolUtils {
      */
     public static byte[] convert2ascii(byte[] data) throws IOException {
         if ((data.length % 2) != 0) {
-            throw new IOException("ProtocolUtils, convert2ascii, data length not even!");
+            throw new ProtocolException("ProtocolUtils, convert2ascii, data length not even!");
         }
         byte[] converted = new byte[data.length / 2];
         for (int iOffset = 0; iOffset < data.length / 2; iOffset++) {
@@ -344,7 +464,7 @@ public class ProtocolUtils {
      */
     public static byte[] convertBCD2ascii(byte[] data) throws IOException {
         if ((data.length % 2) != 0) {
-            throw new IOException("ProtocolUtils, convert2ascii, data length not even!");
+            throw new ProtocolException("ProtocolUtils, convert2ascii, data length not even!");
         }
         byte[] converted = new byte[data.length / 2];
         for (int iOffset = 0; iOffset < data.length / 2; iOffset++) {
@@ -409,7 +529,7 @@ public class ProtocolUtils {
         } else if ((data >= 0x61) && (data <= 0x66)) {
             nibble = (((int) data & 0xff) - 0x57);
         } else {
-            throw new IOException("ProtocolUtils, hex2nibble, invalid hex data 0x" + Integer.toHexString((int) data & 0xff));
+            throw new ProtocolException("ProtocolUtils, hex2nibble, invalid hex data 0x" + Integer.toHexString((int) data & 0xff));
         }
         return (byte) nibble;
     }
@@ -435,7 +555,7 @@ public class ProtocolUtils {
     public static int getVal(ByteArrayInputStream bai) throws IOException {
         int val = bai.read();
         if (val == -1) {
-            throw new IOException("ProtocolUtils, getVal, Error end of file in stream");
+            throw new ProtocolException("ProtocolUtils, getVal, Error end of file in stream");
         }
         return val;
     }
@@ -617,19 +737,19 @@ public class ProtocolUtils {
      * @return integer value
      * @throws IOException thrown when an exception happens
      */
-    public static int getInt(byte[] byteBuffer, int offset, int length) throws IOException {
+    public static int getInt(byte[] byteBuffer, int offset, int length) throws ProtocolException {
         int retval = 0;
         int shift;
         try {
             if ((length > 4) || (length < 1)) {
-                throw new IOException("ProtocolUtils, getInt, invalid length");
+                throw new ProtocolException("ProtocolUtils, getInt, invalid length");
             }
             for (int i = 0; i < length; i++) {
                 shift = 8 * (length - (1 + i));
                 retval |= ((int) byteBuffer[offset + i] & 0xff) << shift;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IOException("ProtocolUtils, getInt, ArrayIndexOutOfBoundsException, " + e.getMessage());
+            throw new ProtocolException("ProtocolUtils, getInt, ArrayIndexOutOfBoundsException, " + e.getMessage());
         }
         return retval;
     }
@@ -648,14 +768,14 @@ public class ProtocolUtils {
         int shift;
         try {
             if ((length > 4) || (length < 1)) {
-                throw new IOException("ProtocolUtils, getIntLE, invalid length");
+                throw new ProtocolException("ProtocolUtils, getIntLE, invalid length");
             }
             for (int i = 0; i < length; i++) {
                 shift = 8 * i;
                 retval |= ((int) byteBuffer[offset + i] & 0xff) << shift;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IOException("ProtocolUtils, getIntLE, ArrayIndexOutOfBoundsException, " + e.getMessage());
+            throw new ProtocolException("ProtocolUtils, getIntLE, ArrayIndexOutOfBoundsException, " + e.getMessage());
         }
         return retval;
     }
@@ -678,7 +798,7 @@ public class ProtocolUtils {
                 multiplier *= 100;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IOException("ProtocolUtils, getBCD2IntLE, ArrayIndexOutOfBoundsException, " + e.getMessage());
+            throw new ProtocolException("ProtocolUtils, getBCD2IntLE, ArrayIndexOutOfBoundsException, " + e.getMessage());
         }
         return val;
     }
@@ -701,7 +821,7 @@ public class ProtocolUtils {
                 multiplier *= 100;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IOException("ProtocolUtils, getBCD2IntLE, ArrayIndexOutOfBoundsException, " + e.getMessage());
+            throw new ProtocolException("ProtocolUtils, getBCD2IntLE, ArrayIndexOutOfBoundsException, " + e.getMessage());
         }
         return val;
     }
@@ -757,14 +877,14 @@ public class ProtocolUtils {
         int shift;
         try {
             if (length > 8) {
-                throw new IOException("ProtocolUtils, getLong, invalid length");
+                throw new ProtocolException("ProtocolUtils, getLong, invalid length");
             }
             for (int i = 0; i < length; i++) {
                 shift = 8 * (length - (1 + i));
                 retval |= ((long) byteBuffer[offset + i] & 0xffL) << shift;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IOException("ProtocolUtils, getLong, ArrayIndexOutOfBoundsException, " + e.getMessage());
+            throw new ProtocolException("ProtocolUtils, getLong, ArrayIndexOutOfBoundsException, " + e.getMessage());
         }
         return retval;
     }
@@ -781,7 +901,7 @@ public class ProtocolUtils {
         long retval = 0;
         int shift;
         if (length > 8) {
-            throw new IOException("ProtocolUtils, getLong, invalid length");
+            throw new ProtocolException("ProtocolUtils, getLong, invalid length");
         }
         for (int i = 0; i < length; i++) {
             shift = 8 * (length - (1 + i));
@@ -804,14 +924,14 @@ public class ProtocolUtils {
         int shift;
         try {
             if (length > 8) {
-                throw new IOException("ProtocolUtils, getLongLE, invalid length");
+                throw new ProtocolException("ProtocolUtils, getLongLE, invalid length");
             }
             for (int i = 0; i < length; i++) {
                 shift = 8 * i;
                 retval |= ((long) byteBuffer[offset + i] & 0xffL) << shift;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IOException("ProtocolUtils, getLongLE, ArrayIndexOutOfBoundsException, " + e.getMessage());
+            throw new ProtocolException("ProtocolUtils, getLongLE, ArrayIndexOutOfBoundsException, " + e.getMessage());
         }
         return retval;
     }
@@ -828,7 +948,7 @@ public class ProtocolUtils {
         long retval = 0;
         int shift;
         if (length > 8) {
-            throw new IOException("ProtocolUtils, getLongLE, invalid length");
+            throw new ProtocolException("ProtocolUtils, getLongLE, invalid length");
         }
         for (int i = 0; i < length; i++) {
             shift = 8 * i;
@@ -976,7 +1096,7 @@ public class ProtocolUtils {
         long lNibbleVal;
         int i;
         if (size > 16) {
-            throw new IOException("ProtocolUtils, getLongFromNibblesLE, size too big to fit in long!");
+            throw new ProtocolException("ProtocolUtils, getLongFromNibblesLE, size too big to fit in long!");
         }
         for (i = 0; i < size; i++) {
             lNibbleVal = (long) getNibble(data, i + offset);
@@ -1000,7 +1120,7 @@ public class ProtocolUtils {
         long lByteVal;
         int i;
         if (size > 8) {
-            throw new IOException("ProtocolUtils, getLongFromBytes, size too big to fit in long!");
+            throw new ProtocolException("ProtocolUtils, getLongFromBytes, size too big to fit in long!");
         }
         for (i = 0; i < size; i++) {
             lByteVal = (long) data[i + offset] & 0xFF;
@@ -1024,7 +1144,7 @@ public class ProtocolUtils {
         long lByteVal;
         int i;
         if (size > 8) {
-            throw new IOException("ProtocolUtils, getLongFromBytes, size too big to fit in long!");
+            throw new ProtocolException("ProtocolUtils, getLongFromBytes, size too big to fit in long!");
         }
         for (i = 0; i < size; i++) {
             lByteVal = (long) data[i + offset] & 0xFF;
@@ -1170,7 +1290,7 @@ public class ProtocolUtils {
      */
     public static int arrayCopy(byte[] src, byte[] dest, int offset) throws IOException {
         if (src.length > (dest.length - offset)) {
-            throw new IOException("ProtocolUtils, arrayCopy, src.length=" + src.length + " dest.length=" + dest.length + " offset=" + offset);
+            throw new ProtocolException("ProtocolUtils, arrayCopy, src.length=" + src.length + " dest.length=" + dest.length + " offset=" + offset);
         }
         for (int i = 0; i < src.length; i++) {
             dest[offset + i] = src[i];

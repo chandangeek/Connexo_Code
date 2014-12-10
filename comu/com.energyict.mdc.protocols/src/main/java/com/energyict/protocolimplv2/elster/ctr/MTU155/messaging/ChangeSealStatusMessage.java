@@ -23,7 +23,7 @@ public class ChangeSealStatusMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(SecurityMessage.BREAK_OR_RESTORE_SEALS.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(SecurityMessage.BREAK_OR_RESTORE_SEALS.getId());
     }
 
     @Override

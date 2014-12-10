@@ -44,7 +44,7 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	}
 
 	/**
-	 * Get the default {@link com.energyict.obis.ObisCode} of the object
+	 * Get the default ObisCode of the object
 	 * @return
 	 */
 	public static ObisCode getDefaultObisCode() {

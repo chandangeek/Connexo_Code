@@ -10,10 +10,13 @@ import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
 
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +31,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-12 (11:16)
  */
+@XmlRootElement
 public class SerialNumberDeviceIdentifier implements DeviceIdentifier, FindMultipleDevices<BaseDevice<BaseChannel,BaseLoadProfile<BaseChannel>,BaseRegister>> {
 
     private final String serialNumber;
@@ -98,6 +102,20 @@ public class SerialNumberDeviceIdentifier implements DeviceIdentifier, FindMulti
     @Override
     public String getIdentifier () {
         return serialNumber;
+    }
+
+    @Override
+    public DeviceIdentifierType getDeviceIdentifierType() {
+        return DeviceIdentifierType.SerialNumber;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 
     @Override

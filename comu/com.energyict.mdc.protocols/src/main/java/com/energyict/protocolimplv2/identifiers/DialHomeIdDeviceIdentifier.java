@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import com.energyict.mdc.common.Environment;
@@ -77,6 +78,21 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipl
     @Override
     public String getIdentifier() {
         return callHomeID;
+    }
+
+    @Override
+    public DeviceIdentifierType getDeviceIdentifierType() {
+        return DeviceIdentifierType.CallHomeId;
+    }
+
+    @Override
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.dialer.core.Link;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
@@ -57,6 +57,7 @@ import java.util.logging.Logger;
 public class SmsRequestFactory implements RequestFactory {
 
     private final SecureSmsConnection connection;
+    private final PropertySpecService propertySpecService;
     private MTU155Properties properties;
     private Logger logger;
     private TimeZone timeZone;
@@ -67,7 +68,8 @@ public class SmsRequestFactory implements RequestFactory {
     private List<WriteDataBlock> writeDataBlockList;
     private boolean isEK155Protocol;
 
-    public SmsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, int writeDataBlockID, boolean isEK155Protocol) {
+    public SmsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, int writeDataBlockID, boolean isEK155Protocol, PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
         this.connection = new SecureSmsConnection(comChannel, properties, logger);
         this.logger = logger;
         this.properties = properties;
@@ -255,7 +257,7 @@ public class SmsRequestFactory implements RequestFactory {
 
     public MTU155Properties getProperties() {
         if (properties == null) {
-            this.properties = new MTU155Properties();
+            this.properties = new MTU155Properties(this.propertySpecService);
         }
         return properties;
     }

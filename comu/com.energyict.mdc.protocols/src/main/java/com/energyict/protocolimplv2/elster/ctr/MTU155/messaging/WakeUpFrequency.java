@@ -26,7 +26,7 @@ public class WakeUpFrequency extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(NetworkConnectivityMessage.CHANGE_WAKEUP_FREQUENCY.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(NetworkConnectivityMessage.CHANGE_WAKEUP_FREQUENCY.getId());
     }
 
     @Override

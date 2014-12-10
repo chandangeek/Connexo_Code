@@ -32,7 +32,6 @@ import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
@@ -44,6 +43,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -86,7 +86,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * @author sva
@@ -110,7 +110,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         if (!mbusMessages.isEmpty()) {
             // Execute messages for MBus devices
             Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol());
-            result.addCollectedMessages(mbusMessageExecutor.executePendingMessages(mbusMessages));
+            mbusMessageExecutor.executePendingMessages(mbusMessages).getCollectedMessages().forEach(collectedMessage -> result.addCollectedMessages(collectedMessage));
         }
 
         for (OfflineDeviceMessage pendingMessage : masterMessages) {
@@ -224,7 +224,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     protected LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
         Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
         Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
-        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
+        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getDeviceIdentifier(), loadProfileReader.getChannelInfos(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getLoadProfileIdentifier());
     }
 
     private CollectedMessage loadProfileRegisterRequest(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -247,7 +247,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             }
 
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
-            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
+            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), lpr.getMeterSerialNumber(), lpr.getLoadProfileIdentifier());
 
             List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
             for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
@@ -285,7 +285,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 for (int i = 0; i < collectedLoadProfile.getChannelInfo().size(); i++) {
                     final ChannelInfo channel = collectedLoadProfile.getChannelInfo().get(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(intervalDatas.get(i), channel.getUnit()), intervalDatas.getEndTime(), null, intervalDatas.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(intervalDatas.get(i), channel.getUnit()), intervalDatas.getEndTime(), null, intervalDatas.getEndTime(), new Date(), register.getRegisterSpecId());
                         collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
                     }
                 }
@@ -303,10 +303,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private DateFormat getDefaultDateFormatter() {
-        User user = MeteringWarehouse.getCurrentUser();
-        DateFormat formatter = new SimpleDateFormat(user.getDateFormat() + " " + user.getLongTimeFormat());
-        formatter.setTimeZone(MeteringWarehouse.getCurrent().getSystemTimeZone());
-        return formatter;
+//        User user = MeteringWarehouse.getCurrentUser();
+//        DateFormat formatter = new SimpleDateFormat(user.getDateFormat() + " " + user.getLongTimeFormat());
+//        formatter.setTimeZone(MeteringWarehouse.getCurrent().getSystemTimeZone());
+//        return formatter;
+        return new SimpleDateFormat();
     }
 
     private CollectedMessage partialLoadProfileRequest(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -322,7 +323,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(fullLoadProfileContent);
 
             LoadProfileReader lpr = builder.getLoadProfileReader();  //Does not contain the correct from & to date yet, they were stored in separate attributes
-            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
+            LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), lpr.getMeterSerialNumber(), lpr.getLoadProfileIdentifier());
 
             fullLpr = checkLoadProfileReader(fullLpr, builder.getMeterSerialNumber());
             List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
@@ -355,7 +356,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
      */
     private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, String serialNumber) {
         if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
-            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), serialNumber, lpr.getChannelInfos());
+            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), serialNumber, lpr.getLoadProfileIdentifier());
         } else {
             return lpr;
         }
@@ -547,7 +548,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     private byte getMonitoredAttributeType(Limiter.ValueDefinitionType vdt) throws IOException {
 
-        if (getMeterConfig().getClassId(vdt.getObisCode()) == Register.CLASSID) {
+        if (getMeterConfig().getClassId(vdt.getObisCode()) == com.energyict.dlms.cosem.Register.CLASSID) {
             return getCosemObjectFactory().getRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
         } else if (getMeterConfig().getClassId(vdt.getObisCode()) == ExtendedRegister.CLASSID) {
             return getCosemObjectFactory().getExtendedRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];

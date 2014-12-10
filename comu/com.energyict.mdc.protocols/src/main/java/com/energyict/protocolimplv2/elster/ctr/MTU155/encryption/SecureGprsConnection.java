@@ -9,6 +9,8 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRCipheringExce
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRConnectionException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.Frame;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
+import com.energyict.protocols.exception.ProtocolEncryptionException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -67,7 +69,7 @@ public class SecureGprsConnection extends GprsConnection {
             }
             return unencryptedResponseFrame;
         } catch (CTRCipheringException e) {
-            throw MdcManager.getComServerExceptionFactory().createCipheringException(e);
+            throw new ProtocolEncryptionException(e, MessageSeeds.ENCRYPTION_ERROR);
         }
     }
 

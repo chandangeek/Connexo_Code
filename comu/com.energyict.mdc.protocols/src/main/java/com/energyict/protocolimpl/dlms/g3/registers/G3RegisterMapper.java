@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.mdc.common.ObisCode;

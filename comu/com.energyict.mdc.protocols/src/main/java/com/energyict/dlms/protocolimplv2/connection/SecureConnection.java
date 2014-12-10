@@ -7,10 +7,12 @@ import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.XdlmsApduTags;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.protocols.exception.ProtocolEncryptionException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
@@ -124,7 +126,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                     return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
                 } else {
                     IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
-                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(ioException);
+                    throw new ProtocolEncryptionException(MessageSeeds.ENCRYPTION_ERROR, ioException);
                 }
             }
         } else { /* During association request (AARQ and AARE) the request just needs to be forwarded */
@@ -180,7 +182,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
                     return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
                 } else {
                     IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
-                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(ioException);
+                    throw new ProtocolEncryptionException(MessageSeeds.ENCRYPTION_ERROR, ioException);
                 }
             }
         } else { /* During association request (AARQ and AARE) the request just needs to be forwarded */
@@ -193,19 +195,17 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
         try {
             return this.aso.getSecurityContext().dataTransportEncryption(securedRequest);
         } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(this.aso.getSecurityContext().getSecurityPolicy()));
+            throw new CommunicationException(MessageSeeds.PROTOCOL_IO_PARSE_ERROR, e);
         }
     }
 
     protected byte[] decrypt(byte[] securedResponse) {
         try {
             return this.aso.getSecurityContext().dataTransportDecryption(securedResponse);
-        } catch (ConnectionException e) {              //Failed to decrypt data
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
-        } catch (DLMSConnectionException e) {          //Invalid frame counter
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
+        } catch (ConnectionException | DLMSConnectionException e) {              //Failed to decrypt data
+            throw new ProtocolEncryptionException(MessageSeeds.ENCRYPTION_ERROR, e);
         } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(this.aso.getSecurityContext().getSecurityPolicy()));
+            throw new CommunicationException(MessageSeeds.PROTOCOL_IO_PARSE_ERROR, e);
         }
     }
 

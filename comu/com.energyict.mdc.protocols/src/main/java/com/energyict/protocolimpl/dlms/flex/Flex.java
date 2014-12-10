@@ -14,6 +14,7 @@ SVA|16072012|Taken a local copy of all stuff reused from Iskra protocol - this i
  */
 package com.energyict.protocolimpl.dlms.flex;
 
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdw.cpo.PropertySpecFactory;

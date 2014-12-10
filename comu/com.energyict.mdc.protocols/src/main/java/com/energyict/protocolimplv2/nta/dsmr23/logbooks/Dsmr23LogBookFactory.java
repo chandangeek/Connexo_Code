@@ -4,14 +4,18 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.*;
 
@@ -42,7 +46,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
                 supportedLogBooks.add(getMeterConfig().getMbusControlLog(mbusMeter.getPhysicalAddress() - 1).getObisCode());
             }
         } catch (ProtocolException e) {   //Object not found in IOL, should never happen
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -54,16 +58,16 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
             if (isSupported(logBookReader)) {
                 ProfileGeneric profileGeneric;
                 try {
-                    profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()));
+                    profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getDeviceIdentifier().getIdentifier()));
                 } catch (IOException e) {
-                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                    throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
                 }
                 Calendar fromDate = getCalendar();
                 fromDate.setTime(logBookReader.getLastLogBook());
                 DataContainer dataContainer;
                 try {
                     dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
-                    collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
+                    collectedLogBook.setMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
                         collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
@@ -96,14 +100,14 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
                 return new ArrayList<>();
             }
         } catch (ProtocolException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
     }
 
     private boolean isSupported(LogBookReader logBookReader) {
         for (ObisCode supportedLogBookObisCode : supportedLogBooks) {
-            if (supportedLogBookObisCode.equals(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()))) {
+            if (supportedLogBookObisCode.equals(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getDeviceIdentifier().getIdentifier()))) {
                 return true;
             }
         }

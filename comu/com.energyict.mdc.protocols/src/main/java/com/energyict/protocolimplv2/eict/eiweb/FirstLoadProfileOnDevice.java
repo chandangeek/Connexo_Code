@@ -1,16 +1,16 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-
-import java.util.List;
-
+import com.energyict.mdc.protocol.api.inbound.LoadProfileIdentifierType;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,11 +38,11 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
     }
 
     @Override
-    public LoadProfile getLoadProfile() {
-        Device device = this.deviceIdentifier.findDevice();
-        List<LoadProfile> loadProfiles = device.getLoadProfiles();
+    public BaseLoadProfile findLoadProfile() {
+        BaseDevice device = this.deviceIdentifier.findDevice();
+        List<BaseLoadProfile> loadProfiles = device.getLoadProfiles();
         if (loadProfiles.isEmpty()) {
-            throw new NotFoundException("Device with " + deviceIdentifier.toString() + " has no load profiles");
+            throw new NotFoundException("BaseDevice with " + deviceIdentifier.toString() + " has no load profiles");
         } else {
             return loadProfiles.get(0);
         }
@@ -60,7 +60,7 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
 
     @Override
     public List<Object> getIdentifier() {
-        return Collections.toList((Object) getDeviceIdentifier());
+        return Arrays.asList((Object) getDeviceIdentifier());
     }
 
     @XmlElement(name = "type")

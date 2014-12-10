@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.Bus;
@@ -19,7 +20,7 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     public static final String slaveOneSerialNumberPropertyName = "SlaveOneSerialNumber";
     public static final String slaveTwoSerialNumberPropertyName = "SlaveTwoSerialNumber";
 
-    public SDKTopologyTaskProtocolDialectProperties() {
+    public SDKTopologyTaskProtocolDialectProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 

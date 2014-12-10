@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.dlms.idis;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;

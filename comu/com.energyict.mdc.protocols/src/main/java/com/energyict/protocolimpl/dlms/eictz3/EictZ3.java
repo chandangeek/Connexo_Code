@@ -52,12 +52,12 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.DisconnectControlLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.EventsLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.FraudDetectionLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.MbusLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.PowerFailureLog;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.nta.eventhandling.DisconnectControlLog;
-import com.energyict.genericprotocolimpl.nta.eventhandling.EventsLog;
-import com.energyict.genericprotocolimpl.nta.eventhandling.FraudDetectionLog;
-import com.energyict.genericprotocolimpl.nta.eventhandling.MbusLog;
-import com.energyict.genericprotocolimpl.nta.eventhandling.PowerFailureLog;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
@@ -123,7 +123,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol}.
+ * DLMS based {@link MeterProtocol} implementation for the Z3 and EpIO R2. There is also a generic protocol implementation AbstractNTAProtocol.
  */
 @Deprecated
 public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
@@ -438,7 +438,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private TimeZone timeZone;
 
     /**
-     * The meter configuration used here is the one from the {@link com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol} meter.
+     * The meter configuration used here is the one from the AbstractNTAProtocol meter.
      */
     private final DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP");
 

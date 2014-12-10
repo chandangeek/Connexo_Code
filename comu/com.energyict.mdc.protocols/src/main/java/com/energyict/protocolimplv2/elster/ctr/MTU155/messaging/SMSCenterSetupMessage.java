@@ -35,7 +35,7 @@ public class SMSCenterSetupMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(NetworkConnectivityMessage.CHANGE_SMS_CENTER_NUMBER.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(NetworkConnectivityMessage.CHANGE_SMS_CENTER_NUMBER.getId());
     }
 
     @Override

@@ -12,6 +12,8 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 

@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -23,7 +24,7 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     public static final String TIMEOUT_PROPERTY_NAME = "Timeout";
     public static final String RETRIES_PROPERTY_NAME = "Retries";
 
-    public ACE4000DeviceProtocolDialect() {
+    public ACE4000DeviceProtocolDialect(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 

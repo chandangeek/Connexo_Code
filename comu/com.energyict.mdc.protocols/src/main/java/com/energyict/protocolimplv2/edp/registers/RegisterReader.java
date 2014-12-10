@@ -14,13 +14,13 @@ import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import com.energyict.protocolimplv2.edp.CX20009;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
@@ -136,7 +136,7 @@ public class RegisterReader implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else {
@@ -146,21 +146,21 @@ public class RegisterReader implements DeviceRegisterSupport {
     }
 
     private CollectedRegister createCollectedRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Date eventTime) {
-        CollectedRegister deviceRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(offlineRegister));
+        CollectedRegister deviceRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(offlineRegister), offlineRegister.getReadingType());
         deviceRegister.setCollectedData(quantity, text);
         deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
         return deviceRegister;
     }
 
     private CollectedRegister createMaxDemandRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Date eventTime) {
-        CollectedRegister deviceRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
+        CollectedRegister deviceRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister), offlineRegister.getReadingType());
         deviceRegister.setCollectedData(quantity, text);
         deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
         return deviceRegister;
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
-        return new RegisterIdentifierById(offlineRtuRegister.getRegisterId(), offlineRtuRegister.getObisCode());
+        return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), offlineRtuRegister.getAmrRegisterObisCode(), offlineRtuRegister.getDeviceIdentifier());
     }
 
     private boolean isGPSCoordinates(ObisCode obisCode) {

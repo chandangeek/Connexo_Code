@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 import com.energyict.mdc.protocol.api.codetables.CodeDayType;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
@@ -55,7 +55,7 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
             throw new IOException("CodeTable-ID can not be empty.");
         } else {
 
-            Code ct = mw().getCodeFactory().find(Integer.parseInt(codeTable));
+            Code ct = findCode(codeTable);
             if (ct == null) {
                 throw new IOException("No CodeTable defined with id '" + codeTable + "'");
             } else {

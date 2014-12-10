@@ -1,18 +1,16 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-
-import com.energyict.cbo.NotFoundException;
-import com.energyict.comserver.adapters.common.AdapterDeviceProtocolProperties;
-import com.energyict.comserver.exceptions.DuplicateException;
-import com.energyict.cpo.OfflineDeviceContext;
-import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierType;
-import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.DeviceFactoryProvider;
-import com.energyict.mdw.core.DeviceOfflineFlags;
-import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.DeviceFactory;
+import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -21,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} interface,
+ * Provides an implementation for the DeviceIdentifier interface,
  * specific for the CTR protocol base (MTU155 and EK155 device types). <br></br>
  * These protocols use a Call Home ID to uniquely identify the calling device.
  *
@@ -29,11 +27,11 @@ import java.util.List;
  * @since: 26/10/12 (11:26)
  */
 @XmlRootElement
-public class CTRDialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
+public class CTRDialHomeIdDeviceIdentifier implements DeviceIdentifier, FindMultipleDevices {
 
     private final String callHomeID;
-    private Device device;
-    private List<Device> allDevices;
+    private BaseDevice device;
+    private List<BaseDevice> allDevices;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -48,14 +46,14 @@ public class CTRDialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     }
 
     @Override
-    public Device findDevice() {
+    public BaseDevice findDevice() {
         if(this.device == null){
             fetchAllDevices();
             if (this.allDevices.isEmpty()) {
-                throw new NotFoundException("Device with callHomeId " + this.callHomeID + " not found");
+                throw new NotFoundException("BaseDevice with callHomeId " + this.callHomeID + " not found");
             } else {
                 if (this.allDevices.size() > 1) {
-                    throw DuplicateException.duplicateFoundFor(Device.class, this.toString());
+                    throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, BaseDevice.class, this.toString());
                 } else {
                     this.device = this.allDevices.get(0);
                 }
@@ -65,7 +63,8 @@ public class CTRDialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     }
 
     private void fetchAllDevices() {
-        this.allDevices = getDeviceFactory().findByConnectionTypeProperty(CTRInboundDialHomeIdConnectionType.class, AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeID);
+        // TODO fetch all devices
+//        this.allDevices = getDeviceFactory().findByConnectionTypeProperty(CTRInboundDialHomeIdConnectionType.class, AdapterDeviceProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeID);
     }
 
     @Override
@@ -104,13 +103,15 @@ public class CTRDialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
         }
         List<OfflineDevice> allOfflineDevices = new ArrayList<>();
         OfflineDeviceContext offlineDeviceContext = new DeviceOfflineFlags();
-        for (Device deviceToGoOffline : this.allDevices) {
-            allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
+        for (BaseDevice deviceToGoOffline : this.allDevices) {
+            //TODO fix!
+//            allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
         }
         return allOfflineDevices;
     }
 
     private DeviceFactory getDeviceFactory() {
-        return DeviceFactoryProvider.instance.get().getDeviceFactory();
+        throw new UnsupportedOperationException("CTRDialHomeDeviceIdentifier is not supported yet!");
+//        return DeviceFactoryProvider.instance.get().getDeviceFactory();
     }
 }

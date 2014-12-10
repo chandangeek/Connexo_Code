@@ -97,9 +97,9 @@ public class IF2HHUSignon implements HHUSignOn {
             Thread.sleep(DELAY_AFTER_SWITCH);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+
         }
-        return new MeterType(getReceivedIdent());
+        return new MeterTypeImpl(getReceivedIdent());
     }
 
     /**

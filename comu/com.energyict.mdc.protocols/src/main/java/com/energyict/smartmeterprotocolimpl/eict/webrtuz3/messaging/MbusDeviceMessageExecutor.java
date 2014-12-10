@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
+import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.mdc.common.ObisCode;

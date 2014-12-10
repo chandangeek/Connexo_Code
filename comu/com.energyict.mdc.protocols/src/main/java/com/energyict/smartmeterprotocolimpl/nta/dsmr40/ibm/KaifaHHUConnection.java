@@ -111,7 +111,7 @@ public class KaifaHHUConnection extends IEC1107HHUConnection {
             Thread.sleep((ack.length * 10 * 1000) / 300);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+
         }
     }
 
@@ -160,7 +160,7 @@ public class KaifaHHUConnection extends IEC1107HHUConnection {
                 if (logger.isDebugEnabled()) {
                     logger.debug("--->receivedIdent: " + receivedIdent);
                 }
-                MeterType meterType = new MeterType(receivedIdent);
+                MeterType meterType = new MeterTypeImpl(receivedIdent);
                 sendProtocolAckAndSwitchBaudrate(meterType, mode, protocol);
 
                 if ((strIdentConfig != null) && ("".compareTo(strIdentConfig) != 0)) {

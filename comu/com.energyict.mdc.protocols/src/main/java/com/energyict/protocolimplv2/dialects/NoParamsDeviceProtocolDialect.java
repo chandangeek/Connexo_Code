@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dialects;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 
 import java.util.Collections;
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public class NoParamsDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
-    public NoParamsDeviceProtocolDialect() {
+    public NoParamsDeviceProtocolDialect(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.Bus;
@@ -23,7 +24,7 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
      */
     public final String doSomeThingPropertyName = "DoSomeThing";
 
-    public SDKStandardDeviceProtocolDialectProperties() {
+    public SDKStandardDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 

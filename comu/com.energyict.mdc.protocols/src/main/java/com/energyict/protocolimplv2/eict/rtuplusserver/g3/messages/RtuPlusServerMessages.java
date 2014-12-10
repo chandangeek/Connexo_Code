@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -19,6 +18,7 @@ import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.GenericWrite;
 import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.issues.Issue;
@@ -26,6 +26,7 @@ import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
@@ -50,6 +51,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
+import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -67,100 +69,85 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     private final DlmsSession session;
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
 
-//    private Set<DeviceMessageId> supportedMessages = EnumSet.of(
-//
-//    );
+    private Set<DeviceMessageId> supportedMessages = EnumSet.of(
+            DeviceMessageId.PLC_CONFIGURATION_SET_MAX_NUMBER_OF_HOPS_ATTRIBUTENAME,
+            DeviceMessageId.PLC_CONFIGURATION_SET_WEAK_LQI_VALUE_ATTRIBUTENAME,
+            DeviceMessageId.PLC_CONFIGURATION_SET_SECURITY_LEVEL,
+            DeviceMessageId.PLC_CONFIGURATION_SET_ROUTING_CONFIGURATION,
+            DeviceMessageId.PLC_CONFIGURATION_SET_BROADCAST_LOG_TABLE_ENTRY_TTL_ATTRIBUTENAME,
+            DeviceMessageId.PLC_CONFIGURATION_SET_MAX_JOIN_WAIT_TIME,
+            DeviceMessageId.PLC_CONFIGURATION_SET_PATH_DISCOVERY_TIME,
+            DeviceMessageId.PLC_CONFIGURATION_SET_METRIC_TYPE,
+            DeviceMessageId.PLC_CONFIGURATION_SET_PAN_ID,
+            DeviceMessageId.PLC_CONFIGURATION_SET_TMR_TTL,
+            DeviceMessageId.PLC_CONFIGURATION_SET_MAX_FRAME_RETRIES,
+            DeviceMessageId.PLC_CONFIGURATION_SET_NEIGHBOUR_TABLE_ENTRY_TTL,
+            DeviceMessageId.PLC_CONFIGURATION_SET_HIGH_PRIORITY_WINDOW_SIZE,
+            DeviceMessageId.PLC_CONFIGURATION_SET_CSMA_FAIRNESS_LIMIT,
+            DeviceMessageId.PLC_CONFIGURATION_SET_BEACON_RANDOMIZATION_WINDOW_LENGTH,
+            DeviceMessageId.PLC_CONFIGURATION_SET_MAC_A,
+            DeviceMessageId.PLC_CONFIGURATION_SET_MAC_K,
+            DeviceMessageId.PLC_CONFIGURATION_SET_MINIMUM_CW_ATTEMPTS,
+            DeviceMessageId.PLC_CONFIGURATION_SET_MAX_BE,
+            DeviceMessageId.PLC_CONFIGURATION_SET_MAX_CSMA_BACK_OFF,
+            DeviceMessageId.PLC_CONFIGURATION_SET_MIN_BE,
+            DeviceMessageId.PLC_CONFIGURATION_PATH_REQUEST,
+
+            DeviceMessageId.DEVICE_ACTIONS_REBOOT_DEVICE,
+
+            DeviceMessageId.SECURITY_CHANGE_DLMS_AUTHENTICATION_LEVEL,
+            DeviceMessageId.SECURITY_ACTIVATE_DLMS_ENCRYPTION,
+            DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY,
+            DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY,
+            DeviceMessageId.SECURITY_CHANGE_HLS_SECRET_WITH_PASSWORD,
+
+            DeviceMessageId.GENERAL_WRITE_FULL_CONFIGURATION,
+
+            DeviceMessageId.OUTPUT_CONFIGURATION_WRITE_OUTPUT_STATE,
+
+            DeviceMessageId.UPLINK_CONFIGURATION_ENABLE_PING,
+            DeviceMessageId.UPLINK_CONFIGURATION_WRITE_UPLINK_PING_DESTINATION_ADDRESS,
+            DeviceMessageId.UPLINK_CONFIGURATION_WRITE_UPLINK_PING_INTERVAL,
+            DeviceMessageId.UPLINK_CONFIGURATION_WRITE_UPLINK_PING_TIMEOUT,
+
+            DeviceMessageId.PPP_CONFIGURATION_SET_IDLE_TIME,
+            DeviceMessageId.NETWORK_CONNECTIVITY_PREFER_GPRS_UPSTREAM_COMMUNICATION,
+            DeviceMessageId.NETWORK_CONNECTIVITY_ENABLE_MODEM_WATCHDOG,
+            DeviceMessageId.NETWORK_CONNECTIVITY_SET_MODEM_WATCHDOG_PARAMETERS,
+            DeviceMessageId.CONFIGURATION_CHANGE_ENABLE_SSL,
+            DeviceMessageId.ALARM_CONFIGURATION_CONFIGURE_PUSH_EVENT_NOTIFICATION,
+            DeviceMessageId.PLC_CONFIGURATION_SET_AUTOMATIC_ROUTE_MANAGEMENT,
+            DeviceMessageId.PLC_CONFIGURATION_ENABLE_SNR,
+            DeviceMessageId.PLC_CONFIGURATION_SET_SNR_PACKET_INTERVAL,
+            DeviceMessageId.PLC_CONFIGURATION_SET_SNR_QUIET_TIME,
+            DeviceMessageId.PLC_CONFIGURATION_SET_SNR_PAYLOAD,
+            DeviceMessageId.PLC_CONFIGURATION_ENABLE_KEEP_ALIVE,
+            DeviceMessageId.PLC_CONFIGURATION_SET_KEEP_ALIVE_SCHEDULE_INTERVAL,
+            DeviceMessageId.PLC_CONFIGURATION_SET_KEEP_ALIVE_BUCKET_SIZE,
+            DeviceMessageId.PLC_CONFIGURATION_SET_MIN_INACTIVE_METER_TIME,
+            DeviceMessageId.PLC_CONFIGURATION_SET_MAX_INACTIVE_METER_TIME,
+            DeviceMessageId.PLC_CONFIGURATION_SET_KEEP_ALIVE_RETRIES,
+            DeviceMessageId.PLC_CONFIGURATION_SET_KEEP_ALIVE_TIMEOUT,
+            DeviceMessageId.CLOCK_SET_SYNCHRONIZE_TIME,
+            DeviceMessageId.CONFIGURATION_CHANGE_SET_DEVICENAME,
+            DeviceMessageId.CONFIGURATION_CHANGE_SET_NTPADDRESS,
+            DeviceMessageId.CONFIGURATION_CHANGE_SYNC_NTPSERVER,
+            DeviceMessageId.DEVICE_ACTIONS_REBOOT_APPLICATION,
+            DeviceMessageId.FIREWALL_ACTIVATE_FIREWALL,
+            DeviceMessageId.FIREWALL_DEACTIVATE_FIREWALL,
+            DeviceMessageId.FIREWALL_CONFIGURE_FW_GPRS,
+            DeviceMessageId.FIREWALL_CONFIGURE_FW_LAN,
+            DeviceMessageId.FIREWALL_CONFIGURE_FW_WAN,
+            DeviceMessageId.FIREWALL_SET_FW_DEFAULT_STATE,
+            DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD,
+            DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD2
+    );
 
     public RtuPlusServerMessages(DlmsSession session) {
         this.session = session;
     }
 
     public Set<DeviceMessageId> getSupportedMessages() {
-        if (supportedMessages == null) {
-            supportedMessages = new ArrayList<>();
-
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetRoutingConfiguration);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetPathDiscoveryTime);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMetricType);
-            //supportedMessages.add(PLCConfigurationDeviceMessage.SetCoordShortAddress);
-            //supportedMessages.add(PLCConfigurationDeviceMessage.SetDisableDefaultRouting);
-            //supportedMessages.add(PLCConfigurationDeviceMessage.SetDeviceType);
-
-            //supportedMessages.add(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters);
-
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetPanId);
-            //supportedMessages.add(PLCConfigurationDeviceMessage.SetToneMaskAttributeName);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetTMRTTL);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxFrameRetries);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMacA);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMacK);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMinimumCWAttempts);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxBe);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxCSMABackOff);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMinBe);
-            supportedMessages.add(PLCConfigurationDeviceMessage.PathRequest);
-
-            supportedMessages.add(DeviceActionMessage.REBOOT_DEVICE);
-
-            supportedMessages.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
-            supportedMessages.add(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION);
-            supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY);
-            supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY);
-            supportedMessages.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD);
-
-            supportedMessages.add(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION);
-            supportedMessages.add(OutputConfigurationMessage.WriteOutputState);
-
-            supportedMessages.add(UplinkConfigurationDeviceMessage.EnableUplinkPing);
-            supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress);
-            supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingInterval);
-            supportedMessages.add(UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout);
-            supportedMessages.add(PPPConfigurationDeviceMessage.SetPPPIdleTime);
-            supportedMessages.add(NetworkConnectivityMessage.PreferGPRSUpstreamCommunication);
-            supportedMessages.add(NetworkConnectivityMessage.EnableModemWatchdog);
-            supportedMessages.add(NetworkConnectivityMessage.SetModemWatchdogParameters);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.EnableSSL);
-            supportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
-
-            //G3 interface messages
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement);
-            supportedMessages.add(PLCConfigurationDeviceMessage.EnableSNR);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetSNRPacketInterval);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetSNRQuietTime);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetSNRPayload);
-            supportedMessages.add(PLCConfigurationDeviceMessage.EnableKeepAlive);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveBucketSize);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMinInactiveMeterTime);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveRetries);
-            supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveTimeout);
-
-            supportedMessages.add(ClockDeviceMessage.SyncTime);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.SetDeviceName);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.SYNC_NTP_SERVER);
-            supportedMessages.add(DeviceActionMessage.REBOOT_APPLICATION);
-
-            supportedMessages.add(FirewallConfigurationMessage.ActivateFirewall);
-            supportedMessages.add(FirewallConfigurationMessage.DeactivateFirewall);
-            supportedMessages.add(FirewallConfigurationMessage.ConfigureFWGPRS);
-            supportedMessages.add(FirewallConfigurationMessage.ConfigureFWLAN);
-            supportedMessages.add(FirewallConfigurationMessage.ConfigureFWWAN);
-            supportedMessages.add(FirewallConfigurationMessage.SetFWDefaultState);
-
-            supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1);
-            supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2);
-        }
         return supportedMessages;
     }
 
@@ -325,7 +312,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
             }
-            result.addCollectedMessage(collectedMessage);
+            result.addCollectedMessages(collectedMessage);
         }
         return result;
     }
@@ -857,7 +844,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId()));
+        return com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessage(message.getIdentifier());
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
@@ -894,7 +881,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {
             return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.deviceGroupAttributeName)) {
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.deviceListAttributeName)) {
 
             //TODO fix it!
 

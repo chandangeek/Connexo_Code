@@ -29,7 +29,7 @@ public class WritePDRMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.WriteNewPDRNumber.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(ConfigurationChangeDeviceMessage.WriteNewPDRNumber.getId());
     }
 
     @Override

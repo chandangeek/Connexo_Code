@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.abnt.common.field.parser;
 
-import com.energyict.comserver.exceptions.CodingException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.AbstractField;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 /**
  * @author sva
@@ -24,7 +25,7 @@ public class SimpleFieldParser<T extends AbstractField> implements FieldParser {
         try {
             return fieldClazz.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
-            throw CodingException.genericReflectionError(e, fieldClazz);
+            throw new CommunicationException(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, fieldClazz.getCanonicalName());
         }
     }
 }

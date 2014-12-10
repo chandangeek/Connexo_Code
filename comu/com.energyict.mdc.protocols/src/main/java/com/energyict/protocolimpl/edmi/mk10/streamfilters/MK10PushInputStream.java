@@ -155,7 +155,7 @@ public class MK10PushInputStream extends InputStream {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+
         }
     }
 

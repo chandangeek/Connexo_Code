@@ -6,7 +6,6 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -23,6 +22,7 @@ import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 
+import static com.energyict.dlms.DLMSCOSEMGlobals.ASSOC_SN_ATTR_OBJ_LST;
 
 /**
  *

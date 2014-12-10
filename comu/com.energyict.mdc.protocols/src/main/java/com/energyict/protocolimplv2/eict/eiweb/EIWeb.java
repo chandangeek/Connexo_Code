@@ -56,9 +56,11 @@ public class EIWeb implements DeviceProtocol {
     private SimplePasswordSecuritySupport securitySupport = new SimplePasswordSecuritySupport();
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
     private LegacyMessageConverter messageConverter;
+    private PropertySpecService propertySpecService;
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
         this.securitySupport = new SimplePasswordSecuritySupport();
         this.securitySupport.setPropertySpecService(propertySpecService);
     }
@@ -188,7 +190,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new NoParamsDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new NoParamsDeviceProtocolDialect(propertySpecService));
     }
 
     @Override

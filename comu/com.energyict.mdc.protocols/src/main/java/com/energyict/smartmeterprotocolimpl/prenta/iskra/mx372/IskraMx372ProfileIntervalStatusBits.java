@@ -18,10 +18,10 @@ public class IskraMx372ProfileIntervalStatusBits implements ProfileIntervalStatu
     static final int POWER_DOWN = 0x80;     // PROFILE_STATUS_POWER_FAILURE
 
     /**
-     * Convert the given protocolStatus code to a proper EIS {@link com.energyict.protocol.IntervalStateBits}
+     * Convert the given protocolStatus code to a proper EIS IntervalStateBits
      *
      * @param protocolStatusCode the statusCode from the device
-     * @return the status code according to the {@link com.energyict.protocol.IntervalStateBits}
+     * @return the status code according to the IntervalStateBits
      **/
     public int getEisStatusCode(int protocolStatusCode) {
         int eiCode = 0;

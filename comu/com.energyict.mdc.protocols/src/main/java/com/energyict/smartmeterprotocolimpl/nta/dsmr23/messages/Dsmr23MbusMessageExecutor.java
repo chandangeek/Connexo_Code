@@ -13,20 +13,11 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.protocolimpl.generic.MessageParser;
-import com.energyict.protocolimpl.generic.messages.MessageHandler;
-import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -35,12 +26,17 @@ import com.energyict.mdc.protocol.api.device.data.MeterData;
 import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -328,16 +324,16 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
                 return MessageResult.createFailed(msgEntry, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
             }
 
-            com.energyict.protocol.Register previousRegister = null;
+            Register previousRegister = null;
             MeterReadingData mrd = new MeterReadingData();
-            for (com.energyict.protocol.Register register : builder.getRegisters()) {
+            for (Register register : builder.getRegisters()) {
                 if (register.equals(previousRegister)) {
                     continue;    //Don't add the same intervals twice if there's 2 channels with the same obiscode
                 }
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), register.getRegisterSpecId());
                         mrd.add(registerValue);
                     }
                 }
@@ -407,7 +403,7 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
      */
     private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, final MessageEntry msgEntry) {
         if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
-            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), msgEntry.getSerialNumber(), lpr.getChannelInfos());
+            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), msgEntry.getSerialNumber(), lpr.getLoadProfileIdentifier());
         } else {
             return lpr;
         }

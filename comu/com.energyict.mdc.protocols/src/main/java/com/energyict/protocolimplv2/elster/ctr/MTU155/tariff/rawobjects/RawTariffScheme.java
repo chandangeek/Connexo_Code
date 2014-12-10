@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdw.core.MeteringWarehouse;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
@@ -211,13 +211,4 @@ public class RawTariffScheme extends AbstractField<RawTariffScheme> {
 
         return sb.toString();
     }
-
-    public static void main(String[] args) throws IOException, BusinessException {
-        MeteringWarehouse.createBatchContext();
-        Code code = MeteringWarehouse.getCurrent().getCodeFactory().find(3);
-        byte[] xml = CodeTableBase64Builder.getBase64FromCodeTable(code);
-        CodeObject codeObject = CodeTableBase64Parser.getCodeTableFromBase64(xml);
-        System.out.println(new RawTariffScheme(codeObject, code.getName(), new Date()));
-    }
-
 }

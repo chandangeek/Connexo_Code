@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.CTREncryption;
@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRTimeoutExcept
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.NackStructure;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -73,7 +74,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
                 delayAndFlushConnection(-1);
                 attempts++;
                 if (attempts > retries) {
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, attempts);
+                    throw new CommunicationException(MessageSeeds.RETRIES, attempts);
                 }
             }
         } while (true);

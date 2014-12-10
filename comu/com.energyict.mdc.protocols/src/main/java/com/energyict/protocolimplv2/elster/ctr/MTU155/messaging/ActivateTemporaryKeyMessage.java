@@ -25,7 +25,7 @@ public class ActivateTemporaryKeyMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(SecurityMessage.ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(SecurityMessage.ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY.getId());
     }
 
     @Override

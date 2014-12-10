@@ -24,7 +24,7 @@ public class TemporaryBreakSealMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(SecurityMessage.TEMPORARY_BREAK_SEALS.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(SecurityMessage.TEMPORARY_BREAK_SEALS.getId());
     }
 
     @Override

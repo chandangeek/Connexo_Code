@@ -10,6 +10,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
+import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.protocols.exception.ProtocolEncryptionException;
@@ -76,9 +77,9 @@ public class GarnetProperties implements HasDynamicProperties {
      * The device timezone
      */
     public TimeZone getTimeZone() {
-        TimeZoneInUse timeZoneInUse = getProperties().getTypedProperty(TIMEZONE);
+        TimeZoneInUse timeZoneInUse = getProperties().getTypedProperty(BasicDynamicPropertySupport.TIMEZONE);
         if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
-            return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+            return TimeZone.getTimeZone(BasicDynamicPropertySupport.DEFAULT_TIMEZONE);
         } else {
             return timeZoneInUse.getTimeZone();
         }
@@ -95,7 +96,7 @@ public class GarnetProperties implements HasDynamicProperties {
      * The number of retries
      */
     public int getRetries() {
-        return parseBigDecimalProperty(RETRIES, DEFAULT_RETRIES);
+        return parseBigDecimalProperty(BasicDynamicPropertySupport.RETRIES, BasicDynamicPropertySupport.DEFAULT_RETRIES);
     }
 
     /**

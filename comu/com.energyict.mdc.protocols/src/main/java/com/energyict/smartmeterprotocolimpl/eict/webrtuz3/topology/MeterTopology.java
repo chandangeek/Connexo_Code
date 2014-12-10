@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
@@ -153,7 +153,7 @@ public class MeterTopology {
      * If the serialNumber can't be retrieved from the device then we just log and try the next one.
      *
      * @return a List of <CODE>DeviceMappings</CODE>
-     * @throws com.energyict.dialer.connection.ConnectionException
+     * @throws ConnectionException
      *          if interframeTimeout has passed and maximum retries have been reached
      */
     protected List<DeviceMapping> getMbusMapper() throws ConnectionException {
@@ -170,7 +170,7 @@ public class MeterTopology {
                     }
                 }
             } catch (IOException e) {
-                if (e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1) {
+                if (e.getMessage().contains("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error")) {
                     throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
                 }
                 //log(Level.FINE, "Could not retrieve the mbus serialNumber for channel " + i + ": " + e.getMessage());

@@ -4,6 +4,7 @@ import com.energyict.dialer.connection.Connection;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

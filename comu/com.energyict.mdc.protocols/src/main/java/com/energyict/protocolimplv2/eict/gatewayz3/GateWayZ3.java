@@ -1,26 +1,23 @@
 package com.energyict.protocolimplv2.eict.gatewayz3;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.common.AbstractDlmsProtocol;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -35,32 +32,12 @@ import java.util.Set;
 public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
-    protected DlmsSessionProperties getDlmsSessionProperties() {
-        return null;  // nothing to do
-    }
+    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
 
-    @Override
-    protected void initAfterConnect() {
-        // nothing to do
-    }
-
-    @Override
-    public int requestConfigurationChanges() {
-        return -1;        // nothing to do yet
     }
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
         return Collections.emptyList();
     }
 

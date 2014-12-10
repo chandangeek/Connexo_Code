@@ -1,16 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
-import com.energyict.cbo.Utils;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.mdw.core.DeviceType;
-import com.energyict.mdw.core.MeteringWarehouse;
+
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.mbus.core.DeviceType;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.google.common.base.Strings;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -162,20 +162,25 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
         if (rtuType == null) {
             String type = getStringValue("DeviceType", "");
 
-            if (Utils.isNull(type)) {
+            if (Strings.isNullOrEmpty(type)) {
                 // No automatic meter creation: no property DeviceType defined.
                 rtuType = null;
             } else {
-                rtuType = mw().getDeviceTypeFactory().find(type);
-                if (rtuType == null) {
-                    throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
-                }
-                if (rtuType.getConfigurations().get(0).getPrototypeDevice() == null) {
-                    throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
-                }
+                findDeviceType(type);
             }
         }
         return rtuType;
+    }
+
+    private void findDeviceType(String type) throws IOException {
+        throw new UnsupportedOperationException("Don't support device type fetching from the protocol");
+//        rtuType = mw().getDeviceTypeFactory().find(type);
+//        if (rtuType == null) {
+//            throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
+//        }
+//        if (rtuType.getConfigurations().get(0).getPrototypeDevice() == null) {
+//            throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
+//        }
     }
 
     @ProtocolProperty
@@ -236,15 +241,5 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
 
     public void setbCSDCall(boolean b) {
         bCSDCall = b;
-    }
-
-     /**
-     * *************************************************************************
-     */
-    /* These methods require database access ...
-    /*****************************************************************************/
-
-    private MeteringWarehouse mw() {
-        return ProtocolTools.mw();
     }
 }

@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.mdc.common.Unit;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdw.core.Device;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -35,13 +35,13 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     private Unit mbusUnit;
 
     private IskraMx372 iskra;
-    public Device mbus;
+    public BaseDevice mbus;
     private Logger logger;
 
     public MbusDevice() {
     }
 
-    public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Device rtu, Unit unit, IskraMx372 protocol) throws InvalidPropertyException, MissingPropertyException {
+    public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, BaseDevice rtu, Unit unit, IskraMx372 protocol) throws InvalidPropertyException, MissingPropertyException {
         this.mbusAddress = mbusAddress;
         this.physicalAddress = phyAddress;
         this.customerID = serial;
@@ -51,7 +51,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         this.logger = protocol.getLogger();
         this.iskra = protocol;
         if (mbus != null) {
-            setProperties(mbus.getProtocolProperties().toStringProperties());
+//            setProperties(mbus.getProtocolProperties().toStringProperties());
         }
     }
 
@@ -158,7 +158,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return iskra;
     }
 
-    public Device getMbus() {
+    public BaseDevice getMbus() {
         return mbus;
     }
 

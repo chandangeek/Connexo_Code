@@ -1,19 +1,18 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol} interface
+ * Provides an implementation for the ServletBasedInboundDeviceProtocol interface
  * that will support inbound SMS communication for the CTR protocols (MTU155 and EK155).
  *
  * @author sva
@@ -28,10 +27,31 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     protected HttpServletRequest request;
     protected HttpServletResponse response;
     protected InboundDiscoveryContext context;
+    private PropertySpecService propertySpecService;
+
+    @Override
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
         this.context = context;
+    }
+
+    @Override
+    public void copyProperties(TypedProperties properties) {
+        this.properties.setAllProperties(properties);
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String s) {
+        return getPropertySpecs().stream().filter(propertySpec -> propertySpec.getName().equals(s)).findFirst().orElse(null);
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Arrays.asList(sourcePropertySpec(), authenticationPropertySpec());
     }
 
     @Override
@@ -50,25 +70,8 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
         return this.context;
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-        this.properties = properties;
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Arrays.asList(
-                sourcePropertySpec(),
-                authenticationPropertySpec());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>();
-    }
-
     private PropertySpec sourcePropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(SOURCE_PROPERTY_NAME);
+        return this.propertySpecService.stringPropertySpec(SOURCE_PROPERTY_NAME, true, "");
     }
 
     protected String sourcePropertyValue() {
@@ -76,7 +79,7 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     }
 
     private PropertySpec authenticationPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(AUTHENTICATION_PROPERTY_NAME);
+        return this.propertySpecService.stringPropertySpec(AUTHENTICATION_PROPERTY_NAME, true, "");
     }
 
     protected String authenticationPropertyValue() {

@@ -13,7 +13,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -58,6 +57,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     private final String serialNumber;
     private final int physicalAddress;
+    private PropertySpecService propertySpecService;
 
     public abstract DeviceMessageSupport getDeviceMessageSupport();
 
@@ -108,7 +108,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.asList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect());
+        return Arrays.asList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(propertySpecService));
     }
 
     /**
@@ -314,6 +314,6 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
-
+        this.propertySpecService = propertySpecService;
     }
 }

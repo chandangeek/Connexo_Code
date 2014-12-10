@@ -218,7 +218,7 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new CTRDeviceProtocolDialect());
+        dialects.add(new CTRDeviceProtocolDialect(propertySpecService));
         return dialects;
     }
 
@@ -314,7 +314,7 @@ public class MTU155 implements DeviceProtocol {
                     getMTU155Properties(),
                     getTimeZone(),
                     ((CTRDeviceProtocolCache) deviceCache).getSmsWriteDataBlockID(),
-                    false);
+                    false, propertySpecService);
 
         } else {
             this.requestFactory = new GprsRequestFactory(
@@ -322,8 +322,8 @@ public class MTU155 implements DeviceProtocol {
                     getLogger(),
                     getMTU155Properties(),
                     getTimeZone(),
-                    false
-            );
+                    false,
+                    propertySpecService);
         }
     }
 

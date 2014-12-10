@@ -30,7 +30,7 @@ public class WriteConverterMasterDataMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.ConfigureConverterMasterData.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(ConfigurationChangeDeviceMessage.ConfigureConverterMasterData.getId());
     }
 
     @Override

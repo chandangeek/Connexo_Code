@@ -1,10 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.dialer.core.Link;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.MeterData;
+import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
+import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.api.dialer.core.Link;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -17,10 +23,7 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.TCPUDPSetup;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceType;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.mdc.common.ObisCode;
@@ -31,13 +34,10 @@ import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocol.MeterData;
-import com.energyict.protocol.MeterDataMessageResult;
-import com.energyict.protocol.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.WakeUpProtocolSupport;
+import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageSpec;
@@ -68,6 +68,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -79,7 +80,7 @@ import java.util.logging.Logger;
 public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProtocolSupport {
 
     private IskraMx372 protocol;
-    private Device rtu;
+    private BaseDevice rtu;
 
     private ObisCode llsSecretObisCode1 = ObisCode.fromString("0.0.128.100.1.255");
     private ObisCode llsSecretObisCode2 = ObisCode.fromString("0.0.128.100.2.255");
@@ -270,10 +271,10 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     /**
      * Provides the full list of outstanding messages to the protocol.
      * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * At a later timestamp the framework will query each MessageEntry (see #queryMessage(MessageEntry)) to actually
      * perform the message.
      *
-     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @param messageEntries a list of MessageEntrys
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(List messageEntries) throws IOException {
@@ -397,7 +398,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
      * @param link                     Link created by the comserver, can be null if a NullDialer is configured
      * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
      *                                 messages with a level lower than warning will only be logged in the file log if active.
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *                             if a business exception occurred
      * @throws java.io.IOException if an io exception occurred
      */
@@ -615,7 +616,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 
         com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.ActivityCalendar calendarData =
                 new com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.ActivityCalendar();
-        ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData, protocol.getTimeZone(), getRtuFromDatabaseBySerialNumber().getTimeZone());
+        ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData, protocol.getTimeZone(), getDeviceTimeZone());
         calendarData.setReader(reader);
         calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
         CosemActivityCalendarBuilder builder = new
@@ -645,14 +646,12 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         }
     }
 
+    private TimeZone getDeviceTimeZone() throws UnsupportedException {
+        throw new UnsupportedException("We need a way to get the Other timeZone from the Device ...");
+    }
+
     protected UserFile getUserFile(String contents) throws IOException {
-        int id = getTouFileId(contents);
-        UserFile userFile = mw().getUserFileFactory().find(id);
-        ProtocolTools.closeConnection();
-        if (userFile == null) {
-            throw new IOException("No userfile found with id " + id);
-        }
-        return userFile;
+        throw new UnsupportedException("UserFiles are not supported yet!");
     }
 
     protected int getTouFileId(String contents) throws IOException {
@@ -846,10 +845,12 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             // Here we build up a list of ChannelInfos, based on the list of registers, as each register corresponds to a channel.
             List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
             for (Register register : builder.getRegisters()) {
-                channelInfos.add(new ChannelInfo(channelInfos.size(), register.getObisCode().toString(), Unit.getUndefined(), register.getSerialNumber()));
+                channelInfos.add(new ChannelInfo(channelInfos.size(), register.getObisCode().toString(), Unit.getUndefined(), register.getSerialNumber(),
+                        Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(register.getObisCode(), Unit.getUndefined())));
             }
             LoadProfileReader lpr = constructDateTimeCorrectdLoadProfileReader(new LoadProfileReader(reader.getProfileObisCode(),
-                    reader.getStartReadingTime(), reader.getEndReadingTime(), reader.getLoadProfileId(), reader.getMeterSerialNumber(), channelInfos));
+                    reader.getStartReadingTime(), reader.getEndReadingTime(), reader.getLoadProfileId(), reader.getDeviceIdentifier(), channelInfos,
+                    reader.getMeterSerialNumber(), reader.getLoadProfileIdentifier()));
 
             List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
@@ -875,7 +876,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), register.getRegisterSpecId());
                         mrd.add(registerValue);
                     }
                 }
@@ -901,7 +902,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     protected LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
         Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
         Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
-        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
+        return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getDeviceIdentifier(), loadProfileReader.getChannelInfos()
+        , loadProfileReader.getMeterSerialNumber(), loadProfileReader.getLoadProfileIdentifier());
     }
 
     public MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
@@ -946,31 +948,32 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     }
 
     public void checkMbusDevices() throws IOException, SQLException, BusinessException {
-        String mSerial = "";
-        Device rtu = getRtuFromDatabaseBySerialNumber();
-        if (!((rtu.getDownstreamDevices().size() == 0) && (getProperties().getRtuType() == null))) {
-            for (int i = 0; i < MBUS_MAX; i++) {
-                int mbusAddress = (int) protocol.getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
-                if (mbusAddress > 0) {
-                    mSerial = getMbusSerial(mbusCustomerID[i]);
-                    if (!mSerial.equals("")) {
-                        Unit mUnit = getMbusUnit(mbusUnit[i]);
-                        int mMedium = (int) protocol.getCosemObjectFactory().getCosemObject(mbusMedium[i]).getValue();
-                        Device mbusRtu = findOrCreateNewMbusDevice(mSerial);
-                        if (mbusRtu != null) {
-                            mbusDevices[i] = new MbusDevice(mbusAddress, i, mSerial, mMedium, mbusRtu, mUnit, protocol);
-                        } else {
-                            mbusDevices[i] = null;
-                        }
-                    } else {
-                        mbusDevices[i] = null;
-                    }
-                } else {
-                    mbusDevices[i] = null;
-                }
-            }
-        }
-        updateMbusDevices(rtu.getDownstreamDevices());
+        // TODO don't do this anymore!
+//        String mSerial = "";
+//        Device rtu = getRtuFromDatabaseBySerialNumber();
+//        if (!((rtu.getDownstreamDevices().size() == 0) && (getProperties().getRtuType() == null))) {
+//            for (int i = 0; i < MBUS_MAX; i++) {
+//                int mbusAddress = (int) protocol.getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
+//                if (mbusAddress > 0) {
+//                    mSerial = getMbusSerial(mbusCustomerID[i]);
+//                    if (!mSerial.equals("")) {
+//                        Unit mUnit = getMbusUnit(mbusUnit[i]);
+//                        int mMedium = (int) protocol.getCosemObjectFactory().getCosemObject(mbusMedium[i]).getValue();
+//                        Device mbusRtu = findOrCreateNewMbusDevice(mSerial);
+//                        if (mbusRtu != null) {
+//                            mbusDevices[i] = new MbusDevice(mbusAddress, i, mSerial, mMedium, mbusRtu, mUnit, protocol);
+//                        } else {
+//                            mbusDevices[i] = null;
+//                        }
+//                    } else {
+//                        mbusDevices[i] = null;
+//                    }
+//                } else {
+//                    mbusDevices[i] = null;
+//                }
+//            }
+//        }
+//        updateMbusDevices(rtu.getDownstreamDevices());
     }
 
     private String getMbusSerial(ObisCode oc) throws IOException {
@@ -1001,30 +1004,31 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         }
     }
 
-    private Device findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException, IOException {
-        List mbusList = mw().getDeviceFactory().findBySerialNumber(customerID);
-        ProtocolTools.closeConnection();
-        if (mbusList.size() == 1) {
-            Device mbusRtu = (Device) mbusList.get(0);
-            // Check if gateway has changed, and update if it has
-            if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getRtuFromDatabaseBySerialNumber().getId())) {
-                mbusRtu.updateGateway(getRtuFromDatabaseBySerialNumber());
-            }
-            return mbusRtu;
-        }
-        if (mbusList.size() > 1) {
-            String pattern = "Multiple meters where found with serial: {0}.  Data will not be read.";
-            protocol.getLogger().severe(new MessageFormat(pattern).format(new Object[]{customerID}));
-            return null;
-        }
-        DeviceType rtuType = getProperties().getRtuType();
-        if (rtuType == null) {
-            return null;
-        } else {
-            // we don't create any meters anymore!
-            return null;
-//            return createMeter(getProperties().getDeviceType(), customerID);
-        }
+    private BaseDevice findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException, IOException {
+        return null; // TODO Don't do this anymore!
+//        List mbusList = mw().getDeviceFactory().findBySerialNumber(customerID);
+//        ProtocolTools.closeConnection();
+//        if (mbusList.size() == 1) {
+//            Device mbusRtu = (Device) mbusList.get(0);
+//            // Check if gateway has changed, and update if it has
+//            if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getRtuFromDatabaseBySerialNumber().getId())) {
+//                mbusRtu.updateGateway(getRtuFromDatabaseBySerialNumber());
+//            }
+//            return mbusRtu;
+//        }
+//        if (mbusList.size() > 1) {
+//            String pattern = "Multiple meters where found with serial: {0}.  Data will not be read.";
+//            protocol.getLogger().severe(new MessageFormat(pattern).format(new Object[]{customerID}));
+//            return null;
+//        }
+//        DeviceType rtuType = getProperties().getRtuType();
+//        if (rtuType == null) {
+//            return null;
+//        } else {
+//            // we don't create any meters anymore!
+//            return null;
+////            return createMeter(getProperties().getDeviceType(), customerID);
+//        }
     }
 
     // we don't create any meters anymore!
@@ -1053,11 +1057,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 //        return mw().getDeviceFactory().create(shadow);
 //    }
 
-    private void updateMbusDevices(List<Device> downstreamRtus) throws SQLException, BusinessException {
-        Iterator<Device> it = downstreamRtus.iterator();
+    private void updateMbusDevices(List<BaseDevice> downstreamRtus) throws SQLException, BusinessException {
+        Iterator<BaseDevice> it = downstreamRtus.iterator();
         boolean present;
         while (it.hasNext()) {
-            Device mbus = it.next();
+            BaseDevice mbus = it.next();
             present = false;
             for (int i = 0; i < mbusDevices.length; i++) {
                 if (mbusDevices[i] != null) {
@@ -1068,7 +1072,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
                 }
             }
             if (!present) {
-                mbus.updateGateway(null);
+//                mbus.updateGateway(null);
+                //TODO don't do this anymore!
             }
         }
     }
@@ -1080,12 +1085,13 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
      * @throws BusinessException if a business exception occurred
      */
     private void clearMbusGateWays() throws SQLException, BusinessException {
-        List slaves = getRtuFromDatabaseBySerialNumber().getDownstreamDevices();
-        Iterator it = slaves.iterator();
-        while (it.hasNext()) {
-            Device slave = (Device) it.next();
-            slave.updateGateway(null);
-        }
+        // TODO don't do this anymore
+//        List slaves = getRtuFromDatabaseBySerialNumber().getDownstreamDevices();
+//        Iterator it = slaves.iterator();
+//        while (it.hasNext()) {
+//            Device slave = (Device) it.next();
+//            slave.updateGateway(null);
+//        }
     }
     /** END OF MBUS SECTION **/
 
@@ -1203,30 +1209,5 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
 
     private IskraMX372Properties getProperties() {
         return ((IskraMX372Properties) protocol.getProperties());
-    }
-
-    /**
-     * *************************************************************************
-     * <p/>
-     * These methods require database access ...
-     * /****************************************************************************
-     */
-
-    // Retrieved the master Device, based on its serial number.
-    private Device getRtuFromDatabaseBySerialNumber() {
-        if (rtu == null) {
-            String serial = getProperties().getSerialNumber();
-            List<Device> rtuList = mw().getDeviceFactory().findBySerialNumber(serial);
-            if (rtuList.size() > 1) {
-                infoLog("Warning: There are multiple devices configured with serial number: " + getProperties().getSerialNumber() + ".");
-            }
-            rtu = rtuList.get(0);
-            ProtocolTools.closeConnection();
-        }
-        return rtu;
-    }
-
-    private MeteringWarehouse mw() {
-        return ProtocolTools.mw();
     }
 }

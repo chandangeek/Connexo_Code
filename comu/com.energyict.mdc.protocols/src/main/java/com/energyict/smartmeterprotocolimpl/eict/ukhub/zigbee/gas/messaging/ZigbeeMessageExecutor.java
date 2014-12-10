@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.ScalerUnit;
@@ -15,11 +16,17 @@ import com.energyict.dlms.cosem.ChangeOfSupplierManagement;
 import com.energyict.dlms.cosem.ChangeOfTenantManagement;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
+import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
+import com.energyict.protocolimpl.generic.csvhandling.TestObject;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
@@ -498,7 +505,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
-         boolean resume = false;
+        boolean resume = false;
         if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
             resume = true;
         }
@@ -540,7 +547,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
             Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
             sas.writeExecutionTime(dateArray);
         } else {
-             it.imageActivation();
+            it.imageActivation();
         }
     }
 
@@ -656,7 +663,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
     }
 
     private boolean isFirmwareUpgradeMessage(final String messageContent) {
-        return (messageContent != null) &&  messageContent.contains(RtuMessageConstant.FIRMWARE_UPGRADE);
+        return (messageContent != null) && messageContent.contains(RtuMessageConstant.FIRMWARE_UPGRADE);
     }
 
     public ActivityCalendarController getActivityCalendarController() {
@@ -675,14 +682,14 @@ public class ZigbeeMessageExecutor extends MessageParser {
         return this.protocol.getTimeZone();
     }
 
-private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
         log(Level.INFO, "Handling message TestMessage");
         int failures = 0;
         String userFileId = messageHandler.getTestUserFileId();
         Date currentTime;
         if (!userFileId.equalsIgnoreCase("")) {
             if (com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileId)) {
-                UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
+                UserFile uf = findUserFile(userFileId);
                 if (uf != null) {
                     byte[] data = uf.loadFileInByteArray();
                     CSVParser csvParser = new CSVParser();
@@ -795,7 +802,7 @@ private void testMessage(MessageHandler messageHandler) throws IOException, Busi
                     } else {
                         csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
                     }
-                    mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getFolderIdFromHub()));
+                    createUserFile(uf, csvParser);
                 } else {
                     throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
                 }
@@ -805,6 +812,14 @@ private void testMessage(MessageHandler messageHandler) throws IOException, Busi
         } else {
             throw new IOException("No userfile id is given.");
         }
+    }
+
+    private void createUserFile(UserFile uf, CSVParser csvParser) throws IOException {
+        throw new UnsupportedOperationException("Userfiles is not longer supported by Jupiter");
+    }
+
+    private UserFile findUserFile(String userFileId) {
+        throw new UnsupportedOperationException("Userfiles is not longer supported by Jupiter");
     }
 
     private void waitCyclus(int delay) throws IOException {

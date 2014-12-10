@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.events;
 
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.protocolimpl.utils.MeterEventUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
@@ -27,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static com.energyict.protocolimpl.utils.MeterEventUtils.appendToEventMessage;
-import static com.energyict.protocolimpl.utils.MeterEventUtils.changeEventDate;
 import static com.energyict.protocolimpl.utils.ProtocolTools.getHexStringFromBytes;
 import static com.energyict.protocolimpl.utils.ProtocolTools.getIntFromByte;
 
@@ -121,7 +120,7 @@ public class CTRMeterEvent {
             } else {
                 count++;
                 Date newEventDate = new Date(meterEvent.getTime().getTime() + (1000 * count));
-                uniqueItems.add(changeEventDate(meterEvent, newEventDate));
+                uniqueItems.add(MeterEventUtils.changeEventDate(meterEvent, newEventDate));
                 occurences.put(meterEventTime, count);
             }
         }
@@ -164,8 +163,8 @@ public class CTRMeterEvent {
             if ((seq != 0) && (code != 0)) {
                 Date date = getDateFromBytes(eventRecord);
                 MeterEvent meterEvent = EventMapping.getMeterEventFromDeviceCode(code, date);
-                meterEvent = appendToEventMessage(meterEvent, getAdditionalInfo(eventRecord));
-                meterEvent = appendToEventMessage(meterEvent, " [" + seq + "]");
+                meterEvent = MeterEventUtils.appendToEventMessage(meterEvent, getAdditionalInfo(eventRecord));
+                meterEvent = MeterEventUtils.appendToEventMessage(meterEvent, " [" + seq + "]");
                 if (isValidDate(date)) {
                     meterEvents.add(meterEvent);
                 }

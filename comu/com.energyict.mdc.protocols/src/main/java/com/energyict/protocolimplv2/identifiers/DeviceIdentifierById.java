@@ -1,18 +1,13 @@
 package com.energyict.protocolimplv2.identifiers;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/06/13
- * Time: 9:31
- * Author: khe
- */
-
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 
 /**
@@ -61,5 +56,19 @@ public class DeviceIdentifierById implements DeviceIdentifier {
     @Override
     public String getIdentifier() {
         return Long.toString(id);
+    }
+
+    @Override
+    public DeviceIdentifierType getDeviceIdentifierType() {
+        return DeviceIdentifierType.DataBaseId;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

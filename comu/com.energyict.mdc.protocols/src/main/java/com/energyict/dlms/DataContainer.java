@@ -7,6 +7,8 @@
 package com.energyict.dlms;
 
 import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
@@ -395,7 +397,7 @@ public class DataContainer implements Serializable {
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
                             IOException ioException = new IOException("Max printlevel exceeds!");
-                            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(ioException);
+                            throw new CommunicationException(MessageSeeds.GENERAL_PARSE_ERROR, ioException);
 						}
 
 						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
@@ -410,7 +412,7 @@ public class DataContainer implements Serializable {
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
                             IOException ioException = new IOException("Max printlevel exceeds!");
-                            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(ioException);
+                            throw new CommunicationException(MessageSeeds.GENERAL_PARSE_ERROR, ioException);
 						}
 						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);
@@ -558,9 +560,9 @@ public class DataContainer implements Serializable {
 				}
 				catch(DataContainerException e) {
 					if (logger == null) {
-						System.out.println(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+						System.out.println(ProtocolUtils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 					} else {
-						logger.severe(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+						logger.severe(ProtocolUtils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 					}
 					return;
 				}

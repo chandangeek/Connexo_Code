@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.device.data.MeterDataReadout;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.inbound.MeterId;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 import com.energyict.protocols.util.ProtocolUtils;
@@ -250,164 +251,164 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
 
     } // public byte[] doReceiveData(String str) throws ConnectionException
 
-    public MeterId discover(String[] nodeIds, LookupResources lookupResources) throws IOException, ConnectionException {
-        return discover(nodeIds, false, 0, lookupResources);
-        }
+//    public MeterId discover(String[] nodeIds, LookupResources lookupResources) throws IOException, ConnectionException {
+//        return discover(nodeIds, false, 0, lookupResources);
+//        }
 
-    public MeterId discover(String[] nodeIds, boolean wakeup, int baudrate, LookupResources lookupResources) throws IOException, ConnectionException {
-        int retries = 0;
-        int count = 0;
-
-        while (true) {
-            try {
-                // delay 1 second...
-                delay(1000);
-
-                if (baudrate != -1) {
-                    switchBaudrate(baudrate, 0);
-                } // set initial baudrate
-
-                if (wakeup) {
-                    wakeUp();
-    }
-
-                // build and send flag sequence
-                String str = new String("/?" + (nodeIds[count] == null ? "" : nodeIds[count]) + "!\r\n");
-                sendRawData(str.getBytes());
-                // receive identification
-                receivedIdent = receiveString(false);
-                if (receivedIdent.charAt(0) != '/') {
-                    throw new ConnectionException("doSignOn, receivedIdent.charAt(0) != '/', try again!");
-                }
-                MeterType meterType = new MeterType(receivedIdent);
-                String serialNumber;
-
-
-                //if (meterType.isGEC()) {
-                if (meterType.getSerialNumberRegisterNames() == null) {
-                    sendBreak();
-                    delay(300);
-                    //read the meter's serialnumber register with security level 0 in programming mode
-                    serialNumber = meterType.getProtocolSerialNumberInstance().getSerialNumber(new DiscoverInfo(commChannel, nodeIds[count], baudrate, lookupResources.getResources(meterType.getResourceName())));
-                } else {
-                    // get the meter's datadump
-                    sendProtocolAckAndSwitchBaudrate(meterType, 0, 0);
-                    meterDataReadout = new MeterDataReadout(receiveRawData());
-                    serialNumber = meterDataReadout.getValue(meterType.getSerialNumberRegisterNames());
-                }
-
-                // seems to be necessary to avoid optical latency effect...
-                delay(300);
-                sendBreak();
-                return new MeterId(receivedIdent, nodeIds[count], serialNumber, meterType.getMeter3letterId());
-            }
-            catch (ConnectionException e) {
-                sendBreak();
-                if (count++ >= (nodeIds.length - 1)) {
-                    count = 0;
-                    if (retries++ >= (maxRetries - 1)) {
-                        throw new ConnectionException("signOn() error iMaxRetries, " + e.getMessage());
-                    }
-                }
-                delay(300);
-            }
-        } //  while(true)
-    } // public String discover(String nodeId)
-
-
-    public String discoverDatadump(boolean saveDataReadout, boolean modeCDataReadout, String[] nodeIds, boolean wakeup, int baudrate, LookupResources lookupResources) throws IOException, ConnectionException {
-        int retries = 0;
-        int count = 0;
-
-        while (true) {
-            try {
-                // delay 1 second...
-                delay(1000);
-
-                if (baudrate != -1) {
-                    switchBaudrate(baudrate, 0);
-                } // set initial baudrate
-
-                if (wakeup) {
-                    wakeUp();
-                }
-
-                // build and send flag sequence
-                String str = new String("O/?" + (nodeIds[count] == null ? "" : nodeIds[count]) + "!\r\n");
-                sendRawData(str.getBytes());
-                // receive identification
-                receivedIdent = receiveString(false);
-                if (receivedIdent.charAt(0) != '/') {
-                    throw new ConnectionException("doSignOn, receivedIdent.charAt(0) != '/', try again!");
-                }
-                MeterType meterType = new MeterType(receivedIdent);
-                byte[] data = null;
-                String result = "";
-                if (modeCDataReadout) {
-                    sendProtocolAckAndSwitchBaudrate(meterType, 0, 0);
-                    try {
-                        data = receiveRawData();
-                    }
-                    catch (ConnectionException e) {
-                        if (e.getReason() == CRC_ERROR) {
-                            result = "Datadump with Checksum ERROR!\n";
-                            data = dataDump;
-                        } else {
-                            throw e;
-                        }
-                    }
+//    public MeterId discover(String[] nodeIds, boolean wakeup, int baudrate, LookupResources lookupResources) throws IOException, ConnectionException {
+//        int retries = 0;
+//        int count = 0;
+//
+//        while (true) {
+//            try {
+//                // delay 1 second...
+//                delay(1000);
+//
+//                if (baudrate != -1) {
+//                    switchBaudrate(baudrate, 0);
+//                } // set initial baudrate
+//
+//                if (wakeup) {
+//                    wakeUp();
+//    }
+//
+//                // build and send flag sequence
+//                String str = new String("/?" + (nodeIds[count] == null ? "" : nodeIds[count]) + "!\r\n");
+//                sendRawData(str.getBytes());
+//                // receive identification
+//                receivedIdent = receiveString(false);
+//                if (receivedIdent.charAt(0) != '/') {
+//                    throw new ConnectionException("doSignOn, receivedIdent.charAt(0) != '/', try again!");
+//                }
+//                MeterType meterType = new MeterType(receivedIdent);
+//                String serialNumber;
+//
+//
+//                //if (meterType.isGEC()) {
+//                if (meterType.getSerialNumberRegisterNames() == null) {
+//                    sendBreak();
+//                    delay(300);
+//                    //read the meter's serialnumber register with security level 0 in programming mode
+//                    serialNumber = meterType.getProtocolSerialNumberInstance().getSerialNumber(new DiscoverInfo(commChannel, nodeIds[count], baudrate, lookupResources.getResources(meterType.getResourceName())));
+//                } else {
+//                    // get the meter's datadump
+//                    sendProtocolAckAndSwitchBaudrate(meterType, 0, 0);
+//                    meterDataReadout = new MeterDataReadout(receiveRawData());
+//                    serialNumber = meterDataReadout.getValue(meterType.getSerialNumberRegisterNames());
+//                }
+//
+//                // seems to be necessary to avoid optical latency effect...
+//                delay(300);
+//                sendBreak();
+//                return new MeterId(receivedIdent, nodeIds[count], serialNumber, meterType.getMeter3letterId());
+//            }
+//            catch (ConnectionException e) {
+//                sendBreak();
+//                if (count++ >= (nodeIds.length - 1)) {
+//                    count = 0;
+//                    if (retries++ >= (maxRetries - 1)) {
+//                        throw new ConnectionException("signOn() error iMaxRetries, " + e.getMessage());
+//                    }
+//                }
+//                delay(300);
+//            }
+//        } //  while(true)
+//    } // public String discover(String nodeId)
 
 
-                    if (saveDataReadout) {
-                        File file = new File("datadump.bin");
-                        FileOutputStream fis = new FileOutputStream(file);
-                        fis.write(data);
-                        fis.close();
-                    }
-                }
-
-
-                MeterId meterId = null;
-                String serialNumber = null;
-
-                try {
-                    if (meterType.getSerialNumberRegisterNames() == null) {
-                        sendBreak();
-                        delay(300);
-                        //read the meter's serialnumber register with security level 0 in programming mode
-                        serialNumber = meterType.getProtocolSerialNumberInstance().getSerialNumber(new DiscoverInfo(commChannel, nodeIds[count], baudrate, lookupResources.getResources(meterType.getResourceName())));
-                    } else {
-                        meterDataReadout = new MeterDataReadout(data);
-                        serialNumber = meterDataReadout.getValue(meterType.getSerialNumberRegisterNames());
-                    }
-                    meterId = new MeterId(receivedIdent, nodeIds[count], serialNumber, meterType.getMeter3letterId(), data);
-                    result += meterId.toString() + "\n" + (meterId.getDataDump() != null ? new String(meterId.getDataDump()) : "");
-                }
-                catch (IOException e) {
-                    //absorb
-                    //e.printStackTrace();
-                    meterId = new MeterId(receivedIdent, nodeIds[count], null, meterType.getMeter3letterId(), data);
-                    result += e.toString() + "\n" + (meterId.getDataDump() != null ? new String(meterId.getDataDump()) : "");
-
-                }
-
-                // seems to be necessary to avoid optical latency effect...
-                delay(300);
-                sendBreak();
-                return result;
-            }
-            catch (ConnectionException e) {
-                sendBreak();
-                if (count++ >= (nodeIds.length - 1)) {
-                    count = 0;
-                    if (retries++ >= (maxRetries - 1)) {
-                        throw new ConnectionException("signOn() error iMaxRetries, " + e.getMessage());
-                    }
-                }
-                delay(300);
-            }
-        } //  while(true)
-    } // public String discover(String nodeId)
+//    public String discoverDatadump(boolean saveDataReadout, boolean modeCDataReadout, String[] nodeIds, boolean wakeup, int baudrate, LookupResources lookupResources) throws IOException, ConnectionException {
+//        int retries = 0;
+//        int count = 0;
+//
+//        while (true) {
+//            try {
+//                // delay 1 second...
+//                delay(1000);
+//
+//                if (baudrate != -1) {
+//                    switchBaudrate(baudrate, 0);
+//                } // set initial baudrate
+//
+//                if (wakeup) {
+//                    wakeUp();
+//                }
+//
+//                // build and send flag sequence
+//                String str = new String("O/?" + (nodeIds[count] == null ? "" : nodeIds[count]) + "!\r\n");
+//                sendRawData(str.getBytes());
+//                // receive identification
+//                receivedIdent = receiveString(false);
+//                if (receivedIdent.charAt(0) != '/') {
+//                    throw new ConnectionException("doSignOn, receivedIdent.charAt(0) != '/', try again!");
+//                }
+//                MeterType meterType = new MeterType(receivedIdent);
+//                byte[] data = null;
+//                String result = "";
+//                if (modeCDataReadout) {
+//                    sendProtocolAckAndSwitchBaudrate(meterType, 0, 0);
+//                    try {
+//                        data = receiveRawData();
+//                    }
+//                    catch (ConnectionException e) {
+//                        if (e.getReason() == CRC_ERROR) {
+//                            result = "Datadump with Checksum ERROR!\n";
+//                            data = dataDump;
+//                        } else {
+//                            throw e;
+//                        }
+//                    }
+//
+//
+//                    if (saveDataReadout) {
+//                        File file = new File("datadump.bin");
+//                        FileOutputStream fis = new FileOutputStream(file);
+//                        fis.write(data);
+//                        fis.close();
+//                    }
+//                }
+//
+//
+//                MeterId meterId = null;
+//                String serialNumber = null;
+//
+//                try {
+//                    if (meterType.getSerialNumberRegisterNames() == null) {
+//                        sendBreak();
+//                        delay(300);
+//                        //read the meter's serialnumber register with security level 0 in programming mode
+//                        serialNumber = meterType.getProtocolSerialNumberInstance().getSerialNumber(new DiscoverInfo(commChannel, nodeIds[count], baudrate, lookupResources.getResources(meterType.getResourceName())));
+//                    } else {
+//                        meterDataReadout = new MeterDataReadout(data);
+//                        serialNumber = meterDataReadout.getValue(meterType.getSerialNumberRegisterNames());
+//                    }
+//                    meterId = new MeterId(receivedIdent, nodeIds[count], serialNumber, meterType.getMeter3letterId(), data);
+//                    result += meterId.toString() + "\n" + (meterId.getDataDump() != null ? new String(meterId.getDataDump()) : "");
+//                }
+//                catch (IOException e) {
+//                    //absorb
+//                    //e.printStackTrace();
+//                    meterId = new MeterId(receivedIdent, nodeIds[count], null, meterType.getMeter3letterId(), data);
+//                    result += e.toString() + "\n" + (meterId.getDataDump() != null ? new String(meterId.getDataDump()) : "");
+//
+//                }
+//
+//                // seems to be necessary to avoid optical latency effect...
+//                delay(300);
+//                sendBreak();
+//                return result;
+//            }
+//            catch (ConnectionException e) {
+//                sendBreak();
+//                if (count++ >= (nodeIds.length - 1)) {
+//                    count = 0;
+//                    if (retries++ >= (maxRetries - 1)) {
+//                        throw new ConnectionException("signOn() error iMaxRetries, " + e.getMessage());
+//                    }
+//                }
+//                delay(300);
+//            }
+//        } //  while(true)
+//    } // public String discover(String nodeId)
 
     public MeterType signOn(String strIdentConfig, String nodeId) throws IOException, ConnectionException {
         return signOn(strIdentConfig, nodeId, 0);
@@ -461,7 +462,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
                 if (logger.isDebugEnabled()) {
                     logger.debug("--->receivedIdent: " + receivedIdent);
                 }
-                MeterType meterType = new MeterType(receivedIdent);
+                MeterType meterType = new MeterTypeImpl(receivedIdent);
                 sendProtocolAckAndSwitchBaudrate(meterType, mode, PROTOCOL_JANZ);
 
                 // receive dataReadout
@@ -547,7 +548,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
     /**
      * Method that requests a MAC disconnect for the IEC1107 layer.
      *
-     * @throws com.energyict.cbo.NestedIOException, ConnectionException
+     * @throws NestedIOException, ConnectionException
      */
 //    private void disconnectHHU() throws NestedIOException,ConnectionException {
 //        if (hhuConnected==true) {
@@ -572,7 +573,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+
         }
     }
 
@@ -617,7 +618,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
         }
         catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+
         }
     }
 

@@ -1,19 +1,19 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 
-import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
-import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
+import com.energyict.protocols.mdc.inbound.general.AbstractDiscover;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -47,7 +47,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
             }
             setCallHomeID(pdr);
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
 
         return DiscoverResultType.IDENTIFIER;
@@ -78,9 +78,9 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
             requestFactory = new GprsRequestFactory(
                     getComChannel(),
                     getContext().getLogger(),
-                    new MTU155Properties(getTypedProperties()),
+                    new MTU155Properties(getTypedProperties(), getPropertySpecService()),
                     TimeZone.getDefault(),  //Timezone not known - using the default one
-                    isEK155Device());
+                    isEK155Device(), getPropertySpecService());
         }
         return requestFactory;
     }
@@ -90,10 +90,14 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> requiredProperties = super.getRequiredProperties();
-        requiredProperties.add(PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DEVICE_TYPE_KEY, MTU155_DEVICE_TYPE, MTU155_DEVICE_TYPE, EK155_DEVICE_TYPE));
-        return requiredProperties;
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(getDeviceTypePropertySpec());
+        return propertySpecs;
+    }
+
+    private PropertySpec<String> getDeviceTypePropertySpec() {
+        return getPropertySpecService().stringPropertySpecWithValuesAndDefaultValue(DEVICE_TYPE_KEY, true, MTU155_DEVICE_TYPE, MTU155_DEVICE_TYPE, EK155_DEVICE_TYPE);
     }
 
     public String getDeviceTypeProperty() {

@@ -248,7 +248,7 @@ public class IF2LinkLayer {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+
         }
 
     }
@@ -273,7 +273,7 @@ public class IF2LinkLayer {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+
         }
         return -1;
     }

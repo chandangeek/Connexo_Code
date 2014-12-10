@@ -35,7 +35,7 @@ public class DevicePhoneNumberSetupMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(NetworkConnectivityMessage.CHANGE_DEVICE_PHONENUMBER.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(NetworkConnectivityMessage.CHANGE_DEVICE_PHONENUMBER.getId());
     }
 
     @Override

@@ -1,17 +1,17 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 
-import com.energyict.cbo.NotFoundException;
-import com.energyict.comserver.exceptions.DuplicateException;
-import com.energyict.cpo.OfflineDeviceContext;
-import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifierType;
-import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactory;
-import com.energyict.mdw.core.DeviceFactoryProvider;
-import com.energyict.mdw.core.DeviceOfflineFlags;
-import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.DeviceFactory;
+import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
+import com.energyict.protocols.impl.channels.sms.InboundProximusSmsConnectionType;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -20,21 +20,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.DeviceIdentifier} interface,
+ * Provides an implementation for the DeviceIdentifier interface,
  * specific for the SMS part of the CTR protocol base (MTU155 and EK155 device types). <br></br>
  * SMSes for these protocols are uniquely identified by the devices phone number.
+ *
+ * TODO need updates, currently only throwing exceptions
  *
  * @author: sva
  * @since: 26/10/12 (11:26)
  */
 @XmlRootElement
-public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
+public class CTRPhoneNumberDeviceIdentifier implements DeviceIdentifier {
 
     public static final String PHONE_NUMBER_PROPERTY_NAME = "phoneNumber";
 
     private final String phoneNumber;
-    private Device device;
-    private List<Device> allDevices;
+    private BaseDevice device;
+    private List<BaseDevice> allDevices;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -49,14 +51,14 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
     }
 
     @Override
-    public Device findDevice() {
+    public BaseDevice findDevice() {
         if(this.device == null){
             fetchAllDevices();
             if (this.allDevices.isEmpty()) {
                 throw new NotFoundException("Device with phone number " + this.phoneNumber + " not found");
             } else {
                 if (this.allDevices.size() > 1) {
-                    throw DuplicateException.duplicateFoundFor(Device.class, this.toString());
+                    throw new com.energyict.mdc.protocol.api.exceptions.DuplicateException(MessageSeeds.DUPLICATE_FOUND, BaseDevice.class, this.toString());
                 } else {
                     this.device = this.allDevices.get(0);
                 }
@@ -116,20 +118,21 @@ public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
         return DeviceIdentifierType.Other;
     }
 
-    @Override
+//    @Override
     public List<OfflineDevice> getAllDevices() {
         if(this.allDevices == null){
             fetchAllDevices();
         }
         List<OfflineDevice> allOfflineDevices = new ArrayList<>();
         OfflineDeviceContext offlineDeviceContext = new DeviceOfflineFlags();
-        for (Device deviceToGoOffline : this.allDevices) {
-            allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
+        for (BaseDevice deviceToGoOffline : this.allDevices) {
+//            allOfflineDevices.add(OfflineDevice);
         }
         return allOfflineDevices;
     }
 
     private DeviceFactory getDeviceFactory() {
-        return DeviceFactoryProvider.instance.get().getDeviceFactory();
+//        return DeviceFactoryProvider.instance.get().getDeviceFactory();
+        throw new CommunicationException(MessageSeeds.UNSUPPORTED_METHOD, "Don't support deviceFactory for now");
     }
 }

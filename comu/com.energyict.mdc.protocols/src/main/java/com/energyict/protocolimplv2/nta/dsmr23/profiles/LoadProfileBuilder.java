@@ -32,6 +32,7 @@ import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
 
@@ -45,7 +46,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
- * Provides functionality to fetch and create {@link ProfileData} objects for a {@link SmartMeterProtocol}
+ * Provides functionality to fetch and create {@link ProfileData} objects for a SmartMeterProtocol
  * <p/>
  * <pre>
  * Copyrights EnergyICT
@@ -151,8 +152,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, supportsBulkRequests);
 
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
-            DeviceLoadProfileConfiguration lpc = new DeviceLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
-            if (!expectedLoadProfileReaders.contains(lpr)) {      //Invalid LP, mark as not supported and move on to the next LP
+
+                CollectedLoadProfileConfiguration lpc = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());
+                if (!expectedLoadProfileReaders.contains(lpr)) {      //Invalid LP, mark as not supported and move on to the next LP
                 lpc.setSupportedByMeter(false);
                 continue;
             }
@@ -335,11 +337,13 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true,
+                                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerUnit.getObisCode(), su.getEisUnit()));
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true,
+                                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerUnit.getObisCode(), su.getEisUnit()));
                         channelInfos.add(ci);
 //                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
                     }
@@ -475,15 +479,15 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                             this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), new DSMRProfileIntervalStatusBits());
                     List<IntervalData> collectedIntervalData = intervals.parseIntervals(lpc.getProfileInterval());
 
-                    collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
+                    collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession())) {
-                        Issue<LoadProfileReader> problem = com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
+                        Issue problem = com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
                     collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }
             } else {
-                Issue<LoadProfileReader> problem = com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue problem = com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             collectedLoadProfileList.add(collectedLoadProfile);
@@ -499,7 +503,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      */
     protected CollectedLoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (CollectedLoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getDeviceIdentifier().equals(lpc.getDeviceIdentifier())) {
                 return lpc;
             }
         }

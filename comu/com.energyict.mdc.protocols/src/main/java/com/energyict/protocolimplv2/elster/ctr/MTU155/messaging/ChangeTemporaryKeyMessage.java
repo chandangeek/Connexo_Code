@@ -22,7 +22,7 @@ public class ChangeTemporaryKeyMessage extends AbstractChangeKeyMessage {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().equals(SecurityMessage.CHANGE_TEMPORARY_KEY.getPrimaryKey().getValue());
+        return message.getDeviceMessageId().equals(SecurityMessage.CHANGE_TEMPORARY_KEY.getId());
     }
 
     @Override

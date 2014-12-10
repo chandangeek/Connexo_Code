@@ -14,15 +14,15 @@ import java.util.List;
  * A collection of general DLMS properties that are relevant for the IDIS gateway protocol.
  * These properties are not related to the security or the protocol dialects.
  * The parsing and the usage of the property values is done in an implementation of {@link com.energyict.dlms.protocolimplv2.DlmsSessionProperties}
- * <p/>
+ * <p>
  *
  * @author sva
  * @since 15/10/2014 - 11:16
  */
-public class IDISGatewayConfigurationSupport extends DlmsProperties {
+public class IDISGatewayDynamicPropertySupportSupport extends DlmsProperties {
 
 
-    public IDISGatewayConfigurationSupport(PropertySpecService propertySpecService) {
+    public IDISGatewayDynamicPropertySupportSupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 

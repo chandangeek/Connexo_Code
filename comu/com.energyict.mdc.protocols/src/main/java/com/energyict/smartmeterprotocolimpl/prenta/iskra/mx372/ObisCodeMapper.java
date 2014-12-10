@@ -1,10 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
-import com.energyict.cbo.*;
 import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
+import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.protocolimpl.utils.ProtocolTools;

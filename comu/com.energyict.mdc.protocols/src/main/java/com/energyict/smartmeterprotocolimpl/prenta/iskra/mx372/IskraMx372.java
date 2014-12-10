@@ -1,8 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Link;
+import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.Link;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
@@ -26,7 +27,6 @@ import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;

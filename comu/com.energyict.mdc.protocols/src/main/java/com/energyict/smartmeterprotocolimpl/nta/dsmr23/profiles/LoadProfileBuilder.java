@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
+import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
@@ -72,8 +73,12 @@ public class LoadProfileBuilder {
     private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
 
     /**
-     * Keeps track of the link between a {@link LoadProfileReader} and a list of
-     * {@link com.energyict.mdc.protocol.api.device.BaseRegister} which
+     * Keeps track of the link between a LoadProfileReader and a {@link com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig}
+     */
+    private Map<LoadProfileReader, Integer> lpIntervals = new HashMap<LoadProfileReader, Integer>();
+
+    /**
+     * Keeps track of the link between a LoadProfileReader and a list of Register which
      * will represent the 'data' channels of the Profile
      */
     private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<CapturedRegisterObject>>();
@@ -134,7 +139,7 @@ public class LoadProfileBuilder {
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, this.meterProtocol.supportsBulkRequests());
 
         for (LoadProfileReader lpr : loadProfileReaders) {
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());
             if (!expectedLoadProfileReaders.contains(lpr)) {      //Invalid LP, mark as not supported and move on to the next LP
                 lpc.setSupportedByMeter(false);
                 continue;
@@ -312,7 +317,6 @@ public class LoadProfileBuilder {
      * Construct a list of <CODE>ChannelInfos</CODE>.
      * If a given register is not available, then the corresponding profile may not be fetched.
      *
-     * @param loadProfileReader
      * @param ccoRegisterUnits the {@link com.energyict.dlms.cosem.ComposedCosemObject} which groups the reading of all the registers
      * @return a constructed list of <CODE>ChannelInfos</CODE>
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
@@ -324,11 +328,13 @@ public class LoadProfileBuilder {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true,
+                                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerUnit.getObisCode(), su.getEisUnit()));
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
-                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true);
+                        ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true,
+                                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerUnit.getObisCode(), Unit.getUndefined()));
                         channelInfos.add(ci);
 //                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
                     }
@@ -467,7 +473,7 @@ public class LoadProfileBuilder {
      */
     protected LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
-            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
+            if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getDeviceIdentifier().equals(lpc.getDeviceIdentifier())) {
                 return lpc;
             }
         }

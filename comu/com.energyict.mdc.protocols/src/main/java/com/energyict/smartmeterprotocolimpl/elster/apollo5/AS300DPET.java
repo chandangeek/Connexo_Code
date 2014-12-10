@@ -6,6 +6,7 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300Properties;
@@ -44,7 +45,7 @@ public class AS300DPET extends AS300 {
         EventLogs logs = new EventLogs(this);
         Calendar fromCalendar = Calendar.getInstance(getTimeZone());
         if (lastLogReading == null) {
-            lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getTimeZone());
+            lastLogReading = ParseUtils.getClearLastMonthDate(getTimeZone());
         }
         fromCalendar.setTime(lastLogReading);
         return logs.getEventLog(fromCalendar);

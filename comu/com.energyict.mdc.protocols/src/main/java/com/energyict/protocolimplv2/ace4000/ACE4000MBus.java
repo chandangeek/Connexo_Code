@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import java.util.ArrayList;
 import java.util.List;
 

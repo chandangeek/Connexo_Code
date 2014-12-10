@@ -5,6 +5,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.methods.G3PlcSetPSKMethods;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 

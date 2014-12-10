@@ -149,12 +149,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
         return properties;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EICT SDK SmartMeterProtocol";
-    }
-
-    /**
+        /**
      * @return the version of the specific protocol implementation
      */
     public String getVersion() {

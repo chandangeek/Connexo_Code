@@ -289,10 +289,10 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(
-                new SDKLoadProfileProtocolDialectProperties(),
-                new SDKStandardDeviceProtocolDialectProperties(),
-                new SDKTimeDeviceProtocolDialectProperties(),
-                new SDKTopologyTaskProtocolDialectProperties());
+                new SDKLoadProfileProtocolDialectProperties(propertySpecService),
+                new SDKStandardDeviceProtocolDialectProperties(propertySpecService),
+                new SDKTimeDeviceProtocolDialectProperties(propertySpecService),
+                new SDKTopologyTaskProtocolDialectProperties(propertySpecService));
     }
 
     @Override

@@ -18,7 +18,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -85,7 +87,7 @@ public class G3LqiEventLog implements EventLog {
     }
 
     /**
-     * Generate a list of {@link com.energyict.protocol.MeterEvent} from the given event array.
+     * Generate a list of MeterEvent from the given event array.
      *
      * @param eventArray The event array, containing the axdr encoded events from the meter
      * @return The list of events or an empty list if no events found. Should NEVER return 'null'

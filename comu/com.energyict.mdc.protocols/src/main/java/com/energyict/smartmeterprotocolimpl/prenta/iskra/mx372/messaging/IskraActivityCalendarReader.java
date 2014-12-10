@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.*;
 import com.energyict.protocols.util.ProtocolUtils;
 import org.w3c.dom.*;

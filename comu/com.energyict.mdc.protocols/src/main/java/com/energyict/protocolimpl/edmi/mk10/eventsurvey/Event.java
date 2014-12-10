@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.edmi.mk10.eventsurvey;
 
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;

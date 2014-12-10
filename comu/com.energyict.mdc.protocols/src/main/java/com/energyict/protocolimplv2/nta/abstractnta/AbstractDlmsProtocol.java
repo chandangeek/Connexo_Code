@@ -395,4 +395,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     public ManufacturerInformation getManufacturerInformation() {
         return new ManufacturerInformation();
     }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
 }

@@ -12,6 +12,8 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.inbound.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.debug.AbstractSmartDebuggingMain;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.Dsmr40Protocol;
@@ -105,6 +107,21 @@ public class Dsmr40EictMain extends AbstractSmartDebuggingMain<Dsmr40Protocol> {
                     }
 
                     @Override
+                    public DeviceIdentifierType getDeviceIdentifierType() {
+                        return null;
+                    }
+
+                    @Override
+                    public String getXmlType() {
+                        return null;
+                    }
+
+                    @Override
+                    public void setXmlType(String ignore) {
+
+                    }
+
+                    @Override
                     public BaseDevice<?, ?, ?> findDevice() {
                         throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper Device ...");
                     }
@@ -114,6 +131,26 @@ public class Dsmr40EictMain extends AbstractSmartDebuggingMain<Dsmr40Protocol> {
             @Override
             public BaseLoadProfile findLoadProfile() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper LoadProfile ...");
+            }
+
+            @Override
+            public LoadProfileIdentifierType getLoadProfileIdentifierType() {
+                return null;
+            }
+
+            @Override
+            public List<Object> getIdentifier() {
+                return null;
+            }
+
+            @Override
+            public String getXmlType() {
+                return null;
+            }
+
+            @Override
+            public void setXmlType(String ignore) {
+
             }
         });
     }

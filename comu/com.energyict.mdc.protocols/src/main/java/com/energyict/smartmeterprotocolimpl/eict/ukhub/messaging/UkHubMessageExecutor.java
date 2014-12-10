@@ -746,7 +746,7 @@ public class UkHubMessageExecutor extends MessageParser {
         Date currentTime;
         if (!userFileId.equalsIgnoreCase("")) {
             if (ParseUtils.isInteger(userFileId)) {
-                UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
+                UserFile uf = getUserFile(userFileId);
                 if (uf != null) {
                     byte[] data = uf.loadFileInByteArray();
                     CSVParser csvParser = new CSVParser();
@@ -858,7 +858,7 @@ public class UkHubMessageExecutor extends MessageParser {
                     } else {
                         csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
                     }
-                    mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getFolderIdFromHub()));
+                    createUserFile(uf, csvParser);
                 } else {
                     throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
                 }
@@ -868,6 +868,14 @@ public class UkHubMessageExecutor extends MessageParser {
         } else {
             throw new IOException("No userfile id is given.");
         }
+    }
+
+    private void createUserFile(UserFile uf, CSVParser csvParser) throws IOException {
+        throw new UnsupportedOperationException("Creating new userfiles is not supported");
+    }
+
+    private UserFile getUserFile(String userFileId) {
+        throw new UnsupportedOperationException("Userfiles are not supported");
     }
 
     private void waitCyclus(int delay) throws IOException {

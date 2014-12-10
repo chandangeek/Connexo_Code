@@ -1,5 +1,6 @@
 package com.energyict.dlms;
 
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
@@ -102,7 +103,7 @@ public class DlmsSession implements ProtocolLink {
             Thread.sleep(5);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+
         }
     }
 
