@@ -15,4 +15,5 @@ public enum DeviceIdentifierType {
     DataBaseId,
     CallHomeId,
     Other,
+    ActualDevice
 }

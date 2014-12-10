@@ -12,5 +12,6 @@ public enum MessageIdentifierType {
 
     DataBaseId,
     DeviceIdentifierAndProtocolInfoParts,
-    Other
+    Other,
+    ActualMessage
 }

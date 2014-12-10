@@ -13,5 +13,6 @@ public enum LoadProfileIdentifierType {
     DataBaseId,
     DeviceIdentifierAndObisCode,
     FistLoadProfileOnDevice,
-    Other
+    Other,
+    ActualLoadProfile
 }
