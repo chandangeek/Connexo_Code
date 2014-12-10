@@ -96,13 +96,13 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             prevBtn = {
                 itemId: 'previous-next-navigation-toolbar-previous-link',
                 ui: 'plain',
-                iconCls: 'icon-arrow-down'
+                iconCls: 'icon-arrow-up',
+                style: 'margin-right: 0 !important;'
             },
             nextBtn = {
                 itemId: 'previous-next-navigation-toolbar-next-link',
                 ui: 'plain',
-                iconCls: 'icon-arrow-up',
-                style: 'margin-right: 0 !important;'
+                iconCls: 'icon-arrow-down'
             },
             itemsCounter = {
                 xtype: 'component',
@@ -175,6 +175,6 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             nextBtn.disabled = true;
         }
 
-        me.add(itemsCounter, nextBtn, prevBtn);
+        me.add(itemsCounter, prevBtn, nextBtn);
     }
 });
