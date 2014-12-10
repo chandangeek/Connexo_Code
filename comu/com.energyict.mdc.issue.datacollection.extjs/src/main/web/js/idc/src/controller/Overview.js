@@ -17,7 +17,8 @@ Ext.define('Idc.controller.Overview', {
         'Isu.store.IssueReasons',
         'Isu.store.Devices',
         'Isu.store.IssueGrouping',
-        'Idc.store.Groups'
+        'Idc.store.Groups',
+        'Isu.store.Clipboard'
     ],
 
     views: [

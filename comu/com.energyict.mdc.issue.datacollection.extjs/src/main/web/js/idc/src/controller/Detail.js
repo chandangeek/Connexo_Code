@@ -3,7 +3,8 @@ Ext.define('Idc.controller.Detail', {
 
     stores: [
         'Idc.store.Issues',
-        'Isu.store.IssueActions'
+        'Isu.store.IssueActions',
+        'Isu.store.Clipboard'
     ],
 
     views: [
@@ -14,10 +15,6 @@ Ext.define('Idc.controller.Detail', {
         {
             ref: 'page',
             selector: 'data-collection-issue-detail'
-        },
-        {
-            ref: 'navigation',
-            selector: 'data-collection-issue-detail #data-collection-issue-detail-navigation'
         },
         {
             ref: 'detailForm',
@@ -50,6 +47,6 @@ Ext.define('Idc.controller.Detail', {
     },
 
     showOverview: function (id) {
-        this.callParent([id, 'Idc.model.Issue', 'Idc.store.Issues', 'data-collection-issue-detail']);
+        this.callParent([id, 'Idc.model.Issue', 'Idc.store.Issues', 'data-collection-issue-detail', 'workspace/datacollection/issues', 'datacollection']);
     }
 });

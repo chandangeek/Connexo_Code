@@ -5,16 +5,22 @@ Ext.define('Idc.view.Detail', {
         'Isu.view.issues.DetailNavigation',
         'Isu.view.issues.DetailTop',
         'Idc.view.DetailForm',
-        'Isu.view.issues.CommentsList'
+        'Isu.view.issues.CommentsList',
+        'Uni.view.toolbar.PreviousNextNavigation'
     ],
     router: null,
+    issuesListLink: null,
     initComponent: function () {
         var me = this;
 
         me.content = [
             {
-                xtype: 'issue-detail-navigation',
-                itemId: 'data-collection-issue-detail-navigation'
+                xtype: 'previous-next-navigation-toolbar',
+                itemId: 'data-collection-issue-detail-previous-next-navigation-toolbar',
+                store: 'Idc.store.Issues',
+                router: me.router,
+                routerIdArgument: 'issueId',
+                itemsName: me.issuesListLink
             },
             {
                 xtype: 'issue-detail-top',
