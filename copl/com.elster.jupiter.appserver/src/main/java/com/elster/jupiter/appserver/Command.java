@@ -2,5 +2,5 @@ package com.elster.jupiter.appserver;
 
 public enum Command {
 
-    STOP, INVALIDATE_CACHE, FILEIMPORT_ACTIVATED
+    STOP, INVALIDATE_CACHE, FILEIMPORT_ACTIVATED, CONFIG_CHANGED
 }

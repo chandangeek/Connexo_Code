@@ -24,6 +24,7 @@ import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
@@ -44,9 +45,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,15 +71,17 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
     private volatile FileImportService fileImportService;
     private volatile TaskService taskService;
     private volatile UserService userService;
-    private volatile ThreadFactory threadFactory;
     private volatile Thesaurus thesaurus;
 
     private AppServerImpl appServer;
     private List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
     private SubscriberSpec allServerSubscriberSpec;
     private final List<Runnable> deactivateTasks = new ArrayList<>();
+    private List<CommandListener> commandListeners = new CopyOnWriteArrayList<>();
+    private final ThreadGroup threadGroup;
 
     public AppServiceImpl() {
+        threadGroup = new ThreadGroup("AppServer message listeners");
     }
 
     @Inject
@@ -97,6 +100,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
             install();
         }
         activate(bundleContext);
+        threadGroup = new ThreadGroup("AppServer message listeners");
     }
 
     @Activate
@@ -146,9 +150,6 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
         appServer = (AppServerImpl) foundAppServer.get();
         subscriberExecutionSpecs = appServer.getSubscriberExecutionSpecs();
 
-        ThreadGroup threadGroup = new ThreadGroup("AppServer message listeners");
-        threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(thesaurus), this);
-
         launchFileImports();
         launchTaskService();
         listenForMessagesToAppServer();
@@ -187,7 +188,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
         Optional<SubscriberSpec> subscriberSpec = messageService.getSubscriberSpec(ALL_SERVERS, messagingName());
         if (subscriberSpec.isPresent()) {
             allServerSubscriberSpec = subscriberSpec.get();
-            final ExecutorService executorService = new CancellableTaskExecutorService(1, threadFactory);
+            final ExecutorService executorService = new CancellableTaskExecutorService(1, new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(thesaurus), this, () -> "All Server messages"));
             final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(allServerSubscriberSpec, new CommandHandler(), transactionService, thesaurus));
             deactivateTasks.add(new Runnable() {
                 @Override
@@ -203,7 +204,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
         Optional<SubscriberSpec> subscriberSpec = messageService.getSubscriberSpec(messagingName(), messagingName());
         if (subscriberSpec.isPresent()) {
             SubscriberSpec appServerSubscriberSpec = subscriberSpec.get();
-            final ExecutorService executorService = new CancellableTaskExecutorService(1, threadFactory);
+            final ExecutorService executorService = new CancellableTaskExecutorService(1, new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(thesaurus), this, () -> "This AppServer messages"));
             final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(appServerSubscriberSpec, new CommandHandler(), transactionService, thesaurus));
             deactivateTasks.add(new Runnable() {
                 @Override
@@ -323,6 +324,12 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
 
     }
 
+    @Override
+    public Registration addCommandListener(CommandListener commandListener) {
+        commandListeners.add(commandListener);
+        return () -> commandListeners.remove(commandListener);
+    }
+
     public TaskService getTaskService() {
         return taskService;
     }
@@ -356,8 +363,12 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
                     String idAsString = command.getProperties().getProperty(ID);
                     ImportSchedule importSchedule = fileImportService.getImportSchedule(Long.valueOf(idAsString)).get();
                     fileImportService.schedule(importSchedule);
+                    break;
+                case CONFIG_CHANGED:
+
                 default:
             }
+            commandListeners.forEach(listener -> listener.notify(command));
         }
     }
 

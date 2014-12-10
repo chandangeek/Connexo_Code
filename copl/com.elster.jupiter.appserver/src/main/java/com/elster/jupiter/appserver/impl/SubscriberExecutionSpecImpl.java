@@ -1,6 +1,8 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppServerCommand;
+import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -61,5 +63,19 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
             appServer = dataModel.mapper(AppServer.class).getOptional(appServerName).get();
         }
         return appServer;
+    }
+
+    @Override
+    public void setThreadCount(int threadCount) {
+        if (threadCount < 1) {
+            throw new IllegalArgumentException("Cannot have fewer than 1 thread assigned.");
+        }
+        this.threadCount = threadCount;
+    }
+
+    @Override
+    public void update() {
+        dataModel.mapper(SubscriberExecutionSpec.class).update(this);
+        getAppServer().sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
     }
 }

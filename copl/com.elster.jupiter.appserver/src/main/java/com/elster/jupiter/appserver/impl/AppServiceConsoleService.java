@@ -2,6 +2,7 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.MessageService;
@@ -24,7 +25,24 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
 
-@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class}, property = {"name=" + "APS" + ".console", "osgi.command.scope=appserver", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport", "osgi.command.function=appServers", "osgi.command.function=identify", "osgi.command.function=stopAppServer", "osgi.command.function=become", "osgi.command.function=setLocale", "osgi.command.function=setTimeZone", "osgi.command.function=getLocale", "osgi.command.function=getLocales", "osgi.command.function=getTimeZone", "osgi.command.function=getTimeZones"}, immediate = true)
+@Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class},
+        property = {"name=" + "APS" + ".console",
+                "osgi.command.scope=appserver",
+                "osgi.command.function=create",
+                "osgi.command.function=serve",
+                "osgi.command.function=stopServing",
+                "osgi.command.function=activateFileImport",
+                "osgi.command.function=appServers",
+                "osgi.command.function=identify",
+                "osgi.command.function=stopAppServer",
+                "osgi.command.function=become",
+                "osgi.command.function=setLocale",
+                "osgi.command.function=setTimeZone",
+                "osgi.command.function=getLocale",
+                "osgi.command.function=getLocales",
+                "osgi.command.function=getTimeZone",
+                "osgi.command.function=getTimeZones",
+                "osgi.command.function=report"}, immediate = true)
 public class AppServiceConsoleService {
 
     private volatile IAppService appService;
@@ -35,12 +53,13 @@ public class AppServiceConsoleService {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MessageHandlerLauncherService messageHandlerLauncherService;
 
-    public void executeSubscription(final String subscriberName, final String destinationName, final int threads) {
-        final Optional<AppServer> activated = appService.getAppServer();
-        if (!activated.isPresent()) {
-            System.out.println("Cannot execute subscriptions from anonymous app server.");
+    public void serve(final String appServerName, final String subscriberName, final String destinationName, final int threads) {
+        final Optional<AppServer> found = findAppServer(appServerName);
+        if (!found.isPresent()) {
+            System.out.println("AppServer not found.");
             return;
         }
+        final AppServer appServer = found.get();
         transactionService.execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
@@ -48,14 +67,56 @@ public class AppServiceConsoleService {
                 if (!subscriberSpec.isPresent()) {
                     System.out.println("Subscriber not found.");
                 }
-                activated.get().createSubscriberExecutionSpec(subscriberSpec.get(), threads);
+                SubscriberExecutionSpec subscriberExecutionSpec = appServer.getSubscriberExecutionSpecs().stream()
+                        .filter(subscriber -> subscriber.getSubscriberSpec().getDestination().getName().equals(destinationName))
+                        .filter(subscriber -> subscriber.getSubscriberSpec().getName().equals(subscriberName))
+                        .findFirst()
+                        .orElseGet(() -> appServer.createSubscriberExecutionSpec(subscriberSpec.get(), threads));
+                if (subscriberExecutionSpec.getThreadCount() != threads) {
+                    subscriberExecutionSpec.setThreadCount(threads);
+                    subscriberExecutionSpec.update();
+                }
+            }
+        });
+    }
+
+    private Optional<AppServer> findAppServer(String appServerName) {
+        Optional<AppServer> current = appService.getAppServer();
+        if (current.isPresent() && current.get().getName().equals(appServerName)) {
+            return current;
+        }
+        return appService.findAppServers().stream()
+                    .filter(aps -> aps.getName().equals(appServerName))
+                    .findFirst();
+    }
+
+    public void stopServing(final String appServerName, final String subscriberName, final String destinationName) {
+        final Optional<AppServer> found = findAppServer(appServerName);
+        if (!found.isPresent()) {
+            System.out.println("AppServer not found.");
+            return;
+        }
+        final AppServer activated = found.get();
+        transactionService.execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                Optional<SubscriberSpec> subscriberSpec = messageService.getSubscriberSpec(destinationName, subscriberName);
+                if (!subscriberSpec.isPresent()) {
+                    System.out.println("Subscriber not found.");
+                }
+                SubscriberExecutionSpec subscriberExecutionSpec = activated.getSubscriberExecutionSpecs().stream()
+                        .filter(subscriber -> subscriber.getSubscriberSpec().getDestination().getName().equals(destinationName))
+                        .filter(subscriber -> subscriber.getSubscriberSpec().getName().equals(subscriberName))
+                        .findFirst()
+                        .orElseThrow(IllegalArgumentException::new);
+                activated.removeSubscriberExecutionSpec(subscriberExecutionSpec);
             }
         });
     }
 
     public void activateFileImport(long id, String appServerName) {
-        final AppServer appServerToActivateOn = getAppServerForActivation(appServerName);
-        if (appServerToActivateOn == null) {
+        Optional<AppServer> foundAppServer = findAppServer(appServerName);
+        if (!foundAppServer.isPresent()) {
             System.out.println("AppServer not found.");
             return;
         }
@@ -68,7 +129,7 @@ public class AppServiceConsoleService {
         transactionService.execute(new VoidTransaction() {
             @Override
             public void doPerform() {
-                doActivateFileImport(appServerToActivateOn, importSchedule);
+                doActivateFileImport(foundAppServer.get(), importSchedule);
             }
         });
     }
@@ -79,17 +140,17 @@ public class AppServiceConsoleService {
     }
 
 
-    private AppServer getAppServerForActivation(String appServerName) {
-        final Optional<AppServer> current = appService.getAppServer();
-        AppServer appServerToActivateOn;
-        if (current.isPresent() && current.get().getName().equals(appServerName)) {
-            appServerToActivateOn = current.get();
-        } else {
-            Optional<AppServer> found = getDataModel().mapper(AppServer.class).getOptional(appServerName);
-            appServerToActivateOn = found.orElse(null);
-        }
-        return appServerToActivateOn;
-    }
+//    private Optional<AppServer> getAppServerForActivation(String appServerName) {
+//        final Optional<AppServer> current = appService.getAppServer();
+//        AppServer appServerToActivateOn;
+//        if (current.isPresent() && current.get().getName().equals(appServerName)) {
+//            appServerToActivateOn = current.get();
+//        } else {
+//            Optional<AppServer> found = getDataModel().mapper(AppServer.class).getOptional(appServerName);
+//            appServerToActivateOn = found.orElse(null);
+//        }
+//        return appServerToActivateOn;
+//    }
 
     private DataModel getDataModel() {
         return appService.getDataModel();
@@ -185,6 +246,26 @@ public class AppServiceConsoleService {
         ZoneId.getAvailableZoneIds().stream()
                 .map(Object::toString)
                 .sorted()
+                .forEach(System.out::println);
+    }
+
+    public void report() {
+        System.out.println("Setup : ");
+        System.out.println("==========");
+        appService.getAppServer()
+                .map(Arrays::asList).orElse(Collections.<AppServer>emptyList()).stream()
+                .flatMap(server -> server.getSubscriberExecutionSpecs().stream())
+                .map(se -> "\t" + se.getSubscriberSpec().getDestination().getName() + ' ' + se.getSubscriberSpec().getName() + ' ' + se.getThreadCount())
+                .forEach(System.out::println);
+        System.out.println("Tasks : ");
+        System.out.println("==========");
+        messageHandlerLauncherService.futureReport().entrySet().stream()
+                .map(entry -> "\t" + entry.getKey().getDestination() + ' ' + entry.getKey().getSubscriber() + ' ' + String.valueOf(entry.getValue()))
+                .forEach(System.out::println);
+        System.out.println("Threads : ");
+        System.out.println("==========");
+        messageHandlerLauncherService.threadReport().entrySet().stream()
+                .map(entry -> "\t" + entry.getKey().getDestination() + ' ' + entry.getKey().getSubscriber() + ' ' + String.valueOf(entry.getValue()))
                 .forEach(System.out::println);
     }
 

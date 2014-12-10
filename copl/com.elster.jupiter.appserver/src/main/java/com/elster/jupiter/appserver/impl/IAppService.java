@@ -1,7 +1,9 @@
 package com.elster.jupiter.appserver.impl;
 
+import com.elster.jupiter.appserver.AppServerCommand;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Registration;
 
 interface IAppService extends AppService {
 
@@ -10,4 +12,11 @@ interface IAppService extends AppService {
     void stopAppServer();
 
     void startAsAppServer(String name);
+
+    Registration addCommandListener(CommandListener commandListener);
+
+    interface CommandListener {
+
+        void notify(AppServerCommand command);
+    }
 }

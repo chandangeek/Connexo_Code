@@ -20,4 +20,6 @@ public interface AppServer {
     void setRecurrentTaskActive(boolean recurrentTaskActive);
 
     boolean isRecurrentTaskActive();
+
+    void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec);
 }

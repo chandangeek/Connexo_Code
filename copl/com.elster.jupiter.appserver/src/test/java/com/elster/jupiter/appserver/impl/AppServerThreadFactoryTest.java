@@ -2,7 +2,6 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
-import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,7 +43,7 @@ public class AppServerThreadFactoryTest {
             public void uncaughtException(Thread t, Throwable e) {
                 e.printStackTrace();
             }
-        }, appService));
+        }, appService, () -> "myThread"));
 
         final CountDownLatch latch = new CountDownLatch(1);
 

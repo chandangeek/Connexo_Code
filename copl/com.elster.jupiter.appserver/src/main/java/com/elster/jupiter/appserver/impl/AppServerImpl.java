@@ -2,6 +2,7 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppServerCommand;
+import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.ServerMessageQueueMissing;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -13,10 +14,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 public class AppServerImpl implements AppServer {
 
@@ -56,6 +57,7 @@ public class AppServerImpl implements AppServer {
 	public SubscriberExecutionSpecImpl createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
         SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.from(dataModel, this, subscriberSpec, threadCount);
         getSubscriberExecutionSpecFactory().persist(subscriberExecutionSpec);
+        sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
         return subscriberExecutionSpec;
     }
 
@@ -102,5 +104,16 @@ public class AppServerImpl implements AppServer {
     @Override
     public void setRecurrentTaskActive(boolean recurrentTaskActive) {
         this.recurrentTaskActive = recurrentTaskActive;
+    }
+
+    @Override
+    public void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {
+        SubscriberExecutionSpec toRemove = getSubscriberExecutionSpecs().stream()
+                .filter(sp -> sp.getSubscriberSpec().getDestination().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getDestination().getName()))
+                .filter(sp -> sp.getSubscriberSpec().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getName()))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+        getSubscriberExecutionSpecFactory().remove(toRemove);
+        sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
     }
 }

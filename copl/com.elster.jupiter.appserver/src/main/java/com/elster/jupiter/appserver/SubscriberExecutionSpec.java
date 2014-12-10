@@ -9,4 +9,8 @@ public interface SubscriberExecutionSpec {
     SubscriberSpec getSubscriberSpec();
 
     AppServer getAppServer();
+
+    void setThreadCount(int threads);
+
+    void update();
 }
