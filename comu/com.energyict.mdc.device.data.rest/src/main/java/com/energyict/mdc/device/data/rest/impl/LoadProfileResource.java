@@ -41,10 +41,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.streams.Predicates.isNull;
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
@@ -124,7 +124,7 @@ public class LoadProfileResource {
                 .map(c -> c.getDevice().forValidation().getLastChecked(c))
                 .map(o -> o.map(Date::from).orElse(null))
                 .collect(Collectors.toList());
-        return collect.stream().anyMatch(isNull()) ? null : collect.stream().reduce(this::min).orElse(null);
+        return collect.stream().anyMatch(Objects::isNull) ? null : collect.stream().reduce(this::min).orElse(null);
     }
 
     private Range<Instant> lastMonth() {
@@ -184,7 +184,7 @@ public class LoadProfileResource {
     }
 
     private boolean hasMissingData(LoadProfileDataInfo info) {
-        return info.channelData.values().stream().anyMatch(isNull());
+        return info.channelData.values().stream().anyMatch(Objects::isNull);
     }
 
     private List<LoadProfileDataInfo> filter(List<LoadProfileDataInfo> infos, MultivaluedMap<String, String> queryParameters) {
