@@ -1,0 +1,633 @@
+package com.energyict.mdc.device.topology.impl;
+
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.TaskPriorityConstants;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
+import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.VoidTransaction;
+import org.joda.time.DateMidnight;
+
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+
+import org.assertj.core.api.Condition;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+/**
+ * Tests the aspects of the ScheduledConnectionTask component
+ * that relate to or rely on the topology feature.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2014-12-10 (11:06)
+ */
+@RunWith(MockitoJUnitRunner.class)
+public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationTest {
+
+    private static final String DEVICE_PROTOCOL_DIALECT_NAME = "Limbueregs";
+    protected static final TimeDuration EVERY_HOUR = new TimeDuration(1, TimeDuration.TimeUnit.HOURS);
+
+    protected int comTaskEnablementPriority = 213;
+    private OnlineComServer onlineComServer;
+    private OnlineComServer otherOnlineComServer;
+    private String COM_TASK_NAME = "TheNameOfMyComTask";
+    private int maxNrOfTries = 5;
+
+    protected static OutboundComPortPool outboundTcpipComPortPool;
+    protected static ConnectionTypePluggableClass outboundNoParamsConnectionTypePluggableClass;
+    protected DeviceCommunicationConfiguration deviceCommunicationConfiguration;
+    protected Device device;
+    protected ComTaskEnablement comTaskEnablement1;
+    protected ComTaskEnablement comTaskEnablement2;
+    protected ComTaskEnablement comTaskEnablement3;
+    protected PartialScheduledConnectionTask partialScheduledConnectionTask;
+    private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
+
+    @BeforeClass
+    public static void registerConnectionTypePluggableClasses() {
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                outboundNoParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class);
+            }
+        });
+    }
+
+    private static <T extends ConnectionType> ConnectionTypePluggableClass registerConnectionTypePluggableClass(Class<T> connectionTypeClass) {
+        ConnectionTypePluggableClass connectionTypePluggableClass =
+                inMemoryPersistence.getProtocolPluggableService()
+                        .newConnectionTypePluggableClass(connectionTypeClass.getSimpleName(), connectionTypeClass.getName());
+        connectionTypePluggableClass.save();
+        return connectionTypePluggableClass;
+    }
+
+    @Before
+    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
+        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
+    }
+
+    @Before
+    public void initializeMocks() {
+        super.initializeMocks();
+        this.device = createSimpleDevice("First");
+        ProtocolDialectConfigurationProperties configDialect = createDialectConfigProperties();
+        ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck();
+        ComTask comTaskWithLogBooks = createComTaskWithLogBooks();
+        ComTask comTaskWithRegisters = createComTaskWithRegisters();
+
+        this.comTaskEnablement1 = enableComTask(true, configDialect, comTaskWithBasicCheck);
+        this.comTaskEnablement2 = enableComTask(true, configDialect, comTaskWithLogBooks);
+        this.comTaskEnablement3 = enableComTask(true, configDialect, comTaskWithRegisters);
+
+        deviceCommunicationConfiguration = inMemoryPersistence.getDeviceConfigurationService().newDeviceCommunicationConfiguration(deviceConfiguration);
+
+        partialScheduledConnectionTask = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+                comWindow(new ComWindow(0, 7200)).
+                build();
+
+    }
+
+    @Test
+    @Transactional
+    public void testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp() {
+        Date earliestNextExecutionTimestamp = new DateMidnight(2013, 2, 14).toDate();
+        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
+        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(earliestNextExecutionTimestamp, comTaskEnablementPriority);
+        comTaskExecutionUpdater.update();
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp");
+        connectionTask.save();
+        EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(earliestNextExecutionTimestamp, TaskPriorityConstants.DEFAULT_PRIORITY);
+
+        // Business method
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
+
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+        // Asserts
+        assertThat(connectionTask.getNextExecutionTimestamp()).isEqualTo(earliestNextExecutionTimestamp);
+        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+    }
+
+    @Test
+    @Transactional
+    public void updateToAsapDefaultTestNextExecutionTimeStamp() throws SQLException, BusinessException {
+        Date comTaskNextExecutionTimeStamp = freezeClock(2013, Calendar.FEBRUARY, 13);
+
+        freezeClock(2013, Calendar.FEBRUARY, 13, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
+
+        ScheduledConnectionTaskImpl notDefaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("updateToDefaultTestNextExecutionTimeStamp");
+        notDefaultConnectionTask.save();
+
+        createComTaskExecutionAndSetNextExecutionTimeStamp(comTaskNextExecutionTimeStamp);
+        ServerConnectionTaskService connectionTaskService = inMemoryPersistence.getConnectionTaskService();
+
+        // Business method
+        connectionTaskService.setDefaultConnectionTask(notDefaultConnectionTask);
+        ScheduledConnectionTask reloaded = connectionTaskService.findScheduledConnectionTask(notDefaultConnectionTask.getId()).get();
+
+        // Asserts after update
+        assertThat(reloaded.getNextExecutionTimestamp()).isEqualTo(comTaskNextExecutionTimeStamp);
+    }
+
+    @Test
+    @Transactional
+    public void updateToMinimizeDefaultTestNextExecutionTimeStamp() throws SQLException, BusinessException {
+        Date comTaskNextExecutionTimeStamp = freezeClock(2013, Calendar.FEBRUARY, 13);
+
+        freezeClock(2013, Calendar.FEBRUARY, 17, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
+
+        ScheduledConnectionTaskImpl notDefaultConnectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("updateToDefaultTestNextExecutionTimeStamp", new TemporalExpression(EVERY_HOUR));
+        notDefaultConnectionTask.save();
+        Date nextExecutionTimestamp = notDefaultConnectionTask.getNextExecutionTimestamp();
+        ConnectionTaskService connectionTaskService = inMemoryPersistence.getConnectionTaskService();
+
+        ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(comTaskNextExecutionTimeStamp);
+
+        // Business method
+        connectionTaskService.setDefaultConnectionTask(notDefaultConnectionTask);
+        ScheduledConnectionTask reloaded = connectionTaskService.findScheduledConnectionTask(notDefaultConnectionTask.getId()).get();
+
+        // Asserts after update
+        assertThat(reloaded.getNextExecutionTimestamp()).isEqualTo(nextExecutionTimestamp);
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+        assertThat(reloadedComTaskExecution.getNextExecutionTimestamp()).isEqualTo(nextExecutionTimestamp);
+        assertThat(reloadedComTaskExecution.getPlannedNextExecutionTimestamp()).isEqualTo(nextExecutionTimestamp);
+    }
+
+    @Test
+    @Transactional
+    public void clearDefaultConnectionWithObsoleteComTaskExecutionsTest() {
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("clearDefaultConnectionWithObsoleteComTaskExecutionsTest");
+        connectionTask.save();
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
+        comTaskExecution.makeObsolete();
+        inMemoryPersistence.getConnectionTaskService().clearDefaultConnectionTask(connectionTask.getDevice());
+
+        ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId()); // should not be updated
+    }
+
+    @Test
+    @Transactional
+    public void creatingDefaultFromPartialShouldAlsoUpdateComTaskExecutionsWhichUseTheDefaultTest() {
+        this.partialScheduledConnectionTask.setDefault(true);
+        this.partialScheduledConnectionTask.save();
+
+
+        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
+        assertThat(comTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(comTaskExecution.getConnectionTask()).isNull();
+
+        ScheduledConnectionTaskImpl myDefaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("MyDefaultConnectionTask", this.partialScheduledConnectionTask);
+
+        ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(myDefaultConnectionTask.getId());
+    }
+
+    @Test
+    @Transactional
+    public void testCreateDefaultWithAlreadyExistingComTasksThatUseTheDefault() {
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateDefaultWithAlreadyExistingComTasksThatUseTheDefault");
+        connectionTask.save();
+
+        // Business method
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
+
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+
+        // Asserts
+        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+    }
+
+    @Test
+    @Transactional
+    public void testTriggerWithAsapStrategyAndOnlyOnHoldAndWaitingTasks() {
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAndOnlyOnHoldAndWaitingTasks");
+        connectionTask.save();
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
+        final Date futureDate = freezeClock(2013, Calendar.JULY, 4);
+        Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
+        EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
+        ScheduledComTaskExecution comTaskExecution1 = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, comTaskEnablement1);
+        ((ServerComTaskExecution) comTaskExecution1).executionCompleted();
+        comTaskExecution1.getDevice().getComTaskExecutionUpdater(comTaskExecution1).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
+
+        ScheduledComTaskExecution comTaskExecution2 = createComTaskExecution(comTaskEnablement2);
+        comTaskExecution2.putOnHold();
+
+        // Business method
+        Date nextExecutionTimstamp = connectionTask.trigger(triggerDate);
+
+        // Asserts
+        Device reloadedDevice = getReloadedDevice(device);
+        List<ComTaskExecution> comTaskExecutions = reloadedDevice.getComTaskExecutions();
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return futureDate.equals(comTaskExecution.getNextExecutionTimestamp());
+            }
+        });
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return comTaskExecution.getNextExecutionTimestamp() == null;
+            }
+        });
+        assertThat(nextExecutionTimstamp).isEqualTo(triggerDate);
+    }
+
+    @Test
+    @Transactional
+    public void createWithComTaskUsingDefaultTestNextExecutionTimeStamp() throws SQLException, BusinessException {
+        Date febFirst = freezeClock(2013, Calendar.FEBRUARY, 1);
+        ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(febFirst);
+
+        ScheduledConnectionTaskImpl defaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("createWithComTaskUsingDefaultTestNextExecutionTimeStamp");
+        defaultConnectionTask.save();
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(defaultConnectionTask);
+
+        // asserts
+        assertThat(defaultConnectionTask.getNextExecutionTimestamp()).isEqualTo(febFirst);
+    }
+
+    @Test
+    @Transactional
+    public void testTriggerWithAsapStrategyAndOnlyPendingTasks() {
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAndOnlyPendingTasks");
+        connectionTask.save();
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
+        Date pastDate = freezeClock(2013, Calendar.JULY, 5);
+        final Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
+        EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
+
+        ComTaskExecution comTaskExecution1 = createComTaskExecutionAndSetNextExecutionTimeStamp(pastDate, comTaskEnablement1);
+        ComTaskExecution comTaskExecution2 = createComTaskExecutionAndSetNextExecutionTimeStamp(pastDate, comTaskEnablement2);
+
+        // Business method
+        Date nextExecutionTimstamp = connectionTask.trigger(triggerDate);
+
+        // Asserts
+        Device reloadedDevice = getReloadedDevice(device);
+        List<ComTaskExecution> comTaskExecutions = reloadedDevice.getComTaskExecutions();
+        assertThat(comTaskExecutions).is(new Condition<List<ComTaskExecution>>() {
+            @Override
+            public boolean matches(List<ComTaskExecution> comTaskExecutions) {
+                for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+                    if (!comTaskExecution.getNextExecutionTimestamp().equals(triggerDate)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
+        assertThat(nextExecutionTimstamp).isEqualTo(triggerDate);
+    }
+
+    @Test
+    @Transactional
+    public void testCreateWithExistingComTaskExecutions() {
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateWithExistingComTaskExecutions");
+        connectionTask.save();
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
+
+        Device reloadedDevice = getReloadedDevice(device);
+        // Asserts
+        for (ComTaskExecution taskExecution : reloadedDevice.getComTaskExecutions()) {
+            assertThat(taskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+        }
+    }
+
+    @Test(expected = CannotDeleteUsedDefaultConnectionTaskException.class)
+    @Transactional
+    public void testCannotDeleteDefaultTaskThatIsInUse() {
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCannotDeleteDefaultTaskThatIsInUse");
+        connectionTask.save();
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
+        createComTaskExecution();
+
+        // Business method
+        connectionTask.delete();
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    @Transactional
+    public void testTriggerWithAsapStrategyAllComTaskStatusses() throws SQLException, BusinessException {
+        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testTriggerWithAsapStrategyAllComTaskStatusses");
+        connectionTask.save();
+        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
+        final Date futureDate = freezeClock(2013, Calendar.JULY, 4);
+        final Date triggerDate = freezeClock(2013, Calendar.JUNE, 3);
+        ScheduledComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, comTaskEnablement1);
+        assertThat(comTaskExecution.getStatus()).isEqualTo(TaskStatus.NeverCompleted);
+        connectionTask.trigger(triggerDate); // never completed
+        Device reloadedDevice = getReloadedDevice(device);
+        List<ComTaskExecution> comTaskExecutions = reloadedDevice.getComTaskExecutions();
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return triggerDate.equals(comTaskExecution.getNextExecutionTimestamp());
+            }
+        });
+        ((ServerComTaskExecution) comTaskExecution).executionCompleted();
+        comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update(); // waiting task
+        assertThat(getReloadedComTaskExecution(device).getStatus()).isEqualTo(TaskStatus.Waiting);
+        connectionTask.trigger(triggerDate);
+        reloadedDevice = getReloadedDevice(device);
+        comTaskExecutions = reloadedDevice.getComTaskExecutions();
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return futureDate.equals(comTaskExecution.getNextExecutionTimestamp());
+            }
+        });
+        OutboundComPort outboundComPort = createOutboundComPort();
+        ((ServerComTaskExecution) comTaskExecution).setLockedComPort(outboundComPort); // busy task
+        assertThat(getReloadedComTaskExecution(device).getStatus()).isEqualTo(TaskStatus.Busy);
+        connectionTask.trigger(triggerDate);
+        reloadedDevice = getReloadedDevice(device);
+        comTaskExecutions = reloadedDevice.getComTaskExecutions();
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return futureDate.equals(comTaskExecution.getNextExecutionTimestamp());
+            }
+        });
+        ((ServerComTaskExecution) comTaskExecution).setLockedComPort(null);
+        comTaskExecution.putOnHold(); // on hold task
+        assertThat(getReloadedComTaskExecution(device).getStatus()).isEqualTo(TaskStatus.OnHold);
+        connectionTask.trigger(triggerDate);
+        reloadedDevice = getReloadedDevice(device);
+        comTaskExecutions = reloadedDevice.getComTaskExecutions();
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return comTaskExecution.getNextExecutionTimestamp() == null;
+            }
+        });
+        comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
+        final Date futureTrigger = freezeClock(2013, Calendar.AUGUST, 5); // pending task
+        assertThat(getReloadedComTaskExecution(device).getStatus()).isEqualTo(TaskStatus.Pending);
+        connectionTask.trigger(futureTrigger);
+        reloadedDevice = getReloadedDevice(device);
+        comTaskExecutions = reloadedDevice.getComTaskExecutions();
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return futureTrigger.equals(comTaskExecution.getNextExecutionTimestamp());
+            }
+        });
+        ((ServerComTaskExecution) comTaskExecution).executionFailed();  // make it retry
+        assertThat(getReloadedComTaskExecution(device).getStatus()).isEqualTo(TaskStatus.Retrying);
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return futureTrigger.before(getReloadedComTaskExecution(device).getNextExecutionTimestamp());
+            }
+        });
+        connectionTask.trigger(futureTrigger);
+        reloadedDevice = getReloadedDevice(device);
+        comTaskExecutions = reloadedDevice.getComTaskExecutions();
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return futureTrigger.equals(comTaskExecution.getNextExecutionTimestamp());
+            }
+        });
+        comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
+        ((ServerComTaskExecution) comTaskExecution).executionCompleted();   // Resets any failures/retries
+        ((ServerComTaskExecution) comTaskExecution).executionFailed();
+        ((ServerComTaskExecution) comTaskExecution).executionFailed();
+        ((ServerComTaskExecution) comTaskExecution).executionFailed();
+        ((ServerComTaskExecution) comTaskExecution).executionFailed();
+        ((ServerComTaskExecution) comTaskExecution).executionFailed();  // make it fail
+        assertThat(getReloadedComTaskExecution(device).getStatus()).isEqualTo(TaskStatus.Failed);
+        connectionTask.trigger(futureTrigger);
+        reloadedDevice = getReloadedDevice(device);
+        comTaskExecutions = reloadedDevice.getComTaskExecutions();
+        assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
+            @Override
+            public boolean matches(ComTaskExecution comTaskExecution) {
+                return futureTrigger.equals(comTaskExecution.getNextExecutionTimestamp());
+            }
+        });
+    }
+
+    private OutboundComPort createOutboundComPort() {
+        OnlineComServer onlineComServer = inMemoryPersistence.getEngineModelService().newOnlineComServerInstance();
+        onlineComServer.setName("ComServer");
+        onlineComServer.setStoreTaskQueueSize(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setChangesInterPollDelay(TimeDuration.minutes(5));
+        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setSchedulingInterPollDelay(TimeDuration.minutes(1));
+        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setNumberOfStoreTaskThreads(2);
+        OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
+        outboundComPortBuilder.comPortType(ComPortType.TCP);
+        OutboundComPort outboundComPort = outboundComPortBuilder.add();
+        onlineComServer.save();
+        return outboundComPort;
+    }
+
+    protected Date freezeClock (int year, int month, int day) {
+        return freezeClock(year, month, day, 0, 0, 0, 0);
+    }
+
+    protected Date freezeClock (int year, int month, int day, TimeZone timeZone) {
+        return freezeClock(year, month, day, 0, 0, 0, 0, timeZone);
+    }
+
+    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond) {
+        return freezeClock(year, month, day, hour, minute, second, millisecond, utcTimeZone);
+    }
+
+    protected Date freezeClock (int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {
+        Calendar calendar = Calendar.getInstance(timeZone);
+        calendar.set(year, month, day, hour, minute, second);
+        calendar.set(Calendar.MILLISECOND, millisecond);
+        when(clock.getZone()).thenReturn(timeZone.toZoneId());
+        when(clock.instant()).thenReturn(calendar.getTime().toInstant());
+        return calendar.getTime();
+    }
+
+    protected ScheduledComTaskExecution createComTaskExecution() {
+        return createComTaskExecution(comTaskEnablement1);
+    }
+
+    protected ScheduledComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
+        ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
+        ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
+        ScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        device.save();
+        return comTaskExecution;
+    }
+
+    protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp) {
+        return createComTaskExecutionAndSetNextExecutionTimeStamp(nextExecutionTimeStamp, comTaskEnablement1);
+    }
+
+    protected ScheduledComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
+        ScheduledComTaskExecution comTaskExecution = createComTaskExecution(comTaskEnablement);
+        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
+        comTaskExecutionUpdater.update();
+        return comTaskExecution;
+    }
+
+    private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name) {
+        return createAsapWithNoPropertiesWithoutViolations(name, this.partialScheduledConnectionTask);
+    }
+
+    private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name, PartialScheduledConnectionTask partialConnectionTask) {
+        partialConnectionTask.setName(name);
+        partialConnectionTask.save();
+        return (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(partialConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .add();
+    }
+
+    private ScheduledConnectionTaskImpl createMinimizeWithNoPropertiesWithoutViolations(String name, TemporalExpression temporalExpression) {
+        return (ScheduledConnectionTaskImpl) this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
+                .setNextExecutionSpecsFrom(temporalExpression)
+                .add();
+    }
+
+    private ProtocolDialectConfigurationProperties createDialectConfigProperties() {
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
+        deviceConfiguration.save();
+        return configDialect;
+    }
+
+    private Device createSimpleDevice(String mRID) {
+        Device simpleDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "SimpleDevice", mRID);
+        simpleDevice.save();
+        return simpleDevice;
+    }
+
+    private ComSchedule createComSchedule(ComTask comTask) {
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(comTask.getName(), new TemporalExpression(TimeDuration.days(1)), Instant.now()).build();
+        comSchedule.addComTask(comTask);
+        comSchedule.save();
+        return comSchedule;
+    }
+
+    protected ComTaskExecution getReloadedComTaskExecution(Device device) {
+        Device reloadedDevice = getReloadedDevice(device);
+        return reloadedDevice.getComTaskExecutions().get(0);
+    }
+
+    private ComTask createComTaskWithBasicCheck() {
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME);
+        comTask.setStoreData(true);
+        comTask.setMaxNrOfTries(maxNrOfTries);
+        comTask.createBasicCheckTask().add();
+        comTask.save();
+        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
+    }
+
+    private ComTask createComTaskWithLogBooks() {
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME + 2);
+        comTask.setStoreData(true);
+        comTask.setMaxNrOfTries(maxNrOfTries);
+        comTask.createLogbooksTask().add();
+        comTask.save();
+        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
+    }
+
+    private ComTask createComTaskWithRegisters() {
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(COM_TASK_NAME + 3);
+        comTask.setStoreData(true);
+        comTask.setMaxNrOfTries(maxNrOfTries);
+        comTask.createRegistersTask().add();
+        comTask.save();
+        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
+    }
+
+    private ComTaskEnablement enableComTask(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, ComTask comTask) {
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTask, this.securityPropertySet);
+        builder.setProtocolDialectConfigurationProperties(configDialect);
+        builder.useDefaultConnectionTask(useDefault);
+        builder.setPriority(this.comTaskEnablementPriority);
+        return builder.add();
+    }
+
+    private class ComTaskExecutionDialect implements DeviceProtocolDialect {
+
+        @Override
+        public String getDeviceProtocolDialectName() {
+            return DEVICE_PROTOCOL_DIALECT_NAME;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "It's a Dell Display";
+        }
+
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public PropertySpec getPropertySpec(String name) {
+            return null;
+        }
+    }
+
+}

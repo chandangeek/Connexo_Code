@@ -1,0 +1,182 @@
+package com.energyict.mdc.device.topology.impl;
+
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.engine.model.ComServer;
+import com.energyict.mdc.engine.model.OnlineComServer;
+import com.energyict.mdc.engine.model.OutboundComPort;
+import com.energyict.mdc.engine.model.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.*;
+
+import static org.assertj.core.api.Fail.fail;
+
+/**
+ * Provides code reuse opportunities for components that
+ * will test the aspects of the ComTaskExecution class hierarchy
+ * that relate to or rely on the device topology feature.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2014-12-10 (10:55)
+ */
+public class AbstractComTaskExecutionInTopologyTest extends PersistenceIntegrationTest {
+
+    protected static final String COM_TASK_NAME = "TheNameOfMyComTask";
+    protected static final String DEVICE_PROTOCOL_DIALECT_NAME = "Limbueregs";
+    protected static final int MAX_NR_OF_TRIES = 27;
+    protected static final int COM_TASK_ENABLEMENT_PRIORITY = 213;
+
+    protected ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
+
+    @Before
+    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
+        deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
+        deviceConfiguration.save();
+        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
+    }
+
+    protected OutboundComPort createOutboundComPort() {
+        OnlineComServer onlineComServer = inMemoryPersistence.getEngineModelService().newOnlineComServerInstance();
+        onlineComServer.setName("ComServer");
+        onlineComServer.setStoreTaskQueueSize(1);
+        onlineComServer.setStoreTaskThreadPriority(1);
+        onlineComServer.setChangesInterPollDelay(TimeDuration.minutes(5));
+        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setSchedulingInterPollDelay(TimeDuration.minutes(1));
+        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setNumberOfStoreTaskThreads(2);
+        OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
+        outboundComPortBuilder.comPortType(ComPortType.TCP);
+        OutboundComPort outboundComPort = outboundComPortBuilder.add();
+        onlineComServer.save();
+        return outboundComPort;
+    }
+
+    protected ComTaskEnablement enableComTask(boolean useDefault) {
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
+        deviceConfiguration.save();
+        return enableComTask(useDefault, configDialect, COM_TASK_NAME);
+    }
+
+    protected ComTaskEnablement enableComTask(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, String comTaskName) {
+        ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck(comTaskName);
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet);
+        builder.setProtocolDialectConfigurationProperties(configDialect);
+        builder.useDefaultConnectionTask(useDefault);
+        builder.setPriority(COM_TASK_ENABLEMENT_PRIORITY);
+        return builder.add();
+    }
+
+    protected ComTask createComTaskWithBasicCheck(String comTaskName) {
+        ComTask comTask = inMemoryPersistence.getTaskService().newComTask(comTaskName);
+        comTask.setStoreData(true);
+        comTask.setMaxNrOfTries(MAX_NR_OF_TRIES);
+        comTask.createBasicCheckTask().add();
+        comTask.save();
+        return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
+    }
+
+    protected ScheduledConnectionTaskImpl createASAPConnectionStandardTask(Device device) {
+        return this.createASAPConnectionStandardTask(device, TimeDuration.minutes(5));
+    }
+
+    protected ScheduledConnectionTaskImpl createASAPConnectionStandardTask(Device device, TimeDuration frequency) {
+        PartialScheduledConnectionTask partialScheduledConnectionTask = createPartialScheduledConnectionTask(frequency);
+        OutboundComPortPool outboundPool = createOutboundIpComPortPool("MyOutboundPool");
+        ScheduledConnectionTaskImpl myConnectionTask = createAsapWithNoPropertiesWithoutViolations("MyConnectionTask", device, partialScheduledConnectionTask, outboundPool);
+        myConnectionTask.save();
+        return myConnectionTask;
+    }
+
+    protected PartialScheduledConnectionTask createPartialScheduledConnectionTask(TimeDuration frequency) {
+        ConnectionTypePluggableClass connectionTypePluggableClass =
+                inMemoryPersistence.getProtocolPluggableService()
+                        .newConnectionTypePluggableClass(
+                                OutboundNoParamsConnectionTypeImpl.class.getSimpleName(),
+                                OutboundNoParamsConnectionTypeImpl.class.getName());
+        connectionTypePluggableClass.save();
+        return deviceConfiguration.getCommunicationConfiguration().
+                newPartialScheduledConnectionTask(
+                        "Outbound (1)",
+                        connectionTypePluggableClass,
+                        frequency,
+                        ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+                comWindow(new ComWindow(0, 7200)).
+                build();
+    }
+
+    protected OutboundComPortPool createOutboundIpComPortPool(String name) {
+        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineModelService().newOutboundComPortPool();
+        ipComPortPool.setActive(true);
+        ipComPortPool.setComPortType(ComPortType.TCP);
+        ipComPortPool.setName(name);
+        ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        ipComPortPool.save();
+        return ipComPortPool;
+    }
+
+    protected ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name, Device device, PartialScheduledConnectionTask partialConnectionTask, OutboundComPortPool outboundTcpipComPortPool) {
+        partialConnectionTask.setName(name);
+        partialConnectionTask.save();
+
+        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) device.getScheduledConnectionTaskBuilder(partialConnectionTask)
+                .setComPortPool(outboundTcpipComPortPool)
+                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .add();
+        device.save();
+        return scheduledConnectionTask;
+    }
+
+    protected ManuallyScheduledComTaskExecution reloadManuallyScheduledComTaskExecution(Device device, ManuallyScheduledComTaskExecution comTaskExecution) {
+        Device reloadedDevice = getReloadedDevice(device);
+        for (ComTaskExecution taskExecution : reloadedDevice.getComTaskExecutions()) {
+            if (comTaskExecution.getId() == taskExecution.getId()) {
+                return (ManuallyScheduledComTaskExecution) taskExecution;
+            }
+        }
+        fail("ManuallyScheduledComTaskExecution with id " + comTaskExecution.getId() + " not found after reloading device " + device.getName());
+        return null;
+    }
+
+    protected class ComTaskExecutionDialect implements DeviceProtocolDialect {
+
+        @Override
+        public String getDeviceProtocolDialectName() {
+            return DEVICE_PROTOCOL_DIALECT_NAME;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "It's a Dell Display";
+        }
+
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public PropertySpec getPropertySpec(String name) {
+            return null;
+        }
+    }
+
+}
