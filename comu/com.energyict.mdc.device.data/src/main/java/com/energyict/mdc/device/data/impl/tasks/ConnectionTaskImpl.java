@@ -730,11 +730,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void setAsDefault() {
         this.doSetAsDefault();
         this.post();
-        this.postEvent(EventType.CONNECTIONTASK_SETASDEFAULT);
     }
 
     protected void doSetAsDefault() {
         this.isDefault = true;
+        this.postEvent(EventType.CONNECTIONTASK_SETASDEFAULT);
     }
 
     // To be used by the ConnectionTaskServiceImpl only that now has the responsibility to switch defaults
