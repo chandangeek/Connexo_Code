@@ -1105,9 +1105,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                 loadprofile: {
                                     title: 'Load profile',
                                     route: '{loadProfileId}',
-                                    controller: 'Mdc.controller.setup.DeviceLoadProfileOverview',
+                                    controller: 'Mdc.controller.setup.DeviceLoadProfileTab',
                                     privileges: ['privilege.administrate.device','privilege.view.device'],
-                                    action: 'showOverview',
+                                    action: 'initTabDeviceLoadProfileDetailsView',
                                     callback: function (route) {
                                         this.getApplication().on('loadProfileOfDeviceLoad', function (record) {
                                             route.setTitle(record.get('name'));
@@ -1119,17 +1119,17 @@ Ext.define('Mdc.controller.history.Setup', {
                                         data: {
                                             title: 'Load profile data',
                                             route: 'graph',
-                                            controller: 'Mdc.controller.setup.DeviceLoadProfileData',
+                                            controller: 'Mdc.controller.setup.DeviceLoadProfileTab',
                                             privileges: ['privilege.administrate.device','privilege.view.device'],
-                                            action: 'showGraphOverview',
+                                            action: 'initTabLoadProfileGraphView',
                                             filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
                                         },
                                         tableData: {
                                             title: 'Load profile data',
                                             route: 'table',
-                                            controller: 'Mdc.controller.setup.DeviceLoadProfileData',
+                                            controller: 'Mdc.controller.setup.DeviceLoadProfileTab',
                                             privileges: ['privilege.administrate.device','privilege.view.device'],
-                                            action: 'showTableOverview',
+                                            action: 'initTabLoadProfileDataView',
                                             filter: 'Mdc.model.LoadProfilesOfDeviceDataFilter'
                                         },
                                         validation: {

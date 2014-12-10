@@ -16,7 +16,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
 
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('deviceloadprofiles.loadProfileData', 'MDC', 'Load profile data'),
             tools: [
                 {
                     xtype: 'button',
@@ -66,22 +65,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
                             xtype: 'deviceLoadProfilesGraphView'
                         }
                     ]
-                }
-            ]
-        };
-
-        me.side = {
-            xtype: 'panel',
-            ui: 'medium',
-            items: [
-                {
-                    xtype: 'deviceMenu',
-                    itemId: 'stepsMenu',
-                    device: me.device,
-                    toggleId: 'loadProfilesLink'
-                },
-                {
-                    xtype: 'deviceLoadProfileDataSideFilter'
                 }
             ]
         };

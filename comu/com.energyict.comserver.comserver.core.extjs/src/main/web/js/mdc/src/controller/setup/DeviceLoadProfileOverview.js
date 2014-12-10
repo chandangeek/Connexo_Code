@@ -18,12 +18,13 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
         'TimeUnits'
     ],
 
-    showOverview: function (mRID, loadProfileId) {
+    showOverview: function (mRID, loadProfileId, tabController) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             timeUnitsStore = me.getStore('TimeUnits'),
             widget,
+            tabWidget,
             defer = {
                 param: null,
                 callback: null,
@@ -41,13 +42,23 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
             },
             showPage = function () {
                 defer.setCallback(function (device) {
+//                    debugger;
                     loadProfileOfDeviceModel.getProxy().setUrl(mRID);
+                    tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
+                        device: device,
+                        loadProfileId: loadProfileId,
+                        toggleId: 'loadProfileLink'
+                    });
                     widget = Ext.widget('deviceLoadProfilesOverview', {
                         mRID: mRID,
                         router: me.getController('Uni.controller.history.Router'),
                         device: device
                     });
-                    me.getApplication().fireEvent('changecontentevent', widget);
+                    me.getApplication().fireEvent('changecontentevent', tabWidget);
+                    tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(false);
+                    tabWidget.down('#loadProfileTabPanel').setTitle(Uni.I18n.translate('general.overview', 'MDC', 'Overview'));
+                    tabWidget.down('#loadProfile-specifications').add(widget);
+                    tabController.showTab(0);
                     widget.setLoading(true);
 
                     loadProfileOfDeviceModel.load(loadProfileId, {
@@ -62,14 +73,18 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                     });
                 });
             };
-
+        debugger;
         deviceModel.load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
                 defer.setParam(record)
             }
         });
-
-        timeUnitsStore.getCount() ? showPage() : timeUnitsStore.on('load', showPage, me, {single: true});
+        if (timeUnitsStore.getCount() > 0) {
+            showPage();
+        } else {
+            timeUnitsStore.on('load', showPage, me, {single: true});
+            timeUnitsStore.load();
+        }
     }
 });

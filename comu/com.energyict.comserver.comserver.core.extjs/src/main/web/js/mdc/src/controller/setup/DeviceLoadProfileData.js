@@ -32,11 +32,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         },
         {
             ref: 'sideFilter',
-            selector: 'deviceLoadProfilesData #deviceLoadProfileDataSideFilter'
+            selector: '#deviceLoadProfileDataSideFilter'
         },
         {
             ref: 'sideFilterForm',
-            selector: 'deviceLoadProfilesData #deviceLoadProfileDataFilterForm'
+            selector: '#deviceLoadProfileDataFilterForm'
         },
         {
             ref: 'filterPanel',
@@ -57,37 +57,39 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             'deviceLoadProfilesData #deviceLoadProfilesDataGrid': {
                 select: this.showPreview
             },
-            'deviceLoadProfilesData #deviceLoadProfileDataFilterApplyBtn': {
+            '#deviceLoadProfileDataFilterApplyBtn': {
                 click: this.applyFilter
             },
-            'deviceLoadProfilesData #deviceLoadProfileDataFilterResetBtn': {
+            '#deviceLoadProfileDataFilterResetBtn': {
                 click: this.clearFilter
             },
             'deviceLoadProfilesData #deviceLoadProfilesGraphView': {
                 resize: this.onGraphResize
             },
-            'deviceLoadProfilesData #deviceloadprofilesdatafilterpanel': {
+            '#deviceloadprofilesdatafilterpanel': {
                 removeFilter: this.removeFilterItem,
                 clearAllFilters: this.clearFilter
             }
         });
     },
 
-    showTableOverview: function (mRID, loadProfileId) {
-        this.showOverview(mRID, loadProfileId, true);
+    showTableOverview: function (mRID, loadProfileId,tabController) {
+        this.showOverview(mRID, loadProfileId, true,tabController);
     },
 
-    showGraphOverview: function (mRID, loadProfileId) {
-        this.showOverview(mRID, loadProfileId, false);
+    showGraphOverview: function (mRID, loadProfileId,tabController) {
+        this.showOverview(mRID, loadProfileId, false,tabController);
     },
 
-    showOverview: function (mRID, loadProfileId, isTable) {
+    showOverview: function (mRID, loadProfileId, isTable,tabController) {
+        debugger;
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             loadProfileModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
             router = me.getController('Uni.controller.history.Router'),
             widget,
+            tabWidget,
             defer = {
                 param: null,
                 callback: null,
@@ -124,18 +126,28 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                         durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
                         viewOnlySuspects;
                     durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
+                    tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
+                        device: device,
+                        loadProfileId: loadProfileId,
+                        toggleId: 'loadProfileLink'
+                    });
+
                     widget = Ext.widget('deviceLoadProfilesData', {
                         router: me.getController('Uni.controller.history.Router'),
                         channels: record.get('channels'),
                         device: device
                     });
-
+                    tabWidget.down('#loadProfileTabPanel').setTitle(Uni.I18n.translate('deviceloadprofiles.loadProfileData', 'MDC', 'Load profile data'));
+                    tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(true);
                     me.loadProfileModel = record;
                     me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-                    me.getApplication().fireEvent('changecontentevent', widget);
+                    me.getApplication().fireEvent('changecontentevent', tabWidget);
+                    tabWidget.down('#loadProfile-data').add(widget);
+                    tabController.showTab(1);
                     viewport.setLoading(false);
                     Ext.getBody().mask('Loading...');
-                    widget.setLoading();
+                   widget.setLoading();
+                    debugger;
                     widget.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!isTable);
                     widget.down('#deviceLoadProfilesTableViewBtn').setDisabled(isTable);
                     widget.down('#deviceLoadProfilesTableView').setVisible(isTable);
@@ -337,7 +349,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         router.filter.set('duration', all.count + all.timeUnit);
         router.filter.set('onlySuspect', viewOnlySuspects);
         router.filter.set('onlyNonSuspect', false);
-        me.getPage().down('#suspect').setValue(viewOnlySuspects);
+        me.getSideFilter().down('#suspect').setValue(viewOnlySuspects);
     },
 
     setFilterView: function () {
