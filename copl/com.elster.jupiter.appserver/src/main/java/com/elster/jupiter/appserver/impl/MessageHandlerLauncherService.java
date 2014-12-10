@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -33,8 +34,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.streams.Predicates.notNull;
 
 @Component(name = "com.elster.jupiter.appserver.messagehandlerlauncher", service = MessageHandlerLauncherService.class, immediate = true)
 public class MessageHandlerLauncherService implements IAppService.CommandListener {
@@ -274,7 +273,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                 .filter(factory -> subscriberExecutionSpec.stream()
                         .map(SubscriberKey::of)
                         .map(handlerFactories::get)
-                        .filter(notNull())
+                        .filter(Objects::nonNull)
                         .noneMatch(f -> f.equals(factory)))
                 .collect(Collectors.toSet());
         toRemove.forEach(this::stopServing);
