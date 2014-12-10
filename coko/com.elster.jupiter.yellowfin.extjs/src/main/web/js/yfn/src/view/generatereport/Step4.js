@@ -25,7 +25,18 @@ Ext.define('Yfn.view.generatereport.Step4', {
         },
         {
             xtype: 'container',
-            itemId:'step4-summary'
+            itemId: 'step4-summary'
+        },
+        {
+            xtype: 'component',
+            itemId: 'step4-generatereport-link',
+            visible:false,
+            autoEl: {
+                tag: 'a',
+                target: '_blank',
+                href: 'about:blank',
+                html: ''
+            }
         }
     ]
 

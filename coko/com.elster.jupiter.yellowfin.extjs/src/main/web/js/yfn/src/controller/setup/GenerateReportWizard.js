@@ -71,22 +71,16 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             selector: 'generatereport-wizard-step4'
         },
         {
-            ref: 'step1FormErrorMessage',
-            selector: 'devicegroup-wizard-step1 #step1-adddevicegroup-errors'
-        },
-        {
-            ref: 'step1FormNameErrorMessage',
-            selector: 'devicegroup-wizard-step1 #step1-adddevicegroup-name-errors'
-        },
-        {
-            ref: 'step2FormErrorMessage',
-            selector: 'devicegroup-wizard-step2 uni-form-error-message'
+            ref: 'generateReportLink',
+            selector: 'generatereport-wizard-step4 #step4-generatereport-link'
+
         }
     ],
 
     generateReportWizardWidget: null,
-    selectedReportID: null,
+    selectedReportUUID: null,
     reportsStore:null,
+    selectedFilterValues: {},
 
     init: function () {
         this.control({
@@ -156,7 +150,13 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     },
 
     finishClick: function () {
-
+        var me = this;
+        console.log(me.selectedFilterValues);
+        var link = me.getGenerateReportLink();
+        var href = '../reports/index.html#/reports/showReport?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues));
+        link.getEl().dom.href = href;
+        link.getEl().dom.target = '_blank';
+        link.getEl().dom.click();
     },
 
     cancelClick: function () {
@@ -285,6 +285,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
 
     loadReportFilters: function (reportUUID) {
         var me = this;
+        var router = me.getController('Uni.controller.history.Router');
         var step2 = me.getStep2();
         var step2Form = step2.down('form');
         step2Form.removeAll();
@@ -296,36 +297,53 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         if (reportFiltersStore) {
             var proxy = reportFiltersStore.getProxy();
             proxy.setExtraParam('reportUUID', reportUUID);
+            step2Form.setLoading(true);
+            step3Form.setLoading(true);
             reportFiltersStore.load(function (records) {
-                Ext.each(records, function (record) {
-                    console.log(record);
-                    var filterOmittable = record.get('filterOmittable');
-                    var formFields = me.createFormControls(record, filterOmittable ? "filter": "prompt");
+                var hasPrompts = false;
+                var hasFilters = false;
+
+                Ext.each(records, function (filterRecord) {
+                    var filterOmittable = filterRecord.get('filterOmittable');
+                    var filterType = filterRecord.get('filterType');
+                    var filterName = filterRecord.get('filterName');
+                    var filterDescription = filterRecord.get('filterDisplayName') || filterName;
+                    var initialValue = router.queryParams[filterName];
+
+                    var  formFields = me.createFilterControls(filterRecord, filterOmittable ? "filter": "prompt",initialValue );
+
+                    formFields = Ext.isArray(formFields) ? formFields : [formFields];
+                    formFields.unshift({
+                        xtype: 'displayfield',
+                        labelAlign: 'left',
+                        labelWidth:300,
+                        fieldLabel: filterDescription + ' ' + me.translateFilterType(filterType)
+                    });
+
                     var fieldContainer = {
                         xtype: 'container',
-                        columnWidth: 0.5,
-                        maxWidth: 250,
-                        padding:20,
-                        items:formFields,
-
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
-                        }
-
+                        },
+                        columnWidth: 0.5,
+                        maxWidth: 250,
+                        padding:20,
+                        items:formFields
                     };
                     if (filterOmittable) {
+                        hasFilters = true;
                         step3Form.add(fieldContainer);
-                        step3.down('#info-no-fields').setVisible(false);
-
                     }
                     else {
+                        hasPrompts = true;
                         step2Form.add(fieldContainer);
-                        step2.down('#info-no-fields').setVisible(false);
                     }
-
-
                 });
+                step3.down('#info-no-fields').setVisible(!hasFilters);
+                step2.down('#info-no-fields').setVisible(!hasPrompts);
+                step2Form.setLoading(false);
+                step3Form.setLoading(false);
             });
         }
 
@@ -341,9 +359,9 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         var step1Form = step1.down('form').getForm();
         var step1Values = step1Form.getFieldValues();
         console.log(step1Values);
-       // if (me.selectedReportID != step1Values.reportUUID) {
-            me.selectedReportID = step1Values.reportUUID;
-            me.loadReportFilters(me.selectedReportID);
+       // if (me.selectedReportUUID != step1Values.reportUUID) {
+            me.selectedReportUUID = step1Values.reportUUID;
+            me.loadReportFilters(me.selectedReportUUID);
         //}
 
         return true;
@@ -360,39 +378,32 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         this.populateSummaryStep();
         return true;
     },
-    createFormControls: function (filterRecord, fieldType) {
+    createFilterControls: function (filterRecord, fieldType, initialValue) {
         var me = this;
         var filterType = filterRecord.get('filterType');
         var filterDisplayType = filterRecord.get('filterDisplayType');
 
         if(filterType == "INLIST" || filterType == "NOTINLIST")
-            return me.createMultiSelectListControls(filterRecord, fieldType);
+            return me.createMultiSelectListControls(filterRecord, fieldType, initialValue);
         switch (filterDisplayType) {
             case "DATE":
                 if(filterType == "BETWEEN")
-                    return me.createDateBetweenControls(filterRecord, fieldType);
+                    return me.createDateBetweenControls(filterRecord, fieldType, initialValue);
                 else
-                    return me.createDateControls(filterRecord, fieldType);
+                    return me.createDateControls(filterRecord, fieldType, initialValue);
             case "TEXT":
-                return me.createMultiSelectListControls(filterRecord, fieldType);
+                return me.createTextControls(filterRecord, fieldType, initialValue);
         }
     },
-    createDateControls: function (filterRecord, fieldType) {
+    createDateControls: function (filterRecord, fieldType, defaultValue) {
 
         var me = this;
         fieldType = fieldType || 'filter';
         var filterType = filterRecord.get('filterType');
         var filterName = filterRecord.get('filterName');
-        var filterDescription = filterRecord.get('filterDisplayName') || filterName;
 
         var controls =
             [
-                {
-                    xtype: 'displayfield',
-                    labelAlign: 'left',
-                    labelWidth:300,
-                    fieldLabel: filterDescription + ' ' + me.translateFilterType(filterType)
-                },
                 {
                     xtype: 'date-time',
                     padding: 0,
@@ -400,38 +411,41 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     name: filterName,
                     fieldType:fieldType,
                     record:filterRecord,
+                    dateConfig:{
+                        allowBlank: fieldType == 'filter'
+                    },
                     dateTimeSeparatorConfig: {
                         margin: '0 50 0 10'
                     },
-                    value:filterRecord.get('filterDefaultValue1'),
+                    value:defaultValue ||  me.getDefaultDateValue(filterRecord.get('filterDefaultValue1')),
                     border: false,
                     getFieldValue : function (){
-                        return this.getValue();
+                        var rawValue = this.getValue();
+                        if(rawValue)
+                            return Ext.Date.format(rawValue,'c');
+                        else
+                            return null;
                     },
                     getFieldDisplayValue : function(){
                         var rawValue = this.getValue();
-                        return Ext.Date.format(rawValue,'n/j/Y g:i A');
+                        if(rawValue)
+                            return Ext.Date.format(rawValue,'n/j/Y g:i A');
+                        else
+                            return "";
                     }
                 },
             ];
 
         return controls;
     },
-    createDateBetweenControls: function (filterRecord, fieldType) {
+    createDateBetweenControls: function (filterRecord, fieldType, defaultValue) {
         var me = this;
         fieldType = fieldType || 'filter';
         var filterType = filterRecord.get('filterType');
         var filterName = filterRecord.get('filterName');
-        var filterDescription = filterRecord.get('filterDisplayName') || filterName;
 
         var controls =
             [
-                {
-                    xtype: 'displayfield',
-                    labelAlign: 'left',
-                    labelWidth:300,
-                    fieldLabel: filterDescription + ' ' + me.translateFilterType(filterType)
-                },
                 {
                     xtype: 'fieldset',
                     fieldType:fieldType,
@@ -445,7 +459,10 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     items: [
                         {
                             xtype: 'date-time',
-                            value:filterRecord.get('filterDefaultValue1'),
+                            value: (defaultValue && defaultValue.from) || me.getDefaultDateValue(filterRecord.get('filterDefaultValue1')),
+                            dateConfig:{
+                                allowBlank: fieldType == 'filter'
+                            },
                             dateTimeSeparatorConfig: {
                                 margin: '0 50 0 10'
                             },
@@ -453,7 +470,10 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                         },
                         {
                             xtype: 'date-time',
-                            value:filterRecord.get('filterDefaultValue2'),
+                            value:(defaultValue && defaultValue.to) ||  me.getDefaultDateValue(filterRecord.get('filterDefaultValue2')),
+                            dateConfig:{
+                                allowBlank: fieldType == 'filter'
+                            },
                             dateTimeSeparatorConfig: {
                                 margin: '0 50 0 10'
                             },
@@ -481,55 +501,48 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     getFieldDisplayValue : function(){
                         var rawValue = this.getRawValue();
                         return Ext.String.format("{0} - {1}",
-                            Ext.Date.format(rawValue.from, 'n/j/Y g:i A'),
-                            Ext.Date.format(rawValue.to, 'n/j/Y g:i A')
+                            rawValue.from ? Ext.Date.format(rawValue.from, 'n/j/Y g:i A') : '',
+                            rawValue.to ? Ext.Date.format(rawValue.to, 'n/j/Y g:i A') : ''
                         );
                     }
                 }
             ];
         return controls;
     },
-    createTextControls: function (filterRecord, fieldType) {
+    createTextControls: function (filterRecord, fieldType, defaultValue) {
         fieldType = fieldType || 'filter';
         var filterType = filterRecord.get('filterType');
         var filterName = filterRecord.get('filterName');
-        var filterDescription = filterRecord.get('filterDisplayName')  || filterName;
 
         var controls =
             [
                 {
-                    xtype: 'displayfield',
-                    labelAlign: 'left',
-                    fieldLabel: filterDescription + ' ' + me.translateFilterType(filterType)
-                },
-                {
                     xtype: 'textfield',
-                    maxWidth: 250,
                     fieldType:fieldType,
                     record:filterRecord,
-                    name: filterName
+                    value: defaultValue || filterRecord.get('filterDefaultValue1'),
+                    name: filterName,
+                    getFieldValue : function(){
+                        return this.getValue();
+                    },
+                    getFieldDisplayValue : function(){
+                        return this.getFieldValue();
+                    }
                 }
             ];
         return controls;
     },
-    createMultiSelectListControls: function (filterRecord, fieldType) {
+    createMultiSelectListControls: function (filterRecord, fieldType, defaultValue) {
         var me = this;
         fieldType = fieldType || 'filter';
         var filterType = filterRecord.get('filterType');
         var filterName = filterRecord.get('filterName');
-        var filterDescription = filterRecord.get('filterDisplayName')  || filterName;
 
         var store =  Ext.create('Yfn.store.ReportFilterListItems',{});
-        store.getProxy().setExtraParam('reportUUID', me.selectedReportID);
+        store.getProxy().setExtraParam('reportUUID', me.selectedReportUUID);
         store.getProxy().setExtraParam('filterId', filterRecord.get('id'));
         var controls =
             [
-                {
-                    xtype: 'displayfield',
-                    labelAlign: 'left',
-                    labelWidth:300,
-                    fieldLabel: filterDescription + ' ' + me.translateFilterType(filterType)
-                },
                 {
                     xtype: 'uni-filter-combo',
                     name: filterName,
@@ -537,13 +550,14 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     displayField: 'value1',
                     fieldType:fieldType,
                     record:filterRecord,
-                    value: filterRecord.get('filterDefaultValue1').split('|'),
+                    value: defaultValue || filterRecord.get('filterDefaultValue1').split('|'),
                     valueField: 'value2',
                     getFieldValue : function(){
-                        if (!_.isEmpty(this.getRawValue())) {
+                        return this.getValue();
+                        /*if (!_.isEmpty(this.getRawValue())) {
                             return this.getRawValue();
                         }
-                        return undefined;
+                        return undefined;*/
                     },
                     getFieldDisplayValue : function(){
                         return this.getFieldValue();
@@ -560,8 +574,11 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         var step4 = me.getStep4();
         var summaryContainer = step4.down('#step4-summary');
         summaryContainer.removeAll();
+        me.selectedFilterValues = {};
 
-        var reportRecord = me.reportsStore.findRecord("reportUUID", me.selectedReportID);
+        var reportRecord = me.reportsStore.findRecord("reportUUID", me.selectedReportUUID);
+
+        //me.selectedFilterValues['__REPORT_UUID__'] = me.selectedReportUUID;
 
         summaryContainer.add(
             {
@@ -592,6 +609,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     value: field.getFieldDisplayValue()
                 });
                 hasPrompts = true;
+                me.selectedFilterValues[field.record.get('filterName')] = field.getFieldValue();
             }
         }
 
@@ -620,7 +638,10 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     fieldLabel: field.record.get('filterDisplayName') + ' ' + me.translateFilterType(field.record.get('filterType')),
                     value: field.getFieldDisplayValue()
                 });
-
+                var value = field.getFieldValue();
+                if(value) {
+                    me.selectedFilterValues[field.record.get('filterName')] = value;
+                }
                 hasFilters = true;
             }
         }
@@ -658,6 +679,16 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
             case 'LINKFILTER': return Uni.I18n.translate('generatereport.reportTypeLINKFILTER', 'YFN', 'Link to Filter');
             return filterType;
         }
+    },
+    getDefaultDateValue:function(defaultDateValue){
+        defaultDateValue = defaultDateValue || "";
+        defaultDateValue = defaultDateValue.split('|')[0];  //sometime wrong configured yellofin filter
+                                                            // have default value as series of values separated by '|'
+        if(defaultDateValue.indexOf('SYSDATE')>=0){ // resolve default values specified as relative date
+            defaultDateValue = defaultDateValue.replace('SYSDATE', 'new Date().getTime()');
+            defaultDateValue = eval('new Date('+defaultDateValue+'*86400000)');
+            return Ext.Date.format(defaultDateValue,'Y-m-d');
+        }
+       return defaultDateValue;
     }
-
 })

@@ -28,7 +28,7 @@ Ext.define('Yfn.view.generatereport.Step2', {
             itemId: 'info-no-fields',
             title: Uni.I18n.translate('generatereport.noReportPrompts', 'YFN', 'No report prompts defined.'),
             text:Uni.I18n.translate('generatereport.noReportPrompts', 'YFN', 'There are no user prompts for this report. You could continue with next step'),
-            hidden: false
+            hidden: true
 
         },
         {

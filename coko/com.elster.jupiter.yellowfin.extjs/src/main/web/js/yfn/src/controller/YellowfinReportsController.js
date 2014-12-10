@@ -8,7 +8,6 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
     ],
 
     showReport: function(report) {
-
         var widget = Ext.widget('reportView');
         widget.reportName = report;
         this.getApplication().fireEvent('changecontentevent', widget);

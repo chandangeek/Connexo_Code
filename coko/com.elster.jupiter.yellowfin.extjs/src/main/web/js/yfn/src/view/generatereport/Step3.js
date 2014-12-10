@@ -28,7 +28,7 @@ Ext.define('Yfn.view.generatereport.Step3', {
             itemId: 'info-no-fields',
             title: Uni.I18n.translate('generatereport.noReportFilters', 'YFN', 'No report filters defined.'),
             text:Uni.I18n.translate('generatereport.noReportFilter', 'YFN', 'There are no filter defined for this report. You could continue with next step'),
-            hidden: false
+            hidden: true
 
         },
         {
