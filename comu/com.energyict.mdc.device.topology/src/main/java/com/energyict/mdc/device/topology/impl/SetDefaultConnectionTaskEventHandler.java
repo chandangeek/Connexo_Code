@@ -29,6 +29,17 @@ public class SetDefaultConnectionTaskEventHandler implements TopicHandler {
 
     private volatile ServerTopologyService topologyService;
 
+    // For OSGi purposes
+    public SetDefaultConnectionTaskEventHandler() {
+        super();
+    }
+
+    // For unit testing purposes
+    SetDefaultConnectionTaskEventHandler(ServerTopologyService topologyService) {
+        this();
+        this.setTopologyService(topologyService);
+    }
+
     @Override
     public String getTopicMatcher() {
         return "com/energyict/mdc/device/data/connectiontask/SETASDEFAULT";

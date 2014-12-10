@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-09 (15:09)
  */
-public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol {
+public class LoadProfileInTopologyTest extends PersistenceTestWithMockedDeviceProtocol {
 
     private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private static final String MRID = "MyUniqueMRID";
@@ -88,9 +88,9 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
 
     private void setupPhenomena() {
         this.unit1 = Unit.get("kWh");
-        this.phenomenon1 = this.createPhenomenonIfMissing(this.unit1, LoadProfileImplTest.class.getSimpleName() + "1");
+        this.phenomenon1 = this.createPhenomenonIfMissing(this.unit1, LoadProfileInTopologyTest.class.getSimpleName() + "1");
         this.unit2 = Unit.get("MWh");
-        this.phenomenon2 = this.createPhenomenonIfMissing(this.unit2, LoadProfileImplTest.class.getSimpleName() + "2");
+        this.phenomenon2 = this.createPhenomenonIfMissing(this.unit2, LoadProfileInTopologyTest.class.getSimpleName() + "2");
     }
 
     private Phenomenon createPhenomenonIfMissing(Unit unit, String name) {
@@ -167,8 +167,8 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         deviceConfiguration.activate();
 
         Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", MRID);
-        inMemoryPersistence.getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
         slaveWithLoadProfile.save();
+        inMemoryPersistence.getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
         return slaveWithLoadProfile;
     }
 
@@ -204,8 +204,8 @@ public class LoadProfileImplTest extends PersistenceTestWithMockedDeviceProtocol
         deviceConfiguration.activate();
 
         Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", "S");
-        inMemoryPersistence.getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
         slaveWithLoadProfile.save();
+        inMemoryPersistence.getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(slaveWithLoadProfile);
         assertThat(reloadedLoadProfile.isVirtualLoadProfile()).isFalse();

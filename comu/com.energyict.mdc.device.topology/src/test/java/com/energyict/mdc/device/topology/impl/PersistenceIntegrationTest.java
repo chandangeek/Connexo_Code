@@ -46,7 +46,6 @@ public abstract class PersistenceIntegrationTest {
     static final String DEVICE_TYPE_NAME = PersistenceIntegrationTest.class.getName() + "Type";
     static final String DEVICE_CONFIGURATION_NAME = PersistenceIntegrationTest.class.getName() + "Config";
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
-    protected static final String DEVICENAME = "deviceName";
     protected static final String MRID = "MyUniqueMRID";
 
     protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
@@ -77,7 +76,7 @@ public abstract class PersistenceIntegrationTest {
     public static void initialize() throws SQLException {
         initializeClock();
         inMemoryPersistence = new InMemoryIntegrationPersistence(clock);
-        inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.data", false);
+        inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.topology", false);
     }
 
     @AfterClass
@@ -143,7 +142,7 @@ public abstract class PersistenceIntegrationTest {
     }
 
     protected Device createSimpleDevice() {
-        return createSimpleDeviceWithName(DEVICENAME);
+        return createSimpleDeviceWithName(this.getClass().getSimpleName());
     }
 
     protected Device createSimpleDeviceWithName(String name, String mRID){

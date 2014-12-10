@@ -19,7 +19,6 @@ import java.util.Optional;
  */
 public class G3CommunicationPathSegmentImpl extends CommunicationPathSegmentImpl implements G3CommunicationPathSegment {
 
-    @IsPresent
     private Reference<Device> nextHop = ValueReference.absent();
     private long timeToLive;
     private int cost;

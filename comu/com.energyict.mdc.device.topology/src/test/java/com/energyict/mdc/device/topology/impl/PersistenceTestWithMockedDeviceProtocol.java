@@ -30,8 +30,8 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class PersistenceTestWithMockedDeviceProtocol {
-    static final String DEVICE_TYPE_NAME = PersistenceTestWithMockedDeviceProtocol.class.getName() + "Type";
-    static final String DEVICE_CONFIGURATION_NAME = PersistenceTestWithMockedDeviceProtocol.class.getName() + "Config";
+    static final String DEVICE_TYPE_NAME = PersistenceTestWithMockedDeviceProtocol.class.getSimpleName() + "Type";
+    static final String DEVICE_CONFIGURATION_NAME = PersistenceTestWithMockedDeviceProtocol.class.getSimpleName() + "Config";
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     protected DeviceType deviceType;
     protected DeviceConfiguration deviceConfiguration;

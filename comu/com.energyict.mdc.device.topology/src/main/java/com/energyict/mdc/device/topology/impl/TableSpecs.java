@@ -51,13 +51,13 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<CommunicationPathSegment> table = dataModel.addTable(name(), CommunicationPathSegment.class);
             table.map(CommunicationPathSegmentImpl.IMPLEMENTERS);
-            table.addDiscriminatorColumn("DISCRIMINATOR", "number");
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column source = table.column("SRCDEVICE").notNull().number().conversion(NUMBER2LONG).add();
             Column target = table.column("TARGETDEVICE").notNull().number().conversion(NUMBER2LONG).add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column nextHop = table.column("NEXTHOPDEVICE").number().conversion(NUMBER2LONG).add();
-            table.column("TIMETOLIVE_SECS").number().conversion(NUMBER2LONG).add();
-            table.column("COST").number().conversion(NUMBER2INT).add();
+            table.column("TIMETOLIVE_SECS").number().conversion(NUMBER2LONG).map(CommunicationPathSegmentImpl.Field.TIME_TO_LIVE.fieldName()).add();
+            table.column("COST").number().conversion(NUMBER2INT).map(CommunicationPathSegmentImpl.Field.COST.fieldName()).add();
             table.primaryKey("PK_DTL_COMPATHSEGMENT").on(source, target, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_COMPATHSEGMENT_SRC").
                     on(source).
@@ -71,7 +71,7 @@ public enum TableSpecs {
                     onDelete(CASCADE).
                     map(CommunicationPathSegmentImpl.Field.TARGET.fieldName()).
                     add();
-            table.foreignKey("FK_DTL_COMPATHSEGMENT_TARGET").
+            table.foreignKey("FK_DTL_COMPATHSEGMENT_NEXTHOP").
                     on(nextHop).
                     references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
                     onDelete(CASCADE).

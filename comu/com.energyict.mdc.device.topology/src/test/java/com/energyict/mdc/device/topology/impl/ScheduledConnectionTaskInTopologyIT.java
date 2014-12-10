@@ -34,7 +34,11 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -54,6 +58,7 @@ import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -103,6 +108,30 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         return connectionTypePluggableClass;
     }
 
+    @BeforeClass
+    public static void createComPortPools() {
+        createIpComPortPools();
+    }
+
+    private static void createIpComPortPools() {
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                outboundTcpipComPortPool = createOutboundIpComPortPool("TCP/IP out(1)");
+            }
+        });
+    }
+
+    private static OutboundComPortPool createOutboundIpComPortPool(String name) {
+        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineModelService().newOutboundComPortPool();
+        ipComPortPool.setActive(true);
+        ipComPortPool.setComPortType(ComPortType.TCP);
+        ipComPortPool.setName(name);
+        ipComPortPool.setTaskExecutionTimeout(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        ipComPortPool.save();
+        return ipComPortPool;
+    }
+
     @Before
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
         this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
@@ -111,7 +140,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     @Before
     public void initializeMocks() {
         super.initializeMocks();
-        this.device = createSimpleDevice("First");
+        this.device = createSimpleDevice(this.getClass().getSimpleName());
         ProtocolDialectConfigurationProperties configDialect = createDialectConfigProperties();
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck();
         ComTask comTaskWithLogBooks = createComTaskWithLogBooks();
@@ -126,7 +155,25 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         partialScheduledConnectionTask = deviceCommunicationConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
                 comWindow(new ComWindow(0, 7200)).
                 build();
+        deviceCommunicationConfiguration.save();
 
+    }
+
+    @Before
+    public void addEventHandlers() {
+        ServerTopologyService topologyService = inMemoryPersistence.getTopologyService();
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new DefaultConnectionTaskCreateEventHandler(topologyService)));
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new ComTaskExecutionCreateEventHandler(topologyService)));
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new ComTaskExecutionUpdateEventHandler(topologyService)));
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new ComTaskExecutionObsoleteEventHandler(topologyService, mock(Thesaurus.class))));
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new SetDefaultConnectionTaskEventHandler(topologyService)));
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new ClearDefaultConnectionTaskEventHandler(topologyService)));
     }
 
     @Test
@@ -144,8 +191,8 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         // Business method
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
 
-        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         // Asserts
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
         assertThat(connectionTask.getNextExecutionTimestamp()).isEqualTo(earliestNextExecutionTimestamp);
         assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
         assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
@@ -179,16 +226,16 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
         freezeClock(2013, Calendar.FEBRUARY, 17, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
 
-        ScheduledConnectionTaskImpl notDefaultConnectionTask = this.createMinimizeWithNoPropertiesWithoutViolations("updateToDefaultTestNextExecutionTimeStamp", new TemporalExpression(EVERY_HOUR));
-        notDefaultConnectionTask.save();
-        Date nextExecutionTimestamp = notDefaultConnectionTask.getNextExecutionTimestamp();
+        ScheduledConnectionTaskImpl theOneThatMinimizesConnections = this.createMinimizeWithNoPropertiesWithoutViolations("updateToDefaultTestNextExecutionTimeStamp", new TemporalExpression(EVERY_HOUR));
+        theOneThatMinimizesConnections.save();
+        Date nextExecutionTimestamp = theOneThatMinimizesConnections.getNextExecutionTimestamp();
         ConnectionTaskService connectionTaskService = inMemoryPersistence.getConnectionTaskService();
 
         ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(comTaskNextExecutionTimeStamp);
 
         // Business method
-        connectionTaskService.setDefaultConnectionTask(notDefaultConnectionTask);
-        ScheduledConnectionTask reloaded = connectionTaskService.findScheduledConnectionTask(notDefaultConnectionTask.getId()).get();
+        connectionTaskService.setDefaultConnectionTask(theOneThatMinimizesConnections);
+        ScheduledConnectionTask reloaded = connectionTaskService.findScheduledConnectionTask(theOneThatMinimizesConnections.getId()).get();
 
         // Asserts after update
         assertThat(reloaded.getNextExecutionTimestamp()).isEqualTo(nextExecutionTimestamp);
@@ -218,16 +265,19 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     public void creatingDefaultFromPartialShouldAlsoUpdateComTaskExecutionsWhichUseTheDefaultTest() {
         this.partialScheduledConnectionTask.setDefault(true);
         this.partialScheduledConnectionTask.save();
-
-
         ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
+
+        // Prologue asserts
         assertThat(comTaskExecution.useDefaultConnectionTask()).isTrue();
         assertThat(comTaskExecution.getConnectionTask()).isNull();
 
+        // Business method
         ScheduledConnectionTaskImpl myDefaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("MyDefaultConnectionTask", this.partialScheduledConnectionTask);
 
+        // Asserts
         ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isNotNull();
         assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(myDefaultConnectionTask.getId());
     }
 
@@ -628,6 +678,29 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         public PropertySpec getPropertySpec(String name) {
             return null;
         }
+    }
+
+    private class SubscriberForTopicHandler implements Subscriber {
+        private final TopicHandler topicHandler;
+
+        private SubscriberForTopicHandler(TopicHandler topicHandler) {
+            super();
+            this.topicHandler = topicHandler;
+        }
+
+        @Override
+        public void handle(Object notification, Object... notificationDetails) {
+            LocalEvent event = (LocalEvent) notification;
+            if (event.getType().getTopic().equals(this.topicHandler.getTopicMatcher())) {
+                this.topicHandler.handle(event);
+            }
+        }
+
+        @Override
+        public Class<?>[] getClasses() {
+            return new Class<?>[]{LocalEvent.class};
+        }
+
     }
 
 }

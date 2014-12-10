@@ -168,8 +168,10 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void findPhysicalConnectedDevicesTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
         Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
+        device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
         Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", MRID+"2");
+        device2.save();
         this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
 
         // Business method
@@ -194,8 +196,10 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
     public void findDownstreamDevicesAfterRemovalOfOneTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
         Device device1 = this.getDeviceService().newDevice(deviceConfiguration, "Origin1", "1");
+        device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
         Device device2 = this.getDeviceService().newDevice(deviceConfiguration, "Origin2", "2");
+        device2.save();
         this.getTopologyService().setPhysicalGateway(device2, physicalMaster);
 
         //business method

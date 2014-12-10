@@ -180,12 +180,14 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new MdcCommonModule(),
                 new MdcIOModule(),
                 new SchedulingModule(),
-                new DeviceDataModule());
+                new DeviceDataModule(),
+                new TopologyModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         Environment environment = injector.getInstance(Environment.class);
         environment.put(InMemoryPersistenceWithMockedDeviceProtocol.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
         environment.setApplicationContext(this.applicationContext);
         try (TransactionContext ctx = this.transactionService.getContext()) {
+            injector.getInstance(PluggableService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
@@ -322,7 +324,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Inject
-        private MockProtocolPluggableService(OrmService ormService, EventService eventService, NlsService nlsService, RelationService relationService, ConnectionTypeService connectionTypeService, InboundDeviceProtocolService inboundDeviceProtocolService, DeviceProtocolSecurityService deviceProtocolSecurityService, DeviceProtocolMessageService deviceProtocolMessageService, DeviceProtocolService deviceProtocolService, PluggableService pluggableService, PropertySpecService propertySpecService, IssueService issueService) {
+        private MockProtocolPluggableService() {
+            super();
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
         }
 

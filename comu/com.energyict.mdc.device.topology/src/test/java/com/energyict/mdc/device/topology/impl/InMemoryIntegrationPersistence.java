@@ -31,6 +31,7 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
@@ -62,6 +63,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -119,6 +121,7 @@ public class InMemoryIntegrationPersistence {
     private TransactionService transactionService;
     private OrmService ormService;
     private EventService eventService;
+    private Publisher publisher;
     private NlsService nlsService;
     private Clock clock;
     private JsonService jsonService;
@@ -134,7 +137,7 @@ public class InMemoryIntegrationPersistence {
     private MdcReadingTypeUtilService readingTypeUtilService;
     private TaskService taskService;
     private DeviceDataModelService deviceDataModelService;
-    private TopologyService topologyService;
+    private ServerTopologyService topologyService;
     private SchedulingService schedulingService;
     private InMemoryBootstrapModule bootstrapModule;
     private PropertySpecService propertySpecService;
@@ -144,10 +147,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
-
-    public InMemoryIntegrationPersistence() {
-        this(Clock.systemDefaultZone());
-    }
+    private ConnectionTypeService connectionTypeService;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -161,6 +161,8 @@ public class InMemoryIntegrationPersistence {
         License license = mock(License.class);
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.of(license));
         when(licensedProtocolService.isValidJavaClassName(anyString(), eq(license))).thenReturn(true);
+        connectionTypeService = mock(ConnectionTypeService.class);
+        when(connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
         Properties properties = new Properties();
         properties.put("protocols", "all");
         when(license.getLicensedValues()).thenReturn(properties);
@@ -198,7 +200,8 @@ public class InMemoryIntegrationPersistence {
                 new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
-                new SchedulingModule());
+                new SchedulingModule(),
+                new TopologyModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         this.environment = injector.getInstance(Environment.class);
         this.environment.setApplicationContext(this.applicationContext);
@@ -206,6 +209,7 @@ public class InMemoryIntegrationPersistence {
             this.jsonService = injector.getInstance(JsonService.class);
             this.ormService = injector.getInstance(OrmService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
+            this.publisher = injector.getInstance(Publisher.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
@@ -219,9 +223,10 @@ public class InMemoryIntegrationPersistence {
             this.relationService = injector.getInstance(RelationService.class);
             this.protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
+            this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.deviceDataModelService = injector.getInstance(DeviceDataModelService.class);
-            this.topologyService = injector.getInstance(TopologyService.class);
+            this.topologyService = injector.getInstance(ServerTopologyService.class);
             this.deviceMessageSpecificationService = injector.getInstance(DeviceMessageSpecificationService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.userService = injector.getInstance(UserService.class);
@@ -330,7 +335,7 @@ public class InMemoryIntegrationPersistence {
         return this.deviceDataModelService.deviceService();
     }
 
-    public TopologyService getTopologyService() {
+    public ServerTopologyService getTopologyService() {
         return this.topologyService;
     }
 
@@ -348,6 +353,10 @@ public class InMemoryIntegrationPersistence {
 
     public Clock getClock() {
         return clock;
+    }
+
+    public Publisher getPublisher() {
+        return publisher;
     }
 
     public EventService getEventService() {

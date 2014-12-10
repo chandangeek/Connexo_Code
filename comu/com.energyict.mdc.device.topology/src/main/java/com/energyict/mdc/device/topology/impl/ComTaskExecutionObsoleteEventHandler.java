@@ -33,6 +33,18 @@ public class ComTaskExecutionObsoleteEventHandler implements TopicHandler {
     private volatile ServerTopologyService topologyService;
     private volatile Thesaurus thesaurus;
 
+    // For OSGi purposes
+    public ComTaskExecutionObsoleteEventHandler() {
+        super();
+    }
+
+    // For unit testing purposes only
+    ComTaskExecutionObsoleteEventHandler(ServerTopologyService topologyService, Thesaurus thesaurus) {
+        this();
+        this.setTopologyService(topologyService);
+        this.thesaurus = thesaurus;
+    }
+
     @Override
     public String getTopicMatcher() {
         return "com/energyict/mdc/device/data/comtaskexecution/VALIDATE_OBSOLETE";

@@ -31,6 +31,7 @@ public class CannotDeletePhysicalGatewayEventHandlerIT extends PersistenceIntegr
     public void cannotDeleteBecauseStillUsedAsPhysicalGatewayTest() {
         Device physicalMaster = this.createSimpleDeviceWithName("PhysicalMaster");
         Device device1 = getDeviceService().newDevice(deviceConfiguration, "Origin1", MRID);
+        device1.save();
         this.getTopologyService().setPhysicalGateway(device1, physicalMaster);
 
         // Business method
@@ -44,8 +45,8 @@ public class CannotDeletePhysicalGatewayEventHandlerIT extends PersistenceIntegr
     public void deletePhysicalMasterAfterDeletingSlaveTest() {
         Device physicalMaster = createSimpleDeviceWithName("PhysicalMaster");
         Device device = getDeviceService().newDevice(deviceConfiguration, "Origin", MRID);
-        this.getTopologyService().setPhysicalGateway(device, physicalMaster);
         device.save();
+        this.getTopologyService().setPhysicalGateway(device, physicalMaster);
 
         Device reloadedSlave = getReloadedDevice(device);
         reloadedSlave.delete();

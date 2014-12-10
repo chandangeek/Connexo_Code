@@ -19,7 +19,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.time.TimeDuration;
 
 import java.util.Collections;
@@ -28,6 +32,7 @@ import java.util.List;
 import org.junit.*;
 
 import static org.assertj.core.api.Fail.fail;
+import static org.mockito.Mockito.mock;
 
 /**
  * Provides code reuse opportunities for components that
@@ -37,7 +42,7 @@ import static org.assertj.core.api.Fail.fail;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-10 (10:55)
  */
-public class AbstractComTaskExecutionInTopologyTest extends PersistenceIntegrationTest {
+public abstract class AbstractComTaskExecutionInTopologyTest extends PersistenceIntegrationTest {
 
     protected static final String COM_TASK_NAME = "TheNameOfMyComTask";
     protected static final String DEVICE_PROTOCOL_DIALECT_NAME = "Limbueregs";
@@ -51,6 +56,23 @@ public class AbstractComTaskExecutionInTopologyTest extends PersistenceIntegrati
         deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
         deviceConfiguration.save();
         this.protocolDialectConfigurationProperties = this.deviceConfiguration.getCommunicationConfiguration().getProtocolDialectConfigurationPropertiesList().get(0);
+    }
+
+    @Before
+    public void addEventHandlers() {
+        ServerTopologyService topologyService = inMemoryPersistence.getTopologyService();
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new DefaultConnectionTaskCreateEventHandler(topologyService)));
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new ComTaskExecutionCreateEventHandler(topologyService)));
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new ComTaskExecutionUpdateEventHandler(topologyService)));
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new ComTaskExecutionObsoleteEventHandler(topologyService, mock(Thesaurus.class))));
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new SetDefaultConnectionTaskEventHandler(topologyService)));
+        inMemoryPersistence.getPublisher()
+                .addSubscriber(new SubscriberForTopicHandler(new ClearDefaultConnectionTaskEventHandler(topologyService)));
     }
 
     protected OutboundComPort createOutboundComPort() {
@@ -177,6 +199,29 @@ public class AbstractComTaskExecutionInTopologyTest extends PersistenceIntegrati
         public PropertySpec getPropertySpec(String name) {
             return null;
         }
+    }
+
+    private class SubscriberForTopicHandler implements Subscriber {
+        private final TopicHandler topicHandler;
+
+        private SubscriberForTopicHandler(TopicHandler topicHandler) {
+            super();
+            this.topicHandler = topicHandler;
+        }
+
+        @Override
+        public void handle(Object notification, Object... notificationDetails) {
+            LocalEvent event = (LocalEvent) notification;
+            if (event.getType().getTopic().equals(this.topicHandler.getTopicMatcher())) {
+                this.topicHandler.handle(event);
+            }
+        }
+
+        @Override
+        public Class<?>[] getClasses() {
+            return new Class<?>[]{LocalEvent.class};
+        }
+
     }
 
 }

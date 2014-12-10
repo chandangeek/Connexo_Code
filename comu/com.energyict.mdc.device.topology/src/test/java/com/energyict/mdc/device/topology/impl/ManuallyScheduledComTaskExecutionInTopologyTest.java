@@ -55,7 +55,7 @@ public class ManuallyScheduledComTaskExecutionInTopologyTest extends AbstractCom
     @Transactional
     public void setUseDefaultConnectionTaskClearsConnectionTaskTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setUseDefaultConnectionTaskClearsConnectionTaskTest", "setUseDefaultConnectionTaskClearsConnectionTaskTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(false);
@@ -76,7 +76,7 @@ public class ManuallyScheduledComTaskExecutionInTopologyTest extends AbstractCom
     @Transactional
     public void setUseDefaultOnUpdaterClearsConnectionTaskTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setUseDefaultOnUpdaterClearsConnectionTaskTest", "setUseDefaultOnUpdaterClearsConnectionTaskTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(true);

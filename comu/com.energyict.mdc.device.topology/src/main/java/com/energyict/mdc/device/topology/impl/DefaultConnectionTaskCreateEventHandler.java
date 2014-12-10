@@ -28,6 +28,17 @@ public class DefaultConnectionTaskCreateEventHandler implements TopicHandler {
 
     private volatile ServerTopologyService topologyService;
 
+    // For OSGi purposes
+    public DefaultConnectionTaskCreateEventHandler() {
+        super();
+    }
+
+    // For unit testing purposes
+    public DefaultConnectionTaskCreateEventHandler(ServerTopologyService topologyService) {
+        this();
+        this.topologyService = topologyService;
+    }
+
     @Override
     public String getTopicMatcher() {
         return "com/energyict/mdc/device/data/connectiontask/CREATED";

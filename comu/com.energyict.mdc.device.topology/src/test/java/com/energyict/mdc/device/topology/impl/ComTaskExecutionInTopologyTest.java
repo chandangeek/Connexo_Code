@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
@@ -26,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 2014-12-10 (10:40)
  */
 public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTopologyTest {
-
 
     @Test(expected = ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException.class)
     @Transactional
@@ -53,14 +51,13 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
     @Test
     @Transactional
     public void setUseDefaultConnectionTaskClearsConnectionTaskTest() {
-        boolean useDefaultTrue = true;
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setUseDefaultConnectionTaskClearsConnectionTaskTest", "setUseDefaultConnectionTaskClearsConnectionTaskTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
         comTaskExecutionBuilder.connectionTask(connectionTask);
-        comTaskExecutionBuilder.useDefaultConnectionTask(useDefaultTrue);    // this call should clear the connectionTask
+        comTaskExecutionBuilder.useDefaultConnectionTask(true);    // this call should clear the connectionTask
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
 
         // Business method
@@ -74,7 +71,6 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
     @Test
     @Transactional
     public void setUseDefaultOnUpdaterClearsConnectionTaskTest() {
-        boolean useDefaultTrue = true;
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
@@ -86,7 +82,7 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
         device.save();
 
         ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.useDefaultConnectionTask(useDefaultTrue);
+        comTaskExecutionUpdater.useDefaultConnectionTask(true);
         comTaskExecutionUpdater.update();
         device.save();
 
@@ -98,15 +94,14 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
     @Test
     @Transactional
     public void clearingDefaultFlagOnConnectionTaskClearsTheConnectionTaskOnTheComTaskExecutionTest() {
-        boolean useDefaultTrue = true;
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "dcf", "dcf");
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
-        comTaskExecutionBuilder.useDefaultConnectionTask(useDefaultTrue);
-        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        comTaskExecutionBuilder.useDefaultConnectionTask(true);
+        comTaskExecutionBuilder.add();
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);

@@ -18,7 +18,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link G3CommunicationPathImpl} component
+ * Tests the {@link G3CommunicationPathImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-08 (15:32)
@@ -130,7 +130,7 @@ public class G3CommunicationPathImplTest {
         List<Device> intermediateDevices = communicationPath.getIntermediateDevices();
 
         // Asserts
-        assertThat(intermediateDevices).hasSize(3);
+        assertThat(intermediateDevices).hasSize(2);
         assertThat(intermediateDevices).containsOnly(intermediate1, intermediate2);
     }
 
@@ -179,8 +179,10 @@ public class G3CommunicationPathImplTest {
         when(segment3.getNextHopDevice()).thenReturn(Optional.<Device>empty());
         G3CommunicationPathImpl communicationPath = new G3CommunicationPathImpl(this.source, this.target, Arrays.asList(segment1, segment2));
         List<Device> intermediateDevices = communicationPath.getIntermediateDevices();
-        assertThat(intermediateDevices).hasSize(1);
-        assertThat(intermediateDevices).containsOnly(intermediate1);
+
+        // Prologue asserts
+        assertThat(intermediateDevices).hasSize(2);
+        assertThat(intermediateDevices).containsOnly(intermediate1, intermediate2);
 
         // Business method
         communicationPath.addSegment(segment3);

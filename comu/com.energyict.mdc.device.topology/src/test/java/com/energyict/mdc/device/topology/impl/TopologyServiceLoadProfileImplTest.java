@@ -70,6 +70,7 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
 
     @Before
     public void initializeMocks() {
+        super.initializeMocks();
         this.setupReadingTypes();
         this.setupPhenomena();
         deviceConfigurationWithLoadProfileAndChannels = createDeviceConfigurationWithLoadProfileSpecAndTwoChannelSpecsSpecs();
@@ -213,8 +214,8 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
         Device masterWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "DeviceWithLoadProfiles", "dwl");
         masterWithLoadProfile.save();
         Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLoadProfileAndChannels, "Slave", "slave");
-        getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
         slaveWithLoadProfile.save();
+        getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
 
         LoadProfile reloadedLoadProfile = getReloadedLoadProfile(slaveWithLoadProfile);
 
@@ -252,8 +253,8 @@ public class TopologyServiceLoadProfileImplTest extends PersistenceTestWithMocke
         deviceConfiguration.activate();
 
         Device slaveWithLoadProfile = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "slave", MRID);
-        getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
         slaveWithLoadProfile.save();
+        getTopologyService().setPhysicalGateway(slaveWithLoadProfile, masterWithLoadProfile);
         return slaveWithLoadProfile;
     }
 

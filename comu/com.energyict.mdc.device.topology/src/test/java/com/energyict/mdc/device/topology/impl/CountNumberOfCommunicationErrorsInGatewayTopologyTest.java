@@ -27,9 +27,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
@@ -113,6 +115,8 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     private Injector injector;
     private TransactionService transactionService;
     private ProtocolPluggableService protocolPluggableService;
+    @Mock
+    private ConnectionTypeService connectionTypeService;
     private DeviceConfigurationService deviceConfigurationService;
     private CommunicationTaskService communicationTaskService;
     private TopologyService topologyService;
@@ -136,6 +140,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     }
 
     public void initializeDatabase(boolean showSqlLogging) {
+        when(this.connectionTypeService.createConnectionType(NoParamsConnectionType.class.getName())).thenReturn(new NoParamsConnectionType());
         this.bootstrapModule = new InMemoryBootstrapModule();
         this.injector = Guice.createInjector(
                 new MockModule(),
@@ -180,6 +185,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
             this.injector.getInstance(OrmService.class);
             this.deviceConfigurationService = this.injector.getInstance(DeviceConfigurationService.class);
             this.protocolPluggableService = this.injector.getInstance(ProtocolPluggableService.class);
+            ((ProtocolPluggableServiceImpl) this.protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
             injector.getInstance(MeteringGroupsService.class);
             DeviceDataModelServiceImpl deviceDataModelService = this.injector.getInstance(DeviceDataModelServiceImpl.class);
             this.communicationTaskService = deviceDataModelService.communicationTaskService();
