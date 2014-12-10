@@ -29,10 +29,9 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import javax.xml.bind.DatatypeConverter;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,7 +109,7 @@ public class UserServiceImpl implements UserService, InstallService {
         if (base64 == null || base64.isEmpty()) {
             return Optional.empty();
         }
-        String plainText = new String(DatatypeConverter.parseBase64Binary(base64));
+        String plainText = new String(Base64.getDecoder().decode(base64));
         String[] names = plainText.split(":");
 
         if (names.length <= 1) {
