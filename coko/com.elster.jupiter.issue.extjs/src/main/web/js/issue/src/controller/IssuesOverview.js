@@ -27,6 +27,7 @@ Ext.define('Isu.controller.IssuesOverview', {
             ]);
             router.filter.save();
         } else {
+            me.getStore('Isu.store.Clipboard').set(issueType + '-latest-issues-filter', router.queryParams.filter);
             me.getStore('Isu.store.IssueStatuses').getProxy().setExtraParam('issueType', issueType);
             me.getStore('Isu.store.IssueReasons').getProxy().setExtraParam('issueType', issueType);
 
