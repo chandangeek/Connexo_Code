@@ -40,6 +40,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -180,6 +181,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         environment.put(InMemoryPersistenceWithMockedDeviceProtocol.JUPITER_BOOTSTRAP_MODULE_COMPONENT_NAME, bootstrapModule, true);
         environment.setApplicationContext(this.applicationContext);
         try (TransactionContext ctx = this.transactionService.getContext()) {
+            injector.getInstance(PluggableService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);

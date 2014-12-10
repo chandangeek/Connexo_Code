@@ -284,27 +284,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test
     @Transactional
-    public void setUseDefaultConnectionTaskClearsConnectionTaskTest() {
-        boolean useDefaultTrue = true;
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
-        device.save();
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
-        ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
-        comTaskExecutionBuilder.connectionTask(connectionTask);
-        comTaskExecutionBuilder.useDefaultConnectionTask(useDefaultTrue);    // this call should clear the connectionTask
-        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-
-        // Business method
-        device.save();
-
-        // Asserts
-        assertThat(comTaskExecution.useDefaultConnectionTask()).isTrue();
-        assertThat(comTaskExecution.getConnectionTask()).isNull();
-    }
-
-    @Test
-    @Transactional
     public void setConnectionTaskOnUpdaterTest() {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
         device.save();
@@ -341,55 +320,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
         assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isFalse();
-    }
-
-    @Test
-    @Transactional
-    public void setUseDefaultOnUpdaterClearsConnectionTaskTest() {
-        boolean useDefaultTrue = true;
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "BuilderTest", "BuilderTest");
-        device.save();
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
-        ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
-        comTaskExecutionBuilder.useDefaultConnectionTask(false);
-        comTaskExecutionBuilder.connectionTask(connectionTask);
-        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-        device.save();
-
-        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.useDefaultConnectionTask(useDefaultTrue);
-        comTaskExecutionUpdater.update();
-        device.save();
-
-        ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.useDefaultConnectionTask()).isTrue();
-        assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
-    }
-
-    @Test
-    @Transactional
-    public void clearingDefaultFlagOnConnectionTaskClearsTheConnectionTaskOnTheComTaskExecutionTest() {
-        boolean useDefaultTrue = true;
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "dcf", "dcf");
-        device.save();
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
-        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
-        ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
-        comTaskExecutionBuilder.useDefaultConnectionTask(useDefaultTrue);
-        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-        device.save();
-
-        Device reloadedDevice = getReloadedDevice(device);
-        ComTaskExecution reloadedComTaskExecution = reloadedDevice.getComTaskExecutions().get(0);
-        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
-
-        inMemoryPersistence.getConnectionTaskService().clearDefaultConnectionTask(device);
-        Device finalReloadedDevice = getReloadedDevice(device);
-        ComTaskExecution comTaskExecutionWithoutAConnectionTask = finalReloadedDevice.getComTaskExecutions().get(0);
-
-        assertThat(comTaskExecutionWithoutAConnectionTask.getConnectionTask()).isNull();
     }
 
     @Test
@@ -649,28 +579,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
-
-        // Business method
-        comTaskExecution.makeObsolete();
-
-        // Asserts: see expected exception rule
-    }
-
-    @Test(expected = ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException.class)
-    @Transactional
-    public void makeObsoleteWhenDefaultConnectionTaskHasComServerFilledInTest() {
-        OutboundComPort outboundComPort = createOutboundComPort();
-        ComServer comServer = outboundComPort.getComServer();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest");
-        device.save();
-        ComTaskEnablement comTaskEnablement = enableComTask(true);
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement, protocolDialectConfigurationProperties);
-        comTaskExecutionBuilder.useDefaultConnectionTask(true);
-        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-        device.save();
-        ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
-        inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
 
         // Business method
         comTaskExecution.makeObsolete();
