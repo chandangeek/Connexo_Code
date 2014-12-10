@@ -6,10 +6,8 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.Predicates;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.json.JsonService;
-import com.google.common.base.Predicate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,10 +48,6 @@ public class ImportScheduleJobTest {
     @Mock
     private Path path;
     @Mock
-    private Predicates predicates;
-    @Mock
-    private Predicate<Path> onlyFiles;
-    @Mock
     private TransactionService transactionService;
     @Mock
     private FileImport fileImport;
@@ -83,7 +77,7 @@ public class ImportScheduleJobTest {
             }
         });
 
-        importScheduleJob = new ImportScheduleJob(predicates, fileSystem, jsonService, importSchedule, transactionService, thesaurus);
+        importScheduleJob = new ImportScheduleJob(path -> true, fileSystem, jsonService, importSchedule, transactionService, thesaurus);
     }
 
     @After
@@ -97,9 +91,7 @@ public class ImportScheduleJobTest {
 
     @Test
     public void testRun() {
-        when(directoryStream.iterator()).thenReturn(Arrays.asList(path).iterator());
-        when(predicates.onlyFiles()).thenReturn(onlyFiles);
-        when(onlyFiles.apply(path)).thenReturn(true);
+        when(directoryStream.spliterator()).thenReturn(Arrays.asList(path).spliterator());
         when(importSchedule.createFileImport(path.toFile())).thenReturn(fileImport);
         when(jsonService.serialize(any())).thenReturn(SERIALIZED);
         when(importSchedule.getDestination()).thenReturn(destination);

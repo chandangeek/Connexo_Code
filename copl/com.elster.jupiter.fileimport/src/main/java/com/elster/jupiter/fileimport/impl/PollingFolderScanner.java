@@ -2,15 +2,14 @@ package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileIOException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.Predicates;
-import com.elster.jupiter.util.To;
-import com.google.common.collect.FluentIterable;
-
 import javax.inject.Inject;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Iterator;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * FolderScanner that simply lists the files in the Folder.
@@ -18,29 +17,29 @@ import java.util.Iterator;
 class PollingFolderScanner implements FolderScanner {
 
     private final Path directory;
-    private final Predicates predicates;
+    private final Predicate<Path> filter;
     private final FileSystem fileSystem;
     private final Thesaurus thesaurus;
 
     @Inject
-    public PollingFolderScanner(Predicates predicates, FileSystem fileSystem, Path directory, Thesaurus thesaurus) {
-        this.predicates = predicates;
+    public PollingFolderScanner(Predicate<Path> filter, FileSystem fileSystem, Path directory, Thesaurus thesaurus) {
+        this.filter = filter;
         this.fileSystem = fileSystem;
         this.directory = directory;
         this.thesaurus = thesaurus;
     }
 
     @Override
-    public Iterator<File> getFiles() {
-        try {
-            return directoryContent().filter(predicates.onlyFiles()).transform(To.FILE).iterator();
-        } catch (IOException e) {
-            throw new FileIOException(e, thesaurus);
-        }
+    public Stream<File> getFiles() {
+    	try {
+    		return directoryContent().filter(filter).map(path -> path.toFile());
+    	} catch (IOException e) {
+    		throw new FileIOException(e, thesaurus);
+    	}
     }
 
-    private FluentIterable<Path> directoryContent() throws IOException {
-        return FluentIterable.from(fileSystem.newDirectoryStream(directory));
+    private Stream<Path> directoryContent() throws IOException {
+        return StreamSupport.stream(fileSystem.newDirectoryStream(directory).spliterator(),false);
     }
 
 }

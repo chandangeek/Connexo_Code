@@ -15,18 +15,22 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.Only;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
+
+import java.nio.file.Files;
 import java.time.Clock;
 import java.util.Optional;
+
 import com.google.inject.AbstractModule;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.validation.MessageInterpolator;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
@@ -125,7 +129,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService 
 
     @Override
     public void schedule(ImportSchedule importSchedule) {
-        cronExpressionScheduler.submit(new ImportScheduleJob(new Only(), defaultFileSystem, jsonService, importSchedule, transactionService, thesaurus));
+        cronExpressionScheduler.submit(new ImportScheduleJob(path -> !Files.isDirectory(path), defaultFileSystem, jsonService, importSchedule, transactionService, thesaurus));
     }
 
     @Override

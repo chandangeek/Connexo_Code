@@ -41,7 +41,7 @@ public class FolderScanningJobTest {
 
     @Test
     public void testPassesFilesFromTheScannerToTheHandler() {
-        when(scanner.getFiles()).thenReturn(Arrays.asList(file1, file2).iterator());
+        when(scanner.getFiles()).thenReturn(Arrays.asList(file1, file2).stream());
 
         folderScanningJob.run();
 
@@ -52,7 +52,7 @@ public class FolderScanningJobTest {
 
     @Test
     public void testDoesntPassAnythingToTheHandlerIfThereAreNoFiles() {
-        when(scanner.getFiles()).thenReturn(Collections.<File>emptyList().iterator());
+        when(scanner.getFiles()).thenReturn(Collections.<File>emptyList().stream());
 
         folderScanningJob.run();
 
