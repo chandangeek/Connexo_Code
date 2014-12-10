@@ -111,8 +111,8 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(keyTActivationStatusAttributeName, true, new BooleanFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(SecurityTimeDurationAttributeName, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(keyTActivationStatusAttributeName, true, KeyTUsage.ENABLE.description, KeyTUsage.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(SecurityTimeDurationAttributeName, true, new BigDecimal(0), new BigDecimal(255)));
         }
     },
     CHANGE_EXECUTION_KEY(DeviceMessageId.SECURITY_CHANGE_EXECUTION_KEY, "Change execution key") {
@@ -133,15 +133,14 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            ThreeStateFactory factory = new ThreeStateFactory();
-            propertySpecs.add(propertySpecService.basicPropertySpec(eventLogResetSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(restoreFactorySettingsSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(restoreDefaultSettingsSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(statusChangeSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(remoteConversionParametersConfigSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(remoteAnalysisParametersConfigSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(downloadProgramSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(restoreDefaultPasswordSealAttributeName, true, factory));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.eventLogResetSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(restoreFactorySettingsSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(restoreDefaultSettingsSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(statusChangeSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(remoteConversionParametersConfigSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(remoteAnalysisParametersConfigSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(downloadProgramSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(restoreDefaultPasswordSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
         }
     },
     TEMPORARY_BREAK_SEALS(DeviceMessageId.SECURITY_TEMPORARY_BREAK_SEALS, "Temporary break the seals") {
@@ -288,4 +287,81 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         return null;
     }
 
+    public enum KeyTUsage {
+
+        DISABLE(false, "Disabled"),
+        ENABLE(true, "Enabled");
+
+        private final boolean status;
+        private final String description;
+
+        KeyTUsage(boolean status, String description) {
+            this.status = status;
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public static Boolean fromDescription(String description) {
+            for (KeyTUsage usage : values()) {
+                if (usage.getDescription().equals(description)) {
+                    return usage.getStatus();
+                }
+            }
+            return null;
+        }
+
+        public boolean getStatus() {
+            return status;
+        }
+
+        public static String[] getAllDescriptions() {
+            String[] result = new String[values().length];
+            for (int index = 0; index < values().length; index++) {
+                result[index] = values()[index].getDescription();
+            }
+            return result;
+        }
+    }
+    public enum SealActions {
+
+        UNCHANGED(null, "Unchanged"),
+        ENABLE_SEAL(true, "Enable seal"),
+        DISABLE_SEAL(false, "Disable seal");
+
+        private final Boolean action;
+        private final String description;
+
+        SealActions(Boolean action, String description) {
+            this.action = action;
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public static Boolean fromDescription(String description) {
+            for (SealActions actions : values()) {
+                if (actions.getDescription().equals(description)) {
+                    return actions.getAction();
+                }
+            }
+            return null;
+        }
+
+        public Boolean getAction() {
+            return action;
+        }
+
+        public static String[] getAllDescriptions() {
+            String[] result = new String[values().length];
+            for (int index = 0; index < values().length; index++) {
+                result[index] = values()[index].getDescription();
+            }
+            return result;
+        }
+    }
 }

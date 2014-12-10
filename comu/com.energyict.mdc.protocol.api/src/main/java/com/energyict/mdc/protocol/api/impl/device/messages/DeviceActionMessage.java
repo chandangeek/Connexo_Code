@@ -154,6 +154,37 @@ public enum DeviceActionMessage implements DeviceMessageSpecEnum {
     REBOOT_APPLICATION(DeviceMessageId.DEVICE_ACTIONS_REBOOT_APPLICATION, "Reboot the application"),
     DEMAND_RESET_WITH_FORCE_CLOCK(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET_WITH_FORCE_CLOCK, "Demand reset with force clock"),
     HARD_RESET_DEVICE(DeviceMessageId.DEVICE_ACTIONS_HARD_RESET_DEVICE, "Hard reset the device"),
+    FTIONUpgrade(DeviceMessageId.DEVICE_ACTIONS_FTION_UPGRADE, "FTION upgrade"),
+    RtuPlusServerEnterMaintenanceMode(DeviceMessageId.DEVICE_ACTIONS_RTU_PLUS_SERVER_ENTER_MAINTENANCE_MODE, "RtuPlusServer enter maintenance mode"),
+    RtuPlusServerExitMaintenanceMode(DeviceMessageId.DEVICE_ACTIONS_RTU_PLUS_SERVER_EXIT_MAINTENANCE_MODE, "RtuPlusServer exit maintencance mode"),
+    ForceMessageToFailed(DeviceMessageId.DEVICE_ACTIONS_FORCE_MESSAGE_TO_FAILED, "Force message to failed"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.deviceId, true, ""));
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.trackingId, true, ""));
+        }
+    },
+    FTIONUpgradeAndInit(DeviceMessageId.DEVICE_ACTIONS_FTION_UPGRADE_AND_INIT, "FTION upgrade and init"),
+    FTIONUpgradeAndInitWithNewEIServerURL(DeviceMessageId.DEVICE_ACTIONS_FTION_UPGRADE_AND_INIT_WITH_NEW_EISERVER_URL, "FTION upgrade and init with new EIServer url"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.servletURL, true, ""));
+        }
+    },
+    FTIONUpgradeWithNewEIServerURL(DeviceMessageId.DEVICE_ACTIONS_FTION_UPGRADE_WITH_NEW_EISERVER_URL, "FTION upgrade with new EIServer url"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.servletURL, true, ""));
+        }
+    },
+    FTIONInitDatabaseKeepConfig(DeviceMessageId.DEVICE_ACTIONS_FTION_INIT_DATABASE_KEEP_CONFIG, "FTION init database and keep configuration"),
+    FTIONReboot(DeviceMessageId.DEVICE_ACTIONS_FTION_REBOOT, "FTION reboot"),
+    FTIONRestart(DeviceMessageId.DEVICE_ACTIONS_FTION_RESTART, "FTION restart"),
+    FTIONScanBus(DeviceMessageId.DEVICE_ACTIONS_FTION_SCAN_BUS, "FTION scan bus"),
+    SyncMasterdata(DeviceMessageId.DEVICE_ACTIONS_SYNC_MASTERDATA, "Synchronize masterdata"),
     ;
 
     private static BigDecimal[] analogOutPossibleValues() {

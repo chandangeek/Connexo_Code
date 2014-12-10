@@ -261,7 +261,11 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
                             BigDecimals.TWO,
                             BigDecimals.THREE));
         }
-    }, EnableSSL(DeviceMessageId.CONFIGURATION_CHANGE_ENABLE_SSL, "Enable SSL"){
+
+    },
+    EnableFW(DeviceMessageId.CONFIGURATION_CHANGE_ENABLE_FW, "Enable firmware"),
+    DisableFW(DeviceMessageId.CONFIGURATION_CHANGE_DISABLE_FW, "Disable firmware"),
+    EnableSSL(DeviceMessageId.CONFIGURATION_CHANGE_ENABLE_SSL, "Enable SSL"){
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);

@@ -507,6 +507,7 @@ public class DeviceMessageConstants {
     public static final String maxJoinWaitTime = "PLCConfigurationDeviceMessage.maxJoinWaitTime";
     public static final String pathDiscoveryTime = "PLCConfigurationDeviceMessage.pathDiscoveryTime";
     public static final String metricType = "PLCConfigurationDeviceMessage.metricType";
+    public static final String coordShortAddress = "PLCConfigurationDeviceMessage.coordShortAddress";
     public static final String TMRTTL = "PLCConfigurationDeviceMessage.mtrTTL";
     public static final String MaxFrameRetries = "PLCConfigurationDeviceMessage.maxFrameRetries";
     public static final String NeighbourTableEntryTTL = "PLCConfigurationDeviceMessage.neighbourTableEntryTTL";

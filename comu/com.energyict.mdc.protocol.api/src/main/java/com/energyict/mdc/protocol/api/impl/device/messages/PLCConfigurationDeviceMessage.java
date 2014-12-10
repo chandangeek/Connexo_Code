@@ -475,8 +475,39 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.KeepAliveTimeout, true, BigDecimal.ZERO));
         }
-    };
+    },
+    SetCoordShortAddress(DeviceMessageId.PLC_CONFIGURATION_SET_COORD_SHORT_ADDRESS, "Set coord short address"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.coordShortAddress, true, BigDecimal.ZERO));
+        }
+    },
 
+    SetDisableDefaultRouting(DeviceMessageId.PLC_CONFIGURATION_SET_DISABLE_DEFAULT_ROUTING, "Set disable default routing"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.booleanPropertySpec(DeviceMessageConstants.disableDefaultRouting, true, false));
+        }
+    },
+    SetDeviceType(DeviceMessageId.PLC_CONFIGURATION_SET_DEVICE_TYPE, "Set device type"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.deviceType, true, new BigDecimal(-1)));
+        }
+    },
+    SetToneMaskAttributeName(DeviceMessageId.PLC_CONFIGURATION_SET_TONE_MASK_ATTRIBUTE_NAME, "Set tone mask attribute name"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.toneMaskAttributeName, true, ""));
+
+        }
+    }
+
+    ;
     private DeviceMessageId id;
     private String defaultTranslation;
 
