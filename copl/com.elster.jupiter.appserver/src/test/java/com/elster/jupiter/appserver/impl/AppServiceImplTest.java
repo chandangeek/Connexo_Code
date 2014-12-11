@@ -6,6 +6,7 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -118,6 +119,8 @@ public class AppServiceImplTest {
     private Thesaurus thesaurus;
     @Mock
     private NlsMessageFormat format;
+    @Mock
+    private QueryService queryService;
 
     @SuppressWarnings("unchecked")
 	@Before
@@ -145,7 +148,7 @@ public class AppServiceImplTest {
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
 
-        appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(), jsonService, fileImportService, taskService, userService, bundleContext);
+        appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(), jsonService, fileImportService, taskService, userService, queryService, bundleContext);
     }
 
     @SuppressWarnings("unchecked")

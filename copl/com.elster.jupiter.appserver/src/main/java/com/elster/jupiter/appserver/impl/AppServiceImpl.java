@@ -7,6 +7,8 @@ import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.MessageSeeds;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.Message;
@@ -79,13 +81,14 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
     private final List<Runnable> deactivateTasks = new ArrayList<>();
     private List<CommandListener> commandListeners = new CopyOnWriteArrayList<>();
     private final ThreadGroup threadGroup;
+    private QueryService queryService;
 
     public AppServiceImpl() {
         threadGroup = new ThreadGroup("AppServer message listeners");
     }
 
     @Inject
-    AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService, CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService, UserService userService, BundleContext bundleContext) {
+    AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService, CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService, UserService userService, QueryService queryService, BundleContext bundleContext) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setTransactionService(transactionService);
@@ -95,6 +98,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
         setFileImportService(fileImportService);
         setTaskService(taskService);
         setUserService(userService);
+        setQueryService(queryService);
 
         if (!dataModel.isInstalled()) {
             install();
@@ -271,6 +275,11 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
     }
 
     @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
+    @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
@@ -390,5 +399,10 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
 
     public DataModel getDataModel() {
         return dataModel;
+    }
+
+    @Override
+    public Query<AppServer> getAppServerQuery() {
+        return queryService.wrap(dataModel.query(AppServer.class));
     }
 }
