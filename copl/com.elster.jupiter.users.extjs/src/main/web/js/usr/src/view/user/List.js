@@ -39,6 +39,7 @@ Ext.define('Usr.view.user.List', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
+                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.userAndRole'),
                     items: 'Usr.view.user.UserActionMenu'
                 }
             ]
