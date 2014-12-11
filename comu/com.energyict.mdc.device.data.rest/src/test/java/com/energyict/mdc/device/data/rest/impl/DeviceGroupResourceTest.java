@@ -4,20 +4,27 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 10/13/14.
  */
 public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest {
+
+    @Mock
+    private EndDeviceGroup endDeviceGroup;
 
     @Test
     public void testGetQueryEndDeviceGroup() throws Exception {
@@ -65,4 +72,40 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
     }
+
+    @Test
+    public void testRemoveEndDeviceGroup() {
+        when(meteringGroupService.findEndDeviceGroup(111)).thenReturn(Optional.of(endDeviceGroup));
+
+        target("/devicegroups/111").request().delete();
+
+        verify(endDeviceGroup).delete();
+    }
+
+    @Test
+    public void testRemoveNonExistingEndDeviceGroup() {
+        when(meteringGroupService.findEndDeviceGroup(111)).thenReturn(Optional.empty());
+
+        try {
+            target("/devicegroups/111").request().delete();
+        } catch (WebApplicationException e) {
+            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND);
+        }
+
+    }
+
+    @Test
+    public void testVetoingHandlerpreventsDeletion() {
+        when(meteringGroupService.findEndDeviceGroup(111)).thenReturn(Optional.of(endDeviceGroup));
+        doThrow(new RuntimeException("MyMessage")).when(endDeviceGroup).delete();
+
+        try {
+            target("/devicegroups/111").request().delete();
+        } catch (WebApplicationException e) {
+            assertThat(e.getMessage()).isEqualTo("MyMessage");
+            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
 }
