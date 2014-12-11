@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.users.impl.UserModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Translator;
@@ -104,6 +106,7 @@ public class AdapterDeviceProtocolDialectTest {
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
+                new DataVaultModule(),
                 new UserModule(),
                 new IssuesModule(),
                 new PluggableModule(),

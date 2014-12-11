@@ -1,6 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -85,6 +87,7 @@ public class InMemoryPersistence {
     private PluggableService pluggableService;
     private RelationService relationService;
     private DeviceCacheMarshallingService deviceCacheMarshallingService;
+    private DataVaultService dataVaultService;
     private LicenseService licenseService;
 
     private ProtocolPluggableServiceImpl protocolPluggableService;
@@ -105,6 +108,7 @@ public class InMemoryPersistence {
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),
+                new DataVaultModule(),
                 new IssuesModule(),
                 new PluggableModule(),
                 new MdcCommonModule(),
@@ -115,6 +119,7 @@ public class InMemoryPersistence {
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
+            this.dataVaultService = injector.getInstance(DataVaultService.class);
             this.pluggableService = injector.getInstance(PluggableService.class);
             this.relationService = injector.getInstance(RelationService.class);
             this.issueService = injector.getInstance(IssueService.class);
@@ -174,7 +179,8 @@ public class InMemoryPersistence {
                         this.pluggableService,
                         this.relationService,
                         this.licenseService,
-                        this.userService);
+                        this.userService,
+                        this.dataVaultService);
         this.protocolPluggableService.addInboundDeviceProtocolService(this.inboundDeviceProtocolService);
         this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
         this.protocolPluggableService.addDeviceCacheMarshallingService(this.deviceCacheMarshallingService);

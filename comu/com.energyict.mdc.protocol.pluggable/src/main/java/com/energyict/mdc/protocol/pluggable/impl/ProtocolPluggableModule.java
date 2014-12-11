@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.orm.OrmService;
@@ -31,6 +32,7 @@ public class ProtocolPluggableModule extends AbstractModule {
         requireBinding(RelationService.class);
         requireBinding(LicenseService.class);
         requireBinding(IssueService.class);
+        requireBinding(DataVaultService.class);
 
         bind(ProtocolPluggableService.class).to(ProtocolPluggableServiceImpl.class).in(Scopes.SINGLETON);
     }
