@@ -39,8 +39,8 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.engine.model.InboundCapableComServer;
 import com.energyict.mdc.engine.model.OutboundComPort;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -56,13 +56,9 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import org.apache.log4j.PropertyConfigurator;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
@@ -90,7 +86,6 @@ import static com.elster.jupiter.util.Checks.is;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -230,11 +225,6 @@ public class MultiThreadedScheduledComPortTest {
 
     @BeforeClass
     public static void initializeLogging() {
-        initializeLog4J();
-        initializeJavaUtilLogging();
-    }
-
-    private static void initializeJavaUtilLogging() {
         InputStream configStream = MultiThreadedScheduledComPortTest.class.getClassLoader().getResourceAsStream("logging.properties");
         try {
             LogManager.getLogManager().readConfiguration(configStream);
@@ -242,27 +232,6 @@ public class MultiThreadedScheduledComPortTest {
             System.err.println("Logging will most likely not work as expected due to the error below.");
             e.printStackTrace(System.err);
         }
-    }
-
-    private static void initializeLog4J() {
-        try {
-            URL configURL = MultiThreadedScheduledComPortTest.class.getClassLoader().getResource(LOG4J_PROPERTIES_FILE_NAME);
-            if (configURL == null) {
-                initializeLog4JWithFingersCrossed();
-            } else {
-                PropertyConfigurator.configure(configURL);
-                File configFile = new File(configURL.toURI());
-                PropertyConfigurator.configureAndWatch(configFile.getAbsolutePath());
-            }
-        } catch (URISyntaxException e) {
-            initializeLog4JWithFingersCrossed();
-        }
-    }
-
-    private static void initializeLog4JWithFingersCrossed() {
-        String configFilename = LOG4J_PROPERTIES_FILE_NAME;
-        PropertyConfigurator.configure(configFilename);
-        PropertyConfigurator.configureAndWatch(configFilename);
     }
 
     public void setupServiceProvider() {

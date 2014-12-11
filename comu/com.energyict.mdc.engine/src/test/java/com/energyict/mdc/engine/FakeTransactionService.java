@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine;
 
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.transaction.TransactionService;
@@ -21,6 +22,11 @@ public class FakeTransactionService implements TransactionService {
 
     @Override
     public TransactionContext getContext() {
+        return new FakeTransactionContext();
+    }
+
+    @Override
+    public TransactionBuilder builder() {
         return null;
     }
 

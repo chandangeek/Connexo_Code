@@ -4,7 +4,6 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.engine.exceptions.CodingException;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -119,16 +118,6 @@ public class LoggerFactoryTest {
 
     @BeforeClass
     public static void initializeLoggingFrameworks () throws IOException {
-        configureLog4J();
-        configureJavaUtilLogging();
-    }
-
-    private static void configureLog4J () {
-        URL configURL = LoggerFactoryTest.class.getClassLoader().getResource("LoggerFactoryTest-log4j.properties");
-        PropertyConfigurator.configure(configURL);
-    }
-
-    private static void configureJavaUtilLogging () throws IOException {
         InputStream configStream = LoggerFactoryTest.class.getClassLoader().getResourceAsStream("logging.properties");
         LogManager.getLogManager().readConfiguration(configStream);
     }

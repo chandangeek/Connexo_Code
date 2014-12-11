@@ -1,9 +1,5 @@
 package com.energyict.mdc.engine.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.Checks;
-import java.time.Clock;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -25,15 +21,16 @@ import com.energyict.mdc.engine.model.HostName;
 import com.energyict.mdc.engine.model.OnlineComServer;
 import com.energyict.mdc.engine.model.RemoteComServer;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
-import org.apache.log4j.PropertyConfigurator;
 
-import java.io.File;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Checks;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.time.Clock;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,29 +58,9 @@ public final class ComServerLauncher {
     }
 
     private void initializeLogging() {
-        this.initializeLog4J();
         Logger anonymousLogger = Logger.getAnonymousLogger();
         anonymousLogger.setLevel(Level.FINEST);
         this.logger = LoggerFactory.getLoggerFor(ComServerLauncherLogger.class, anonymousLogger);
-    }
-
-    private void initializeLog4J() {
-        try {
-            URL configURL = this.getClass().getClassLoader().getResource(LOG4J_PROPERTIES_FILE_NAME);
-            if (configURL == null) {
-                this.initializeLog4JWithFingersCrossed();
-            } else {
-                PropertyConfigurator.configure(configURL);
-                File configFile = new File(configURL.toURI());
-                PropertyConfigurator.configureAndWatch(configFile.getAbsolutePath());
-            }
-        } catch (URISyntaxException | IllegalArgumentException e) {
-            this.initializeLog4JWithFingersCrossed();
-        }
-    }
-
-    private void initializeLog4JWithFingersCrossed() {
-        PropertyConfigurator.configureAndWatch(LOG4J_PROPERTIES_FILE_NAME);
     }
 
     public void startComServer() {

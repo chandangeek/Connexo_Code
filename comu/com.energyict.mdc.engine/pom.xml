@@ -61,10 +61,6 @@
       <artifactId>mdc.engine.config</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>javassist</groupId>
@@ -85,8 +81,8 @@
       <artifactId>jetty-websocket</artifactId>
     </dependency>
     <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-jackson</artifactId>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-json-jackson</artifactId>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
