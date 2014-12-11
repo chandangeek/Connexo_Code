@@ -211,11 +211,13 @@ public class DataExportTaskResource {
                 .setStart(queryParameters.getStart())
                 .setLimit(queryParameters.getLimit());
 
-        if (filter.get("startedOnFrom") != null && filter.get("startedOnTo") != null) {
-            occurrencesFinder.withStartDateIn(Range.closed(Instant.ofEpochMilli(filter.get("startedOnFrom")), Instant.ofEpochMilli(filter.get("startedOnTo"))));
+        if (filter.get("startedOnFrom") != null) {
+            occurrencesFinder.withStartDateIn(Range.closed(Instant.ofEpochMilli(filter.get("startedOnFrom")),
+                    filter.get("startedOnTo") != null ? Instant.ofEpochMilli(filter.get("startedOnTo")) : Instant.now()));
         }
-        if (filter.get("finishedOnFrom") != null && filter.get("finishedOnTo") != null) {
-            occurrencesFinder.withEndDateIn(Range.closed(Instant.ofEpochMilli(filter.get("finishedOnFrom")), Instant.ofEpochMilli(filter.get("finishedOnTo"))));
+        if (filter.get("finishedOnFrom") != null) {
+            occurrencesFinder.withEndDateIn(Range.closed(Instant.ofEpochMilli(filter.get("finishedOnFrom")),
+                    filter.get("finishedOnTo") != null ? Instant.ofEpochMilli(filter.get("finishedOnTo")) : Instant.now()));
         }
         if (filter.get("exportPeriodContains") != null) {
             occurrencesFinder.withExportPeriodContaining(Instant.ofEpochMilli(filter.get("exportPeriodContains")));
