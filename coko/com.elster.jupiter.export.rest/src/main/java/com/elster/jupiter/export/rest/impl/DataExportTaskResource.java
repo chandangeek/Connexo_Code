@@ -212,10 +212,14 @@ public class DataExportTaskResource {
         if (filter.get("startedOnFrom") != null) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.ofEpochMilli(filter.get("startedOnFrom")),
                     filter.get("startedOnTo") != null ? Instant.ofEpochMilli(filter.get("startedOnTo")) : Instant.now()));
+        } else if (filter.get("startedOnTo") != null) {
+            occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, Instant.ofEpochMilli(filter.get("startedOnTo"))));
         }
         if (filter.get("finishedOnFrom") != null) {
             occurrencesFinder.withEndDateIn(Range.closed(Instant.ofEpochMilli(filter.get("finishedOnFrom")),
                     filter.get("finishedOnTo") != null ? Instant.ofEpochMilli(filter.get("finishedOnTo")) : Instant.now()));
+        } else if (filter.get("finishedOnTo") != null) {
+            occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, Instant.ofEpochMilli(filter.get("finishedOnTo"))));
         }
         if (filter.get("exportPeriodContains") != null) {
             occurrencesFinder.withExportPeriodContaining(Instant.ofEpochMilli(filter.get("exportPeriodContains")));
