@@ -5,6 +5,8 @@ public interface Privileges {
     String ADMINISTRATE_DEVICE_CONFIGURATION = "privilege.administrate.deviceConfiguration";
     String VIEW_DEVICE_CONFIGURATION = "privilege.view.deviceConfiguration";
 
+    String ADMINISTRATE_DEVICE_COMMAND = "privilege.administrate.deviceCommand";
+    String VIEW_DEVICE_COMMAND = "privilege.view.deviceCommand";
 
     String VIEW_DEVICE_SECURITY_PROPERTIES_1 = "view.device.security.properties.level1";
     String VIEW_DEVICE_SECURITY_PROPERTIES_2 = "view.device.security.properties.level2";

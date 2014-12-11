@@ -60,6 +60,7 @@ public class Installer {
 
     private void createPrivileges() {
         try {
+            this.userService.createResourceWithPrivileges("MDC", "deviceCommand.deviceCommands", "deviceCommand.deviceCommands.description", new String[] {Privileges.ADMINISTRATE_DEVICE_COMMAND, Privileges.VIEW_DEVICE_COMMAND});
             this.userService.createResourceWithPrivileges("MDC", "deviceConfiguration.deviceConfigurations", "deviceConfiguration.deviceConfigurations.description", new String[] {Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION});
         } catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
@@ -76,8 +77,8 @@ public class Installer {
 
     private void assignPrivilegesToDefaultRoles() {
         this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {
-                Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION});
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_DEVICE_CONFIGURATION});
+                Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION, Privileges.ADMINISTRATE_DEVICE_COMMAND, Privileges.VIEW_DEVICE_COMMAND});
+        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_COMMAND});
     }
 
     private void createTranslations() {
