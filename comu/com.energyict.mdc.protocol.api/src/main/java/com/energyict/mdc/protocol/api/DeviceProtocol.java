@@ -28,15 +28,8 @@ public interface DeviceProtocol extends Pluggable, DeviceAccessSupport, DeviceCl
         DeviceTopologySupport, DeviceMessageSupport, DeviceCachingSupport, DeviceSecuritySupport, ConnectionTypeSupport {
 
     /**
-     * Injects the {@link PropertySpecService} into this DeviceProtocol
-     * for it to be able to create {@link com.elster.jupiter.properties.PropertySpec}s
-     * @param propertySpecService The PropertySpecService
-     * @deprecated PropertySpecService is now injected @ construction time via dependency injection mechanism
-     */
-    public void setPropertySpecService (PropertySpecService propertySpecService);
-
-    /**
-     * Initializes the DeviceProtocol. This method is called after the physical connection has been
+     * Initializes the DeviceProtocol.
+     * This method is called after the physical connection has been
      * created and before the protocol <i>logOn</i> will occur.
      * <p/>
      * Implementers should save the arguments for future use.
