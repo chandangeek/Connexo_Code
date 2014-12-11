@@ -49,6 +49,13 @@ public class ProtocolPropertiesResource {
         protocolInfo.name=this.deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getName();
         return Response.ok(protocolInfo).build();
     }
+    
+    @GET
+    @Path("/{protocolId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDeviceProperties(@PathParam("protocolId") Long protocolId) {
+        return this.getDeviceProperties();
+    }
 
     @PUT
     @Produces(MediaType.APPLICATION_JSON)

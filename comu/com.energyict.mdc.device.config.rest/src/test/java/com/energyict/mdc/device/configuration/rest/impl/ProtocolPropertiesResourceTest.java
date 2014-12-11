@@ -31,7 +31,7 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
     public void testGetDeviceProtocolProperties() {
         DeviceProtocolConfigurationProperties properties = mock(DeviceProtocolConfigurationProperties.class);
         mockDeviceConfiguration(properties);
-        String response = target("/devicetypes/11/deviceconfigurations/12/protocols").request().get(String.class);
+        String response = target("/devicetypes/11/deviceconfigurations/12/protocols/1").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(7);
         assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo("callHomeId");
