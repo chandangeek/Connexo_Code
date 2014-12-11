@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -35,6 +36,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
 
     private Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
+    private volatile Clock clock;
     private Injector injector;
 
     public PropertySpecService getPropertySpecService() {
@@ -53,6 +55,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
             public void configure() {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(Clock.class).toInstance(clock);
                 bind(InboundDeviceProtocolService.class).toInstance(InboundDeviceProtocolServiceImpl.this);
             }
         };
@@ -66,6 +69,11 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Override

@@ -1,11 +1,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
-import com.elster.jupiter.nls.Thesaurus;
-import java.time.Clock;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,9 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class Bus {
 
     private static AtomicReference<IssueService> issueServiceProvider = new AtomicReference<>();
-    private static AtomicReference<Clock> clockProvider = new AtomicReference<>();
     private static AtomicReference<MdcReadingTypeUtilService> mdcReadingTypeUtilServiceProvider = new AtomicReference<>();
-    private static AtomicReference<Thesaurus> thesaurusProvider = new AtomicReference<>();
     private static AtomicReference<OrmClient> ormClientProvider = new AtomicReference<>();
 
     public static IssueService getIssueService() {
@@ -48,18 +42,6 @@ public final class Bus {
         ormClientProvider.compareAndSet(old, null);
     }
 
-    public static Clock getClock() {
-        return clockProvider.get();
-    }
-
-    public static void setClock(Clock clock) {
-        clockProvider.set(clock);
-    }
-
-    public static void clearClock(Clock old) {
-        clockProvider.compareAndSet(old, null);
-    }
-
     public static MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
         return mdcReadingTypeUtilServiceProvider.get();
     }
@@ -70,10 +52,6 @@ public final class Bus {
 
     public static void clearMdcReadingTypeUtilService(MdcReadingTypeUtilService old){
         mdcReadingTypeUtilServiceProvider.compareAndSet(old, null);
-    }
-
-    public static Thesaurus getThesaurus() {
-        return thesaurusProvider.get();
     }
 
 }

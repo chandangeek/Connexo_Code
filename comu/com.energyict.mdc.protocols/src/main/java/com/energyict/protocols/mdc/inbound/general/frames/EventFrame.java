@@ -9,6 +9,8 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
@@ -27,13 +29,16 @@ public class EventFrame extends AbstractInboundFrame {
 
     private static final String EVENT_TAG = "event";
 
+    private final Thesaurus thesaurus;
+
     @Override
     protected FrameType getType() {
         return FrameType.EVENT;
     }
 
-    public EventFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
+    public EventFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, Thesaurus thesaurus) {
         super(frame, serialNumberPlaceHolder);
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -54,8 +59,8 @@ public class EventFrame extends AbstractInboundFrame {
             if (parameter.contains(EVENT_TAG)) {
                 String[] nameAndEvent = parameter.split("=");
                 if (nameAndEvent.length == 2) {
-                    EventInfo eventInfo = new EventInfo(nameAndEvent[1], (int) genericLogBook.getId());
-                    MeterProtocolEvent meterProtocolEvent = eventInfo.parse();
+                    EventInfo eventInfo = new EventInfo(nameAndEvent[1]);
+                    MeterProtocolEvent meterProtocolEvent = eventInfo.parse(this.thesaurus);
                     meterEvents.add(meterProtocolEvent);
                 }
             }

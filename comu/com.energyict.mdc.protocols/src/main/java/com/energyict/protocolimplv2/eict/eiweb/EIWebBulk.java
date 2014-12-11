@@ -10,10 +10,12 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,11 +29,18 @@ import java.util.List;
  */
 public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
 
+    private final Clock clock;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private InboundDiscoveryContext context;
     private ProtocolHandler protocolHandler;
     private ResponseWriter responseWriter;
+
+    @Inject
+    public EIWebBulk(Clock clock) {
+        super();
+        this.clock = clock;
+    }
 
     @Override
     public void initializeDiscoveryContext (InboundDiscoveryContext context) {
@@ -75,7 +84,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
         this.response.setContentType("text/html");
         try {
             this.responseWriter = new ResponseWriter(this.response);
-            this.protocolHandler = new ProtocolHandler(this.responseWriter, this.context, this.context.getCryptographer());
+            this.protocolHandler = new ProtocolHandler(this.responseWriter, this.context, this.context.getCryptographer(), clock);
             try {
                 this.protocolHandler.handle(this.request, this.context.getLogger());
             }

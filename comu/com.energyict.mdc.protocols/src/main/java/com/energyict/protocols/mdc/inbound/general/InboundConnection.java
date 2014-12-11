@@ -3,6 +3,8 @@ package com.energyict.protocols.mdc.inbound.general;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
+
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.DeployFrame;
@@ -31,6 +33,7 @@ public class InboundConnection {
     private static final String EVENTPO = "EVENTPO";
     private static final int DEFAULT_DELAY_MILLIS = 10;
 
+    private final Thesaurus thesaurus;
     private final SerialNumberPlaceHolder serialNumberPlaceHolder = new SerialNumberPlaceHolder();
     private ComChannel comChannel;
     private int timeout;
@@ -41,15 +44,11 @@ public class InboundConnection {
      */
     private List<AbstractInboundFrame> framesToAck;
 
-    /**
-     * Constructor taking in the comChannel, the timeout value and the retries value
-     *
-     * @param comChannel channel containing the input and output streams, and methods to read and send bytes
-     */
-    public InboundConnection(ComChannel comChannel, int timeout, int retries) {
+    public InboundConnection(ComChannel comChannel, int timeout, int retries, Thesaurus thesaurus) {
         this.comChannel = comChannel;
         this.timeout = timeout;
         this.retries = retries;
+        this.thesaurus = thesaurus;
     }
 
     /**
@@ -110,9 +109,7 @@ public class InboundConnection {
      * Acknowledge all received frames, after the Device has been found in the database
      */
     public void ackFrames() {
-        for (AbstractInboundFrame frame : framesToAck) {
-            sendAck(frame);
-        }
+        framesToAck.forEach(this::sendAck);
     }
 
     /**
@@ -149,7 +146,7 @@ public class InboundConnection {
             return new RequestFrame(frame, serialNumberPlaceHolder);
         }
         if (frame.contains(EVENT_TAG)) {
-            return new EventFrame(frame, serialNumberPlaceHolder);
+            return new EventFrame(frame, serialNumberPlaceHolder, thesaurus);
         }
         if (frame.contains(EVENTPO_TAG)) {
             return new EventPOFrame(frame, serialNumberPlaceHolder);

@@ -37,6 +37,7 @@ import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -53,6 +54,7 @@ import java.util.Set;
  */
 public class EIWeb implements DeviceProtocol {
 
+    private final Clock clock;
     private final PropertySpecService propertySpecService;
     private OfflineDevice offlineDevice;
     private SimplePasswordSecuritySupport securitySupport;
@@ -60,8 +62,9 @@ public class EIWeb implements DeviceProtocol {
     private LegacyMessageConverter messageConverter;
 
     @Inject
-    public EIWeb(PropertySpecService propertySpecService) {
+    public EIWeb(Clock clock, PropertySpecService propertySpecService) {
         super();
+        this.clock = clock;
         this.propertySpecService = propertySpecService;
         this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
     }
@@ -154,7 +157,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public Date getTime() {
-        return Date.from(Bus.getClock().instant());
+        return Date.from(this.clock.instant());
     }
 
     @Override

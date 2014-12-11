@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -53,12 +54,14 @@ public class ProtocolHandler {
     private CollectedConfigurationInformation configurationInformation;
     private CollectedLogBook deviceLogBook;
     private LegacyMessageConverter messageConverter = null;
+    private final Clock clock;
 
-    public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext inboundDiscoveryContext, Cryptographer cryptographer) {
+    public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext inboundDiscoveryContext, Cryptographer cryptographer, Clock clock) {
         super();
         this.responseWriter = responseWriter;
         this.inboundDiscoveryContext = inboundDiscoveryContext;
         this.cryptographer = cryptographer;
+        this.clock = clock;
     }
 
     private enum ContentType {
@@ -140,7 +143,7 @@ public class ProtocolHandler {
     }
 
     private void processMeterReadings(ProfileBuilder profileBuilder) {
-        Date now = Date.from(Bus.getClock().instant());
+        Date now = Date.from(this.clock.instant());
         List<BigDecimal> meterReadings = profileBuilder.getMeterReadings();
         for (int i = 0; i < meterReadings.size(); i++) {
             BigDecimal value = meterReadings.get(i);
@@ -225,7 +228,7 @@ public class ProtocolHandler {
 
     private Date sevenDaysFromNow() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTime(Date.from(Bus.getClock().instant()));
+        calendar.setTime(Date.from(this.clock.instant()));
         calendar.add(Calendar.DATE, 7);
         return calendar.getTime();
     }

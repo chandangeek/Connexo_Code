@@ -4,7 +4,7 @@ import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 
-import com.energyict.protocols.mdc.services.impl.Bus;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.text.ParseException;
@@ -23,20 +23,17 @@ import java.util.TimeZone;
 public class EventInfo {
 
     private static final int UNKNOWN = 0;
-    private static final String PROTOCOL_EVENTVALUE = Bus.getThesaurus().getString(MessageSeeds.EVENT_VALUE.getKey(), "Value");
     private String info;
-    private int logBookId;
 
-    public EventInfo(String info, int logBookId) {
+    public EventInfo(String info) {
         this.info = info;
-        this.logBookId = logBookId;
     }
 
-    public MeterProtocolEvent parse() {
+    public MeterProtocolEvent parse(Thesaurus thesaurus) {
         String[] eventInfos = info.split(" ");
         if (eventInfos.length == 3) {
             int eventCode = Integer.parseInt(eventInfos[0]);
-            String eventDescription = PROTOCOL_EVENTVALUE + ": " + eventInfos[1];
+            String eventDescription = thesaurus.getString(MessageSeeds.EVENT_VALUE.getKey(), "Value") + ": " + eventInfos[1];
             SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmmss");
             formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
             Date eventTimeStamp;
@@ -49,4 +46,5 @@ public class EventInfo {
         }
         return null;
     }
+
 }

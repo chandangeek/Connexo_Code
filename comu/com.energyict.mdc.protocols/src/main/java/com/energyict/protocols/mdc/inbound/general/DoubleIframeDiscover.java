@@ -31,7 +31,7 @@ public class DoubleIframeDiscover extends AbstractDiscover {
     public DiscoverResultType doDiscovery() {
         try {
             ComChannel comChannel = this.getComChannel();
-            this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty()));
+            this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.getThesaurus()));
             String identificationFrame = getInboundConnection().sendDoubleIRequestAndReadResponse();
             IdentificationFactory identificationFactory = processIdentificationFactory();
             String meterProtocolClass = processMeterProtocolClass(identificationFrame, identificationFactory);

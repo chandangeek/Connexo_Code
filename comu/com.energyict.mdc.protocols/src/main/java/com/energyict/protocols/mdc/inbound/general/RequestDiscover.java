@@ -26,7 +26,7 @@ public class RequestDiscover extends AbstractDiscover {
     @Override
     public DiscoverResultType doDiscovery() {
         ComChannel comChannel = this.getComChannel();
-        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty()));
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.getThesaurus()));
         boolean notTimedOut = true;
         while (notTimedOut) {
             try {
@@ -55,4 +55,5 @@ public class RequestDiscover extends AbstractDiscover {
             getInboundConnection().ackFrames();
         }
     }
+
 }

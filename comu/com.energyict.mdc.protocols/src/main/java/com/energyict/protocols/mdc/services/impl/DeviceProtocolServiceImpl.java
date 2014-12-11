@@ -82,7 +82,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Deactivate
     public void deactivate() {
         Bus.clearOrmClient(this.ormClient);
-        Bus.clearClock(this.clock);
         Bus.clearIssueService(this.issueService);
         Bus.clearMdcReadingTypeUtilService(this.mdcReadingTypeUtilService);
     }
@@ -131,7 +130,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
-        Bus.setClock(clock);
     }
 
     @Reference
