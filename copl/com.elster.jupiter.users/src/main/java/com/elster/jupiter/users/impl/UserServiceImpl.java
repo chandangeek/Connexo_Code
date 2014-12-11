@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.Module;
 import com.elster.jupiter.users.NoDefaultDomainException;
 import com.elster.jupiter.users.NoDomainFoundException;
 import com.elster.jupiter.users.Privilege;
@@ -29,7 +28,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -45,7 +43,6 @@ import static com.elster.jupiter.util.Checks.is;
 public class UserServiceImpl implements UserService, InstallService {
 
     private volatile DataModel dataModel;
-    private volatile OrmService ormService;
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
@@ -290,15 +287,6 @@ public class UserServiceImpl implements UserService, InstallService {
         return resourceFactory().find("componentName", component);
     }
 
-    @Override
-    public List<Module> getModules() {
-        List<Module> modules = new ArrayList<>();
-        for (DataModel model : ormService.getDataModels()) {
-            modules.add(new ModuleImpl(model.getName(), model.getDescription()));
-        }
-        return modules;
-    }
-
     public QueryService getQueryService() {
         return queryService;
     }
@@ -368,8 +356,6 @@ public class UserServiceImpl implements UserService, InstallService {
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
-
-        this.ormService = ormService;
     }
 
     @Reference

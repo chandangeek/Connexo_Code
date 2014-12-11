@@ -61,8 +61,6 @@ public interface UserService {
 
     List<Resource> getResources(String component);
 
-    List<Module> getModules();
-
     UserDirectory createInternalDirectory(String domain);
 
     Optional<UserDirectory> findUserDirectory(String domain);
