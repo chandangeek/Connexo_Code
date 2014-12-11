@@ -1,16 +1,16 @@
 package com.elster.jupiter.pubsub.impl;
 
-import com.elster.jupiter.pubsub.*;
-import com.google.common.collect.ImmutableMap;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Map;
-
-import static org.mockito.Mockito.*;
+import com.elster.jupiter.pubsub.Subscriber;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PublisherImplTest {
