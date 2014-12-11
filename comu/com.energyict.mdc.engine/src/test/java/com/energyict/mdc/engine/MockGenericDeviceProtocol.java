@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
@@ -56,11 +55,6 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     @Override
     public void terminate() {
         //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-
     }
 
     @Override
