@@ -51,7 +51,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(usernameAttributeName, true, new StringFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(passwordAttributeName, true, new PasswordFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(passwordAttributeName, true, PasswordFactory.class));
         }
     },
     CHANGE_GPRS_APN_CREDENTIALS(DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_GPRS_APN_CREDENTIALS, "Change the GPRS APN credentials") {
@@ -60,7 +60,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(apnAttributeName, true, new StringFactory()));
             propertySpecs.add(propertySpecService.basicPropertySpec(usernameAttributeName, true, new StringFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(passwordAttributeName, true, new PasswordFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(passwordAttributeName, true, PasswordFactory.class));
         }
     },
     // will be a semicolon separated string (maybe in the future this will be a StringListAspectEditor ...

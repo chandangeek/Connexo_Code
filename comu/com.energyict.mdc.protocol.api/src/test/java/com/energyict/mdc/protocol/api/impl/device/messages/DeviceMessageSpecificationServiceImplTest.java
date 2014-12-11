@@ -1,8 +1,14 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
@@ -14,26 +20,21 @@ import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import java.util.Optional;
-
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.assertj.core.api.Condition;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -60,19 +61,20 @@ public class DeviceMessageSpecificationServiceImplTest {
     @Mock
     private PropertySpecService propertySpecService;
     @Mock
-    private DataVault dataVault;
+    private DataVaultService dataVaultService;
     @Mock
-    private DataVaultProvider dataVaultProvider;
+    private OrmService ormService;
+    @Mock
+    private DataModel dataModel;
 
     @Before
-    public void setupDataVaultProvider () {
-        when(this.dataVaultProvider.getKeyVault()).thenReturn(this.dataVault);
-        DataVaultProvider.instance.set(this.dataVaultProvider);
+    public void setUp() throws Exception {
+        when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
     }
 
     @After
     public void tearDownDataVaultProvider () {
-        DataVaultProvider.instance.set(null);
+        LegacyDataVaultProvider.instance.set(null);
     }
 
     @Before
@@ -206,7 +208,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     }
 
     private DeviceMessageSpecificationService newServiceWithRealPropertSpecService () {
-        PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl());
+        PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, ormService);
         propertySpecService.addFactoryProvider(new FinderProvider());
         return new DeviceMessageSpecificationServiceImpl(propertySpecService, nlsService);
     }
