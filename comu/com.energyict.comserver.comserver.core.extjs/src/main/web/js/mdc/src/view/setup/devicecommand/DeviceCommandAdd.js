@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                     {
                         text: 'Add',
                         ui: 'action',
-                        margins: '0 0 0 150',
+                        margins: '0 0 0 164',
                         action: 'add',
                         mRID: me.device.get('mRID')
                     },

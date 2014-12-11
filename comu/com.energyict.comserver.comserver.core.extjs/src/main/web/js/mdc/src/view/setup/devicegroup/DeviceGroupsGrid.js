@@ -35,11 +35,12 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
                     }
                 },
                 flex: 0.4
-            }/*,
+            },
             {
                 xtype: 'uni-actioncolumn',
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup'),
                 items: 'Mdc.view.setup.devicegroup.DeviceGroupActionMenu'
-            }     */
+            }
 
         ];
         this.dockedItems = [
