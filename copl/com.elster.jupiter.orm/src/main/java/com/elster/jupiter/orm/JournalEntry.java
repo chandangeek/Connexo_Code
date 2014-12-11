@@ -2,6 +2,9 @@ package com.elster.jupiter.orm;
 
 import java.time.Instant;
 
+/*
+ * represents a version of an object instance that is no longer current
+ */
 public final class JournalEntry<T> implements Comparable<JournalEntry<T>> {
 
 	private final Instant journalTime;

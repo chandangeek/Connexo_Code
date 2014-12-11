@@ -5,6 +5,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+/*
+ * a reference to a persistent Object of a known type
+ */
 
 public interface Reference<T> {
 	Optional<T> getOptional();
@@ -44,5 +47,12 @@ public interface Reference<T> {
 	}
 	default Optional<T> filter(Predicate<T> predicate) {
 		return getOptional().filter(predicate);
+	}
+	
+	/*
+	 * to initialize
+	 */
+	public static <T> Reference<T> empty() {
+		return ValueReference.absent();
 	}
 }

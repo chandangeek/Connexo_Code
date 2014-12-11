@@ -7,19 +7,32 @@ import java.util.stream.Stream;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
+/*
+ * Stream alternative for QueryExecutor
+ */
 public interface QueryStream<T> extends Stream<T> {
 
-	// additional methods
+	/*
+	 * eagerly add types to the query
+	 */
 	QueryStream<T> join(Class<?> clazz);
+	/*
+	 * adds a query filter condition
+	 */
 	QueryStream<T> filter(Condition condition);
+	/*
+	 * sort the result
+	 */
 	QueryStream<T> sorted(Order order, Order ...orders);
+	/*
+	 * checks if any tuples matches the condition
+	 */
 	boolean anyMatch(Condition condition);
 	/*
 	 * more performant version of collect(Collectors.toList())
 	 */
 	List<T> select();
 	
-	// covariant return types
 	@Override
 	QueryStream<T> distinct();
 	@Override

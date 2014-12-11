@@ -1,5 +1,8 @@
 package com.elster.jupiter.orm;
  
+/*
+ * Defines conversions between a database column and a Java field
+ */
 public enum ColumnConversion {
 	NOCONVERSION,
 	NUMBER2INT, 

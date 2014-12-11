@@ -13,8 +13,7 @@ import java.util.Optional;
  *
  * This interface is only intended for use by domain classes,
  * who typically use the BasicQuery api.
- * Service layer classes (Rest) should use com.elster.jupiter.domain.util.Query,
- * which uses the QueryExecutor api.
+ * Service layer classes (Rest) should use com.elster.jupiter.domain.util.Query.
  *
  */
 public interface QueryExecutor<T> extends BasicQuery<T> {

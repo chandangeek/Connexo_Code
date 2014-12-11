@@ -1,5 +1,8 @@
 package com.elster.jupiter.orm.associations;
 
+/*
+ * used to initialize temporal relations
+ */
 public class Temporals {
 	public static <T extends Effectivity> TemporalReference<T> absent() {
 		return new TemporalListReference<>();

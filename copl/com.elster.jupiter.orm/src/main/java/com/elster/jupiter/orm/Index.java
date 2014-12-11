@@ -2,6 +2,10 @@ package com.elster.jupiter.orm;
 
 import java.util.List;
 
+/*
+ * describes an index.
+ * 
+ */
 public interface Index {
     List<? extends Column> getColumns();
 

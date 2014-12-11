@@ -11,12 +11,17 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+/*
+ * Effectivity describes an object that is only valid for a certain interval
+ */
+
 public interface Effectivity {
 	/*
 	 * The getInterval() method is the contract for implementers of this Interface
 	 * It should be called by users 
 	 */
-	Interval getInterval();
+	
+	/*protected */ Interval getInterval();
 	
 	/*
 	 * API

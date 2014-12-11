@@ -3,6 +3,10 @@ package com.elster.jupiter.orm.associations;
 import java.util.Objects;
 import java.util.Optional;
 
+/*
+ * used to initialize a Reference
+ */
+
 public final class ValueReference<T> implements Reference<T> {
 	
 	private T value;

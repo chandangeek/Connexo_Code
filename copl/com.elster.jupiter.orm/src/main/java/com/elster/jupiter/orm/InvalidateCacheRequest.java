@@ -1,5 +1,8 @@
 package com.elster.jupiter.orm;
 
+/*
+ * used to signal other application servers that the cache for an object type has been changed
+ */
 public class InvalidateCacheRequest {
 
     private final String componentName;

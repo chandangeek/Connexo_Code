@@ -1,6 +1,9 @@
 package com.elster.jupiter.orm;
 
 public enum SqlDialect {
+	/*
+	 * H2 Database
+	 */
     H2 {
     	@Override
     	public String rowId() {
@@ -22,6 +25,9 @@ public enum SqlDialect {
 			return false;
 		}
     }, 
+    /*
+     * Oracle Enterprise Edition with partitioning option
+     */
     ORACLE_EE {
     	@Override
     	public String rowId() {
@@ -43,6 +49,9 @@ public enum SqlDialect {
 			return true;
 		}
     },
+    /*
+     * Oracle Standard Edition
+     */
     ORACLE_SE {
     	@Override
     	public String rowId() {

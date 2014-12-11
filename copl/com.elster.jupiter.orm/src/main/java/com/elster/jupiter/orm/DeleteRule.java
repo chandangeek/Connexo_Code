@@ -1,5 +1,9 @@
 package com.elster.jupiter.orm;
 
+/*
+ * enumerates the three delete rules for a foreign key constraint
+ */
+
 public enum DeleteRule {
 	RESTRICT  (""),
 	SETNULL (" on delete set null"),

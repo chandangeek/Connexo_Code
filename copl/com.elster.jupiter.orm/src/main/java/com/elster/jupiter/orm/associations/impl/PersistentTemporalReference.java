@@ -37,7 +37,7 @@ public class PersistentTemporalReference<T extends Effectivity> extends Abstract
 	@Override
 	public boolean remove(T element) {
 		if (cachedValue != null && getPrimaryKey(element).equals(getPrimaryKey(cachedValue))) {
-			setAbsent(element.getInterval().getStart());
+			setAbsent(element.getRange().lowerEndpoint());
 		}
 		return super.remove(element);
 	}

@@ -1,5 +1,8 @@
 package com.elster.jupiter.orm;
 
+/*
+ * describes a foreign key
+ */
 public interface ForeignKeyConstraint extends TableConstraint {
 	Table<?> getReferencedTable();	
 	DeleteRule getDeleteRule();

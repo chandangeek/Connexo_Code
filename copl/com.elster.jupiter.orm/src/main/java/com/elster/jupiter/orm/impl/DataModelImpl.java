@@ -151,13 +151,6 @@ public class DataModelImpl implements DataModel {
     }
 
     @Override
-    @Deprecated
-    public <T> DataMapperImpl<T> getDataMapper(Class<T> api, String tableName) {
-        checkRegistered();
-        return getTable(tableName).getDataMapper(api);
-    }
-
-    @Override
     public void install(boolean executeDdl, boolean store) {
         if (executeDdl) {
             ormService.getUpgradeDataModel(this).upgradeTo(this);
