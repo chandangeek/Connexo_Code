@@ -33,6 +33,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
@@ -86,45 +87,14 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.common.Translator;
-import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
-import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.Principal;
@@ -136,10 +106,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -187,10 +155,6 @@ public class InMemoryIntegrationPersistence {
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
-
-    public InMemoryIntegrationPersistence() {
-        this(Clock.systemDefaultZone());
-    }
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
