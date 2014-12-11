@@ -14990,6 +14990,12 @@ div.x-form-spinner-down {
   border-color: #eb5642;
 }
 
+/* line 22, ../../sass/src/form/field/Base.scss */
+.x-form-display-field {
+  height: auto;
+  min-height: 28px;
+}
+
 /* line 4, ../../sass/src/window/MessageBox.scss */
 .x-message-box .x-window-body .x-header .x-header-text {
   font-weight: bold;

@@ -11395,6 +11395,12 @@ div.x-form-spinner-down {
   border-color: #eb5642;
 }
 
+/* line 22, ../../sass/src/form/field/Base.scss */
+.x-form-display-field {
+  height: auto;
+  min-height: 28px;
+}
+
 /* line 4, ../../sass/src/window/MessageBox.scss */
 .x-message-box .x-window-body .x-header .x-header-text {
   font-weight: bold;
@@ -17334,17 +17340,5 @@ div.x-form-spinner-down {
 
 /* line 187, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-message-error-right-mc {
-  background-color: transparent;
-}
-
-/* line 234, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-nbr .x-window-header-message-error-right {
-  padding: 0 !important;
-  border-width: 0 !important;
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  -ms-border-radius: 0px;
-  -o-border-radius: 0px;
-  border-radius: 0px;
   background-color: transparent;
 }
