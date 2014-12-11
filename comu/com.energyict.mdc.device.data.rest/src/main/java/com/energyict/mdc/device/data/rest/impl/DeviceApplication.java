@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -67,6 +68,7 @@ public class DeviceApplication extends Application implements InstallService {
 
     private final Logger logger = Logger.getLogger(DeviceApplication.class.getName());
 
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DDR";
 
     private volatile MasterDataService masterDataService;
@@ -93,6 +95,7 @@ public class DeviceApplication extends Application implements InstallService {
     private volatile Clock clock;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile FavoritesService favoritesService;
+    private volatile License license;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -241,6 +244,11 @@ public class DeviceApplication extends Application implements InstallService {
     @Reference
     public void setFavoritesService(FavoritesService favoritesService) {
         this.favoritesService = favoritesService;
+    }
+
+    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override
