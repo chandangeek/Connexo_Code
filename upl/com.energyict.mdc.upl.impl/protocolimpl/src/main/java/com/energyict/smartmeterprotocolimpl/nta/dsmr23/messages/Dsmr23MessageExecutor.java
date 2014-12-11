@@ -119,7 +119,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 if (xmlConfig) {
                     doXmlConfig(content);
                 } else if (firmware) {
-                    doFirmwareUpgrade(messageHandler);
+                    doFirmwareUpgrade(messageHandler, msgEntry);
                 } else if (p1Code) {
                     setP1Code(messageHandler);
                 } else if (p1Text) {
@@ -1128,7 +1128,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xmlConfigStr));
     }
 
-    protected void doFirmwareUpgrade(MessageHandler messageHandler) throws IOException, InterruptedException {
+    protected void doFirmwareUpgrade(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException, InterruptedException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();

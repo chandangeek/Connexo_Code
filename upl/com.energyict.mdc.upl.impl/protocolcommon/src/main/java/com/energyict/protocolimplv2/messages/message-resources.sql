@@ -23,3 +23,5 @@ insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('userHasNoComServerMobileRights', 'User has no rights to user the ComServer Mobile', 'M', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('CSC-COM-151', 'Communication was interrupted: {0}', 'M', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('PLCConfigurationDeviceMessage.EnableG3PLCInterface', 'Enable G3 PLC interface', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER', 'Upgrade firmware with user file, activation date and image identifier', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('FirmwareDeviceMessage.image.identifier', 'Image identifier', 'L', 'Y', 'N', 'MDW', sysdate);
