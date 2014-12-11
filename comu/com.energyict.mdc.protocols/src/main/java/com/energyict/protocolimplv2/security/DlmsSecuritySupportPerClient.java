@@ -204,126 +204,126 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
     }
 
     private PropertySpec<String> getEncryptionKeyPublicPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_PUBLIC.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getEncryptionKeyDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getEncryptionKeyExtDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_EXT_DATA.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getEncryptionKeyManagementPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getEncryptionKeyFirmwarePropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_FIRMWARE.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getEncryptionKeyManufacturerPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getAuthenticationKeyPublicPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getAuthenticationKeyDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getAuthenticationKeyExtDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getAuthenticationKeyManagementPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getAuthenticationKeyFirmwarePropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getAuthenticationKeyManufacturerPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getPasswordPublicPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.PASSWORD_PUBLIC.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getPasswordDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.PASSWORD_DATA.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getPasswordExtDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.PASSWORD_EXT_DATA.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getPasswordManagementPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getPasswordFirmwarePropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.PASSWORD_FIRMWARE.toString())
                 .markRequired()
                 .finish();
     }
 
     private PropertySpec<String> getPasswordManufacturerPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString())
                 .markRequired()
                 .finish();

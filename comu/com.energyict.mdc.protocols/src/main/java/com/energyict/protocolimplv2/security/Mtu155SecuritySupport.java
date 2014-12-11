@@ -182,7 +182,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
     }
 
     private PropertySpec<String> getEncryptionKeyTPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString())
                 .setDefaultValue("")
                 .markRequired()
@@ -190,7 +190,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
     }
 
     private PropertySpec<String> getEncryptionKeyCPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString())
                 .setDefaultValue("")
                 .markRequired()
@@ -198,7 +198,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
     }
 
     private PropertySpec<String> getEncryptionKeyFPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(new EncryptedStringFactory())
+        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
                 .name(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString())
                 .setDefaultValue("")
                 .markRequired()

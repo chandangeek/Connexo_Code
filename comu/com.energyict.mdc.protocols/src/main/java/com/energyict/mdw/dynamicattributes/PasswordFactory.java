@@ -1,13 +1,13 @@
 package com.energyict.mdw.dynamicattributes;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.DataVault;
-import com.energyict.mdc.common.DataVaultProvider;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.dynamic.DynamicAttributeOwner;
 import com.energyict.mdc.protocol.api.legacy.dynamic.AttributeType;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Seed;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;
+import javax.inject.Inject;
 
 /**
  * Copyrights EnergyICT
@@ -16,10 +16,11 @@ import com.energyict.mdc.protocol.api.legacy.dynamic.ValueDomain;
  */
 public class PasswordFactory extends AbstractValueFactory<Password> {
 
-    private final DataVault dataVault;
+    private final DataVaultService dataVaultService;
 
-    public PasswordFactory() {
-        dataVault = DataVaultProvider.instance.get().getKeyVault();
+    @Inject
+    public PasswordFactory(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
     }
 
     public Seed getEditorSeed(DynamicAttributeOwner model, AttributeType attType) {
@@ -39,7 +40,7 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
     }
 
     private Password valueFromDb(String encodedString) {
-        return new Password(new String(dataVault.decrypt(encodedString)));
+        return new Password(new String(dataVaultService.decrypt(encodedString)));
     }
 
     public Object valueToDb(Password password) {
@@ -54,7 +55,7 @@ public class PasswordFactory extends AbstractValueFactory<Password> {
     private String encrypt (Password password) {
         String value = password.getValue();
         if (value != null) {
-            return dataVault.encrypt(value.getBytes());
+            return dataVaultService.encrypt(value.getBytes());
         }
         else {
             return null;

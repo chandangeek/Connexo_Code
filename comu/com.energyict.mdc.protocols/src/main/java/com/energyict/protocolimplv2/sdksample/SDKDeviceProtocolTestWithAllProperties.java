@@ -149,7 +149,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
         optionalProperties.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue("SDKStringPropertyWithValuesAndDefault", false, "value 3", "value 1", "value 2", "value 4", "value 5"));
         optionalProperties.add(propertySpecService.basicPropertySpec("SDKLargeStringProperty", false, new LargeStringFactory()));
         optionalProperties.add(propertySpecService.basicPropertySpec("SDKHexStringProperty", false, new HexStringFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKPasswordProperty", false, new PasswordFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKPasswordProperty", false, PasswordFactory.class));
         optionalProperties.add(propertySpecService.basicPropertySpec("SDKBigDecimalProperty", false, new BigDecimalFactory()));
         optionalProperties.add(propertySpecService.bigDecimalPropertySpec("SDKBigDecimalWithDefault", false, new BigDecimal("666.156")));
         optionalProperties.add(
@@ -184,7 +184,7 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
         //optionalProperties.add(propertySpecService.referencePropertySpec("SDKUserFileReferenceProperty", false, FactoryIds.USERFILE));
         optionalProperties.add(propertySpecService.basicPropertySpec("SDKEan13Property", false, new Ean13Factory()));
         optionalProperties.add(propertySpecService.basicPropertySpec("SDKEan18Property", false, new Ean18Factory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKEncryptedStringProperty", false, new EncryptedStringFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec("SDKEncryptedStringProperty", false, EncryptedStringFactory.class));
 
         return optionalProperties;
     }

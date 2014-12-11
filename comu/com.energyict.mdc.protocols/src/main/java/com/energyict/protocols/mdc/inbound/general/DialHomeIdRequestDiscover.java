@@ -1,12 +1,9 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
-
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
 import java.util.List;
 
 /**
@@ -24,7 +21,7 @@ public class DialHomeIdRequestDiscover extends RequestDiscover {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         final List<PropertySpec> requiredProperties = super.getPropertySpecs();
-        requiredProperties.add(RequiredPropertySpecFactory.newInstance().stringPropertySpec(CALL_HOME_ID));
+        requiredProperties.add(Bus.getPropertySpecService().stringPropertySpec(CALL_HOME_ID, true, null));
         return requiredProperties;
     }
 
