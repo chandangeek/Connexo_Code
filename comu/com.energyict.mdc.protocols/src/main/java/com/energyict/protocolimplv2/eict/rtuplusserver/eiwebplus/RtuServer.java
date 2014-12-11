@@ -66,6 +66,7 @@ public class RtuServer implements DeviceProtocol {
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+        this.securitySupport.setPropertySpecService(propertySpecService);
     }
 
     @Override

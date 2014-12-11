@@ -6,8 +6,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
+
+
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;

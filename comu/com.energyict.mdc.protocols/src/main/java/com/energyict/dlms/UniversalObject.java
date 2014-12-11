@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.StringTokenizer;
 
+@XmlRootElement
 public class UniversalObject implements Serializable {
 
 	/**
@@ -42,7 +43,8 @@ public class UniversalObject implements Serializable {
 	private static final byte IOL_LN_F=8;
 
 
-	private long[] fields;
+    @XmlElement
+    private long[] fields = new long[9];
 
 	private static final int ASSOC_SN_OBJECT_LIST_STRUCTURE_SIZE=9;
 
@@ -69,7 +71,7 @@ public class UniversalObject implements Serializable {
 
 
 	public UniversalObject() {
-		this.fields=null;
+		this.fields= new long[9];
 	}
 
 	public UniversalObject(List values, int reference) { //, List frmts) {

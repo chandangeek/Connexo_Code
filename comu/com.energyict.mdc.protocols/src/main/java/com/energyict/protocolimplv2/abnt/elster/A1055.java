@@ -103,6 +103,7 @@ public class A1055 extends AbstractAbntProtocol {
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+        getSecuritySupport().setPropertySpecService(propertySpecService);
     }
 
     @Override

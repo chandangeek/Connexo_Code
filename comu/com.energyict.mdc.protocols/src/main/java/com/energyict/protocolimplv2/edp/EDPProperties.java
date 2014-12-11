@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.edp;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
+import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

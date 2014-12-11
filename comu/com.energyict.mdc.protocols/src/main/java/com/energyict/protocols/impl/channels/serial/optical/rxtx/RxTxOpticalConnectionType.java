@@ -1,17 +1,18 @@
 package com.energyict.protocols.impl.channels.serial.optical.rxtx;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.OpticalDriver;
-
+import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.List;
 
 /**
  * Provides an implementation of a {@link ConnectionType} interface for optical
@@ -26,6 +27,11 @@ public class RxTxOpticalConnectionType extends RxTxSerialConnectionType implemen
     @Inject
     public RxTxOpticalConnectionType(@Named(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService) {
         super(serialComponentService);
+    }
+
+    @Override
+    public SerialComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
+        return getSerialComponentService().createOpticalFromSerialComChannel(super.connect(properties));
     }
 
     @Override

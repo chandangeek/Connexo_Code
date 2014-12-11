@@ -65,7 +65,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     A1800_CORONIS(37, "com.energyict.protocolimpl.coronis.waveflowDLMS.A1800"),
     WAVE_LOG(38, "com.energyict.protocolimpl.coronis.wavelog.WaveLog", ProtocolFamily.CORONIS),
     CEWE_PROMETER(39, "com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer"),
-    MK10_STUB(40, "com.energyict.genericprotocolimpl.edmi.mk10.executer.Mk10Stub", ProtocolFamily.EDMI, ProtocolFamily.TEST),
+//    MK10_STUB(40, "com.energyict.genericprotocolimpl.edmi.mk10.executer.Mk10Stub", ProtocolFamily.EDMI, ProtocolFamily.TEST),
     SDK_SAMPLE_PROTOCOL(41, "com.energyict.protocolimpl.sdksample.SDKSampleProtocol", ProtocolFamily.TEST),
     TRIMARAN_CJE(42, "com.energyict.protocolimpl.edf.trimarancje.Trimaran"),
     GEKV2(43, "com.energyict.protocolimpl.ge.kv2.GEKV2"),
@@ -215,7 +215,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     // DeviceProtocols
     ELSTER_MBUS(185, "com.energyict.protocolimplv2.nta.elster.MbusDevice", ProtocolFamily.ELSTER_AM100),
-    RTU_PLUS(186, "com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer", ProtocolFamily.G3_LINKY_DLMS),
+    RTU_PLUS_G3(186, "com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer", ProtocolFamily.G3_LINKY_DLMS),
     GATE_WAY_Z3(187, "com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3", ProtocolFamily.EICT_Z3),
     AM100(188, "com.energyict.protocolimplv2.nta.elster.AM100", ProtocolFamily.ELSTER_AM100),
 //    MTU155(189, "com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155"),
@@ -223,7 +223,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ACE4000_OUTBOUND(191, "com.energyict.protocolimplv2.ace4000.ACE4000Outbound", ProtocolFamily.ACTARIS),
     ACE4000_MBUS(192, "com.energyict.protocolimplv2.ace4000.ACE4000MBus", ProtocolFamily.ACTARIS),
     SDK_DEVICE_PROTOCOL(193, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", ProtocolFamily.TEST),
-//    RTU_PLUS_IDIS(194, "com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer", ProtocolFamily.IDIS_GATEWAY),
+    RTU_PLUS_IDIS(194, "com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer", ProtocolFamily.IDIS_GATEWAY),
     AS220_GAS(195, "com.energyict.protocolimpl.dlms.as220.GasDevice", ProtocolFamily.ELSTER_PLC),
 
     // Rtu+ Server

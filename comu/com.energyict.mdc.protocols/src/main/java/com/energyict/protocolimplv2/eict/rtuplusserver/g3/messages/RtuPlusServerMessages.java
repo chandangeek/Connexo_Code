@@ -32,30 +32,22 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.AlarmConfigurationMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirewallConfigurationMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.GeneralDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.NetworkConnectivityMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.OutputConfigurationMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PLCConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PPPConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.SecurityMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.UplinkConfigurationDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -158,146 +150,146 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
-                if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName)) {
+                if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_NUMBER_OF_HOPS_ATTRIBUTENAME)) {
                     setMaxNumberOfHops(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_WEAK_LQI_VALUE_ATTRIBUTENAME)) {
                     setWeakLQIValue(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD)) {
                     changePasswordUser1(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD2)) {
                     changePasswordUser2(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSecurityLevel)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_SECURITY_LEVEL)) {
                     setSecurityLevelpendingMessage(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetRoutingConfiguration)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_ROUTING_CONFIGURATION)) {
                     setRoutingConfiguration(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_BROAD_CAST_LOG_TABLE_ENTRY_TTL)) {
                     setBroadCastLogTableEntryTTL(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxJoinWaitTime)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_JOIN_WAIT_TIME)) {
                     setMaxJoinWaitTime(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetPathDiscoveryTime)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_PATH_DISCOVERY_TIME)) {
                     setPathDiscoveryTime(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMetricType)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_METRIC_TYPE)) {
                     setMetricType(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetCoordShortAddress)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_COORD_SHORT_ADDRESS)) {
                     setCoordShortAddress(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetDisableDefaultRouting)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_DISABLE_DEFAULT_ROUTING)) {
                     setDisableDefaultRouting(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetDeviceType)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_DEVICE_TYPE)) {
                     setDeviceType(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_RESET_PLC_OFDM_MAC_COUNTERS)) {
                     resetPlcOfdmMacCounters(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetPanId)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_PAN_ID)) {
                     setPanId(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetToneMaskAttributeName)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_TONE_MASK_ATTRIBUTE_NAME)) {
                     setToneMask(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetTMRTTL)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_TMR_TTL)) {
                     setTMRTTL(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxFrameRetries)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_FRAME_RETRIES)) {
                     setMaxFrameRetries(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_NEIGHBOUR_TABLE_ENTRY_TTL)) {
                     setNeighbourTableEntryTTL(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetHighPriorityWindowSize)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_HIGH_PRIORITY_WINDOW_SIZE)) {
                     setHighPriorityWindowSize(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetCSMAFairnessLimit)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_CSMA_FAIRNESS_LIMIT)) {
                     setCSMAFairnessLimit(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_BEACON_RANDOMIZATION_WINDOW_LENGTH)) {
                     setBeaconRandomizationWindowLength(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMacA)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAC_A)) {
                     setMacA(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMacK)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAC_K)) {
                     setMacK(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMinimumCWAttempts)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MINIMUM_CW_ATTEMPTS)) {
                     setMinimumCWAttempts(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxBe)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_BE)) {
                     setMaxBe(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxCSMABackOff)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_CSMA_BACK_OFF)) {
                     setMaxCSMABackOff(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMinBe)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MIN_BE)) {
                     setMinBe(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.PathRequest)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_PATH_REQUEST)) {
                     String feedback = pathRequest(pendingMessage);
                     collectedMessage.setDeviceProtocolInformation(feedback);
-                } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.EnableUplinkPing)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.UPLINK_CONFIGURATION_ENABLE_PING)) {
                     enableUplinkPing(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.UPLINK_CONFIGURATION_WRITE_UPLINK_PING_DESTINATION_ADDRESS)) {
                     writeUplinkPingDestinationAddress(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.WriteUplinkPingInterval)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.UPLINK_CONFIGURATION_WRITE_UPLINK_PING_INTERVAL)) {
                     writeUplinkPingInterval(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.UPLINK_CONFIGURATION_WRITE_UPLINK_PING_TIMEOUT)) {
                     writeUplinkPingTimeout(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PPPConfigurationDeviceMessage.SetPPPIdleTime)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PPP_CONFIGURATION_SET_IDLE_TIME)) {
                     setPPPIdleTime(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.PreferGPRSUpstreamCommunication)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_PREFER_GPRS_UPSTREAM_COMMUNICATION)) {
                     preferGPRSUpstreamCommunication(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableModemWatchdog)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_ENABLE_MODEM_WATCHDOG)) {
                     enableModemWatchdog(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetModemWatchdogParameters)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_SET_MODEM_WATCHDOG_PARAMETERS)) {
                     setModemWatchdogParameters(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.EnableSSL)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_ENABLE_SSL)) {
                     enableSSL(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.ALARM_CONFIGURATION_CONFIGURE_PUSH_EVENT_NOTIFICATION)) {
                     configurePushEventNotification(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SyncTime)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CLOCK_SET_SYNCHRONIZE_TIME)) {
                     syncTime(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.REBOOT_DEVICE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_REBOOT_DEVICE)) {
                     rebootDevice(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.REBOOT_APPLICATION)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_REBOOT_APPLICATION)) {
                     rebootApplication(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetDeviceName)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_SET_DEVICENAME)) {
                     setDeviceName(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetNTPAddress)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_SET_NTPADDRESS)) {
                     setNTPAddress(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SYNC_NTP_SERVER)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_SYNC_NTPSERVER)) {
                     syncNTPServer(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_AUTOMATIC_ROUTE_MANAGEMENT)) {
                     setAutomaticRouteManagement(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.EnableSNR)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_ENABLE_SNR)) {
                     enableSNR(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSNRPacketInterval)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_SNR_PACKET_INTERVAL)) {
                     setSNRPacketInterval(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSNRQuietTime)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_SNR_QUIET_TIME)) {
                     setSNRQuietTime(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSNRPayload)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_SNR_PAYLOAD)) {
                     setSNRPayload(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.EnableKeepAlive)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_ENABLE_KEEP_ALIVE)) {
                     enableKeepAlive(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_KEEP_ALIVE_SCHEDULE_INTERVAL)) {
                     setKeepAliveScheduleInterval(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetKeepAliveBucketSize)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_KEEP_ALIVE_BUCKET_SIZE)) {
                     setKeepAliveBucketSize(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMinInactiveMeterTime)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MIN_INACTIVE_METER_TIME)) {
                     setMinInactiveMeterTime(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_INACTIVE_METER_TIME)) {
                     setMaxInactiveMeterTime(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetKeepAliveRetries)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_KEEP_ALIVE_RETRIES)) {
                     setKeepAliveRetries(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetKeepAliveTimeout)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_KEEP_ALIVE_TIMEOUT)) {
                     setKeepAliveTimeout(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.SECURITY_CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                     changeDlmAuthLevel(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.SECURITY_ACTIVATE_DLMS_ENCRYPTION)) {
                     activateDlmsEncryption(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
                     changeAuthKey(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
                     changeEncryptionKey(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.SECURITY_CHANGE_HLS_SECRET_WITH_PASSWORD)) {
                     changeHlsSecret(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.GENERAL_WRITE_FULL_CONFIGURATION)) {
                     writeFullConfig(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(OutputConfigurationMessage.WriteOutputState)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.OUTPUT_CONFIGURATION_WRITE_OUTPUT_STATE)) {
                     writeOutputState(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.ActivateFirewall)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_ACTIVATE_FIREWALL)) {
                     activateFirewall(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.DeactivateFirewall)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_DEACTIVATE_FIREWALL)) {
                     deactivateFirewall(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.ConfigureFWGPRS)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_CONFIGURE_FW_GPRS)) {
                     configureFWGPRS(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.ConfigureFWLAN)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_CONFIGURE_FW_LAN)) {
                     configureFWLAN(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.ConfigureFWWAN)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_CONFIGURE_FW_WAN)) {
                     configureFWWAN(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.SetFWDefaultState)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_SET_FW_DEFAULT_STATE)) {
                     setFWDefaultState(pendingMessage);
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);

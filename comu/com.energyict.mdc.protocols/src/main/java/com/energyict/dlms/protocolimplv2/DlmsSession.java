@@ -19,7 +19,7 @@ import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
-import com.energyict.protocols.impl.channels.ComChannelType;
+import com.energyict.mdc.io.ComChannelType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.TimeZone;
@@ -88,12 +88,12 @@ public class DlmsSession implements ProtocolLink {
      * @return the newly defined DLMSConnection
      */
     protected DlmsV2Connection defineTransportDLMSConnection() {
-        if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
+        if (ComChannelType.SERIAL_COM_CHANNEL.is(comChannel) || ComChannelType.OPTICAL_COM_CHANNEL.is(comChannel)) {
             return new HDLCConnection(comChannel, getProperties());
-        } else if (ComChannelType.SocketComChannel.is(comChannel)) {
+        } else if (ComChannelType.SOCKET_COM_CHANNEL.is(comChannel)) {
             return new TCPIPConnection(comChannel, getProperties());
         } else {
-            throw new CommunicationException(MessageSeeds.UNEXPECTED_COMCHANNEL, ComChannelType.SerialComChannel.name() + ", " + ComChannelType.SocketComChannel.name(), comChannel.getClass().getSimpleName());
+            throw new CommunicationException(MessageSeeds.UNEXPECTED_COMCHANNEL, ComChannelType.SERIAL_COM_CHANNEL.name() + ", " + ComChannelType.SOCKET_COM_CHANNEL.name(), comChannel.getClass().getSimpleName());
         }
     }
 

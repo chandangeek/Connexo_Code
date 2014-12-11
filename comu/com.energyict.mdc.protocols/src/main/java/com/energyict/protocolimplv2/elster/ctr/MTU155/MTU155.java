@@ -98,6 +98,7 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+        this.securityCapabilities.setPropertySpecService(propertySpecService);
     }
 
     @Override

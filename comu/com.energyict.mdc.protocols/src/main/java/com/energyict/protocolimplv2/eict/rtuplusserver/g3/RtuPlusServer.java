@@ -29,12 +29,10 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -71,7 +69,7 @@ import java.util.Set;
 public class RtuPlusServer implements DeviceProtocol {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
-    private G3GatewayProperties dlmsProperties;
+    private G3GatewayProperties dynamicProperties;
     private OfflineDevice offlineDevice;
     private DlmsSession dlmsSession;
     private DsmrSecuritySupport dlmsSecuritySupport;
@@ -106,7 +104,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public void copyProperties(TypedProperties properties) {
-        getDlmsSessionProperties().addProperties(properties);
+        getDynamicProperties().addProperties(properties);
     }
 
     public DlmsSession getDlmsSession() {
@@ -116,14 +114,15 @@ public class RtuPlusServer implements DeviceProtocol {
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+        getSecuritySupport().setPropertySpecService(propertySpecService);
     }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.comChannel = comChannel;
         this.offlineDevice = offlineDevice;
-        getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-        dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
+        getDynamicProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        dlmsSession = new DlmsSession(comChannel, getDynamicProperties());
     }
 
     @Override
@@ -148,12 +147,12 @@ public class RtuPlusServer implements DeviceProtocol {
      * Note that this happens without setting up an association, since the it's pre-established for the public client.
      */
     private void readFrameCounter() {
-        TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
+        TypedProperties clone = getDynamicProperties().getProperties().clone();
         clone.setProperty(com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         clone.setProperty(com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.SECURITY_LEVEL, "0:0");
         G3GatewayProperties publicClientProperties = new G3GatewayProperties(propertySpecService);
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(getDlmsSessionProperties().getSecurityPropertySet());
+        publicClientProperties.setSecurityPropertySet(getDynamicProperties().getSecurityPropertySet());
 
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
@@ -167,7 +166,7 @@ public class RtuPlusServer implements DeviceProtocol {
         }
 
         //Read out the frame counter using the public client, it has a pre-established association
-        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+        getDynamicProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
 
     @Override
@@ -311,22 +310,22 @@ public class RtuPlusServer implements DeviceProtocol {
     /**
      * Holder for all properties: security, general and dialects.
      */
-    private G3GatewayProperties getDlmsSessionProperties() {
-        if (dlmsProperties == null) {
-            dlmsProperties = new G3GatewayProperties(propertySpecService);
+    private G3GatewayProperties getDynamicProperties() {
+        if (dynamicProperties == null) {
+            dynamicProperties = new G3GatewayProperties(propertySpecService);
         }
-        return dlmsProperties;
+        return dynamicProperties;
     }
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        getDlmsSessionProperties().addProperties(dialectProperties);
+        getDynamicProperties().addProperties(dialectProperties);
     }
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        getDlmsSessionProperties().addProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-        getDlmsSessionProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
+        getDynamicProperties().addProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+        getDynamicProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
     }
 
     @Override
@@ -394,7 +393,7 @@ public class RtuPlusServer implements DeviceProtocol {
             setDeviceCache(new DLMSCache());
         }
         DLMSCache dlmsCache = (DLMSCache) getDeviceCache();
-        if (dlmsCache.getObjectList() == null || getDlmsSessionProperties().isReadCache()) {
+        if (dlmsCache.getObjectList() == null || getDynamicProperties().isReadCache()) {
             readObjectList();
             dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
         } else {
@@ -425,11 +424,11 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return null;
+        return getDynamicProperties().getPropertySpecs();
     }
 
     @Override
     public PropertySpec getPropertySpec(String s) {
-        return null;
+        return getPropertySpecs().stream().filter(propertySpec -> propertySpec.getName().equals(s)).findFirst().orElse(null);
     }
 }

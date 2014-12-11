@@ -9,6 +9,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -71,7 +72,7 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
     }
 
     public PropertySpec timeZonePropertySpec() {
-        return propertySpecService.referencePropertySpec(TIMEZONE, false, FactoryIds.TIMEZONE_IN_USE);
+        return propertySpecService.timeZonePropertySpec(TIMEZONE, false, TimeZone.getTimeZone(DEFAULT_TIMEZONE));
     }
 
     public PropertySpec<TimeDuration> timeOutPropertySpec() {

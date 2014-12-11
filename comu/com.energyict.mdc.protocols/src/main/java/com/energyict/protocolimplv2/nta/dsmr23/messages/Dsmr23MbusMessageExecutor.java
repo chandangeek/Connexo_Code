@@ -19,8 +19,9 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.MBusSetupDeviceMessage;
+
+
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -29,7 +30,7 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.impl.device.messages.LoadProfileMessage;
+
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -66,27 +67,27 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
-                if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
+                if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_OPEN)) {
                     doDisconnect(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
                     doTimedControlAction(pendingMessage, ContactorAction.REMOTE_DISCONNECT);
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_CLOSE)) {
                     doConnect(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
                     doTimedControlAction(pendingMessage, ContactorAction.REMOTE_CONENCT);
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_CHANGE_CONNECT_CONTROL_MODE)) {
                     changeControlMode(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Decommission)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.MBUS_SETUP_DECOMMISSION)) {
                     doDecommission(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.SetEncryptionKeys)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.MBUS_SETUP_SET_ENCRYPTION_KEYS)) {
                     setMbusEncryptionKeys(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.UseCorrectedValues)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.MBUS_SETUP_USE_CORRECTED_VALUES)) {
                    setMbusCorrectedMode(pendingMessage, MbusCorrectedMode.USE_CORRECTED_MODE);
-                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.UseUncorrectedValues)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.MBUS_SETUP_USE_UNCORRECTED_VALUES)) {
                     setMbusCorrectedMode(pendingMessage, MbusCorrectedMode.USE_UNCORRECTED_MODE);
-                } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST)) {
                     collectedMessage = partialLoadProfileRequest(pendingMessage);    //This message returns a result
-                } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.LOAD_PROFILE_REGISTER_REQUEST)) {
                     collectedMessage = loadProfileRegisterRequest(pendingMessage);    //This message returns a result
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);

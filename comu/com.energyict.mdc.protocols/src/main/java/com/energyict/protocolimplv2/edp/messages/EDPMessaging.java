@@ -12,11 +12,6 @@ import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PublicLightingDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -46,23 +41,23 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
     private final  Set<DeviceMessageId> supportedMessages = EnumSet.of(
-            ContactorDeviceMessage.CLOSE_RELAY.getId(),
-            ContactorDeviceMessage.OPEN_RELAY.getId(),
-            ContactorDeviceMessage.SET_RELAY_CONTROL_MODE.getId(),
-            PublicLightingDeviceMessage.SET_RELAY_OPERATING_MODE.getId(),
-            PublicLightingDeviceMessage.SET_TIME_SWITCHING_TABLE.getId(),
-            PublicLightingDeviceMessage.SET_THRESHOLD_OVER_CONSUMPTION.getId(),
-            PublicLightingDeviceMessage.SET_OVERALL_MINIMUM_THRESHOLD.getId(),
-            PublicLightingDeviceMessage.SET_OVERALL_MAXIMUM_THRESHOLD.getId(),
-            PublicLightingDeviceMessage.SET_RELAY_TIME_OFFSETS_TABLE.getId(),
-            PublicLightingDeviceMessage.WRITE_GPS_COORDINATES.getId(),
-            FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.getId(),
-            ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT.getId(),
-            ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME.getId(),
-            DeviceActionMessage.BILLING_RESET.getId(),
-            DeviceActionMessage.BILLING_RESET_CONTRACT_1.getId(),
-            DeviceActionMessage.BILLING_RESET_CONTRACT_2.getId(),
-            DeviceActionMessage.SET_PASSIVE_EOB_DATETIME.getId()
+            DeviceMessageId.CONTACTOR_CLOSE_RELAY,
+            DeviceMessageId.CONTACTOR_OPEN_RELAY,
+            DeviceMessageId.CONTACTOR_SET_RELAY_CONTROL_MODE,
+            DeviceMessageId.PUBLIC_LIGHTING_SET_RELAY_OPERATING_MODE,
+            DeviceMessageId.PUBLIC_LIGHTING_SET_TIME_SWITCHING_TABLE,
+            DeviceMessageId.PUBLIC_LIGHTING_SET_THRESHOLD_OVER_CONSUMPTION,
+            DeviceMessageId.PUBLIC_LIGHTING_SET_OVERALL_MINIMUM_THRESHOLD,
+            DeviceMessageId.PUBLIC_LIGHTING_SET_OVERALL_MAXIMUM_THRESHOLD,
+            DeviceMessageId.PUBLIC_LIGHTING_SET_RELAY_TIME_OFFSETS_TABLE,
+            DeviceMessageId.PUBLIC_LIGHTING_WRITE_GPS_COORDINATES,
+            DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE,
+            DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT,
+            DeviceMessageId.ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME,
+            DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET,
+            DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET_CONTRACT_1,
+            DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET_CONTRACT_2,
+            DeviceMessageId.DEVICE_ACTIONS_SET_PASSIVE_EOB_DATETIME
     );
 
     private final AbstractMessageExecutor messageExecutor;

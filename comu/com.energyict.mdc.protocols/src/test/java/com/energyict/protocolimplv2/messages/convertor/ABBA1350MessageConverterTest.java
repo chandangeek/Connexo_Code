@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.iec1107.abba1350.ABBA1350;
-import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
+
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -10,11 +10,7 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.FirmwareDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PublicLightingDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -50,37 +46,37 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
-                if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CLOSE_RELAY)) {
+                if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_CLOSE_RELAY)) {
                     closeRelay(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.OPEN_RELAY)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_OPEN_RELAY)) {
                     openRelay(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.SET_RELAY_CONTROL_MODE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_SET_RELAY_CONTROL_MODE)) {
                     setRelayControlMode(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PublicLightingDeviceMessage.SET_RELAY_OPERATING_MODE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PUBLIC_LIGHTING_SET_RELAY_OPERATING_MODE)) {
                     setRelayOperatingMode(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PublicLightingDeviceMessage.SET_TIME_SWITCHING_TABLE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PUBLIC_LIGHTING_SET_TIME_SWITCHING_TABLE)) {
                     setTimeSwitchingTable(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PublicLightingDeviceMessage.SET_THRESHOLD_OVER_CONSUMPTION)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PUBLIC_LIGHTING_SET_THRESHOLD_OVER_CONSUMPTION)) {
                     setThresholdOverConsumption(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PublicLightingDeviceMessage.SET_OVERALL_MINIMUM_THRESHOLD)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PUBLIC_LIGHTING_SET_OVERALL_MINIMUM_THRESHOLD)) {
                     setMinimumThreshold(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PublicLightingDeviceMessage.SET_OVERALL_MAXIMUM_THRESHOLD)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PUBLIC_LIGHTING_SET_OVERALL_MAXIMUM_THRESHOLD)) {
                     setMaximumThreshold(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(PublicLightingDeviceMessage.SET_RELAY_TIME_OFFSETS_TABLE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PUBLIC_LIGHTING_SET_RELAY_TIME_OFFSETS_TABLE)) {
                     setTimeOffsetsTable(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE)) {
                     upgradeFirmware(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT)) {
                     writeActivityCalendar(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME)) {
                     writeSpecialDays(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.BILLING_RESET)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET)) {
                     billingReset();
-                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.BILLING_RESET_CONTRACT_1)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET_CONTRACT_1)) {
                     billingResetContract1();
-                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.BILLING_RESET_CONTRACT_2)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET_CONTRACT_2)) {
                     billingResetContract2();
-                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SET_PASSIVE_EOB_DATETIME)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_SET_PASSIVE_EOB_DATETIME)) {
                     setPassiveEOBDateTime(pendingMessage);
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);

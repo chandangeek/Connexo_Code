@@ -2,13 +2,14 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
-import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
+
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 
 /**
@@ -26,7 +27,7 @@ public class ChangeDSTMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageId().equals(ClockDeviceMessage.EnableOrDisableDST.getId());
+        return message.getDeviceMessageId().equals(DeviceMessageId.CLOCK_ENABLE_OR_DISABLE_DST);
     }
 
     @Override

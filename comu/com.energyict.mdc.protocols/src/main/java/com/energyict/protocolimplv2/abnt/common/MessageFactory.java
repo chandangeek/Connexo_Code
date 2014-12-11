@@ -12,10 +12,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -87,15 +83,15 @@ public class MessageFactory implements DeviceMessageSupport {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
-                if (pendingMessage.getSpecification().equals(DeviceActionMessage.DEMAND_RESET)) {
+                if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET)) {
                     demandReset(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.DEMAND_RESET_WITH_FORCE_CLOCK)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET_WITH_FORCE_CLOCK)) {
                     demandResetWithForceClock(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.CONFIGURE_AUTOMATIC_DEMAND_RESET)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_CONFIGURE_AUTOMATIC_DEMAND_RESET)) {
                     configureAutomaticDemandReset(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND)) {
                     configureHolidayList(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.CONFIGURE_DST_WITHOUT_HOUR)) {
+                } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CLOCK_SET_CONFIRUE_DST_WITHOUT_HOUR)) {
                     configureDST(pendingMessage);
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);

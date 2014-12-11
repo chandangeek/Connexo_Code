@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
@@ -12,7 +13,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeObjectValidator
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Parser;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects.RawTariffScheme;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
+
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 
 import java.io.IOException;
@@ -35,8 +36,8 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageId().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getId()) ||
-                message.getDeviceMessageId().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE.getId());
+        return message.getDeviceMessageId().equals(DeviceMessageId.ACTIVITY_CALENDER_SEND) ||
+                message.getDeviceMessageId().equals(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATE);
     }
 
     @Override

@@ -1,15 +1,8 @@
 package com.energyict.protocolimplv2.nta.elster;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
-
-import java.util.List;
 
 /**
  *  The MBus device used for the AM100 implementation of the NTA spec

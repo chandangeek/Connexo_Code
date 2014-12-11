@@ -2,16 +2,14 @@ package com.energyict.protocolimplv2.edp.logbooks;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
-import com.energyict.protocols.util.ProtocolUtils;
-
 import com.energyict.protocolimplv2.edp.CX20009;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import oracle.net.ns.Communication;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -7,23 +7,23 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.common.DataVaultProvider;
-import com.energyict.mdc.protocol.api.impl.device.messages.ChannelConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DLMSConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceActionMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.EIWebConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.LogBookDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.MBusConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.MailConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ModbusConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.ModemConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.NetworkConnectivityMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.OpusConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PPPConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PeakShaverConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.SMSConfigurationDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.TotalizersConfigurationDeviceMessage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.AnalogOutMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChangeAdminPasswordMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChannelMessageEntry;

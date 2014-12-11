@@ -42,7 +42,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandR
 import com.energyict.protocolimplv2.abnt.common.structure.field.DstConfigurationRecord;
 import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileDataSelector;
 import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileReadSizeArgument;
-import com.energyict.protocols.impl.channels.ComChannelType;
+import com.energyict.mdc.io.ComChannelType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.Calendar;
@@ -390,12 +390,12 @@ public class RequestFactory {
 
     public Connection getConnection() {
         if (this.connection == null) {
-            if (ComChannelType.OpticalComChannel.is(comChannel)) {
+            if (ComChannelType.OPTICAL_COM_CHANNEL.is(comChannel)) {
                 this.connection = new OpticalConnection(getComChannel(), getProperties());
-            } else if (ComChannelType.SerialComChannel.is(comChannel)) {
+            } else if (ComChannelType.SERIAL_COM_CHANNEL.is(comChannel)) {
                 this.connection = new SerialConnection(getComChannel(), getProperties());
             } else {
-                throw new CommunicationException(MessageSeeds.UNEXPECTED_COMCHANNEL, ComChannelType.SerialComChannel.name() + ", " + ComChannelType.OpticalComChannel.name(), comChannel.getClass().getSimpleName());
+                throw new CommunicationException(MessageSeeds.UNEXPECTED_COMCHANNEL, ComChannelType.SERIAL_COM_CHANNEL.name() + ", " + ComChannelType.OPTICAL_COM_CHANNEL.name(), comChannel.getClass().getSimpleName());
             }
         }
         return connection;

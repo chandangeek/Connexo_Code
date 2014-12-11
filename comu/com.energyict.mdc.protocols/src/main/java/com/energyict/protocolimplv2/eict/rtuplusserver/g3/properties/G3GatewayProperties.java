@@ -5,7 +5,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.edp.EDPProperties;
-import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
+import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import java.util.List;
 public class G3GatewayProperties extends DlmsProperties {
 
     public static final String AARQ_TIMEOUT = "AARQ_Timeout";
-    public static final TimeDuration AARQ_TIMEOUT_DEFAULT = new TimeDuration(0);   //0 means use the normal timeout value
+    public static final TimeDuration AARQ_TIMEOUT_DEFAULT = TimeDuration.NONE;
 
     public G3GatewayProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);

@@ -52,12 +52,13 @@ public class RtuPlusServer implements DeviceProtocol {
     private IDISGatewayEvents idisGatewayEvents;
     private IDISGatewayMessages idisGatewayMessages;
     private IDISGatewayRegisters idisGatewayRegisters;
-    private IDISGatewayDynamicPropertySupportSupport configurationSupport;
+    private IDISGatewayDynamicPropertySupportSupport dynamicPropertySupport;
     private PropertySpecService propertySpecService;
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+        getDlmsSecuritySupport().setPropertySpecService(propertySpecService);
     }
 
     @Override
@@ -294,10 +295,10 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     public IDISGatewayDynamicPropertySupportSupport getDynamicPropertySupport() {
-        if (this.configurationSupport == null) {
-            this.configurationSupport = new IDISGatewayDynamicPropertySupportSupport(propertySpecService);
+        if (this.dynamicPropertySupport == null) {
+            this.dynamicPropertySupport = new IDISGatewayDynamicPropertySupportSupport(propertySpecService);
         }
-        return this.configurationSupport;
+        return this.dynamicPropertySupport;
     }
 
     public ComChannel getComChannel() {
@@ -330,16 +331,16 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public void copyProperties(TypedProperties properties) {
-
+        getDynamicPropertySupport().addProperties(properties);
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return null;
+        return getDynamicPropertySupport().getPropertySpecs();
     }
 
     @Override
     public PropertySpec getPropertySpec(String s) {
-        return null;
+        return getPropertySpecs().stream().filter(propertySpec -> propertySpec.getName().equals(s)).findFirst().orElse(null);
     }
 }

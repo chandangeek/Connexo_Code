@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.nta.dsmr23;
+package com.energyict.protocolimplv2.dlms;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.CipheringType;
@@ -27,7 +27,7 @@ import java.util.TimeZone;
  * Class that holds all DLMS device properties (general, dialect & security related)
  * Based on these properties, a DLMS session and its connection layer can be fully configured.
  * <p/>
- * The list of optional and required properties that is shown in EIServer is held in {@link DlmsConfigurationSupport}
+ * The list of optional and required properties that is shown in EIServer is held in {@link com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport}
  * <p/>
  * Copyrights EnergyICT
  * Date: 14-jul-2011
@@ -150,7 +150,7 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public String getManufacturer() {
-        return properties.<String>getTypedProperty(MANUFACTURER, DEFAULT_MANUFACTURER);
+        return properties.getTypedProperty(MANUFACTURER, DEFAULT_MANUFACTURER);
     }
 
     @Override
@@ -160,12 +160,12 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public boolean isWakeUp() {
-        return properties.<Boolean>getTypedProperty(WAKE_UP, DEFAULT_WAKE_UP);
+        return properties.getTypedProperty(WAKE_UP, DEFAULT_WAKE_UP);
     }
 
     @Override
     public String getDeviceId() {
-        return properties.<String>getTypedProperty(DEVICE_ID, DEFAULT_DEVICE_ID);
+        return properties.getTypedProperty(DEVICE_ID, DEFAULT_DEVICE_ID);
     }
 
     @Override
@@ -175,12 +175,12 @@ public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsS
 
     @Override
     public boolean isNtaSimulationTool() {
-        return properties.<Boolean>getTypedProperty(NTA_SIMULATION_TOOL, DEFAULT_NTA_SIMULATION_TOOL);
+        return properties.getTypedProperty(NTA_SIMULATION_TOOL, DEFAULT_NTA_SIMULATION_TOOL);
     }
 
     @Override
     public boolean isBulkRequest() {
-        return getProperties().<Boolean>getTypedProperty(BULK_REQUEST, DEFAULT_BULK_REQUEST);
+        return getProperties().getTypedProperty(BULK_REQUEST, DEFAULT_BULK_REQUEST);
     }
 
     @Override

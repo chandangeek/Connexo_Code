@@ -78,7 +78,7 @@ public class MTU155Properties extends BasicDynamicPropertySupport{
     }
 
     public PropertySpec timeZonePropertySpec() {
-        return getPropertySpecService().referencePropertySpec(TIMEZONE, true, FactoryIds.TIMEZONE_IN_USE);
+        return getPropertySpecService().timeZonePropertySpec(TIMEZONE, true, DEFAULT_TIMEZONE);
     }
 
     private PropertySpec debugPropertySpec() {

@@ -2,6 +2,7 @@ package com.energyict.protocols.impl.channels.sms;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.CommunicationException;
 
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -103,6 +104,11 @@ public class ProximusSmsComChannel implements ComChannel {
     @Override
     public TypedProperties getProperties() {
         return this.connectionTaskProperties;
+    }
+
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.PROXIMUS_SMS_COM_CHANNEL;
     }
 
     @Override

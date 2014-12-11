@@ -4,7 +4,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
-import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
+import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
 import java.util.ArrayList;
 import java.util.Arrays;
