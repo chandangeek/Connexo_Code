@@ -6,7 +6,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbookData', {
     ],
 
     views: [
-        'Mdc.view.setup.devicelogbooks.Data'
+//        'Mdc.view.setup.devicelogbooks.Data'
     ],
 
     models: [

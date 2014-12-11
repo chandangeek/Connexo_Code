@@ -147,6 +147,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     viewport.setLoading(false);
                     Ext.getBody().mask('Loading...');
                    widget.setLoading();
+                    debugger;
                     widget.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!isTable);
                     widget.down('#deviceLoadProfilesTableViewBtn').setDisabled(isTable);
                     widget.down('#deviceLoadProfilesTableView').setVisible(isTable);

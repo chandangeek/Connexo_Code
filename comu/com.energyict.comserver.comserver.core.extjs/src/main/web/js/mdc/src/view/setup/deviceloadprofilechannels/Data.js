@@ -16,7 +16,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
         var me = this;
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('deviceloadprofiles.channels.channelData', 'MDC', 'Channel data'),
             tools: [
                 {
                     xtype: 'button',
@@ -56,30 +55,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
                             xtype: 'deviceLoadProfileChannelGraphView'
                         }
                     ]
-                }
-            ]
-        };
-
-        me.side = {
-            xtype: 'panel',
-            ui: 'medium',
-            items: [
-                {
-                    xtype: 'panel',
-                    title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
-                    ui: 'medium',
-                    items: [
-                        {
-                            xtype: 'deviceMenu',
-                            itemId: 'stepsMenu',
-                            device: me.device,
-                            toggleId: 'channelsLink',
-                            mRID: me.mRID
-                        }
-                    ]
-                },
-                {
-                    xtype: 'deviceLoadProfileChannelDataSideFilter'
                 }
             ]
         };

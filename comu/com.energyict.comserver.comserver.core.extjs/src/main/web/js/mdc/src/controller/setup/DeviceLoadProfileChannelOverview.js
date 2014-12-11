@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'Mdc.view.setup.deviceloadprofilechannels.Overview'
+        'Mdc.view.setup.deviceloadprofilechannels.Overview',
+        'Mdc.view.setup.deviceloadprofilechannels.TabbedDeviceChannelsView'
     ],
 
     models: [
@@ -11,10 +12,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
         'Mdc.model.ChannelOfLoadProfilesOfDevice'
     ],
 
-    showOverview: function (mRID, channelId) {
+    showOverview: function (mRID, channelId, tabController) {
         var me = this,
             channelModel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
             widget,
+            tabWidget,
             defer = {
                 param: null,
                 callback: null,
@@ -32,11 +34,21 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
             };
 
         defer.setCallback(function (device) {
+
+            tabWidget = Ext.widget('tabbedDeviceChannelsView', {
+                router: me.getController('Uni.controller.history.Router'),
+                device: device
+            });
+
             widget = Ext.widget('deviceLoadProfileChannelOverview', {
                 router: me.getController('Uni.controller.history.Router'),
                 device: device
             });
-            me.getApplication().fireEvent('changecontentevent', widget);
+
+            tabWidget.down('#channel-specifications').add(widget);
+            tabController.showTab(0);
+            tabWidget.down('#channelTabPanel').setTitle(Uni.I18n.translate('general.overview', 'MDC', 'Overview'));
+            me.getApplication().fireEvent('changecontentevent', tabWidget);
             widget.setLoading(true);
             channelModel.getProxy().setUrl({
                 mRID: mRID

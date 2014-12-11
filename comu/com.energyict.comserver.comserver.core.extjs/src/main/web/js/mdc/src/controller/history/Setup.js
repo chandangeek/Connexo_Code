@@ -1150,9 +1150,9 @@ Ext.define('Mdc.controller.history.Setup', {
                                 channel: {
                                     title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
                                     route: '{channelId}',
-                                    controller: 'Mdc.controller.setup.DeviceLoadProfileChannelOverview',
+                                    controller: 'Mdc.controller.setup.DeviceChannelTab',
                                     privileges: ['privilege.administrate.device','privilege.view.device'],
-                                    action: 'showOverview',
+                                    action: 'initTabDeviceChannelDetailsView',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
                                             route.setTitle(record.get('name'));
@@ -1164,17 +1164,17 @@ Ext.define('Mdc.controller.history.Setup', {
                                         data: {
                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
                                             route: 'graph',
-                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
+                                            controller: 'Mdc.controller.setup.DeviceChannelTab',
                                             privileges: ['privilege.administrate.device','privilege.view.device'],
-                                            action: 'showGraphOverview',
+                                            action: 'initTabChannelGraphView',
                                             filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
                                         },
                                         tableData: {
                                             title: Uni.I18n.translate('routing.channelData', 'MDC', 'Channel data'),
                                             route: 'table',
-                                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannelData',
+                                            controller: 'Mdc.controller.setup.DeviceChannelTab',
                                             privileges: ['privilege.administrate.device','privilege.view.device'],
-                                            action: 'showTableOverview',
+                                            action: 'initTabChannelDataView',
                                             filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
                                             items: {
                                                 editreadings: {

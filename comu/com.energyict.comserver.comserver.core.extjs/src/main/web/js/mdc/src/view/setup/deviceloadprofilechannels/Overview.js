@@ -20,7 +20,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
                 items: [
                     {
                         ui: 'large',
-                        title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                         flex: 1,
                         items:  {
                             xtype: 'form',
@@ -114,19 +113,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
                 ]
             }
         ];
-
-        me.side = {
-            xtype: 'panel',
-            ui: 'medium',
-            items: [
-                {
-                    xtype: 'deviceMenu',
-                    itemId: 'stepsMenu',
-                    device: me.device,
-                    toggleId: 'channelsLink'
-                }
-            ]
-        }
 
         me.callParent(arguments);
     }
