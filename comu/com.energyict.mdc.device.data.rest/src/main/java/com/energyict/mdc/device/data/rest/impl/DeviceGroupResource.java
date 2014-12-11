@@ -66,7 +66,7 @@ public class DeviceGroupResource {
         return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext));
     }
 
-    private EndDeviceGroup fetchDeviceGroup(long id, SecurityContext securityContext) {
+    private EndDeviceGroup fetchDeviceGroup(long id, @Context SecurityContext securityContext) {
         return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
@@ -74,7 +74,9 @@ public class DeviceGroupResource {
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
-    public List<DeviceInfo> getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId, @Context SecurityContext securityContext) {
+    //public List<DeviceInfo> getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId, @Context SecurityContext securityContext) {
+    public List<DeviceInfo> getDevices(@BeanParam QueryParameters queryParameters, @Context SecurityContext securityContext) {
+        long deviceGroupId = 1;
         EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId, securityContext);
         List<? extends EndDevice> endDevices = endDeviceGroup.getMembers(Instant.now());
         if (queryParameters.getLimit() != null) {
