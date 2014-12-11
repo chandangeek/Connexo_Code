@@ -1,5 +1,5 @@
 Ext.define('Mdc.store.DevicesOfDeviceGroup', {
-
+    extend: 'Ext.data.Store',
     requires: [
         'Mdc.model.Device'
     ],
@@ -9,8 +9,7 @@ Ext.define('Mdc.store.DevicesOfDeviceGroup', {
 
     proxy: {
         type: 'rest',
-        //url: '../../api/ddr/devicegroups/{id}/devices',
-        url: '../../api/ddr/devicegroups/1/devices',
+        url: '../../api/ddr/devicegroups/{id}/devices',
         reader: {
             type: 'json',
             root: 'devices'

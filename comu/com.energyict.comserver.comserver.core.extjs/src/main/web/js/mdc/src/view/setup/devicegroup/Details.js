@@ -31,6 +31,7 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                         flex: 1,
                         items: {
                             xtype: 'devicegroups-preview-form',
+                            itemId: 'deviceGroupdetailsForm',
                             deviceGroupId: this.deviceGroupId
                         }
                     },
@@ -46,20 +47,18 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                 ]
             },
             {
-                /*xtype: 'preview-container',
+                xtype: 'preview-container',
                 grid: {
-                    xtype: 'devicesOfDeviceGroupGrid',
-                    groupId: this.deviceGroupId
+                    xtype: 'devicesOfDeviceGroupGrid'/*,
+                    groupId: this.deviceGroupId*/
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
                     title: Uni.I18n.translate('devicesearch.empty.title', 'MDC', 'No devices found'),
                     reasons: [
-                        Uni.I18n.translate('devicesearch.empty.list.item1', 'MDC', 'No devices in the system.'),
-                        Uni.I18n.translate('devicesearch.empty.list.item2', 'MDC', 'No devices match your filter.')
+                        Uni.I18n.translate('devicegroup.empty.list.message', 'MDC', 'There are no devices in your group.')
                     ]
-                }*/
-                xtype: 'devicesOfDeviceGroupGrid'
+                }
             }
         ]
     },
