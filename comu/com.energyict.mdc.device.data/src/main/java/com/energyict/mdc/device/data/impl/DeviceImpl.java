@@ -145,6 +145,7 @@ import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.Functions.asStream;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
 import static java.util.stream.Collectors.toList;
 
@@ -1236,8 +1237,7 @@ public class DeviceImpl implements Device, CanLock {
         if (found.isPresent()) {
             return found.get().getMeterActivations().stream()
                     .map(m -> getChannel(m, readingTypeSupplier.get()))
-                    .filter(java.util.Optional::isPresent)
-                    .map(java.util.Optional::get)
+                    .flatMap(asStream())
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();

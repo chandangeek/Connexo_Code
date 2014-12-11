@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -31,7 +32,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -70,6 +70,11 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.security.Principal;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -82,15 +87,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
-import java.security.Principal;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceGroupTest {
@@ -175,6 +175,7 @@ public class DeviceGroupTest {
                 new ThreadSecurityModule(principal),
                 this.inMemoryBootstrapModule,
                 new OrmModule(),
+                new DataVaultModule(),
                 new EventsModule(),
                 new PubSubModule(),
                 new TransactionModule(),

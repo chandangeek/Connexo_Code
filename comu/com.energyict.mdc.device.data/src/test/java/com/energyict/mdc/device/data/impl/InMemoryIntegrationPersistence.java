@@ -47,6 +47,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -103,6 +104,7 @@ import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -140,7 +142,10 @@ import org.osgi.service.log.LogService;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Copyrights EnergyICT
@@ -228,6 +233,7 @@ public class InMemoryIntegrationPersistence {
                 new MeteringGroupsModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
+                new DataVaultModule(),
                 new IssuesModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
