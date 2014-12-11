@@ -76,7 +76,7 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
     @Test
     public void testGetDeviceProtocolProperties() {
 
-        String response = target("/devices/ZABF010000080004/protocols").request().get(String.class);
+        String response = target("/devices/ZABF010000080004/protocols/1").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(17);
         assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo("callHomeId");
@@ -85,7 +85,7 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
 
     @Test
     public void testGetDeviceProtocolPropertiesNonExistingDevice() {
-        Response response = target("/devices/FAKE/protocols").request().get();
+        Response response = target("/devices/FAKE/protocols/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
