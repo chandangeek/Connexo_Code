@@ -34,6 +34,8 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
     reportFilters:null,
     reportInfo:null,
     filterValues:{},
+    reportOptions:null,
+    reportId:0,
 
     showReport: function(report) {
         var me = this;
@@ -116,6 +118,8 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
             if(records.length>0){
                 reportInfo = records[0];
                 reportFiltersView.setTitle(reportInfo.get('name'));
+                me.reportId = reportInfo.get('reportId')
+
             }
         });
         reportFiltersView.setLoading(true);
@@ -138,8 +142,9 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                         reportPromptsContainer.setVisible(true);
                         reportPromptsContainer.add({
                             xtype: 'displayfield',
-                            labelAlign: 'left',
+                            labelAlign: 'top',
                             labelWidth:150,
+                            width:300,
                             fieldLabel: filterRecord.get('filterDisplayName') + ' ' + me.translateFilterType(filterRecord.get('filterType')),
                             value: me.reportFilters[filterName]
                         });
@@ -163,7 +168,6 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                             },
                             columnWidth: 0.5,
                             maxWidth: 250,
-                            padding:20,
                             items:formFields
                         };
                         reportFiltersContainer.setVisible(true);
@@ -188,7 +192,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
         console.log(me.filterValues);
 
         Ext.Ajax.request({
-            url: '/api/yfn/user/login',
+            url: '/api/yfn/user/token',
             method: 'POST',
             async: false,
             success: function(response){
@@ -196,12 +200,24 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
             }
         });
 
-        console.log(me.filterValues);
-        yellowfin.loadReport({
+       // var filters = me.convertToYellowfinJSAPIFilters();
+
+
+        var display;
+        try{
+            display = yellowfin.reports.reportOptions['r'+me.reportId].display;
+        }
+        catch(e){}
+
+        console.log(display);
+
+        me.reportOptions = {
             reportUUID: me.reportUUID,
+            display:display,
             element: reportContent.getEl().dom,
             showFilters:false,
-            //showTitle:false,
+            showTitle:true,
+            filters:me.filterValues,
             width:reportContent.getWidth()-3,
             height:reportContent.getHeight()-38,
             showExport:true,
@@ -209,7 +225,10 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
             showInfo:false,
             token: data.token,
             fitTableWidth:false
-        });
+        }
+
+        yellowfin.loadReport(me.reportOptions);
+
 
         me.resizeReportPanel(reportContent);
 
@@ -232,6 +251,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
     getFilterValue:function(filterRecord, queryValue){
         var filterType = filterRecord.get('filterType');
         var filterDisplayType = filterRecord.get('filterDisplayType');
+        var filterId = filterRecord.get('filterDisplayType');
 
         if(filterType == "BETWEEN")
             return [queryValue.from, queryValue.to];

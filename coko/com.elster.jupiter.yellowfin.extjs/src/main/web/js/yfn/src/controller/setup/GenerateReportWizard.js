@@ -119,8 +119,10 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     },
 
     moveToStep: function (step) {
+        var me = this;
         var layout = this.getWizard().getLayout();
         layout.setActiveItem(step - 1);
+        me.updateButtonsState();
     },
     backClick: function () {
         var layout = this.getWizard().getLayout(),
@@ -394,7 +396,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                 return me.createTextControls(filterRecord, fieldType, initialValue);
         }
     },
-    createDateControls: function (filterRecord, fieldType, defaultValue) {
+    createDateTimeControls: function (filterRecord, fieldType, defaultValue) {
 
         var me = this;
         fieldType = fieldType || 'filter';
@@ -437,7 +439,54 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
 
         return controls;
     },
-    createDateBetweenControls: function (filterRecord, fieldType, defaultValue) {
+    createDateControls: function (filterRecord, fieldType, defaultValue) {
+
+        var me = this;
+        fieldType = fieldType || 'filter';
+        var filterType = filterRecord.get('filterType');
+        var filterName = filterRecord.get('filterName');
+        var date = (defaultValue && defaultValue.from) || me.getDefaultDateValue(filterRecord.get('filterDefaultValue1'));
+        defaultValue = date ? moment(date).startOf('day').toDate() : null;
+
+        var controls =
+            [
+                {
+                    xtype: 'datefield',
+                    padding: 0,
+                    margin: 0,
+                    width: '100%',
+                    name: filterName,
+                    fieldType:fieldType,
+                    record:filterRecord,
+                    allowBlank: fieldType == 'filter',
+                    value: defaultValue,
+                    initComponent: function () {
+                        this.callParent(arguments);
+
+                        if (this.value) {
+                            this.setValue(this.value);
+                        }
+                    },
+                    getFieldValue : function (){
+                        var rawValue = this.getValue();
+                        if(rawValue)
+                            return Ext.Date.format(rawValue,'Y-m-d');
+                        else
+                            return null;
+                    },
+                    getFieldDisplayValue : function(){
+                        var rawValue = this.getValue();
+                        if(rawValue)
+                            return Ext.Date.format(rawValue,'n/j/Y g:i A');
+                        else
+                            return "";
+                    }
+                },
+            ];
+
+        return controls;
+    },
+    createDateTimeBetweenControls: function (filterRecord, fieldType, defaultValue) {
         var me = this;
         fieldType = fieldType || 'filter';
         var filterType = filterRecord.get('filterType');
@@ -490,8 +539,89 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
                     },
                     getValue : function(){
                         return {
-                            from:  Ext.Date.format(this.query('date-time')[0].getValue(),'c'),
-                            to:Ext.Date.format(this.query('date-time')[1].getValue(),'c')
+                            from:  Ext.Date.format(this.query('date-time')[0].getValue(),'Y-m-d m:i:s'),
+                            to:Ext.Date.format(this.query('date-time')[1].getValue(),'Y-m-d m:i:s')
+                        };
+                    },
+                    getFieldValue : function (){
+                        return this.getValue();
+                    },
+                    getFieldDisplayValue : function(){
+                        var rawValue = this.getRawValue();
+                        return Ext.String.format("{0} - {1}",
+                            rawValue.from ? Ext.Date.format(rawValue.from, 'n/j/Y g:i A') : '',
+                            rawValue.to ? Ext.Date.format(rawValue.to, 'n/j/Y g:i A') : ''
+                        );
+                    }
+                }
+            ];
+        return controls;
+    },
+    createDateBetweenControls: function (filterRecord, fieldType, defaultValue) {
+        var me = this;
+        fieldType = fieldType || 'filter';
+        var filterType = filterRecord.get('filterType');
+        var filterName = filterRecord.get('filterName');
+        var fromDate = (defaultValue && defaultValue.from) || me.getDefaultDateValue(filterRecord.get('filterDefaultValue1'));
+        fromDate = fromDate ? moment(fromDate).startOf('day').toDate() : null;
+        var toDate = (defaultValue && defaultValue.to) ||  me.getDefaultDateValue(filterRecord.get('filterDefaultValue2'));
+        toDate = toDate ? moment(toDate).startOf('day').toDate() : null;
+
+        var controls =
+            [
+                {
+                    xtype: 'fieldset',
+                    fieldType:fieldType,
+                    record:filterRecord,
+                    border: false,
+                    margin:0,
+                    padding:0,
+                    defaults: {
+                        border: false
+                    },
+                    items: [
+                        {
+                            xtype: 'datefield',
+                            allowBlank: fieldType == 'filter',
+                            value: fromDate,
+                            width: '100%',
+                            name: 'from',
+                            initComponent: function () {
+                                this.callParent(arguments);
+
+                                if (this.value) {
+                                    this.setValue(this.value);
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'datefield',
+                            value : toDate,
+                            allowBlank: fieldType == 'filter',
+                            width: '100%',
+                            name: 'to',
+                            initComponent: function () {
+                                this.callParent(arguments);
+
+                                if (this.value) {
+                                    this.setValue(this.value);
+                                }
+                            }
+                        }
+                    ],
+                    setValue : function(value){
+
+                    },
+                    getRawValue : function(){
+                        return {
+                            from:this.query('datefield')[0].getValue(),
+                            to:this.query('datefield')[1].getValue()
+                        };
+                    },
+                    getValue : function(){
+                        return {
+                            from:  Ext.Date.format(this.query('datefield')[0].getValue(),'Y-m-d'),
+                            to:Ext.Date.format(this.query('datefield')[1].getValue(),'Y-m-d')
                         };
                     },
                     getFieldValue : function (){
