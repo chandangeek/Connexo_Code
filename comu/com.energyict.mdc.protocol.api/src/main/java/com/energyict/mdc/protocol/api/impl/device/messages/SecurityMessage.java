@@ -8,11 +8,10 @@ import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMes
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ThreeStateFactory;
+import com.energyict.mdc.protocol.api.messaging.KeyTUsage;
+import com.energyict.mdc.protocol.api.messaging.SealActions;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -111,7 +110,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(keyTActivationStatusAttributeName, true, KeyTUsage.ENABLE.description, KeyTUsage.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(keyTActivationStatusAttributeName, true, KeyTUsage.ENABLE.getDescription(), KeyTUsage.getAllDescriptions()));
             propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(SecurityTimeDurationAttributeName, true, new BigDecimal(0), new BigDecimal(255)));
         }
     },
@@ -287,81 +286,4 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         return null;
     }
 
-    public enum KeyTUsage {
-
-        DISABLE(false, "Disabled"),
-        ENABLE(true, "Enabled");
-
-        private final boolean status;
-        private final String description;
-
-        KeyTUsage(boolean status, String description) {
-            this.status = status;
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public static Boolean fromDescription(String description) {
-            for (KeyTUsage usage : values()) {
-                if (usage.getDescription().equals(description)) {
-                    return usage.getStatus();
-                }
-            }
-            return null;
-        }
-
-        public boolean getStatus() {
-            return status;
-        }
-
-        public static String[] getAllDescriptions() {
-            String[] result = new String[values().length];
-            for (int index = 0; index < values().length; index++) {
-                result[index] = values()[index].getDescription();
-            }
-            return result;
-        }
-    }
-    public enum SealActions {
-
-        UNCHANGED(null, "Unchanged"),
-        ENABLE_SEAL(true, "Enable seal"),
-        DISABLE_SEAL(false, "Disable seal");
-
-        private final Boolean action;
-        private final String description;
-
-        SealActions(Boolean action, String description) {
-            this.action = action;
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public static Boolean fromDescription(String description) {
-            for (SealActions actions : values()) {
-                if (actions.getDescription().equals(description)) {
-                    return actions.getAction();
-                }
-            }
-            return null;
-        }
-
-        public Boolean getAction() {
-            return action;
-        }
-
-        public static String[] getAllDescriptions() {
-            String[] result = new String[values().length];
-            for (int index = 0; index < values().length; index++) {
-                result[index] = values()[index].getDescription();
-            }
-            return result;
-        }
-    }
 }

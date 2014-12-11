@@ -387,7 +387,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             //TODO we need a group ...
-            propertySpecs.add(propertySpecService.referencePropertySpec(DeviceMessageConstants.deviceGroupPathRequestAttributeName, true, null));
+//            propertySpecs.add(propertySpecService.referencePropertySpec(DeviceMessageConstants.deviceGroupPathRequestAttributeName, true, null));
         }
     },
     SetAutomaticRouteManagement(DeviceMessageId.PLC_CONFIGURATION_SET_AUTOMATIC_ROUTE_MANAGEMENT, "Set automatic route management"){
