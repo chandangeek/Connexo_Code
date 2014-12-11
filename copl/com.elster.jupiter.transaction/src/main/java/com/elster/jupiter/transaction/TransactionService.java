@@ -26,5 +26,10 @@ public interface TransactionService {
     		return context.getStats();
     	}
 	}
+	/*
+	 * TransactionBuilder provides an easy interface to setup the security context before executing a tx 
+	 */
+	
+	TransactionBuilder builder();
 	
 }

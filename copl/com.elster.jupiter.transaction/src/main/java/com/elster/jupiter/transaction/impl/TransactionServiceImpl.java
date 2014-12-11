@@ -44,6 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
     	} 
     }
 	
+    @Override
     public TransactionContext getContext() {
     	if (isInTransaction()) {
     		throw new NestedTransactionException();
@@ -51,6 +52,11 @@ public class TransactionServiceImpl implements TransactionService {
     	TransactionState transactionState = new TransactionState(this);
 		transactionStateHolder.set(transactionState);
 		return new TransactionContextImpl(this);
+    }
+    
+    @Override
+    public TransactionBuilder builder() {
+    	return new TransactionBuilderImpl(this, threadPrincipalService);
     }
     
     private TransactionEvent terminate(boolean commit) {
