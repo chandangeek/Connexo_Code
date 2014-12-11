@@ -11,6 +11,14 @@ public interface EventService {
     String JUPITER_EVENTS = "JupiterEvents";
     String COMPONENTNAME = "EVT";
 
+    /*
+     * Posts an event with the given topic and source
+     * This will wrap the source in a LocalEvent using the EventType defined by the topic
+     * This event is first published on com.elster.jupiter.pubsub.Publisher,
+     * then posted on the Osgi Event Admin Service and finally,
+     * if the EventType is configured to publish, written as JSON payload on a Oracle AQ topic
+     *  
+     */
     void postEvent(String topic, Object source);
 
     @TransactionRequired

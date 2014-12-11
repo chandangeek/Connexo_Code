@@ -2,7 +2,15 @@ package com.elster.jupiter.events;
 
 public enum ValueType {
 
-    STRING(String.class), BYTE(Byte.class), SHORT(Short.class), INTEGER(Integer.class), LONG(Long.class), FLOAT(Float.class), DOUBLE(Double.class), BOOLEAN(Boolean.class), CHARACTER(Character.class);
+    STRING(String.class), 
+    BYTE(Byte.class), 
+    SHORT(Short.class), 
+    INTEGER(Integer.class), 
+    LONG(Long.class), 
+    FLOAT(Float.class), 
+    DOUBLE(Double.class), 
+    BOOLEAN(Boolean.class), 
+    CHARACTER(Character.class);
 
     private final Class<?> type;
 

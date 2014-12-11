@@ -8,7 +8,9 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class CorruptAccessPathException extends LocalizedException {
 
-    public CorruptAccessPathException(Thesaurus thesaurus, Throwable cause) {
+	private static final long serialVersionUID = 1L;
+
+	public CorruptAccessPathException(Thesaurus thesaurus, Throwable cause) {
         super(thesaurus, MessageSeeds.CORRUPT_ACCESSPATH, cause);
     }
 }
