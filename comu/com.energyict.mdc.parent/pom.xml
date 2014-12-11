@@ -276,167 +276,22 @@
                 <version>1.8.2</version>
             </dependency>
 
-      <!-- Jupiter Platform -->
+            <!-- Logging -->
       <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>cbo</artifactId>
-        <version>${jupiter.version}</version>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>domain.util</artifactId>
-        <version>${jupiter.version}</version>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.0.0</version>
+                <scope>runtime</scope>
       </dependency>
       <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>rest.util</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>transaction</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>appserver</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>util</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>events</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>fileimport</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>http.whiteboard</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>ids</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>messaging</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>metering</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>metering.groups</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>metering.extjs</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>metering.rest</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>orm</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>parties</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>parties.rest</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>pubsub</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>security.thread</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>tasks</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>users</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>users.rest</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>systemadmin</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>kpi</artifactId>
-        <version>${jupiter.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>devtools</artifactId>
-        <version>${jupiter.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>devtools.persistence</artifactId>
-        <version>${jupiter.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>devtools.rest</artifactId>
-        <version>${jupiter.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>bootstrap.h2</artifactId>
-        <version>${jupiter.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>messaging.h2</artifactId>
-        <version>${jupiter.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <!-- AOP -->
-      <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjrt</artifactId>
-        <version>1.8.2</version>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.16.1-GA</version>
       </dependency>
 
             <!-- Performance monitoring -->
@@ -553,7 +408,6 @@
             <plugin>
                 <groupId>com.qmino</groupId>
                 <artifactId>miredot-plugin</artifactId>
-                <version>1.5.1-SNAPSHOT</version>
                 <configuration>
                     <licence>
                         T3JnYW5pc2F0aW9ufGNvbS5lbmVyZ3lpY3R8MjAxNS0xMC0wMnx0cnVlI01DNENGUUNHMmZyWlVmMzFlNWY1TVdpcHpiYnRDMGJGbGdJVkFJdm1xNkZnbkZJSFZYWFAwWUMvZ0xodmxUSDE=
@@ -581,7 +435,6 @@
 
     <!-- Repositories specification to find parent pom. Rest of repos comes from parent pom-->
     <repositories>
-
         <repository>
             <id>eict-public-snapshots</id>
             <name>EnergyICT snapshots repository group</name>
