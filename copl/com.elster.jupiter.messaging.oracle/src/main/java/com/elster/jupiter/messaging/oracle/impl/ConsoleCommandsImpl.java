@@ -4,7 +4,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.security.thread.RunAs;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -16,7 +15,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.io.PrintStream;
-import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -97,55 +95,36 @@ public class ConsoleCommandsImpl {
 
     public void createQueue(final String queueName, final int retryDelay) {
         try {
-            transactionService.execute(new VoidTransaction() {
-                @Override
-                protected void doPerform() {
-                    new RunAs(threadPrincipalService, new Principal() {
-                        @Override
-                        public String getName() {
-                            return "Command line";
-                        }
-                    }, new Runnable() {
-                        @Override
-                        public void run() {
-
-                            Optional<QueueTableSpec> defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE");
-                            if (defaultQueueTableSpec.isPresent()) {
-                                DestinationSpec destinationSpec = defaultQueueTableSpec.get().createDestinationSpec(queueName, retryDelay);
-                                destinationSpec.activate();
-                            } else {
-                                System.err.println("RAWQUEUETABLE not present! Please create first");
-                            }
-                        }
-                    }).run();
-                }
-            });
+            transactionService.builder()
+            	.principal(() -> "Command line")
+            	.run(() -> {
+            		Optional<QueueTableSpec> defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE");
+                    if (defaultQueueTableSpec.isPresent()) {
+                        DestinationSpec destinationSpec = defaultQueueTableSpec.get().createDestinationSpec(queueName, retryDelay);
+                        destinationSpec.activate();
+                    } else {
+                        System.err.println("RAWQUEUETABLE not present! Please create first");
+                    }
+                });
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
     public void subscribe(final String subscriberName, final String destinationName) {
-        transactionService.execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                new RunAs(threadPrincipalService, new Principal() {
-                    @Override
-                    public String getName() {
-                        return "Command line";
-                    }
-                }, new Runnable() {
-                    @Override
-                    public void run() {
-                        Optional<DestinationSpec> destination = messageService.getDestinationSpec(destinationName);
-                        if (!destination.isPresent()) {
-                            System.err.println("No such destination " + destinationName);
-                        }
-                        destination.get().subscribe(subscriberName);
-                    }
-                }).run();
-            }
-        });
+    	try {
+    		transactionService.builder()
+        		.principal(() -> "Command line")
+        		.run(() -> {
+        			Optional<DestinationSpec> destination = messageService.getDestinationSpec(destinationName);
+        			if (!destination.isPresent()) {
+        				System.err.println("No such destination " + destinationName);
+        			}
+        			destination.get().subscribe(subscriberName);
+        		});
+    	} catch (Exception ex) {
+    		ex.printStackTrace();
+    	}
     }
 
     public void activate(String destinationName) {
