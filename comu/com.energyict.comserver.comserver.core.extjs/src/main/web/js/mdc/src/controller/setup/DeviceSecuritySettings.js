@@ -38,7 +38,9 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                 selectionchange: this.previewDeviceSecuritySetting
             },
             '#devicesecuritysettinggrid actioncolumn': {
-                editDeviceSecuritySetting: this.editDeviceSecuritySettingHistory
+                editDeviceSecuritySetting: this.editDeviceSecuritySettingHistory,
+                showValueDeviceSecuritySetting: this.showValues,
+                hideValueDeviceSecuritySetting:  this.hideValues
             },
             '#deviceSecuritySettingPreview menuitem[action=editDeviceSecuritySetting]': {
                 click: this.editDeviceSecuritySettingHistoryFromPreview
@@ -56,15 +58,23 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                 enableRestoreAll: this.enableRestoreAllButton
             },
             '#deviceSecuritySettingPreview menuitem[action=showValueDeviceSecuritySetting]': {
-                click: this.showValue
+                click: this.showValues
             },
             '#deviceSecuritySettingPreview menuitem[action=hideValueDeviceSecuritySetting]': {
-                click: this.hideValue
+                click: this.hideValues
             },
             '#deviceSecuritySettingEdit checkbox' :{
                 change: this.showValueInEdit
             }
         });
+    },
+
+    showValues: function() {
+        this.showPropertyValues(true);
+    },
+
+    hideValues: function() {
+        this.showPropertyValues(false);
     },
 
     showDeviceSecuritySettings: function (mrid) {
@@ -119,11 +129,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                 } else {
                     me.getDeviceSecuritySettingPreview().getHeader().down('button').setVisible(true);
                     if (deviceSecuritySetting[0].get('userHasViewPrivilege')) {
-                        me.getDeviceSecuritySettingPreview().down('#showValueDeviceSecuritySetting').setVisible(true);
-                        me.getDeviceSecuritySettingPreview().down('#hideValueDeviceSecuritySetting').setVisible(false);
-                    } else {
-                        me.getDeviceSecuritySettingPreview().down('#showValueDeviceSecuritySetting').setVisible(false);
-                        me.getDeviceSecuritySettingPreview().down('#hideValueDeviceSecuritySetting').setVisible(false)
+                        me.showPropertyValues(false);
                     }
                 }
             } else {
@@ -297,20 +303,26 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         me.getRestoreAllButton().disable();
     },
 
-    showValue: function () {
-        var me = this;
-        me.getDeviceSecuritySettingPreview().down('property-form').showValues();
-        me.getDeviceSecuritySettingPreview().down('#showValueDeviceSecuritySetting').setVisible(false);
-        me.getDeviceSecuritySettingPreview().down('#hideValueDeviceSecuritySetting').setVisible(true);
-        me.getDeviceSecuritySettingPreviewForm().focus();
-    },
+    showPropertyValues: function (show) {
+        var showBtns = Ext.ComponentQuery.query('#showValueDeviceSecuritySetting'),
+            hideBtns = Ext.ComponentQuery.query('#hideValueDeviceSecuritySetting'),
+            propertyForm = this.getDeviceSecuritySettingPreview().down('property-form');
 
-    hideValue: function() {
-        var me = this;
-        me.getDeviceSecuritySettingPreview().down('property-form').hideValues();
-        me.getDeviceSecuritySettingPreview().down('#showValueDeviceSecuritySetting').setVisible(true);
-        me.getDeviceSecuritySettingPreview().down('#hideValueDeviceSecuritySetting').setVisible(false);
-        me.getDeviceSecuritySettingPreviewForm().focus();
+        Ext.each(showBtns, function (btn) {
+            btn.setVisible(!show);
+        });
+
+        Ext.each(hideBtns, function (btn) {
+            btn.setVisible(show);
+        });
+
+        if (show) {
+            propertyForm.showValues();
+        } else {
+            propertyForm.hideValues();
+        }
+
+        this.getDeviceSecuritySettingPreviewForm().focus();
     },
 
     showValueInEdit: function (field, newValue, oldValue, options){
