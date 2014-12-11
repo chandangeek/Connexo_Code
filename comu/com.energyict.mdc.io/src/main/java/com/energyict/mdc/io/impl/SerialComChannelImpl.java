@@ -1,6 +1,7 @@
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.ServerSerialPort;
 
@@ -35,4 +36,8 @@ public class SerialComChannelImpl extends SynchroneousComChannel implements Seri
         return this.serialPort;
     }
 
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.SERIAL_COM_CHANNEL;
+    }
 }

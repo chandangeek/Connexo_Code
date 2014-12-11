@@ -3,6 +3,7 @@ package com.energyict.mdc.io.impl;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.OpticalComChannel;
 import com.energyict.mdc.io.PEMPModemConfiguration;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
@@ -43,6 +44,11 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
     @Override
     public SerialComChannel newSerialComChannel(ServerSerialPort serialPort) {
         return new SerialComChannelImpl(serialPort);
+    }
+
+    @Override
+    public OpticalComChannel createOpticalFromSerialComChannel(SerialComChannel serialComChannel) {
+        return new OpticalComChannelImpl(serialComChannel);
     }
 
     protected AtModemProperties newAtModemProperties(TypedProperties properties) {

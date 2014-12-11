@@ -38,4 +38,6 @@ public interface SerialComponentService {
 
     public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands);
 
+    public OpticalComChannel createOpticalFromSerialComChannel(SerialComChannel serialComChannel);
+
 }

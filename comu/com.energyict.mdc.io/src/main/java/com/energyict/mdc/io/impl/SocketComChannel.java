@@ -1,6 +1,7 @@
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.CommunicationException;
 
 import java.io.IOException;
@@ -45,4 +46,8 @@ public class SocketComChannel extends SynchroneousComChannel {
         }
     }
 
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.SOCKET_COM_CHANNEL;
+    }
 }

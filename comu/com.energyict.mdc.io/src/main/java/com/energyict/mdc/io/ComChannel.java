@@ -189,4 +189,9 @@ public interface ComChannel extends Flushable {
      */
     public TypedProperties getProperties();
 
+    /**
+     * Gets the ComChannelType of this ComChannel
+     */
+    public ComChannelType getComChannelType();
+
 }
