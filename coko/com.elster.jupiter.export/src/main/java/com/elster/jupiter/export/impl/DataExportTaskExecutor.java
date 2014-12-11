@@ -4,15 +4,12 @@ import com.elster.jupiter.export.*;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -125,44 +122,15 @@ class DataExportTaskExecutor implements TaskExecutor {
     }
 
     private DataProcessor getDataProcessor(IReadingTypeDataExportTask task) {
+        Map<String, Object> propertyMap = new HashMap<>();
         List<DataExportProperty> dataExportProperties = task.getDataExportProperties();
         DataProcessorFactory dataProcessorFactory = getDataProcessorFactory(task.getDataFormatter());
-        for(PropertySpec<?> propertySpec : dataProcessorFactory.getProperties()) {
-            if (!dataExportProperties.stream().anyMatch(dep -> dep.getName().equals(propertySpec.getName()))) {
-                dataExportProperties.add(new DataExportProperty() {
-                    @Override
-                    public ReadingTypeDataExportTask getTask() {
-                        return task;
-                    }
-
-                    @Override
-                    public String getDisplayName() {
-                        return propertySpec.getName();
-                    }
-
-                    @Override
-                    public Object getValue() {
-                        return propertySpec.getPossibleValues().getDefault();
-                    }
-
-                    @Override
-                    public void setValue(Object value) {
-
-                    }
-
-                    @Override
-                    public void save() {
-
-                    }
-
-                    @Override
-                    public String getName() {
-                        return propertySpec.getName();
-                    }
-                }) ;
-            }
+        for(DataExportProperty property : dataExportProperties) {
+            propertyMap.put(property.getName(), property.getValue() != null ? property.getValue() :
+                    dataProcessorFactory.getProperties().stream().filter(dep -> dep.getName().equals(property.getName()))
+                            .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault());
         }
-        return dataProcessorFactory.createDataFormatter(dataExportProperties);
+        return dataProcessorFactory.createDataFormatter(propertyMap);
     }
 
     private DataProcessorFactory getDataProcessorFactory(String dataFormatter) {
