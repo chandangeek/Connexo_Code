@@ -21,6 +21,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 
@@ -93,23 +94,22 @@ public class DeviceGroupResource {
     }
 
     @GET
+    @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
-    //public List<DeviceInfo> getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId, @Context SecurityContext securityContext) {
-    public List<DeviceInfo> getDevices(@BeanParam QueryParameters queryParameters, @Context SecurityContext securityContext) {
-        long deviceGroupId = 1;
+    public PagedInfoList getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId, @Context SecurityContext securityContext) {
         EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId, securityContext);
-        List<? extends EndDevice> endDevices = endDeviceGroup.getMembers(Instant.now());
-        if (queryParameters.getLimit() != null) {
-            endDevices =
-                    ListPager.of(endDevices).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
-            endDevices = endDevices.subList(0, Math.min(queryParameters.getLimit(), endDevices.size()));
+        List<? extends EndDevice> allEndDevices = endDeviceGroup.getMembers(Instant.now());
+        List<? extends EndDevice> endDevices =
+            ListPager.of(allEndDevices).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+
+        List<Device> devices = new ArrayList<Device>();
+        for (EndDevice endDevice: endDevices) {
+            devices.add(deviceService.findDeviceById(endDevice.getId()));
         }
-        List<DeviceInfo> deviceInfos = new ArrayList<DeviceInfo>();
-        for (EndDevice endDevice : endDevices) {
-            deviceInfos.add(DeviceInfo.from(deviceService.findDeviceById(endDevice.getId())));
-        }
-        return deviceInfos;
+        //List<Device> subList = devices.subList(0, Math.min(queryParameters.getLimit() + 1, endDevices.size() + 1));
+        List<DeviceInfo> deviceInfos = DeviceInfo.from(devices);
+        return PagedInfoList.asJson("devices", deviceInfos, queryParameters);
     }
 
     @GET
