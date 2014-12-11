@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.EngineModule;
@@ -147,7 +148,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new KpiModule(),
                 new TaskModule(),
                 new TasksModule(),
-                new IssuesModule());
+                new IssuesModule(),
+                new TopologyModule());
         initializeTopModuleInATransaction();
     }
 

@@ -14,8 +14,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -57,6 +56,7 @@ public class OfflineLoadProfileImplTest {
         Channel channel2 = mock(Channel.class, RETURNS_DEEP_STUBS);
         Channel channel3 = mock(Channel.class, RETURNS_DEEP_STUBS);
         Channel channel4 = mock(Channel.class, RETURNS_DEEP_STUBS);
+        when(newMockedLoadProfile.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(topologyService.getAllChannels(newMockedLoadProfile)).thenReturn(Arrays.asList(channel1, channel2, channel3, channel4));
         return newMockedLoadProfile;
     }
@@ -68,14 +68,14 @@ public class OfflineLoadProfileImplTest {
         OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, mock(TopologyService.class));
 
         // Asserts
-        assertNotNull(offlineLoadProfile);
-        assertEquals("Expected the correct obiscode", loadProfileObisCode, offlineLoadProfile.getObisCode());
-        assertEquals("Expected the correct Id of the LoadProfile", LOAD_PROFILE_ID, offlineLoadProfile.getLoadProfileId());
-        assertEquals("Expected the correct profile Interval", PROFILE_INTERVAL, offlineLoadProfile.getInterval());
-        assertEquals("Expected the correct lastReading", LAST_READING, offlineLoadProfile.getLastReading());
-        assertEquals("Expected the correct Device ID", RTU_ID, offlineLoadProfile.getDeviceId());
-        assertEquals("Expected the correct LoadProfileType ID", LOAD_PROFILE_TYPE_ID, offlineLoadProfile.getLoadProfileTypeId());
-        assertEquals("Expected the correct Master SerialNumber", MASTER_SERIAL_NUMBER, offlineLoadProfile.getMasterSerialNumber());
+        assertThat(offlineLoadProfile).isNotNull();
+        assertThat(offlineLoadProfile.getObisCode()).isEqualTo(loadProfileObisCode);
+        assertThat(offlineLoadProfile.getLoadProfileId()).isEqualTo(LOAD_PROFILE_ID);
+        assertThat(offlineLoadProfile.getInterval()).isEqualTo(PROFILE_INTERVAL);
+        assertThat(offlineLoadProfile.getLastReading()).isEqualTo(LAST_READING);
+        assertThat(offlineLoadProfile.getDeviceId()).isEqualTo(RTU_ID);
+        assertThat(offlineLoadProfile.getLoadProfileTypeId()).isEqualTo(LOAD_PROFILE_TYPE_ID);
+        assertThat(offlineLoadProfile.getMasterSerialNumber()).isEqualTo(MASTER_SERIAL_NUMBER);
     }
 
     //
@@ -87,10 +87,10 @@ public class OfflineLoadProfileImplTest {
         OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, topologyService);
 
         // asserts
-        assertNotNull(offlineLoadProfile.getChannels());
-        assertEquals("Expected 5 channels of the master", 2, offlineLoadProfile.getChannels().size());
-        assertNotNull(offlineLoadProfile.getAllChannels());
-        assertEquals("Expected a total of 4 channels for this loadProfile", 4, offlineLoadProfile.getAllChannels().size());
+        assertThat(offlineLoadProfile.getChannels()).isNotNull();
+        assertThat(offlineLoadProfile.getChannels().size()).isEqualTo(2);
+        assertThat(offlineLoadProfile.getAllChannels()).isNotNull();
+        assertThat(offlineLoadProfile.getAllChannels().size()).isEqualTo(4);
     }
 
 }

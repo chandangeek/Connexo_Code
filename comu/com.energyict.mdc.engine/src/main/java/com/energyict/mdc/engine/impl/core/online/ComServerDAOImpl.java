@@ -298,7 +298,12 @@ public class ComServerDAOImpl implements ComServerDAO {
         } else {
             gatewayDevice = null;
         }
-        this.serviceProvider.topologyService().setPhysicalGateway(device, gatewayDevice);
+        if (gatewayDevice != null) {
+            this.serviceProvider.topologyService().setPhysicalGateway(device, gatewayDevice);
+        }
+        else {
+            this.serviceProvider.topologyService().clearPhysicalGateway(device);
+        }
     }
 
     @Override
