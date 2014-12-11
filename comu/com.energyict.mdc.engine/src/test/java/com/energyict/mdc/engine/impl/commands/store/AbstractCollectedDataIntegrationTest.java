@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
@@ -125,6 +126,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new MeteringModule(),
                 new MeteringGroupsModule(),
                 new OrmModule(),
+                new DataVaultModule(),
                 new MdcCommonModule(),
                 new MdcIOModule(),
                 new BasicPropertiesModule(),

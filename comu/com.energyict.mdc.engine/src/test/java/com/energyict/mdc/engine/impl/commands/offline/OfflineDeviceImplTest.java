@@ -1,8 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
@@ -97,6 +100,12 @@ public class OfflineDeviceImplTest {
     private NlsService nlsService;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private DataVaultService dataVaultService;
+    @Mock
+    private OrmService ormService;
+    @Mock
+    DataModel dataModel;
 
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
 
@@ -158,6 +167,7 @@ public class OfflineDeviceImplTest {
         when(this.topologyService.getPhysicalGateway(any(Device.class))).thenReturn(Optional.empty());
         when(this.topologyService.getPhysicalGateway(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(this.topologyService.findPhysicalConnectedDevices(any(Device.class))).thenReturn(Collections.<Device>emptyList());
+        when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
     }
 
     private int getTotalSizeOfProperties() {
@@ -168,7 +178,7 @@ public class OfflineDeviceImplTest {
     public void setupDeviceMessageService() {
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
-        PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl());
+        PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, ormService);
         this.deviceMessageSpecificationService = new DeviceMessageSpecificationServiceImpl(propertySpecService, this.nlsService);
     }
 
