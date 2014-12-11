@@ -1,6 +1,7 @@
 package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.TimeZoneFactory;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
@@ -25,7 +26,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.ZoneId;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -173,6 +176,20 @@ public class PropertySpecServiceImpl implements PropertySpecService {
             booleanPropertySpecBuilder.markRequired();
         }
         return booleanPropertySpecBuilder.finish();
+    }
 
+    @Override
+    public PropertySpec<TimeZone> timeZonePropertySpec(String name, boolean required, TimeZone defaultValue) {
+        TimeZone[] possibleValues = {
+                TimeZone.getTimeZone("GMT"),
+                TimeZone.getTimeZone("Europe/Brussels"),
+                TimeZone.getTimeZone("EST"),
+                TimeZone.getTimeZone("Europe/Moscow")};
+        PropertySpecBuilder<TimeZone> timeZonePropertySpecBuilder = PropertySpecBuilderImpl
+                .forClass(new TimeZoneFactory()).name(name).setDefaultValue(defaultValue).markExhaustive().addValues(possibleValues);
+        if (required) {
+            timeZonePropertySpecBuilder.markRequired();
+        }
+        return timeZonePropertySpecBuilder.finish();
     }
 }
