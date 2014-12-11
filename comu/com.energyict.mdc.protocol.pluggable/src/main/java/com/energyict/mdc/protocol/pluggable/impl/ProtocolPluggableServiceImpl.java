@@ -594,10 +594,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.licensedProtocolServices.remove(licensedProtocolService);
     }
 
-    public List<InboundDeviceProtocolService> getInboundDeviceProtocolService() {
-        return inboundDeviceProtocolServices;
-    }
-
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
         this.inboundDeviceProtocolServices.add(inboundDeviceProtocolService);
@@ -715,21 +711,19 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     public InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass) {
         InboundDeviceProtocol inboundDeviceProtocol = null;
         Exception throwable = null;
-        for (InboundDeviceProtocolService inboundDeviceProtocolService : getInboundDeviceProtocolService()) {
+        for (InboundDeviceProtocolService inboundDeviceProtocolService : this.inboundDeviceProtocolServices) {
             try {
                 inboundDeviceProtocol = inboundDeviceProtocolService.createInboundDeviceProtocolFor(pluggableClass);
+                if (inboundDeviceProtocol != null) {
+                    return inboundDeviceProtocol;
+                }
             }
             catch (Exception e) {
                 throwable = e;
                 // silently ignore, will try other service
             }
         }
-        if (inboundDeviceProtocol != null) {
-            return inboundDeviceProtocol;
-        }
-        else {
-            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, throwable, pluggableClass.getJavaClassName());
-        }
+        throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, throwable, pluggableClass.getJavaClassName());
     }
 
     @Override
