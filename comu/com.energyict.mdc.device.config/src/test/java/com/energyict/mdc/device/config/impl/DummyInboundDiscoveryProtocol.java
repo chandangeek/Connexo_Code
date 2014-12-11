@@ -18,10 +18,6 @@ import java.util.List;
  * @since 2014-12-09 (14:50)
  */
 public class DummyInboundDiscoveryProtocol implements InboundDeviceProtocol {
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-
-    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {

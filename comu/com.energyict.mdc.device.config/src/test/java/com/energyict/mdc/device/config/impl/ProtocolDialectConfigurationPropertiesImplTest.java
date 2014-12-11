@@ -354,11 +354,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         }
 
         @Override
-        public void setPropertySpecService(PropertySpecService propertySpecService) {
-
-        }
-
-        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
         }
