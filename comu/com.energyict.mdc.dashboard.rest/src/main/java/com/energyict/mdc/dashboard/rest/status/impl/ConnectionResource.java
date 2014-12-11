@@ -44,6 +44,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.Functions.asStream;
+
 @Path("/connections")
 public class ConnectionResource {
 
@@ -132,8 +134,7 @@ public class ConnectionResource {
             filter.connectionTypes = connectionTypeIds
                     .stream()
                     .map(protocolPluggableService::findConnectionTypePluggableClass)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(asStream())
                     .collect(Collectors.toSet());
         }
 
@@ -155,8 +156,7 @@ public class ConnectionResource {
             filter.deviceTypes.addAll(
                     deviceTypeIds.stream()
                             .map(deviceConfigurationService::findDeviceType)
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
+                            .flatMap(asStream())
                             .collect(Collectors.toList()));
         }
 
