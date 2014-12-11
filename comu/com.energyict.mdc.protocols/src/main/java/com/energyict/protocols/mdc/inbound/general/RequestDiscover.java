@@ -2,6 +2,8 @@ package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
 
 import javax.inject.Inject;
@@ -17,7 +19,7 @@ import javax.inject.Inject;
 public class RequestDiscover extends AbstractDiscover {
 
     @Inject
-    public RequestDiscover(PropertySpecService propertySpecService) {
+    public RequestDiscover(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
     }
 

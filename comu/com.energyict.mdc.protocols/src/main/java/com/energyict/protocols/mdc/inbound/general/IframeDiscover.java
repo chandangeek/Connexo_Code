@@ -5,6 +5,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolInstantiator;
 
@@ -22,7 +23,7 @@ import javax.inject.Inject;
 public class IframeDiscover extends AbstractDiscover {
 
     @Inject
-    public IframeDiscover(PropertySpecService propertySpecService) {
+    public IframeDiscover(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
     }
 

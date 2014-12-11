@@ -20,18 +20,15 @@ import java.util.List;
  */
 public class DialHomeIdRequestDiscover extends RequestDiscover {
 
-    private final Thesaurus thesaurus;
-
     @Inject
     public DialHomeIdRequestDiscover(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super(propertySpecService);
-        this.thesaurus = thesaurus;
+        super(propertySpecService, thesaurus);
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         final List<PropertySpec> requiredProperties = super.getPropertySpecs();
-        requiredProperties.add(this.getPropertySpecService().stringPropertySpec(this.thesaurus.getString(MessageSeeds.DEVICEDIALHOMEID.getKey(), "Device call home ID"), true, null));
+        requiredProperties.add(this.getPropertySpecService().stringPropertySpec(this.getThesaurus().getString(MessageSeeds.DEVICEDIALHOMEID.getKey(), "Device call home ID"), true, null));
         return requiredProperties;
     }
 

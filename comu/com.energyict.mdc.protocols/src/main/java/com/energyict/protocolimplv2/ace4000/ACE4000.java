@@ -73,13 +73,13 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
 
     public ACE4000Properties getProperties() {
         if (properties == null) {
-            properties = new ACE4000Properties(propertySpecService);
+            properties = new ACE4000Properties(this.getPropertySpecService());
         }
         return properties;
     }
 
     public void copyProperties(TypedProperties properties) {
-        this.properties = new ACE4000Properties(properties, propertySpecService);
+        this.properties = new ACE4000Properties(properties, this.getPropertySpecService());
     }
 
     public List<PropertySpec> getPropertySpecs () {
@@ -99,7 +99,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
     public List<CollectedRegister> getCollectedRegisters() {
 
         //Master registers
-        List<CollectedRegister> collectedRegisters = new ArrayList<CollectedRegister>();
+        List<CollectedRegister> collectedRegisters = new ArrayList<>();
         collectedRegisters.addAll(getCollectedBillingRegisters());
         collectedRegisters.addAll(getCollectedCurrentRegisters());
         collectedRegisters.addAll(getCollectedInstantRegisters());
@@ -116,42 +116,42 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
      */
     public List<CollectedRegister> getCollectedBillingRegisters() {
         if (collectedBillingRegisters == null) {
-            collectedBillingRegisters = new ArrayList<CollectedRegister>();
+            collectedBillingRegisters = new ArrayList<>();
         }
         return collectedBillingRegisters;
     }
 
     public List<CollectedRegister> getCollectedMBusBillingRegisters() {
         if (collectedMBusBillingRegisters == null) {
-            collectedMBusBillingRegisters = new ArrayList<CollectedRegister>();
+            collectedMBusBillingRegisters = new ArrayList<>();
         }
         return collectedMBusBillingRegisters;
     }
 
     public List<CollectedRegister> getCollectedInstantRegisters() {
         if (collectedInstantRegisters == null) {
-            collectedInstantRegisters = new ArrayList<CollectedRegister>();
+            collectedInstantRegisters = new ArrayList<>();
         }
         return collectedInstantRegisters;
     }
 
     public List<CollectedRegister> getCollectedMaxDemandRegisters() {
         if (collectedMaxDemandRegisters == null) {
-            collectedMaxDemandRegisters = new ArrayList<CollectedRegister>();
+            collectedMaxDemandRegisters = new ArrayList<>();
         }
         return collectedMaxDemandRegisters;
     }
 
     public List<CollectedRegister> getCollectedCurrentRegisters() {
         if (collectedCurrentRegisters == null) {
-            collectedCurrentRegisters = new ArrayList<CollectedRegister>();
+            collectedCurrentRegisters = new ArrayList<>();
         }
         return collectedCurrentRegisters;
     }
 
     public List<CollectedRegister> getCollectedMBusCurrentRegisters() {
         if (collectedMBusCurrentRegisters == null) {
-            collectedMBusCurrentRegisters = new ArrayList<CollectedRegister>();
+            collectedMBusCurrentRegisters = new ArrayList<>();
         }
         return collectedMBusCurrentRegisters;
     }

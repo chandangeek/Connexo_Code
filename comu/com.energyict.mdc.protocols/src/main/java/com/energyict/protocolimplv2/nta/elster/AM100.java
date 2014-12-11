@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
@@ -44,9 +45,7 @@ public class AM100 extends AbstractNtaProtocol {
     private static final Boolean DEFAULT_FORCEDTOREADCACHE = false;
 
     private DeviceRegisterSupport registerFactory;
-
     private DeviceLoadProfileSupport loadProfileBuilder;
-
     private DeviceLogBookSupport logBookFactory;
 
     @Inject
@@ -158,7 +157,7 @@ public class AM100 extends AbstractNtaProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> protocolDialects = new ArrayList<>();
-        protocolDialects.add(new Dsmr23DeviceProtocolDialect(propertySpecService));
+        protocolDialects.add(new Dsmr23DeviceProtocolDialect(this.getPropertySpecService()));
         return protocolDialects;
     }
 
