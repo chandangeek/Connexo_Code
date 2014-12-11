@@ -21,7 +21,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class StandardCsvDataProcessor implements DataProcessor {
 
@@ -57,14 +56,14 @@ public class StandardCsvDataProcessor implements DataProcessor {
         this.validationService = validationService;
     }
 
-    public StandardCsvDataProcessor(DataExportService dataExportService, AppService appService, List<DataExportProperty> properties, Thesaurus thesaurus, FileSystem fileSystem, Path tempDirectory, ValidationService validationService) {
+    public StandardCsvDataProcessor(DataExportService dataExportService, AppService appService, Map<String, Object> propertyMap, Thesaurus thesaurus, FileSystem fileSystem, Path tempDirectory, ValidationService validationService) {
         this.dataExportService = dataExportService;
         this.appService = appService;
         this.validationService = validationService;
         this.thesaurus = thesaurus;
         this.fileSystem = fileSystem;
         this.tempDirectory = tempDirectory;
-        Map<String, Object> propertyMap = getPropertiesMap(properties);
+
         if (propertyMap.containsKey(FormatterProperties.SEPARATOR.getKey())) {
             defineSeparator(propertyMap.get(FormatterProperties.SEPARATOR.getKey()).toString());
         } else {
@@ -239,11 +238,6 @@ public class StandardCsvDataProcessor implements DataProcessor {
             throw new FatalDataExportException(new FileIOException(e, thesaurus));
         }
         return path;
-    }
-
-    private Map<String, Object> getPropertiesMap(List<DataExportProperty> properties) {
-        return properties.stream()
-                .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
     }
 
     private void defineSeparator(String separator) {

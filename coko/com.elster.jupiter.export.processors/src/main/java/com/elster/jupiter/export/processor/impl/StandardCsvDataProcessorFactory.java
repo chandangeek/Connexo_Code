@@ -20,6 +20,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -77,7 +78,7 @@ public class StandardCsvDataProcessorFactory implements DataProcessorFactory {
     }
 
     @Override
-    public DataProcessor createDataFormatter(List<DataExportProperty> properties) {
+    public DataProcessor createDataFormatter(Map<String, Object> properties) {
         return new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, FileSystems.getDefault(), getTempDir(), validationService);
     }
 
