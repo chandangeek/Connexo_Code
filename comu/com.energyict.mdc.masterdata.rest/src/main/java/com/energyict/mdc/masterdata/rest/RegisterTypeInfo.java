@@ -24,6 +24,7 @@ public class RegisterTypeInfo {
     public int timeOfUse;
     public PhenomenonInfo unitOfMeasure;
     public ReadingTypeInfo readingType;
+    public ReadingTypeInfo calculatedReadingType;
 
     public RegisterTypeInfo() {
     }
@@ -37,7 +38,13 @@ public class RegisterTypeInfo {
         this.obisCode = measurementType.getObisCode();
         this.isLinkedByDeviceType = isLinkedByDeviceType;
         this.timeOfUse = measurementType.getTimeOfUse();
-        this.readingType = new ReadingTypeInfo(measurementType.getReadingType());
+        ReadingType readingType = measurementType.getReadingType();
+        this.readingType = new ReadingTypeInfo(readingType);
+        if (readingType.isBulkQuantityReadingType()){
+            readingType.getCalculatedReadingType().ifPresent(
+                    rt -> this.calculatedReadingType = new ReadingTypeInfo(rt)
+            );
+        }
         if (measurementType.getPhenomenon() != null) {
             this.unitOfMeasure = PhenomenonInfo.from(measurementType.getPhenomenon());
         }
