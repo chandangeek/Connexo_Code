@@ -4,21 +4,24 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
     requires: [
         'Ext.ux.window.Notification',
         'Mdc.view.setup.devicegroup.DeviceGroupsGrid',
+        'Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid',
         'Mdc.view.setup.devicegroup.DeviceGroupSetup',
         'Mdc.view.setup.devicegroup.DeviceGroupPreview',
         'Mdc.view.setup.devicegroup.Details',
-        'Mdc.view.setup.devicegroup.PreviewForm'
+        'Mdc.view.setup.devicegroup.PreviewForm'/*,
+        'Mdc.store.DevicesOfDeviceGroup'*/
     ],
     views: [
         'setup.devicegroup.DeviceGroupsGrid',
-        'setup.devicegroup.DeviceGroupsGrid',
+        'setup.devicegroup.DevicesOfDeviceGroupGrid',
         'setup.devicegroup.DeviceGroupPreview',
         'setup.devicegroup.Details',
         'setup.devicegroup.PreviewForm'
     ],
 
     stores: [
-        'DeviceGroups'
+        'DeviceGroups',
+        'DevicesOfDeviceGroup'
     ],
 
     mixins: [
@@ -30,7 +33,9 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         {ref: 'deviceGroupPreviewForm', selector: '#deviceGroupPreviewForm'},
         {ref: 'deviceGroupPreview', selector: '#deviceGroupPreview'},
         {ref: 'searchCriteriaContainer', selector: '#searchCriteriaContainer'},
-        {ref: 'createDeviceGroupButton', selector: '#createDeviceGroupButton'}
+        {ref: 'createDeviceGroupButton', selector: '#createDeviceGroupButton'},
+        {ref: 'devicesOfDeviceGroupGrid', selector: '#allDevicesOfDeviceGroupGrid'},
+        {ref: 'devicesOfDeviceGroupGrid', selector: '#allDevicesOfDeviceGroupGrid'}
 
     ],
 
@@ -108,38 +113,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             this.getDeviceGroupPreview().setTitle(deviceGroup.get('name'));
 
 
-            if (deviceGroup.get('dynamic')) {
-                this.getSearchCriteriaContainer().setVisible(true);
-                var criteria = deviceGroup.criteriaStore.data.items;
-                this.getSearchCriteriaContainer().removeAll();
-                for (var i = 0; i < criteria.length; i++) {
-                    var foundCriteria = criteria[i].data;
-                    var criteriaName = foundCriteria.criteriaName;
-                    var criteriaValues = foundCriteria.criteriaValues;
-                    criteriaName = this.translateCriteriaName(criteriaName);
-                    var criteriaValue = '';
-                    for (var j = 0; j < criteriaValues.length; j++) {
-                        singleCriteriaValue = criteriaValues[j];
-                        criteriaValue = criteriaValue + singleCriteriaValue;
-                        if (j != (criteriaValues.length - 1)) {
-                            criteriaValue = criteriaValue + ', '
-                        }
-                    }
-                    this.getSearchCriteriaContainer().add(
-                        {
-                            xtype: 'displayfield',
-                            name: 'name',
-                            fieldLabel: criteriaName,
-                            renderer: function (value) {
-                                return criteriaValue;
-                            }
-                        }
-                    )
-                }
-            } else {
-                this.getSearchCriteriaContainer().setVisible(false);
-            }
-
+            this.updateCriteria(deviceGroup);
         }
     },
 
@@ -163,14 +137,55 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         location.href = "#devices";
     },
 
+    updateCriteria: function(record) {
+        var me = this;
+        if (record.get('dynamic')) {
+            me.getSearchCriteriaContainer().setVisible(true);
+            var criteria = record.criteriaStore.data.items;
+            me.getSearchCriteriaContainer().removeAll();
+            for (var i = 0; i < criteria.length; i++) {
+                var foundCriteria = criteria[i].data;
+                var criteriaName = foundCriteria.criteriaName;
+                var criteriaValues = foundCriteria.criteriaValues;
+                criteriaName = me.translateCriteriaName(criteriaName);
+                var criteriaValue = '';
+                for (var j = 0; j < criteriaValues.length; j++) {
+                    singleCriteriaValue = criteriaValues[j];
+                    criteriaValue = criteriaValue + singleCriteriaValue;
+                    if (j != (criteriaValues.length - 1)) {
+                        criteriaValue = criteriaValue + ', '
+                    }
+                }
+                me.getSearchCriteriaContainer().add(
+                    {
+                        xtype: 'displayfield',
+                        name: 'name',
+                        fieldLabel: criteriaName,
+                        renderer: function (value) {
+                            return criteriaValue;
+                        }
+                    }
+                )
+            }
+        } else {
+            me.getSearchCriteriaContainer().setVisible(false);
+        }
+    },
+
     showDevicegroupDetailsView: function (currentDeviceGroupId) {
         var me = this;
         var router = me.getController('Uni.controller.history.Router');
+        //me.getDevicesOfDeviceGroupStore().load();
+
+        this.getDevicesOfDeviceGroupStore().load({
+            callback: function () {
+            }
+        });
+
         var widget = Ext.widget('device-groups-details', {
                 router: router,
                 deviceGroupId: currentDeviceGroupId
             });
-
         var actionsMenu = widget.down('device-group-action-menu');
 
         var model = Ext.ModelManager.getModel('Mdc.model.DeviceGroup');
@@ -181,6 +196,10 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.down('form').loadRecord(record);
                 me.getApplication().fireEvent('loadDeviceGroup', record);
+
+
+                me.updateCriteria(record);
+
 
             }
         });

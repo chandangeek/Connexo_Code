@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
         'Mdc.view.setup.devicegroup.DeviceGroupPreview',
         'Mdc.view.setup.devicegroup.DeviceGroupActionMenu',
         'Mdc.view.setup.devicegroup.PreviewForm',
-        'Mdc.view.setup.devicegroup.DevicesGrid'
+        'Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid'
     ],
 
     router: null,
@@ -46,9 +46,9 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                 ]
             },
             {
-                xtype: 'preview-container',
+                /*xtype: 'preview-container',
                 grid: {
-                    xtype: 'devicegroup-devices-grid',
+                    xtype: 'devicesOfDeviceGroupGrid',
                     groupId: this.deviceGroupId
                 },
                 emptyComponent: {
@@ -58,7 +58,8 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                         Uni.I18n.translate('devicesearch.empty.list.item1', 'MDC', 'No devices in the system.'),
                         Uni.I18n.translate('devicesearch.empty.list.item2', 'MDC', 'No devices match your filter.')
                     ]
-                }
+                }*/
+                xtype: 'devicesOfDeviceGroupGrid'
             }
         ]
     },

@@ -1,35 +1,22 @@
-Ext.define('Mdc.view.setup.devicegroup.DevicesGrid', {
+Ext.define('Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid', {
     extend: 'Ext.grid.Panel',
-    xtype: 'devicegroup-devices-grid',
-    //itemId: 'devicesOfDeviceGroupGrid',
     overflowY: 'auto',
-
+    xtype: 'devicesOfDeviceGroupGrid',
+    itemId: 'allDevicesOfDeviceGroupGrid',
     requires: [
-        'Mdc.store.DevicesOfDeviceGroup',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.DevicesOfDeviceGroup'
     ],
-
     selModel: {
         mode: 'SINGLE'
     },
-
-    groupId: null,
-
     store: 'DevicesOfDeviceGroup',
-
-    //bottomToolbarHidden: true,
 
     initComponent: function () {
         var me = this;
-
-        //me.store = Ext.create('Mdc.store.DevicesOfDeviceGroup');
-        /*me.store.proxy.extraParams = {
-            id: me.groupId
-        };*/
-
-        me.columns = [
+        //me.store = Ext.StoreMgr.lookup('DevicesOfDeviceGroup');
+        this.columns = [
             {
                 header: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID'),
                 dataIndex: 'mRID',
@@ -65,12 +52,12 @@ Ext.define('Mdc.view.setup.devicegroup.DevicesGrid', {
                 fixed: true,
                 flex: 3
             }
-        ];
 
-        me.dockedItems = [
+        ];
+        this.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: me.store,
+                store: this.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} devices'),
                 displayMoreMsg: Uni.I18n.translate('devices.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} devices'),
@@ -78,12 +65,15 @@ Ext.define('Mdc.view.setup.devicegroup.DevicesGrid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                store: me.store,
+                store: this.store,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page')
+                itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'devices per page')
             }
         ];
 
-        me.callParent();
+        this.callParent();
     }
 });
+
+
+
