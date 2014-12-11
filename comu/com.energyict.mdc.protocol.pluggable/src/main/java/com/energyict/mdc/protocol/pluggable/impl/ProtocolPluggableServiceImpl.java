@@ -806,44 +806,4 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         return Arrays.asList("ORM", "USR", "EVT", "NLS");
     }
 
-    private class TemporaryUnSecureDataVaultProvider implements DataVaultProvider {
-
-        private DataVault soleInstance;
-
-        @Override
-        public DataVault getKeyVault() {
-            if (soleInstance == null) {
-                soleInstance = new StraightForwardUnSecureDataVault();
-            }
-            return soleInstance;
-        }
-    }
-
-    /**
-     * An unsecure DataVault. The encrypt will just make a String from the given bytes and the decrypt will do the reverse!.
-     * <b>NOT SECURE FOR IN PRODUCTION</b>
-     *
-     * @see <a href="http://jira.eict.vpdc/browse/JP-3879">JP-3879</a>
-     */
-    private class StraightForwardUnSecureDataVault implements DataVault {
-
-        @Override
-        public String encrypt(byte[] decrypted) {
-            return new String(decrypted);
-        }
-
-        @Override
-        public byte[] decrypt(String encrypted) {
-            if (encrypted != null) {
-                return encrypted.getBytes();
-            } else {
-                return new byte[0];
-            }
-        }
-
-        @Override
-        public void createVault(File file) {
-
-        }
-    }
 }

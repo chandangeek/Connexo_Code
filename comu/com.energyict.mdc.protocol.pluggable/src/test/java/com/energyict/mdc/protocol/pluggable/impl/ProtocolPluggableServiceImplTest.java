@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.NlsService;
@@ -74,6 +75,8 @@ public class ProtocolPluggableServiceImplTest {
     private LicenseService licenseService;
     @Mock
     private UserService userService;
+    @Mock
+    private DataVaultService dataVaultService;
 
     @Test(expected = NoServiceFoundThatCanLoadTheJavaClass.class)
     public void createProtocolWithoutDeviceProtocolService() {
@@ -641,7 +644,7 @@ public class ProtocolPluggableServiceImplTest {
     }
 
     private ProtocolPluggableServiceImpl newTestInstance() {
-        return new ProtocolPluggableServiceImpl(this.ormService, this.eventService, this.nlsService, this.issueService, this.propertySpecService, this.pluggableService, this.relationService, this.licenseService, this.userService);
+        return new ProtocolPluggableServiceImpl(this.ormService, this.eventService, this.nlsService, this.issueService, this.propertySpecService, this.pluggableService, this.relationService, this.licenseService, this.userService, this.dataVaultService);
     }
 
 }
