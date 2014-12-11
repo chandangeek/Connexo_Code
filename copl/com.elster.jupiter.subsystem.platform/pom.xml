@@ -66,12 +66,7 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>bpmissueaction</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>cbo</artifactId>
+                <artifactId>datavault</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -101,32 +96,7 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>ids</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
                 <artifactId>install</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>issue</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>issue.extjs</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>issue.rest</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>kpi</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -205,28 +175,19 @@
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>system.app</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
+                <!-- todo rename to license -->
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>systemadmin</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>systemadmin.extjs</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>systemadmin.rest</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
                 <artifactId>tasks</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>theme.skyline</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -237,11 +198,6 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>time.extjs</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>theme.skyline</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -294,7 +250,6 @@
                 <artifactId>yellowfin.app</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
