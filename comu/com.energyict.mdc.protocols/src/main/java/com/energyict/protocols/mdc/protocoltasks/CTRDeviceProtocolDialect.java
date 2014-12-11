@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
@@ -8,13 +9,12 @@ import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
-* Models a {@link DeviceProtocolDialect} for the CTR protocol
+* Models a {@link DeviceProtocolDialect} for the CTR protocol.
 *
 * @author sva
 * @since 16/10/12 (113:25)
@@ -31,6 +31,11 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public static final String SEND_END_OF_SESSION_PROPERTY_NAME = "SendEndOfSession";
     public static final String MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME = "MaxAllowedInvalidProfileResponses";
 
+    private final PropertySpecService propertySpecService;
+
+    public CTRDeviceProtocolDialect(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public String getDeviceProtocolDialectName() {
@@ -43,31 +48,31 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec retriesPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec delayAfterErrorPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec forcedDelayPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(FORCED_DELAY_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(FORCED_DELAY_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec addressPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(ADDRESS_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(ADDRESS_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec sendEndOfSessionPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(SEND_END_OF_SESSION_PROPERTY_NAME, false, new BooleanFactory());
+        return this.propertySpecService.basicPropertySpec(SEND_END_OF_SESSION_PROPERTY_NAME, false, new BooleanFactory());
     }
 
     private PropertySpec maxAllowedInvalidProfileResponsesPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     @Override

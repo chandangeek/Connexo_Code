@@ -47,6 +47,7 @@ import com.energyict.protocols.mdc.services.impl.Bus;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -212,10 +213,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        ACE4000DeviceProtocolDialect gprsDialect = new ACE4000DeviceProtocolDialect();
-        ArrayList<DeviceProtocolDialect> dialects = new ArrayList<>();
-        dialects.add(gprsDialect);
-        return dialects;
+        return Arrays.asList(new ACE4000DeviceProtocolDialect(this.getPropertySpecService()));
     }
 
     @Override
@@ -258,7 +256,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         if (!objectFactory.getAllSlaveSerialNumbers().isEmpty()) {
             //Requesting MBus registers to have an idea which MBus devices are connected :)
             ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this);
-            readMBusRegistersRequest.request(new ArrayList<OfflineRegister>());
+            readMBusRegistersRequest.request(new ArrayList<>());
         }
 
         DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(offlineDevice.getSerialNumber());

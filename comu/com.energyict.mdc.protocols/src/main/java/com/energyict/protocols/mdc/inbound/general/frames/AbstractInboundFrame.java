@@ -1,6 +1,5 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
@@ -48,7 +47,7 @@ public abstract class AbstractInboundFrame {
 
     public List<CollectedData> getCollectedDatas() {
         if (collectedDatas == null) {
-            collectedDatas = new ArrayList<CollectedData>();
+            collectedDatas = new ArrayList<>();
         }
         return collectedDatas;
     }

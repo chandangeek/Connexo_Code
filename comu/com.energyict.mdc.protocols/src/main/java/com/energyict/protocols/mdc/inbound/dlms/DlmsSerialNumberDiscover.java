@@ -8,6 +8,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -58,8 +59,8 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private SimpleApplicationServiceObject aso;
 
     @Inject
-    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override

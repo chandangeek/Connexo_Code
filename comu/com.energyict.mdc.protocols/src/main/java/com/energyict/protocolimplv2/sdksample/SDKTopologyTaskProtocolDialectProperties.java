@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,12 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
 
     public static final String slaveOneSerialNumberPropertyName = "SlaveOneSerialNumber";
     public static final String slaveTwoSerialNumberPropertyName = "SlaveTwoSerialNumber";
+
+    private final PropertySpecService propertySpecService;
+
+    public SDKTopologyTaskProtocolDialectProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public String getDeviceProtocolDialectName() {
@@ -48,11 +55,11 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     }
 
     private PropertySpec<String> getSlaveOneSerialNumber() {
-        return Bus.getPropertySpecService().basicPropertySpec(slaveOneSerialNumberPropertyName, false, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(slaveOneSerialNumberPropertyName, false, new StringFactory());
     }
 
     public PropertySpec getSlaveTwoSerialNumber() {
-        return Bus.getPropertySpecService().basicPropertySpec(slaveTwoSerialNumberPropertyName, false, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(slaveTwoSerialNumberPropertyName, false, new StringFactory());
     }
 
 }

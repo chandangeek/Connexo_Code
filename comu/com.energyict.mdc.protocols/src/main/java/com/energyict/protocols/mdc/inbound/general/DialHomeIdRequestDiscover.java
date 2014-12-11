@@ -2,9 +2,9 @@ package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
@@ -20,17 +20,18 @@ import java.util.List;
  */
 public class DialHomeIdRequestDiscover extends RequestDiscover {
 
-    private static final String CALL_HOME_ID = Bus.getThesaurus().getString(MessageSeeds.DEVICEDIALHOMEID.getKey(), "Device call home ID");
+    private final Thesaurus thesaurus;
 
     @Inject
-    public DialHomeIdRequestDiscover(PropertySpecService propertySpecService) {
+    public DialHomeIdRequestDiscover(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService);
+        this.thesaurus = thesaurus;
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         final List<PropertySpec> requiredProperties = super.getPropertySpecs();
-        requiredProperties.add(Bus.getPropertySpecService().stringPropertySpec(CALL_HOME_ID, true, null));
+        requiredProperties.add(this.getPropertySpecService().stringPropertySpec(this.thesaurus.getString(MessageSeeds.DEVICEDIALHOMEID.getKey(), "Device call home ID"), true, null));
         return requiredProperties;
     }
 

@@ -8,7 +8,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -47,11 +46,11 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec portNumberPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(PORT_PROPERTY_NAME, true, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(PORT_PROPERTY_NAME, true, new BigDecimalFactory());
     }
 
     private PropertySpec connectionTimeOutPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME, false, new TimeDurationValueFactory());
+        return this.getPropertySpecService().basicPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME, false, new TimeDurationValueFactory());
     }
 
     protected int portNumberPropertyValue() {

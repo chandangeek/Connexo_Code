@@ -23,7 +23,7 @@ public class DoubleIframeDiscover extends AbstractDiscover {
 
     @Inject
     public DoubleIframeDiscover(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+        super(propertySpecService, thesaurus);
     }
 
     @Override

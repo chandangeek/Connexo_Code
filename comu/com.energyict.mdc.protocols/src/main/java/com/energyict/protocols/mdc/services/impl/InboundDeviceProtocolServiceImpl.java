@@ -5,8 +5,12 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -29,7 +33,8 @@ import java.util.Collection;
 @Component(name = "com.energyict.mdc.service.inbounddeviceprotocols", service = InboundDeviceProtocolService.class, immediate = true)
 public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolService {
 
-    private PropertySpecService propertySpecService;
+    private Thesaurus thesaurus;
+    private volatile PropertySpecService propertySpecService;
     private Injector injector;
 
     public PropertySpecService getPropertySpecService() {
@@ -46,10 +51,16 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
         return new AbstractModule() {
             @Override
             public void configure() {
+                bind(Thesaurus.class).toInstance(thesaurus);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(InboundDeviceProtocolService.class).toInstance(InboundDeviceProtocolServiceImpl.this);
             }
         };
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference

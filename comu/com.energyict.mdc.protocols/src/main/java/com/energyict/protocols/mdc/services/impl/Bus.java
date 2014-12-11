@@ -20,7 +20,6 @@ public final class Bus {
 
     private static AtomicReference<IssueService> issueServiceProvider = new AtomicReference<>();
     private static AtomicReference<Clock> clockProvider = new AtomicReference<>();
-    private static AtomicReference<PropertySpecService> propertySpecServiceProvider = new AtomicReference<>();
     private static AtomicReference<MdcReadingTypeUtilService> mdcReadingTypeUtilServiceProvider = new AtomicReference<>();
     private static AtomicReference<Thesaurus> thesaurusProvider = new AtomicReference<>();
     private static AtomicReference<OrmClient> ormClientProvider = new AtomicReference<>();
@@ -61,18 +60,6 @@ public final class Bus {
         clockProvider.compareAndSet(old, null);
     }
 
-    public static PropertySpecService getPropertySpecService() {
-        return propertySpecServiceProvider.get();
-    }
-
-    public static void setPropertySpecService(PropertySpecService propertySpecService) {
-        propertySpecServiceProvider.set(propertySpecService);
-    }
-
-    public static void clearPropertySpecService(PropertySpecService old) {
-        propertySpecServiceProvider.compareAndSet(old, null);
-    }
-
     public static MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
         return mdcReadingTypeUtilServiceProvider.get();
     }
@@ -87,14 +74,6 @@ public final class Bus {
 
     public static Thesaurus getThesaurus() {
         return thesaurusProvider.get();
-    }
-
-    public static void setThesaurus(Thesaurus thesaurus) {
-        thesaurusProvider.set(thesaurus);
-    }
-
-    public static void clearThesaurus(Thesaurus old) {
-        thesaurusProvider.compareAndSet(old, null);
     }
 
 }

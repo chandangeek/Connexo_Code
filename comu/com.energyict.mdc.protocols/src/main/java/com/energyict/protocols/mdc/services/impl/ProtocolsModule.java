@@ -43,7 +43,6 @@ public class ProtocolsModule extends AbstractModule {
         bind(InboundDeviceProtocolService.class).to(InboundDeviceProtocolServiceImpl.class).in(Scopes.SINGLETON);
         bind(LicensedProtocolService.class).to(LicensedProtocolServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceCacheMarshallingService.class).to(DeviceCacheMarshallingServiceImpl.class).in(Scopes.SINGLETON);
-        bind(PropertySpecServiceDependency.class).in(Scopes.SINGLETON);
     }
 
 }

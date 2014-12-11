@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -10,13 +11,12 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
-* Models a {@link DeviceProtocolDialect} for the CTR protocol
+* Models a {@link DeviceProtocolDialect} for the CTR protocol.
 *
 * @author sva
 * @since 16/10/12 (113:25)
@@ -50,6 +50,12 @@ public class Dsmr23DeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public static final String OLD_MBUS_DISCOVERY = "OldMbusDiscovery";
     public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
 
+    private final PropertySpecService propertySpecService;
+
+    public Dsmr23DeviceProtocolDialect(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.DSMR23_DEVICE_PROTOCOL_DIALECT_NAME.getName();
@@ -61,95 +67,95 @@ public class Dsmr23DeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     private PropertySpec securityLevelPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(SECURITY_LEVEL_PROPERTY_NAME, true, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(SECURITY_LEVEL_PROPERTY_NAME, true, new StringFactory());
     }
 
     private PropertySpec addressingModePropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(ADDRESSING_MODE_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(ADDRESSING_MODE_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec clientMacAddressPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(CLIENT_MAC_ADDRESS_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(CLIENT_MAC_ADDRESS_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec serverMacAddressPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(SERVER_MAC_ADDRESS_PROPERTY_NAME, false, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(SERVER_MAC_ADDRESS_PROPERTY_NAME, false, new StringFactory());
     }
 
     private PropertySpec connectionPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(CONNECTION_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(CONNECTION_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec forcedDelayPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(FORCED_DELAY_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(FORCED_DELAY_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec delayAfterErrorPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec informationFieldSizePropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(INFORMATION_FIELD_SIZE_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(INFORMATION_FIELD_SIZE_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec maxRecPduSizePropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(MAX_REC_PDU_SIZE_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(MAX_REC_PDU_SIZE_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec retriesPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec roundTripCorrectionPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(ROUND_TRIP_CORRECTION_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(ROUND_TRIP_CORRECTION_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec bulkRequestPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(BULK_REQUEST_PROPERTY_NAME, false, new BooleanFactory());
+        return this.propertySpecService.basicPropertySpec(BULK_REQUEST_PROPERTY_NAME, false, new BooleanFactory());
     }
 
     private PropertySpec cipheringTypePropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(CIPHERING_TYPE_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(CIPHERING_TYPE_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec ntaSimulationToolPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(NTA_SIMULATION_TOOL_PROPERTY_NAME, false, new BooleanFactory());
+        return this.propertySpecService.basicPropertySpec(NTA_SIMULATION_TOOL_PROPERTY_NAME, false, new BooleanFactory());
     }
 
     private PropertySpec dataTransportAuthenticationKeyPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(DATATRANSPORT_AUTHENTICATIONKEY_PROPERTY_NAME, false, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(DATATRANSPORT_AUTHENTICATIONKEY_PROPERTY_NAME, false, new StringFactory());
     }
 
     private PropertySpec newDataTransportAuthenticationKeyPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(NEW_DATATRANSPORT_AUTHENTICATION_KEY_PROPERTY_NAME, false, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(NEW_DATATRANSPORT_AUTHENTICATION_KEY_PROPERTY_NAME, false, new StringFactory());
     }
 
     private PropertySpec dataTransportEncryptionKeyPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(DATATRANSPORT_ENCRYPTIONKEY_PROPERTY_NAME, false, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(DATATRANSPORT_ENCRYPTIONKEY_PROPERTY_NAME, false, new StringFactory());
     }
 
     private PropertySpec newDataTransportEncryptionKeyPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(NEW_DATATRANSPORT_ENCRYPTION_KEY_PROPERTY_NAME, false, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(NEW_DATATRANSPORT_ENCRYPTION_KEY_PROPERTY_NAME, false, new StringFactory());
     }
 
     private PropertySpec newHlsSecretPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(NEW_HLS_SECRET_PROPERTY_NAME, false, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(NEW_HLS_SECRET_PROPERTY_NAME, false, new StringFactory());
     }
 
     private PropertySpec wakeUpPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(WAKE_UP_PROPERTY_NAME, false, new BooleanFactory());
+        return this.propertySpecService.basicPropertySpec(WAKE_UP_PROPERTY_NAME, false, new BooleanFactory());
     }
 
     private PropertySpec oldMbusDiscoverySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(OLD_MBUS_DISCOVERY, false, new BooleanFactory());
+        return this.propertySpecService.basicPropertySpec(OLD_MBUS_DISCOVERY, false, new BooleanFactory());
     }
 
     private PropertySpec fixMbusHexShortIdSpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(FIX_MBUS_HEX_SHORT_ID, false, new BooleanFactory());
+        return this.propertySpecService.basicPropertySpec(FIX_MBUS_HEX_SHORT_ID, false, new BooleanFactory());
     }
 
     @Override

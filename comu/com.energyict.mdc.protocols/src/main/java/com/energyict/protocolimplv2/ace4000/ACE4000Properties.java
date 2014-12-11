@@ -5,7 +5,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -23,21 +22,23 @@ public class ACE4000Properties {
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal("30000");
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal("3");
 
+    private final PropertySpecService propertySpecService;
     public TypedProperties properties;
 
-    public ACE4000Properties() {
-        this(TypedProperties.empty());
+    public ACE4000Properties(PropertySpecService propertySpecService) {
+        this(TypedProperties.empty(), propertySpecService);
     }
 
-    public ACE4000Properties(TypedProperties properties) {
+    public ACE4000Properties(TypedProperties properties, PropertySpecService propertySpecService) {
+        super();
         this.properties = properties;
+        this.propertySpecService = propertySpecService;
     }
 
     public List<PropertySpec> getPropertySpecs () {
-        PropertySpecService propertySpecService = Bus.getPropertySpecService();
         List<PropertySpec> optional = new ArrayList<>();
-        optional.add(propertySpecService.basicPropertySpec(TIMEOUT, false, new BigDecimalFactory()));
-        optional.add(propertySpecService.basicPropertySpec(RETRIES, false, new BigDecimalFactory()));
+        optional.add(this.propertySpecService.basicPropertySpec(TIMEOUT, false, new BigDecimalFactory()));
+        optional.add(this.propertySpecService.basicPropertySpec(RETRIES, false, new BigDecimalFactory()));
         return optional;
     }
 

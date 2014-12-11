@@ -13,11 +13,11 @@ import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolImplFactory;
 import com.energyict.protocols.util.ProtocolInstantiator;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Abstract super class containing common elements (properties, connection,...) for the 3 discover protocols
+ * Abstract super class containing common elements (properties, connection,...) for the 3 discover protocols.
  * <p/>
  * Copyrights EnergyICT
  * Date: 22/06/12
@@ -36,9 +36,6 @@ import java.util.List;
  * Author: khe
  */
 public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
-
-    private static final String TIMEOUT_KEY = Bus.getThesaurus().getString(MessageSeeds.TIMEOUT.getKey(), "Timeout");
-    private static final String RETRIES_KEY = Bus.getThesaurus().getString(MessageSeeds.RETRIES.getKey(), "Retries");
 
     private static final int TIMEOUT_DEFAULT = 10000;          //TODO are these defaults OK ?
     private static final int RETRIES_DEFAULT = 2;
@@ -49,14 +46,20 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     private InboundConnection inboundConnection = null;
     private InboundDiscoveryContext context;
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
-    protected AbstractDiscover(PropertySpecService propertySpecService) {
+    protected AbstractDiscover(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
-    public PropertySpecService getPropertySpecService() {
+    protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Override
@@ -105,8 +108,8 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs () {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(TIMEOUT_KEY, false, new BigDecimalFactory()));
-        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(RETRIES_KEY, false, new BigDecimalFactory()));
+        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(this.thesaurus.getString(MessageSeeds.TIMEOUT.getKey(), "Timeout"), false, new BigDecimalFactory()));
+        propertySpecs.add(this.getPropertySpecService().basicPropertySpec(this.thesaurus.getString(MessageSeeds.RETRIES.getKey(), "Retries"), false, new BigDecimalFactory()));
         return propertySpecs;
     }
 
@@ -121,11 +124,11 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     }
 
     public int getTimeOutProperty() {
-        return getTypedProperties().getIntegerProperty(TIMEOUT_KEY, new BigDecimal(TIMEOUT_DEFAULT)).intValue();
+        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(MessageSeeds.TIMEOUT.getKey(), "Timeout"), new BigDecimal(TIMEOUT_DEFAULT)).intValue();
     }
 
     public int getRetriesProperty() {
-        return getTypedProperties().getIntegerProperty(RETRIES_KEY, new BigDecimal(RETRIES_DEFAULT)).intValue();
+        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(MessageSeeds.RETRIES.getKey(), "Retries"), new BigDecimal(RETRIES_DEFAULT)).intValue();
     }
 
     public TypedProperties getTypedProperties() {

@@ -1,15 +1,17 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.Bus;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A set of properties related to the TimeSetting
+ * A set of properties related to the TimeSetting.
  * <p/>
  * Copyrights EnergyICT
  * Date: 5/02/13
@@ -20,6 +22,12 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
     public static final String clockOffsetToWritePropertyName = "ClockOffsetWhenReading";
 
     public static final String clockOffsetToReadPropertyName = "ClockOffsetWhenWriting";
+
+    private final PropertySpecService propertySpecService;
+
+    public SDKTimeDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public String getDeviceProtocolDialectName() {
@@ -51,11 +59,11 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
     }
 
     private PropertySpec<TimeDuration> getClockOffsetToWritePropertySpec() {
-        return Bus.getPropertySpecService().timeDurationPropertySpec(clockOffsetToWritePropertyName, true, null);
+        return this.propertySpecService.timeDurationPropertySpec(clockOffsetToWritePropertyName, true, null);
     }
 
     private PropertySpec<TimeDuration> getClockOffsetToReadPropertySpec() {
-        return Bus.getPropertySpecService().timeDurationPropertySpec(clockOffsetToReadPropertyName, true, null);
+        return this.propertySpecService.timeDurationPropertySpec(clockOffsetToReadPropertyName, true, null);
     }
 
 }

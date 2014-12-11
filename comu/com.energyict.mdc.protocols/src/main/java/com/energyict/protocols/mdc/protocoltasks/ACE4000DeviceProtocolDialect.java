@@ -1,12 +1,12 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +23,12 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     public static final String TIMEOUT_PROPERTY_NAME = "Timeout";
     public static final String RETRIES_PROPERTY_NAME = "Retries";
 
+    private final PropertySpecService propertySpecService;
+
+    public ACE4000DeviceProtocolDialect(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.ACE4000_DEVICE_PROTOCOL_DIALECT_NAME.getName();
@@ -34,11 +40,11 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec retriesPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.propertySpecService.basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     @Override

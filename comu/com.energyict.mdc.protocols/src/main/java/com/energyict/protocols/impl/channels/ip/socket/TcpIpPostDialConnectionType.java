@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -56,11 +55,10 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public ComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
-        for (ConnectionProperty property : properties) {
-            if (property.getValue() != null) {
-                this.setProperty(property.getName(), property.getValue());
-            }
-        }
+        properties
+                .stream()
+                .filter(property -> property.getValue() != null)
+                .forEach(property -> this.setProperty(property.getName(), property.getValue()));
         try {
             ComChannel comChannel = this.newTcpIpConnection(this.getSocketService(), this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
             sendPostDialCommand(comChannel);
@@ -127,15 +125,15 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     private PropertySpec postDialDelayPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(POST_DIAL_DELAY, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(POST_DIAL_DELAY, false, new BigDecimalFactory());
     }
 
     private PropertySpec postDialRetriesPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(POST_DIAL_TRIES, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(POST_DIAL_TRIES, false, new BigDecimalFactory());
     }
 
     private PropertySpec postDialCommandPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(POST_DIAL_COMMAND, false, new StringFactory());
+        return this.getPropertySpecService().basicPropertySpec(POST_DIAL_COMMAND, false, new StringFactory());
     }
 
     @Override

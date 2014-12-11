@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -41,11 +40,11 @@ public class EIWebConnectionType implements ServerConnectionType {
     }
 
     private PropertySpec ipAddressPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(IP_ADDRESS_PROPERTY_NAME, false, new StringFactory());
+        return this.getPropertySpecService().basicPropertySpec(IP_ADDRESS_PROPERTY_NAME, false, new StringFactory());
     }
 
     private PropertySpec macAddressPropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(MAC_ADDRESS_PROPERTY_NAME, false, new StringFactory());
+        return this.getPropertySpecService().basicPropertySpec(MAC_ADDRESS_PROPERTY_NAME, false, new StringFactory());
     }
 
     protected TypedProperties getAllProperties() {

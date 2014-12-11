@@ -18,7 +18,7 @@ public class RequestDiscover extends AbstractDiscover {
 
     @Inject
     public RequestDiscover(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+        super(propertySpecService, thesaurus);
     }
 
     @Override

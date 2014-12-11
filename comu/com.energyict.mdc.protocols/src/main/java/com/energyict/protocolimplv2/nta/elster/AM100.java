@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.nta.elster;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
@@ -22,7 +22,6 @@ import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocols.mdc.protocoltasks.Dsmr23DeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
@@ -149,7 +148,7 @@ public class AM100 extends AbstractNtaProtocol {
     }
 
     private PropertySpec forcedToReadCachePropertySpec() {
-        return Bus.getPropertySpecService().basicPropertySpec(PROP_FORCEDTOREADCACHE, false, new BooleanFactory());
+        return this.getPropertySpecService().basicPropertySpec(PROP_FORCEDTOREADCACHE, false, new BooleanFactory());
     }
 
     private boolean isForcedToReadCache() {
@@ -159,7 +158,7 @@ public class AM100 extends AbstractNtaProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> protocolDialects = new ArrayList<>();
-        protocolDialects.add(new Dsmr23DeviceProtocolDialect());
+        protocolDialects.add(new Dsmr23DeviceProtocolDialect(propertySpecService));
         return protocolDialects;
     }
 

@@ -10,13 +10,14 @@ import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -37,13 +38,20 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
     private static final int TIMEOUT_DEFAULT = 10000;
     private static final int RETRIES_DEFAULT = 2;
-    private static final String TIMEOUT_KEY = Bus.getThesaurus().getString(MessageSeeds.TIMEOUT.getKey(), "Timeout");
-    private static final String RETRIES_KEY = Bus.getThesaurus().getString(MessageSeeds.RETRIES.getKey(), "Retries");
 
     private DeviceIdentifierBySerialNumber deviceIdentifier;
     private InboundDiscoveryContext context;
     private ComChannel comChannel;
     private TypedProperties typedProperties;
+    private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
+
+    @Inject
+    public MK10InboundDeviceProtocol(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super();
+        this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
+    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
@@ -163,19 +171,18 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpecService propertySpecService = Bus.getPropertySpecService();
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(propertySpecService.basicPropertySpec(TIMEOUT_KEY, false, new BigDecimalFactory()));
-        propertySpecs.add(propertySpecService.basicPropertySpec(RETRIES_KEY, false, new BigDecimalFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec(this.thesaurus.getString(MessageSeeds.TIMEOUT.getKey(), "Timeout"), false, new BigDecimalFactory()));
+        propertySpecs.add(propertySpecService.basicPropertySpec(this.thesaurus.getString(MessageSeeds.RETRIES.getKey(), "Retries"), false, new BigDecimalFactory()));
         return propertySpecs;
     }
 
     public int getTimeOutProperty() {
-        return getTypedProperties().getIntegerProperty(TIMEOUT_KEY, new BigDecimal(TIMEOUT_DEFAULT)).intValue();
+        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(MessageSeeds.TIMEOUT.getKey(), "Timeout"), new BigDecimal(TIMEOUT_DEFAULT)).intValue();
     }
 
     public int getRetriesProperty() {
-        return getTypedProperties().getIntegerProperty(RETRIES_KEY, new BigDecimal(RETRIES_DEFAULT)).intValue();
+        return getTypedProperties().getIntegerProperty(this.thesaurus.getString(MessageSeeds.RETRIES.getKey(), "Retries"), new BigDecimal(RETRIES_DEFAULT)).intValue();
     }
 
     public TypedProperties getTypedProperties() {

@@ -48,7 +48,6 @@ import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -323,10 +322,10 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(
-                new SDKLoadProfileProtocolDialectProperties(),
-                new SDKStandardDeviceProtocolDialectProperties(),
-                new SDKTimeDeviceProtocolDialectProperties(),
-                new SDKTopologyTaskProtocolDialectProperties());
+                new SDKLoadProfileProtocolDialectProperties(propertySpecService),
+                new SDKStandardDeviceProtocolDialectProperties(propertySpecService),
+                new SDKTimeDeviceProtocolDialectProperties(propertySpecService),
+                new SDKTopologyTaskProtocolDialectProperties(propertySpecService));
     }
 
     @Override

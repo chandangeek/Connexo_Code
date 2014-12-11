@@ -73,13 +73,13 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
 
     public ACE4000Properties getProperties() {
         if (properties == null) {
-            properties = new ACE4000Properties();
+            properties = new ACE4000Properties(propertySpecService);
         }
         return properties;
     }
 
     public void copyProperties(TypedProperties properties) {
-        this.properties = new ACE4000Properties(properties);
+        this.properties = new ACE4000Properties(properties, propertySpecService);
     }
 
     public List<PropertySpec> getPropertySpecs () {
