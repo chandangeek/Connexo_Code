@@ -2,8 +2,11 @@ package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -31,6 +34,7 @@ import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConn
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +53,15 @@ import java.util.Set;
  * Author: khe
  */
 public class WebRTUKP extends AbstractDlmsProtocol {
+
+    @Inject
+    public WebRTUKP(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService) {
+        super(propertySpecService, socketService, serialComponentService);
+    }
+
+    public WebRTUKP() {
+        super();
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -87,9 +100,9 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService()));
-        result.add(new SioOpticalConnectionType(Bus.getSerialComponentService()));
-        result.add(new RxTxOpticalConnectionType(Bus.getSerialComponentService()));
+        result.add(new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()));
+        result.add(new SioOpticalConnectionType(getSerialComponentService()));
+        result.add(new RxTxOpticalConnectionType(getSerialComponentService()));
         return result;
     }
 

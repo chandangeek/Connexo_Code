@@ -6,6 +6,7 @@ import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -36,6 +37,7 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 
@@ -53,7 +55,18 @@ public class RtuPlusServer implements DeviceProtocol {
     private IDISGatewayMessages idisGatewayMessages;
     private IDISGatewayRegisters idisGatewayRegisters;
     private IDISGatewayDynamicPropertySupportSupport dynamicPropertySupport;
+
     private PropertySpecService propertySpecService;
+    private SocketService socketService;
+
+    public RtuPlusServer() {
+    }
+
+    @Inject
+    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService) {
+        this.propertySpecService = propertySpecService;
+        this.socketService = socketService;
+    }
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -218,7 +231,21 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService()));
+        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()));
+    }
+
+    private SocketService getSocketService() {
+        if(this.socketService == null){
+            return Bus.getSocketService();
+        }
+        return this.socketService;
+    }
+
+    private PropertySpecService getPropertySpecService() {
+        if(this.propertySpecService == null){
+            return Bus.getPropertySpecService();
+        }
+        return this.propertySpecService;
     }
 
     @Override

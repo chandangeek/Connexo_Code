@@ -3,7 +3,10 @@ package com.energyict.protocolimplv2.edp;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -34,6 +37,7 @@ import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSeri
 import com.energyict.protocols.mdc.protocoltasks.EDPSerialDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,9 +51,19 @@ import java.util.Set;
  */
 public class CX20009 extends AbstractDlmsProtocol {
 
+
     private LogbookReader logbookReader = null;
     private RegisterReader registerReader;
     private EDPMessaging edpMessaging;
+
+    @Inject
+    public CX20009(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService) {
+        super(propertySpecService, socketService, serialComponentService);
+    }
+
+    public CX20009() {
+        super();
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -106,9 +120,9 @@ public class CX20009 extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService()));
-        result.add(new SioPlainSerialConnectionType(Bus.getSerialComponentService()));
-        result.add(new RxTxPlainSerialConnectionType(Bus.getSerialComponentService()));
+        result.add(new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()));
+        result.add(new SioPlainSerialConnectionType(getSerialComponentService()));
+        result.add(new RxTxPlainSerialConnectionType(getSerialComponentService()));
         return result;
     }
 

@@ -8,6 +8,8 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -30,7 +32,9 @@ import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
+import com.energyict.protocols.mdc.services.impl.Bus;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -63,9 +67,21 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     protected OfflineDevice offlineDevice;
     private DlmsSecuritySupport dlmsSecuritySupport;
     private PropertySpecService propertySpecService;
+    private SocketService socketService;
+    private SerialComponentService serialComponentService;
+
+    @Inject
+    public AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService) {
+        this.propertySpecService = propertySpecService;
+        this.socketService = socketService;
+        this.serialComponentService = serialComponentService;
+    }
+
+    protected AbstractDlmsProtocol() {
+    }
 
     /**
-     * Connect to the device, check the cached object lost and discover its MBus slaves.
+     * Connect to the device, check the cached object lost and discover its Bus slaves.
      */
     @Override
     public void logOn() {
@@ -399,5 +415,19 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    public SocketService getSocketService() {
+        if(this.socketService == null){
+            return Bus.getSocketService();
+        }
+        return socketService;
+    }
+
+    public SerialComponentService getSerialComponentService() {
+        if(this.serialComponentService == null){
+            return Bus.getSerialComponentService();
+        }
+        return serialComponentService;
     }
 }

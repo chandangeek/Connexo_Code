@@ -5,6 +5,8 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -48,6 +50,7 @@ import com.energyict.protocols.mdc.protocoltasks.CTRDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -93,7 +96,20 @@ public class MTU155 implements DeviceProtocol {
     private GprsObisCodeMapper obisCodeMapper;
     private LoadProfileBuilder loadProfileBuilder;
     private Messaging messaging;
+
     private PropertySpecService propertySpecService;
+    private SerialComponentService serialComponentService;
+    private IssueService issueService;
+
+    public MTU155() {
+    }
+
+    @Inject
+    public MTU155(PropertySpecService propertySpecService, SerialComponentService serialComponentService, IssueService issueService) {
+        this.propertySpecService = propertySpecService;
+        this.serialComponentService = serialComponentService;
+        this.issueService = issueService;
+    }
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -264,8 +280,15 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         final CollectedTopology deviceTopology = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-        deviceTopology.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(getOfflineDevice(), "devicetopologynotsupported"));
+        deviceTopology.setFailureInformation(ResultType.NotSupported, getIssueService().newWarning(getOfflineDevice(), "devicetopologynotsupported"));
         return deviceTopology;
+    }
+
+    private IssueService getIssueService() {
+        if(this.issueService == null){
+            return Bus.getIssueService();
+        }
+        return this.issueService;
     }
 
     public DeviceIdentifier getDeviceIdentifier() {
@@ -359,12 +382,12 @@ public class MTU155 implements DeviceProtocol {
 
                     collectedLogBook.setMeterEvents(meterProtocolEvents);
                 } catch (CTRException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, getIssueService().newProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
                 }
 
                 collectedLogBooks.add(collectedLogBook);
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, getIssueService().newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode()));
                 collectedLogBooks.add(collectedLogBook);
             }
         }
@@ -410,12 +433,26 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> connectionTypes = new ArrayList<>();
-        connectionTypes.add(new CTRInboundDialHomeIdConnectionType(Bus.getPropertySpecService()));
-        connectionTypes.add(new InboundProximusSmsConnectionType(Bus.getPropertySpecService()));
-        connectionTypes.add(new OutboundProximusSmsConnectionType(Bus.getPropertySpecService()));
-        connectionTypes.add(new SioOpticalConnectionType(Bus.getSerialComponentService()));
-        connectionTypes.add(new RxTxOpticalConnectionType(Bus.getSerialComponentService()));
+        connectionTypes.add(new CTRInboundDialHomeIdConnectionType(getPropertySpecService()));
+        connectionTypes.add(new InboundProximusSmsConnectionType(getPropertySpecService()));
+        connectionTypes.add(new OutboundProximusSmsConnectionType(getPropertySpecService()));
+        connectionTypes.add(new SioOpticalConnectionType(getSerialComponentService()));
+        connectionTypes.add(new RxTxOpticalConnectionType(getSerialComponentService()));
         return connectionTypes;
+    }
+
+    private SerialComponentService getSerialComponentService() {
+        if(this.serialComponentService == null){
+            return Bus.getSerialComponentService();
+        }
+        return this.serialComponentService;
+    }
+
+    private PropertySpecService getPropertySpecService() {
+        if(this.propertySpecService == null){
+            return Bus.getPropertySpecService();
+        }
+        return this.propertySpecService;
     }
 
     public OfflineDevice getOfflineDevice() {

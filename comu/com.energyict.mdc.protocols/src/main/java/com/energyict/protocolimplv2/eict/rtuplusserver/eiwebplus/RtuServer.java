@@ -33,6 +33,8 @@ import com.energyict.protocols.impl.channels.inbound.EIWebPlusConnectionType;
 import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialect;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
+import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -61,7 +63,18 @@ public class RtuServer implements DeviceProtocol {
     private OfflineDevice offlineDevice;
     private NoOrPasswordSecuritySupport securitySupport = new NoOrPasswordSecuritySupport();
     private LegacyMessageConverter messageConverter;
+
     private PropertySpecService propertySpecService;
+    private Clock clock;
+
+    public RtuServer() {
+    }
+
+    @Inject
+    public RtuServer(PropertySpecService propertySpecService, Clock clock) {
+        this.propertySpecService = propertySpecService;
+        this.clock = clock;
+    }
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -142,7 +155,14 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public Date getTime() {
-        return Date.from(Bus.getClock().instant());
+        return Date.from(getClock().instant());
+    }
+
+    private Clock getClock() {
+        if(this.clock == null){
+            return Bus.getClock();
+        }
+        return this.clock;
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -51,6 +52,7 @@ import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalC
 import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -71,6 +73,16 @@ public class A1055 extends AbstractAbntProtocol {
     private MessageFactory messageFactory;
     private DeviceProtocolSecurityCapabilities securitySupport;
     private PropertySpecService propertySpecService;
+    private SerialComponentService serialComponentService;
+
+    public A1055() {
+    }
+
+    @Inject
+    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService) {
+        this.propertySpecService = propertySpecService;
+        this.serialComponentService = serialComponentService;
+    }
 
     @Override
     public String getProtocolDescription() {
@@ -125,11 +137,18 @@ public class A1055 extends AbstractAbntProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         return Arrays.<ConnectionType>asList(
-                new SioPlainSerialConnectionType(Bus.getSerialComponentService()),
-                new RxTxPlainSerialConnectionType(Bus.getSerialComponentService()),
-                new SioOpticalConnectionType(Bus.getSerialComponentService()),
-                new RxTxOpticalConnectionType(Bus.getSerialComponentService())
+                new SioPlainSerialConnectionType(getSerialComponentService()),
+                new RxTxPlainSerialConnectionType(getSerialComponentService()),
+                new SioOpticalConnectionType(getSerialComponentService()),
+                new RxTxOpticalConnectionType(getSerialComponentService())
         );
+    }
+
+    private SerialComponentService getSerialComponentService() {
+        if(this.serialComponentService == null) {
+            return Bus.getSerialComponentService();
+        }
+        return this.serialComponentService;
     }
 
     @Override

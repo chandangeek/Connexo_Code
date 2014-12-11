@@ -5,6 +5,8 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -41,6 +43,7 @@ import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSeri
 import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -61,7 +64,20 @@ public class GarnetConcentrator implements DeviceProtocol {
     private RegisterFactory registerFactory;
     private LogBookFactory logBookFactory;
     private ConcentratorMessaging messaging;
+
     private PropertySpecService propertySpecService;
+    private SocketService socketService;
+    private SerialComponentService serialComponentService;
+
+    public GarnetConcentrator() {
+    }
+
+    @Inject
+    public GarnetConcentrator(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService) {
+        this.propertySpecService = propertySpecService;
+        this.socketService = socketService;
+        this.serialComponentService = serialComponentService;
+    }
 
     @Override
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -87,10 +103,31 @@ public class GarnetConcentrator implements DeviceProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService()));
-        result.add(new SioPlainSerialConnectionType(Bus.getSerialComponentService()));
-        result.add(new RxTxPlainSerialConnectionType(Bus.getSerialComponentService()));
+        result.add(new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()));
+        result.add(new SioPlainSerialConnectionType(getSerialComponentService()));
+        result.add(new RxTxPlainSerialConnectionType(getSerialComponentService()));
         return result;
+    }
+
+    private SerialComponentService getSerialComponentService() {
+        if(this.serialComponentService == null){
+            return Bus.getSerialComponentService();
+        }
+        return this.serialComponentService;
+    }
+
+    private SocketService getSocketService() {
+        if(this.socketService == null){
+            return Bus.getSocketService();
+        }
+        return this.socketService;
+    }
+
+    private PropertySpecService getPropertySpecService() {
+        if(this.propertySpecService == null){
+            return Bus.getPropertySpecService();
+        }
+        return this.propertySpecService;
     }
 
     @Override

@@ -1,9 +1,12 @@
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
+
+import javax.inject.Inject;
 
 /**
  * @author sva
@@ -12,6 +15,11 @@ import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
 public class MbusDevice extends AbstractNtaMbusDevice {
 
     private Dsmr23MbusMessaging dsmr23MbusMessaging;
+
+    @Inject
+    public MbusDevice(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public MbusDevice() {
         super();

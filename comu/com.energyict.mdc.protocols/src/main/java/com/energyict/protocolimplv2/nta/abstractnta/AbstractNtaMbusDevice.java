@@ -33,6 +33,7 @@ import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccess
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 import com.energyict.protocols.exception.UnsupportedMethodException;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -60,6 +61,12 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     private PropertySpecService propertySpecService;
 
     public abstract DeviceMessageSupport getDeviceMessageSupport();
+
+    @Inject
+    public AbstractNtaMbusDevice(PropertySpecService propertySpecService) {
+        this();
+        this.propertySpecService = propertySpecService;
+    }
 
     /**
      * Only for dummy instantiations

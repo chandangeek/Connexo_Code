@@ -11,6 +11,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -50,6 +51,7 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -69,6 +71,8 @@ import java.util.Set;
 public class RtuPlusServer implements DeviceProtocol {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
+    private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
+
     private G3GatewayProperties dynamicProperties;
     private OfflineDevice offlineDevice;
     private DlmsSession dlmsSession;
@@ -79,8 +83,17 @@ public class RtuPlusServer implements DeviceProtocol {
     private DLMSCache dlmsCache = null;
     private ComChannel comChannel = null;
 
-    private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
     private PropertySpecService propertySpecService;
+    private SocketService socketService;
+
+    public RtuPlusServer() {
+    }
+
+    @Inject
+    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService) {
+        this.propertySpecService = propertySpecService;
+        this.socketService = socketService;
+    }
 
     @Override
     public String getProtocolDescription() {
@@ -132,7 +145,21 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService()));
+        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()));
+    }
+
+    private SocketService getSocketService() {
+        if(this.socketService == null){
+            return Bus.getSocketService();
+        }
+        return this.socketService;
+    }
+
+    private PropertySpecService getPropertySpecService() {
+        if(this.propertySpecService == null){
+            return Bus.getPropertySpecService();
+        }
+        return propertySpecService;
     }
 
     @Override
@@ -253,7 +280,7 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     private PropertySpec nodeAddressPropertySpec() {
-        return Bus.getPropertySpecService().stringPropertySpec(MeterProtocol.NODEID, false, "");
+        return getPropertySpecService().stringPropertySpec(MeterProtocol.NODEID, false, "");
     }
 
     @Override
