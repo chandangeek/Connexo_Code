@@ -137,7 +137,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                         channels: record.get('channels'),
                         device: device
                     });
-                    tabWidget.down('#loadProfileTabPanel').setTitle(Uni.I18n.translate('deviceloadprofiles.loadProfileData', 'MDC', 'Load profile data'));
+                    tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
                     tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(true);
                     me.loadProfileModel = record;
                     me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);

@@ -47,7 +47,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
 
             tabWidget.down('#channel-specifications').add(widget);
             tabController.showTab(0);
-            tabWidget.down('#channelTabPanel').setTitle(Uni.I18n.translate('general.overview', 'MDC', 'Overview'));
             me.getApplication().fireEvent('changecontentevent', tabWidget);
             widget.setLoading(true);
             channelModel.getProxy().setUrl({
@@ -57,6 +56,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
                 success: function (record) {
                     if (!widget.isDestroyed) {
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
+                        tabWidget.down('#channelTabPanel').setTitle(record.get('name'));
                         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(record);
                         widget.setLoading(false);
                         widget.down('deviceLoadProfileChannelsActionMenu').record = record;
@@ -64,6 +64,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
                 }
             });
         });
+
 
         me.getModel('Mdc.model.Device').load(mRID, {
             success: function (record) {

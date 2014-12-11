@@ -56,7 +56,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                     });
                     me.getApplication().fireEvent('changecontentevent', tabWidget);
                     tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(false);
-                    tabWidget.down('#loadProfileTabPanel').setTitle(Uni.I18n.translate('general.overview', 'MDC', 'Overview'));
                     tabWidget.down('#loadProfile-specifications').add(widget);
                     tabController.showTab(0);
                     widget.setLoading(true);
@@ -66,6 +65,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
                             if (!widget.isDestroyed) {
                                 me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
                                 widget.down('#deviceLoadProfilesPreviewForm').loadRecord(record);
+                                tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
                                 widget.down('deviceLoadProfilesActionMenu').record = record;
                                 widget.setLoading(false);
                             }

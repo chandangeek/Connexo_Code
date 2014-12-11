@@ -154,7 +154,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                     me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
                     me.getApplication().fireEvent('changecontentevent', tabWidget);
                     tabController.showTab(1);
-                    tabWidget.down('#channelTabPanel').setTitle(Uni.I18n.translate('deviceloadprofiles.channels.channelData', 'MDC', 'Channel data'));
+                    tabWidget.down('#channelTabPanel').setTitle(record.get('name'));
                     viewport.setLoading(false);
                     Ext.getBody().mask('Loading...');
                     widget.setLoading();
