@@ -3,6 +3,7 @@ package com.energyict.protocols.mdc.inbound.dlms;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
@@ -24,6 +25,7 @@ import com.energyict.protocols.mdc.inbound.general.AbstractDiscover;
 import com.energyict.protocols.mdc.inbound.general.InboundConnection;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -55,8 +57,9 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private DLMSConnection dlmsConnection;
     private SimpleApplicationServiceObject aso;
 
-    public DlmsSerialNumberDiscover() {
-        super();
+    @Inject
+    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     @Override

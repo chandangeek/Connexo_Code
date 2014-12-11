@@ -46,11 +46,18 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMeter, DeviceMessageSupport {
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
     private final AbstractNtaProtocol meterProtocol;
     private final String serialNumber;
     private final int physicalAddress;
     private final DeviceProtocolSecurityCapabilities securityCapabilities = new NoSecuritySupport();
+
+    public AbstractNtaMbusDevice(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+        this.meterProtocol = new AM100(propertySpecService);
+        this.serialNumber = "CurrentlyUnKnown";
+        this.physicalAddress = -1;
+    }
 
     /**
      * Get the used MessageProtocol
@@ -62,11 +69,6 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     // TODO Implement me
@@ -203,18 +205,6 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
     @Override
     public String getVersion() {
         return null;
-    }
-
-    public AbstractNtaMbusDevice() {
-        this.meterProtocol = new AM100();
-        this.serialNumber = "CurrentlyUnKnown";
-        this.physicalAddress = -1;
-    }
-
-    public AbstractNtaMbusDevice(final AbstractNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
-        this.meterProtocol = meterProtocol;
-        this.serialNumber = serialNumber;
-        this.physicalAddress = physicalAddress;
     }
 
     @Override

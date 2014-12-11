@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.gatewayz3;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -22,6 +23,7 @@ import com.energyict.dlms.common.AbstractDlmsProtocol;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -33,6 +35,11 @@ import java.util.Set;
  * Time: 13:54
  */
 public class GateWayZ3 extends AbstractDlmsProtocol {
+
+    @Inject
+    public GateWayZ3(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected String getFirmwareVersion() {

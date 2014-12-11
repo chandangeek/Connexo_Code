@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
@@ -62,6 +63,10 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
      * The <code>Properties</code> used for this protocol
      */
     private Dsmr23Properties dsmr23Properties;
+
+    protected AbstractNtaProtocol(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     /**
      * Get the AXDRDateTimeDeviationType for this DeviceType

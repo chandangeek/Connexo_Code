@@ -27,6 +27,7 @@ import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -80,11 +81,10 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
         return propertySpecService;
     }
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    public AbstractDlmsProtocol(PropertySpecService propertySpecService) {
+        super();
         this.propertySpecService = propertySpecService;
-        this.securityCapabilities = new DlmsSecuritySupport();
-        this.securityCapabilities.setPropertySpecService(propertySpecService);
+        this.securityCapabilities = new DlmsSecuritySupport(propertySpecService);
     }
 
     /**

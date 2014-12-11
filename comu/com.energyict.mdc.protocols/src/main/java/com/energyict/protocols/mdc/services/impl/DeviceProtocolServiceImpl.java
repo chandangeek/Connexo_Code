@@ -10,6 +10,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import java.time.Clock;
 
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
@@ -46,6 +47,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile Thesaurus thesaurus;
     private volatile OrmClient ormClient;
     private volatile IssueService issueService;
+    private volatile PropertySpecService propertySpecService;
     private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
@@ -58,12 +60,13 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, TopologyService topologyService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setIssueService(issueService);
         this.setClock(clock);
+        this.setPropertySpecService(propertySpecService);
         this.setTopologyService(topologyService);
         this.activate();
         this.install();
@@ -93,6 +96,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(IssueService.class).toInstance(issueService);
                 bind(Clock.class).toInstance(clock);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceProtocolService.class).toInstance(DeviceProtocolServiceImpl.this);
             }
@@ -164,6 +168,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
         Bus.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Reference

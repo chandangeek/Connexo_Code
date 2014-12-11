@@ -1,11 +1,14 @@
 package com.energyict.protocols.mdc.inbound.general;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
 
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolInstantiator;
+
+import javax.inject.Inject;
 
 /**
  * In the case of DoubleIframeDiscover, a meter opens an inbound connection to the comserver but it doesn't send any frames.
@@ -17,6 +20,11 @@ import com.energyict.protocols.util.ProtocolInstantiator;
  * Time: 14:50
  */
 public class DoubleIframeDiscover extends AbstractDiscover {
+
+    @Inject
+    public DoubleIframeDiscover(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public DiscoverResultType doDiscovery() {

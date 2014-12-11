@@ -1,9 +1,13 @@
 package com.energyict.protocols.mdc.inbound.general;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -17,6 +21,11 @@ import java.util.List;
 public class DialHomeIdRequestDiscover extends RequestDiscover {
 
     private static final String CALL_HOME_ID = Bus.getThesaurus().getString(MessageSeeds.DEVICEDIALHOMEID.getKey(), "Device call home ID");
+
+    @Inject
+    public DialHomeIdRequestDiscover(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {

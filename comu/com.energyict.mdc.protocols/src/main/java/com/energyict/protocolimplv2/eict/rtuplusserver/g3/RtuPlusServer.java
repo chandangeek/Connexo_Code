@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -23,6 +24,7 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -35,6 +37,11 @@ import java.util.Set;
  * Time: 16:00
  */
 public class RtuPlusServer extends AbstractDlmsProtocol {
+
+    @Inject
+    public RtuPlusServer(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     protected String getFirmwareVersion() {

@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -26,14 +27,11 @@ import java.util.List;
 public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final int AUTH_DEVICE_ACCESS_LEVEL = 0;
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    public SimplePasswordSecuritySupport() {
+    @Inject
+    public SimplePasswordSecuritySupport(PropertySpecService propertySpecService) {
         super();
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

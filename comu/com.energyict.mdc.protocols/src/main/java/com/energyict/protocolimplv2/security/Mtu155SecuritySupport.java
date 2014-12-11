@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,14 +27,11 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
     private final String authenticationTranslationKeyConstant = "Mtu155SecuritySupport.authenticationlevel.";
     private final String encryptionTranslationKeyConstant = "Mtu155SecuritySupport.encryptionlevel.";
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    public Mtu155SecuritySupport() {
+    @Inject
+    public Mtu155SecuritySupport(PropertySpecService propertySpecService) {
         super();
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

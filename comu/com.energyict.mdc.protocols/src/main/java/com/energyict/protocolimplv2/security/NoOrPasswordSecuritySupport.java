@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -28,15 +29,16 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
 
     private static final String authenticationTranslationKeyConstant = "NoOrPasswordSecuritySupport.authenticationlevel.";
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
+
+    @Inject
+    public NoOrPasswordSecuritySupport(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+    }
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     @Override

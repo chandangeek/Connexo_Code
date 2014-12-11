@@ -48,18 +48,15 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     private List<CollectedData> collectedDatas = null;
     private InboundConnection inboundConnection = null;
     private InboundDiscoveryContext context;
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    protected AbstractDiscover() {
+    protected AbstractDiscover(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
     }
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,14 +30,11 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
     private static final int STANDARD_AUTH_DEVICE_ACCESS_LEVEL = 10;
     private static final int STANDARD_ENCRYPTION_DEVICE_ACCESS_LEVEL = 20;
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    public PasswordWithUserIdentificationSecuritySupport() {
+    @Inject
+    public PasswordWithUserIdentificationSecuritySupport(PropertySpecService propertySpecService) {
         super();
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.elster;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -24,6 +25,7 @@ import com.energyict.protocols.mdc.protocoltasks.Dsmr23DeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +49,11 @@ public class AM100 extends AbstractNtaProtocol {
     private DeviceLoadProfileSupport loadProfileBuilder;
 
     private DeviceLogBookSupport logBookFactory;
+
+    @Inject
+    public AM100(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public AXDRDateTimeDeviationType getDateTimeDeviationType() {

@@ -1,9 +1,12 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +19,11 @@ import java.util.List;
  * Author: khe
  */
 public class ACE4000MBus extends ACE4000Outbound {
+
+    @Inject
+    public ACE4000MBus(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         List<DeviceProtocolCapabilities> capabilities = new ArrayList<DeviceProtocolCapabilities>();

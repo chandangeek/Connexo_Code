@@ -39,6 +39,7 @@ import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,9 +64,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
 
-    private final String defaultOptionalProperty = "defaultOptionalProperty";
-
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
     /**
      * The {@link OfflineDevice} that holds all <i>necessary</i> information to perform the relevant ComTasks for this <i>session</i>
@@ -95,11 +94,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
      */
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    @Inject
+    public SDKDeviceProtocol(PropertySpecService propertySpecService) {
+        super();
         this.propertySpecService = propertySpecService;
-        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport();
-        this.deviceProtocolSecurityCapabilities.setPropertySpecService(propertySpecService);
+        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
     }
 
     @Override
@@ -137,13 +136,12 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpecService propertySpecService = Bus.getPropertySpecService();
         List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(propertySpecService.basicPropertySpec(defaultOptionalProperty, false, new BooleanFactory()));
+        optionalProperties.add(this.propertySpecService.basicPropertySpec("defaultOptionalProperty", false, new BooleanFactory()));
         // codetables not supported
-      //  optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
+        // optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
         optionalProperties.add(
-                propertySpecService.
+                this.propertySpecService.
                         obisCodePropertySpecWithValues(
                                 "SDKObisCodeProperty",
                                 false,
@@ -153,8 +151,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                                 ObisCode.fromString("1.0.2.8.0.255"),
                                 ObisCode.fromString("1.0.2.8.1.255"),
                                 ObisCode.fromString("1.0.2.8.2.255")));
-        optionalProperties.add(propertySpecService.bigDecimalPropertySpec("SDKBigDecimalWithDefault", false, new BigDecimal("666.156")));
-        optionalProperties.add(propertySpecService.basicPropertySpec("MyDateTimeProperty", false, new DateAndTimeFactory()));
+        optionalProperties.add(this.propertySpecService.bigDecimalPropertySpec("SDKBigDecimalWithDefault", false, new BigDecimal("666.156")));
+        optionalProperties.add(this.propertySpecService.basicPropertySpec("MyDateTimeProperty", false, new DateAndTimeFactory()));
         return optionalProperties;
     }
 

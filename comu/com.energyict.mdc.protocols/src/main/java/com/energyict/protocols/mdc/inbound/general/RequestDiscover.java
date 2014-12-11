@@ -1,7 +1,10 @@
 package com.energyict.protocols.mdc.inbound.general;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
+
+import javax.inject.Inject;
 
 /**
  * In the case of RequestDiscover, a meter starts an inbound session and pushes its serial number and meter data.
@@ -12,6 +15,11 @@ import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
  * Time: 14:50
  */
 public class RequestDiscover extends AbstractDiscover {
+
+    @Inject
+    public RequestDiscover(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public DiscoverResultType doDiscovery() {

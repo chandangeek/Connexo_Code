@@ -36,6 +36,7 @@ import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
 import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -52,15 +53,17 @@ import java.util.Set;
  */
 public class EIWeb implements DeviceProtocol {
 
+    private final PropertySpecService propertySpecService;
     private OfflineDevice offlineDevice;
     private SimplePasswordSecuritySupport securitySupport;
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
     private LegacyMessageConverter messageConverter;
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.securitySupport = new SimplePasswordSecuritySupport();
-        this.securitySupport.setPropertySpecService(propertySpecService);
+    @Inject
+    public EIWeb(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+        this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
     }
 
     @Override

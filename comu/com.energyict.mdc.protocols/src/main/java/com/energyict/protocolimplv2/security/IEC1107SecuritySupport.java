@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -28,10 +29,12 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
     private static final String DEFAULT_SECURITY_LEVEL_VALUE = "1";
     private static final String translationKeyConstant = "IEC1107SecuritySupport.authenticationlevel.";
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    public IEC1107SecuritySupport() {
+    @Inject
+    public IEC1107SecuritySupport(PropertySpecService propertySpecService) {
         super();
+        this.propertySpecService = propertySpecService;
     }
 
     /**
@@ -49,15 +52,10 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
             this.accessLevel = accessLevel;
         }
 
-        protected int getAccessLevel() {
+        private int getAccessLevel() {
             return this.accessLevel;
         }
 
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     @Override

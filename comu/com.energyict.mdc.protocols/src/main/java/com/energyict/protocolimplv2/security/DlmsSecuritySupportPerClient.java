@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.EncryptedStringFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -11,6 +10,9 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
+import com.elster.jupiter.properties.PropertySpec;
+
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +21,7 @@ import java.util.List;
 /**
  * Provides general security <b>capabilities</b> for a DLMS protocol, which
  * has a SecurityObject for each possible client.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 18/06/13
  * Time: 15:02
@@ -30,10 +32,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
     private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupportPerClient.authenticationlevel.";
     private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupportPerClient.encryptionlevel.";
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    public DlmsSecuritySupportPerClient() {
+    @Inject
+    public DlmsSecuritySupportPerClient(PropertySpecService propertySpecService) {
         super();
+        this.propertySpecService = propertySpecService;
     }
 
     /**
@@ -43,42 +47,42 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         PUBLIC_CLIENT_NO_AUTHENTICATION(0, 16),
         PUBLIC_CLIENT_LOW_LEVEL_AUTHENTICATION(1, 16),
-//        PUBLIC_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(2, 16),
+        //        PUBLIC_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(2, 16),
         PUBLIC_CLIENT_MD5_AUTHENTICATION(3, 16),
         PUBLIC_CLIENT_SHA1_AUTHENTICATION(4, 16),
         PUBLIC_CLIENT_GMAC_AUTHENTICATION(5, 16),
 
         DATA_CLIENT_NO_AUTHENTICATION(6, 32),
         DATA_CLIENT_LOW_LEVEL_AUTHENTICATION(7, 32),
-//        DATA_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(8, 32),
+        //        DATA_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(8, 32),
         DATA_CLIENT_MD5_AUTHENTICATION(9, 32),
         DATA_CLIENT_SHA1_AUTHENTICATION(10, 32),
         DATA_CLIENT_GMAC_AUTHENTICATION(11, 32),
 
         EXT_DATA_CLIENT_NO_AUTHENTICATION(12, 48),
         EXT_DATA_CLIENT_LOW_LEVEL_AUTHENTICATION(13, 48),
-//        EXT_DATA_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(14, 48),
+        //        EXT_DATA_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(14, 48),
         EXT_DATA_CLIENT_MD5_AUTHENTICATION(15, 48),
         EXT_DATA_CLIENT_SHA1_AUTHENTICATION(16, 48),
         EXT_DATA_CLIENT_GMAC_AUTHENTICATION(17, 48),
 
         MANAGEMENT_CLIENT_NO_AUTHENTICATION(18, 64),
         MANAGEMENT_CLIENT_LOW_LEVEL_AUTHENTICATION(19, 64),
-//        MANAGEMENT_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(20, 64),
+        //        MANAGEMENT_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(20, 64),
         MANAGEMENT_CLIENT_MD5_AUTHENTICATION(21, 64),
         MANAGEMENT_CLIENT_SHA1_AUTHENTICATION(22, 64),
         MANAGEMENT_CLIENT_GMAC_AUTHENTICATION(23, 64),
 
         FIRMWARE_CLIENT_NO_AUTHENTICATION(24, 80),
         FIRMWARE_CLIENT_LOW_LEVEL_AUTHENTICATION(25, 80),
-//        FIRMWARE_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(26, 80),
+        //        FIRMWARE_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(26, 80),
         FIRMWARE_CLIENT_MD5_AUTHENTICATION(27, 80),
         FIRMWARE_CLIENT_SHA1_AUTHENTICATION(28, 80),
         FIRMWARE_CLIENT_GMAC_AUTHENTICATION(29, 80),
 
         MANUFACTURER_CLIENT_NO_AUTHENTICATION(30, 0),
         MANUFACTURER_CLIENT_LOW_LEVEL_AUTHENTICATION(31, 0),
-//        MANUFACTURER_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(32, 0),
+        //        MANUFACTURER_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(32, 0),
         MANUFACTURER_CLIENT_MD5_AUTHENTICATION(33, 0),
         MANUFACTURER_CLIENT_SHA1_AUTHENTICATION(34, 0),
         MANUFACTURER_CLIENT_GMAC_AUTHENTICATION(35, 0);
@@ -107,20 +111,20 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
             return 0;
         }
 
-        public static int getAuthenticationAccessLevelForClientMacAndOriginalAccessLevel(final int clientId, final int originalAccessLevel){
+        public static int getAuthenticationAccessLevelForClientMacAndOriginalAccessLevel(final int clientId, final int originalAccessLevel) {
             for (AuthenticationAccessLevelIds authenticationAccessLevelId : values()) {
                 final int offset = ((authenticationAccessLevelId.clientId / clientIDMultiple) - 1) * numberOfLevelsPerClient;
-                if(authenticationAccessLevelId.clientId == clientId && (authenticationAccessLevelId.accessLevel - offset) == originalAccessLevel){
+                if (authenticationAccessLevelId.clientId == clientId && (authenticationAccessLevelId.accessLevel - offset) == originalAccessLevel) {
                     return authenticationAccessLevelId.accessLevel;
                 }
             }
             return 0;
         }
 
-        public static int getSimpleAuthenticationAccessLevelForClientMacAndNewAccessLevel(final int clientId, final int newAccessLevel){
+        public static int getSimpleAuthenticationAccessLevelForClientMacAndNewAccessLevel(final int clientId, final int newAccessLevel) {
             for (AuthenticationAccessLevelIds authenticationAccessLevelId : values()) {
                 final int offset = ((authenticationAccessLevelId.clientId / clientIDMultiple) - 1) * numberOfLevelsPerClient;
-                if(authenticationAccessLevelId.clientId == clientId && authenticationAccessLevelId.accessLevel == newAccessLevel){
+                if (authenticationAccessLevelId.clientId == clientId && authenticationAccessLevelId.accessLevel == newAccessLevel) {
                     return authenticationAccessLevelId.accessLevel - offset;
                 }
             }
@@ -175,32 +179,25 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
             return this.accessLevel;
         }
 
-        public static int getEncryptionAccessLevelForClientMacAndOriginalAccessLevel(final int clientId, final int originalAccessLevel){
+        public static int getEncryptionAccessLevelForClientMacAndOriginalAccessLevel(final int clientId, final int originalAccessLevel) {
             for (EncryptionAccessLevelIds encryptionAccessLevelId : values()) {
                 final int offset = ((encryptionAccessLevelId.clientId / clientIDMultiple) - 1) * numberOfLevelsPerClient;
-                if(encryptionAccessLevelId.clientId == clientId && (encryptionAccessLevelId.accessLevel - offset) == originalAccessLevel){
+                if (encryptionAccessLevelId.clientId == clientId && (encryptionAccessLevelId.accessLevel - offset) == originalAccessLevel) {
                     return encryptionAccessLevelId.accessLevel;
                 }
             }
             return 0;
         }
 
-        public static int getSimpleEncryptionAccessLevelForClientMacAndNewAccessLevel(final int clientId, final int newAccessLevel){
+        public static int getSimpleEncryptionAccessLevelForClientMacAndNewAccessLevel(final int clientId, final int newAccessLevel) {
             for (EncryptionAccessLevelIds encryptionAccessLevelId : values()) {
                 final int offset = ((encryptionAccessLevelId.clientId / clientIDMultiple) - 1) * numberOfLevelsPerClient;
-                if(encryptionAccessLevelId.clientId == clientId && encryptionAccessLevelId.accessLevel == newAccessLevel){
+                if (encryptionAccessLevelId.clientId == clientId && encryptionAccessLevelId.accessLevel == newAccessLevel) {
                     return encryptionAccessLevelId.accessLevel - offset;
                 }
             }
             return 0;
         }
-
-
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     private PropertySpec<String> getEncryptionKeyPublicPropertySpec() {
@@ -460,7 +457,8 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
     private Object getDataTransportAuthenticationKeyPropertyValue(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         List<String> authenticationKeyNames = Arrays.asList(
                 SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA.toString(),
-                SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER.toString());
+                SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER
+                .toString());
         return getValueFrom(authenticationKeyNames, deviceProtocolSecurityPropertySet);
     }
 
@@ -471,10 +469,10 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         return getValueFrom(encryptionKeyNames, deviceProtocolSecurityPropertySet);
     }
 
-    private Object getValueFrom(final List<String> propertyNames, final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet){
+    private Object getValueFrom(final List<String> propertyNames, final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         for (String propertyName : propertyNames) {
             final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(propertyName);
-            if( property != null){
+            if (property != null) {
                 return property;
             }
         }
@@ -485,20 +483,21 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         // override the password (as it is provided as a Password object instead of a String
         List<String> passWordPropertyNames = Arrays.asList(
                 SecurityPropertySpecName.PASSWORD_PUBLIC.toString(), SecurityPropertySpecName.PASSWORD_DATA.toString(), SecurityPropertySpecName.PASSWORD_EXT_DATA.toString(),
-            SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString(), SecurityPropertySpecName.PASSWORD_FIRMWARE.toString(), SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString());
+                SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString(), SecurityPropertySpecName.PASSWORD_FIRMWARE.toString(), SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString());
         boolean notFound = true;
         for (String passWordPropertyName : passWordPropertyNames) {
             final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(passWordPropertyName);
-            if( property != null && notFound){
+            if (property != null && notFound) {
                 if (Password.class.isAssignableFrom(property.getClass())) {
                     typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
-                } else {
+                }
+                else {
                     typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
                 }
                 notFound = false;
             }
         }
-        if(notFound){
+        if (notFound) {
             typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
         }
     }
@@ -514,8 +513,8 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
         final int clientMacAddressValue = getClientMacAddressValue(typedProperties);
 
-        final int authenticationLevelPropertyValue = AuthenticationAccessLevelIds.getAuthenticationAccessLevelForClientMacAndOriginalAccessLevel(clientMacAddressValue,  getAuthenticationLevel(securityLevelProperty));
-        final int encryptionLevelPropertyValue = EncryptionAccessLevelIds.getEncryptionAccessLevelForClientMacAndOriginalAccessLevel(clientMacAddressValue,  getEncryptionLevel(securityLevelProperty));
+        final int authenticationLevelPropertyValue = AuthenticationAccessLevelIds.getAuthenticationAccessLevelForClientMacAndOriginalAccessLevel(clientMacAddressValue, getAuthenticationLevel(securityLevelProperty));
+        final int encryptionLevelPropertyValue = EncryptionAccessLevelIds.getEncryptionAccessLevelForClientMacAndOriginalAccessLevel(clientMacAddressValue, getEncryptionLevel(securityLevelProperty));
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationLevelPropertyValue, getAuthenticationAccessLevels()));
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionLevelPropertyValue, getEncryptionAccessLevels()));
@@ -541,12 +540,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
     private int getClientMacAddressValue(TypedProperties typedProperties) {
         final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
         if (clientMacAddress != null) {
-            if(String.class.isAssignableFrom(clientMacAddress.getClass())){
+            if (String.class.isAssignableFrom(clientMacAddress.getClass())) {
                 return Integer.valueOf((String) clientMacAddress);
-            } else {
-                return ((BigDecimal)clientMacAddress).intValue();
             }
-        } else {
+            else {
+                return ((BigDecimal) clientMacAddress).intValue();
+            }
+        }
+        else {
             return 16;  // returning the public client if none was configured
         }
     }
@@ -555,7 +556,8 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         String encryptionLevel = securityLevelProperty.substring(securityLevelProperty.indexOf(':') + 1);
         try {
             return Integer.parseInt(encryptionLevel);
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e) {
             throw new IllegalArgumentException(String.format("Failed to extract EncryptionDeviceAccessLevel from SecurityProperty '%s': %s could not be converted to int",
                     securityLevelProperty, encryptionLevel));
         }
@@ -565,7 +567,8 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         String authLevel = securityLevelProperty.substring(0, securityLevelProperty.indexOf(':'));
         try {
             return Integer.parseInt(authLevel);
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e) {
             throw new IllegalArgumentException(String.format("Failed to extract AuthenticationDeviceAccessLevel from SecurityProperty '%s': %s could not be converted to int",
                     securityLevelProperty, authLevel));
         }

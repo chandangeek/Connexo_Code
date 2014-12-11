@@ -2,7 +2,6 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 
 import com.google.inject.AbstractModule;
@@ -73,15 +72,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
         try {
             // Attempt to load the class to verify that this class is managed by this bundle
             Class<?> securityClass = Class.forName(javaClassName);
-            Object object = this.injector.getInstance(securityClass);
-            if (object instanceof DeviceProtocolSecurityCapabilities) {
-                DeviceProtocolSecurityCapabilities securityCapabilities = (DeviceProtocolSecurityCapabilities) object;
-                securityCapabilities.setPropertySpecService(this.propertySpecService);
-                return securityCapabilities;
-            }
-            else {
-                return object;
-            }
+            return this.injector.getInstance(securityClass);
         }
         catch (ConfigurationException | ProvisionException e) {
             throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, e, javaClassName);

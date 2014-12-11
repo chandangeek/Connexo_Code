@@ -50,6 +50,7 @@ import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,11 +100,13 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
      * Keeps track of all the protocol properties <b>AND</b> the current deviceProtocolDialectProperties
      */
     private TypedProperties typedProperties = TypedProperties.empty();
+    private final PropertySpecService propertySpecService;
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport();
-        this.deviceProtocolSecurityCapabilities.setPropertySpecService(propertySpecService);
+    @Inject
+    public SDKDeviceProtocolTestWithAllProperties(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
     }
 
     @Override
@@ -141,9 +144,8 @@ public class SDKDeviceProtocolTestWithAllProperties implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpecService propertySpecService = Bus.getPropertySpecService();
         List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(propertySpecService.basicPropertySpec("SDKStringProperty", false, new StringFactory()));
+        optionalProperties.add(this.propertySpecService.basicPropertySpec("SDKStringProperty", false, new StringFactory()));
         optionalProperties.add(propertySpecService.stringPropertySpec("SDKStringPropertyWithDefault", false, "Test"));
         optionalProperties.add(propertySpecService.stringPropertySpecWithValues("SDKStringPropertyWithValues", false, "value 1", "value 2", "value 3", "value 4"));
         optionalProperties.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue("SDKStringPropertyWithValuesAndDefault", false, "value 3", "value 1", "value 2", "value 4", "value 5"));

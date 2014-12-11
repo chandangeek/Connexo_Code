@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.nta.elster;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.common.TempDeviceMessageSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+
+import javax.inject.Inject;
 
 /**
  * @author sva
@@ -15,12 +17,9 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     private DeviceMessageSupport messageProtocol;
 
-    public MbusDevice() {
-        super();
-    }
-
-    public MbusDevice(final AbstractNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
-        super(meterProtocol, serialNumber, physicalAddress);
+    @Inject
+    public MbusDevice(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     @Override

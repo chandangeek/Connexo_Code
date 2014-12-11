@@ -2,10 +2,12 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.elster.jupiter.properties.PropertySpec;
+
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -22,8 +24,9 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
 
     private static final String encryptionTranslationKeyConstant = "AnsiC12SecuritySupport.encryptionlevel.";
 
-    public ExtendedAnsiC12SecuritySupport() {
-        super();
+    @Inject
+    public ExtendedAnsiC12SecuritySupport(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     @Override
@@ -42,7 +45,6 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     public String getSecurityRelationTypeName() {
         return SecurityRelationTypeName.EXTENDED_ANSI_C12_SECURITY.toString();
     }
-
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {

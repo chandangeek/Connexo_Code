@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -44,6 +45,7 @@ import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocols.mdc.protocoltasks.ACE4000DeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.Bus;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
@@ -65,6 +67,11 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private Logger logger;
     private Long cachedMeterTimeDifference = null;
     private ACE4000MessageExecutor messageExecutor = null;
+
+    @Inject
+    public ACE4000Outbound(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {

@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,14 +29,11 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
     private static final String AUTHENTICATION_TRANSLATION_KEY = "WavenisSecuritySupport.authenticationlevel.";
     private static final String ENCRYPTION_TRANSLATION_KEY = "WavenisSecuritySupport.encryptionlevel.";
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    public WavenisSecuritySupport() {
+    @Inject
+    public WavenisSecuritySupport(PropertySpecService propertySpecService) {
         super();
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

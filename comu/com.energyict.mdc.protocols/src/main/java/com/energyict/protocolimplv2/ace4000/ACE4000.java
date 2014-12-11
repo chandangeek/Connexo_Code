@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.ace4000;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
@@ -43,6 +44,10 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
 
     //Used by both inbound and outbound protocols
     protected ObjectFactory objectFactory;
+
+    public ACE4000(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     public ACE4000Connection getAce4000Connection() {
         return ace4000Connection;

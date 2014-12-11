@@ -2,10 +2,10 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -25,7 +25,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -34,12 +33,13 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -83,11 +83,13 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
      * Keeps track of all the protocol properties <b>AND</b> the current deviceProtocolDialectProperties
      */
     private TypedProperties typedProperties = TypedProperties.empty();
+    private final PropertySpecService propertySpecService;
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport();
-        this.deviceProtocolSecurityCapabilities.setPropertySpecService(propertySpecService);
+    @Inject
+    public SDKDeviceProtocolTestWithMandatoryProperty(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
+        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
     }
 
     @Override
@@ -125,11 +127,10 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PropertySpecService propertySpecService = Bus.getPropertySpecService();
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        propertySpecs.add(propertySpecService.basicPropertySpec("SDKStringProperty", false, new StringFactory()));
+        propertySpecs.add(this.propertySpecService.basicPropertySpec("SDKStringProperty", false, new StringFactory()));
         propertySpecs.add(
-                propertySpecService.
+                this.propertySpecService.
                         obisCodePropertySpecWithValuesExhaustive(
                                 "SDKObisCodeProperty",
                                 true,

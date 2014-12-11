@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
@@ -29,12 +30,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
     private PropertySpecService propertySpecService;
 
-    public DlmsSecuritySupport() {
+    @Inject
+    public DlmsSecuritySupport(PropertySpecService propertySpecService) {
         super();
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
@@ -55,7 +53,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
             this.accessLevel = accessLevel;
         }
 
-        protected int getAccessLevel() {
+        private int getAccessLevel() {
             return this.accessLevel;
         }
 

@@ -6,11 +6,20 @@ import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+
 import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
-import java.util.Arrays;
-import java.util.Collection;
+import com.google.inject.AbstractModule;
+import com.google.inject.ConfigurationException;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.ProvisionException;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Copyrights EnergyICT
@@ -21,9 +30,26 @@ import org.osgi.service.component.annotations.Reference;
 public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolService {
 
     private PropertySpecService propertySpecService;
+    private Injector injector;
 
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    @Activate
+    public void activate() {
+        Module module = this.getModule();
+        this.injector = Guice.createInjector(module);
+    }
+
+    private Module getModule() {
+        return new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(InboundDeviceProtocolService.class).toInstance(InboundDeviceProtocolServiceImpl.this);
+            }
+        };
     }
 
     @Reference
@@ -33,26 +59,24 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
 
     @Override
     public InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass) {
-        try {
-            InboundDeviceProtocol inboundDeviceProtocol = (InboundDeviceProtocol) (Class.forName(pluggableClass.getJavaClassName())).newInstance();
-            inboundDeviceProtocol.setPropertySpecService(this.propertySpecService);
-            return inboundDeviceProtocol;
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, e, pluggableClass.getJavaClassName());
-        }
+        return this.createInboundDeviceProtocolFor(pluggableClass.getJavaClassName());
     }
 
     @Override
     public InboundDeviceProtocol createInboundDeviceProtocolFor(String javaClassName) {
         try {
-            return (InboundDeviceProtocol) (Class.forName(javaClassName)).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            // Attempt to load the class to verify that this class is managed by this bundle
+            Class<?> inboundDeviceProtocolClass = this.getClass().getClassLoader().loadClass(javaClassName);
+            return (InboundDeviceProtocol) this.injector.getInstance(inboundDeviceProtocolClass);
+        }
+        catch (ClassNotFoundException | ConfigurationException | ProvisionException e) {
             throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, e, javaClassName);
         }
     }
 
     @Override
     public Collection<PluggableClassDefinition> getExistingInboundDeviceProtocolPluggableClasses() {
-        return Arrays.asList((PluggableClassDefinition[])InboundDeviceProtocolRule.values());
+        return Arrays.asList((PluggableClassDefinition[]) InboundDeviceProtocolRule.values());
     }
+
 }

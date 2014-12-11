@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -27,14 +28,11 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private final String authenticationTranslationKeyConstant = "AnsiC12SecuritySupport.authenticationlevel.";
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    public AnsiC12SecuritySupport() {
+    @Inject
+    public AnsiC12SecuritySupport(PropertySpecService propertySpecService) {
         super();
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

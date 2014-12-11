@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
@@ -9,6 +10,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -23,6 +25,11 @@ import java.util.logging.Logger;
 public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtocol {
 
     private InboundDiscoveryContext context;
+
+    @Inject
+    public ACE4000Inbound(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
