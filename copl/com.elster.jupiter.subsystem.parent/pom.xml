@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.elster.jupiter.subsystem</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.parent</name>
+
+    <organization>
+        <name>Elster</name>
+        <url>www.elster.com</url>
+    </organization>
+    <!-- Repositories specification. -->
+    <repositories>
+        <repository>
+            <id>eict-public-snapshots</id>
+            <name>EnergyICT snapshots repository group</name>
+            <url>http://source.eict.vpdc/nexus/content/groups/public-snapshots/
+            </url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>eict-public</id>
+            <name>EnergyICT public repository group</name>
+            <url>http://source.eict.vpdc/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <!-- Distribution management. -->
+    <distributionManagement>
+        <repository>
+            <id>eict-releases</id>
+            <name>EnergyICT releases repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>eict-snapshots</id>
+            <name>EnergyICT snapshots repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <modules>
+        <module>drools-integration</module>
+    </modules>
+
+</project>
