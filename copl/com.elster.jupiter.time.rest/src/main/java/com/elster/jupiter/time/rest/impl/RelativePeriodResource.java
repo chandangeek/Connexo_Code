@@ -142,7 +142,7 @@ public class RelativePeriodResource {
             throw e;
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new WebApplicationException(e.getLocalizedMessage());
+            throw new WebApplicationException(e.getLocalizedMessage(), Response.status(Response.Status.PRECONDITION_FAILED).entity(e.getLocalizedMessage()).build());
         }
     }
 
@@ -155,7 +155,7 @@ public class RelativePeriodResource {
     @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public RelativePeriodPreviewInfo previewRelativePeriod(@PathParam("id") long id, RelativeDatePreviewInfo relativeDatePreviewInfo) {
+    public RelativePeriodPreviewInfo pregviewRelativePeriod(@PathParam("id") long id, RelativeDatePreviewInfo relativeDatePreviewInfo) {
         RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
         ZonedDateTime referenceDate = getZonedDateTime(relativeDatePreviewInfo);
         ZonedDateTime start = relativePeriod.getRelativeDateFrom().getRelativeDate(referenceDate);
