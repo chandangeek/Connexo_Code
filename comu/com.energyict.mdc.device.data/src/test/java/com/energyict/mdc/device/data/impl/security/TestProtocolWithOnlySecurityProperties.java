@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.data.impl.security;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -29,7 +27,9 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -48,9 +48,12 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     private static final String USERNAME_PROPERTY_NAME = "username";
     private static final String PASSWORD_PROPERTY_NAME = "password";
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    private final PropertySpecService propertySpecService;
 
+    @Inject
+    public TestProtocolWithOnlySecurityProperties(PropertySpecService propertySpecService) {
+        super();
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -181,9 +184,8 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     @Override
     public List<PropertySpec> getSecurityProperties() {
         List<PropertySpec> propertySpecs = new ArrayList<>(2);
-        PropertySpecFactory propertySpecFactory = RequiredPropertySpecFactory.newInstance();
-        propertySpecs.add(propertySpecFactory.stringPropertySpec(USERNAME_PROPERTY_NAME));
-        propertySpecs.add(propertySpecFactory.stringPropertySpec(PASSWORD_PROPERTY_NAME));
+        propertySpecs.add(this.propertySpecService.basicPropertySpec(USERNAME_PROPERTY_NAME, true, new StringFactory()));
+        propertySpecs.add(this.propertySpecService.basicPropertySpec(PASSWORD_PROPERTY_NAME, true, new StringFactory()));
         return propertySpecs;
     }
 
@@ -204,13 +206,12 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        PropertySpecFactory propertySpecFactory = RequiredPropertySpecFactory.newInstance();
         switch (name) {
             case USERNAME_PROPERTY_NAME: {
-                return propertySpecFactory.stringPropertySpec(USERNAME_PROPERTY_NAME);
+                return this.propertySpecService.basicPropertySpec(USERNAME_PROPERTY_NAME, true, new StringFactory());
             }
             case PASSWORD_PROPERTY_NAME: {
-                return propertySpecFactory.stringPropertySpec(PASSWORD_PROPERTY_NAME);
+                return this.propertySpecService.basicPropertySpec(PASSWORD_PROPERTY_NAME, true, new StringFactory());
             }
             default: {
                 return null;

@@ -534,11 +534,6 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     public static class TestProtocol implements DeviceProtocol {
         @Override
-        public void setPropertySpecService(PropertySpecService propertySpecService) {
-
-        }
-
-        @Override
         public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
 
         }

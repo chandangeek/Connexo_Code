@@ -139,7 +139,7 @@ public class SecurityPropertyServiceImplTest {
         when(this.protocolPluggableService.findSecurityPropertyRelationType(this.deviceProtocolPluggableClass)).thenReturn(this.securityPropertyRelationType);
         when(this.protocolPluggableService.isLicensedProtocolClassName(anyString())).thenReturn(true);
         when(this.deviceProtocolPluggableClass.getProperties(anyListOf(PropertySpec.class))).thenReturn(TypedProperties.empty());
-        when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(new TestProtocolWithOnlySecurityProperties());
+        when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(new TestProtocolWithOnlySecurityProperties(inMemoryPersistence.propertySpecService));
         when(this.deviceProtocolPluggableClass.getJavaClassName()).thenReturn(TestProtocolWithOnlySecurityProperties.class.getName());
 
         when(this.securityPropertySet.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
@@ -302,7 +302,7 @@ public class SecurityPropertyServiceImplTest {
             when(this.principal.getName()).thenReturn("SecurityPropertyServiceImplTest");
             this.licenseService = mock(LicenseService.class);
             when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
-            when(deviceProtocolService.createProtocol(TestProtocolWithOnlySecurityProperties.class.getName())).thenReturn(new TestProtocolWithOnlySecurityProperties());
+            when(deviceProtocolService.createProtocol(TestProtocolWithOnlySecurityProperties.class.getName())).thenReturn(new TestProtocolWithOnlySecurityProperties(propertySpecService));
         }
 
         private void createOracleAliases(OrmServiceImpl ormService) throws SQLException {

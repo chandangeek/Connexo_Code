@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,11 +22,6 @@ import static org.mockito.Mockito.mock;
 public class SimpleDiscoveryProtocol implements InboundDeviceProtocol {
 
     private InboundDiscoveryContext inboundDiscoveryContext;
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-
-    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
