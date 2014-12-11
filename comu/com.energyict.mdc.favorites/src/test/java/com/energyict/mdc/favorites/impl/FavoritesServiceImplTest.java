@@ -1,26 +1,7 @@
 package com.energyict.mdc.favorites.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.sql.SQLException;
-import java.time.Clock;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Level;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -85,6 +66,24 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class FavoritesServiceImplTest {
 
@@ -169,6 +168,7 @@ public class FavoritesServiceImplTest {
                 new MeteringGroupsModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
+                new DataVaultModule(),
                 new IssuesModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
