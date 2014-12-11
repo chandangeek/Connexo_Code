@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -97,10 +96,6 @@ public class InboundDeviceProtocolPluggableClassRegistrarTest {
     }
 
     private class TestInboundDeviceProtocol implements InboundDeviceProtocol {
-        @Override
-        public void setPropertySpecService(PropertySpecService propertySpecService) {
-
-        }
 
         @Override
         public void initializeDiscoveryContext(InboundDiscoveryContext context) {

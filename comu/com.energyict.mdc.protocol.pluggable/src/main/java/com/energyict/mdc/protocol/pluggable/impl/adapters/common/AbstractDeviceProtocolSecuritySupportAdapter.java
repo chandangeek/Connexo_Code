@@ -29,16 +29,21 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
 
     private DeviceProtocolSecurityCapabilities legacySecuritySupport;
     private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
     private final ProtocolPluggableService protocolPluggableService;
     private final PropertiesAdapter propertiesAdapter;
     private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
 
-    protected AbstractDeviceProtocolSecuritySupportAdapter(ProtocolPluggableService protocolPluggableService, PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
+    protected AbstractDeviceProtocolSecuritySupportAdapter(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
         super();
+        this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.propertiesAdapter = propertiesAdapter;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     public void setLegacySecuritySupport(DeviceProtocolSecurityCapabilities legacySecuritySupport) {
@@ -47,10 +52,6 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
 
     public void setLegacySecurityPropertyConverter(LegacySecurityPropertyConverter legacySecurityPropertyConverter) {
         this.legacySecurityPropertyConverter = legacySecurityPropertyConverter;
-    }
-
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     private boolean checkExistingSecuritySupport() {

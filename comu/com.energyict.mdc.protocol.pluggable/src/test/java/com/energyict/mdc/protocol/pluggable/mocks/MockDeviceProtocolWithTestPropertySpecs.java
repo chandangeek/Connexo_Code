@@ -28,6 +28,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import com.elster.jupiter.properties.PropertySpec;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -43,10 +44,11 @@ import java.util.Set;
  */
 public class MockDeviceProtocolWithTestPropertySpecs implements DeviceProtocol {
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    @Inject
+    public MockDeviceProtocolWithTestPropertySpecs(PropertySpecService propertySpecService) {
+        super();
         this.propertySpecService = propertySpecService;
     }
 

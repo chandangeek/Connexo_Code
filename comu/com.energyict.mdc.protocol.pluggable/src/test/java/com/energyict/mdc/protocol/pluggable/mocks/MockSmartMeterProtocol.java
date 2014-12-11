@@ -45,11 +45,6 @@ import java.util.logging.Logger;
 public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecuritySupport, DeviceMessageSupport {
 
     @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-
-    }
-
-    @Override
     public RegisterInfo translateRegister(Register register) throws IOException {
         return null;
     }

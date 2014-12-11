@@ -40,10 +40,10 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     public static final String DEVICE_TIMEZONE_PROPERTY_NAME = "deviceTimeZone";
     public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
 
-    private DataModel dataModel;
-    private PropertySpecService propertySpecService;
-    private ProtocolPluggableService protocolPluggableService;
-    private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
+    private final DataModel dataModel;
+    private final PropertySpecService propertySpecService;
+    private final ProtocolPluggableService protocolPluggableService;
+    private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
 
     /**
      * Gets the instance of the {@link CachingProtocol}
@@ -59,15 +59,12 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
      */
     public abstract HHUEnabler getHhuEnabler();
 
-    protected DeviceProtocolAdapterImpl(ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
+    protected DeviceProtocolAdapterImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel) {
         super();
+        this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         this.dataModel = dataModel;
-    }
-
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     protected PropertySpecService getPropertySpecService() {

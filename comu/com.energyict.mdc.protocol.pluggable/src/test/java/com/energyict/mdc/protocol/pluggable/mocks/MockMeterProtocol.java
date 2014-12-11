@@ -42,11 +42,6 @@ import java.util.logging.Logger;
 public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, DeviceMessageSupport {
 
     @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-
-    }
-
-    @Override
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
 
     }

@@ -44,11 +44,6 @@ import java.util.Set;
 public class MockDeviceProtocol implements DeviceProtocol {
 
     @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-
-    }
-
-    @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
 
     }

@@ -93,7 +93,6 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
             // Must be a lecagy pluggable class
             deviceProtocol = this.checkForProtocolWrappers(protocol);
         }
-        deviceProtocol.setPropertySpecService(this.propertySpecService);
         return deviceProtocol;
     }
 
@@ -109,10 +108,10 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
      */
     private DeviceProtocol checkForProtocolWrappers(Object protocol) {
         if (protocol instanceof SmartMeterProtocol) {
-            return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService);
+            return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService);
         }
         else if (protocol instanceof MeterProtocol) {
-            return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService);
+            return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.dataModel, issueService);
         }
         else {
             throw new ProtocolCreationException(MessageSeeds.UNSUPPORTED_LEGACY_PROTOCOL_TYPE, protocol.getClass());

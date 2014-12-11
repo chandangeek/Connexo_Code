@@ -21,8 +21,7 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 public class SmartMeterProtocolSecuritySupportAdapter extends AbstractDeviceProtocolSecuritySupportAdapter {
 
     public SmartMeterProtocolSecuritySupportAdapter(SmartMeterProtocol smartMeterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
-        super(protocolPluggableService, propertiesAdapter, securitySupportAdapterMappingFactory);
-        this.setPropertySpecService(propertySpecService);
+        super(propertySpecService, protocolPluggableService, propertiesAdapter, securitySupportAdapterMappingFactory);
         Object securityInstance = createNewSecurityInstance(getDeviceSecuritySupportMappingFor(smartMeterProtocol.getClass().getName()));
         if (DeviceProtocolSecurityCapabilities.class.isAssignableFrom(securityInstance.getClass())) {
             setLegacySecuritySupport((DeviceProtocolSecurityCapabilities) securityInstance);

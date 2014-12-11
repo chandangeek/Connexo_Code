@@ -13,6 +13,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,15 +31,19 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
     public static final String FIRST_PROPERTY_NAME = "FirstPropertyName";
     public static final String SECOND_PROPERTY_NAME = "SecondPropertyName";
     public static final String THIRD_PROPERTY_NAME = "ThirdPropertyName";
-    public static final PropertySpec firstPropSpec = new PropertySpecServiceImpl().basicPropertySpec(FIRST_PROPERTY_NAME, false, new StringFactory());
-    public static final PropertySpec secondPropSpec = new PropertySpecServiceImpl().basicPropertySpec(SECOND_PROPERTY_NAME, false, new StringFactory());
-    public static final PropertySpec thirdPropSpec = new PropertySpecServiceImpl().basicPropertySpec(THIRD_PROPERTY_NAME, false, new StringFactory());
     public static final int AUTHENTICATION_DEVICE_ACCESS_LEVEL_ID = 1000;
     public static final int ENCRYPTION_DEVICE_ACCESS_LEVEL_ID = 2000;
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    public PropertySpec firstPropSpec;
+    public PropertySpec secondPropSpec;
+    public PropertySpec thirdPropSpec;
 
+    @Inject
+    public SimpleTestDeviceSecuritySupport(PropertySpecService propertySpecService) {
+        super();
+        this.firstPropSpec = propertySpecService.basicPropertySpec(FIRST_PROPERTY_NAME, false, new StringFactory());
+        this.secondPropSpec = propertySpecService.basicPropertySpec(SECOND_PROPERTY_NAME, false, new StringFactory());
+        this.thirdPropSpec = propertySpecService.basicPropertySpec(THIRD_PROPERTY_NAME, false, new StringFactory());
     }
 
     @Override

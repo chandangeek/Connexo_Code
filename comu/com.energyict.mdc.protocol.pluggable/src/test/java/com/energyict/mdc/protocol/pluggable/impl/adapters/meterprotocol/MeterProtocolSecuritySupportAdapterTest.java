@@ -19,16 +19,13 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDevic
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -72,7 +69,7 @@ public class MeterProtocolSecuritySupportAdapterTest {
                 (SecondSimpleTestMeterProtocol.class.getName())).thenReturn("com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.NotAKnownDeviceSecuritySupportClass");
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
                 (ThirdSimpleTestMeterProtocol.class.getName())).thenReturn(ThirdSimpleTestMeterProtocol.class.getName());
-        when(this.protocolPluggableService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getName())).thenReturn(new SimpleTestDeviceSecuritySupport());
+        when(this.protocolPluggableService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getName())).thenReturn(new SimpleTestDeviceSecuritySupport(propertySpecService));
         doThrow(ProtocolCreationException.class).when(this.protocolPluggableService).
                 createDeviceProtocolSecurityFor("com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.NotAKnownDeviceSecuritySupportClass");
         when(this.protocolPluggableService.createDeviceProtocolSecurityFor(ThirdSimpleTestMeterProtocol.class.getName())).thenReturn(new ThirdSimpleTestMeterProtocol());
@@ -80,12 +77,9 @@ public class MeterProtocolSecuritySupportAdapterTest {
 
     @Before
     public void initializeEnvironment() {
-        when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(anyString())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                String javaClassName = (String) invocationOnMock.getArguments()[0];
-                return Class.forName(javaClassName).newInstance();
-            }
+        when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(anyString())).thenAnswer(invocationOnMock -> {
+            String javaClassName = (String) invocationOnMock.getArguments()[0];
+            return Class.forName(javaClassName).newInstance();
         });
     }
 
@@ -150,11 +144,7 @@ public class MeterProtocolSecuritySupportAdapterTest {
         List<PropertySpec> securityProperties = meterProtocolSecuritySupportAdapter.getSecurityProperties();
 
         // asserts
-        assertArrayEquals(securityProperties.toArray(), Arrays.asList(
-                SimpleTestDeviceSecuritySupport.firstPropSpec,
-                SimpleTestDeviceSecuritySupport.secondPropSpec,
-                SimpleTestDeviceSecuritySupport.thirdPropSpec
-        ).toArray());
+        assertThat(securityProperties).hasSize(3);
     }
 
     @Test
@@ -185,9 +175,9 @@ public class MeterProtocolSecuritySupportAdapterTest {
                 this.securitySupportAdapterMappingFactory);
 
         // asserts
-        assertEquals(SimpleTestDeviceSecuritySupport.firstPropSpec, meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME));
-        assertEquals(SimpleTestDeviceSecuritySupport.secondPropSpec, meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME));
-        assertEquals(SimpleTestDeviceSecuritySupport.thirdPropSpec, meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME));
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME)).isNotNull();
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME)).isNotNull();
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME)).isNotNull();
     }
 
     @Test

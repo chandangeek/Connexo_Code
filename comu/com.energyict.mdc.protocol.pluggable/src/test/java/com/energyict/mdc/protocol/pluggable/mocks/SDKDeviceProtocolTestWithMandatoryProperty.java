@@ -81,11 +81,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        // Ignore as it was provided @ construction time and method is soon to become obsolete anyway
-    }
-
-    @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         this.comChannel = comChannel;

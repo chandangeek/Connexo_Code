@@ -25,7 +25,6 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-import com.energyict.mdc.protocol.pluggable.impl.DataModelInitializer;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityAdapterMappingImpl;
@@ -37,7 +36,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Sim
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
@@ -482,7 +480,7 @@ public class SmartMeterProtocolAdapterTest {
         List<PropertySpec> securityProperties = adapter.getSecurityProperties();
 
         // Asserts
-        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport().getSecurityProperties());
+        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()).getSecurityProperties());
     }
 
     @Test
@@ -595,9 +593,7 @@ public class SmartMeterProtocolAdapterTest {
     }
 
     protected SmartMeterProtocolAdapter newSmartMeterProtocolAdapter(SmartMeterProtocol smartMeterProtocol) {
-        SmartMeterProtocolAdapter adapter = new SmartMeterProtocolAdapter(smartMeterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService());
-        adapter.setPropertySpecService(this.inMemoryPersistence.getPropertySpecService());
-        return adapter;
+        return new SmartMeterProtocolAdapter(smartMeterProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService());
     }
 
     private interface MeterProtocolWithDeviceSecuritySupport extends SmartMeterProtocol, DeviceSecuritySupport {
@@ -605,9 +601,8 @@ public class SmartMeterProtocolAdapterTest {
 
     private class TestSmartMeterProtocolAdapter extends SmartMeterProtocolAdapter {
 
-        private TestSmartMeterProtocolAdapter(final SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
-            super(meterProtocol, protocolPluggableService1, securitySupportAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService());
-            this.setPropertySpecService(propertySpecService);
+        private TestSmartMeterProtocolAdapter(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
+            super(meterProtocol, propertySpecService, protocolPluggableService1, securitySupportAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService());
         }
 
         @Override

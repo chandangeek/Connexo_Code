@@ -112,7 +112,7 @@ public class MeterProtocolAdapterTest {
         when(capabilityAdapterMappingFactory.getCapabilitiesMappingForDeviceProtocol(MockDeviceProtocol.class.getCanonicalName())).thenReturn(6);  //6 = master and session capability
         DeviceProtocolSecurityService deviceProtocolSecurityService = this.inMemoryPersistence.getDeviceProtocolSecurityService();
         when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor("com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport")).
-            thenReturn(new SimpleTestDeviceSecuritySupport());
+            thenReturn(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()));
         this.mockPropertySpecs();
     }
 
@@ -516,7 +516,7 @@ public class MeterProtocolAdapterTest {
         List<PropertySpec> securityProperties = adapter.getSecurityProperties();
 
         // Asserts
-        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport().getSecurityProperties());
+        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()).getSecurityProperties());
     }
 
     @Test
@@ -629,9 +629,7 @@ public class MeterProtocolAdapterTest {
     }
 
     protected MeterProtocolAdapterImpl newMeterProtocolAdapter(MeterProtocol meterProtocol) {
-        MeterProtocolAdapterImpl adapter = new MeterProtocolAdapterImpl(meterProtocol, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService());
-        adapter.setPropertySpecService(this.inMemoryPersistence.getPropertySpecService());
-        return adapter;
+        return new MeterProtocolAdapterImpl(meterProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService());
     }
 
     private interface MeterProtocolWithDeviceSecuritySupport extends MeterProtocol, DeviceSecuritySupport {
@@ -639,9 +637,8 @@ public class MeterProtocolAdapterTest {
 
     private class TestMeterProtocolAdapter extends MeterProtocolAdapterImpl {
 
-        private TestMeterProtocolAdapter(final MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
-            super(meterProtocol, protocolPluggableService1, securitySupportAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService());
-            this.setPropertySpecService(propertySpecService);
+        private TestMeterProtocolAdapter(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
+            super(meterProtocol, propertySpecService, protocolPluggableService1, securitySupportAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService());
         }
 
         @Override

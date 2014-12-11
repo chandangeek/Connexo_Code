@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -141,8 +142,8 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      */
     private HHUEnabler hhuEnabler;
 
-    public MeterProtocolAdapterImpl(final MeterProtocol meterProtocol, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService) {
-        super(protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
+    public MeterProtocolAdapterImpl(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, IssueService issueService) {
+        super(propertySpecService, protocolPluggableService, securitySupportAdapterMappingFactory, dataModel);
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
         if (meterProtocol instanceof RegisterProtocol) {

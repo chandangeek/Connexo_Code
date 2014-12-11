@@ -8,7 +8,6 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
-import com.energyict.mdc.protocol.pluggable.impl.DataModelInitializer;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
@@ -56,13 +55,10 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
         this.inMemoryPersistence = new InMemoryPersistence();
         this.inMemoryPersistence.initializeDatabase(
                 "SmartMeterProtocolSecuritySupportAdapterTest.mdc.protocol.pluggable",
-                new DataModelInitializer() {
-                    @Override
-                    public void initializeDataModel(DataModel dataModel) {
-                        dataModel.persist(new SecuritySupportAdapterMappingImpl(SimpleTestSmartMeterProtocol.class.getName(), SimpleTestDeviceSecuritySupport.class.getName()));
-                        dataModel.persist(new SecuritySupportAdapterMappingImpl(SecondSimpleTestSmartMeterProtocol.class.getName(), "com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.NotAKnownDeviceSecuritySupportClass"));
-                        dataModel.persist(new SecuritySupportAdapterMappingImpl(ThirdSimpleTestSmartMeterProtocol.class.getName(), ThirdSimpleTestSmartMeterProtocol.class.getName()));
-                    }
+                dataModel1 -> {
+                    dataModel1.persist(new SecuritySupportAdapterMappingImpl(SimpleTestSmartMeterProtocol.class.getName(), SimpleTestDeviceSecuritySupport.class.getName()));
+                    dataModel1.persist(new SecuritySupportAdapterMappingImpl(SecondSimpleTestSmartMeterProtocol.class.getName(), "com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.NotAKnownDeviceSecuritySupportClass"));
+                    dataModel1.persist(new SecuritySupportAdapterMappingImpl(ThirdSimpleTestSmartMeterProtocol.class.getName(), ThirdSimpleTestSmartMeterProtocol.class.getName()));
                 });
         this.protocolPluggableService = this.inMemoryPersistence.getProtocolPluggableService();
         this.dataModel = this.protocolPluggableService.getDataModel();
@@ -71,7 +67,7 @@ public class SmartMeterProtocolSecuritySupportAdapterTest {
 
     private void initializeMocks() {
         DeviceProtocolSecurityService deviceProtocolSecurityService = this.inMemoryPersistence.getDeviceProtocolSecurityService();
-        when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getCanonicalName())).thenReturn(new SimpleTestDeviceSecuritySupport());
+        when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getCanonicalName())).thenReturn(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()));
         doThrow(DeviceProtocolAdapterCodingExceptions.class).when(deviceProtocolSecurityService).createDeviceProtocolSecurityFor("com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.NotAKnownDeviceSecuritySupportClass");
         when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(ThirdSimpleTestSmartMeterProtocol.class.getCanonicalName())).thenReturn(new ThirdSimpleTestSmartMeterProtocol());
     }
