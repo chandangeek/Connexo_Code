@@ -10,7 +10,9 @@ import javax.jms.JMSException;
  */
 public class UnderlyingJmsException extends LocalizedException {
 
-    public UnderlyingJmsException(Thesaurus thesaurus, JMSException cause) {
+	private static final long serialVersionUID = 1L;
+
+	public UnderlyingJmsException(Thesaurus thesaurus, JMSException cause) {
         super(thesaurus, MessageSeeds.UNDERLYING_JMS_EXCEPTION, cause);
     }
 }

@@ -8,7 +8,9 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class DuplicateSubscriberNameException extends LocalizedException {
 
-    public DuplicateSubscriberNameException(Thesaurus thesaurus, String name) {
+	private static final long serialVersionUID = 1L;
+
+	public DuplicateSubscriberNameException(Thesaurus thesaurus, String name) {
         super(thesaurus, MessageSeeds.DUPLICATE_SUBSCRIBER_NAME, name);
         set("name", name);
     }

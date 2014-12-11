@@ -8,7 +8,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class InactiveDestinationException extends LocalizedException {
 
-    private static final String DESTINATION = "destinationSpec";
+	private static final long serialVersionUID = 1L;
+	private static final String DESTINATION = "destinationSpec";
     private static final String SUBSCRIBER_NAME = "subscriberName";
 
     public InactiveDestinationException(Thesaurus thesaurus, DestinationSpec destinationSpec, String subscriberName) {

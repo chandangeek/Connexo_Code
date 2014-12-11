@@ -9,7 +9,9 @@ import oracle.AQ.AQException;
  */
 public class UnderlyingAqException extends LocalizedException {
 
-    public UnderlyingAqException(Thesaurus thesaurus, AQException cause) {
+	private static final long serialVersionUID = 1L;
+
+	public UnderlyingAqException(Thesaurus thesaurus, AQException cause) {
         super(thesaurus, MessageSeeds.UNDERLYING_AQ_EXCEPTION, cause);
     }
 }

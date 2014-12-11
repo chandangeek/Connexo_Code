@@ -8,7 +8,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class AlreadyASubscriberForQueueException extends LocalizedException {
 
-    private static final String DESTINATION = "destination";
+	private static final long serialVersionUID = 1L;
+	private static final String DESTINATION = "destination";
 
     public AlreadyASubscriberForQueueException(Thesaurus thesaurus, DestinationSpec destinationSpec) {
         super(thesaurus, MessageSeeds.MULTIPLE_SUBSCRIBER_ON_QUEUE, destinationSpec);
