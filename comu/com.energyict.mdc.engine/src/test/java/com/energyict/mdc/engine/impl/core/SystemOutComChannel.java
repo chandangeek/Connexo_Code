@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelType;
 
 /**
  * Provides an implementation for the {@link ComChannel} interface
@@ -69,6 +70,11 @@ public class SystemOutComChannel implements ComChannel {
     @Override
     public TypedProperties getProperties() {
         return this.connectionTaskProperties;
+    }
+
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.NOT_DEFINED;
     }
 
     @Override
