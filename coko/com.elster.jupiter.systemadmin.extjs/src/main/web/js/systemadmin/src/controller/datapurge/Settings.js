@@ -42,10 +42,14 @@ Ext.define('Sam.controller.datapurge.Settings', {
 
     saveData: function () {
         var me = this,
-            page = me.getPage();
+            page = me.getPage(),
+            store = me.getStore('Sam.store.DataPurgeSettings');
 
+        if (!store.getUpdatedRecords().length) {
+            return;
+        }
         page.setLoading(Uni.I18n.translate('general.saving', 'SAM', 'Saving...'));
-        me.getStore('Sam.store.DataPurgeSettings').sync({
+        store.sync({
             callback: function () {
                 page.setLoading(false);
             },
