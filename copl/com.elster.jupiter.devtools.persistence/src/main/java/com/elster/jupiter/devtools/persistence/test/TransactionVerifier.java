@@ -1,11 +1,13 @@
 package com.elster.jupiter.devtools.persistence.test;
 
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
 import com.google.common.collect.ImmutableList;
+
 import org.mockito.exceptions.Reporter;
 import org.mockito.exceptions.base.MockitoAssertionError;
 import org.mockito.internal.invocation.InvocationMatcher;
@@ -279,4 +281,10 @@ public final class TransactionVerifier implements TransactionService {
             }
         }
     }
+
+	@Override
+	public TransactionBuilder builder() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
