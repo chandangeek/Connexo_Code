@@ -2,6 +2,7 @@ package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -27,6 +28,7 @@ import java.util.List;
  */
 public class RegisterFrame extends AbstractInboundFrame {
 
+    private final MdcReadingTypeUtilService readingTypeUtilService;
     private CollectedRegisterList collectedRegisterList;
 
     @Override
@@ -34,8 +36,9 @@ public class RegisterFrame extends AbstractInboundFrame {
         return FrameType.REGISTER;
     }
 
-    public RegisterFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService) {
+    public RegisterFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService) {
         super(frame, serialNumberPlaceHolder, issueService);
+        this.readingTypeUtilService = readingTypeUtilService;
     }
 
     @Override
@@ -73,17 +76,17 @@ public class RegisterFrame extends AbstractInboundFrame {
         CollectedRegister deviceRegister;
         if (register.getObisCode().getF() != 255) {
             deviceRegister = this.getCollectedDataFactory().createBillingCollectedRegister(getRegisterIdentifier(register.getObisCode()),
-                    Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
+                    this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime());
         } else if (register.getEventTime() != null) {
             deviceRegister = this.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register.getObisCode()),
-                    Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
+                    this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setCollectedTimeStamps(new Date(), null, getInboundParameters().getReadTime(), register.getEventTime());
         } else {
             deviceRegister = this.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register.getObisCode()),
-                    Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
+                    this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), register.getQuantity().getUnit()));
             deviceRegister.setCollectedData(register.getQuantity(), register.getText());
             deviceRegister.setReadTime(getInboundParameters().getReadTime());
         }

@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
@@ -35,6 +36,7 @@ import java.util.Collection;
 public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolService {
 
     private Thesaurus thesaurus;
+    private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile PropertySpecService propertySpecService;
     private volatile Clock clock;
     private Injector injector;
@@ -54,6 +56,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
             @Override
             public void configure() {
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(Clock.class).toInstance(clock);
                 bind(InboundDeviceProtocolService.class).toInstance(InboundDeviceProtocolServiceImpl.this);
@@ -64,6 +67,11 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setReadingTypeUtilService(MdcReadingTypeUtilService readingTypeUtilService) {
+        this.readingTypeUtilService = readingTypeUtilService;
     }
 
     @Reference

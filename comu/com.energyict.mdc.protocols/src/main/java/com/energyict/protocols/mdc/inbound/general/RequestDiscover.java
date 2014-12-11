@@ -3,6 +3,7 @@ package com.energyict.protocols.mdc.inbound.general;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
@@ -20,14 +21,14 @@ import javax.inject.Inject;
 public class RequestDiscover extends AbstractDiscover {
 
     @Inject
-    public RequestDiscover(PropertySpecService propertySpecService, IssueService issueService, Thesaurus thesaurus) {
-        super(propertySpecService, issueService, thesaurus);
+    public RequestDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus) {
+        super(propertySpecService, issueService, readingTypeUtilService, thesaurus);
     }
 
     @Override
     public DiscoverResultType doDiscovery() {
         ComChannel comChannel = this.getComChannel();
-        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.getIssueService(), this.getThesaurus()));
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.getIssueService(), this.getReadingTypeUtilService(), this.getThesaurus()));
         boolean notTimedOut = true;
         while (notTimedOut) {
             try {

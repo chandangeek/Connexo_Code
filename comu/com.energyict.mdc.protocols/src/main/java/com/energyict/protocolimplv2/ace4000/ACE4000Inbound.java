@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -24,11 +25,13 @@ import java.util.logging.Logger;
  */
 public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtocol {
 
+    private final MdcReadingTypeUtilService readingTypeUtilService;
     private InboundDiscoveryContext context;
 
     @Inject
-    public ACE4000Inbound(PropertySpecService propertySpecService) {
+    public ACE4000Inbound(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService) {
         super(propertySpecService);
+        this.readingTypeUtilService = readingTypeUtilService;
     }
 
     @Override
@@ -94,7 +97,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
 
     public ObjectFactory getObjectFactory() {
         if (objectFactory == null) {
-            objectFactory = new ObjectFactory(this);
+            objectFactory = new ObjectFactory(this, this.readingTypeUtilService);
             objectFactory.setInbound(true);  //Important to store the parsed data in the list of collecteddatas
         }
         return objectFactory;

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -13,6 +14,7 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+
 import com.energyict.protocolimplv2.ace4000.ACE4000;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
@@ -21,7 +23,6 @@ import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -48,7 +49,8 @@ import java.util.logging.Level;
  */
 public class ObjectFactory {
 
-    private ACE4000 ace4000;
+    private final ACE4000 ace4000;
+    private final MdcReadingTypeUtilService readingTypeUtilService;
     private Acknowledge acknowledge = null;
     private boolean sendAck = false;      //Indicates whether or not the parsed message must be ACK'ed.
     private int requestAttemptNumber = 0;
@@ -94,8 +96,9 @@ public class ObjectFactory {
     private Map<Tracker, RequestState> requestStates = new HashMap<>();
     private Map<Tracker, String> reasonDescriptions = new HashMap<>();
 
-    public ObjectFactory(ACE4000 ace4000) {
+    public ObjectFactory(ACE4000 ace4000, MdcReadingTypeUtilService readingTypeUtilService) {
         this.ace4000 = ace4000;
+        this.readingTypeUtilService = readingTypeUtilService;
     }
 
     /**
@@ -933,7 +936,7 @@ public class ObjectFactory {
                                 new RegisterDataIdentifierByObisCodeAndDevice(
                                         registerValue.getObisCode(),
                                         registerValue.getObisCode(),
-                                        deviceIdentifier), Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerValue.getObisCode(), registerValue.getQuantity().getUnit()));
+                                        deviceIdentifier), this.readingTypeUtilService.getReadingTypeFrom(registerValue.getObisCode(), registerValue.getQuantity().getUnit()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;
@@ -946,7 +949,7 @@ public class ObjectFactory {
                                 new RegisterDataIdentifierByObisCodeAndDevice(
                                         registerValue.getObisCode(),
                                         registerValue.getObisCode(),
-                                        getAce4000().getDeviceIdentifier()), Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerValue.getObisCode(), registerValue.getQuantity().getUnit()));
+                                        getAce4000().getDeviceIdentifier()), this.readingTypeUtilService.getReadingTypeFrom(registerValue.getObisCode(), registerValue.getQuantity().getUnit()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
         return deviceRegister;

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 
@@ -22,8 +23,8 @@ import java.util.List;
 public class ACE4000MBus extends ACE4000Outbound {
 
     @Inject
-    public ACE4000MBus(PropertySpecService propertySpecService, IssueService issueService) {
-        super(propertySpecService, issueService);
+    public ACE4000MBus(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(propertySpecService, issueService, readingTypeUtilService);
     }
 
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
@@ -51,4 +52,5 @@ public class ACE4000MBus extends ACE4000Outbound {
     public String getVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
+
 }

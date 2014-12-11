@@ -3,9 +3,10 @@ package com.energyict.protocolimplv2.ace4000;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -64,6 +65,7 @@ import java.util.logging.Logger;
 public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     private final IssueService issueService;
+    private final MdcReadingTypeUtilService readingTypeUtilService;
     private OfflineDevice offlineDevice;
     private DeviceProtocolCache deviceCache;
     private Logger logger;
@@ -71,9 +73,10 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private ACE4000MessageExecutor messageExecutor = null;
 
     @Inject
-    public ACE4000Outbound(PropertySpecService propertySpecService, IssueService issueService) {
+    public ACE4000Outbound(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService) {
         super(propertySpecService);
         this.issueService = issueService;
+        this.readingTypeUtilService = readingTypeUtilService;
     }
 
     @Override
@@ -274,7 +277,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     public ObjectFactory getObjectFactory() {
         if (objectFactory == null) {
-            objectFactory = new ObjectFactory(this);
+            objectFactory = new ObjectFactory(this, this.readingTypeUtilService);
             objectFactory.setInbound(false);
         }
         return objectFactory;

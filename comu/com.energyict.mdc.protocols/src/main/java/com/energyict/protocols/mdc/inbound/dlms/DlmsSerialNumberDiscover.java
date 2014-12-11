@@ -7,6 +7,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -61,8 +62,8 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private SimpleApplicationServiceObject aso;
 
     @Inject
-    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, IssueService issueService, Thesaurus thesaurus) {
-        super(propertySpecService, issueService, thesaurus);
+    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus) {
+        super(propertySpecService, issueService, readingTypeUtilService, thesaurus);
         this.issueService = issueService;
     }
 
@@ -86,7 +87,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     private void setInboundConnection() {
         ComChannel comChannel = this.getComChannel();
-        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), issueService, this.getThesaurus()));
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), issueService, this.getReadingTypeUtilService(), this.getThesaurus()));
     }
 
     public void init() throws IOException {

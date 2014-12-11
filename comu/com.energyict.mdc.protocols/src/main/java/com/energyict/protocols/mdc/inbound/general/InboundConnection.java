@@ -3,6 +3,7 @@ package com.energyict.protocols.mdc.inbound.general;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -34,6 +35,7 @@ public class InboundConnection {
     private static final String EVENTPO = "EVENTPO";
     private static final int DEFAULT_DELAY_MILLIS = 10;
 
+    private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IssueService issueService;
     private final Thesaurus thesaurus;
     private final SerialNumberPlaceHolder serialNumberPlaceHolder = new SerialNumberPlaceHolder();
@@ -46,11 +48,12 @@ public class InboundConnection {
      */
     private List<AbstractInboundFrame> framesToAck;
 
-    public InboundConnection(ComChannel comChannel, int timeout, int retries, IssueService issueService, Thesaurus thesaurus) {
+    public InboundConnection(ComChannel comChannel, int timeout, int retries, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus) {
         this.comChannel = comChannel;
         this.timeout = timeout;
         this.retries = retries;
         this.issueService = issueService;
+        this.readingTypeUtilService = readingTypeUtilService;
         this.thesaurus = thesaurus;
     }
 
@@ -158,7 +161,7 @@ public class InboundConnection {
             return new DeployFrame(frame, serialNumberPlaceHolder, issueService);
         }
         if (frame.contains(REGISTER_TAG)) {
-            return new RegisterFrame(frame, serialNumberPlaceHolder, issueService);
+            return new RegisterFrame(frame, serialNumberPlaceHolder, issueService, readingTypeUtilService);
         }
         throw new InboundFrameException(MessageSeeds.INBOUND_UNEXPECTED_FRAME, frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }

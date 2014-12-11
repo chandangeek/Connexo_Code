@@ -82,7 +82,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Deactivate
     public void deactivate() {
         Bus.clearOrmClient(this.ormClient);
-        Bus.clearMdcReadingTypeUtilService(this.mdcReadingTypeUtilService);
     }
 
     private Module getModule() {
@@ -161,7 +160,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Reference
     public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
-        Bus.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
     }
 
     @Reference

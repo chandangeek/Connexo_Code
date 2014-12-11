@@ -1,8 +1,5 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -14,7 +11,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class Bus {
 
-    private static AtomicReference<MdcReadingTypeUtilService> mdcReadingTypeUtilServiceProvider = new AtomicReference<>();
     private static AtomicReference<OrmClient> ormClientProvider = new AtomicReference<>();
 
     public static OrmClient getOrmClient() {
@@ -27,18 +23,6 @@ public final class Bus {
 
     public static void clearOrmClient(OrmClient old) {
         ormClientProvider.compareAndSet(old, null);
-    }
-
-    public static MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
-        return mdcReadingTypeUtilServiceProvider.get();
-    }
-
-    public static void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
-        mdcReadingTypeUtilServiceProvider.set(mdcReadingTypeUtilService);
-    }
-
-    public static void clearMdcReadingTypeUtilService(MdcReadingTypeUtilService old){
-        mdcReadingTypeUtilServiceProvider.compareAndSet(old, null);
     }
 
 }
