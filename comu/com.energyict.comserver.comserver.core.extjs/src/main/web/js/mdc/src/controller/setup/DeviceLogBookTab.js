@@ -21,7 +21,6 @@ Ext.define('Mdc.controller.setup.DeviceLogBookTab', {
     },
 
     showOverview: function(mrId,logBookId){
-        console.log('overview');
         this.mrId = mrId;
         this.logBookId = logBookId;
 
@@ -36,7 +35,6 @@ Ext.define('Mdc.controller.setup.DeviceLogBookTab', {
     },
 
     showData: function(mrId,logBookId){
-        console.log('data');
         this.logBookId = logBookId;
         var c = this.getController('Mdc.controller.setup.DeviceLogbookData');
         this.veto = true;

@@ -158,7 +158,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                     viewport.setLoading(false);
                     Ext.getBody().mask('Loading...');
                     widget.setLoading();
-                    debugger;
                     widget.down('#deviceLoadProfileChannelGraphViewBtn').setDisabled(!isTable);
                     widget.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(isTable);
                     widget.down('#deviceLoadProfileChannelTableView').setVisible(isTable);

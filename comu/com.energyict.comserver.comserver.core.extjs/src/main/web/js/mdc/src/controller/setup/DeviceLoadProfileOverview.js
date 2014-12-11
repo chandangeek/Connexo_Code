@@ -42,7 +42,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
             },
             showPage = function () {
                 defer.setCallback(function (device) {
-//                    debugger;
                     loadProfileOfDeviceModel.getProxy().setUrl(mRID);
                     tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
                         device: device,
