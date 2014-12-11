@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
@@ -20,7 +21,8 @@ import java.util.List;
  */
 public abstract class AbstractInboundFrame {
 
-    protected final SerialNumberPlaceHolder serialNumberPlaceHolder;
+    private final SerialNumberPlaceHolder serialNumberPlaceHolder;
+    private final IssueService issueService;
 
     public enum FrameType {
         REQUEST,
@@ -39,10 +41,19 @@ public abstract class AbstractInboundFrame {
 
     protected abstract FrameType getType();
 
-    public AbstractInboundFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
+    public AbstractInboundFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService) {
         this.serialNumberPlaceHolder = serialNumberPlaceHolder;
         this.frame = frame;
+        this.issueService = issueService;
         parse();
+    }
+
+    protected SerialNumberPlaceHolder getSerialNumberPlaceHolder() {
+        return serialNumberPlaceHolder;
+    }
+
+    protected IssueService getIssueService() {
+        return issueService;
     }
 
     public List<CollectedData> getCollectedDatas() {

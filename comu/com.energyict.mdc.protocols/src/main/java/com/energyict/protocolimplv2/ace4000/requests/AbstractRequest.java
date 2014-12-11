@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
 import com.energyict.mdc.common.ComServerExecutionException;
+import com.energyict.mdc.issues.IssueService;
+
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
@@ -16,6 +18,7 @@ import java.util.List;
  */
 public abstract class AbstractRequest<Input, Result> {
 
+    private final IssueService issueService;
     private ACE4000Outbound ace4000;
     private Input input;
     private Result result = null;
@@ -24,8 +27,13 @@ public abstract class AbstractRequest<Input, Result> {
     //Indicates if the response can come in multiple frames. In this case, keep listening until a timeout occurs!
     protected boolean multiFramedAnswer = false;
 
-    public AbstractRequest(ACE4000Outbound ace4000) {
+    public AbstractRequest(ACE4000Outbound ace4000, IssueService issueService) {
         this.ace4000 = ace4000;
+        this.issueService = issueService;
+    }
+
+    protected IssueService getIssueService() {
+        return issueService;
     }
 
     public ACE4000Outbound getAce4000() {

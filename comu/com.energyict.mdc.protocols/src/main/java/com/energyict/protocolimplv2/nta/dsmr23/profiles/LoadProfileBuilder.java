@@ -1,5 +1,24 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
@@ -14,27 +33,9 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
-import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
@@ -76,6 +77,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      * The used meterProtocol
      */
     private final AbstractNtaProtocol meterProtocol;
+    private final IssueService issueService;
 
     /**
      * Keeps track of the link between a {@link LoadProfileReader} and a {@link ComposedProfileConfig}
@@ -118,13 +120,10 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      */
     private List<CollectedLoadProfileConfiguration> loadProfileConfigurationList;
 
-    /**
-     * Default constructor
-     *
-     * @param meterProtocol the {@link #meterProtocol}
-     */
-    public LoadProfileBuilder(AbstractNtaProtocol meterProtocol) {
+    public LoadProfileBuilder(AbstractNtaProtocol meterProtocol, IssueService issueService) {
+        super();
         this.meterProtocol = meterProtocol;
+        this.issueService = issueService;
     }
 
     /**
@@ -458,11 +457,11 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
                     collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
-                    Issue problem = Bus.getIssueService().newIssueCollector().addProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
+                    Issue problem = this.issueService.newIssueCollector().addProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
                     collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                 }
             } else {
-                Issue problem = Bus.getIssueService().newIssueCollector().addProblem(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue problem = this.issueService.newIssueCollector().addProblem(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             collectedLoadProfileList.add(collectedLoadProfile);

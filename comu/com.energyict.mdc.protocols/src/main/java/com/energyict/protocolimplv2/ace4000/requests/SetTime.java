@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
+import com.energyict.mdc.issues.IssueService;
+
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 
 import java.util.Date;
@@ -12,8 +14,8 @@ import java.util.Date;
  */
 public class SetTime extends AbstractRequest<Date, Boolean> {
 
-    public SetTime(ACE4000Outbound ace4000) {
-        super(ace4000);
+    public SetTime(ACE4000Outbound ace4000, IssueService issueService) {
+        super(ace4000, issueService);
     }
 
     protected void doBefore() {

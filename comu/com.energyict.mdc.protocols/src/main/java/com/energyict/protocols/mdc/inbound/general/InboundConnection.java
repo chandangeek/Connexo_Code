@@ -2,6 +2,7 @@ package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.common.ComServerExecutionException;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -33,6 +34,7 @@ public class InboundConnection {
     private static final String EVENTPO = "EVENTPO";
     private static final int DEFAULT_DELAY_MILLIS = 10;
 
+    private final IssueService issueService;
     private final Thesaurus thesaurus;
     private final SerialNumberPlaceHolder serialNumberPlaceHolder = new SerialNumberPlaceHolder();
     private ComChannel comChannel;
@@ -44,10 +46,11 @@ public class InboundConnection {
      */
     private List<AbstractInboundFrame> framesToAck;
 
-    public InboundConnection(ComChannel comChannel, int timeout, int retries, Thesaurus thesaurus) {
+    public InboundConnection(ComChannel comChannel, int timeout, int retries, IssueService issueService, Thesaurus thesaurus) {
         this.comChannel = comChannel;
         this.timeout = timeout;
         this.retries = retries;
+        this.issueService = issueService;
         this.thesaurus = thesaurus;
     }
 
@@ -143,19 +146,19 @@ public class InboundConnection {
      */
     private AbstractInboundFrame parseInboundFrame(String frame) {
         if (frame.contains(REQUEST_TAG)) {
-            return new RequestFrame(frame, serialNumberPlaceHolder);
+            return new RequestFrame(frame, serialNumberPlaceHolder, issueService);
         }
         if (frame.contains(EVENT_TAG)) {
-            return new EventFrame(frame, serialNumberPlaceHolder, thesaurus);
+            return new EventFrame(frame, serialNumberPlaceHolder, issueService, thesaurus);
         }
         if (frame.contains(EVENTPO_TAG)) {
-            return new EventPOFrame(frame, serialNumberPlaceHolder);
+            return new EventPOFrame(frame, serialNumberPlaceHolder, issueService);
         }
         if (frame.contains(DEPLOY_TAG)) {
-            return new DeployFrame(frame, serialNumberPlaceHolder);
+            return new DeployFrame(frame, serialNumberPlaceHolder, issueService);
         }
         if (frame.contains(REGISTER_TAG)) {
-            return new RegisterFrame(frame, serialNumberPlaceHolder);
+            return new RegisterFrame(frame, serialNumberPlaceHolder, issueService);
         }
         throw new InboundFrameException(MessageSeeds.INBOUND_UNEXPECTED_FRAME, frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }

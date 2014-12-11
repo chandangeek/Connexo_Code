@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.nta.abstractnta;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -52,9 +53,9 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
     private final int physicalAddress;
     private final DeviceProtocolSecurityCapabilities securityCapabilities = new NoSecuritySupport();
 
-    public AbstractNtaMbusDevice(PropertySpecService propertySpecService) {
+    public AbstractNtaMbusDevice(PropertySpecService propertySpecService, IssueService issueService) {
         this.propertySpecService = propertySpecService;
-        this.meterProtocol = new AM100(propertySpecService);
+        this.meterProtocol = new AM100(propertySpecService, issueService);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }

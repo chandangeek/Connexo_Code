@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -38,8 +39,8 @@ public class EventPOFrame extends AbstractInboundFrame {
         return FrameType.EVENTP0;
     }
 
-    public EventPOFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
-        super(frame, serialNumberPlaceHolder);
+    public EventPOFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService) {
+        super(frame, serialNumberPlaceHolder, issueService);
     }
 
     @Override

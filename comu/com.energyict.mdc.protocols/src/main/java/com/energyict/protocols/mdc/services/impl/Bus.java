@@ -14,21 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class Bus {
 
-    private static AtomicReference<IssueService> issueServiceProvider = new AtomicReference<>();
     private static AtomicReference<MdcReadingTypeUtilService> mdcReadingTypeUtilServiceProvider = new AtomicReference<>();
     private static AtomicReference<OrmClient> ormClientProvider = new AtomicReference<>();
-
-    public static IssueService getIssueService() {
-        return issueServiceProvider.get();
-    }
-
-    public static void setIssueService(IssueService issueService) {
-        issueServiceProvider.set(issueService);
-    }
-
-    public static void clearIssueService(IssueService old) {
-        issueServiceProvider.compareAndSet(old, null);
-    }
 
     public static OrmClient getOrmClient() {
         return ormClientProvider.get();

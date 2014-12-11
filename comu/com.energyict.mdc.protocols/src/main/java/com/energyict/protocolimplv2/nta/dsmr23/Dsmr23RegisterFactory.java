@@ -1,5 +1,20 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
+
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
@@ -19,25 +34,11 @@ import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -77,11 +78,14 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     public static final ObisCode MbusDisconnectOutputState = ObisCode.fromString("0.x.24.4.130.255");
 
     protected final AbstractNtaProtocol protocol;
+    protected final IssueService issueService;
     private Map<OfflineRegister, ComposedRegister> composedRegisterMap = new HashMap<OfflineRegister, ComposedRegister>();
     protected Map<OfflineRegister, DLMSAttribute> registerMap = new HashMap<OfflineRegister, DLMSAttribute>();
 
-    public Dsmr23RegisterFactory(final AbstractNtaProtocol protocol) {
+    public Dsmr23RegisterFactory(AbstractNtaProtocol protocol, IssueService issueService) {
+        super();
         this.protocol = protocol;
+        this.issueService = issueService;
     }
 
     /**
@@ -325,13 +329,17 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
         CollectedRegister collectedRegister = this.createDefaultCollectedRegister(register);
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, Bus.getIssueService()
-                    .newIssueCollector()
-                    .addProblem(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(
+                    ResultType.InCompatible,
+                    this.issueService
+                        .newIssueCollector()
+                        .addProblem(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else if (resultType == ResultType.NotSupported) {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, Bus.getIssueService()
-                    .newIssueCollector()
-                    .addProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(
+                    ResultType.NotSupported,
+                    this.issueService
+                            .newIssueCollector()
+                            .addProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
     }

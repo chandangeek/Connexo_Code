@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.codetables.Code;
@@ -60,10 +61,12 @@ public class ACE4000MessageExecutor implements MessageProtocol {
     private static final String CONFIG_EMERGENCY_CONSUMPTION_LIMITATION = "ConfigureEmergencyConsumptionLimitation";
     private static final String CONFIG_TARIFF = "TariffConfig";
 
-    private ACE4000Outbound ace4000;
+    private final ACE4000Outbound ace4000;
+    private final IssueService issueService;
 
-    public ACE4000MessageExecutor(ACE4000Outbound ace4000) {
+    public ACE4000MessageExecutor(ACE4000Outbound ace4000, IssueService issueService) {
         this.ace4000 = ace4000;
+        this.issueService = issueService;
     }
 
     /**
@@ -75,7 +78,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
         try {
             if (messageContent.contains(READ_EVENTS)) {
                 //TODO what if the offline device has no logbooks configured??
-                ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(ace4000);
+                ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(ace4000, issueService);
                 List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(new LogBookIdentifierById((int) ace4000.getOfflineDevice().getAllOfflineLogBooks().get(0).getLogBookId()));
                 MeterData meterData = new MeterData();
                 for (MeterProtocolEvent collectedMeterEvent : collectedLogBooks.get(0).getCollectedMeterEvents()) {
@@ -96,18 +99,18 @@ public class ACE4000MessageExecutor implements MessageProtocol {
                 meterData.addProfileData(profileData);
                 return MeterDataMessageResult.createSuccess(messageEntry, "", meterData);
             } else if (messageContent.contains(FIRMWARE_UPGRADE)) {
-                FirmwareUpgrade firmwareUpgrade = new FirmwareUpgrade(ace4000);
+                FirmwareUpgrade firmwareUpgrade = new FirmwareUpgrade(ace4000, issueService);
                 return firmwareUpgrade.request(messageEntry);
             } else if (messageContent.contains(CONNECT)) {
-                ContactorCommand contactorCommand = new ContactorCommand(ace4000);
+                ContactorCommand contactorCommand = new ContactorCommand(ace4000, issueService);
                 contactorCommand.setCommand(0);
                 return contactorCommand.request(messageEntry);
             } else if (messageContent.contains(DISCONNECT)) {
-                ContactorCommand contactorCommand = new ContactorCommand(ace4000);
+                ContactorCommand contactorCommand = new ContactorCommand(ace4000, issueService);
                 contactorCommand.setCommand(1);
                 return contactorCommand.request(messageEntry);
             } else {
-                WriteConfiguration writeConfiguration = new WriteConfiguration(ace4000);
+                WriteConfiguration writeConfiguration = new WriteConfiguration(ace4000, issueService);
                 return writeConfiguration.request(messageEntry);
             }
         } catch (Exception e) {
@@ -340,7 +343,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             }
         }
 
-        ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(ace4000);
+        ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(ace4000, issueService);
         return readLoadProfileRequest.request(loadProfileReader);
     }
 

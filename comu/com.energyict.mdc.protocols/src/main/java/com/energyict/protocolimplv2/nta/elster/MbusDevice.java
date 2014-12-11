@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.elster;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
@@ -18,8 +19,8 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     private DeviceMessageSupport messageProtocol;
 
     @Inject
-    public MbusDevice(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public MbusDevice(PropertySpecService propertySpecService, IssueService issueService) {
+        super(propertySpecService, issueService);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.ace4000;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -43,7 +44,6 @@ import com.energyict.protocolimplv2.ace4000.requests.ReadRegisters;
 import com.energyict.protocolimplv2.ace4000.requests.SetTime;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocols.mdc.protocoltasks.ACE4000DeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -63,6 +63,7 @@ import java.util.logging.Logger;
  */
 public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
+    private final IssueService issueService;
     private OfflineDevice offlineDevice;
     private DeviceProtocolCache deviceCache;
     private Logger logger;
@@ -70,20 +71,21 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private ACE4000MessageExecutor messageExecutor = null;
 
     @Inject
-    public ACE4000Outbound(PropertySpecService propertySpecService) {
+    public ACE4000Outbound(PropertySpecService propertySpecService, IssueService issueService) {
         super(propertySpecService);
+        this.issueService = issueService;
     }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        messageExecutor = new ACE4000MessageExecutor(this);
+        messageExecutor = new ACE4000MessageExecutor(this, issueService);
         setAce4000Connection(new ACE4000Connection(comChannel, this, false));
     }
 
     public ACE4000MessageExecutor getMessageExecutor() {
         if (messageExecutor == null) {
-            messageExecutor = new ACE4000MessageExecutor(this);
+            messageExecutor = new ACE4000MessageExecutor(this, issueService);
         }
         return messageExecutor;
     }
@@ -136,7 +138,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         List<CollectedLoadProfile> result = new ArrayList<>();
         for (LoadProfileReader loadProfileReader : loadProfiles) {
             if (isMaster(loadProfileReader.getDeviceIdentifier())) {//Master device
-                ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this);
+                ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this, issueService);
                 result.addAll(readLoadProfileRequest.request(loadProfileReader));
             } else {//Slave device
                 CollectedLoadProfile collectedLoadProfile =
@@ -144,8 +146,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                                 loadProfileReader.getLoadProfileIdentifier());
                 collectedLoadProfile.setFailureInformation(
                         ResultType.NotSupported,
-                        Bus.getIssueService().newIssueCollector().
-                                addProblem("MBus slave device doesn't support load profiles"));
+                        this.issueService.newIssueCollector().addProblem("MBus slave device doesn't support load profiles"));
                 result.add(collectedLoadProfile);
             }
         }
@@ -223,7 +224,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public void setTime(Date timeToSet) {
-        SetTime setTimeRequest = new SetTime(this);
+        SetTime setTimeRequest = new SetTime(this, issueService);
         setTimeRequest.request(timeToSet);
     }
 
@@ -241,12 +242,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
         //Read MBus slave registers
         if (requestMBusRegisters) {
-            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this);
+            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this, issueService);
             result.addAll(readMBusRegistersRequest.request(registers));
         }
 
         //Read master registers
-        ReadRegisters readRegistersRequest = new ReadRegisters(this);
+        ReadRegisters readRegistersRequest = new ReadRegisters(this, issueService);
         result.addAll(readRegistersRequest.request(registers));
         return result;
     }
@@ -255,7 +256,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     public CollectedTopology getDeviceTopology() {
         if (!objectFactory.getAllSlaveSerialNumbers().isEmpty()) {
             //Requesting MBus registers to have an idea which MBus devices are connected :)
-            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this);
+            ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this, issueService);
             readMBusRegistersRequest.request(new ArrayList<>());
         }
 
@@ -311,12 +312,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         LogBookReader logBookReader = logBooks.get(0);
         if (isMaster(logBookReader.getDeviceIdentifier())) {
-            ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(this);
+            ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(this, issueService);
             return readMeterEventsRequest.request(logBookReader.getLogBookIdentifier());
         } else {
             List<CollectedLogBook> result = new ArrayList<>();
             CollectedLogBook deviceLogBook = this.createCollectedLogBook(logBookReader.getLogBookIdentifier());
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newIssueCollector().addProblem("MBus slave device doesn't support events"));
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newIssueCollector().addProblem("MBus slave device doesn't support events"));
             result.add(deviceLogBook);
             return result;
         }

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
@@ -15,8 +16,8 @@ public class FirmwareUpgrade extends AbstractRequest<MessageEntry, MessageResult
 
     private int trackingId = -1;
 
-    public FirmwareUpgrade(ACE4000Outbound ace4000) {
-        super(ace4000);
+    public FirmwareUpgrade(ACE4000Outbound ace4000, IssueService issueService) {
+        super(ace4000, issueService);
     }
 
     protected void doBefore() {

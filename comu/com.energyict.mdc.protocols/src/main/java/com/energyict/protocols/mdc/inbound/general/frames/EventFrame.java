@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
@@ -36,8 +37,8 @@ public class EventFrame extends AbstractInboundFrame {
         return FrameType.EVENT;
     }
 
-    public EventFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, Thesaurus thesaurus) {
-        super(frame, serialNumberPlaceHolder);
+    public EventFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService, Thesaurus thesaurus) {
+        super(frame, serialNumberPlaceHolder, issueService);
         this.thesaurus = thesaurus;
     }
 

@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -33,8 +34,8 @@ public class RegisterFrame extends AbstractInboundFrame {
         return FrameType.REGISTER;
     }
 
-    public RegisterFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
-        super(frame, serialNumberPlaceHolder);
+    public RegisterFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService) {
+        super(frame, serialNumberPlaceHolder, issueService);
     }
 
     @Override
@@ -88,13 +89,17 @@ public class RegisterFrame extends AbstractInboundFrame {
         }
 
         if (this.getDevice() == null) {
-            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, Bus.getIssueService()
-                    .newIssueCollector()
-                    .addProblem(deviceRegister, "protocol.rtunotfound", getInboundParameters().getSerialNumber()));
+            deviceRegister.setFailureInformation(
+                    ResultType.ConfigurationMisMatch,
+                    this.getIssueService()
+                            .newIssueCollector()
+                            .addProblem(deviceRegister, "protocol.rtunotfound", getInboundParameters().getSerialNumber()));
         } else if (this.getDevice().getRegisterWithDeviceObisCode(register.getObisCode()) == null) {
-            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, Bus.getIssueService()
-                    .newIssueCollector()
-                    .addProblem(deviceRegister, "protocol.registernotfound", register.getObisCode(), getInboundParameters().getSerialNumber()));
+            deviceRegister.setFailureInformation(
+                    ResultType.ConfigurationMisMatch,
+                    this.getIssueService()
+                        .newIssueCollector()
+                        .addProblem(deviceRegister, "protocol.registernotfound", register.getObisCode(), getInboundParameters().getSerialNumber()));
         }
         return deviceRegister;
     }
@@ -112,7 +117,7 @@ public class RegisterFrame extends AbstractInboundFrame {
     }
 
     private DeviceIdentifierBySerialNumberPlaceHolder getDeviceIdentifier() {
-        return new DeviceIdentifierBySerialNumberPlaceHolder(serialNumberPlaceHolder);
+        return new DeviceIdentifierBySerialNumberPlaceHolder(this.getSerialNumberPlaceHolder());
     }
 
     private CollectedDataFactory getCollectedDataFactory() {

@@ -1,5 +1,7 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
+import com.energyict.mdc.issues.IssueService;
+
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 
 /**
@@ -15,12 +17,13 @@ public class RequestFrame extends AbstractInboundFrame {
         return FrameType.REQUEST;
     }
 
-    public RequestFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
-        super(frame, serialNumberPlaceHolder);
+    public RequestFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService) {
+        super(frame, serialNumberPlaceHolder, issueService);
     }
 
     @Override
     public void doParse() {
         //Nothing else to parse, only parameters were sent
     }
+
 }

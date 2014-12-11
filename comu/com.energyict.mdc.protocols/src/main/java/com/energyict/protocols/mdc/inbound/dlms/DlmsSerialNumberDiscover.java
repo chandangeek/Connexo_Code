@@ -6,6 +6,7 @@ import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -55,12 +56,14 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private static final int DEFAULT_ISKRA_WRAPPER = 1;
     private static final int DEFAULT_INVOKE_ID_AND_PRIORITY = 66; // 0x42, 0b01000010 -> [invoke-id = 1, service_class = 1 (confirmed), priority = 0 (normal)]
 
+    private final IssueService issueService;
     private DLMSConnection dlmsConnection;
     private SimpleApplicationServiceObject aso;
 
     @Inject
-    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super(propertySpecService, thesaurus);
+    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, IssueService issueService, Thesaurus thesaurus) {
+        super(propertySpecService, issueService, thesaurus);
+        this.issueService = issueService;
     }
 
     @Override
@@ -83,7 +86,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     private void setInboundConnection() {
         ComChannel comChannel = this.getComChannel();
-        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.getThesaurus()));
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), issueService, this.getThesaurus()));
     }
 
     public void init() throws IOException {

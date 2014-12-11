@@ -1,12 +1,13 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 /**
  * Copyrights EnergyICT
@@ -21,8 +22,8 @@ public class DeployFrame extends AbstractInboundFrame {
         return FrameType.DEPLOY;
     }
 
-    public DeployFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
-        super(frame, serialNumberPlaceHolder);
+    public DeployFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService) {
+        super(frame, serialNumberPlaceHolder, issueService);
     }
 
     @Override
@@ -33,7 +34,7 @@ public class DeployFrame extends AbstractInboundFrame {
 
         deviceTopology.setFailureInformation(
                 ResultType.InCompatible,
-                Bus.getIssueService().newIssueCollector()
+                this.getIssueService().newIssueCollector()
                     .addWarning(deviceTopology, "protocol.deploynotsupported", getInboundParameters().getSerialNumber()));
         getCollectedDatas().add(deviceTopology);
     }

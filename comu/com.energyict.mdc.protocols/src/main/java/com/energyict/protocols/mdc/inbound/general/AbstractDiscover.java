@@ -3,6 +3,7 @@ package com.energyict.protocols.mdc.inbound.general;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
@@ -46,16 +47,22 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     private InboundConnection inboundConnection = null;
     private InboundDiscoveryContext context;
     private final PropertySpecService propertySpecService;
+    private final IssueService issueService;
     private final Thesaurus thesaurus;
 
-    protected AbstractDiscover(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    protected AbstractDiscover(PropertySpecService propertySpecService, IssueService issueService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
+        this.issueService = issueService;
         this.thesaurus = thesaurus;
     }
 
     protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
+    }
+
+    protected IssueService getIssueService() {
+        return issueService;
     }
 
     protected Thesaurus getThesaurus() {

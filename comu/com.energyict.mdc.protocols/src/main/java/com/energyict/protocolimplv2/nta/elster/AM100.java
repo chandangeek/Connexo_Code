@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.elster;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
@@ -12,7 +13,6 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
@@ -44,13 +44,15 @@ public class AM100 extends AbstractNtaProtocol {
 
     private static final Boolean DEFAULT_FORCEDTOREADCACHE = false;
 
+    private final IssueService issueService;
     private DeviceRegisterSupport registerFactory;
     private DeviceLoadProfileSupport loadProfileBuilder;
     private DeviceLogBookSupport logBookFactory;
 
     @Inject
-    public AM100(PropertySpecService propertySpecService) {
+    public AM100(PropertySpecService propertySpecService, IssueService issueService) {
         super(propertySpecService);
+        this.issueService = issueService;
     }
 
     @Override
@@ -93,7 +95,7 @@ public class AM100 extends AbstractNtaProtocol {
     @Override
     public DeviceRegisterSupport getRegisterFactory() {
         if (registerFactory == null) {
-            registerFactory = new Dsmr23RegisterFactory(this);
+            registerFactory = new Dsmr23RegisterFactory(this, issueService);
         }
         return registerFactory;
     }
@@ -101,7 +103,7 @@ public class AM100 extends AbstractNtaProtocol {
     @Override
     public DeviceLoadProfileSupport getLoadProfileBuilder() {
         if (loadProfileBuilder == null ){
-            loadProfileBuilder = new LoadProfileBuilder(this);
+            loadProfileBuilder = new LoadProfileBuilder(this, issueService);
         }
         return loadProfileBuilder;
     }

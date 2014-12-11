@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issues.IssueService;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -21,8 +22,8 @@ import java.util.List;
 public class DialHomeIdRequestDiscover extends RequestDiscover {
 
     @Inject
-    public DialHomeIdRequestDiscover(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super(propertySpecService, thesaurus);
+    public DialHomeIdRequestDiscover(PropertySpecService propertySpecService, IssueService issueService, Thesaurus thesaurus) {
+        super(propertySpecService, issueService, thesaurus);
     }
 
     @Override
