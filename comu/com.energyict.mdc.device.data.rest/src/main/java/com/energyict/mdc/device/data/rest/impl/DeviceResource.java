@@ -71,6 +71,8 @@ public class DeviceResource {
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<DeviceMessageResource> deviceCommandResourceProvider;
     private final Provider<DeviceLabelResource> deviceLabelResourceProvider;
+    private final Provider<ConnectionResource> connectionResourceProvider;
+    private final Provider<CommunicationResource> communicationResourceProvider;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
@@ -91,6 +93,8 @@ public class DeviceResource {
             Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
             Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
             Provider<DeviceMessageResource> deviceCommandResourceProvider,
+            Provider<ConnectionResource> connectionResourceProvider,
+            Provider<CommunicationResource> communicationResourceProvider,
             DeviceMessageSpecificationService deviceMessageSpecificationService,
             DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
             DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory,
@@ -115,6 +119,8 @@ public class DeviceResource {
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
         this.deviceCommandResourceProvider = deviceCommandResourceProvider;
         this.deviceLabelResourceProvider = deviceLabelResourceProvider;
+        this.connectionResourceProvider = connectionResourceProvider;
+        this.communicationResourceProvider = communicationResourceProvider;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
@@ -284,6 +290,16 @@ public class DeviceResource {
     @Path("/{mRID}/devicelabels")
     public DeviceLabelResource getDeviceLabelResource() {
         return deviceLabelResourceProvider.get();
+    }
+    
+    @Path("/{mRID}/connections")
+    public ConnectionResource getConnectionResource() {
+        return connectionResourceProvider.get();
+    }
+    
+    @Path("/{mRID}/communications")
+    public CommunicationResource getCommunicationResource() {
+        return communicationResourceProvider.get();
     }
 
     @GET
