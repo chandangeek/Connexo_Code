@@ -256,7 +256,6 @@ public class DeviceApplication extends Application implements InstallService {
         return Arrays.asList(NlsService.COMPONENTNAME, FavoritesService.COMPONENTNAME);
     }
 
-
     private void createTranslations() {
         try {
             Map<String, Translation> translations = new HashMap<>();
@@ -333,6 +332,7 @@ public class DeviceApplication extends Application implements InstallService {
             bind(taskService).to(TaskService.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(favoritesService).to(FavoritesService.class);
+            bind(topologyService).to(TopologyService.class);
         }
     }
 
