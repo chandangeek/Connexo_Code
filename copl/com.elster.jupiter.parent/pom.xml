@@ -15,10 +15,6 @@
         <url>www.elster.com</url>
     </organization>
 
-    <modules>
-        <module>drools-integration</module>
-    </modules>
-
     <scm>
         <connection>scm:git:ssh://git@source.eict.vpdc/com/elster/jupiter/parent</connection>
     </scm>
