@@ -97,7 +97,7 @@ abstract class EntityImpl implements Entity {
 
     @Override
     public void delete(){
-        dataModel.remove(this);
         eventService.postEvent(deleted().topic(), this);
+        dataModel.remove(this);
     }
 }
