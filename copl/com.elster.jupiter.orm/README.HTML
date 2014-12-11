@@ -3,6 +3,7 @@
 The main interface is DataModel.
 DataModel provides support for both generating the DDL to create the schema, as well for mapping Java objects to tuples
 A DataModel is identified by a unique three letter acronym. This acronym is typically used to prefix all the tables in the DataModel.
+This bundle uses ORM for its own DataModel instance.
 In contrast to persistence units in JPA, DataModels can depend on other DataModels, 
 that is a table in one DataModel can specify a foreign key to a table in an other DataModel.
 The set of all DataModels in an application form a DAG (Directed Acyclic Graph)</p> 
