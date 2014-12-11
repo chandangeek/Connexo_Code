@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
@@ -42,6 +43,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
 
+    private volatile TopologyService topologyService;
     private volatile DeviceService deviceService;
     private volatile DataModel dataModel;
 
@@ -51,13 +53,14 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     // For unit testing
     @Inject
-    public IssueDataCollectionServiceImpl(IssueService issueService, IssueActionService issueActionService, MessageService messageService, NlsService nlsService, OrmService ormService, QueryService queryService, DeviceService deviceService){
+    public IssueDataCollectionServiceImpl(IssueService issueService, IssueActionService issueActionService, MessageService messageService, NlsService nlsService, OrmService ormService, QueryService queryService, TopologyService topologyService, DeviceService deviceService){
         setMessageService(messageService);
         setIssueService(issueService);
         setIssueActionService(issueActionService);
         setNlsService(nlsService);
         setOrmService(ormService);
         setQueryService(queryService);
+        setTopologyService(topologyService);
         setDeviceService(deviceService);
 
         activate();
@@ -76,6 +79,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
                 bind(MessageService.class).toInstance(messageService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(QueryService.class).toInstance(queryService);
+                bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceService.class).toInstance(deviceService);
             }
         });
@@ -121,6 +125,11 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     public DataModel getDataModel(){
         return this.dataModel;
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
     }
 
     @Reference

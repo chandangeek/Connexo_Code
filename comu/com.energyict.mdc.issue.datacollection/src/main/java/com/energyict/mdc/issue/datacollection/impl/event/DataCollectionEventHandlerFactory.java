@@ -13,6 +13,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.google.inject.AbstractModule;
@@ -35,6 +36,7 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     private volatile MeteringService meteringService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile ConnectionTaskService connectionTaskService;
+    private volatile TopologyService topologyService;
     private volatile DeviceService deviceService;
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile Thesaurus thesaurus;
@@ -53,6 +55,7 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
             MeteringService meteringService,
             CommunicationTaskService communicationTaskService,
             ConnectionTaskService connectionTaskService,
+            TopologyService topologyService,
             DeviceService deviceService,
             IssueDataCollectionService issueDataCollectionService,
             NlsService nlsService) {
@@ -63,6 +66,7 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
         setMeteringService(meteringService);
         setCommunicationTaskService(communicationTaskService);
         setConnectionTaskService(connectionTaskService);
+        setTopologyService(topologyService);
         setDeviceService(deviceService);
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
@@ -79,6 +83,7 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
+                bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(IssueCreationService.class).toInstance(issueCreationService);
                 bind(IssueService.class).toInstance(issueService);
@@ -107,14 +112,22 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     public final void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
+
     @Reference
     public final void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
     }
+
     @Reference
     public final void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
         this.connectionTaskService = connectionTaskService;
     }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+
     @Reference
     public final void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
@@ -129,4 +142,5 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     public final void setIssueDataCollectionService(IssueDataCollectionService issueDataCollectionService) {
         this.issueDataCollectionService = issueDataCollectionService;
     }
+
 }

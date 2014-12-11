@@ -47,6 +47,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.model.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -150,7 +151,7 @@ public abstract class BaseTest {
                 new IssuesModule(),
                 new SchedulingModule(),
                 new ProtocolApiModule(),
-
+                new TopologyModule(),
                 new IssueDataCollectionModule()
         );
 
