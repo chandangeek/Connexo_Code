@@ -11,7 +11,9 @@ import java.util.Set;
  */
 class VerboseConstraintViolationException extends ConstraintViolationException {
 
-    public VerboseConstraintViolationException(Set<? extends ConstraintViolation<?>> constraintViolations) {
+	private static final long serialVersionUID = 1L;
+
+	public VerboseConstraintViolationException(Set<? extends ConstraintViolation<?>> constraintViolations) {
         super(buildMessage(constraintViolations), constraintViolations);
     }
 

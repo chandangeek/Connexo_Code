@@ -5,7 +5,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 public abstract class LocalizedException extends BaseException {
 
-    private final Thesaurus thesaurus;
+	private static final long serialVersionUID = 1L;
+	private final Thesaurus thesaurus;
     private final Object[] messageArgs;
 
     protected LocalizedException(Thesaurus thesaurus, MessageSeed messageSeed) {

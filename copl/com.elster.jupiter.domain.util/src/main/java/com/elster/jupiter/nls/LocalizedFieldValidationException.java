@@ -6,7 +6,9 @@ import com.elster.jupiter.util.exception.MessageSeed;
  * LocalizedException that can be linked to a specific field of an Impl
  */
 public class LocalizedFieldValidationException extends RuntimeException{
-    private final MessageSeed messageSeed;
+  
+	private static final long serialVersionUID = 1L;
+	private final MessageSeed messageSeed;
     private final String javaFieldName;
     private final Object[] args;
 
