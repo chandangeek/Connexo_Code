@@ -63,8 +63,7 @@ public class DeviceDiscoveryProtocolsResource {
     public Response deleteDeviceDiscoveryProtocol(@PathParam("id") long id) {
         try {
             this.protocolPluggableService.deleteInboundDeviceProtocolPluggableClass(id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
         return Response.ok().build();
@@ -78,8 +77,7 @@ public class DeviceDiscoveryProtocolsResource {
         try {
             InboundDeviceProtocolPluggableClass pluggableClass = this.protocolPluggableService.newInboundDeviceProtocolPluggableClass(deviceDiscoveryProtocolInfo.name, deviceDiscoveryProtocolInfo.javaClassName);
             return new DeviceDiscoveryProtocolInfo(pluggableClass);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -95,8 +93,7 @@ public class DeviceDiscoveryProtocolsResource {
             pluggableClass.setName(deviceDiscoveryProtocolInfo.name);
             pluggableClass.save();
             return new DeviceDiscoveryProtocolInfo(pluggableClass);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }

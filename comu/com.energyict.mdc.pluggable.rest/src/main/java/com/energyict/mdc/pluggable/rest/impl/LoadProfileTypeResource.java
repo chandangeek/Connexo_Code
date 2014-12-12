@@ -1,8 +1,8 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.device.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
