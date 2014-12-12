@@ -216,8 +216,8 @@ public class SimpleTestSmartMeterProtocol implements SmartMeterProtocol, Message
         return null;  // nothing to do
     }
 
-    @Override
     public String getProtocolDescription() {
         return "";
     }
+
 }

@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
 
 /**
 * Copyrights EnergyICT
@@ -22,6 +23,21 @@ public class TestSerialNumberDeviceIdentifier implements DeviceIdentifier {
     @Override
     public String getIdentifier() {
         return serialNumber;
+    }
+
+    @Override
+    public DeviceIdentifierType getDeviceIdentifierType() {
+        return DeviceIdentifierType.SerialNumber;
+    }
+
+    @Override
+    public String getXmlType() {
+        return null;
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+
     }
 
     @Override

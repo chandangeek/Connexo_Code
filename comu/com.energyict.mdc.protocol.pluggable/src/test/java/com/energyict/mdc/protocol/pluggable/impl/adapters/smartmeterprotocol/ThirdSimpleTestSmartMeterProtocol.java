@@ -152,8 +152,8 @@ public class ThirdSimpleTestSmartMeterProtocol implements SmartMeterProtocol {
     }
 
 
-    @Override
     public String getProtocolDescription() {
         return "";
     }
+
 }

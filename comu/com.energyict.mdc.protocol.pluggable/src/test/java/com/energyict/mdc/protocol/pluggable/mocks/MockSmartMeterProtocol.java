@@ -2,13 +2,11 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.Register;
@@ -24,7 +22,6 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
@@ -45,12 +42,12 @@ import java.util.logging.Logger;
 public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecuritySupport, DeviceMessageSupport {
 
     @Override
-    public RegisterInfo translateRegister(Register register) throws IOException {
+    public RegisterInfo translateRegister(Register register) {
         return null;
     }
 
     @Override
-    public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
+    public List<RegisterValue> readRegisters(List<Register> registers) {
         return null;
     }
 
@@ -115,51 +112,50 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
     }
 
     @Override
-    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
+    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
 
     }
 
     @Override
-    public void connect() throws IOException {
+    public void connect() {
 
     }
 
     @Override
-    public void disconnect() throws IOException {
+    public void disconnect() {
 
     }
 
     @Override
-    public String getFirmwareVersion() throws IOException {
+    public String getFirmwareVersion() {
         return "1.0.0-SNAPSHOT";
     }
 
     @Override
-    public String getMeterSerialNumber() throws IOException {
+    public String getMeterSerialNumber() {
         return null;
     }
 
     @Override
-    public Date getTime() throws IOException {
+    public Date getTime() {
         return null;
     }
 
     @Override
-    public void setTime(Date newMeterTime) throws IOException {
+    public void setTime(Date newMeterTime) {
 
     }
 
     @Override
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() {
 
     }
 
     @Override
-    public void release() throws IOException {
+    public void release() {
 
     }
 
-    @Override
     public String getProtocolDescription() {
         return null;
     }
@@ -190,17 +186,17 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
     }
 
     @Override
-    public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
+    public List<MeterEvent> getMeterEvents(Date lastLogbookDate) {
         return null;
     }
 
     @Override
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
+    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         return null;
     }
 
     @Override
-    public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
+    public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         return null;
     }
 
@@ -213,4 +209,5 @@ public class MockSmartMeterProtocol implements SmartMeterProtocol, DeviceSecurit
     public void addProperties(TypedProperties properties) {
 
     }
+
 }
