@@ -4,10 +4,11 @@ import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.LoadProfileIdentifierType;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,6 +40,26 @@ public class LoadProfileDataIdentifier implements LoadProfileIdentifier {
             this.findAndValidateLoadProfileExists();
         }
         return loadProfile;
+    }
+
+    @Override
+    public LoadProfileIdentifierType getLoadProfileIdentifierType() {
+        return LoadProfileIdentifierType.DeviceIdentifierAndObisCode;
+    }
+
+    @Override
+    public List<Object> getIdentifier() {
+        return Arrays.asList(this.deviceIdentifier, this.loadProfileObisCode);
+    }
+
+    @Override
+    public String getXmlType() {
+        return null;
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+
     }
 
     private void findAndValidateLoadProfileExists () {
