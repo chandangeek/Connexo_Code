@@ -581,6 +581,7 @@
                 <module>../com.elster.jupiter.soap.whiteboard</module>
                 <module>../com.elster.jupiter.soap.whiteboard.cxf</module>
                 <module>../com.elster.jupiter.system.app</module>
+				<module>../com.elster.jupiter.system.app.help</module>
                 <module>../com.elster.jupiter.systemadmin</module>
                 <module>../com.elster.jupiter.systemadmin.extjs</module>
                 <module>../com.elster.jupiter.systemadmin.rest</module>
