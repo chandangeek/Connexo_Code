@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.transaction.TransactionService;
@@ -17,6 +18,17 @@ public class FakeTransactionService implements TransactionService {
     @Override
     public <T> T execute(Transaction<T> transaction) {
         return transaction.perform();
+    }
+
+    @Override
+    public TransactionEvent run(Runnable transaction) {
+        transaction.run();
+        return new TransactionEvent(true, new StopWatch(false), 0, 0);
+    }
+
+    @Override
+    public TransactionBuilder builder() {
+        return null;
     }
 
     @Override
