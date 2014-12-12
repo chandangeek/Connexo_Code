@@ -5,10 +5,7 @@ import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
@@ -42,14 +39,6 @@ public class YellowfinApplication extends Application implements BinderProvider{
     @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
     public void setLicense(License license) {
         this.license = license;
-    }
-
-    @Activate
-    public void activate(ComponentContext context) {
-    }
-
-    @Deactivate
-    public void deactivate(ComponentContext context) {
     }
 
     @Override
