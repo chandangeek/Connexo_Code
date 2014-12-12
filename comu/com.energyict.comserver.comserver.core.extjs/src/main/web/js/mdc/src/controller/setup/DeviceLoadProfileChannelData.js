@@ -15,7 +15,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
     stores: [
         'Mdc.store.ChannelOfLoadProfileOfDeviceData',
         'Mdc.store.DataIntervalAndZoomLevels',
-        'Mdc.store.LoadProfileDataDurations'
+        'Mdc.store.LoadProfileDataDurations',
+        'Mdc.store.Clipboard'
     ],
 
     refs: [
@@ -137,8 +138,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                         viewOnlySuspects;
                     durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
                     tabWidget = Ext.widget('tabbedDeviceChannelsView', {
-                        router: me.getController('Uni.controller.history.Router'),
-                        device: device
+                        router: router,
+                        device: device,
+                        channelsListLink: me.makeLinkToList(router)
                     });
 
                     widget = Ext.widget('deviceLoadProfileChannelData', {
@@ -183,6 +185,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
                 });
             }
         });
+    },
+
+    makeLinkToList: function (router) {
+        var link = '<a href="{0}">' + Uni.I18n.translate('deviceloadprofiles.channels', 'MDC', 'Channels').toLowerCase() + '</a>',
+            filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter'),
+            queryParams = filter ? {filter: filter} : null;
+
+        return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl(null, queryParams));
     },
 
     showGraphView: function (channelRecord) {

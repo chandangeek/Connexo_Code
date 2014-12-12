@@ -18,7 +18,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
 
     stores: [
         'Mdc.store.ChannelsOfLoadProfilesOfDevice',
-        'TimeUnits'
+        'TimeUnits',
+        'Mdc.store.Clipboard'
     ],
 
     refs: [
@@ -77,6 +78,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
                     }
                 });
             };
+        me.getStore('Mdc.store.Clipboard').set('latest-device-channels-filter', router.queryParams.filter);
         me.mRID = mRID;
         loadProfilesStore.getProxy().setUrl(mRID);
         channelsOfLoadProfilesOfDeviceStore.setFilterModel(router.filter);

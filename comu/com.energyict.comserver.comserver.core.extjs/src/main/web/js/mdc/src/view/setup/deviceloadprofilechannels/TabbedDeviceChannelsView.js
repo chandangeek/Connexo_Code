@@ -3,8 +3,11 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.TabbedDeviceChannelsView', 
     alias: 'widget.tabbedDeviceChannelsView',
     itemId: 'tabbedDeviceChannelsView',
     requires: [
+        'Uni.view.toolbar.PreviousNextNavigation',
         'Mdc.view.setup.deviceloadprofilechannels.SideFilter'
     ],
+    router: null,
+    channelsListLink: null,
     initComponent: function () {
         var me = this;
         me.content = [
@@ -24,19 +27,19 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.TabbedDeviceChannelsView', 
                 listeners: {
                     afterrender: function(panel){
                         var bar = panel.tabBar;
-//                        bar.insert(2,[
-//                            {
-//                                xtype: 'tbfill'
-//                            },
-//                            {
-//                                xtype: 'previous-next-navigation-toolbar',
-//                                itemId: 'tabbed-device-register-view-previous-next-navigation-toolbar',
-//                                store: 'RegisterConfigsOfDevice',
-//                                router: me.router,
-//                                routerIdArgument: 'registerId',
-//                                itemsName: '<a href="' + me.router.getRoute('devices/device/registers').buildUrl() + '">' + Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers').toLowerCase() + '</a>'
-//                            }
-//                        ]);
+                        bar.insert(2,[
+                            {
+                                xtype: 'tbfill'
+                            },
+                            {
+                                xtype: 'previous-next-navigation-toolbar',
+                                itemId: 'tabbed-device-channels-view-previous-next-navigation-toolbar',
+                                store: 'Mdc.store.ChannelsOfLoadProfilesOfDevice',
+                                router: me.router,
+                                routerIdArgument: 'channelId',
+                                itemsName: me.channelsListLink
+                            }
+                        ]);
                     }
                 }
             }
