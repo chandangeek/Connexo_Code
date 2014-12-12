@@ -66,7 +66,7 @@ public class SchedulingResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE, Privileges.VIEW_SCHEDULE})
+    @RolesAllowed({Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public PagedInfoList getSchedules(@BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         String mrid = queryFilter.hasProperty("mrid") ? queryFilter.getString("mrid") : null;
         boolean available = queryFilter.hasProperty("available") ? queryFilter.getBoolean("available") : false;
@@ -199,7 +199,7 @@ public class SchedulingResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE, Privileges.VIEW_SCHEDULE})
+    @RolesAllowed({Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public ComScheduleInfo getSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         return ComScheduleInfo.from(comSchedule, isInUse(comSchedule));
@@ -216,7 +216,7 @@ public class SchedulingResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_SCHEDULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
                 comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate.toInstant()).mrid(comScheduleInfo.mRID).build();
@@ -230,7 +230,7 @@ public class SchedulingResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_SCHEDULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public Response deleteSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         if (this.isInUse(comSchedule)) {
@@ -244,7 +244,7 @@ public class SchedulingResource {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_SCHEDULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public ComScheduleInfo updateSchedules(@PathParam("id") long id, ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         comSchedule.setName(comScheduleInfo.name);
@@ -286,7 +286,7 @@ public class SchedulingResource {
     @GET
     @Path("/{id}/comTasks")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_SCHEDULE, Privileges.VIEW_SCHEDULE})
+    @RolesAllowed({Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public Response getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
         ComSchedule comSchedule = findComScheduleOrThrowException(id);
         if (queryFilter.hasProperty("available") && queryFilter.getBoolean("available")) {
@@ -300,7 +300,7 @@ public class SchedulingResource {
     @Path("/preview")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_SCHEDULE)
+    @RolesAllowed(Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public Response generatePreviewForSchedule(PreviewInfo previewInfo) {
         if (previewInfo.temporalExpression == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.CAN_NOT_BE_EMPTY, "temporalExpression");
