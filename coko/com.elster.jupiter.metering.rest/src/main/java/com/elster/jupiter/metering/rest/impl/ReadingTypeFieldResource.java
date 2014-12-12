@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 
 import javax.inject.Inject;
@@ -12,6 +13,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -22,10 +24,12 @@ import java.util.stream.Collectors;
 public class ReadingTypeFieldResource {
 
     private final MeteringService meteringService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public ReadingTypeFieldResource(MeteringService meteringService) {
+    public ReadingTypeFieldResource(MeteringService meteringService, Thesaurus thesaurus) {
         this.meteringService = meteringService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -48,12 +52,12 @@ public class ReadingTypeFieldResource {
     @Produces(MediaType.APPLICATION_JSON)
     public IntervalFieldInfos getIntervals() {
         IntervalFieldInfos intervalFieldInfos = new IntervalFieldInfos();
-        Set<TimeAttribute> timeAttributes = meteringService.getAvailableReadingTypes().stream().
-                filter(rt -> rt.getMeasuringPeriod().isApplicable()).map(ReadingType::getMeasuringPeriod).
-                collect(Collectors.<TimeAttribute>toSet());
-        for (TimeAttribute ta : timeAttributes) {
-            intervalFieldInfos.add(ta);
-        }
+        Set<TimeAttribute> timeAttributes = meteringService.getAvailableReadingTypes().stream()
+                .map(ReadingType::getMeasuringPeriod)
+                .collect(Collectors.<TimeAttribute>toSet());
+        timeAttributes.stream()
+                .sorted((ta1, ta2) -> Integer.compare(ta1.getMinutes(), ta2.getMinutes()))
+                .forEach(ta -> intervalFieldInfos.add(ta.getId(), thesaurus.getString(MessageSeeds.Keys.TIME_ATTRIBUTE_KEY_PREFIX + ta.getId(), ta.getDescription())));
         return intervalFieldInfos;
     }
 
