@@ -8,7 +8,9 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Setup', {
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.deviceloadprofilechannels.Grid',
-        'Mdc.view.setup.deviceloadprofilechannels.Preview'
+        'Mdc.view.setup.deviceloadprofilechannels.Preview',
+        'Mdc.view.setup.deviceloadprofilechannels.ChannelsFilter'
+
     ],
 
     initComponent: function () {
@@ -28,6 +30,9 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Setup', {
                         mRID: me.mRID
                     }
                 ]
+            },
+            {
+                xtype: 'device-channels-filter'
             }
         ];
 
@@ -47,7 +52,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Setup', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('deviceloadprofilechannels.empty.title', 'MDC', 'No channels found'),
                         reasons: [
-                            Uni.I18n.translate('deviceloadprofilechannels.empty.list.item1', 'MDC', 'No channels have been defined yet.')
+                            Uni.I18n.translate('deviceloadprofilechannels.empty.list.item1', 'MDC', 'No channels have been defined yet.'),
+                            Uni.I18n.translate('deviceloadprofilechannels.empty.list.item2', 'MDC', 'No channels comply to the filter.')
                         ]
                     },
                     previewComponent: {

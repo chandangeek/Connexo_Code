@@ -934,7 +934,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'topology',
                             controller: 'Mdc.controller.setup.DeviceTopology',
                             privileges: ['privilege.view.device', 'privilege.administrate.device'],
-                            filter: 'Mdc.model.TopologyFilter',
+                            channels: 'Mdc.model.TopologyFilter',
                             action: 'showTopologyView'
                         },
 
@@ -1160,6 +1160,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceLoadProfileChannels',
                             privileges: ['privilege.administrate.device','privilege.view.device'],
                             action: 'showOverview',
+                            filter: 'Mdc.model.filter.DeviceChannelsFilter',
                             items: {
                                 channel: {
                                     title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
