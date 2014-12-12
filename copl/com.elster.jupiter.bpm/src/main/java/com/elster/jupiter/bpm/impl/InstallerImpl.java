@@ -18,7 +18,6 @@ public class InstallerImpl {
 
     public void install(MessageService messageService, AppService appService, UserService userService) {
         createPrivileges(userService);
-        assignPrivilegesToDefaultRoles(userService);
         createBPMQueue(messageService);
     }
 
@@ -35,12 +34,6 @@ public class InstallerImpl {
 
     private void createPrivileges(UserService userService) {
         userService.createResourceWithPrivileges("SYS", "bpm.businessProcesses", "bpm.businessProcesses.description", new String[] {Privileges.VIEW_BPM});
-    }
-
-    private void assignPrivilegesToDefaultRoles(UserService userService) {
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, new String[] {Privileges.VIEW_BPM});
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.VIEW_BPM});
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_BPM});
     }
 
 }
