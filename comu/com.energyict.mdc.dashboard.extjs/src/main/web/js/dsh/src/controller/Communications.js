@@ -126,7 +126,7 @@ Ext.define('Dsh.controller.Communications', {
         this.getCommunicationsGridActionMenu().menu.add(menuItems);
         this.getCommunicationPreviewActionMenu().menu.add(menuItems);
 
-        if(record.get('connectionTask').comSessionId!==0){
+        if (record.get('connectionTask').comSessionId !== 0) {
             this.getConnectionsPreviewActionBtn().menu.add(connectionMenuItem);
         }
 
@@ -139,7 +139,7 @@ Ext.define('Dsh.controller.Communications', {
             connPreview = me.getConnectionPreview(),
             record = selected[0],
             menuItems = [];
-        if (record ) {
+        if (record) {
             this.initMenu(record, menuItems, me);
             preview.loadRecord(record);
             preview.setTitle(record.get('name') + ' on ' + record.get('device').name);
@@ -154,15 +154,15 @@ Ext.define('Dsh.controller.Communications', {
         }
     },
 
-    viewCommunicationLog: function(item){
+    viewCommunicationLog: function (item) {
         location.href = '#/devices/' + item.action.comTask.mRID
-            + '/communicationtasks/' +  item.action.comTask.comTaskId
-            + '/history/' +  item.action.comTask.sessionId
+            + '/communicationtasks/' + item.action.comTask.comTaskId
+            + '/history/' + item.action.comTask.sessionId
             + '/viewlog' +
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },
 
-    viewConnectionLog: function(item){
+    viewConnectionLog: function (item) {
         location.href = '#/devices/' + item.action.connection.mRID + '/connectionmethods/' + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog' +
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
     }
