@@ -176,7 +176,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
         return new Class<?>[]{InvalidateCacheRequest.class};
     }
 
-    Thesaurus getThesaurus() {
+    public Thesaurus getThesaurus() {
         return thesaurus;
     }
 

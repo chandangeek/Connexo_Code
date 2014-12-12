@@ -104,7 +104,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     private Thesaurus getThesaurus() {
-        return ((AppServiceImpl) appService).getThesaurus();
+        return ((IAppService) appService).getThesaurus();
     }
 
     @Deactivate

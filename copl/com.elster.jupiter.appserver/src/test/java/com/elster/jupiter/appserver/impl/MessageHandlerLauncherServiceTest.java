@@ -1,9 +1,9 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -11,6 +11,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Registration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,12 +38,13 @@ public class MessageHandlerLauncherServiceTest {
     private static final String SUBSCRIBER = "Subscriber";
     private static final String BATCH_EXECUTOR = "batch executor";
     private static final String NAME = "name";
+    public static final String DESTINATION = "destination";
     private MessageHandlerLauncherService messageHandlerLauncherService;
 
     @Mock
     private MessageHandlerFactory factory;
     @Mock
-    private AppService appService;
+    private IAppService appService;
     @Mock
     private SubscriberSpec subscriberSpec;
     @Mock
@@ -62,6 +64,10 @@ public class MessageHandlerLauncherServiceTest {
     private ComponentContext context;
     @Mock
     private AppServer appServer;
+    @Mock
+    private DestinationSpec destination;
+    @Mock
+    private Registration registration;
 
     @Before
     public void setUp() {
@@ -69,10 +75,13 @@ public class MessageHandlerLauncherServiceTest {
         when(subscriberExecutionSpec.getSubscriberSpec()).thenReturn(subscriberSpec);
         when(subscriberSpec.getName()).thenReturn(SUBSCRIBER);
         when(subscriberSpec.receive()).thenReturn(message);
+        when(subscriberSpec.getDestination()).thenReturn(destination);
+        when(destination.getName()).thenReturn(DESTINATION);
         when(subscriberExecutionSpec.getThreadCount()).thenReturn(1);
         when(userService.findUser(BATCH_EXECUTOR)).thenReturn(Optional.of(user));
         when(factory.newMessageHandler()).thenReturn(handler);
         when(appServer.getName()).thenReturn(NAME);
+        when(appService.addCommandListener(any())).thenReturn(registration);
 
         transactionService = new TransactionVerifier(handler);
 
@@ -92,6 +101,7 @@ public class MessageHandlerLauncherServiceTest {
 
         Map<String, Object> map = new HashMap<>();
         map.put("subscriber", SUBSCRIBER);
+        map.put("destination", DESTINATION);
 
         messageHandlerLauncherService.addResource(factory, map);
 
@@ -115,6 +125,7 @@ public class MessageHandlerLauncherServiceTest {
 
         Map<String, Object> map = new HashMap<>();
         map.put("subscriber", SUBSCRIBER);
+        map.put("destination", DESTINATION);
 
         try {
             messageHandlerLauncherService.activate();
@@ -149,6 +160,7 @@ public class MessageHandlerLauncherServiceTest {
 
         Map<String, Object> map = new HashMap<>();
         map.put("subscriber", SUBSCRIBER);
+        map.put("destination", DESTINATION);
 
         try {
             messageHandlerLauncherService.activate();
@@ -179,13 +191,18 @@ public class MessageHandlerLauncherServiceTest {
             @Override
             public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
                 arrivalLatch.countDown();
-                waitForCancel.await();
+                try {
+                    waitForCancel.await();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
                 return null;
             }
         }).when(handler).process(message);
 
         Map<String, Object> map = new HashMap<>();
         map.put("subscriber", SUBSCRIBER);
+        map.put("destination", DESTINATION);
 
         try {
             messageHandlerLauncherService.activate();

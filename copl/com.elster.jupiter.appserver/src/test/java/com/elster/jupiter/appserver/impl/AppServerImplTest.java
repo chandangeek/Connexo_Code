@@ -16,15 +16,16 @@ import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -44,7 +45,7 @@ public class AppServerImplTest {
     private DataMapper<SubscriberExecutionSpec> subscriberExecutionSpecFactory;
     @Mock
     private CronExpression cronExpression;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DestinationSpec destination;
     @Mock
     private SubscriberExecutionSpec exSpec1, exSpec2;
@@ -73,6 +74,7 @@ public class AppServerImplTest {
         when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, messageService, jsonService, thesaurus));
         when(dataModel.getInstance(SubscriberExecutionSpecImpl.class)).thenReturn(new SubscriberExecutionSpecImpl(dataModel, messageService));
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
+        when(messageService.getDestinationSpec(any())).thenReturn(Optional.of(destination));
 
         appServer = AppServerImpl.from(dataModel, NAME, cronExpression);
     }
