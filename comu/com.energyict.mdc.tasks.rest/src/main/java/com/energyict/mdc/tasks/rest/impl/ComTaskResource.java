@@ -11,16 +11,29 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
-import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -160,7 +173,7 @@ public class ComTaskResource {
         String availableFor = uriInfo.getQueryParameters().getFirst("availableFor");
         if (availableFor != null) {
             ComTask comTask = taskService.findComTask(Long.parseLong(availableFor)).orElse(null);
-            if (comTask != null){
+            if (comTask != null) {
                 List<Integer> categoriesInComTask = getMessageCategoriesIdsInComTask(comTask);
                 messageCategoriesStream = messageCategoriesStream.filter(obj -> !categoriesInComTask.contains(obj.getId()));
             }
@@ -175,7 +188,7 @@ public class ComTaskResource {
     private List<Integer> getMessageCategoriesIdsInComTask(ComTask comTask) {
         List<Integer> categoriesInComTask = new ArrayList<>();
         for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
-            if (protocolTask instanceof MessagesTask){
+            if (protocolTask instanceof MessagesTask) {
                 MessagesTask task = (MessagesTask) protocolTask;
                 categoriesInComTask.addAll(task.getDeviceMessageCategories().stream().map(cat -> cat.getId()).collect(Collectors.toList()));
             }
