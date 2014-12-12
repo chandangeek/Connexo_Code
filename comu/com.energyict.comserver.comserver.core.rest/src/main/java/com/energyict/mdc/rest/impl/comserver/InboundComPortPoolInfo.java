@@ -20,7 +20,9 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
     @Override
     protected InboundComPortPool writeTo(InboundComPortPool source, ProtocolPluggableService protocolPluggableService) {
         super.writeTo(source, protocolPluggableService);
-        protocolPluggableService.findInboundDeviceProtocolPluggableClass(this.discoveryProtocolPluggableClassId).ifPresent(source::setDiscoveryProtocolPluggableClass);
+        if (discoveryProtocolPluggableClassId != null) {
+            protocolPluggableService.findInboundDeviceProtocolPluggableClass(this.discoveryProtocolPluggableClassId).ifPresent(source::setDiscoveryProtocolPluggableClass);
+        }
         return source;
     }
 
