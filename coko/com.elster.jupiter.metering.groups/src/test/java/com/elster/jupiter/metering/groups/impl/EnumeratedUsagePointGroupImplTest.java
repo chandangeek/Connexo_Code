@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.groups.UsagePointMembership;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.RangeSets;
+import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 
 import org.junit.After;
@@ -64,8 +65,10 @@ public class EnumeratedUsagePointGroupImplTest {
 
         assertThat(members).hasSize(1);
         UsagePointMembership usagePointMembership = members.get(0);
-        assertThat(usagePointMembership.getRanges()).isEqualTo(RangeSets.of(range(instant(2013, 2, 12), instant(2013, 2, 14)),
-                range(instant(2013, 2, 20), instant(2013, 2, 27))));
+        assertThat(usagePointMembership.getRanges()).isEqualTo(ImmutableRangeSet.<Instant>builder()
+        		.add(range(instant(2013, 2, 12), instant(2013, 2, 14)))
+                .add(range(instant(2013, 2, 20), instant(2013, 2, 27)))
+                .build());
         assertThat(usagePointMembership.getUsagePoint()).isEqualTo(usagePoint);
 
     }

@@ -1,14 +1,15 @@
 package com.elster.jupiter.metering.groups.impl.query;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 import com.elster.jupiter.metering.groups.impl.QueryBuilderOperation;
-import com.elster.jupiter.util.collections.ArrayStack;
-import com.elster.jupiter.util.collections.Stack;
 import com.elster.jupiter.util.conditions.Condition;
 
 class ConditionBuilderVisitor implements OperationVisitor {
 
-    private final Stack<Condition> current = new ArrayStack<>();
-    private final Stack<QueryBuilderOperation> stack = new ArrayStack<>();
+    private final Deque<Condition> current = new ArrayDeque<>();
+    private final Deque<QueryBuilderOperation> stack = new ArrayDeque<>();
 
     @Override
     public void visitBooleanOperation(BooleanOperation booleanOperation) {
