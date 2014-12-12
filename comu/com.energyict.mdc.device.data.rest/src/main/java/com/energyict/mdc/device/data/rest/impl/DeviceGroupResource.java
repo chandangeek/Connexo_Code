@@ -86,7 +86,7 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
     public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext));
+        return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext), deviceConfigurationService);
     }
 
     private EndDeviceGroup fetchDeviceGroup(long id, @Context SecurityContext securityContext) {
@@ -127,7 +127,7 @@ public class DeviceGroupResource {
         }
         RestQuery<EndDeviceGroup> restQuery = restQueryService.wrap(query);
         List<EndDeviceGroup> allDeviceGroups = restQuery.select(koreQueryParameters, Order.ascending("upper(name)"));
-        List<DeviceGroupInfo> deviceGroupInfos = DeviceGroupInfo.from(allDeviceGroups);
+        List<DeviceGroupInfo> deviceGroupInfos = DeviceGroupInfo.from(allDeviceGroups, deviceConfigurationService);
         return PagedInfoList.asJson("devicegroups", deviceGroupInfos, queryParameters);
     }
 
@@ -153,7 +153,7 @@ public class DeviceGroupResource {
             syncListWithInfo((EnumeratedEndDeviceGroup) endDeviceGroup, deviceGroupInfo);
         }
         endDeviceGroup.save();
-        return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup)).build();
+        return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup, deviceConfigurationService)).build();
     }
 
     @DELETE

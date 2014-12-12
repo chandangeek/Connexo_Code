@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,20 +14,20 @@ public class DeviceGroupInfos {
     public DeviceGroupInfos() {
     }
 
-    public DeviceGroupInfos(Iterable<? extends EndDeviceGroup> deviceGroups) {
-        addAll(deviceGroups);
+    public DeviceGroupInfos(Iterable<? extends EndDeviceGroup> deviceGroups, DeviceConfigurationService deviceConfigurationService) {
+        addAll(deviceGroups, deviceConfigurationService);
     }
 
-    public DeviceGroupInfo add(EndDeviceGroup endDeviceGroup) {
-        DeviceGroupInfo result = DeviceGroupInfo.from(endDeviceGroup);
+    public DeviceGroupInfo add(EndDeviceGroup endDeviceGroup, DeviceConfigurationService deviceConfigurationService) {
+        DeviceGroupInfo result = DeviceGroupInfo.from(endDeviceGroup, deviceConfigurationService);
         deviceGroups.add(result);
         total++;
         return result;
     }
 
-    public void addAll(Iterable<? extends EndDeviceGroup> deviceGroups) {
+    public void addAll(Iterable<? extends EndDeviceGroup> deviceGroups, DeviceConfigurationService deviceConfigurationService) {
         for (EndDeviceGroup each : deviceGroups) {
-            add(each);
+            add(each, deviceConfigurationService);
         }
     }
 }
