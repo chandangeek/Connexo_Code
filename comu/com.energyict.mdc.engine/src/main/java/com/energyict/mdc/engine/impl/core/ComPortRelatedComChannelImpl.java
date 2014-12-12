@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 import com.elster.jupiter.util.time.StopWatch;
@@ -241,6 +242,11 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     @Override
     public TypedProperties getProperties() {
         return comChannel.getProperties();
+    }
+
+    @Override
+    public ComChannelType getComChannelType() {
+        return comChannel.getComChannelType();
     }
 
     @Override

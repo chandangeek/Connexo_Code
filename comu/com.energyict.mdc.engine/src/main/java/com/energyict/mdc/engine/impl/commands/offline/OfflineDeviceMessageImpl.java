@@ -121,4 +121,9 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     public List<OfflineDeviceMessageAttribute> getDeviceMessageAttributes() {
         return this.deviceMessageAttributes;
     }
+
+    @Override
+    public String getDeviceSerialNumber() {
+        return this.deviceSerialNumber;
+    }
 }

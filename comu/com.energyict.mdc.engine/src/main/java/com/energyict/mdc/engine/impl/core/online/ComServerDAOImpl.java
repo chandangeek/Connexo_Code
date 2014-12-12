@@ -68,6 +68,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.sql.Fetcher;
 
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -288,6 +289,15 @@ public class ComServerDAOImpl implements ComServerDAO {
         // serverConnectionTask.updateProperties(properties);
         // add/remove/update properties
     }
+
+    @Override
+    public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+        final BaseDevice device = deviceIdentifier.findDevice();
+        Device deviceById = getDeviceDataService().findDeviceById(device.getId());
+        deviceById.setProtocolProperty(propertyName, propertyValue);
+        deviceById.save();
+    }
+
 
     @Override
     public void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {

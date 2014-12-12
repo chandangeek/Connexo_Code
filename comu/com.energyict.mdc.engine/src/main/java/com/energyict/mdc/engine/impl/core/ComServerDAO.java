@@ -313,6 +313,18 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     public void updateIpAddress (String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName);
 
     /**
+     * Updates a protocol property of the BaseDevice
+     * that is uniquely identified by the specified identifier with the given value
+     *
+     * @param deviceIdentifier The DeviceIdentifier
+     * @param propertyName     The name of the generic communication property
+     * @param propertyValue    The new property value
+     */
+    public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
+
+    /**
+
+    /**
      * Updates the gateway device of the BaseDevice device
      * that is uniquely identified by the specified identifier
      *

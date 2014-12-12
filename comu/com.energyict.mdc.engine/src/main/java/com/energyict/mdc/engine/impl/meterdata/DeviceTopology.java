@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDevic
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
@@ -41,6 +42,11 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     private ComTaskExecution comTaskExecution;
 
     /**
+     * A list containing additional info that is collected for (some of) the devices
+     */
+    private List<CollectedDeviceInfo> additionalCollectedDeviceInfo;
+
+    /**
      * Default constructor
      *
      * @param deviceIdentifier unique identification of the device which need s to update his cache
@@ -49,12 +55,14 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
         super();
         this.deviceIdentifier = deviceIdentifier;
         this.slaveDeviceIdentifiers = new ArrayList<>();
+        this.additionalCollectedDeviceInfo = new ArrayList<>();
     }
 
     public DeviceTopology(DeviceIdentifier deviceIdentifier, List<DeviceIdentifier> slaveDeviceIdentifiers) {
         super();
         this.deviceIdentifier = deviceIdentifier;
         this.slaveDeviceIdentifiers = slaveDeviceIdentifiers;
+        this.additionalCollectedDeviceInfo = new ArrayList<>();
     }
 
     @Override
@@ -89,6 +97,16 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     @Override
     public void removeSlaveDevice(DeviceIdentifier slaveIdentifier) {
         slaveDeviceIdentifiers.remove(slaveIdentifier);
+    }
+
+    @Override
+    public List<CollectedDeviceInfo> getAdditionalCollectedDeviceInfo() {
+        return additionalCollectedDeviceInfo;
+    }
+
+    @Override
+    public void addAdditionalCollectedDeviceInfo(CollectedDeviceInfo additionalDeviceInfo) {
+        additionalCollectedDeviceInfo.add(additionalDeviceInfo);
     }
 
     @Override

@@ -1,12 +1,14 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceCache;
+import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -78,6 +80,16 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
+    public CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile) {
+        return new DeviceProtocolMessageWithCollectedLoadProfileData(messageIdentifier, collectedLoadProfile);
+    }
+
+    @Override
+    public CollectedMessage createCollectedMessageWithRegisterData(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CollectedRegister> collectedRegisters) {
+        return new DeviceProtocolMessageWithCollectedRegisterData(deviceIdentifier, messageIdentifier, collectedRegisters);
+    }
+
+    @Override
     public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier) {
         return new UpdatedDeviceCache(deviceIdentifier);
     }
@@ -120,4 +132,8 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
         return new DeviceIpAddress(deviceIdentifier, ipAddress, ipAddressPropertyName);
     }
 
+    @Override
+    public CollectedDeviceInfo createCollectedDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, PropertySpec propertySpec, Object propertyValue) {
+        return new DeviceProtocolProperty(deviceIdentifier, propertySpec, propertyValue);
+    }
 }

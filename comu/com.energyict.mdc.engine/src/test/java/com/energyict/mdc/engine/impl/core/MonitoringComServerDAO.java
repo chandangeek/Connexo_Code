@@ -441,6 +441,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+        }
+
+        @Override
         public void storeConfigurationFile (DeviceIdentifier deviceIdentifier, DateFormat timeStampFormat, String fileExtension, byte[] contents) {
             // No implementation required
         }
@@ -536,6 +541,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     @Override
     public void updateIpAddress (String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
         // Not updating device ip address in monitoring mode
+    }
+
+    @Override
+    public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
     }
 
     @Override
