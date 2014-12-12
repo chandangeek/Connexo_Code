@@ -5,13 +5,13 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.engine.model.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -52,7 +52,7 @@ public class DeviceCommunicationProtocolsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL, Privileges.VIEW_PROTOCOL})
+    @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getDeviceCommunicationProtocols(@Context UriInfo uriInfo, @BeanParam QueryParameters queryParameters) {
         List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = this.protocolPluggableService.findAllDeviceProtocolPluggableClasses().from(queryParameters).find();
         List<DeviceCommunicationProtocolInfo> deviceCommunicationProtocolInfos = new ArrayList<>(deviceProtocolPluggableClasses.size());
@@ -66,7 +66,7 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL, Privileges.VIEW_PROTOCOL})
+    @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@Context UriInfo uriInfo, @PathParam("id") long id) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = findDeviceProtocolPluggableClassOrThrowException(id);
         LicensedProtocol licensedProtocol = this.protocolPluggableService.findLicensedProtocolFor(deviceProtocolPluggableClass);
@@ -76,7 +76,7 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Path("/connectiontypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL, Privileges.VIEW_PROTOCOL})
+    @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.ADMINISTRATE_DEVICE_TYPE})
     public List<ConnectionTypeInfo> getAllConnectionTypes(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter queryFilter) {
         return this.protocolPluggableService.findAllConnectionTypePluggableClasses().stream()
                 .map(p -> ConnectionTypeInfo.from(p, uriInfo, mdcPropertyUtils))
@@ -86,7 +86,7 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Path("/{deviceProtocolId}/connectiontypes")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL, Privileges.VIEW_PROTOCOL})
+    @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.ADMINISTRATE_DEVICE_TYPE})
     public List<ConnectionTypeInfo> getSupportedConnectionTypes(@PathParam("deviceProtocolId") long deviceProtocolId, @Context UriInfo uriInfo, @BeanParam JsonQueryFilter queryFilter) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = findDeviceProtocolPluggableClassOrThrowException(deviceProtocolId);
         List<ConnectionType> supportedConnectionTypes = deviceProtocolPluggableClass.getDeviceProtocol().getSupportedConnectionTypes();
@@ -108,7 +108,7 @@ public class DeviceCommunicationProtocolsResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
+    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response deleteDeviceCommunicationProtocol(@PathParam("id") long id) {
         try {
             this.protocolPluggableService.deleteDeviceProtocolPluggableClass(id);
@@ -121,7 +121,7 @@ public class DeviceCommunicationProtocolsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
+    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public DeviceCommunicationProtocolInfo createDeviceCommunicationProtocol(@Context final UriInfo uriInfo, final DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) throws WebApplicationException {
         try {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass =
@@ -141,7 +141,7 @@ public class DeviceCommunicationProtocolsResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
+    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public DeviceCommunicationProtocolInfo updateDeviceCommunicationProtocol(@Context final UriInfo uriInfo, @PathParam("id") final long id, final DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) {
         try {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = findDeviceProtocolPluggableClassOrThrowException(id);

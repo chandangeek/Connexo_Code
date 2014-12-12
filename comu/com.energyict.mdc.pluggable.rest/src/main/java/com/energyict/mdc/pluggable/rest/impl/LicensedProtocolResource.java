@@ -27,7 +27,6 @@ public class LicensedProtocolResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
     public LicensedProtocolsInfo getLicensedProtocolInfos(){
         LicensedProtocolsInfo licensedProtocolsInfo = new LicensedProtocolsInfo();
         for (LicensedProtocol licensedProtocol : this.protocolPluggableService.getAllLicensedProtocols()) {
