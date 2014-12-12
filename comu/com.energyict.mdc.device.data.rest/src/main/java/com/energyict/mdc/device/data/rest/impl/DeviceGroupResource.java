@@ -44,9 +44,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -101,10 +101,10 @@ public class DeviceGroupResource {
         EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId, securityContext);
         List<? extends EndDevice> allEndDevices = endDeviceGroup.getMembers(Instant.now());
         List<? extends EndDevice> endDevices =
-            ListPager.of(allEndDevices).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+                ListPager.of(allEndDevices).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
 
         List<Device> devices = new ArrayList<Device>();
-        for (EndDevice endDevice: endDevices) {
+        for (EndDevice endDevice : endDevices) {
             devices.add(deviceService.findDeviceById(endDevice.getId()));
         }
         //List<Device> subList = devices.subList(0, Math.min(queryParameters.getLimit() + 1, endDevices.size() + 1));
@@ -306,11 +306,11 @@ public class DeviceGroupResource {
 
     private String replaceRegularExpression(String value) {
         if (value.contains("*")) {
-            value = value.replaceAll("\\*","%");
+            value = value.replaceAll("\\*", "%");
             return value;
         }
         if (value.contains("?")) {
-            value = value.replaceAll("\\?","_");
+            value = value.replaceAll("\\?", "_");
             return value;
         }
         if (value.contains("%")) {
@@ -318,7 +318,6 @@ public class DeviceGroupResource {
         }
         return value;
     }
-
 
 
 }
