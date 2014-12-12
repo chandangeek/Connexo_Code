@@ -2,6 +2,7 @@ package com.elster.jupiter.time;
 
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import java.text.MessageFormat;
 import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -36,6 +37,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         private Minutely(Period period, int secondOfMinute) {
             this.period = period;
             this.secondOfMinute = secondOfMinute;
+            checkRange(secondOfMinute, 0, 59);
         }
 
         @Override
@@ -60,6 +62,22 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             strings.add(String.valueOf(secondOfMinute));
             return strings;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Minutely minutely = (Minutely) o;
+
+            return secondOfMinute == minutely.secondOfMinute && period == minutely.period;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * period.hashCode() + secondOfMinute;
+        }
     }
 
     private static class Hourly extends Minutely {
@@ -68,6 +86,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         private Hourly(Period period, int minuteOfHour, int secondOfMinute) {
             super(period, secondOfMinute);
             this.minuteOfHour = minuteOfHour;
+            checkRange(minuteOfHour, 0, 59);
         }
 
         @Override
@@ -81,6 +100,23 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             strings.add(String.valueOf(minuteOfHour));
             return strings;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+
+            Hourly hourly = (Hourly) o;
+
+            return minuteOfHour == hourly.minuteOfHour;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * super.hashCode() + minuteOfHour;
+        }
     }
 
     private static class Daily extends Hourly {
@@ -89,6 +125,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         private Daily(Period period, int hourOfDay, int minuteOfHour, int secondOfMinute) {
             super(period, minuteOfHour, secondOfMinute);
             this.hourOfDay = hourOfDay;
+            checkRange(hourOfDay, 0, 23);
         }
 
         @Override
@@ -101,6 +138,23 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             List<String> strings = super.stringElements();
             strings.add(String.valueOf(hourOfDay));
             return strings;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+
+            Daily daily = (Daily) o;
+
+            return hourOfDay == daily.hourOfDay;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * super.hashCode() + hourOfDay;
         }
     }
 
@@ -123,6 +177,23 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             strings.add(dayOfWeek.name());
             return strings;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+
+            Weekly weekly = (Weekly) o;
+
+            return dayOfWeek == weekly.dayOfWeek;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * super.hashCode() + dayOfWeek.hashCode();
+        }
     }
 
     private static class Monthly extends Daily {
@@ -144,6 +215,23 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             strings.add(dayOfMonth.toString());
             return strings;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+
+            Monthly monthly = (Monthly) o;
+
+            return dayOfMonth.equals(monthly.dayOfMonth);
+
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * super.hashCode() + dayOfMonth.hashCode();
+        }
     }
 
     private static class Yearly extends Monthly {
@@ -152,6 +240,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         private Yearly(Period period, int monthOfYear, DayOfMonth dayOfMonth,  int hourOfDay, int minuteOfHour, int secondOfMinute) {
             super(period, dayOfMonth, hourOfDay, minuteOfHour, secondOfMinute);
             this.monthOfYear = monthOfYear;
+            checkRange(monthOfYear, 1, 12);
         }
 
         @Override
@@ -164,6 +253,23 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             List<String> strings = super.stringElements();
             strings.add(String.valueOf(monthOfYear));
             return strings;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+
+            Yearly yearly = (Yearly) o;
+
+            return monthOfYear == yearly.monthOfYear;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * super.hashCode() + monthOfYear;
         }
     }
 
@@ -201,7 +307,6 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
     }
 
     private interface DayOfMonth {
-
         ZonedDateTime addTo(ZonedDateTime time);
     }
 
@@ -210,16 +315,37 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         private NthDayOfMonth(int dayOfMonth) {
             this.dayOfMonth = dayOfMonth;
+            checkRange(dayOfMonth, 1, 31);
         }
 
         @Override
         public ZonedDateTime addTo(ZonedDateTime time) {
+            long maximum = ChronoField.DAY_OF_MONTH.rangeRefinedBy(time).getMaximum();
+            if (maximum < dayOfMonth) {
+                return time.withDayOfMonth((int) maximum);
+            }
             return time.withDayOfMonth(dayOfMonth);
         }
 
         @Override
         public String toString() {
             return String.valueOf(dayOfMonth);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            NthDayOfMonth that = (NthDayOfMonth) o;
+
+            return dayOfMonth == that.dayOfMonth;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return dayOfMonth;
         }
     }
 
@@ -347,5 +473,32 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             return build;
         }
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PeriodicalScheduleExpression that = (PeriodicalScheduleExpression) o;
+
+        return count == that.count && offset.equals(that.offset);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * offset.hashCode() + count;
+    }
+
+    @Override
+    public String toString() {
+        return encoded();
+    }
+
+    private static void checkRange(int actual, int lower, int upper) {
+        if (actual < lower || actual > upper) {
+            throw new IllegalArgumentException(MessageFormat.format("Value {0} is outside bounds : {1} - {2}", actual, lower, upper));
+        }
     }
 }
