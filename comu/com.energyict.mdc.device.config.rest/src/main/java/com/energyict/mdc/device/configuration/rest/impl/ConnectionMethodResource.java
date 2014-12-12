@@ -68,7 +68,7 @@ public class ConnectionMethodResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public PagedInfoList getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                               @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                               @BeanParam QueryParameters queryParameters,
@@ -107,7 +107,7 @@ public class ConnectionMethodResource {
     @GET
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public ConnectionMethodInfo<?> getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                                         @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                                         @PathParam("connectionMethodId") long connectionMethodId,
@@ -120,7 +120,7 @@ public class ConnectionMethodResource {
 
     @DELETE
     @Path("/{connectionMethodId}")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -135,7 +135,7 @@ public class ConnectionMethodResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response createConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                            @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                            @Context UriInfo uriInfo,
@@ -150,7 +150,7 @@ public class ConnectionMethodResource {
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                            @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                            @PathParam("connectionMethodId") long connectionMethodId,

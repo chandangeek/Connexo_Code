@@ -12,7 +12,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.security.Privileges;
+import com.elster.jupiter.validation.security.Privileges;
 
 import java.util.Optional;
 
@@ -56,7 +56,7 @@ public class DeviceConfigsValidationRuleSetResource {
     @GET
     @Path("/{validationRuleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getLinkedDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam QueryParameters queryParameters) {
         List<DeviceConfiguration> configs = deviceConfigurationService.findDeviceConfigurationsForValidationRuleSet(validationRuleSetId);
         DeviceConfigurationInfos.DeviceConfigAndTypeInfo[] infos = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo[configs.size()];
@@ -73,7 +73,7 @@ public class DeviceConfigsValidationRuleSetResource {
     @POST
     @Path("/{validationRuleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public DeviceConfigurationInfos addDeviceConfigurationsToRuleSet(@PathParam("validationRuleSetId") long validationRuleSetId,
                                                                      List<Long> ids, @Context UriInfo uriInfo) {
         boolean addAll = getBoolean(uriInfo, ALL);
@@ -111,7 +111,7 @@ public class DeviceConfigsValidationRuleSetResource {
     @GET
     @Path("/{validationRuleSetId}/linkabledeviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getLinkableDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId,
                                                     @BeanParam QueryParameters queryParameters) {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();
