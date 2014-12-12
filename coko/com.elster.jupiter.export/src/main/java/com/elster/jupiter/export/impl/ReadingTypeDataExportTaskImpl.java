@@ -302,17 +302,6 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
     }
 
     @Override
-    public void removeProperty(String name) {
-        DataExportProperty dataExportProperty = properties.stream()
-                .filter(p -> p.getName().equals(name))
-                .findFirst().orElse(null);
-        if (dataExportProperty != null) {
-            properties.remove(dataExportProperty);
-            propertiesDirty = true;
-        }
-    }
-
-    @Override
     public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
         this.endDeviceGroup.set(endDeviceGroup);
     }

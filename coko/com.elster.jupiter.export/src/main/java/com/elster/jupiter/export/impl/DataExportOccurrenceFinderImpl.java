@@ -51,7 +51,7 @@ public class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinde
 
     @Override
     public DataExportOccurrenceFinder withEndDateIn(Range<Instant> interval) {
-        this.condition = this.condition.and(where("taskOccurence.endDate").in(interval));
+        this.condition = this.condition.and(where("taskOccurrence.endDate").in(interval));
         return this;
     }
 
