@@ -56,8 +56,8 @@ public class Logbook {
 
 
 
-    public List getMeterEvents(DataContainer dc) {
-        List meterEvents = new ArrayList(); // of type MeterEvent
+    public List<MeterEvent> getMeterEvents(DataContainer dc) {
+        List<MeterEvent> meterEvents = new ArrayList<>();
         int size = dc.getRoot().getNrOfElements();
         Date eventTimeStamp = null;
         for (int i = 0; i<=(size-1); i++) {

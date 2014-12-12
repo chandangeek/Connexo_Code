@@ -29,6 +29,7 @@ import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.common.SmartMeterToolProtocol;
@@ -39,6 +40,7 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.events.UkHubEventProfiles
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.UkHubMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.UkHubMessaging;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,6 +73,11 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private UkHubRegisterFactory registerFactory = null;
     private UkHubEventProfiles ukHubEventProfiles = null;
     private boolean reboot = false;
+
+    @Inject
+    public UkHub(OrmClient ormClient) {
+        super(ormClient);
+    }
 
     @Override
     public void addProperties(Properties properties) {

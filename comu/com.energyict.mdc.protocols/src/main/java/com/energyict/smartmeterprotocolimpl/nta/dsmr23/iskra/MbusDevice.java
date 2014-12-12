@@ -5,6 +5,8 @@ import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
@@ -22,8 +24,8 @@ import java.util.Properties;
 public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Inject
-    public MbusDevice(TopologyService topologyService) {
-        super(topologyService);
+    public MbusDevice(TopologyService topologyService, OrmClient ormClient) {
+        super(topologyService, ormClient);
     }
 
     public MbusDevice(AbstractSmartNtaProtocol meterProtocol, TopologyService topologyService, String serialNumber, int physicalAddress) {

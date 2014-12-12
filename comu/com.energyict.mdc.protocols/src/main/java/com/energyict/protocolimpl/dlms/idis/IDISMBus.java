@@ -14,9 +14,10 @@ import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,13 +38,18 @@ public class IDISMBus extends IDIS {
     private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
     private static final int MAX_MBUS_CHANNELS = 4;
 
+    @Inject
+    public IDISMBus(OrmClient ormClient) {
+        super(ormClient);
+    }
+
     @Override
     public void connect() throws IOException {
         super.connect();
 
         // search for the channel of the Mbus Device
         String serial;
-        List<String> receivedSerialNumbers = new ArrayList<String>();
+        List<String> receivedSerialNumbers = new ArrayList<>();
         ObisCode obisCode = MBUS_CLIENT_OBISCODE;
         String expectedSerialNumber = new String(getCalledAPTitle());
         for (int i = 1; i <= MAX_MBUS_CHANNELS; i++) {
@@ -94,12 +100,12 @@ public class IDISMBus extends IDIS {
     }
 
     @Override
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getMBusProfileDataReader().getProfileData(from, to, includeEvents);
     }
 
     @Override
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(getLoadProfileObisCode());
         return getMBusProfileDataReader().getChannelInfo(profileGeneric.getCaptureObjects()).size();
     }

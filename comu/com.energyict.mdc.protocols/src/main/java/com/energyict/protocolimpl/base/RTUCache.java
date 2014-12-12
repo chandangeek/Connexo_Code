@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocols.mdc.services.impl.Bus;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -15,17 +15,19 @@ import java.sql.SQLException;
 public class RTUCache {
 
     private int deviceId;
+    private final OrmClient ormClient;
 
-    public RTUCache(int deviceId) {
+    public RTUCache(int deviceId, OrmClient ormClient) {
         this.deviceId = deviceId;
+        this.ormClient = ormClient;
     }
 
     public Object getCacheObject() throws IOException {
-        return Bus.getOrmClient().getCacheObject(this.deviceId);
+        return this.ormClient.getCacheObject(this.deviceId);
     }
 
     public synchronized void setBlob(final Object cacheObject) throws SQLException {
-        Bus.getOrmClient().setCacheObject(this.deviceId, cacheObject);
+        this.ormClient.setCacheObject(this.deviceId, cacheObject);
 	}
 
 }

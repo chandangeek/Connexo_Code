@@ -79,11 +79,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.injector = Guice.createInjector(module);
     }
 
-    @Deactivate
-    public void deactivate() {
-        Bus.clearOrmClient(this.ormClient);
-    }
-
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -92,6 +87,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(IssueService.class).toInstance(issueService);
                 bind(Clock.class).toInstance(clock);
+                bind(OrmClient.class).toInstance(ormClient);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceProtocolService.class).toInstance(DeviceProtocolServiceImpl.this);
@@ -149,7 +145,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     private void setOrmClient(OrmClient ormClient) {
         this.ormClient = ormClient;
-        Bus.setOrmClient(ormClient);
     }
 
     @Reference

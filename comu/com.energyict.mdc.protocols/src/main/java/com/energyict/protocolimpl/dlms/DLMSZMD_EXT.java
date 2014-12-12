@@ -1,19 +1,12 @@
-/**
- * @version 1.1
- * @author gna
- * <P>
- * <B>Description :</B><BR>
- * Class that extends the implemented Siemens ZMD DLMS protocol.
- * ZMD meters that don't support loadprofile readings must use this class instead of his superclass.
- * From EIServer 8.0 the methods getProfileInterval and getNumberOfChannels will not always be read anymore.
- * <BR>
- */
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
@@ -25,6 +18,11 @@ import java.util.Properties;
 public class DLMSZMD_EXT extends DLMSZMD{
 
 	private int profileInterval;
+
+    @Inject
+    public DLMSZMD_EXT(OrmClient ormClient) {
+        super(ormClient);
+    }
 
     public int getProfileInterval() {
         return profileInterval;
@@ -56,4 +54,5 @@ public class DLMSZMD_EXT extends DLMSZMD{
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
+
 }

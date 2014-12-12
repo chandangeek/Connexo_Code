@@ -1,16 +1,3 @@
-/**
- * @version  2.0
- * @author   Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Class that implements the Enermet E700 DLMS profile implementation
- * <BR>
- * <B>@beginchanges</B><BR>
-KV|08042003|Initial version
-KV|23032005|Changed header to be compatible with protocol version tool
-KV|31032005|Handle DataContainerException
- *  @endchanges
- */
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.dlms.ScalerUnit;
@@ -24,8 +11,11 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.ProtocolUtils;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -36,7 +26,9 @@ public class DLMSEMO extends DLMSSN {
 
     private static final byte DEBUG=0;
 
-    public DLMSEMO() {
+    @Inject
+    public DLMSEMO(OrmClient ormClient) {
+        super(ormClient);
     }
 
     protected String getDeviceID() {

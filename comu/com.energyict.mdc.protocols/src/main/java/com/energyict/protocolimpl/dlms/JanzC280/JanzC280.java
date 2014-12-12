@@ -12,7 +12,6 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -27,19 +26,22 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -77,16 +79,16 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     private ProfileDataReader profileDataReader = null;
 
     /**
-     * The captured objects helper.
-     */
-    private CapturedObjectsHelper capturedObjectsHelper;
-
-    /**
      * Array containing all load profile OBIS codes.
      */
     private ObisCode[] loadProfileObisCodes;
 
     private JanzStoredValues storedValues;
+
+    @Inject
+    public JanzC280(OrmClient ormClient) {
+        super(ormClient);
+    }
 
     @Override
     public void validateSerialNumber() throws IOException {
@@ -161,8 +163,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      */
     @Override
     public Date getTime() throws IOException {
-        Date dateTime = getCosemObjectFactory().getClock().getDateTime();
-        return dateTime;
+        return getCosemObjectFactory().getClock().getDateTime();
     }
 
     /**
@@ -196,11 +197,11 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      *
      * @return String with firmware version. This can also contain other important info of the meter.
      * @throws java.io.IOException thrown when something goes wrong
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws com.energyict.mdc.protocol.api.UnsupportedException
      *                             Thrown when that method is not supported
      */
     @Override
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         if (firmwareVersion == null) {
             Data data = getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE);
             firmwareVersion = AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
@@ -328,7 +329,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
-                (HHUSignOn) new JanzC280HHUConnection(commChannel, this.timeOut, this.retries, 300, getInfoTypeEchoCancelling());
+                new JanzC280HHUConnection(commChannel, this.timeOut, this.retries, 300, getInfoTypeEchoCancelling());
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -339,12 +340,12 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      * Override this method to requesting the load profile integration time
      *
      * @return integration time in seconds
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws com.energyict.mdc.protocol.api.UnsupportedException
      *                             thrown when not supported
      * @throws java.io.IOException Thrown when something goes wrong
      */
     @Override
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         Quantity interval = readRegister(ObisCode.fromString("1.0.0.8.4.255")).getQuantity();
 
         return interval.intValue() * 60;   //The profile interval can be 1,2,3,4,5,6,10,12,15,20,30 or 60 minutes.
@@ -354,12 +355,12 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      * Override this method to requesting the nr of load profile channels from the meter. If not overridden, the default implementation uses the ChannelMap object to get the nr of channels. The ChannelMap object is constructed from the ChannelMap custom property containing a comma separated string. The nr of comma separated tokens is the nr of channels.
      *
      * @return nr of load profile channels
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws com.energyict.mdc.protocol.api.UnsupportedException
      *                             thrown when not supported
      * @throws java.io.IOException thrown when something goes wrong
      */
     @Override
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (this.numberOfChannels == -1) {
             logger.info("Loading the number of channels, looping over all load diagrams...");
 
@@ -401,11 +402,11 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      * @param includeEvents eneble or disable requesting of meterevents
      * @return ProfileData object
      * @throws java.io.IOException Thrown when something goes wrong
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws com.energyict.mdc.protocol.api.UnsupportedException
      *                             Thrown when not supported
      */
     @Override
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         return getProfileDataReader().getProfileData(from, to, includeEvents);
     }
 
@@ -427,25 +428,22 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     }
 
     @Override
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     @Override
-    public List getOptionalKeys() {
-        List result = new ArrayList();
-        result.add(DlmsProtocolProperties.ADDRESSING_MODE);
-        result.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
-        result.add(DlmsProtocolProperties.CONNECTION);
-        result.add(PROPNAME_SERVER_LOWER_MAC_ADDRESS);
-        result.add(PROPNAME_SERVER_UPPER_MAC_ADDRESS);
-        result.add(PROPERTY_FORCEDTOREADCACHE);
-
-        result.add(DlmsProtocolProperties.TIMEOUT);
-        result.add(DlmsProtocolProperties.RETRIES);
-        result.add(DlmsProtocolProperties.SECURITY_LEVEL);
-        return result;
+    public List<String> getOptionalKeys() {
+        return Arrays.asList(
+                DlmsProtocolProperties.ADDRESSING_MODE,
+                DlmsProtocolProperties.CLIENT_MAC_ADDRESS,
+                DlmsProtocolProperties.CONNECTION,
+                PROPNAME_SERVER_LOWER_MAC_ADDRESS,
+                PROPNAME_SERVER_UPPER_MAC_ADDRESS,
+                PROPERTY_FORCEDTOREADCACHE,
+                DlmsProtocolProperties.TIMEOUT,
+                DlmsProtocolProperties.RETRIES,
+                DlmsProtocolProperties.SECURITY_LEVEL);
     }
 
     /**
@@ -460,10 +458,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
             if (getDLMSConnection() != null) {
                 getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException e) {
-            //absorb -> trying to close communication
-            getLogger().log(Level.FINEST, e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             //absorb -> trying to close communication
             getLogger().log(Level.FINEST, e.getMessage());
         }

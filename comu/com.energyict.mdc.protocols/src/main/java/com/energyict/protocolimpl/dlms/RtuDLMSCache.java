@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.dlms.UniversalObject;
-import com.energyict.protocols.mdc.services.impl.Bus;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import java.sql.SQLException;
 
@@ -17,18 +17,20 @@ import java.sql.SQLException;
  * @version : 1.0
  */
 public class RtuDLMSCache {
-    private int deviceId;
+    private final int deviceId;
+    private final OrmClient ormClient;
 
-    public RtuDLMSCache(int deviceId) {
+    public RtuDLMSCache(int deviceId, OrmClient ormClient) {
         this.deviceId = deviceId;
+        this.ormClient = ormClient;
     }
 
     public synchronized void saveObjectList(UniversalObject[] universalObjects) throws SQLException {
-        Bus.getOrmClient().saveUniversalObjectList(this.deviceId, universalObjects);
+        this.ormClient.saveUniversalObjectList(this.deviceId, universalObjects);
     }
 
     public UniversalObject[] getObjectList() throws SQLException {
-        return Bus.getOrmClient().getUniversalObjectList(this.deviceId);
+        return this.ormClient.getUniversalObjectList(this.deviceId);
     }
 
 }

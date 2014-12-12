@@ -4,6 +4,8 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
 import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -20,8 +22,8 @@ import javax.inject.Inject;
 public class Mx382 extends AbstractSmartNtaProtocol implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
     @Inject
-    public Mx382(TopologyService topologyService) {
-        super(topologyService);
+    public Mx382(TopologyService topologyService, OrmClient ormClient) {
+        super(topologyService, ormClient);
     }
 
     @Override

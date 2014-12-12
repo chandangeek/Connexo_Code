@@ -4,6 +4,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
@@ -22,8 +23,8 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
      */
     protected DSMR40EventProfile eventProfile;
 
-    public AbstractSmartDSMR40NtaProtocol(TopologyService topologyService) {
-        super(topologyService);
+    public AbstractSmartDSMR40NtaProtocol(TopologyService topologyService, OrmClient ormClient) {
+        super(topologyService, ormClient);
     }
 
     @Override

@@ -10,6 +10,8 @@ import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
@@ -25,6 +27,7 @@ import com.energyict.protocolimpl.dlms.as220.plc.PLC;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.dlms.as220.powerquality.PowerQuality;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -62,11 +65,10 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     private FirmwareVersions activeFirmwareVersion;
     private FirmwareVersions passiveFirmwareVersion;
 
-    /**
-     * Create a new instance of the {@link AS220} dlms protocol
-     */
-    public AS220() {
-    	messagingList = new ArrayList<SubMessageProtocol>();
+    @Inject
+    public AS220(OrmClient ormClient) {
+        super(ormClient);
+        messagingList = new ArrayList<>();
     	messagingList.add(new AS220Messaging(this));
     	messagingList.add(new PLCMessaging(this));
     }

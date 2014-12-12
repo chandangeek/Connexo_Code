@@ -13,6 +13,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 
@@ -31,6 +32,11 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      * The used {@link com.energyict.dlms.DlmsSession}
      */
     protected DlmsSession dlmsSession;
+    private final OrmClient ormClient;
+
+    protected AbstractSmartDlmsProtocol(OrmClient ormClient) {
+        this.ormClient = ormClient;
+    }
 
     /**
      * <p></p>
@@ -219,8 +225,8 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     @Override
     public Object fetchCache(final int rtuid) throws SQLException, BusinessException {
         if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
+            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, this.ormClient);
+            RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
             try {
                 return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
             } catch (NotFoundException e) {
@@ -245,7 +251,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
-                new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
+                new RtuDLMS(rtuid, ormClient).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
             }
         } else {
             throw new BusinessException("invalid RtuId!");

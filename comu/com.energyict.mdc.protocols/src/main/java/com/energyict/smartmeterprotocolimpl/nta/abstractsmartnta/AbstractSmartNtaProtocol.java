@@ -24,6 +24,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
@@ -37,7 +38,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -65,9 +65,8 @@ public abstract class AbstractSmartNtaProtocol
 
     private final TopologyService topologyService;
 
-    @Inject
-    protected AbstractSmartNtaProtocol(TopologyService topologyService) {
-        super();
+    protected AbstractSmartNtaProtocol(TopologyService topologyService, OrmClient ormClient) {
+        super(ormClient);
         this.topologyService = topologyService;
     }
 

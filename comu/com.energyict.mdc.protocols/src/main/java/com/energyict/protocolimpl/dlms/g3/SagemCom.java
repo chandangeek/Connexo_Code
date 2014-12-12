@@ -1,6 +1,9 @@
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.energyict.protocolimpl.dlms.g3.messaging.G3MessagingSagemCom;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+
+import javax.inject.Inject;
 
 /**
  * The only difference (so far) is a slightly different way of initiating the image transfer, and the conformance block in the user information field
@@ -11,6 +14,11 @@ import com.energyict.protocolimpl.dlms.g3.messaging.G3MessagingSagemCom;
  * Author: khe
  */
 public class SagemCom extends AS330D {
+
+    @Inject
+    public SagemCom(OrmClient ormClient) {
+        super(ormClient);
+    }
 
     @Override
     protected void initMessaging() {

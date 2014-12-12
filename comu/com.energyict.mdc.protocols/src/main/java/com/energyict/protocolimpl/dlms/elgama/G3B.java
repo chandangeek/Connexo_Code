@@ -30,7 +30,9 @@ import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -55,10 +57,14 @@ public class G3B extends AbstractDLMSProtocol {
     private static final int MAX_TIME_SHIFT_SECONDS = 59;
     private static final ObisCode OBISCODE_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
-    private static final ObisCode OBISCODE_SYNCHRONIZATION = ObisCode.fromString("1.0.96.130.3.255"
-    );
+    private static final ObisCode OBISCODE_SYNCHRONIZATION = ObisCode.fromString("1.0.96.130.3.255");
     private ProfileGeneric loadProfile;
     private ProfileChannel profileChannel;
+
+    @Inject
+    public G3B(OrmClient ormClient) {
+        super(ormClient);
+    }
 
     /**
      * G3B adds the storedvalue impl to the init method. (via override)

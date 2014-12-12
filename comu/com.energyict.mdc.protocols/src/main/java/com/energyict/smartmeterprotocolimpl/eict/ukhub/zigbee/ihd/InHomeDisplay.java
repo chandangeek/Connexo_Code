@@ -10,9 +10,12 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging.InHomeDisplayMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging.InHomeDisplayMessaging;
+import com.google.inject.Inject;
 
 import java.io.IOException;
 import java.util.Date;
@@ -22,6 +25,11 @@ import java.util.List;
  * The InHomeDisplay logical device has limited functionality, currently only serves as placeholder
  */
 public class InHomeDisplay extends UkHub {
+
+    @Inject
+    public InHomeDisplay(OrmClient ormClient) {
+        super(ormClient);
+    }
 
     @Override
     protected void initAfterConnect() throws ConnectionException {

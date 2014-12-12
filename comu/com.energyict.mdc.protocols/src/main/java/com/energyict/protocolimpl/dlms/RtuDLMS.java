@@ -4,34 +4,36 @@ import com.energyict.mdc.common.BusinessException;
 
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.protocols.mdc.services.impl.Bus;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import java.sql.SQLException;
 
 public class RtuDLMS {
 
+    private final OrmClient ormClient;
     private int deviceId;
 
-    public RtuDLMS(int deviceId) {
+    public RtuDLMS(int deviceId, OrmClient ormClient) {
         super();
         this.deviceId = deviceId;
+        this.ormClient = ormClient;
     }
 
     public int getConfProgChange() throws SQLException, BusinessException {
-        return Bus.getOrmClient().getConfProgChange(this.deviceId);
+        return this.ormClient.getConfProgChange(this.deviceId);
     }
 
     public synchronized void setConfProgChange(int confprogchange) throws SQLException {
-        Bus.getOrmClient().setConfProgChange(this.deviceId, confprogchange);
+        this.ormClient.setConfProgChange(this.deviceId, confprogchange);
     }
 
     public void saveObjectList(final int confProgChange, final UniversalObject[] universalObject) throws BusinessException, SQLException {
         try {
-            Bus.getOrmClient().execute(new VoidTransaction() {
+            this.ormClient.execute(new VoidTransaction() {
                 @Override
                 protected void doPerform() {
                     try {
-                        RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
+                        RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId, ormClient);
                         rtuCache.saveObjectList(universalObject);
                         RtuDLMS.this.setConfProgChange(confProgChange);
                     }

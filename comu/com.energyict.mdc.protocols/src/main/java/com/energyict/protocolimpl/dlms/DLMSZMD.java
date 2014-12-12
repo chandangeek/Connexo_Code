@@ -1,26 +1,3 @@
-/**
- * @version  2.0
- * @author   Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Class that implements the Siemens ZMD DLMS profile implementation
- * <BR>
- * <B>@beginchanges</B><BR>
-KV|08042003|Initial version
-KV|08102003|Set default of RequestTimeZone to 0
-KV|10102003|generate OTHER MeterEvent when statusbit is not supported
-KV|27102003|changed code for correct dst transition S->W
-KV|20082004|Extended with obiscode mapping for register reading
-KV|17032005|improved registerreading
-KV|23032005|Changed header to be compatible with protocol version tool
-KV|30032005|Improved registerreading, configuration data
-KV|31032005|Handle DataContainerException
-KV|15072005|applyEvents() done AFTER getting the logbook!
-KV|10102006|extension to support cumulative values in load profile
-KV|10102006|fix to support 64 bit values in load profile
- * @endchanges
- */
-
 package com.energyict.protocolimpl.dlms;
 
 
@@ -50,6 +27,8 @@ import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.MessageBuilder;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.messaging.Message;
@@ -63,6 +42,7 @@ import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -79,7 +59,9 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
 
     int eventIdIndex;
 
-    public DLMSZMD() {
+    @Inject
+    public DLMSZMD(OrmClient ormClient) {
+        super(ormClient);
         this.messageProtocol = new ZmdMessages(this);
     }
 

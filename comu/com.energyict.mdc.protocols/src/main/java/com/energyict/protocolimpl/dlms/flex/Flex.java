@@ -53,6 +53,8 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -66,6 +68,7 @@ import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -144,12 +147,12 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
     private int extendedLogging;
     int addressingMode;
     int connectionMode;
+    private final OrmClient ormClient;
 
-    /**
-     * Creates a new instance of Flex, empty constructor
-     */
-    public Flex() {
-    } // public Flex(...)
+    @Inject
+    public Flex(OrmClient ormClient) {
+        this.ormClient = ormClient;
+    }
 
     public DLMSConnection getDLMSConnection() {
         return dlmsConnection;
@@ -331,7 +334,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         byte[] aarq;
         aarq = getLowLevelSecurity();
         doRequestApplAssoc(aarq);
-    } // public void requestApplAssoc() throws IOException
+    }
 
     private void requestApplAssoc(int iLevel) throws IOException {
         byte[] aarq;
@@ -379,7 +382,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                     if (responseData[i] == AARE_APPLICATION_CONTEXT_NAME) {
                         i++; // skip tag
                         i += responseData[i]; // skip length + data
-                    } // if (responseData[i] == AARE_APPLICATION_CONTEXT_NAME)
+                    }
 
                     else if (responseData[i] == AARE_RESULT) {
                         i++; // skip tag
@@ -391,7 +394,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                             return;
                         }
                         i += responseData[i]; // skip length + data
-                    } // else if (responseData[i] == AARE_RESULT)
+                    }
 
                     else if (responseData[i] == AARE_RESULT_SOURCE_DIAGNOSTIC) {
                         i++; // skip tag
@@ -421,7 +424,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                                 } else {
                                     throw new IOException("Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_USER,  wrong tag");
                                 }
-                            } // if (responseData[i+1] == ACSE_SERVICE_USER)
+                            }
                             else if (responseData[i + 1] == ACSE_SERVICE_PROVIDER) {
                                 if ((responseData[i + 2] == 3) &&
                                         (responseData[i + 3] == 2) &&
@@ -438,7 +441,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                                 } else {
                                     throw new IOException("Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_PROVIDER,  wrong tag");
                                 }
-                            } // else if (responseData[i+1] == ACSE_SERVICE_PROVIDER)
+                            }
                             else {
                                 throw new IOException("Application Association Establishment Failed, result_source_diagnostic,  wrong tag");
                             }
@@ -447,7 +450,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                         }
 
                         i += responseData[i]; // skip length + data
-                    } // else if (responseData[i] == AARE_RESULT_SOURCE_DIAGNOSTIC)
+                    }
 
                     else if (responseData[i] == AARE_USER_INFORMATION) {
                         i++; // skip tag
@@ -492,10 +495,10 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                                 throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons!");
                             }
 
-                        } // if (responseData[i+2] > 0) --> length of the octet string
+                        }
 
                         i += responseData[i]; // skip length + data
-                    } // else if (responseData[i] == AARE_USER_INFORMATION)
+                    }
                     else {
                         i++; // skip tag
                         // Very tricky, suppose we receive a length > 128 because of corrupted data,
@@ -508,19 +511,19 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                         i = (responseData.length - 1);
                         break;
                     }
-                } // while(true)
+                }
 
-            } // if (responseData[i] == AARE_TAG)
+            }
 
             if (i++ >= (responseData.length - 1)) {
                 i = (responseData.length - 1);
                 break;
             }
-        } // while(true)
+        }
 
         throw new IOException("Application Association Establishment Failed" + strResultSourceDiagnostics);
 
-    } // void CheckAARE(byte[] responseData) throws IOException
+    }
 
     private CapturedObjects getCapturedObjects() throws IOException {
         if (capturedObjects == null) {
@@ -545,11 +548,11 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 System.out.println("Index error: " + e.getMessage());
             }
 
-        } // if (capturedObjects == null)
+        }
 
         return capturedObjects;
 
-    } // private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException
+    }
 
 
     public int getNumberOfChannels() throws UnsupportedException, IOException {
@@ -557,7 +560,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
             numberOfChannels = getCapturedObjects().getNROfChannels();
         }
         return numberOfChannels;
-    } // public int getNumberOfChannels() throws IOException
+    }
 
 
     /**
@@ -686,7 +689,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
         return calendar;
 
-    } // private void setCalendar(Calendar calendar, DataStructure dataStructure,byte bBitmask)
+    }
 
     // status bitstring has 6 used bits
     private static final int EV_WATCHDOG_RESET = 0x04;
@@ -779,15 +782,15 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 previousIntervalData = currentIntervalData;
                 previousAdd = currentAdd;
 
-            } // if (calendar != null)
+            }
 
-        } // for (i=0;i<dataContainer.getRoot().element.length;i++) // for all retrieved intervals
+        }
 
         if (DEBUG >= 1) {
             System.out.println(profileData);
         }
 
-    } // private void buildProfileData(byte bNROfChannels, DataContainer dataContainer)  throws IOException
+    }
 
 
     private IntervalData addIntervalData(IntervalData currentIntervalData, IntervalData previousIntervalData) {
@@ -830,7 +833,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
         return eiStatus;
 
-    } // private int map(int protocolStatus)
+    }
 
     private IntervalData getIntervalData(DataStructure dataStructure, Calendar calendar, int protocolStatus) throws UnsupportedException, IOException {
         // Add interval data...
@@ -853,7 +856,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     private int getNROfIntervals() throws IOException {
         return iNROfIntervals;
-    } // private int getNROfIntervals() throws IOException
+    }
 
     /**
      * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
@@ -869,7 +872,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         doSetTime(calendar);
-    } // public void setTime() throws IOException
+    }
 
     private void doSetTime(Calendar calendar) throws IOException {
         byte[] byteTimeBuffer = new byte[14];
@@ -907,7 +910,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
 
         getCosemObjectFactory().writeObject(ObisCode.fromString("0.0.1.0.0.255"), 8, 2, byteTimeBuffer);
-    } // private void doSetTime(Calendar calendar)
+    }
 
     public Date getTime() throws IOException {
         Clock clock = getCosemObjectFactory().getClock();
@@ -927,7 +930,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
     public String getDeviceAddress() throws IOException {
         String devId = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(new byte[]{1, 0, 0, 0, 0, (byte) 255}), DLMSUtils.attrLN2SN(2), 1).getString();
         return devId;
-    } // public String getDeviceAddress() throws IOException
+    }
 
 
     // KV 19012004
@@ -944,7 +947,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
             configProgramChanges = (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
         }
         return configProgramChanges;
-    } // public int requestConfigurationProgramChanges() throws IOException
+    }
 
 
     /**
@@ -959,7 +962,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 throw new IOException("DLMSSN, requestSAP, Wrong DeviceID!, settings=" + strID + ", meter=" + devID);
             }
         }
-    } // public void requestSAP() throws IOException
+    }
 
     public void connect() throws IOException {
         try {
@@ -1052,7 +1055,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
         validateSerialNumber(); // KV 19012004
 
-    } // public void connect() throws IOException
+    }
 
     /*
      *  extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
@@ -1087,7 +1090,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         } catch (DLMSConnectionException e) {
             logger.severe("DLMSLN: disconnect(), " + e.getMessage());
         }
-    } // public void disconnect() throws IOException
+    }
 
     class InitiateResponse {
 
@@ -1115,18 +1118,18 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
     private void requestObjectList() throws IOException {
 //        meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationSN().getBuffer());
-    } // public void requestObjectList() throws IOException
+    }
 
 
     public String requestAttribute(short sIC, byte[] LN, byte bAttr) throws IOException {
         return doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
-    } // public String requestAttribute(short sIC,byte[] LN,byte bAttr ) throws IOException
+    }
 
 
     private DataContainer doRequestAttribute(int classId, byte[] ln, int lnAttr) throws IOException {
         DataContainer dc = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
         return dc;
-    } // public DataContainer doRequestAttribute(short sIC,byte[] LN,byte bAttr ) throws IOException
+    }
 
     private void validateSerialNumber() throws IOException {
         boolean check = true;
@@ -1146,7 +1149,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
             serialnr = getCosemObjectFactory().getGenericRead(uo).getString();
         }
         return serialnr;
-    } // public String getSerialNumber() throws IOException
+    }
 
     @Override
     public String getProtocolDescription() {
@@ -1355,8 +1358,8 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
+            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, this.ormClient);
+            RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
             try {
                 return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
             } catch (NotFoundException e) {
@@ -1371,8 +1374,8 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-                RtuDLMS rtu = new RtuDLMS(rtuid);
+                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
+                RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
                 rtuCache.saveObjectList(dc.getObjectList());
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
@@ -1508,4 +1511,4 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     }
 
-} // public class DLMSProtocolLN extends MeterProtocol
+}

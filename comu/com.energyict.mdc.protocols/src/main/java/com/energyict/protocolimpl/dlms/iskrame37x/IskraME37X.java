@@ -15,6 +15,7 @@ GN|07112008|Only read the MBus unit when mbus is enabled, older meters don't hav
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
 import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
@@ -53,6 +54,8 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.mdc.protocol.api.DemandResetProtocol;
 import com.energyict.mdc.protocol.api.HHUEnabler;
@@ -79,12 +82,14 @@ import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -95,7 +100,6 @@ import java.util.logging.Logger;
 public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
-    private static final byte DL_COSEMPDU_DATA_OFFSET = 0x07;
     private static final byte AARE_APPLICATION_CONTEXT_NAME = (byte) 0xA1;
     private static final byte AARE_RESULT = (byte) 0xA2;
     private static final byte AARE_RESULT_SOURCE_DIAGNOSTIC = (byte) 0xA3;
@@ -107,15 +111,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     private static final byte DLMS_PDU_CONFIRMED_SERVICE_ERROR = (byte) 0x0E;
 
     private static final int iNROfIntervals = 50000;
-
-    // status bitstring has 6 used bits
-    private static final int EV_WATCHDOG_RESET = 0x04;
-    private static final int EV_DST = 0x08;
-    //private static final int EV_EXTERNAL_CLOCK_SYNC=0x10;
-    //private static final int EV_CLOCK_SETTINGS=0x20;
-    private static final int EV_ALL_CLOCK_SETTINGS = 0x30;
-    private static final int EV_POWER_FAILURE = 0x40;
-    private static final int EV_START_OF_MEASUREMENT = 0x80;
 
     private static final int ELECTRICITY = 0x00;
     private static final int MBUS = 0x01;
@@ -236,11 +231,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             (byte) 0x5F, (byte) 0x1F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x7E, (byte) 0x1F, // proposed conformance
             (byte) 0xFF, (byte) 0xFF};
 
-    byte[] rlrq_APDU = {
-            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
-            (byte) 0x62, (byte) 0x03, (byte) 0x80, (byte) 0x00, (byte) 0x00
-    };
-
     CapturedObjects capturedObjects = null;
     DLMSConnection dlmsConnection = null;
     CosemObjectFactory cosemObjectFactory = null;
@@ -252,11 +242,11 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     ObisCode loadProfileObisCode97 = ObisCode.fromString("1.0.99.97.0.255");
     ObisCode breakerObisCode = ObisCode.fromString("0.0.128.30.21.255");
     ObisCode eventLogObisCode = ObisCode.fromString("1.0.99.98.0.255");
+    private final OrmClient ormClient;
 
-    /**
-     * Creates a new instance of IskraME37X, empty constructor
-     */
-    public IskraME37X() {
+    @Inject
+    public IskraME37X(OrmClient ormClient) {
+        this.ormClient = ormClient;
     } // public IskraME37X(...)
 
     public DLMSConnection getDLMSConnection() {
@@ -291,7 +281,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             }
             dlmsConnection.setIskraWrapper(1);
 
-            if (rtuType.equalsIgnoreCase("mbus")) {
+            if ("mbus".equalsIgnoreCase(rtuType)) {
                 metertype = MBUS;
             } else {
                 metertype = ELECTRICITY;
@@ -316,10 +306,9 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     private byte[] buildaarq(byte[] aarq1, byte[] aarq2) {
-        byte[] aarq = null;
         int i, t = 0;
         // prepare aarq buffer
-        aarq = new byte[3 + aarq1.length + 1 + (strPassword == null ? 0 : strPassword.length()) + aarq2.length];
+        byte[] aarq = new byte[3 + aarq1.length + 1 + (strPassword == null ? 0 : strPassword.length()) + aarq2.length];
         // copy aarq1 to aarq buffer
         for (i = 0; i < aarq1.length; i++) {
             aarq[t++] = aarq1[i];
@@ -341,7 +330,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             aarq[t++] = aarq2[i];
         }
 
-        aarq[4] = (byte) (((int) aarq.length & 0xFF) - 5); // Total length of frame - headerlength
+        aarq[4] = (byte) ((aarq.length & 0xFF) - 5); // Total length of frame - headerlength
 
         return aarq;
     }
@@ -355,7 +344,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         byte[] aarq;
         aarq = getLowLevelSecurity();
         doRequestApplAssoc(aarq);
-    } // public void requestApplAssoc() throws IOException
+    }
 
     private void requestApplAssoc(int iLevel) throws IOException {
         byte[] aarq;
@@ -368,7 +357,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         }
         doRequestApplAssoc(aarq);
 
-    } // public void requestApplAssoc(int iLevel) throws IOException
+    }
 
     private void doRequestApplAssoc(byte[] aarq) throws IOException {
         byte[] responseData;
@@ -390,7 +379,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                     if (responseData[i] == AARE_APPLICATION_CONTEXT_NAME) {
                         i++; // skip tag
                         i += responseData[i]; // skip length + data
-                    } // if (responseData[i] == AARE_APPLICATION_CONTEXT_NAME)
+                    }
 
                     else if (responseData[i] == AARE_RESULT) {
                         i++; // skip tag
@@ -402,7 +391,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                             return;
                         }
                         i += responseData[i]; // skip length + data
-                    } // else if (responseData[i] == AARE_RESULT)
+                    }
 
                     else if (responseData[i] == AARE_RESULT_SOURCE_DIAGNOSTIC) {
                         i++; // skip tag
@@ -432,7 +421,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                                 } else {
                                     throw new IOException("Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_USER,  wrong tag");
                                 }
-                            } // if (responseData[i+1] == ACSE_SERVICE_USER)
+                            }
                             else if (responseData[i + 1] == ACSE_SERVICE_PROVIDER) {
                                 if ((responseData[i + 2] == 3) &&
                                         (responseData[i + 3] == 2) &&
@@ -449,7 +438,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                                 } else {
                                     throw new IOException("Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_PROVIDER,  wrong tag");
                                 }
-                            } // else if (responseData[i+1] == ACSE_SERVICE_PROVIDER)
+                            }
                             else {
                                 throw new IOException("Application Association Establishment Failed, result_source_diagnostic,  wrong tag");
                             }
@@ -458,7 +447,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                         }
 
                         i += responseData[i]; // skip length + data
-                    } // else if (responseData[i] == AARE_RESULT_SOURCE_DIAGNOSTIC)
+                    }
 
                     else if (responseData[i] == AARE_USER_INFORMATION) {
                         i++; // skip tag
@@ -511,10 +500,10 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                                 throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons!");
                             }
 
-                        } // if (responseData[i+2] > 0) --> length of the octet string
+                        }
 
                         i += responseData[i]; // skip length + data
-                    } // else if (responseData[i] == AARE_USER_INFORMATION)
+                    }
                     else {
                         i++; // skip tag
                         // Very tricky, suppose we receive a length > 128 because of corrupted data,
@@ -527,26 +516,26 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                         i = (responseData.length - 1);
                         break;
                     }
-                } // while(true)
+                }
 
-            } // if (responseData[i] == AARE_TAG)
+            }
 
             if (i++ >= (responseData.length - 1)) {
                 i = (responseData.length - 1);
                 break;
             }
-        } // while(true)
+        }
 
         throw new IOException("Application Association Establishment Failed" + strResultSourceDiagnostics);
 
-    } // void CheckAARE(byte[] responseData) throws IOException
+    }
 
-    private CapturedObjects getCapturedObjects() throws UnsupportedException, IOException {
+    private CapturedObjects getCapturedObjects() throws IOException {
         if (capturedObjects == null) {
 //           byte[] responseData;
             int i;
             int j = 0;
-            DataContainer dataContainer = null;
+            DataContainer dataContainer;
             try {
                 ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(loadProfileObisCode);
                 meterConfig.setCapturedObjectList(profileGeneric.getCaptureObjectsAsUniversalObjects());
@@ -557,7 +546,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
                     if (i >= 2) {
 
-                        if (rtuType.equalsIgnoreCase("mbus")) {
+                        if ("mbus".equalsIgnoreCase(rtuType)) {
                             if (bytesToObisString(dataContainer.getRoot().getStructure(i).getOctetString(1).getArray()).indexOf("0.1.128.50.0.255") == 0) {
                                 capturedObjects.add(j,
                                         dataContainer.getRoot().getStructure(i).getInteger(0),
@@ -594,20 +583,20 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 System.out.println("Index error: " + e.getMessage());
             }
 
-        } // if (capturedObjects == null)
+        }
 
         return capturedObjects;
 
-    } // private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException
+    }
 
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (numberOfChannels == -1) {
             numberOfChannels = getCapturedObjects().getNROfChannels();
 //        	numberOfChannels = 2;
         }
         return numberOfChannels;
-    } // public int getNumberOfChannels() throws IOException
+    }
 
 
     /**
@@ -627,20 +616,20 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         int iNROfIntervals = getNROfIntervals();
         Calendar fromCalendar = ProtocolUtils.getCalendar(timeZone);
         fromCalendar.add(Calendar.MINUTE, (-1) * iNROfIntervals * (getProfileInterval() / 60));
-        return doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(timeZone), includeEvents);
+        return doGetProfileData(fromCalendar, includeEvents);
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(timeZone);
         fromCalendar.setTime(lastReading);
-        return doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(timeZone), includeEvents);
+        return doGetProfileData(fromCalendar, includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws UnsupportedException {
         throw new UnsupportedException("getProfileData(from,to) is not supported by this meter");
     }
 
-    private ProfileData doGetProfileData(Calendar fromCalendar, Calendar toCalendar, boolean includeEvents) throws IOException {
+    private ProfileData doGetProfileData(Calendar fromCalendar, boolean includeEvents) throws IOException {
         byte bNROfChannels = (byte) getNumberOfChannels();
         return doGetDemandValues(fromCalendar,
                 bNROfChannels,
@@ -652,7 +641,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         ProfileData profileData = new ProfileData();
         DataContainer dataContainer = getCosemObjectFactory().getProfileGeneric(loadProfileObisCode).getBuffer(fromCalendar, ProtocolUtils.getCalendar(getTimeZone()));
         for (int channelId = 0; channelId < bNROfChannels; channelId++) {
-            if (!rtuType.equalsIgnoreCase("mbus")) {
+            if (!"mbus".equalsIgnoreCase(rtuType)) {
                 RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
                 ScalerUnit scalerUnit = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
                         scalerRegister.getQuantity().getUnit());
@@ -677,7 +666,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             }
         }
 
-        buildProfileData(bNROfChannels, dataContainer, profileData);
+        buildProfileData(dataContainer, profileData);
 
         if (includeEvents) {
             profileData.getMeterEvents().addAll(getLogbookData(fromCalendar, ProtocolUtils.getCalendar(getTimeZone())));
@@ -704,71 +693,10 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         return str;
     }
 
-    private List getLogbookData(Calendar fromCalendar, Calendar toCalendar) throws IOException {
+    private List<MeterEvent> getLogbookData(Calendar fromCalendar, Calendar toCalendar) throws IOException {
         Logbook logbook = new Logbook(timeZone);
         return logbook.getMeterEvents(getCosemObjectFactory().getProfileGeneric(eventLogObisCode).getBuffer(fromCalendar, toCalendar));
     }
-
-
-    private Calendar setCalendar(Calendar cal, DataStructure dataStructure, byte btype) throws IOException {
-
-        Calendar calendar = (Calendar) cal.clone();
-
-        if (dataStructure.getOctetString(0).getArray()[0] != -1) {
-            calendar.set(Calendar.YEAR, (((int) dataStructure.getOctetString(0).getArray()[0] & 0xff) << 8) |
-                    (((int) dataStructure.getOctetString(0).getArray()[1] & 0xff)));
-        }
-
-
-        if (dataStructure.getOctetString(0).getArray()[2] != -1) {
-            calendar.set(Calendar.MONTH, ((int) dataStructure.getOctetString(0).getArray()[2] & 0xff) - 1);
-        }
-
-
-        if (dataStructure.getOctetString(0).getArray()[3] != -1) {
-            calendar.set(Calendar.DAY_OF_MONTH, ((int) dataStructure.getOctetString(0).getArray()[3] & 0xff));
-        }
-
-
-        if (dataStructure.getOctetString(0).getArray()[5] != -1) {
-            calendar.set(Calendar.HOUR_OF_DAY, ((int) dataStructure.getOctetString(0).getArray()[5] & 0xff));
-        } else {
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-        }
-
-
-        if (btype == 0) {
-            if (dataStructure.getOctetString(0).getArray()[6] != -1) {
-                calendar.set(Calendar.MINUTE, (((int) dataStructure.getOctetString(0).getArray()[6] & 0xff) / (getProfileInterval() / 60)) * (getProfileInterval() / 60));
-            } else {
-                calendar.set(Calendar.MINUTE, 0);
-            }
-
-            calendar.set(Calendar.SECOND, 0);
-        } else {
-            if (dataStructure.getOctetString(0).getArray()[6] != -1) {
-                calendar.set(Calendar.MINUTE, ((int) dataStructure.getOctetString(0).getArray()[6] & 0xff));
-            } else {
-                calendar.set(Calendar.MINUTE, 0);
-            }
-
-            if (dataStructure.getOctetString(0).getArray()[7] != -1) {
-                calendar.set(Calendar.SECOND, ((int) dataStructure.getOctetString(0).getArray()[7] & 0xff));
-            } else {
-                calendar.set(Calendar.SECOND, 0);
-            }
-        }
-
-        // if DSA, add 1 hour
-        if (dataStructure.getOctetString(0).getArray()[11] != -1) {
-            if ((dataStructure.getOctetString(0).getArray()[11] & (byte) 0x80) == 0x80) {
-                calendar.add(Calendar.HOUR_OF_DAY, -1);
-            }
-        }
-
-        return calendar;
-
-    } // private void setCalendar(Calendar calendar, DataStructure dataStructure,byte bBitmask)
 
     // 0.0.1.0.0.255
     private int getProfileClockChannelIndex() throws IOException {
@@ -795,11 +723,13 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
 
-    private void buildProfileData(byte bNROfChannels, DataContainer dataContainer, ProfileData profileData) throws IOException {
+    private void buildProfileData(DataContainer dataContainer, ProfileData profileData) throws IOException {
 //        byte bDOW;
-        Calendar calendar = null, calendarEV = null;
-        int i, t, protocolStatus = 0;
-        boolean currentAdd = true, previousAdd = true;
+        Calendar calendar = null;
+        int i;
+        int protocolStatus;
+        boolean currentAdd = true;
+        boolean previousAdd = true;
         IntervalData previousIntervalData = null, currentIntervalData;
 
         if (DEBUG >= 1) {
@@ -819,7 +749,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                     System.out.println("KV_DEBUG> buildProfileData, ClassCastException ," + e.toString());
                 }
                 if (calendar != null) {
-                    calendar.add(calendar.MINUTE, (getProfileInterval() / 60));
+                    calendar.add(Calendar.MINUTE, (getProfileInterval() / 60));
                 }
             }
             if (calendar != null) {
@@ -844,7 +774,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                     currentIntervalData = addIntervalData(currentIntervalData, previousIntervalData);
                 }
 
-
                 // Add interval data...
                 if (currentAdd) {
                     profileData.addInterval(currentIntervalData);
@@ -853,15 +782,15 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 previousIntervalData = currentIntervalData;
                 previousAdd = currentAdd;
 
-            } // if (calendar != null)
+            }
 
-        } // for (i=0;i<dataContainer.getRoot().element.length;i++) // for all retrieved intervals
+        }
 
         if (DEBUG >= 1) {
             System.out.println(profileData);
         }
 
-    } // private void buildProfileData(byte bNROfChannels, DataContainer dataContainer)  throws IOException
+    }
 
 
     private IntervalData addIntervalData(IntervalData currentIntervalData, IntervalData previousIntervalData) {
@@ -869,7 +798,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         IntervalData intervalData = new IntervalData(currentIntervalData.getEndTime(), currentIntervalData.getEiStatus(), currentIntervalData.getProtocolStatus());
         int current, i;
         for (i = 0; i < currentCount; i++) {
-            current = ((Number) currentIntervalData.get(i)).intValue() + ((Number) previousIntervalData.get(i)).intValue();
+            current = currentIntervalData.get(i).intValue() + previousIntervalData.get(i).intValue();
             intervalData.addValue(new Integer(current));
         }
         return intervalData;
@@ -904,9 +833,9 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
         return eiStatus;
 
-    } // private int map(int protocolStatus)
+    }
 
-    private IntervalData getIntervalData(DataStructure dataStructure, Calendar calendar, int protocolStatus) throws UnsupportedException, IOException {
+    private IntervalData getIntervalData(DataStructure dataStructure, Calendar calendar, int protocolStatus) throws IOException {
         // Add interval data...
         IntervalData intervalData = new IntervalData(new Date(((Calendar) calendar.clone()).getTime().getTime()), map(protocolStatus), protocolStatus);
 
@@ -929,17 +858,17 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
-    private int getNROfIntervals() throws IOException {
+    private int getNROfIntervals() {
         return iNROfIntervals;
-    } // private int getNROfIntervals() throws IOException
+    }
 
     /**
      * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
@@ -947,7 +876,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
      * @throws IOException
      */
     public void setTime() throws IOException {
-        Calendar calendar = null;
+        Calendar calendar;
         if (iRequestTimeZone != 0) {
             calendar = ProtocolUtils.getCalendar(false, requestTimeZone());
         } else {
@@ -955,22 +884,22 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         }
         calendar.add(Calendar.MILLISECOND, iRoundtripCorrection);
         doSetTime(calendar);
-    } // public void setTime() throws IOException
+    }
 
     private void doSetTime(Calendar calendar) throws IOException {
         byte[] byteTimeBuffer = new byte[14];
 
         byteTimeBuffer[0] = AxdrType.OCTET_STRING.getTag();
         byteTimeBuffer[1] = 12; // length
-        byteTimeBuffer[2] = (byte) (calendar.get(calendar.YEAR) >> 8);
-        byteTimeBuffer[3] = (byte) calendar.get(calendar.YEAR);
-        byteTimeBuffer[4] = (byte) (calendar.get(calendar.MONTH) + 1);
-        byteTimeBuffer[5] = (byte) calendar.get(calendar.DAY_OF_MONTH);
-        byte bDOW = (byte) calendar.get(calendar.DAY_OF_WEEK);
+        byteTimeBuffer[2] = (byte) (calendar.get(Calendar.YEAR) >> 8);
+        byteTimeBuffer[3] = (byte) calendar.get(Calendar.YEAR);
+        byteTimeBuffer[4] = (byte) (calendar.get(Calendar.MONTH) + 1);
+        byteTimeBuffer[5] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+        byte bDOW = (byte) calendar.get(Calendar.DAY_OF_WEEK);
         byteTimeBuffer[6] = bDOW-- == 1 ? (byte) 7 : bDOW;
-        byteTimeBuffer[7] = (byte) calendar.get(calendar.HOUR_OF_DAY);
-        byteTimeBuffer[8] = (byte) calendar.get(calendar.MINUTE);
-        byteTimeBuffer[9] = (byte) calendar.get(calendar.SECOND);
+        byteTimeBuffer[7] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        byteTimeBuffer[8] = (byte) calendar.get(Calendar.MINUTE);
+        byteTimeBuffer[9] = (byte) calendar.get(Calendar.SECOND);
         byteTimeBuffer[10] = (byte) 0x0; // hundreds of seconds
 
         byteTimeBuffer[11] = (byte) (0x80);
@@ -983,13 +912,11 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         }
 
         getCosemObjectFactory().writeObject(ObisCode.fromString("0.0.1.0.0.255"), 8, 2, byteTimeBuffer);
-    } // private void doSetTime(Calendar calendar)
+    }
 
     public Date getTime() throws IOException {
         Clock clock = getCosemObjectFactory().getClock();
-        Date date = clock.getDateTime();
-        //dstFlag = clock.getDstFlag();
-        return date;
+        return clock.getDateTime();
     }
 
     private boolean verifyMeterID() throws IOException {
@@ -1001,9 +928,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     public String getDeviceAddress() throws IOException {
-        String devId = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(new byte[]{0, 0, 42, 0, 0, (byte) 255}), DLMSUtils.attrLN2SN(2), 1).getString();
-        return devId;
-    } // public String getSerialNumber() throws IOException
+        return getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(new byte[]{0, 0, 42, 0, 0, (byte) 255}), DLMSUtils.attrLN2SN(2), 1).getString();
+    }
 
 
     // KV 19012004
@@ -1020,7 +946,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             configProgramChanges = (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
         }
         return configProgramChanges;
-    } // public int requestConfigurationProgramChanges() throws IOException
+    }
 
 
     /**
@@ -1035,7 +961,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 throw new IOException("DLMSSN, requestSAP, Wrong DeviceID!, settings=" + strID + ", meter=" + devID);
             }
         }
-    } // public void requestSAP() throws IOException
+    }
 
     public void connect() throws IOException {
         try {
@@ -1114,7 +1040,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
 
                     if (extendedLogging >= 1) {
-                        logger.info(getRegistersInfo(extendedLogging));
+                        logger.info(getRegistersInfo());
                     }
                 } catch (IOException e) {
                     throw new IOException("connect() error, " + e.getMessage());
@@ -1129,30 +1055,27 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
         validateSerialNumber(); // KV 19012004
 
-    } // public void connect() throws IOException
+    }
 
-    /*
-    *  extendedLogging = 1 current set of logical addresses, extendedLogging = 2..17 historical set 1..16
-    */
-    protected String getRegistersInfo(int extendedLogging) throws IOException {
-        StringBuffer strBuff = new StringBuffer();
+    protected String getRegistersInfo() throws IOException {
+        StringBuilder builder = new StringBuilder();
         Iterator it;
 
         // all total and rate values...
-        strBuff.append("********************* All instantiated objects in the meter *********************\n");
+        builder.append("********************* All instantiated objects in the meter *********************\n");
         for (int i = 0; i < getMeterConfig().getInstantiatedObjectList().length; i++) {
             UniversalObject uo = getMeterConfig().getInstantiatedObjectList()[i];
-            strBuff.append(uo.getObisCode().toString() + " " + uo.getObisCode().getDescription() + "\n");
+            builder.append(uo.getObisCode().toString()).append(" ").append(uo.getObisCode().getDescription()).append("\n");
         }
 
-        strBuff.append("********************* Objects captured into load profile *********************\n");
+        builder.append("********************* Objects captured into load profile *********************\n");
         it = getCosemObjectFactory().getProfileGeneric(loadProfileObisCode).getCaptureObjects().iterator();
         while (it.hasNext()) {
             CapturedObject capturedObject = (CapturedObject) it.next();
-            strBuff.append(capturedObject.getLogicalName().getObisCode().toString() + " " + capturedObject.getLogicalName().getObisCode().getDescription() + " (load profile)\n");
+            builder.append(capturedObject.getLogicalName().getObisCode().toString()).append(" ").append(capturedObject.getLogicalName().getObisCode().getDescription()).append(" (load profile)\n");
         }
 
-        return strBuff.toString();
+        return builder.toString();
     }
 
 
@@ -1172,7 +1095,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         } catch (DLMSConnectionException e) {
             logger.severe("DLMSLN: disconnect(), " + e.getMessage());
         }
-    } // public void disconnect() throws IOException
+    }
 
     public void resetDemand() throws IOException {
         ScriptTable demandResetScriptTable = getCosemObjectFactory().getScriptTable(ObisCode.fromString("0.0.10.0.1.255"));
@@ -1204,25 +1127,23 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
      */
     private void requestObjectList() throws IOException {
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
-    } // public void requestObjectList() throws IOException
+    }
 
 
     public String requestAttribute(short sIC, byte[] LN, byte bAttr) throws IOException {
         return doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
-    } // public String requestAttribute(short sIC,byte[] LN,byte bAttr ) throws IOException
+    }
 
 
     private DataContainer doRequestAttribute(int classId, byte[] ln, int lnAttr) throws IOException {
-        DataContainer dc = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
-        return dc;
-    } // public DataContainer doRequestAttribute(short sIC,byte[] LN,byte bAttr ) throws IOException
+        return getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();}
+
 
     private void validateSerialNumber() throws IOException {
-        boolean check = true;
         if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)) {
             return;
         }
-        String sn = (String) getSerialNumber();
+        String sn = getSerialNumber();
         if ((sn != null) && (sn.compareTo(serialNumber) == 0)) {
             return;
         }
@@ -1246,7 +1167,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() {
         return "UNAVAILABLE";
     }
 
@@ -1274,9 +1195,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
      */
     protected void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
-            Iterator iterator = getRequiredKeys().iterator();
-            while (iterator.hasNext()) {
-                String key = (String) iterator.next();
+            for (Object o : getRequiredKeys()) {
+                String key = (String) o;
                 if (properties.getProperty(key) == null) {
                     throw new MissingPropertyException(key + " key missing");
                 }
@@ -1334,7 +1254,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return doGetRegister(name);
     }
 
@@ -1361,21 +1281,18 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
      *
      * @param name  <br>
      * @param value <br>
-     * @throws IOException             <br>
-     * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     /**
      * this implementation throws UnsupportedException. Subclasses may override
      *
-     * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
     }
 
@@ -1394,10 +1311,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
      *
      * @return a list of strings
      */
-    public List getRequiredKeys() {
-        List result = new ArrayList(0);
-
-        return result;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     /**
@@ -1405,8 +1320,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
      *
      * @return a list of strings
      */
-    public List getOptionalKeys() {
-        List result = new ArrayList(9);
+    public List<String> getOptionalKeys() {
+        List<String> result = new ArrayList<>(14);
         result.add("Timeout");
         result.add("Retries");
         result.add("DelayAfterFail");
@@ -1442,8 +1357,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
+            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, this.ormClient);
+            RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
             try {
                 return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
             } catch (NotFoundException e) {
@@ -1458,8 +1373,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-                RtuDLMS rtu = new RtuDLMS(rtuid);
+                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
+                RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
                 rtuCache.saveObjectList(dc.getObjectList());
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
@@ -1478,7 +1393,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
-                (HHUSignOn) new IEC1107HHUConnection(commChannel, iHDLCTimeoutProperty, iProtocolRetriesProperty, 300, 0);
+                new IEC1107HHUConnection(commChannel, iHDLCTimeoutProperty, iProtocolRetriesProperty, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -1554,16 +1469,16 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
      */
     // message protocol
     public void applyMessages(List messageEntries) throws IOException {
-        Iterator it = messageEntries.iterator();
-        while (it.hasNext()) {
-            MessageEntry messageEntry = (MessageEntry) it.next();
+        for (Object messageEntry1 : messageEntries) {
+            MessageEntry messageEntry = (MessageEntry) messageEntry1;
             if (DEBUG == 1) {
                 System.out.println(messageEntry);
             }
 
-            if (((String) messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">"))).equals(CONNECT)) {
+            if (messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">")).equals(CONNECT)) {
                 messages.add(connectMsg);
-            } else if (((String) messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">"))).equals(DISCONNECT)) {
+            }
+            else if (messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">")).equals(DISCONNECT)) {
                 messages.add(disconnectMsg);
             }
 
@@ -1587,7 +1502,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 switch (breakerState.intValue()) {
 
                     case 0: {
-                        if (((String) messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">"))).equals(DISCONNECT)) {
+                        if (messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">")).equals(DISCONNECT)) {
                             return MessageResult.createSuccess(messageEntry);
                         } else {
                             return MessageResult.createFailed(messageEntry);
@@ -1595,7 +1510,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                     }
 
                     case 1: {
-                        if (((String) messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">"))).equals(CONNECT)) {
+                        if (messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">")).equals(CONNECT)) {
                             return MessageResult.createSuccess(messageEntry);
                         } else {
                             return MessageResult.createFailed(messageEntry);
@@ -1646,43 +1561,43 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
+        builder.append("<");
+        builder.append(msgTag.getName());
 
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0) {
+            if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
+            builder.append(" ").append(att.getSpec().getName());
+            builder.append("=").append('"').append(att.getValue()).append('"');
         }
-        buf.append(">");
+        builder.append(">");
 
         // c. sub elements
         for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
+                builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
+                if (value == null || value.isEmpty()) {
                     return "";
                 }
-                buf.append(value);
+                builder.append(value);
             }
         }
 
         // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
 
-        return buf.toString();
+        return builder.toString();
     }
 
     public String writeValue(MessageValue value) {

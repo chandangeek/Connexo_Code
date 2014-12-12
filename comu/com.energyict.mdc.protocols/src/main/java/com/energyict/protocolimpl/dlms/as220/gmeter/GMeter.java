@@ -76,7 +76,7 @@ public class GMeter {
 		List<ChannelInfo> channelInfos = profileBuilder.buildChannelInfos(scalerunit);
 		profileData.setChannelInfos(channelInfos);
  		DataContainer dc = pg.getBuffer(fromCalendar, toCalendar);
-		profileData.setIntervalDatas(profileBuilder.buildIntervalData(scalerunit, dc));
+		profileData.setIntervalDatas(profileBuilder.buildIntervalData(dc));
 
         if (includeEvents) {
 

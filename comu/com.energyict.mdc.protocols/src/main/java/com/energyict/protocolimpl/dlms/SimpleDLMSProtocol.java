@@ -26,7 +26,6 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
@@ -35,6 +34,8 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -44,14 +45,15 @@ import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -71,16 +73,6 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * The {@link com.energyict.dlms.aso.ConformanceBlock} used
      */
     private ConformanceBlock conformanceBlock;
-
-    /**
-     * The {@link com.energyict.dlms.aso.XdlmsAse} used
-     */
-    private XdlmsAse xdlmsAse;
-
-    /**
-     * The {@link com.energyict.dlms.InvokeIdAndPriority} used
-     */
-    private InvokeIdAndPriority invokeIdAndPriority;
 
     /**
      * The {@link com.energyict.dlms.cosem.CosemObjectFactory} used
@@ -103,11 +95,6 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     private ApplicationServiceObject aso;
 
     /**
-     * The {@link com.energyict.dlms.aso.SecurityProvider} used for DLMS communication
-     */
-    private SecurityProvider securityProvider;
-
-    /**
      * The {@link Properties} of the current RTU
      */
     private Properties properties;
@@ -121,11 +108,6 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * The {@link TimeZone} provided by the ComServer
      */
     private TimeZone timeZone = null;
-
-    /**
-     * The used {@link com.energyict.dlms.aso.SecurityContext}
-     */
-    private SecurityContext securityContext;
 
     /**
      * The used {@link com.energyict.dlms.DLMSCache}
@@ -146,28 +128,26 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     private int forceDelay;
     private int retries;
     private int addressingMode;
-    private int informationFieldSize;
-    private int roundTripCorrection;
-    private int wakeup;
     private int cipheringType;
-    private String ipPortNumber;
     private String manufacturer;
     private int opticalBaudrate;
     private String serialNumber;
-    private String nodeId;
     private String deviceId;
 
     private int iConfigProgramChange = -1;
-
+    private final OrmClient ormClient;
 
     private static final int CONNECTION_MODE_HDLC = 0;
     private static final int CONNECTION_MODE_TCPIP = 1;
-    private static final int CONNECTION_MODE_COSEM_PDU = 2;
-    private static final int CONNECTION_MODE_LLC = 3;
 
     private static final int MAX_PDU_SIZE = 200;
     private static final int PROPOSED_QOS = -1;
     private static final int PROPOSED_DLMS_VERSION = 6;
+
+    @Inject
+    public SimpleDLMSProtocol(OrmClient ormClient) {
+        this.ormClient = ormClient;
+    }
 
     /**
      * <p>
@@ -182,9 +162,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * "password"  (MeterProtocol.PASSWORD) </p>
      *
      * @param properties contains a set of protocol specific key value pairs
-     * @throws com.energyict.protocol.InvalidPropertyException
+     * @throws com.energyict.mdc.protocol.api.InvalidPropertyException
      *          if a property value is not compatible with the device type
-     * @throws com.energyict.protocol.MissingPropertyException
+     * @throws com.energyict.mdc.protocol.api.MissingPropertyException
      *          if a required property is not present
      */
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
@@ -199,9 +179,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @throws InvalidPropertyException if the value of a certain property doesn't match a compatible value
      */
     private void validateProperties() throws MissingPropertyException, InvalidPropertyException {
-        Iterator<String> iterator = getRequiredKeys().iterator();
-        while (iterator.hasNext()) {
-            String key = iterator.next();
+        for (String key : getRequiredKeys()) {
             if (this.properties.getProperty(key) == null) {
                 throw new MissingPropertyException(key + " key missing");
             }
@@ -217,7 +195,6 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
             throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
         }
 
-        this.nodeId = properties.getProperty(MeterProtocol.NODEID, "");
         this.deviceId = properties.getProperty(MeterProtocol.ADDRESS, "");
         this.serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
         this.connectionMode = Integer.parseInt(properties.getProperty("Connection", "1"));
@@ -229,8 +206,6 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         this.retries = Integer.parseInt(properties.getProperty("Retries", "3"));
         this.addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
         this.manufacturer = properties.getProperty("Manufacturer", "WKP");
-        this.informationFieldSize = Integer.parseInt(properties.getProperty("InformationFieldSize", "-1"));
-        this.roundTripCorrection = Integer.parseInt(properties.getProperty("RoundTripCorrection", "0"));
         this.iiapInvokeId = Integer.parseInt(properties.getProperty("IIAPInvokeId", "0"));
         this.iiapPriority = Integer.parseInt(properties.getProperty("IIAPPriority", "1"));
         this.iiapServiceClass = Integer.parseInt(properties.getProperty("IIAPServiceClass", "1"));
@@ -312,7 +287,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         }
 
         NTASecurityProvider localSecurityProvider = new NTASecurityProvider(this.properties);
-        securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider, this.cipheringType);
+        SecurityContext securityContext = new SecurityContext(datatransportSecurityLevel, authenticationSecurityLevel, 0, getSystemIdentifier(), localSecurityProvider, this.cipheringType);
 
         if (this.conformanceBlock == null) {
             if (getReference() == ProtocolLink.SN_REFERENCE) {
@@ -510,14 +485,14 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return Value of property meterConfig.
      */
     public DLMSMeterConfig getMeterConfig() {
-        return this.dlmsMeterConfig;  //To change body of implemented methods use File | Settings | File Templates.
+        return this.dlmsMeterConfig;
     }
 
     /**
      * @return the {@link java.util.TimeZone}
      */
     public TimeZone getTimeZone() {
-        return this.timeZone;  //To change body of implemented methods use File | Settings | File Templates.
+        return this.timeZone;
     }
 
     /**
@@ -527,7 +502,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return true is the {@link java.util.TimeZone} is read from the device
      */
     public boolean isRequestTimeZone() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     /**
@@ -536,7 +511,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the value of the round trip correction
      */
     public int getRoundTripCorrection() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return 0;
     }
 
     /**
@@ -545,7 +520,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the current {@link java.util.logging.Logger}
      */
     public Logger getLogger() {
-        return this.logger;  //To change body of implemented methods use File | Settings | File Templates.
+        return this.logger;
     }
 
     /**
@@ -556,7 +531,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *         {@link com.energyict.dlms.ProtocolLink}.LN_REFERENCE for long name
      */
     public int getReference() {
-        return ProtocolLink.LN_REFERENCE;  //To change body of implemented methods use File | Settings | File Templates.
+        return ProtocolLink.LN_REFERENCE;
     }
 
     /**
@@ -565,7 +540,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the {@link com.energyict.dlms.cosem.StoredValues} object
      */
     public StoredValues getStoredValues() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     /**
@@ -583,10 +558,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
             if (getDLMSConnection() != null) {
                 getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException e) {
-            //absorb -> trying to close communication
-            getLogger().log(Level.FINEST, e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             //absorb -> trying to close communication
             getLogger().log(Level.FINEST, e.getMessage());
         }
@@ -601,7 +573,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the version of the specific protocol implementation
      */
     public String getProtocolVersion() {
-        return "$Date$";  //To change body of implemented methods use File | Settings | File Templates.
+        return "$Date$";
     }
 
     /**
@@ -609,12 +581,10 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *
      * @return the version of the meter firmware
      *         </p>
-     * @throws java.io.IOException Thrown in case of an exception
-     * @throws com.energyict.protocol.UnsupportedException
-     *                             Thrown if method is not supported
+     * @throws IOException Thrown in case of an exception
      */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
-        return "UnKnow";  //To change body of implemented methods use File | Settings | File Templates.
+    public String getFirmwareVersion() throws IOException {
+        return "UnKnow";
     }
 
     /**
@@ -628,10 +598,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *
      * @param includeEvents indicates whether events need to be included
      * @return profile data containing interval records and optional meter events
-     *         </p>
-     * @throws java.io.IOException <br>
      */
-    public ProfileData getProfileData(boolean includeEvents) throws IOException {
+    public ProfileData getProfileData(boolean includeEvents) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
@@ -646,16 +614,12 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * Implementors should throw an exception if all data since lastReading
      * can not be fetched, as the collecting system will update its lastReading
      * setting based on the returned ProfileData
-     * </p><p>
      *
      * @param includeEvents indicates whether events need to be included
      * @param lastReading   retrieve all data younger than lastReading
-     *                      </p><p>
      * @return profile data containing interval records and optional meter events
-     *         </p>
-     * @throws java.io.IOException <br>
      */
-    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
@@ -670,19 +634,15 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * Implementors should throw an exception if data between from and to
      * can not be fetched, as the collecting system will update its lastReading
      * setting based on the returned ProfileData
-     * </p><p>
      *
      * @param includeEvents indicates whether events need to be included
      * @param from          retrieve all data starting with from date
      * @param to            retrieve all data until to date
-     *                      </p><p>
      * @return profile data containing interval records and optional meter events between from and to
-     *         </p>
-     * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws com.energyict.mdc.protocol.api.UnsupportedException
      *                             if meter does not support a to date to request the profile data
      */
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
@@ -690,14 +650,12 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * Fetches the meter reading for the specified logical device channel.
      *
      * @param channelId index of the channel. Indexes start with 1
-     *                  </p><p>
      * @return meter register value as Quantity
-     * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws com.energyict.mdc.protocol.api.UnsupportedException
      *                             if the device does not support this operation
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
@@ -706,49 +664,33 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *
      * @param name register name
      * @return meter register value as Quantity
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws com.energyict.mdc.protocol.api.UnsupportedException
      *                             Thrown if the method is not supported by the protocol
-     * @throws java.io.IOException Thrown in case of an exception
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     /**
-     * <p></p>
-     *
      * @return the device's number of logical channels
-     *         </p>
-     * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
-     *                             if the device does not support this operation
      */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    public int getNumberOfChannels() {
+        return 0;
     }
 
     /**
-     * <p></p>
-     *
      * @return the device's current profile interval in seconds
-     *         </p>
-     * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
-     *                             if the device does not support this operation
      */
-    public int getProfileInterval() throws UnsupportedException, IOException {
-        return 900;  //To change body of implemented methods use File | Settings | File Templates.
+    public int getProfileInterval() {
+        return 900;
     }
 
     /**
-     * <p></p>
-     *
      * @return the current device time
-     * @throws java.io.IOException <br>
      */
-    public Date getTime() throws IOException {
-        return new Date();  //To change body of implemented methods use File | Settings | File Templates.
+    public Date getTime() {
+        return new Date();
     }
 
     /**
@@ -760,12 +702,10 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the value for the specified register
      *         </p><p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws com.energyict.mdc.protocol.api.UnsupportedException
      *                             if the device does not support this operation
-     * @throws com.energyict.protocol.NoSuchRegisterException
-     *                             if the device does not support the specified register
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return doGetRegister(name);
     }
 
@@ -782,7 +722,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
                 final UniversalObject uo = getMeterConfig().getObject(ln);
                 return getCosemObjectFactory().getGenericRead(uo).getDataContainer().print2strDataContainer();
             }
-        } else if (name.indexOf("-") >= 0) { // you get a from/to
+        } else if (name.contains("-")) { // you get a from/to
             final DLMSObis ln2 = new DLMSObis(name.substring(0, name.indexOf("-")));
             if (ln2.isLogicalName()) {
                 final String from = name.substring(name.indexOf("-") + 1, name.indexOf("-", name.indexOf("-") + 1));
@@ -800,15 +740,12 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         }
     }
 
-    private final String requestAttribute(final short sIC, final byte[] LN, final byte bAttr) throws IOException {
+    private String requestAttribute(final short sIC, final byte[] LN, final byte bAttr) throws IOException {
         return this.doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
     }
 
-    // IOException
-
-    private final DataContainer doRequestAttribute(final int classId, final byte[] ln, final int lnAttr) throws IOException {
-        final DataContainer dc = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
-        return dc;
+    private DataContainer doRequestAttribute(final int classId, final byte[] ln, final int lnAttr) throws IOException {
+        return getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(ln), DLMSUtils.attrLN2SN(lnAttr), classId).getDataContainer();
     }
 
     private Calendar convertStringToCalendar(final String strDate) {
@@ -827,12 +764,12 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param value to set the register.
      *              </p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws com.energyict.mdc.protocol.api.UnsupportedException
      *                             if the device does not support this operation
-     * @throws com.energyict.protocol.NoSuchRegisterException
+     * @throws com.energyict.mdc.protocol.api.NoSuchRegisterException
      *                             if the device does not support the specified register
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         boolean classSpecified = false;
         if (name.indexOf(':') >= 0) {
             classSpecified = true;
@@ -845,13 +782,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         }
     }
 
-    /**
-     * Converts the given string.
-     *
-     * @param s The string.
-     * @return
-     */
-    private final byte[] convert(final String s) {
+    private byte[] convert(final String s) {
         if ((s.length() % 2) != 0) {
             throw new IllegalArgumentException("String length is not a modulo 2 hex representation!");
         } else {
@@ -865,27 +796,17 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         }
     }
 
-    /**
-     * <p>
-     * sets the device time to the current system time.
-     * </p><p>
-     *
-     * @throws java.io.IOException Thrown in case of an exception
-     */
-    public void setTime() throws IOException {
+    public void setTime() throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     /**
-     * <p>
      * Initializes the device, typically clearing all profile data
-     * </p>
      *
-     * @throws java.io.IOException <br>
-     * @throws com.energyict.protocol.UnsupportedException
+     * @throws com.energyict.mdc.protocol.api.UnsupportedException
      *                             if the device does not support this operation
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
     }
 
@@ -924,8 +845,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      */
     public Object fetchCache(int rtuid) throws SQLException, BusinessException {
         if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
+            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
+            RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
             try {
                 return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
             } catch (NotFoundException e) {
@@ -949,8 +870,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-                RtuDLMS rtu = new RtuDLMS(rtuid);
+                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
+                RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
                 rtuCache.saveObjectList(dc.getObjectList());
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
@@ -985,9 +906,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *
      * @return a List of String objects
      */
-    public List getRequiredKeys() {
-        List<String> requiredKeys = new ArrayList<String>();
-        return requiredKeys;
+    public List<String> getRequiredKeys() {
+        return Collections.emptyList();
     }
 
     /**
@@ -995,8 +915,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *
      * @return a List of String objects
      */
-    public List getOptionalKeys() {
-        List<String> optionalKeys = new ArrayList<String>();
+    public List<String> getOptionalKeys() {
+        List<String> optionalKeys = new ArrayList<>();
         optionalKeys.add("ForceDelay");
         optionalKeys.add("TimeOut");
         optionalKeys.add("Retries");
@@ -1024,7 +944,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
         optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
         optionalKeys.add(NTASecurityProvider.NEW_HLS_SECRET);
-        return optionalKeys;  //To change body of implemented methods use File | Settings | File Templates.
+        return optionalKeys;
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
@@ -1032,7 +952,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, this.timeOut, this.retries, 300, 0);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.timeOut, this.retries, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(enableDataReadout);

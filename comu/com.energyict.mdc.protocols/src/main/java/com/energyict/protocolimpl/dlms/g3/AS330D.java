@@ -9,7 +9,6 @@ import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
@@ -26,11 +25,12 @@ import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
 import com.energyict.protocolimpl.dlms.g3.profile.G3Profile;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 import com.energyict.protocolimpl.messaging.messages.AnnotatedFWUpdateMessageBuilder;
-import com.energyict.protocols.mdc.services.impl.Bus;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
 import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -46,6 +46,8 @@ import java.util.logging.Level;
 public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdateMessaging {
 
     private static final String TIMEOUT = "timeout";
+
+    private final OrmClient ormClient;
     private final FirmwareUpdateMessageBuilder fwMessageBuilder = new FirmwareUpdateMessageBuilder();
     protected G3Properties properties;
 
@@ -56,6 +58,11 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
     private G3Events events;
     private G3Messaging messaging;
     private G3Cache cache = new G3Cache();
+
+    @Inject
+    public AS330D(OrmClient ormClient) {
+        this.ormClient = ormClient;
+    }
 
     @Override
     protected G3Properties getProperties() {
@@ -107,10 +114,9 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
                 getSession().getDLMSConnection().setRetries(0);   //AARQ retries are handled here
                 getSession().createAssociation(getProperties().getAARQTimeout());
                 return;
+            } catch (DataAccessResultException e) {
+                throw e;
             } catch (IOException e) {
-                if (e instanceof DataAccessResultException) {
-                    throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
-                }
                 exception = e;
             } finally {
                 getSession().getDLMSConnection().setRetries(getProperties().getRetries());
@@ -158,7 +164,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
         if (includeEvents) {
             profileData.setMeterEvents(this.events.getMeterEvents(from, to));
         } else {
-            profileData.setMeterEvents(new ArrayList<MeterEvent>(0));
+            profileData.setMeterEvents(new ArrayList<>(0));
         }
         profileData.sort();
         return profileData;
@@ -268,7 +274,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
     @Override
     public Object fetchCache(int rtuid) throws SQLException, BusinessException {
         if (rtuid != 0) {
-            RTUCache rtuCache = new RTUCache(rtuid);
+            RTUCache rtuCache = new RTUCache(rtuid, ormClient);
             try {
                 return rtuCache.getCacheObject();
             } catch (NotFoundException e) {
@@ -285,12 +291,12 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
     public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
             try {
-                Bus.getOrmClient().execute(new VoidTransaction() {
+                this.ormClient.execute(new VoidTransaction() {
                     @Override
                     protected void doPerform() {
                         try {
                             G3Cache dc = (G3Cache) cacheObject;
-                            new RTUCache(rtuid).setBlob(dc);
+                            new RTUCache(rtuid, ormClient).setBlob(dc);
                         }
                         catch (SQLException e) {
                             throw new LocalSQLException(e);

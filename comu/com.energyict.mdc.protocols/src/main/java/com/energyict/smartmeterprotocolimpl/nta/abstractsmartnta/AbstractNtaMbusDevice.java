@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 
@@ -28,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -52,9 +54,9 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
 
     public abstract MessageProtocol getMessageProtocol();
 
-    protected AbstractNtaMbusDevice(TopologyService topologyService) {
+    protected AbstractNtaMbusDevice(TopologyService topologyService, OrmClient ormClient) {
         this.topologyService = topologyService;
-        this.meterProtocol = new WebRTUKP(topologyService);
+        this.meterProtocol = new WebRTUKP(topologyService, ormClient);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }
@@ -187,32 +189,32 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
     }
 
     @Override
-    public Date getTime() throws IOException {
+    public Date getTime() throws UnsupportedException {
         throw new UnsupportedException("The Mbus device does not have a time");
     }
 
     @Override
-    public void setTime(Date newMeterTime) throws IOException {
+    public void setTime(Date newMeterTime) {
         // nothing to set
     }
 
     @Override
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() {
         // nothing to initialize
     }
 
     @Override
-    public void release() throws IOException {
+    public void release() {
         // nothing to release
     }
 
     @Override
-    public RegisterInfo translateRegister(Register register) throws IOException {
+    public RegisterInfo translateRegister(Register register) throws UnsupportedException {
         throw new UnsupportedException("The Mbus device can't translate his registers ...");
     }
 
     @Override
-    public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
+    public List<RegisterValue> readRegisters(List<Register> registers) throws UnsupportedException {
         throw new UnsupportedException("The Mbus device does not read his own registers, his master will do this.");
     }
 
@@ -232,22 +234,22 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
     }
 
     @Override
-    public void updateCache(int rtuId, Object cacheObject) throws SQLException, BusinessException {
+    public void updateCache(int rtuId, Object cacheObject) {
         // nothing to update
     }
 
     @Override
-    public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
+    public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws UnsupportedException {
         throw new UnsupportedException("The Mbus device does not read his own events, his master will do this for him.");
     }
 
     @Override
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
+    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws UnsupportedException {
         throw new UnsupportedException("The Mbus device does not fetch his own loadProfiles configs, his master will do this for him");
     }
 
     @Override
-    public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
+    public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws UnsupportedException {
         throw new UnsupportedException("The Mbus device does not read his own loadProfiles, his master will do this for him");
     }
     /**
@@ -265,8 +267,7 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
      * @return a List of String objects
      */
     public List<String> getOptionalKeys() {
-        final ArrayList<String> optionals = new ArrayList<>(1);
-        optionals.add(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
-        return optionals;
+        return Arrays.asList(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
     }
+
 }

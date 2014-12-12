@@ -1,20 +1,3 @@
-/**
- * @version 2.0
- * @author Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Base class that implements the DLMS SN (short name) protocol
- * <BR>
- * <B>@beginchanges</B><BR>
- *      KV 08042003 Initial version.<BR>
- *      KV 08102003 Save dstFlag when getTime() to be used in setTime()
- *      KV 14072004 DLMSMeterConfig made multithreaded! singleton pattern implementation removed!
- *      KV 20082004 Extended with obiscode mapping for register reading + start reengineering to use cosem package
- *      KV 30082004 Reengineered to use cosem package
- *@endchanges
- */
-
-
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
@@ -51,6 +34,8 @@ import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
 import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
@@ -64,6 +49,7 @@ import com.energyict.protocols.util.CacheMechanism;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -72,6 +58,21 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+/**
+ * @version 2.0
+ * @author Koenraad Vanderschaeve
+ * <P>
+ * <B>Description :</B><BR>
+ * Base class that implements the DLMS SN (short name) protocol
+ * <BR>
+ * <B>@beginchanges</B><BR>
+ *      KV 08042003 Initial version.<BR>
+ *      KV 08102003 Save dstFlag when getTime() to be used in setTime()
+ *      KV 14072004 DLMSMeterConfig made multithreaded! singleton pattern implementation removed!
+ *      KV 20082004 Extended with obiscode mapping for register reading + start reengineering to use cosem package
+ *      KV 30082004 Reengineered to use cosem package
+ *@endchanges
+ */
 public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
 
     private static final String PR_OPTICAL_BAUDRATE = "OpticalBaudrate";
@@ -107,9 +108,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private static final int CONNECTION_MODE_COSEM_PDU = 2;
     private static final int CONNECTION_MODE_LLC = 3;
 
-
     private boolean debug = false;
-
     private DLMSCache dlmsCache = new DLMSCache();
 
     private String strID;
@@ -165,6 +164,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private int iForcedDelay;
     private int limitMaxNrOfDays;
     private boolean readPlcLogbook;
+    private final OrmClient ormClient;
 
     /**
      * Do some extra connect settings
@@ -175,11 +175,8 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
 
     protected abstract String getRegistersInfo() throws IOException;
 
-    /**
-     * Creates a new instance of DLMSSNAS220, empty constructor
-     */
-    public DLMSSNAS220() {
-
+    public DLMSSNAS220(OrmClient ormClient) {
+        this.ormClient = ormClient;
     }
 
     /**
@@ -676,10 +673,10 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
         if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
+            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
+            RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
             try {
                 return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
             } catch (NotFoundException e) {
@@ -690,12 +687,12 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-                RtuDLMS rtu = new RtuDLMS(rtuid);
+                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
+                RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
                 rtuCache.saveObjectList(dc.getObjectList());
                 rtu.setConfProgChange(dc.getConfProgChange());
             }

@@ -6,6 +6,7 @@ import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
@@ -28,8 +29,8 @@ public class REMIDatalogger extends E350 {
     private LoadProfileBuilder loadProfileBuilder;
 
     @Inject
-    public REMIDatalogger(TopologyService topologyService) {
-        super(topologyService);
+    public REMIDatalogger(TopologyService topologyService, OrmClient ormClient) {
+        super(topologyService, ormClient);
     }
 
     @Override

@@ -6,12 +6,15 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300Properties;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messaging;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.EventLogs;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,6 +26,11 @@ import java.util.List;
  * Time: 14:48
  */
 public class AS300DPET extends AS300 {
+
+    @Inject
+    public AS300DPET(OrmClient ormClient) {
+        super(ormClient);
+    }
 
     @Override
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {

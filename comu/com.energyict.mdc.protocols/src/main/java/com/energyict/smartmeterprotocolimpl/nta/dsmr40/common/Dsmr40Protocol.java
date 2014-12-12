@@ -8,6 +8,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
@@ -27,8 +28,8 @@ import java.util.logging.Level;
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
     @Inject
-    public Dsmr40Protocol(TopologyService topologyService) {
-        super(topologyService);
+    public Dsmr40Protocol(TopologyService topologyService, OrmClient ormClient) {
+        super(topologyService, ormClient);
     }
 
     @Override

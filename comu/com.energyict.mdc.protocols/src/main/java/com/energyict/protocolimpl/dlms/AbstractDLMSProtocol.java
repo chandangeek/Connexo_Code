@@ -34,6 +34,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +53,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractDLMSProtocol extends AbstractProtocol implements ProtocolLink, HHUEnabler {
 
+    private final OrmClient ormClient;
     protected ApplicationServiceObject aso;
     protected DLMSCache dlmsCache;
     protected ConformanceBlock conformanceBlock;
@@ -124,6 +126,15 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
 
     protected int maxRecPduSize;
 
+    protected AbstractDLMSProtocol(OrmClient ormClient) {
+        super();
+        this.ormClient = ormClient;
+    }
+
+    protected OrmClient getOrmClient() {
+        return ormClient;
+    }
+
     @Override
     public abstract void validateSerialNumber() throws IOException;
 
@@ -195,7 +206,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         if (rtuid != 0) {
 
             /* Use the RTUCache to get the blob from the database */
-            RTUCache rtu = new RTUCache(rtuid);
+            RTUCache rtu = new RTUCache(rtuid, ormClient);
             try {
                 return rtu.getCacheObject();
             } catch (IOException e) {
@@ -210,7 +221,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
             /* Use the RTUCache to set the blob (cache) to the database */
-            RTUCache rtu = new RTUCache(rtuid);
+            RTUCache rtu = new RTUCache(rtuid, ormClient);
             rtu.setBlob(cacheObject);
         }
     }

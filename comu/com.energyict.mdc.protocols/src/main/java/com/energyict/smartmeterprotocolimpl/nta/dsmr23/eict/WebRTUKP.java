@@ -10,6 +10,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
 import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -27,8 +28,8 @@ import java.io.IOException;
 public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging, HHUEnabler {
 
     @Inject
-    public WebRTUKP(TopologyService topologyService) {
-        super(topologyService);
+    public WebRTUKP(TopologyService topologyService, OrmClient ormClient) {
+        super(topologyService, ormClient);
         setLoadProfileBuilder(new WebRTUKPLoadProfileBuilder(this));
     }
 

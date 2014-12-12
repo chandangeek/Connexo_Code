@@ -37,6 +37,8 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -44,6 +46,7 @@ import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -102,12 +105,11 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     private int dstFlag; // -1=unknown, 0=not set, 1=set
     int addressingMode;
     int connectionMode;
+    private final OrmClient ormClient;
 
-    /*
-      * Constructors
-      */
-
-    public EK2xx() {
+    @Inject
+    public EK2xx(OrmClient ormClient) {
+        this.ormClient = ormClient;
         this.meterConfig = DLMSMeterConfig.getInstance(getDeviceID());
         this.ek2xxAarq = new EK2xxAarq(this);
         this.ek2xxRegisters = new EK2xxRegisters();
@@ -297,8 +299,8 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
 
     public Object fetchCache(int rtuid) throws SQLException, BusinessException {
         if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
+            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, this.ormClient);
+            RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
             try {
                 return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
             } catch (NotFoundException e) {

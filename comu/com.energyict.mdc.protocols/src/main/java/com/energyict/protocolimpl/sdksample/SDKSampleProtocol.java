@@ -27,7 +27,6 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
@@ -44,12 +43,15 @@ import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -62,10 +64,10 @@ import java.util.Properties;
  */
 public class SDKSampleProtocol extends AbstractProtocol implements MessageProtocol {
 
-    private static final Date Date = null;
-    private static String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
-    private static String FIRMWAREPROGRAM_DISPLAY = "Upgrade Meter Firmware";
+    private static final String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
+    private static final String FIRMWAREPROGRAM_DISPLAY = "Upgrade Meter Firmware";
 
+    private final OrmClient ormClient;
     private CacheObject cache;
 
     SDKSampleProtocolConnection connection;
@@ -73,10 +75,9 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     private boolean simulateRealCommunication = false;
     ObisCode loadProfileObisCode;
 
-    /**
-     * Creates a new instance of SDKSampleProtocol
-     */
-    public SDKSampleProtocol() {
+    @Inject
+    public SDKSampleProtocol(OrmClient ormClient) {
+        this.ormClient = ormClient;
     }
 
     /**
@@ -135,7 +136,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         // a. Opening tag
         buf.append("<");
@@ -144,7 +145,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
+            if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
             }
             buf.append(" ").append(att.getSpec().getName());
@@ -159,7 +160,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
                 buf.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if ((value == null) || (value.length() == 0)) {
+                if ((value == null) || (value.isEmpty())) {
                     return "";
                 }
                 buf.append(value);
@@ -330,16 +331,12 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         // Override or add new properties here e.g. below
         setSDKSampleProperty(Integer.parseInt(properties.getProperty("SDKSampleProperty", "123")));
-        this.simulateRealCommunication = properties.getProperty("SimulateRealCommunication", "0").trim().equalsIgnoreCase("1");
+        this.simulateRealCommunication = "1".equalsIgnoreCase(properties.getProperty("SimulateRealCommunication", "0").trim());
         setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
     }
 
-    protected List doGetOptionalKeys() {
-        List list = new ArrayList();
-        //add new properties here, e.g. below
-        list.add("SDKSampleProperty");
-        list.add("SimulateRealCommunication");
-        return list;
+    protected List<String> doGetOptionalKeys() {
+        return Arrays.asList("SDKSampleProperty", "SimulateRealCommunication");
     }
 
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
@@ -350,7 +347,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         return connection;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         getLogger().info("call overrided method getNumberOfChannels() (return 2 as sample)");
         getLogger().info("--> report the nr of load profile channels in the meter here");
         doGenerateCommunication();
@@ -381,7 +378,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         getLogger().info("call getFirmwareVersion()");
         getLogger().info("--> report the firmware version and other important meterinfo here");
         doGenerateCommunication();
@@ -435,7 +432,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
             /* Use the RTUCache to set the blob (cache) to the database */
-            RTUCache rtu = new RTUCache(rtuid);
+            RTUCache rtu = new RTUCache(rtuid, ormClient);
             rtu.setBlob(cacheObject);
         }
     }
@@ -454,7 +451,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         if (rtuid != 0) {
 
             /* Use the RTUCache to get the blob from the database */
-            RTUCache rtu = new RTUCache(rtuid);
+            RTUCache rtu = new RTUCache(rtuid, ormClient);
             try {
                 return rtu.getCacheObject();
             } catch (IOException e) {

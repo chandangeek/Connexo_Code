@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.KaifaDsmr40MessageExecutor;
@@ -23,8 +24,8 @@ import java.io.IOException;
 public class Kaifa extends E350 {
 
     @Inject
-    public Kaifa(TopologyService topologyService) {
-        super(topologyService);
+    public Kaifa(TopologyService topologyService, OrmClient ormClient) {
+        super(topologyService, ormClient);
     }
 
     @Override

@@ -19,9 +19,11 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.events.MT880EventProfile;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.profiles.LoadProfileBuilder;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +51,11 @@ public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProt
 
     /** the Messaging class used to send out all device messages **/
     private MT880Messaging messaging;
+
+    @Inject
+    public IskraMT880(OrmClient ormClient) {
+        super(ormClient);
+    }
 
     @Override
     protected DlmsProtocolProperties getProperties() {

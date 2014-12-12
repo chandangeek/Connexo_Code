@@ -1,20 +1,3 @@
-/**
- * @version 2.0
- * @author Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Base class that implements the DLMS SN (short name) protocol
- * <BR>
- * <B>@beginchanges</B><BR>
- *      KV 08042003 Initial version.<BR>
- *      KV 08102003 Save dstFlag when getTime() to be used in setTime()
- *      KV 14072004 DLMSMeterConfig made multithreaded! singleton pattern implementation removed!
- *      KV 20082004 Extended with obiscode mapping for register reading + start reengineering to use cosem package
- *      KV 30082004 Reengineered to use cosem package
- *@endchanges
- */
-
-
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.common.NotFoundException;
@@ -56,6 +39,8 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -73,6 +58,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -84,8 +70,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism {
+public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism {
 
+    private final OrmClient ormClient;
     protected abstract String getDeviceID();
 
     protected abstract void buildProfileData(byte bNROfChannels, ProfileData profileData, ScalerUnit[] scalerunit, UniversalObject[] intervalList) throws IOException;
@@ -167,7 +154,6 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * Contains the Configuration of a DLMS meter
      */
     private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance();
-    ;
 
     // Added for MeterProtocol interface implementation
     private Logger logger = null;
@@ -179,12 +165,10 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
     int addressingMode;
     int connectionMode;
 
-    /**
-     * Creates a new instance of DLMSSN, empty constructor
-     */
-    public DLMSSN() {
-
-    } // public DLMSSN(...)
+    protected DLMSSN(OrmClient ormClient) {
+        super();
+        this.ormClient = ormClient;
+    }
 
     public DLMSConnection getDLMSConnection() {
         return dlmsConnection;
@@ -983,10 +967,10 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
         if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
+            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
+            RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
             try {
                 return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
             } catch (NotFoundException e) {
@@ -997,13 +981,13 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
                 //System.out.println("KV_DEBUG>> rtuid="+rtuid+", "+new Date()+" update cache="+dc.getObjectList()+", confchange="+dc.getConfProgChange()+", ischanged="+dc.isChanged()); // KV_DEBUG
-                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-                RtuDLMS rtu = new RtuDLMS(rtuid);
+                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
+                RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
                 rtuCache.saveObjectList(dc.getObjectList());
                 rtu.setConfProgChange(dc.getConfProgChange());
             }

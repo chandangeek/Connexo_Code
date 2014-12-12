@@ -1,14 +1,3 @@
-/**
- * @author Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Class that implements the DLMS COSEM meter protocol of the Actaris SL7000 meter with LN referencing.
- * <BR>
- * <B>@beginchanges</B><BR>
- * 	JM|22052009|Fixed billing point issue in ACE6000 and SL7000 DLMS protocols.
- * @endchanges
- */
-
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
 import com.energyict.mdc.common.NotFoundException;
@@ -49,6 +38,8 @@ import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -62,11 +53,14 @@ import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -77,8 +71,6 @@ import java.util.logging.Logger;
 public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
-
-    private static final byte[] profileLN = {0, 0, 99, 1, 0, (byte) 255};
     private static final int iNROfIntervals = 50000;
 
     private int iInterval = 0;
@@ -93,7 +85,6 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
     private int iHDLCTimeoutProperty;
     private int iProtocolRetriesProperty;
-    //    private int iDelayAfterFailProperty;
     private int iSecurityLevelProperty;
     private int iRequestTimeZone;
     private int iRoundtripCorrection;
@@ -102,8 +93,6 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     private int iServerLowerMacAddress;
     private String firmwareVersion;
     private int alarmStatusFlagChannel;
-
-    //private boolean boolAbort=false;
 
     CapturedObjects capturedObjects = null;
 
@@ -137,27 +126,20 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     private static final int EXCESS_DEMAND = 8192;
     private static final int PARAMETER_PROGRAMMING = 16384;
 
-    // DLMS PDU offsets
-    private static final byte DL_COSEMPDU_DATA_OFFSET = 0x07;
-
     // Added for MeterProtocol interface implementation
     private Logger logger = null;
     private TimeZone timeZone = null;
-//    private Properties properties=null;
-
-    // filled in when getTime is invoked!
-//    private int dstFlag; // -1=unknown, 0=not set, 1=set
 
     private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("SLB");
     private DLMSCache dlmsCache = new DLMSCache();
     private int extendedLogging;
     int addressingMode;
     int connectionMode;
+    private final OrmClient ormClient;
 
-    /**
-     * Creates a new instance of ACE6000, empty constructor
-     */
-    public ACE6000() {
+    @Inject
+    public ACE6000(OrmClient ormClient) {
+        this.ormClient = ormClient;
     }
 
     public DLMSConnection getDLMSConnection() {
@@ -255,10 +237,9 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     }
 
     private byte[] buildaarq(byte[] aarq1, byte[] aarq2) {
-        byte[] aarq = null;
         int i, t = 0;
         // prepare aarq buffer
-        aarq = new byte[3 + aarq1.length + 1 + strPassword.length() + aarq2.length];
+        byte[] aarq = new byte[3 + aarq1.length + 1 + strPassword.length() + aarq2.length];
         // copy aarq1 to aarq buffer
         for (i = 0; i < aarq1.length; i++) {
             aarq[t++] = aarq1[i];
@@ -280,21 +261,10 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
             aarq[t++] = aarq2[i];
         }
 
-        aarq[4] = (byte) (((int) aarq.length & 0xFF) - 5); // Total length of frame - headerlength
+        aarq[4] = (byte) ((aarq.length & 0xFF) - 5); // Total length of frame - headerlength
 
         return aarq;
     }
-
-    /**
-     * Method to request the Application Association Establishment for a DLMS session.
-     *
-     * @throws IOException
-     */
-    public void requestApplAssoc() throws IOException {
-        byte[] aarq;
-        aarq = getLowLevelSecurity();
-        doRequestApplAssoc(aarq);
-    } // public void requestApplAssoc() throws IOException
 
     private void requestApplAssoc(int iLevel) throws IOException {
         byte[] aarq;
@@ -1531,9 +1501,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
      * @return a list of strings
      */
     public List getRequiredKeys() {
-        List result = new ArrayList(0);
-
-        return result;
+        return Collections.emptyList();
     }
 
     /**
@@ -1542,7 +1510,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
      * @return a list of strings
      */
     public List getOptionalKeys() {
-        List result = new ArrayList();
+        List<String> result = new ArrayList<>();
         result.add("Timeout");
         result.add("Retries");
         result.add("DelayAfterFail");
@@ -1571,10 +1539,10 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
+    public Object fetchCache(int rtuid) throws SQLException, BusinessException {
         if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
+            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
+            RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
             try {
                 return new DLMSCache(rtuCache.getObjectList(), rtu.getConfProgChange());
             } catch (NotFoundException e) {
@@ -1585,12 +1553,12 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-                RtuDLMS rtu = new RtuDLMS(rtuid);
+                RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid, ormClient);
+                RtuDLMS rtu = new RtuDLMS(rtuid, ormClient);
                 rtuCache.saveObjectList(dc.getObjectList());
                 rtu.setConfProgChange(dc.getConfProgChange());
             }

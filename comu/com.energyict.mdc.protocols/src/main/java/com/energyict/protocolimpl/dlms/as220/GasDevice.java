@@ -18,6 +18,8 @@ import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
@@ -31,6 +33,7 @@ import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GasRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,6 +58,11 @@ public class GasDevice extends AS220 implements MessageProtocol{
     private final GMeter gMeter = new GMeter(this);
     private GMeterMessaging messaging;
     private int dif = -1;
+
+	@Inject
+	public GasDevice(OrmClient ormClient) {
+		super(ormClient);
+	}
 
 	@Override
 	public int getNumberOfChannels() throws IOException {

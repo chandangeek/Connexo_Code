@@ -18,6 +18,8 @@ import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -36,8 +38,10 @@ import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.idis.registers.IDISStoredValues;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -72,6 +76,11 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     private IDISStoredValues storedValues = null;
     private ObisCodeMapper obisCodeMapper = null;
     private int limitMaxNrOfDays = 0;
+
+    @Inject
+    public IDIS(OrmClient ormClient) {
+        super(ormClient);
+    }
 
     private ProfileDataReader getProfileDataReader() {
         if (profileDataReader == null) {
@@ -163,13 +172,13 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     }
 
     @Override
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         if (to == null) {
             to = ProtocolUtils.getCalendar(getTimeZone()).getTime();
             getLogger().info("getProfileData: toDate was 'null'. Changing toDate to: " + to);
         }
         ProfileData profileData = getProfileDataReader().getProfileData(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
-        if ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0)) {
+        if ((profileData.getIntervalDatas().isEmpty()) && (getLimitMaxNrOfDays() > 0)) {
             profileData = getProfileDataReader().getProfileData(from, to, includeEvents);
         }
         return profileData;
@@ -202,7 +211,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     }
 
     protected boolean validateInvokeId() {
-        return Integer.parseInt(properties.getProperty(this.VALIDATE_INVOKE_ID, this.DEFAULT_VALIDATE_INVOKE_ID)) == 1;
+        return Integer.parseInt(properties.getProperty(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID)) == 1;
     }
 
     @Override
@@ -242,7 +251,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
 
     @Override
     protected List doGetOptionalKeys() {
-        List<String> optional = new ArrayList<String>();
+        List<String> optional = new ArrayList<>();
         optional.add(DlmsProtocolProperties.CLIENT_MAC_ADDRESS);
         optional.add(PROPNAME_SERVER_LOWER_MAC_ADDRESS);
         optional.add(PROPNAME_SERVER_UPPER_MAC_ADDRESS);
@@ -258,10 +267,8 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     }
 
     @Override
-    public List getRequiredKeys() {
-        List<String> required = new ArrayList<String>();
-        required.add(MeterProtocol.SERIALNUMBER);
-        return required;
+    public List<String> getRequiredKeys() {
+        return Arrays.asList(MeterProtocol.SERIALNUMBER);
     }
 
     @Override
@@ -278,7 +285,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     }
 
     @Override
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         Data data = getCosemObjectFactory().getData(FIRMWARE_VERSION);
         return data.getString();
     }
@@ -292,7 +299,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     }
 
     @Override
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         return getCosemObjectFactory().getProfileGeneric(getLoadProfileObisCode()).getCapturePeriod();
     }
 
@@ -308,7 +315,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     }
 
     @Override
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(getLoadProfileObisCode());
         return getProfileDataReader().getChannelInfo(profileGeneric.getCaptureObjects()).size();
     }

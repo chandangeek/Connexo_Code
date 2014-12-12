@@ -43,7 +43,9 @@ import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RTUCache;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -62,13 +64,13 @@ import java.util.Properties;
  */
 public class EICTTestProtocol extends AbstractProtocol implements MessageProtocol  {
 
-	private static final Date Date = null;
-	private static String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
-	private static String FIRMWAREPROGRAM_DISPLAY_1 = "Upgrade Meter Firmware 1";
-	private static String FIRMWAREPROGRAM_DISPLAY_2 = "Upgrade Meter Firmware 2";
-	private static String FIRMWAREPROGRAM_DISPLAY_3 = "Upgrade Meter Firmware 3";
+	private static final String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
+	private static final String FIRMWAREPROGRAM_DISPLAY_1 = "Upgrade Meter Firmware 1";
+	private static final String FIRMWAREPROGRAM_DISPLAY_2 = "Upgrade Meter Firmware 2";
+	private static final String FIRMWAREPROGRAM_DISPLAY_3 = "Upgrade Meter Firmware 3";
 	private static String INCLUDE_FILE_TAG = "FirmwareFileID";
 
+	private final OrmClient ormClient;
 	private CacheObject cache;
 
 	EICTTestProtocolConnection connection;
@@ -77,8 +79,9 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 
 	private long steps;
 
-    /** Creates a new instance of EICTTestProtocol */
-    public EICTTestProtocol() {
+	@Inject
+    public EICTTestProtocol(OrmClient ormClient) {
+	    this.ormClient = ormClient;
     }
 
     /*******************************************************************************************
@@ -165,7 +168,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     }
 
     public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         // a. Opening tag
         buf.append("<");
@@ -174,7 +177,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         // b. Attributes
         for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext();) {
             MessageAttribute att = (MessageAttribute)it.next();
-            if ((att.getValue()==null) || (att.getValue().length()==0)) {
+            if ((att.getValue()==null) || (att.getValue().isEmpty())) {
 				continue;
 			}
             buf.append(" ").append(att.getSpec().getName());
@@ -189,7 +192,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 				buf.append( writeTag((MessageTag)elt) );
 			} else if (elt.isValue()) {
                 String value = writeValue((MessageValue)elt);
-                if ((value==null) || (value.length()==0)) {
+                if ((value==null) || (value.isEmpty())) {
 					return "";
 				}
                 buf.append(value);
@@ -236,7 +239,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 
         ProfileData pd = new ProfileData();
 
-		boolean isCumulative = false;
+		boolean isCumulative;
 		if (getLoadProfileObisCode().getD() == 1) {
 			isCumulative = false;
 		} else if (getLoadProfileObisCode().getD() == 2) {
@@ -613,7 +616,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
         if(rtuid != 0){
             /* Use the RTUCache to set the blob (cache) to the database */
-            RTUCache rtu = new RTUCache(rtuid);
+            RTUCache rtu = new RTUCache(rtuid, ormClient);
             rtu.setBlob(cacheObject);
         }
     }
@@ -632,7 +635,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         if(rtuid != 0){
 
             /* Use the RTUCache to get the blob from the database */
-            RTUCache rtu = new RTUCache(rtuid);
+            RTUCache rtu = new RTUCache(rtuid, ormClient);
             try {
                 return rtu.getCacheObject();
             } catch (IOException e) {

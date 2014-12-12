@@ -34,6 +34,8 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.MessageBuilder;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.messaging.Message;
@@ -45,6 +47,7 @@ import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging.ZMDMessages;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -93,7 +96,9 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
 
     private final ZMDMessages messageProtocol;
 
-    public ZMD() {
+    @Inject
+    public ZMD(OrmClient ormClient) {
+        super(ormClient);
         this.messageProtocol = new ZMDMessages(this);
     }
 

@@ -22,6 +22,8 @@ import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.MessageBuilder;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocols.messaging.TimeOfUseMessaging;
@@ -33,6 +35,7 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling.ApolloEv
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messaging;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -52,6 +55,11 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     private RegisterReader registerReader;
     protected AS300LoadProfileBuilder loadProfileBuilder;
     protected AS300Messaging messageProtocol;
+
+    @Inject
+    public AS300(OrmClient ormClient) {
+        super(ormClient);
+    }
 
     @Override
     public AS300Properties getProperties() {

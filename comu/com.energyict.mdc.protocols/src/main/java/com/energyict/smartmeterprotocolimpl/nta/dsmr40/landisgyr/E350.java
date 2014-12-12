@@ -9,6 +9,8 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.protocol.api.HHUEnabler;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
@@ -27,8 +29,8 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     private LoadProfileBuilder loadProfileBuilder;
 
     @Inject
-    public E350(TopologyService topologyService) {
-        super(topologyService);
+    public E350(TopologyService topologyService, OrmClient ormClient) {
+        super(topologyService, ormClient);
     }
 
     @Override

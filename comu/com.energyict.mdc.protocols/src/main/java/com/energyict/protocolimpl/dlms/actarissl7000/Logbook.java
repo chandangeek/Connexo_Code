@@ -83,8 +83,8 @@ public class Logbook {
         this.timeZone=timeZone;
     }
 
-    public List getMeterEvents(DataContainer dc) {
-        List meterEvents = new ArrayList(); // of type MeterEvent
+    public List<MeterEvent> getMeterEvents(DataContainer dc) {
+        List<MeterEvent> meterEvents = new ArrayList<>();
 
         int size = dc.getRoot().getNrOfElements();
         Date eventTimeStamp = null; //new Date();
@@ -96,8 +96,12 @@ public class Logbook {
             eventTimeStamp = new Date(ds.getOctetString(2).toDate(eventTimeStamp,timeZone).getTime());
 
             MeterEvent meterEvent = buildMeterEvent(eventType,eventParameter,eventTimeStamp);
-            if (meterEvent != null) meterEvents.add(meterEvent);
-            if (DEBUG >= 1) System.out.println("KV_DEBUG> eventType="+eventType+", eventParameter="+eventParameter+", eventId="+eventId+", eventTimeStamp="+eventTimeStamp);
+            if (meterEvent != null) {
+                meterEvents.add(meterEvent);
+            }
+            if (DEBUG >= 1) {
+                System.out.println("KV_DEBUG> eventType=" + eventType + ", eventParameter=" + eventParameter + ", eventId=" + eventId + ", eventTimeStamp=" + eventTimeStamp);
+            }
         }
 
 

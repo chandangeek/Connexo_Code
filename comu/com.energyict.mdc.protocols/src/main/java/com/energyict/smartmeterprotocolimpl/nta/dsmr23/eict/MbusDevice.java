@@ -5,6 +5,8 @@ import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
@@ -14,7 +16,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessag
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -24,8 +25,8 @@ import java.util.Properties;
 public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
     @Inject
-    public MbusDevice(TopologyService topologyService) {
-        super(topologyService);
+    public MbusDevice(TopologyService topologyService, OrmClient ormClient) {
+        super(topologyService, ormClient);
     }
 
     @Override
@@ -49,7 +50,6 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
 
     @Override
     public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
     }
 
     @Override
@@ -60,15 +60,6 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     @Override
     public List<PropertySpec> getOptionalProperties() {
         return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    /**
-     * add the properties
-     *
-     * @param properties properties to add
-     */
-    public void addProperties(final Properties properties) {
-        //TODO implement proper functionality.
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
