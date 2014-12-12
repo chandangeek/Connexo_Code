@@ -111,7 +111,6 @@ public class InstallServiceImpl implements InstallService, TranslationKeyProvide
         new Installer(dataModel, issueService).install(true);
 
         Installer.run(this::createPrivileges, "privileges");
-        Installer.run(this::assignPrivilegesToDefaultRoles, "default roles");
         Installer.run(this::createIssueOverdueTask, "overdue task");
         Installer.run(this::createActionTypes, "action types");
     }
@@ -124,11 +123,6 @@ public class InstallServiceImpl implements InstallService, TranslationKeyProvide
     private void createPrivileges() {
         this.userService.createResourceWithPrivileges("MDC", "issue.issues", "issue.issues.description", new String[]{Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
         this.userService.createResourceWithPrivileges("MDC", "issueConfiguration.issueConfigurations", "issueConfiguration.issueConfigurations.description", new String[]{Privileges.VIEW_CREATION_RULE, Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_ASSIGNMENT_RULE});
-    }
-
-    private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[]{Privileges.VIEW_CREATION_RULE, Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_ASSIGNMENT_RULE, Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[]{Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE, Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.ACTION_ISSUE});
     }
 
     private void createIssueOverdueTask() {
