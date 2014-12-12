@@ -273,7 +273,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         }
     }
 
-    public enum Period {
+    enum Period {
         YEAR(ChronoField.YEAR), MONTH(ChronoField.MONTH_OF_YEAR), WEEK(IsoFields.WEEK_OF_WEEK_BASED_YEAR) {
             public ZonedDateTime truncate(ZonedDateTime time) {
                 ZonedDateTime result = time;
