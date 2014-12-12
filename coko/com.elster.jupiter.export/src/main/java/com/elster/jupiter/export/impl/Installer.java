@@ -53,8 +53,7 @@ class Installer {
                 this::createDestinationAndSubscriber,
                 this::createRelativePeriodcategory,
                 this::createTranslations,
-                this::createPrivileges,
-                this::assignPrivilegesToDefaultRoles
+                this::createPrivileges
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
     }
@@ -95,11 +94,6 @@ class Installer {
     private void createPrivileges() {
         userService.createResourceWithPrivileges("SYS", "dataExportTask.dataExportTasks", "dataExportTask.dataExportTasks.description", new String[]
                 {Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.VIEW_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK});
-    }
-
-
-    private void assignPrivilegesToDefaultRoles() {
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, new String[] {Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.VIEW_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK});
     }
 
 }
