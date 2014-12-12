@@ -50,17 +50,12 @@ public class Installer {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
         createPrivileges();
-        assignPrivilegesToDefaultRoles();
         createEventTypes();
         createTranslations();
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "schedule.schedules", "schedule.schedules.description", new String[] {Privileges.ADMINISTRATE_SCHEDULE, Privileges.VIEW_SCHEDULE});
-    }
-
-    private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.ADMINISTRATE_SCHEDULE, Privileges.VIEW_SCHEDULE});
+        this.userService.createResourceWithPrivileges("MDC", "sharedCommunicationSchedule.sharedCommunicationSchedules", "sharedCommunicationSchedule.sharedCommunicationSchedules.description", new String[] {Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE});
     }
 
     private void createTranslations() {
