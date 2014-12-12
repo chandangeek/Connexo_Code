@@ -3,7 +3,6 @@ package com.energyict.mdc.pluggable.rest.impl;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -26,7 +25,7 @@ public class LicensedProtocolResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public LicensedProtocolsInfo getLicensedProtocolInfos(){
+    public LicensedProtocolsInfo getLicensedProtocolInfos() {
         LicensedProtocolsInfo licensedProtocolsInfo = new LicensedProtocolsInfo();
         for (LicensedProtocol licensedProtocol : this.protocolPluggableService.getAllLicensedProtocols()) {
             licensedProtocolsInfo.licensedProtocolInfos.add(new LicensedProtocolInfo(licensedProtocol));
