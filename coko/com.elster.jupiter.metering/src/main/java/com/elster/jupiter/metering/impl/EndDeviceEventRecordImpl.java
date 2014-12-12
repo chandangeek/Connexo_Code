@@ -27,10 +27,14 @@ import java.util.Set;
 public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, PersistenceAware {
 
     static class EndDeviceEventDetailRecord {
-        private EndDeviceEventRecord eventRecord;
-        private String eventTypeCode;
-        private long endDeviceId;
-        private Instant createdDateTime;
+        @SuppressWarnings("unused")
+		private EndDeviceEventRecord eventRecord;
+        @SuppressWarnings("unused")
+		private String eventTypeCode;
+        @SuppressWarnings("unused")
+		private long endDeviceId;
+        @SuppressWarnings("unused")
+		private Instant createdDateTime;
 
         private String key;
         private String value;

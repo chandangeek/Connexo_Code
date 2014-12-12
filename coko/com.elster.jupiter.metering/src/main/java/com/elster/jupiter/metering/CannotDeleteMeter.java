@@ -10,8 +10,10 @@ import com.elster.jupiter.util.exception.MessageSeed;
  * Time: 14:25
  */
 public class CannotDeleteMeter extends LocalizedException {
+	
+	private static final long serialVersionUID = 1L;
 
-    public CannotDeleteMeter(Thesaurus thesaurus, MessageSeed reason, String mRID) {
+	public CannotDeleteMeter(Thesaurus thesaurus, MessageSeed reason, String mRID) {
         super(thesaurus, reason, mRID);
     }
 }

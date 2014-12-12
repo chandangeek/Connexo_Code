@@ -23,7 +23,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -76,15 +76,15 @@ public class MeterReadingStorer {
         storeReadingQualities();
         storeEvents(facade.getMeterReading().getEvents());
         readingStorer.execute();
-        eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getInterval().getStart().toEpochMilli(), facade.getInterval().getEnd().toEpochMilli()));
+        eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getRange().lowerEndpoint().toEpochMilli(), facade.getRange().upperEndpoint().toEpochMilli()));
     }
 
     private void removeOldReadingQualities() {
-        Interval interval = facade.getInterval();
-        if (interval != null) {
+        Range<Instant> range = facade.getRange();
+        if (range != null) {
             DataMapper<ReadingQualityRecord> mapper = dataModel.mapper(ReadingQualityRecord.class);
             mapper.remove(
-                    meter.getReadingQualities(interval.toClosedRange())
+                    meter.getReadingQualities(range)
                             .stream()
                             .filter(this::isRelevant)
                             .collect(Collectors.<ReadingQualityRecord>toList()));
@@ -170,7 +170,7 @@ public class MeterReadingStorer {
     }
 
     private void createDefaultMeterActivation() {
-        meter.activate(facade.getInterval().getStart());
+        meter.activate(facade.getRange().lowerEndpoint());
     }
 
     private void storeReadings(List<Reading> readings) {
@@ -181,7 +181,7 @@ public class MeterReadingStorer {
 
     private void store(Reading reading) {
         for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            if (meterActivation.getInterval().contains(reading.getTimeStamp(), Interval.EndpointBehavior.CLOSED_CLOSED)) {
+            if (meterActivation.getInterval().toClosedRange().contains(reading.getTimeStamp())) {
                 store(reading, meterActivation);
             }
         }
@@ -242,7 +242,7 @@ public class MeterReadingStorer {
         Channel channel = getChannel(reading, readingType);
         if (channel == null) {
             for (MeterActivation meterActivation : meter.getMeterActivations()) {
-                if (meterActivation.getInterval().contains(reading.getTimeStamp(), Interval.EndpointBehavior.OPEN_CLOSED)) {
+                if (meterActivation.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
                     return meterActivation.createChannel(readingType);
                 }
             }
@@ -255,7 +255,7 @@ public class MeterReadingStorer {
 
     private Channel getChannel(IntervalReading reading, ReadingType readingType) {
         for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            if (meterActivation.getInterval().contains(reading.getTimeStamp(), Interval.EndpointBehavior.OPEN_CLOSED)) {
+            if (meterActivation.getRange().contains(reading.getTimeStamp())) {
                 for (Channel channel : meterActivation.getChannels()) {
                     if (channel.getReadingTypes().contains(readingType)) {
                         return channel;

@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.google.common.base.Objects.toStringHelper;
+import static com.google.common.base.MoreObjects.toStringHelper;
 
 import java.time.Instant;
 import java.util.Map;
@@ -15,9 +15,12 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
 import java.time.Clock;
+
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 
 public abstract class UsagePointDetailImpl implements UsagePointDetail {
 
@@ -75,13 +78,13 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     }
 
     @Override
-    public boolean conflictsWith(UsagePointDetail other) {
-        return interval.overlaps(other.getInterval());
+    public boolean conflictsWith(UsagePointDetail other) {    	
+        return overlaps(other.getRange());
     }
 
     @Override
     public boolean isCurrent() {
-        return interval.isCurrent(clock);
+        return isEffectiveAt(clock.instant());
     }
 
     @Override
@@ -153,6 +156,6 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         if (!interval.toClosedOpenRange().contains(date)) {
             throw new IllegalArgumentException();
         }
-        interval = interval.withEnd(date);
+        interval = Interval.of(Range.closedOpen(getRange().lowerEndpoint(), date));
     }
 }

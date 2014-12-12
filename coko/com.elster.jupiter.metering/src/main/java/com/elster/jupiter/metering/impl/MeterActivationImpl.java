@@ -62,7 +62,7 @@ public class MeterActivationImpl implements MeterActivation {
 	MeterActivationImpl init(Meter meter , UsagePoint usagePoint , Instant start ) {
 		this.meter.set(meter);
 		this.usagePoint.set(usagePoint);
-		this.interval = Interval.startAt(start);
+		this.interval = Interval.of(Range.atLeast(start));
         return this;
 	}
 	
@@ -171,7 +171,7 @@ public class MeterActivationImpl implements MeterActivation {
 
     @Override
 	public boolean isCurrent() {
-		return interval.isCurrent(clock);
+		return getRange().contains(clock.instant());
 	}
 	
     @Override
@@ -181,7 +181,7 @@ public class MeterActivationImpl implements MeterActivation {
 
     @Override
     public void endAt(Instant end) {
-        this.interval = interval.withEnd(end);
+        this.interval = Interval.of(Range.closedOpen(getRange().lowerEndpoint(), end));
         save();
     }
 
@@ -204,12 +204,13 @@ public class MeterActivationImpl implements MeterActivation {
 	
 	@Override 
 	public Instant getStart() {
-		return interval.getStart();
+		return getRange().lowerEndpoint();
 	}
 	
 	@Override
 	public Instant getEnd() {
-		return interval.getEnd();
+		Range<Instant> range = getRange();
+		return range.hasUpperBound() ? range.upperEndpoint() : null;		
 	}
 	
 	@Override

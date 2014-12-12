@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -83,14 +84,15 @@ public class ServiceCategoryImpl implements ServiceCategory  {
 
     @Override
     public UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Instant start) {
+    	Interval interval = Interval.of(Range.atLeast(start));
         if (kind.equals(ServiceKind.ELECTRICITY)) {
-            return ElectricityDetailImpl.from(dataModel, usagePoint, Interval.startAt(start));
+            return ElectricityDetailImpl.from(dataModel, usagePoint, interval);
         } else if (kind.equals(ServiceKind.GAS)) {
-            return GasDetailImpl.from(dataModel, usagePoint, Interval.startAt(start));
+            return GasDetailImpl.from(dataModel, usagePoint, interval);
         } else if (kind.equals(ServiceKind.WATER)) {
-            return WaterDetailImpl.from(dataModel, usagePoint, Interval.startAt(start));
+            return WaterDetailImpl.from(dataModel, usagePoint, interval);
         } else {
-            return DefaultDetailImpl.from(dataModel, usagePoint, Interval.startAt(start));
+            return DefaultDetailImpl.from(dataModel, usagePoint, interval);
         }
     }
 

@@ -202,14 +202,7 @@ public final class ReadingTypeGenerator {
     }
 
     private class AsIsGenerator extends AbstractGenerator {
-        public AsIsGenerator() {
-            this(null, false);
-        }
-
-        public AsIsGenerator(Generator next) {
-            this(next, false);
-        }
-
+        
         public AsIsGenerator(boolean writable) {
             this(null, writable);
         }
@@ -227,16 +220,9 @@ public final class ReadingTypeGenerator {
     }
 
     private class TimeAttributeGenerator extends AbstractIterativeGenerator<TimeAttribute> {
-        public TimeAttributeGenerator() {
-            this(null, false);
-        }
-
+    
         public TimeAttributeGenerator(Generator next) {
             this(next, false);
-        }
-
-        public TimeAttributeGenerator(boolean writable) {
-            this(null, writable);
         }
 
         public TimeAttributeGenerator(Generator next, boolean writable) {
@@ -252,10 +238,7 @@ public final class ReadingTypeGenerator {
     }
 
     private class TimeOfUseGenerator extends AbstractIterativeGenerator<Integer> {
-        public TimeOfUseGenerator() {
-            this(null, false);
-        }
-
+        
         public TimeOfUseGenerator(Generator next) {
             this(next, false);
         }
@@ -277,14 +260,6 @@ public final class ReadingTypeGenerator {
     }
 
     private class MetricMultiplierGenerator extends AbstractIterativeGenerator<MetricMultiplier> {
-        public MetricMultiplierGenerator() {
-            this(null, false);
-        }
-
-        public MetricMultiplierGenerator(Generator next) {
-            this(next, false);
-        }
-
         public MetricMultiplierGenerator(boolean writable) {
             this(null, writable);
         }
@@ -328,16 +303,9 @@ public final class ReadingTypeGenerator {
     }
 
     private class MacroPeriodGenerator extends AbstractIterativeGenerator<MacroPeriod> {
-        public MacroPeriodGenerator() {
-            this(null, false);
-        }
-
+        
         public MacroPeriodGenerator(Generator next) {
             this(next, false);
-        }
-
-        public MacroPeriodGenerator(boolean writable) {
-            this(null, writable);
         }
 
         public MacroPeriodGenerator(Generator next, boolean writable) {

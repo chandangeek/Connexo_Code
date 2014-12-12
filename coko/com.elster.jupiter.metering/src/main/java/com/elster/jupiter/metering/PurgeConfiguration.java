@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering;
 
-import java.time.Instant;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.Comparator;

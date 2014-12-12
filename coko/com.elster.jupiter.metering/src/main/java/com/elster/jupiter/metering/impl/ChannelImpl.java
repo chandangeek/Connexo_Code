@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 import com.elster.jupiter.metering.EventType;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
@@ -77,7 +78,8 @@ public final class ChannelImpl implements ChannelContract {
 
     private final IdsService idsService;
     private final MeteringService meteringService;
-    private final Clock clock;
+    @SuppressWarnings("unused")
+	private final Clock clock;
     private final DataModel dataModel;
     private final EventService eventService;
 

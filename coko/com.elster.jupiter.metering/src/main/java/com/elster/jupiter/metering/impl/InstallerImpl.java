@@ -45,7 +45,6 @@ public class InstallerImpl {
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
     private static final int SLOT_COUNT = 8;
-    private static final int MONTHS_PER_YEAR = 12;
     private static final String IMPORT_FILE_NAME = "enddeviceeventtypes.csv";
     private static final String NOT_APPLICABLE = "n/a";
 

@@ -31,7 +31,8 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     private transient Channel channel;
 
     private long version;
-    private Instant createTime;
+    @SuppressWarnings("unused")
+	private Instant createTime;
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;

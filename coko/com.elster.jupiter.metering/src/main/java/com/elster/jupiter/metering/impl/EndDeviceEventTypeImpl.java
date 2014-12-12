@@ -34,7 +34,8 @@ public final class EndDeviceEventTypeImpl implements EndDeviceEventType, Persist
     private transient EndDeviceSubDomain subDomain;
     private transient EndDeviceEventorAction eventOrAction;
 
-    private long version;
+    @SuppressWarnings("unused")
+	private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
     @SuppressWarnings("unused")

@@ -6,8 +6,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
+
 import java.time.Clock;
+
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 
@@ -37,7 +40,7 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 		this.usagePoint.set(usagePoint);
 		this.party.set(party);
 		this.role.set(role);
-		this.interval = Interval.startAt(start);
+		this.interval = Interval.of(Range.atLeast(start));
         return this;
 	}
 
@@ -87,7 +90,7 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 
 	@Override
 	public boolean isCurrent() {
-		return interval.isCurrent(clock);
+		return getRange().contains(clock.instant());
 	}
 	
 }
