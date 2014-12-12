@@ -2,7 +2,6 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
