@@ -2,7 +2,6 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -27,7 +26,6 @@ public class LicensedProtocolResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
     public LicensedProtocolsInfo getLicensedProtocolInfos(){
         LicensedProtocolsInfo licensedProtocolsInfo = new LicensedProtocolsInfo();
         for (LicensedProtocol licensedProtocol : this.protocolPluggableService.getAllLicensedProtocols()) {
