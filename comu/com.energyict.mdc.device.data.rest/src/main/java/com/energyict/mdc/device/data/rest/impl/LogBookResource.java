@@ -52,7 +52,7 @@ public class LogBookResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getAllLogBooks(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<LogBook> allLogBooks = device.getLogBooks();
@@ -64,7 +64,7 @@ public class LogBookResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lbid}")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getLogBook(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LogBook logBook = findLogBookOrThrowException(device, logBookId);
@@ -74,7 +74,7 @@ public class LogBookResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lbid}/data")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getLogBookData(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters)
     {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);

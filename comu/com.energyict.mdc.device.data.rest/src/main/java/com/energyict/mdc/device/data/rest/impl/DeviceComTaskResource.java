@@ -10,6 +10,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.LogLevelAdapter;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -20,6 +21,7 @@ import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -66,6 +68,7 @@ public class DeviceComTaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getAllComTaskExecutions(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
@@ -79,6 +82,7 @@ public class DeviceComTaskResource {
     @Path("/{comTaskId}/urgency")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateComTaskExecution(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskUrgencyInfo comTaskUrgencyInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
@@ -94,6 +98,7 @@ public class DeviceComTaskResource {
     @Path("/{comTaskId}/protocoldialect")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateProtocolDialect(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskProtocolDialectInfo comTaskProtocolDialectInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
@@ -109,6 +114,7 @@ public class DeviceComTaskResource {
     @Path("/{comTaskId}/frequency")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateConnectionMethod(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskFrequencyInfo comTaskFrequencyInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
@@ -125,6 +131,7 @@ public class DeviceComTaskResource {
     @Path("/{comTaskId}/connectionmethod")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateFrequency(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo comTaskConnectionMethodInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
@@ -141,6 +148,7 @@ public class DeviceComTaskResource {
     @Path("/{comTaskId}/run")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION})
     public Response run(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
@@ -157,6 +165,7 @@ public class DeviceComTaskResource {
     @Path("/{comTaskId}/runnow")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION})
     public Response runnow(@PathParam("mRID") String mrid, @PathParam("comTaskId") Long comTaskId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
@@ -172,6 +181,7 @@ public class DeviceComTaskResource {
     @GET
     @Path("{comTaskId}/comtaskexecutionsessions")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public PagedInfoList getComTaskExecutionSessions(@PathParam("mRID") String mrid,
                                                      @PathParam("comTaskId") long comTaskId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -193,6 +203,7 @@ public class DeviceComTaskResource {
     @GET
     @Path("{comTaskId}/comtaskexecutionsessions/{comTaskExecutionSessionId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public ComTaskExecutionSessionInfo getComTaskExecutionSession(@PathParam("mRID") String mrid,
                                                                   @PathParam("comTaskId") long comTaskId, @PathParam("comTaskExecutionSessionId") Long comTaskExecutionSessionId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -216,6 +227,7 @@ public class DeviceComTaskResource {
     @GET
     @Path("{comTaskId}/comtaskexecutionsessions/{sessionId}/journals")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public PagedInfoList getComTaskExecutionSessionJournals(@PathParam("mRID") String mrid,
                                                             @PathParam("comTaskId") long comTaskId,
                                                             @PathParam("sessionId") long sessionId,
