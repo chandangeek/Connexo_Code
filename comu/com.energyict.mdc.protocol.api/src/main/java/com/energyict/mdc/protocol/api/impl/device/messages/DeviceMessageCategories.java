@@ -329,7 +329,41 @@ public enum DeviceMessageCategories {
         public List<DeviceMessageSpec> getMessageSpecifications(DeviceMessageCategory category, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             return this.wrapAll(propertySpecService, thesaurus, category, ConfigurationChangeDeviceMessage.values());
         }
-    };
+    },
+    /**
+     * This category summarizes all message related to the firewall configuration
+     */
+    FIREWALL_CONFIGURATION("Firewall configuration"){
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications(DeviceMessageCategory category, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return this.wrapAll(propertySpecService, thesaurus, category, FirewallConfigurationMessage.values());
+        }
+    },
+    /**
+     * Summarizes all messages related to output configuration
+     */
+    OUTPUT_CONFIGURATION("Output configuration"){
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications(DeviceMessageCategory category, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return this.wrapAll(propertySpecService, thesaurus, category, OutputConfigurationMessage.values());
+        }
+    },
+    /**
+     * Summarizes all messages related to public lighting
+     */
+    PUBLIC_LIGHTING("Public lighting"){
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications(DeviceMessageCategory category, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return this.wrapAll(propertySpecService, thesaurus, category, PublicLightingDeviceMessage.values());
+        }
+    },
+    UPLINK_CONFIGURATIOn("Uplink configuration"){
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications(DeviceMessageCategory category, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            return this.wrapAll(propertySpecService, thesaurus, category, UplinkConfigurationDeviceMessage.values());
+        }
+    }
+    ;
 
     private String defaultTranslation;
 

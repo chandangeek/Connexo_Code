@@ -9,15 +9,11 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarTypeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * Provides a summary of all <i>ActivityCalendar</i> related messages.
@@ -93,6 +89,25 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(activityCalendarActivationDateAttributeName, true, new DateAndTimeFactory()));
+        }
+    }, ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT, "Send activity calendar with date and contract"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(contractAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
+            propertySpecs.add(propertySpecService.stringPropertySpec(activityCalendarNameAttributeName, true, ""));
+            propertySpecs.add(propertySpecService.referencePropertySpec(activityCalendarCodeTableAttributeName, true, FactoryIds.CODE));
+            propertySpecs.add(propertySpecService.basicPropertySpec(activityCalendarActivationDateAttributeName, true, new DateFactory()));
+        }
+    },
+    SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME(DeviceMessageId.ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME, "Send special day calendar with date and contract"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(contractAttributeName, true, BigDecimal.ONE, BigDecimals.TWO));
+            propertySpecs.add(propertySpecService.referencePropertySpec(specialDaysCodeTableAttributeName, true, FactoryIds.CODE));
+            propertySpecs.add(propertySpecService.basicPropertySpec(activityCalendarActivationDateAttributeName, true, new DateFactory()));
+
         }
     };
 

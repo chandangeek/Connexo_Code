@@ -82,6 +82,12 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecEnum {
         protected String propertyName() {
             return DeviceMessageConstants.SetPPPOptionsAttributeName;
         }
+    },
+    SetPPPIdleTime(DeviceMessageId.PPP_CONFIGURATION_SET_IDLE_TIME, "Set PPP idle time"){
+        @Override
+        protected String propertyName() {
+            return DeviceMessageConstants.SetPPPIdleTime;
+        }
     };
 
     private DeviceMessageId id;

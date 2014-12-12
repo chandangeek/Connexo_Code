@@ -45,7 +45,7 @@ public interface MeterProtocol extends Pluggable, CachingProtocol {
     /**
      * The string typically used for the device address property
      */
-    String ADDRESS = "DevideId";
+    String ADDRESS = "DeviceId";
 
     /**
      * The string used for the protocol password property
@@ -363,5 +363,4 @@ public interface MeterProtocol extends Pluggable, CachingProtocol {
      */
     void release() throws IOException;
 
-    String getProtocolDescription();
 }

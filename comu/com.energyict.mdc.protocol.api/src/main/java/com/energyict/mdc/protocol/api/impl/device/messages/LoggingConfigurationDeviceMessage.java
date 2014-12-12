@@ -1,56 +1,60 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.alarmFilterAttributeName;
-
 /**
- * Provides a summary of all messages related to configuring alarms
- * <p/>
  * Copyrights EnergyICT
- * Date: 3/04/13
- * Time: 8:38
+ * Date: 12/9/14
+ * Time: 3:29 PM
  */
-public enum AlarmConfigurationMessage implements DeviceMessageSpecEnum {
+public enum LoggingConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
-    RESET_ALL_ALARM_BITS(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS, "Reset all alarm bits"),
-    WRITE_ALARM_FILTER(DeviceMessageId.ALARM_CONFIGURATION_WRITE_ALARM_FILTER, "Write alarm filter") {
+    SET_SERVER_LOG_LEVEL(DeviceMessageId.LOGGING_CONFIGURATION_DEVICE_MESSAGE_SET_SERVER_LOG_LEVEL, "Set server log level") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(alarmFilterAttributeName, true, new BigDecimalFactory()));
-        }
-    }, CONFIGURE_PUSH_EVENT_NOTIFICATION(DeviceMessageId.ALARM_CONFIGURATION_CONFIGURE_PUSH_EVENT_NOTIFICATION, "Configure push event notification"){
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
-            super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.transportTypeAttributeName, true, BigDecimal.ZERO));
-            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.destinationAddressAttributeName, true, ""));
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpec(DeviceMessageConstants.messageTypeAttributeName, true, BigDecimal.ZERO));
+            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(DeviceMessageConstants.logLevel, true, BigDecimal.valueOf(0), BigDecimal.valueOf(7)));
         }
     },
-    RESET_ALL_ERROR_BITS(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ERROR_BITS, "Reset all error bits");
+
+    SET_WEB_PORTAL_LOG_LEVEL(DeviceMessageId.LOGGING_CONFIGURATION_DEVICE_MESSAGE_SET_WEB_PORTAL_LOG_LEVEL, "Set web portal log level") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(DeviceMessageConstants.logLevel, true, BigDecimal.valueOf(0), BigDecimal.valueOf(7)));
+        }
+    },
+    DOWNLOAD_FILE(DeviceMessageId.LOGGING_CONFIGURATION_DEVICE_MESSAGE_DOWNLOAD_FILE, "Download file") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.fileInfo, true, ""));
+        }
+    },
+    PUSH_CONFIGURATION(DeviceMessageId.LOGGING_CONFIGURATION_DEVICE_MESSAGE_PUSH_CONFIGURATION, "Push the configuration"),
+    PUSH_LOGS_NOW(DeviceMessageId.LOGGING_CONFIGURATION_DEVICE_MESSAGE_PUSH_LOGS_NOW, "Push the logs now")
+    ,
+
+    ;
 
     private DeviceMessageId id;
     private String defaultTranslation;
 
-    AlarmConfigurationMessage(DeviceMessageId id, String defaultTranslation) {
+    LoggingConfigurationDeviceMessage(DeviceMessageId id, String defaultTranslation) {
         this.id = id;
         this.defaultTranslation = defaultTranslation;
     }
 
     @Override
     public String getNameResourceKey() {
-        return AlarmConfigurationMessage.class.getSimpleName() + "." + this.toString();
+        return ClockDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
@@ -71,7 +75,7 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpecEnum {
 
     protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
         // Default behavior is not to add anything
-    };
+    }
 
     public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
         for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {

@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -34,13 +35,17 @@ public interface CollectedDataFactory {
 
     public CollectedLogBook createNoLogBookCollectedData(DeviceIdentifier deviceIdentifier);
 
+    public CollectedMessage createCollectedMessage(MessageIdentifier messageIdentifier);
+
+    public CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile);
+
+    public CollectedMessage createCollectedMessageWithRegisterData(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CollectedRegister> collectedRegisters);
+
     public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier);
 
     public CollectedMessageList createCollectedMessageList(List<OfflineDeviceMessage> offlineDeviceMessages);
 
     public CollectedMessageList createEmptyCollectedMessageList();
-
-    public CollectedMessage createCollectedMessage (MessageIdentifier messageIdentifier);
 
     public CollectedRegisterList createCollectedRegisterList(DeviceIdentifier deviceIdentifier);
 
@@ -51,5 +56,7 @@ public interface CollectedDataFactory {
     public CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileExtension, byte[] contents);
 
     public CollectedData createCollectedAddressProperties(DeviceIdentifier deviceIdentifier, String ipAddress, String ipAddressPropertyName);
+
+    public CollectedDeviceInfo createCollectedDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, PropertySpec propertySpec, Object propertyValue);
 
 }

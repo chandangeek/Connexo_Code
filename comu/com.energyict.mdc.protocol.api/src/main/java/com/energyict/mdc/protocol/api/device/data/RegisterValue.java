@@ -24,7 +24,7 @@ public class RegisterValue implements Serializable {
 
 
     ObisCode obisCode; // as support for the toString()
-    int rtuRegisterId; // to find back the Register to which this RegisterValue belongs
+    long registerSpecId; // to find back the Register to which this RegisterValue belongs
 
     Quantity quantity;
     Date readTime;
@@ -133,23 +133,23 @@ public class RegisterValue implements Serializable {
         this(offlineRegister, quantity, eventTime, fromTime, toTime, readTime, 0);
     }
 
-    public RegisterValue(ObisCode obisCode, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId) {
-        this(obisCode, quantity, eventTime, fromTime, toTime, readTime, rtuRegisterId, null);
+    public RegisterValue(ObisCode obisCode, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long registerSpecId) {
+        this(obisCode, quantity, eventTime, fromTime, toTime, readTime, registerSpecId, null);
     }
 
-    public RegisterValue(Register register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId) {
-        this(register, quantity, eventTime, fromTime, toTime, readTime, rtuRegisterId, null);
+    public RegisterValue(Register register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long registerSpecId) {
+        this(register, quantity, eventTime, fromTime, toTime, readTime, registerSpecId, null);
     }
 
-    public RegisterValue(OfflineRegister offlineRegister, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId) {
-        this(offlineRegister, quantity, eventTime, fromTime, toTime, readTime, rtuRegisterId, null);
+    public RegisterValue(OfflineRegister offlineRegister, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long registerSpecId) {
+        this(offlineRegister, quantity, eventTime, fromTime, toTime, readTime, registerSpecId, null);
     }
 
-    public RegisterValue(ObisCode obisCode, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId, String text) {
-        this(new Register(rtuRegisterId, obisCode, null), quantity, eventTime, fromTime, toTime, readTime, rtuRegisterId, text);
+    public RegisterValue(ObisCode obisCode, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long registerSpecId, String text) {
+        this(new Register(registerSpecId, obisCode, null), quantity, eventTime, fromTime, toTime, readTime, registerSpecId, text);
     }
 
-    public RegisterValue(OfflineRegister register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId, String text) {
+    public RegisterValue(OfflineRegister register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long registerSpecId, String text) {
         this.obisCode = register.getObisCode();
         this.rtuSerialNumber = register.getDeviceSerialNumber();
         this.quantity = quantity;
@@ -157,11 +157,11 @@ public class RegisterValue implements Serializable {
         this.fromTime = fromTime;
         this.readTime = readTime;
         this.toTime = (toTime == null ? readTime : toTime);
-        this.rtuRegisterId = rtuRegisterId;
+        this.registerSpecId = registerSpecId;
         this.text = text;
     }
 
-    public RegisterValue(Register register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId, String text) {
+    public RegisterValue(Register register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long registerSpecId, String text) {
         this.obisCode = register.getObisCode();
         this.rtuSerialNumber = register.getSerialNumber();
         this.quantity = quantity;
@@ -169,7 +169,7 @@ public class RegisterValue implements Serializable {
         this.fromTime = fromTime;
         this.readTime = readTime;
         this.toTime = (toTime == null ? readTime : toTime);
-        this.rtuRegisterId = rtuRegisterId;
+        this.registerSpecId = registerSpecId;
         this.text = text;
     }
 
@@ -259,21 +259,21 @@ public class RegisterValue implements Serializable {
     }
 
     /**
-     * Getter for property rtuRegisterId.
+     * Getter for property registerSpecId.
      *
-     * @return Value of property rtuRegisterId.
+     * @return Value of property registerSpecId.
      */
-    public int getRtuRegisterId() {
-        return rtuRegisterId;
+    public long getRegisterSpecId() {
+        return registerSpecId;
     }
 
     /**
-     * Setter for property rtuRegisterId.
+     * Setter for property registerSpecId.
      *
-     * @param rtuRegisterId New value of property rtuRegisterId.
+     * @param registerSpecId New value of property registerSpecId.
      */
-    public void setRtuRegisterId(int rtuRegisterId) {
-        this.rtuRegisterId = rtuRegisterId;
+    public void setRegisterSpecId(long registerSpecId) {
+        this.registerSpecId = registerSpecId;
     }
 
     /**

@@ -206,27 +206,27 @@ public class RegisterValueTest {
 
     @Test
     public void testRegisterID() throws Exception {
-        assertEquals(0, new RegisterValue(OBIS).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(OBIS, TEXT).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(OBIS, EVENT_TIME).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(OBIS, QUANTITY).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(OBIS, QUANTITY, EVENT_TIME).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(OBIS, QUANTITY, EVENT_TIME, TO_TIME).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(OBIS, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(OBIS, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME).getRtuRegisterId());
-        assertEquals(REGISTER_ID, new RegisterValue(OBIS, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME, REGISTER_ID).getRtuRegisterId());
-        assertEquals(REGISTER_ID, new RegisterValue(OBIS, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME, REGISTER_ID, TEXT).getRtuRegisterId());
+        assertEquals(0, new RegisterValue(OBIS).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(OBIS, TEXT).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(OBIS, EVENT_TIME).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(OBIS, QUANTITY).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(OBIS, QUANTITY, EVENT_TIME).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(OBIS, QUANTITY, EVENT_TIME, TO_TIME).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(OBIS, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(OBIS, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME).getRegisterSpecId());
+        assertEquals(REGISTER_ID, new RegisterValue(OBIS, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME, REGISTER_ID).getRegisterSpecId());
+        assertEquals(REGISTER_ID, new RegisterValue(OBIS, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME, REGISTER_ID, TEXT).getRegisterSpecId());
 
-        assertEquals(0, new RegisterValue(REGISTER).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(REGISTER, TEXT).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(REGISTER, EVENT_TIME).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(REGISTER, QUANTITY).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME, TO_TIME).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME).getRtuRegisterId());
-        assertEquals(0, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME).getRtuRegisterId());
-        assertEquals(REGISTER_ID, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME, REGISTER_ID).getRtuRegisterId());
-        assertEquals(REGISTER_ID, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME, REGISTER_ID, TEXT).getRtuRegisterId());
+        assertEquals(0, new RegisterValue(REGISTER).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(REGISTER, TEXT).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(REGISTER, EVENT_TIME).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(REGISTER, QUANTITY).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME, TO_TIME).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME).getRegisterSpecId());
+        assertEquals(0, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME).getRegisterSpecId());
+        assertEquals(REGISTER_ID, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME, REGISTER_ID).getRegisterSpecId());
+        assertEquals(REGISTER_ID, new RegisterValue(REGISTER, QUANTITY, EVENT_TIME, FROM_TIME, TO_TIME, READ_TIME, REGISTER_ID, TEXT).getRegisterSpecId());
     }
 
     @Test

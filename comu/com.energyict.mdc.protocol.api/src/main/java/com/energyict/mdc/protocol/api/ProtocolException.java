@@ -28,6 +28,15 @@ public class ProtocolException extends IOException {
     public ProtocolException(String msg) {
         super(msg);
     }
+
+    public ProtocolException(Exception e) {
+        super(e);
+    }
+
+    public ProtocolException(Exception e, String msg) {
+        super(msg, e);
+    }
 }
+
 
 

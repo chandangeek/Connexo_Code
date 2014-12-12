@@ -3,15 +3,15 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ThreeStateFactory;
+import com.energyict.mdc.protocol.api.messaging.KeyTUsage;
+import com.energyict.mdc.protocol.api.messaging.SealActions;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -99,12 +99,19 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.basicPropertySpec(newHexPasswordAttributeName, true, new HexStringFactory()));
         }
     },
+    CHANGE_HLS_SECRET_PASSWORD(DeviceMessageId.SECURITY_CHANGE_HLS_SECRET_WITH_PASSWORD, "Change HLS secret with new secret"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, new PasswordFactory()));
+        }
+    },
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(DeviceMessageId.SECURITY_ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY, "Enable/disable temporary encryption key") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(keyTActivationStatusAttributeName, true, new BooleanFactory()));
-            propertySpecs.add(propertySpecService.basicPropertySpec(SecurityTimeDurationAttributeName, true, new BigDecimalFactory()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(keyTActivationStatusAttributeName, true, KeyTUsage.ENABLE.getDescription(), KeyTUsage.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(SecurityTimeDurationAttributeName, true, new BigDecimal(0), new BigDecimal(255)));
         }
     },
     CHANGE_EXECUTION_KEY(DeviceMessageId.SECURITY_CHANGE_EXECUTION_KEY, "Change execution key") {
@@ -125,15 +132,14 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            ThreeStateFactory factory = new ThreeStateFactory();
-            propertySpecs.add(propertySpecService.basicPropertySpec(eventLogResetSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(restoreFactorySettingsSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(restoreDefaultSettingsSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(statusChangeSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(remoteConversionParametersConfigSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(remoteAnalysisParametersConfigSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(downloadProgramSealAttributeName, true, factory));
-            propertySpecs.add(propertySpecService.basicPropertySpec(restoreDefaultPasswordSealAttributeName, true, factory));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.eventLogResetSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(restoreFactorySettingsSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(restoreDefaultSettingsSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(statusChangeSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(remoteConversionParametersConfigSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(remoteAnalysisParametersConfigSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(downloadProgramSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
+            propertySpecs.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(restoreDefaultPasswordSealAttributeName, true, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()));
         }
     },
     TEMPORARY_BREAK_SEALS(DeviceMessageId.SECURITY_TEMPORARY_BREAK_SEALS, "Temporary break the seals") {
@@ -221,6 +227,20 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.basicPropertySpec(preparedDataAttributeName, true, factory));
             propertySpecs.add(propertySpecService.basicPropertySpec(signatureAttributeName, true, factory));
             propertySpecs.add(propertySpecService.basicPropertySpec(verificationKeyAttributeName, true, new StringFactory()));
+        }
+    },
+    CHANGE_WEBPORTAL_PASSWORD1(DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD, "Change the webportal password"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, new PasswordFactory()));
+        }
+    },
+    CHANGE_WEBPORTAL_PASSWORD2(DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD2, "Change the webportal password 2"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, new PasswordFactory()));
         }
     };
 

@@ -30,6 +30,7 @@ public interface CachingProtocol {
 
     /**
      * Fetch the protocol specific cache object from the database.
+     * @deprecated Not used anymore. The framework will fetch the cache objects
      *
      * @param rtuId Database ID of the RTU
      * @return the protocol specific cache object
@@ -39,7 +40,8 @@ public interface CachingProtocol {
     public Object fetchCache(int rtuId) throws SQLException, BusinessException;
 
     /**
-     * Update the protocol specific cach object information in the database.
+     * Update the protocol specific cache object information in the database.
+     * @deprecated Not used anymore. The framework will update the cache objects
      *
      * @param rtuId       Database ID of the RTU
      * @param cacheObject the protocol specific cach object

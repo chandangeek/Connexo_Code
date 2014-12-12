@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.device;
 import com.energyict.mdc.common.ApplicationComponent;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.ConnectionType;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface DeviceFactory {
     public <C extends BaseChannel, LP extends BaseLoadProfile<C>, R extends BaseRegister> List<BaseDevice<C, LP, R>> findDevicesByNotInheritedProtocolProperty(PropertySpec propertySpec, Object propertyValue);
 
     public BaseDevice findById(long id);
+
+    public List<BaseDevice> findByConnectionTypeProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, Object propertyValue);
 }
