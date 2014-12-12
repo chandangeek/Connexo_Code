@@ -9,7 +9,7 @@ import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum  MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_INTERVAL(1, Keys.TIME_ATTRIBUTE_KEY_PREFIX + "0", "No interval", Level.INFO);
     ;
 
@@ -60,7 +60,7 @@ public enum  MessageSeeds implements MessageSeed, TranslationKey {
         logger.log(getLevel(), format.format(args), t);
     }
 
-    public String getTranslated(Thesaurus thesaurus, Object... args){
+    public String getTranslated(Thesaurus thesaurus, Object... args) {
         if (thesaurus == null) {
             throw new IllegalArgumentException("Thesaurus can't be null");
         }
@@ -69,7 +69,8 @@ public enum  MessageSeeds implements MessageSeed, TranslationKey {
     }
 
     public static final class Keys {
-        private Keys() {}
+        private Keys() {
+        }
 
         public static final String TIME_ATTRIBUTE_KEY_PREFIX = "TimeAttributeId.";
     }
