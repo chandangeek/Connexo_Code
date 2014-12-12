@@ -134,7 +134,7 @@ public class DataExportTaskResource {
         propertiesSpecs.stream()
                 .forEach(spec -> {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
-                        builder.addProperty(spec.getName()).withValue(value);
+                    builder.addProperty(spec.getName()).withValue(value);
                 });
 
         info.readingTypes.stream()
@@ -207,7 +207,7 @@ public class DataExportTaskResource {
         if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
                     filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
-        }  else if (filter.hasProperty("startedOnTo")) {
+        } else if (filter.hasProperty("startedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
         }
         if (filter.hasProperty("finishedOnFrom")) {
@@ -280,7 +280,7 @@ public class DataExportTaskResource {
         propertiesSpecs.stream()
                 .forEach(spec -> {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
-                        task.setProperty(spec.getName(), value);
+                    task.setProperty(spec.getName(), value);
                 });
     }
 
