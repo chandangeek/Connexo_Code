@@ -38,18 +38,12 @@ public class Installer {
         }
         createTranslations();
         createPrivileges(userService);
-        assignPrivilegesToDefaultRoles();
         createEventTypes();
     }
 
     private void createPrivileges(UserService userService) {
         userService.createResourceWithPrivileges("SYS", "period.periods", "period.periods.description", new String[]
                 {Privileges.VIEW_RELATIVE_PERIOD, Privileges.ADMINISTRATE_RELATIVE_PERIOD});
-    }
-
-    private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD});
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_RELATIVE_PERIOD});
     }
 
     private void createTranslations() {
