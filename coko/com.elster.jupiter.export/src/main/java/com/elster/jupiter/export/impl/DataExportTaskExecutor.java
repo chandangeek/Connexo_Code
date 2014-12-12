@@ -1,6 +1,12 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportException;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.DataProcessor;
+import com.elster.jupiter.export.DataProcessorFactory;
+import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,7 +15,11 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -125,7 +135,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         Map<String, Object> propertyMap = new HashMap<>();
         List<DataExportProperty> dataExportProperties = task.getDataExportProperties();
         DataProcessorFactory dataProcessorFactory = getDataProcessorFactory(task.getDataFormatter());
-        for(DataExportProperty property : dataExportProperties) {
+        for (DataExportProperty property : dataExportProperties) {
             propertyMap.put(property.getName(), property.getValue() != null ? property.getValue() :
                     dataProcessorFactory.getProperties().stream().filter(dep -> dep.getName().equals(property.getName()))
                             .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault());
@@ -134,7 +144,7 @@ class DataExportTaskExecutor implements TaskExecutor {
     }
 
     private DataProcessorFactory getDataProcessorFactory(String dataFormatter) {
-        return dataExportService.getDataProcessorFactory(dataFormatter).orElseThrow(() -> new NoSuchDataProcessor(thesaurus ,dataFormatter));
+        return dataExportService.getDataProcessorFactory(dataFormatter).orElseThrow(() -> new NoSuchDataProcessor(thesaurus, dataFormatter));
     }
 
     private void doProcess(ItemExporter itemExporter, DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
