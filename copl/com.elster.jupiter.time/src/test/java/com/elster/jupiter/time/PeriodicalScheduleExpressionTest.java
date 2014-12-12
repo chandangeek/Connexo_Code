@@ -32,6 +32,15 @@ public class PeriodicalScheduleExpressionTest extends EqualsContractTest {
                     )
             },
             new Object[] {
+                    (Supplier<ScheduleExpression>) () -> PeriodicalScheduleExpression.every(2).months().atLastDayOfMonth(0, 0, 0).build(),
+                    "P[2,MONTH,0,0,0,LAST]",
+                    asList(
+                            Pair.of(time(2014, 12, 2, 14, 32), time(2014, 12, 31, 0, 0, 0)),
+                            Pair.of(time(2014, 12, 31, 14, 32), time(2015, 2, 28, 0, 0, 0)),
+                            Pair.of(time(2014, 12, 8, 14, 32), time(2014, 12, 31, 0, 0, 0))
+                    )
+            },
+            new Object[] {
                     (Supplier<ScheduleExpression>) () -> PeriodicalScheduleExpression.every(3).years().atLastDayOfMonth(2, 14, 15, 22).build(),
                     "P[3,YEAR,22,15,14,LAST,2]",
                     asList(

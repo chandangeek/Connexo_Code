@@ -87,7 +87,8 @@ public enum PeriodicalScheduleExpressionParser implements ScheduleExpressionPars
                 return last ? every(count).years().atLastDayOfMonth(months, hours, minutes, seconds).build()
                         : every(count).years().at(months, days, hours, minutes, seconds).build();
             case MONTH:
-                return every(count).months().at(days, hours, minutes, seconds).build();
+                return last ? every(count).months().atLastDayOfMonth(hours, minutes, seconds).build()
+                        : every(count).months().at(days, hours, minutes, seconds).build();
             case WEEK:
                 return dayOfWeek == null ? null : every(count).weeks().at(dayOfWeek, hours, minutes, seconds).build();
             case DAY:

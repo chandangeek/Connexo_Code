@@ -23,6 +23,10 @@ public class PeriodicalScheduleExpressionParserTest {
                     "P[2,MONTH,0,0,0,4]"
             },
             new Object[] {
+                    PeriodicalScheduleExpression.every(2).months().atLastDayOfMonth(0, 0, 0).build(),
+                    "P[2,MONTH,0,0,0,LAST]"
+            },
+            new Object[] {
                     PeriodicalScheduleExpression.every(3).years().atLastDayOfMonth(2, 14, 15, 22).build(),
                     "P[3,YEAR,22,15,14,LAST,2]"
             },
