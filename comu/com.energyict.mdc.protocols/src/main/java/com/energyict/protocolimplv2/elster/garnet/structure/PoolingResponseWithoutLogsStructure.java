@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.M
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterRelayStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterSensorStatus;
 
+import java.time.Clock;
 import java.util.TimeZone;
 
 /**
@@ -25,6 +26,7 @@ public class PoolingResponseWithoutLogsStructure extends Data<PoolingResponseWit
     private static final int LENGTH_OF_METER_RELAY_STATUSES = 3;
     private static final int LENGTH_OF_METER_SENSOR_STATUSES = 2;
 
+    private final Clock clock;
     private DateTime dateTime;
     private ConcentratorConfiguration concentratorConfiguration;
     private BitMapCollection<MeterReadingStatus> meterReadingStatusCollection;
@@ -33,10 +35,11 @@ public class PoolingResponseWithoutLogsStructure extends Data<PoolingResponseWit
 
     private final TimeZone timeZone;
 
-    public PoolingResponseWithoutLogsStructure(TimeZone timeZone) {
+    public PoolingResponseWithoutLogsStructure(Clock clock, TimeZone timeZone) {
         super(FUNCTION_CODE);
+        this.clock = clock;
         this.timeZone = timeZone;
-        this.dateTime = new DateTime(timeZone);
+        this.dateTime = new DateTime(clock, timeZone);
         this.concentratorConfiguration = new ConcentratorConfiguration();
         this.meterReadingStatusCollection = new BitMapCollection<>(LENGTH_OF_METER_READIG_STATUSES, NR_OF_METERS, MeterReadingStatus.class);
         this.meterRelayStatusCollection = new BitMapCollection<>(LENGTH_OF_METER_RELAY_STATUSES, NR_OF_METERS, MeterRelayStatus.class);
@@ -58,7 +61,7 @@ public class PoolingResponseWithoutLogsStructure extends Data<PoolingResponseWit
     public PoolingResponseWithoutLogsStructure parse(byte[] rawData, int offset) throws ParsingException {
         int ptr = offset;
 
-        this.dateTime = new DateTime(timeZone).parse(rawData, ptr);
+        this.dateTime = new DateTime(this.clock, timeZone).parse(rawData, ptr);
         ptr += dateTime.getLength();
 
         this.concentratorConfiguration.parse(rawData, ptr);

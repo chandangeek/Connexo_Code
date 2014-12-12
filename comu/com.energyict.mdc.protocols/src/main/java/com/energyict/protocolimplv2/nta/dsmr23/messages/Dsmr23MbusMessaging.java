@@ -1,6 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.elster.jupiter.properties.PropertySpec;
+
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
@@ -42,9 +45,11 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
             DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST,
             DeviceMessageId.LOAD_PROFILE_REGISTER_REQUEST
     );
+    private final TopologyService topologyService;
 
-    public Dsmr23MbusMessaging(AbstractNtaMbusDevice mbusProtocol) {
+    public Dsmr23MbusMessaging(AbstractNtaMbusDevice mbusProtocol, TopologyService topologyService) {
         super(mbusProtocol.getMeterProtocol());
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -56,7 +61,7 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((com.energyict.mdc.protocol.api.device.BaseLoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());

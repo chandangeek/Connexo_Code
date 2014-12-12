@@ -1,14 +1,5 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.transaction.TransactionService;
-import java.time.Clock;
-
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -17,6 +8,14 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -25,10 +24,10 @@ import com.google.inject.Module;
 import com.google.inject.ProvisionException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,7 +50,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
     private volatile TopologyService topologyService;
-    private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialComponentService;
 
@@ -64,7 +63,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
@@ -74,6 +73,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.setTopologyService(topologyService);
         this.setSocketService(socketService);
         this.setSerialComponentService(serialComponentService);
+        this.setReadingTypeUtilService(readingTypeUtilService);
         this.activate();
         this.install();
     }
@@ -98,6 +98,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 bind(SocketService.class).toInstance(socketService);
                 bind(SerialComponentService.class).toInstance(serialComponentService);
                 bind(TopologyService.class).toInstance(topologyService);
+                bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(DeviceProtocolService.class).toInstance(DeviceProtocolServiceImpl.this);
             }
         };
@@ -161,8 +162,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     }
 
     @Reference
-    public void setMdcReadingTypeUtilService(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
-        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
+    public void setReadingTypeUtilService(MdcReadingTypeUtilService readingTypeUtilService) {
+        this.readingTypeUtilService = readingTypeUtilService;
     }
 
     @Reference
@@ -175,20 +176,14 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.topologyService = topologyService;
     }
 
-    public MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
-        return mdcReadingTypeUtilService;
-    }
-
     @Reference
     public void setSocketService(SocketService socketService) {
         this.socketService = socketService;
-        Bus.setSocketService(socketService);
     }
 
     @Reference
     public void setSerialComponentService(SerialComponentService serialComponentService) {
         this.serialComponentService = serialComponentService;
-        Bus.setSerialComponentService(serialComponentService);
     }
 
     @Override
@@ -200,4 +195,5 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "NLS");
     }
+
 }

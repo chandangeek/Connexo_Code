@@ -1,5 +1,12 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.events;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -7,12 +14,6 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
@@ -31,9 +32,11 @@ public class IDISGatewayEvents {
     public static final String NAME = "Standard event log";
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.99.98.0.255");
     private final DlmsSession dlmsSession;
+    private final IssueService issueService;
 
-    public IDISGatewayEvents(DlmsSession dlmsSession) {
+    public IDISGatewayEvents(DlmsSession dlmsSession, IssueService issueService) {
         this.dlmsSession = dlmsSession;
+        this.issueService = issueService;
     }
 
     public List<CollectedLogBook> readEvents(List<LogBookReader> logBooks) {
@@ -53,11 +56,11 @@ public class IDISGatewayEvents {
                     collectedLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
+                        collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }

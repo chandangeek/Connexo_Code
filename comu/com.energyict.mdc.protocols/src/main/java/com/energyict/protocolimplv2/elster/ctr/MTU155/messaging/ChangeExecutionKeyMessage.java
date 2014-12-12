@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -21,8 +22,8 @@ public class ChangeExecutionKeyMessage extends AbstractChangeKeyMessage {
 
     public static final String CHANGE_KEYC_OBJECT_ID = "11.0.D";
 
-    public ChangeExecutionKeyMessage(Messaging messaging) {
-        super(messaging);
+    public ChangeExecutionKeyMessage(Messaging messaging, IssueService issueService) {
+        super(messaging, issueService);
     }
 
     @Override
@@ -33,7 +34,7 @@ public class ChangeExecutionKeyMessage extends AbstractChangeKeyMessage {
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
         String key = getDeviceMessageAttribute(message, DeviceMessageConstants.executionKeyAttributeName).getDeviceMessageAttributeValue();
-        super.doExecuteMessage(message, key);
+        super.doExecuteMessage(key);
         return null;
     }
 

@@ -7,6 +7,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.DateTime;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.PaddingData;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.SchedulingInterval;
 
+import java.time.Clock;
 import java.util.TimeZone;
 
 /**
@@ -16,9 +17,6 @@ import java.util.TimeZone;
 public class SchedulingConfigurationEvent extends AbstractField<SchedulingConfigurationEvent> implements  LogBookEvent{
 
     public static final int LENGTH = 16;
-    private static final int LENGTH_OF_AFFECTED_METERS = 2;
-    private static final int NR_OF_METERS = 12;
-    private static final int LENGTH_OF_METER_INSTALLATION_STATUSES = 3;
     private static final int COMMAND_NR_OF_BYTES = 1;
 
     private int command;
@@ -26,17 +24,10 @@ public class SchedulingConfigurationEvent extends AbstractField<SchedulingConfig
     private SchedulingInterval schedulingInterval;
     private PaddingData paddingData;
 
-    public SchedulingConfigurationEvent(TimeZone timeZone) {
+    public SchedulingConfigurationEvent(Clock clock, TimeZone timeZone) {
         this.command = 0;
-        this.schedulingDateTime = new DateTime(timeZone);
+        this.schedulingDateTime = new DateTime(clock, timeZone);
         this.schedulingInterval = new SchedulingInterval();
-        this.paddingData = new PaddingData(5);
-    }
-
-    public SchedulingConfigurationEvent(int command, DateTime schedulingDateTime, SchedulingInterval schedulingInterval) {
-        this.command = command;
-        this.schedulingDateTime = schedulingDateTime;
-        this.schedulingInterval = schedulingInterval;
         this.paddingData = new PaddingData(5);
     }
 

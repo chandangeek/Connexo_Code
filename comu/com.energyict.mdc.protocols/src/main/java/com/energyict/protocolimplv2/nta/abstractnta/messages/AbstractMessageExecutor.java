@@ -9,6 +9,8 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -23,7 +25,6 @@ import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
@@ -39,10 +40,22 @@ import java.util.List;
  */
 public abstract class AbstractMessageExecutor {
 
-    private AbstractDlmsProtocol protocol;
+    private final AbstractDlmsProtocol protocol;
+    private final IssueService issueService;
+    private final MdcReadingTypeUtilService readingTypeUtilService;
 
-    public AbstractMessageExecutor(AbstractDlmsProtocol protocol) {
+    public AbstractMessageExecutor(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService) {
         this.protocol = protocol;
+        this.issueService = issueService;
+        this.readingTypeUtilService = readingTypeUtilService;
+    }
+
+    protected IssueService getIssueService() {
+        return issueService;
+    }
+
+    protected MdcReadingTypeUtilService getReadingTypeUtilService() {
+        return readingTypeUtilService;
     }
 
     public abstract CollectedMessageList executePendingMessages(final List<OfflineDeviceMessage> pendingMessages);
@@ -98,7 +111,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
-        return Bus.getIssueService().newIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
+        return this.issueService.newIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
@@ -109,7 +122,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return Bus.getIssueService().newIssueCollector().addWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueService.newIssueCollector().addWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -129,7 +142,17 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineDeviceMessage pendingMessage) {
-        CollectedRegister deviceRegister = getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), registerValue.getObisCode(), new DeviceIdentifierById(pendingMessage.getDeviceId())), Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerValue.getObisCode(), registerValue.getQuantity().getUnit()));
+        CollectedRegister deviceRegister =
+                getCollectedDataFactory()
+                        .createDefaultCollectedRegister(
+                                new RegisterDataIdentifierByObisCodeAndDevice(
+                                        registerValue.getObisCode(),
+                                        registerValue.getObisCode(),
+                                        new DeviceIdentifierById(
+                                                pendingMessage.getDeviceId())),
+                                this.readingTypeUtilService.getReadingTypeFrom(
+                                        registerValue.getObisCode(),
+                                        registerValue.getQuantity().getUnit()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
         return deviceRegister;

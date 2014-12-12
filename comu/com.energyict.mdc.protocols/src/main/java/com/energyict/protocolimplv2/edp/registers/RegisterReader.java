@@ -11,6 +11,8 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DemandRegister;
 import com.energyict.dlms.cosem.ExtendedRegister;
+
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
@@ -37,9 +39,11 @@ import java.util.List;
 public class RegisterReader implements DeviceRegisterSupport {
 
     private final CX20009 protocol;
+    private final IssueService issueService;
 
-    public RegisterReader(CX20009 protocol) {
+    public RegisterReader(CX20009 protocol, IssueService issueService) {
         this.protocol = protocol;
+        this.issueService = issueService;
     }
 
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
@@ -138,9 +142,9 @@ public class RegisterReader implements DeviceRegisterSupport {
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
         CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
     }

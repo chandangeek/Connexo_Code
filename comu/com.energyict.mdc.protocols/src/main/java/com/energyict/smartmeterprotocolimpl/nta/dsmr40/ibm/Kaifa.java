@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
@@ -26,11 +27,10 @@ public class Kaifa extends E350 {
     private Dsmr40Messaging messageProtocol = null;
 
     @Inject
-    public Kaifa(TopologyService topologyService, OrmClient ormClient) {
-        super(topologyService, ormClient);
+    public Kaifa(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(topologyService, ormClient, readingTypeUtilService);
     }
 
-    @Override
     public String getProtocolDescription() {
         return "IBM Kaifa NTA DSMR 4.0";
     }
@@ -46,7 +46,7 @@ public class Kaifa extends E350 {
         } catch (IOException e) {
             getLogger().warning("Failed while initializing the DLMS connection.");
         }
-        HHUSignOn hhuSignOn = (HHUSignOn) new KaifaHHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        HHUSignOn hhuSignOn = new KaifaHHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                                  //HDLC:         9600 baud, 8N1
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -56,7 +56,7 @@ public class Kaifa extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this));
+            messageProtocol = new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this, this.getTopologyService()));
         }
         return messageProtocol;
     }

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.abnt.common;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -47,7 +48,6 @@ import java.util.TimeZone;
  */
 public class MessageFactory implements DeviceMessageSupport {
 
-
     private static final int NUMBER_OF_MILLIS_PER_MIN = 60 * 1000;
     private final Set<DeviceMessageId> supportedMessages = EnumSet.of(
             DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET,
@@ -65,9 +65,11 @@ public class MessageFactory implements DeviceMessageSupport {
     }
 
     private final AbstractAbntProtocol meterProtocol;
+    private final IssueService issueService;
 
-    public MessageFactory(AbstractAbntProtocol meterProtocol) {
+    public MessageFactory(AbstractAbntProtocol meterProtocol, IssueService issueService) {
         this.meterProtocol = meterProtocol;
+        this.issueService = issueService;
     }
 
     @Override
@@ -84,9 +86,9 @@ public class MessageFactory implements DeviceMessageSupport {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
                 if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET)) {
-                    demandReset(pendingMessage);
+                    demandReset();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET_WITH_FORCE_CLOCK)) {
-                    demandResetWithForceClock(pendingMessage);
+                    demandResetWithForceClock();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_CONFIGURE_AUTOMATIC_DEMAND_RESET)) {
                     configureAutomaticDemandReset(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND)) {
@@ -106,7 +108,7 @@ public class MessageFactory implements DeviceMessageSupport {
         return collectedMessages;
     }
 
-    private void demandReset(OfflineDeviceMessage pendingMessage) throws AbntException {
+    private void demandReset() throws AbntException {
         if (allowedToDoDemandReset()) {
             doDemandReset();
         } else {
@@ -137,7 +139,7 @@ public class MessageFactory implements DeviceMessageSupport {
         return true;
     }
 
-    private void demandResetWithForceClock(OfflineDeviceMessage pendingMessage) throws AbntException {
+    private void demandResetWithForceClock() throws AbntException {
         getMeterProtocol().getRequestFactory().forceTime();
         doDemandReset();
     }
@@ -207,7 +209,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     private void messageNotSupported(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
         collectedMessage.setFailureInformation(ResultType.NotSupported,
-                com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(
+                this.issueService.newWarning(
                         pendingMessage, "DeviceMessage.notSupported",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
@@ -218,7 +220,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     protected void messageFailed(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String errorMessage) {
         collectedMessage.setFailureInformation(ResultType.InCompatible,
-                com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(
+                this.issueService.newWarning(
                         pendingMessage, "DeviceMessage.failed",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),

@@ -57,7 +57,7 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
     protected MessageResult setPublicKeysOfAggregationGroup(MessageEntry messageEntry) throws IOException {
 
         List<String> allKeyPairs = parseKeyPairs(messageEntry);
-        List<String> allKeyPairsPairsExceptOwn = new ArrayList<String>();        //A list of all key pairs, except our own public key pair.
+        List<String> allKeyPairsPairsExceptOwn = new ArrayList<>();        //A list of all key pairs, except our own public key pair.
         String ownKeyPair = getOwnPublicKeyPair();
 
         for (String keyPair : allKeyPairs) {
@@ -84,7 +84,7 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
     protected List<String> parseKeyPairs(MessageEntry messageEntry) throws IOException {
         String content = messageEntry.getContent();
         int index = 1;
-        List<String> keyPairs = new ArrayList<String>();
+        List<String> keyPairs = new ArrayList<>();
         while (true) {
             try {
                 String keyPair = getValueFromXML(AS300DPETMessaging.KEY + String.valueOf(index), content);

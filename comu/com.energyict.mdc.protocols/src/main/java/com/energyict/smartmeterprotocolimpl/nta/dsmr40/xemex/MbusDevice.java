@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -8,8 +9,6 @@ import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMbusMessaging;
 
@@ -24,8 +23,8 @@ import java.util.List;
 public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Inject
-    public MbusDevice(TopologyService topologyService, OrmClient ormClient) {
-        super(topologyService, ormClient);
+    public MbusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
+        super(topologyService, ormClient, readingTypeUtilService);
     }
 
     @Override

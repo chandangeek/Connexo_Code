@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.mdc.issues.IssueService;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 
 /**
@@ -12,19 +12,19 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
  */
 public abstract class AbstractChangeKeyMessage extends AbstractMTU155Message {
 
-    public AbstractChangeKeyMessage(Messaging messaging) {
-        super(messaging);
+    public AbstractChangeKeyMessage(Messaging messaging, IssueService issueService) {
+        super(messaging, issueService);
     }
 
     protected abstract void writeKey(String formattedKey) throws CTRException;
 
-    protected void doExecuteMessage(OfflineDeviceMessage message, String key) throws CTRException {
+    protected void doExecuteMessage(String key) throws CTRException {
         String formattedKey = validateAndFormatKey(key);
         writeKey(formattedKey);
     }
 
     private String validateAndFormatKey(String key) throws CTRException {
-        String fullLengthKey = null;
+        String fullLengthKey;
         if (key.length() == 16) {
             fullLengthKey = ProtocolTools.getHexStringFromBytes(key.getBytes(), "");
         } else if (key.length() == 32) {
@@ -36,7 +36,7 @@ public abstract class AbstractChangeKeyMessage extends AbstractMTU155Message {
 
         fullLengthKey = fullLengthKey.toUpperCase();
         try {
-            byte[] bytesFromHexString = ProtocolTools.getBytesFromHexString(fullLengthKey, "");
+            ProtocolTools.getBytesFromHexString(fullLengthKey, "");
         } catch (Exception e) {
             String msg = "Invalid key [" + key + "]. Cannot convert [" + fullLengthKey + "] to bytes. " + e.getMessage();
             throw new CTRException(msg);

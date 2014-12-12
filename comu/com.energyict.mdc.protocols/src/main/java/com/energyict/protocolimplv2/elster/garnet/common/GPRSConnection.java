@@ -22,6 +22,7 @@ import com.energyict.protocols.exception.ProtocolEncryptionException;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.ByteArrayOutputStream;
+import java.time.Clock;
 
 /**
  * @author sva
@@ -37,16 +38,19 @@ public class GPRSConnection implements Connection {
     /**
      * The Properties object containing all properties of the device
      */
-    private GarnetProperties properties;
+    private final GarnetProperties properties;
+
+    private final Clock clock;
 
     /**
      * The XTEAEncryptionHelper used for encryption/decryption
      */
     private XTEAEncryptionHelper encryptionHelper;
 
-    public GPRSConnection(ComChannel comChannel, GarnetProperties properties) {
+    public GPRSConnection(ComChannel comChannel, GarnetProperties properties, Clock clock) {
         this.comChannel = comChannel;
         this.properties = properties;
+        this.clock = clock;
     }
 
     @Override
@@ -87,7 +91,7 @@ public class GPRSConnection implements Connection {
                 }
 
                 // 5. Do parsing of the decrypted frame
-                response.doParseData();
+                response.doParseData(this.clock);
 
                 // 6. Check if the response is not an error, else do throw the proper ComServerExecutionException
                 if (response.getData() instanceof NotExecutedErrorResponseStructure) {

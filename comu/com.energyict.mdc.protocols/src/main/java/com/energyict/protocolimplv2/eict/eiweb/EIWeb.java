@@ -55,11 +55,9 @@ public class EIWeb implements DeviceProtocol {
 
     private final Clock clock;
     private final PropertySpecService propertySpecService;
+    private final SimplePasswordSecuritySupport securitySupport;
     private OfflineDevice offlineDevice;
-    private SimplePasswordSecuritySupport securitySupport = new SimplePasswordSecuritySupport();
-    private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
     private LegacyMessageConverter messageConverter;
-    private PropertySpecService propertySpecService;
 
     @Inject
     public EIWeb(Clock clock, PropertySpecService propertySpecService) {
@@ -204,7 +202,6 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        this.deviceProtocolSecurityPropertySet = deviceProtocolSecurityPropertySet;
     }
 
     @Override

@@ -1,5 +1,21 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.MeterData;
+import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
+import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.Array;
@@ -13,23 +29,6 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.data.MeterData;
-import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
-import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -56,12 +55,10 @@ import java.util.logging.Level;
 public class Dsmr23MbusMessageExecutor extends MessageParser {
 
     private final AbstractSmartNtaProtocol protocol;
-    private final TopologyService topologyService;
     private final DlmsSession dlmsSession;
 
-    public Dsmr23MbusMessageExecutor(final AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
+    public Dsmr23MbusMessageExecutor(final AbstractSmartNtaProtocol protocol) {
         this.protocol = protocol;
-        this.topologyService = topologyService;
         this.dlmsSession = this.protocol.getDlmsSession();
     }
 
@@ -77,40 +74,52 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
         try {
             importMessage(content, messageHandler);
 
-            boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
-            boolean disconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-            boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
-            boolean decommission = messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
-            boolean mbusEncryption = messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
-            boolean mbusCryptoserverEncryption = messageHandler.getType().equals(RtuMessageConstant.CRYPTOSERVER_MBUS_ENCRYPTION_KEYS);
-            boolean mbusCorrected = messageHandler.getType().equals(RtuMessageConstant.MBUS_CORRECTED_VALUES);
-            boolean mbusUnCorrected = messageHandler.getType().equals(RtuMessageConstant.MBUS_UNCORRECTED_VALUES);
-            boolean partialLoadProfile = messageHandler.getType().equals(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag());
-            boolean loadProfileRegisterRequest = messageHandler.getType().equals(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag());
-
-            if (connect) {
-                doConnectMessage(messageHandler, serialNumber);
-            } else if (disconnect) {
-                doDisconnectMessage(messageHandler, serialNumber);
-            } else if (connectMode) {
-                setConnectMode(messageHandler, serialNumber);
-            } else if (decommission) {
-                doDecommission(serialNumber);
-            } else if (mbusEncryption) {
-                setMbusEncryptionKeys(messageHandler, serialNumber);
-            } else if (mbusCryptoserverEncryption) {
-                setCryptoserverMbusEncryptionKeys();
-            } else if (mbusCorrected) {
-                setMbusCorrected(serialNumber);
-            } else if (mbusUnCorrected) {
-                setMbusUncorrected(serialNumber);
-            } else if (partialLoadProfile) {
-                msgResult = doReadPartialLoadProfile(msgEntry);
-            } else if (loadProfileRegisterRequest) {
-                msgResult = doReadLoadProfileRegisters(msgEntry);
-            } else {
-                msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
-                log(Level.INFO, "Message not supported : " + content);
+            switch (messageHandler.getType()) {
+                case RtuMessageConstant.CONNECT_LOAD: {
+                    doConnectMessage(messageHandler, serialNumber);
+                    break;
+                }
+                case RtuMessageConstant.DISCONNECT_LOAD: {
+                    doDisconnectMessage(messageHandler, serialNumber);
+                    break;
+                }
+                case RtuMessageConstant.CONNECT_CONTROL_MODE: {
+                    setConnectMode(messageHandler, serialNumber);
+                    break;
+                }
+                case RtuMessageConstant.MBUS_DECOMMISSION: {
+                    doDecommission(serialNumber);
+                    break;
+                }
+                case RtuMessageConstant.MBUS_ENCRYPTION_KEYS: {
+                    setMbusEncryptionKeys(messageHandler, serialNumber);
+                    break;
+                }
+                case RtuMessageConstant.CRYPTOSERVER_MBUS_ENCRYPTION_KEYS: {
+                    setCryptoserverMbusEncryptionKeys();
+                    break;
+                }
+                case RtuMessageConstant.MBUS_CORRECTED_VALUES: {
+                    setMbusCorrected(serialNumber);
+                    break;
+                }
+                case RtuMessageConstant.MBUS_UNCORRECTED_VALUES: {
+                    setMbusUncorrected(serialNumber);
+                    break;
+                }
+                case LegacyPartialLoadProfileMessageBuilder.MESSAGETAG: {
+                    msgResult = doReadPartialLoadProfile(msgEntry);
+                    break;
+                }
+                case LegacyLoadProfileRegisterMessageBuilder.MESSAGETAG: {
+                    msgResult = doReadLoadProfileRegisters(msgEntry);
+                    break;
+                }
+                default: {
+                    msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
+                    log(Level.INFO, "Message not supported : " + content);
+                    break;
+                }
             }
 
             // Some message create their own messageResult
@@ -290,7 +299,7 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
         try {
             log(Level.INFO, "Handling message Read LoadProfile Registers.");
             LegacyLoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder.fromXml(msgEntry.getContent());
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!");
             }

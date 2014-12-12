@@ -13,7 +13,6 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdw.cpo.PropertySpecFactory;
 import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -21,7 +20,6 @@ import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -169,9 +167,8 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                propertySpecService.bigDecimalPropertySpec(TIMEOUT_KEY, false, new BigDecimal(TIMEOUT_DEFAULT)),
-                propertySpecService.bigDecimalPropertySpec(RETRIES_KEY, false, new BigDecimal(RETRIES_DEFAULT))
-        );
+                propertySpecService.basicPropertySpec(this.thesaurus.getString(MessageSeeds.TIMEOUT.getKey(), "Timeout"), false, BigDecimalFactory.class),
+                propertySpecService.basicPropertySpec(this.thesaurus.getString(MessageSeeds.RETRIES.getKey(), "Retries"), false, BigDecimalFactory.class));
     }
 
     @Override
@@ -198,16 +195,4 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
         return typedProperties;
     }
 
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(
-                propertySpecService.bigDecimalPropertySpec(TIMEOUT_KEY, false, new BigDecimal(TIMEOUT_DEFAULT)),
-                propertySpecService.bigDecimalPropertySpec(RETRIES_KEY, false, new BigDecimal(RETRIES_DEFAULT))
-        );
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String s) {
-        return getPropertySpecs().stream().filter(propertySpec -> propertySpec.getName().equals(s)).findAny().orElse(null);
-    }
 }

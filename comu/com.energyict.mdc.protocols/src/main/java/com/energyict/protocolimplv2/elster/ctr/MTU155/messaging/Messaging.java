@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -12,6 +13,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
@@ -22,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Implementation for {@link DeviceMessageSupport} interface for MTU155 CTR protocol
+ * Implementation for {@link DeviceMessageSupport} interface for MTU155 CTR protocol.
  *
  * @author sva
  * @since 12/06/13 - 10:12
@@ -53,9 +56,13 @@ public class Messaging implements DeviceMessageSupport {
     );
 
     private final MTU155 protocol;
+    private final TopologyService topologyService;
+    private final IssueService issueService;
 
-    public Messaging(MTU155 protocol) {
+    public Messaging(MTU155 protocol, TopologyService topologyService, IssueService issueService) {
         this.protocol = protocol;
+        this.topologyService = topologyService;
+        this.issueService = issueService;
     }
 
     @Override
@@ -68,18 +75,18 @@ public class Messaging implements DeviceMessageSupport {
         CollectedMessageList result = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedMessageList(pendingMessages);
 
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
-            boolean messageFound = false;
+            boolean messageNotFound = true;
             CollectedMessage collectedMessage = null;
             for (AbstractMTU155Message messageExecutor : getAllSupportedMTU155MessageExecutors()) {
                 if (messageExecutor.canExecuteThisMessage(pendingMessage)) {
-                    messageFound = true;
+                    messageNotFound = false;
                     collectedMessage = messageExecutor.executeMessage(pendingMessage);
                     break;
                 }
             }
-            if (!messageFound) {
+            if (messageNotFound) {
                 collectedMessage = createCollectedMessage(pendingMessage);
-                collectedMessage.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.notSupported",
+                collectedMessage.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(pendingMessage, "DeviceMessage.notSupported",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
                         pendingMessage.getSpecification().getName()));
@@ -112,7 +119,7 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
                 return CodeTableBase64Builder.getXmlStringFromCodeTable((Code) messageAttribute);
             case DeviceMessageConstants.loadProfileAttributeName:
-                return LoadProfileMessageUtils.formatLoadProfile((BaseLoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                 UserFile userFile = (UserFile) messageAttribute;
                 return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
@@ -124,41 +131,42 @@ public class Messaging implements DeviceMessageSupport {
     private AbstractMTU155Message[] getAllSupportedMTU155MessageExecutors() {
         return new AbstractMTU155Message[]{
                 // Device configuration group
-                new WriteConverterMasterDataMessage(this),
-                new WriteMeterMasterDataMessage(this),
-                new WriteGasParametersMessage(this),
-                new ChangeDSTMessage(this),
-                new WritePDRMessage(this),
+                new WriteConverterMasterDataMessage(this, this.issueService),
+                new WriteMeterMasterDataMessage(this, this.issueService),
+                new WriteGasParametersMessage(this, this.issueService),
+                new ChangeDSTMessage(this, this.issueService),
+                new WritePDRMessage(this, this.issueService),
 
                 // Connectivity setup group
-                new DevicePhoneNumberSetupMessage(this),
-                new ApnSetupMessage(this),
-                new SMSCenterSetupMessage(this),
-                new IPSetupMessage(this),
-                new WakeUpFrequency(this),
+                new DevicePhoneNumberSetupMessage(this, this.issueService),
+                new ApnSetupMessage(this, this.issueService),
+                new SMSCenterSetupMessage(this, this.issueService),
+                new IPSetupMessage(this, this.issueService),
+                new WakeUpFrequency(this, this.issueService),
 
                 // Key management
-                new ActivateTemporaryKeyMessage(this),
-                new ChangeExecutionKeyMessage(this),
-                new ChangeTemporaryKeyMessage(this),
+                new ActivateTemporaryKeyMessage(this, this.issueService),
+                new ChangeExecutionKeyMessage(this, this.issueService),
+                new ChangeTemporaryKeyMessage(this, this.issueService),
 
                 // Seals management group
-                new TemporaryBreakSealMessage(this),
-                new ChangeSealStatusMessage(this),
+                new TemporaryBreakSealMessage(this, this.issueService),
+                new ChangeSealStatusMessage(this, this.issueService),
 
                 // Tariff management
-                new TariffUploadPassiveMessage(this),
-                new TariffDisablePassiveMessage(this),
+                new TariffUploadPassiveMessage(this, this.issueService),
+                new TariffDisablePassiveMessage(this, this.issueService),
 
                 // LoadProfile group
-                new ReadPartialProfileDataMessage(this),
+                new ReadPartialProfileDataMessage(this, this.issueService, this.topologyService),
 
                 // Firmware Upgrade
-                new FirmwareUpgradeMessage(this)
+                new FirmwareUpgradeMessage(this, this.issueService)
         };
     }
 
     public MTU155 getProtocol() {
         return protocol;
     }
+
 }

@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -11,8 +12,6 @@ import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging;
@@ -28,9 +27,8 @@ import java.io.IOException;
 public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
 
     @Inject
-    public WebRTUKP(TopologyService topologyService, OrmClient ormClient) {
-        super(topologyService, ormClient);
-        setLoadProfileBuilder(new WebRTUKPLoadProfileBuilder(this));
+    public WebRTUKP(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
+        super(topologyService, readingTypeUtilService, ormClient);
     }
 
     @Override

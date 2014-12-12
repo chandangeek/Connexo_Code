@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,6 +17,11 @@ import java.util.List;
  */
 public class DsmrSecuritySupport extends DlmsSecuritySupport {
 
+    @Inject
+    public DsmrSecuritySupport(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Arrays.asList(
@@ -24,4 +31,5 @@ public class DsmrSecuritySupport extends DlmsSecuritySupport {
                 new Sha1Authentication(),
                 new GmacAuthentication());
     }
+
 }

@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.common;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -27,6 +26,8 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
@@ -53,18 +54,18 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
 
     private final String serialNumber;
     private final DeviceProtocol meterProtocol;
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
     public abstract DeviceMessageSupport getDeviceMessageSupport();
 
-    protected AbstractMbusDevice(DeviceProtocol meterProtocol) {
-        this.meterProtocol = meterProtocol;
-        this.serialNumber = "CurrentlyUnKnown";
+    protected AbstractMbusDevice(DeviceProtocol meterProtocol, PropertySpecService propertySpecService) {
+        this(meterProtocol, "CurrentlyUnKnown", propertySpecService);
     }
 
-    protected AbstractMbusDevice(DeviceProtocol meterProtocol, String serialNumber) {
+    protected AbstractMbusDevice(DeviceProtocol meterProtocol, String serialNumber, PropertySpecService propertySpecService) {
         this.meterProtocol = meterProtocol;
         this.serialNumber = serialNumber;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -167,11 +168,6 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
     @Override
     public DeviceFunction getDeviceFunction() {
         return null;
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     //############## Unsupported methods ##############//

@@ -27,10 +27,10 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     protected HttpServletRequest request;
     protected HttpServletResponse response;
     protected InboundDiscoveryContext context;
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    // Subclasses should add @Inject
+    protected AbstractSMSServletBasedInboundDeviceProtocol(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 

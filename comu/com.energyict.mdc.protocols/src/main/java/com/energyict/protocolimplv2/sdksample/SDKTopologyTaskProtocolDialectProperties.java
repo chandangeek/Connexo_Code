@@ -4,7 +4,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -23,12 +22,6 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
 
     public SDKTopologyTaskProtocolDialectProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
-    }
-
-    private final PropertySpecService propertySpecService;
-
-    public SDKTopologyTaskProtocolDialectProperties(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -60,11 +53,11 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     }
 
     private PropertySpec<String> getSlaveOneSerialNumber() {
-        return this.propertySpecService.basicPropertySpec(slaveOneSerialNumberPropertyName, false, new StringFactory());
+        return this.getPropertySpecService().basicPropertySpec(slaveOneSerialNumberPropertyName, false, new StringFactory());
     }
 
     public PropertySpec getSlaveTwoSerialNumber() {
-        return this.propertySpecService.basicPropertySpec(slaveTwoSerialNumberPropertyName, false, new StringFactory());
+        return this.getPropertySpecService().basicPropertySpec(slaveTwoSerialNumberPropertyName, false, new StringFactory());
     }
 
 }

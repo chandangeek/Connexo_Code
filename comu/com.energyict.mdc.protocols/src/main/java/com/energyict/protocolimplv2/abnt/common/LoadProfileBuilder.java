@@ -1,17 +1,18 @@
 package com.energyict.protocolimplv2.abnt.common;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.BcdEncodedField;
 import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
@@ -19,9 +20,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.LoadProfileReadoutResp
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParametersResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.field.UnitField;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -61,9 +60,13 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     private Map<Integer, List<ChannelInfo>> channelInfosForChannelGroup;
 
     private final AbstractAbntProtocol meterProtocol;
+    private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final IssueService issueService;
 
-    public LoadProfileBuilder(AbstractAbntProtocol meterProtocol) {
+    public LoadProfileBuilder(AbstractAbntProtocol meterProtocol, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService) {
         this.meterProtocol = meterProtocol;
+        this.readingTypeUtilService = readingTypeUtilService;
+        this.issueService = issueService;
     }
 
     @Override
@@ -98,7 +101,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             getChannelInfoMap().put(reader, channelInfos);
         } catch (ParsingException e) {
             loadProfileConfig.setSupportedByMeter(false);
-            loadProfileConfig.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(reader, "CouldNotParseLoadProfileData"));
+            loadProfileConfig.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(reader, "CouldNotParseLoadProfileData"));
         }
     }
 
@@ -110,7 +113,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 unitField.getCorrespondingObisCode().toString(),
                 unitField.getEisUnit(),
                 reader.getMeterSerialNumber(),
-                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(unitField.getCorrespondingObisCode(), unitField.getEisUnit())
+                this.readingTypeUtilService.getReadingTypeFrom(unitField.getCorrespondingObisCode(), unitField.getEisUnit())
         );
         channelInfos.add(channelInfo);
         channelGroupChannelInfos.add(channelInfo);
@@ -147,7 +150,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             List<IntervalData> intervalData = composeAndFilterIntervalDataList(reader, intervalDataMap, channelGroupsWhoShouldBeRead.size());
             collectedLoadProfile.setCollectedData(intervalData, channelInfos);
         } catch (ParsingException e) {
-            collectedLoadProfile.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(collectedLoadProfile, "CouldNotParseLoadProfileData"));
+            collectedLoadProfile.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(collectedLoadProfile, "CouldNotParseLoadProfileData"));
         }
     }
 
@@ -253,7 +256,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     }
 
     private void loadProfileNotSupported(LoadProfileReader reader, CollectedLoadProfile collectedLoadProfile) {
-        collectedLoadProfile.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(reader, "loadProfileXnotsupported", reader.getProfileObisCode()));
+        collectedLoadProfile.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(reader, "loadProfileXnotsupported", reader.getProfileObisCode()));
     }
 
     public AbstractAbntProtocol getMeterProtocol() {

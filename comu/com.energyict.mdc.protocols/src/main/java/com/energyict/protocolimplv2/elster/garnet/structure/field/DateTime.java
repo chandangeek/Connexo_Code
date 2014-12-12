@@ -1,13 +1,12 @@
 package com.energyict.protocolimplv2.elster.garnet.structure.field;
 
-
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.common.field.AbstractField;
 import com.energyict.protocolimplv2.elster.garnet.exception.ParsingException;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -25,16 +24,10 @@ public class DateTime extends AbstractField<DateTime> {
 
     private Calendar calendar;
 
-    public DateTime(TimeZone timeZone) {
+    public DateTime(Clock clock, TimeZone timeZone) {
         calendar = Calendar.getInstance(timeZone);
-        calendar.setTime(Date.from(Bus.getClock().instant()));
+        calendar.setTime(Date.from(clock.instant()));
         dateFormatter.setTimeZone(timeZone);
-    }
-
-    public DateTime(TimeZone timeZone, Date date) {
-        calendar = Calendar.getInstance(timeZone);
-        dateFormatter.setTimeZone(calendar.getTimeZone());
-        calendar.setTime(date);
     }
 
     @Override

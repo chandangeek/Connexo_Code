@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
@@ -21,8 +22,8 @@ public class ActivateTemporaryKeyMessage extends AbstractMTU155Message {
     private static final int MIN_ACTIVE_TIME = 0;
     private static final int MAX_ACTIVE_TIME = 255;
 
-    public ActivateTemporaryKeyMessage(Messaging messaging) {
-        super(messaging);
+    public ActivateTemporaryKeyMessage(Messaging messaging, IssueService issueService) {
+        super(messaging, issueService);
     }
 
     @Override
@@ -57,17 +58,11 @@ public class ActivateTemporaryKeyMessage extends AbstractMTU155Message {
         return activationTimeDuration;
     }
 
-    /**
-     * Create the raw data send to the device using an execute function
-     *
-     * @param keyTEnabled
-     * @param activatedTime
-     * @return
-     */
     private byte[] createRawData(boolean keyTEnabled, int activatedTime) {
         byte[] rawData = new byte[2];
         rawData[0] = (keyTEnabled ? (byte) 0x01 : (byte) 0x10);
         rawData[1] = (byte) activatedTime;
         return rawData;
     }
+
 }

@@ -1,10 +1,15 @@
 package com.energyict.protocolimplv2.nta.elster;
 
-import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
 import javax.inject.Inject;
 
@@ -19,14 +24,14 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     private Dsmr23MbusMessaging dsmr23MbusMessaging;
 
     @Inject
-    public MbusDevice(PropertySpecService propertySpecService, IssueService issueService) {
-        super(propertySpecService, issueService);
+    public MbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService);
     }
 
     @Override
     public DeviceMessageSupport getDeviceMessageSupport() {
         if (dsmr23MbusMessaging == null) {
-            dsmr23MbusMessaging = new Dsmr23MbusMessaging(this);
+            dsmr23MbusMessaging = new Dsmr23MbusMessaging(this, this.getTopologyService());
         }
         return dsmr23MbusMessaging;
     }

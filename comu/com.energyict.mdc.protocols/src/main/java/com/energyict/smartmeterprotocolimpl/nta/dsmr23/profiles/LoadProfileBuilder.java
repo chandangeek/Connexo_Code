@@ -1,5 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
@@ -15,17 +25,7 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
@@ -66,43 +66,44 @@ public class LoadProfileBuilder {
      * The used meterProtocol
      */
     private final AbstractSmartNtaProtocol meterProtocol;
+    private final MdcReadingTypeUtilService readingTypeUtilService;
 
     /**
      * Keeps track of the link between a {@link LoadProfileReader} and a {@link com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig}
      */
-    private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
+    private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<>();
 
     /**
      * Keeps track of the link between a LoadProfileReader and a {@link com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig}
      */
-    private Map<LoadProfileReader, Integer> lpIntervals = new HashMap<LoadProfileReader, Integer>();
+    private Map<LoadProfileReader, Integer> lpIntervals = new HashMap<>();
 
     /**
      * Keeps track of the link between a LoadProfileReader and a list of Register which
      * will represent the 'data' channels of the Profile
      */
-    private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<CapturedRegisterObject>>();
+    private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<>();
 
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
      */
-    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
+    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
 
     /**
      * Keep track of a list of statusMask per LoadProfileReader
      */
-    private Map<LoadProfileReader, Integer> statusMasksMap = new HashMap<LoadProfileReader, Integer>();
+    private Map<LoadProfileReader, Integer> statusMasksMap = new HashMap<>();
 
     /**
      * Keep track of a list of channelMask per LoadProfileReader
      */
-    protected Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
+    protected Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<>();
 
     /**
      * Keeps track of the link between a {@link com.energyict.mdc.protocol.api.device.BaseRegister}
      * and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
-    private Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<CapturedRegisterObject, DLMSAttribute>();
+    private Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<>();
 
     /**
      * The list of LoadProfileReaders which are expected to be fetched
@@ -114,13 +115,13 @@ public class LoadProfileBuilder {
      */
     private List<LoadProfileConfiguration> loadProfileConfigurationList;
 
-    /**
-     * Default constructor
-     *
-     * @param meterProtocol the {@link #meterProtocol}
-     */
-    public LoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol) {
+    public LoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol, MdcReadingTypeUtilService readingTypeUtilService) {
         this.meterProtocol = meterProtocol;
+        this.readingTypeUtilService = readingTypeUtilService;
+    }
+
+    protected MdcReadingTypeUtilService getReadingTypeUtilService() {
+        return readingTypeUtilService;
     }
 
     /**
@@ -132,7 +133,7 @@ public class LoadProfileBuilder {
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) throws IOException {
         this.expectedLoadProfileReaders = filterOutAllInvalidLoadProfiles(loadProfileReaders);
-        this.loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
+        this.loadProfileConfigurationList = new ArrayList<>();
 
         ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(expectedLoadProfileReaders, this.meterProtocol.supportsBulkRequests());
         List<CapturedRegisterObject> capturedObjectRegisterList = createCapturedObjectRegisterList(ccoLpConfigs);
@@ -188,7 +189,7 @@ public class LoadProfileBuilder {
      * @return  the validated list containing all valid loadProfileReaders
      */
     private List<LoadProfileReader> filterOutAllInvalidLoadProfiles(List<LoadProfileReader> loadProfileReaders) {
-        List<LoadProfileReader> validLoadProfileReaders = new ArrayList<LoadProfileReader>();
+        List<LoadProfileReader> validLoadProfileReaders = new ArrayList<>();
 
         for (LoadProfileReader loadProfileReader : loadProfileReaders) {
             if (this.meterProtocol.getPhysicalAddressFromSerialNumber(loadProfileReader.getMeterSerialNumber()) != -1) {
@@ -209,7 +210,7 @@ public class LoadProfileBuilder {
      */
     protected ComposedCosemObject constructLoadProfileConfigComposedCosemObject(List<LoadProfileReader> loadProfileReaders, boolean supportsBulkRequest) {
         if (loadProfileReaders != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (LoadProfileReader lpReader : loadProfileReaders) {
                 ObisCode obisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpReader.getProfileObisCode(), lpReader.getMeterSerialNumber());
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), obisCode);
@@ -237,7 +238,7 @@ public class LoadProfileBuilder {
      * @throws java.io.IOException if an error occurred during dataFetching or -Parsing
      */
     protected List<CapturedRegisterObject> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
-        List<CapturedRegisterObject> channelRegisters = new ArrayList<CapturedRegisterObject>();
+        List<CapturedRegisterObject> channelRegisters = new ArrayList<>();
         if (this.expectedLoadProfileReaders != null) {
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
                 ComposedProfileConfig cpc = this.lpConfigMap.get(lpr);
@@ -255,7 +256,7 @@ public class LoadProfileBuilder {
                     List<CapturedObject> capturedObjects = pg.getCapturedObjectsFromDataContainter(dc);
 
                     // Convert each captured object to a register (DLMSAttribute + device serial number)
-                    List<CapturedRegisterObject> coRegisters = new ArrayList<CapturedRegisterObject>();
+                    List<CapturedRegisterObject> coRegisters = new ArrayList<>();
                     for (CapturedObject co : capturedObjects) {
                         String deviceSerialNumber = this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
                         DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
@@ -322,19 +323,19 @@ public class LoadProfileBuilder {
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
     protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!registerUnit.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), true,
-                                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerUnit.getObisCode(), su.getEisUnit()));
+                                this.readingTypeUtilService.getReadingTypeFrom(registerUnit.getObisCode(), su.getEisUnit()));
                         channelInfos.add(ci);
                     } else {
                         //TODO CHECK if this is still correct!
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true,
-                                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(registerUnit.getObisCode(), Unit.getUndefined()));
+                                this.readingTypeUtilService.getReadingTypeFrom(registerUnit.getObisCode(), Unit.getUndefined()));
                         channelInfos.add(ci);
 //                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
                     }
@@ -362,7 +363,7 @@ public class LoadProfileBuilder {
         int channelMask = 0;
         int counter = 0;
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!registerUnit.getSerialNumber().equals("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!"".equals(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 channelMask |= (int) Math.pow(2, counter);
             }
             counter++;
@@ -488,20 +489,12 @@ public class LoadProfileBuilder {
         return statusMasksMap;
     }
 
-    public Map<LoadProfileReader, Integer> getChannelMaskMap() {
-        return channelMaskMap;
-    }
-
     protected AbstractSmartNtaProtocol getMeterProtocol() {
         return meterProtocol;
     }
 
     protected Map<LoadProfileReader, ComposedProfileConfig> getLpConfigMap() {
         return lpConfigMap;
-    }
-
-    protected Map<LoadProfileReader, Integer> getLpIntervals() {
-        return lpIntervals;
     }
 
     protected Map<LoadProfileReader, List<CapturedRegisterObject>> getCapturedObjectRegisterListMap() {
@@ -515,4 +508,5 @@ public class LoadProfileBuilder {
     protected Map<CapturedRegisterObject, DLMSAttribute> getRegisterUnitMap() {
         return registerUnitMap;
     }
+
 }

@@ -2,15 +2,35 @@ package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.MeterData;
 import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.core.Link;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -23,26 +43,6 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.TCPUDPSetup;
-import com.energyict.protocols.mdc.services.impl.Bus;
-import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
-import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
-import com.energyict.mdc.protocol.api.messaging.MessageSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
@@ -50,6 +50,8 @@ import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMX372Properties;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice;
@@ -61,7 +63,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -79,7 +80,9 @@ import java.util.logging.Logger;
  */
 public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProtocolSupport {
 
-    private IskraMx372 protocol;
+    private final IskraMx372 protocol;
+    private final TopologyService topologyService;
+    private final MdcReadingTypeUtilService readingTypeUtilService;
     private BaseDevice rtu;
 
     private ObisCode llsSecretObisCode1 = ObisCode.fromString("0.0.128.100.1.255");
@@ -134,13 +137,14 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     private static final int maxNumbersManagedWhiteList = 8;
 
 
-    public IskraMx372Messaging(IskraMx372 protocol) {
+    public IskraMx372Messaging(IskraMx372 protocol, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
         this.protocol = protocol;
-//        this.properties = (IskraMX372Properties) protocol.getDlmsSession().getProperties();
+        this.topologyService = topologyService;
+        this.readingTypeUtilService = readingTypeUtilService;
     }
 
     public List getMessageCategories() {
-        List theCategories = new ArrayList();
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
         MessageCategorySpec catAuthenticationEncryption = getAuthEncryptCategory();
         MessageCategorySpec catBasicMessages = getBasicMessagesCategory();
         MessageCategorySpec catLoadLimit = getLoadLimitCategory();
@@ -261,11 +265,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
+        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
+        return new LegacyPartialLoadProfileMessageBuilder(this.topologyService);
     }
 
     /**
@@ -290,7 +294,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(messageEntry.getSerialNumber())) {
-            IskraMx372MbusMessageExecutor mbusMessageExecutor = new IskraMx372MbusMessageExecutor(protocol);
+            IskraMx372MbusMessageExecutor mbusMessageExecutor = new IskraMx372MbusMessageExecutor(protocol, topologyService);
             return mbusMessageExecutor.queryMessage(messageEntry);
         } else {
             MessageResult msgResult = null;
@@ -835,7 +839,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     public MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
             LegacyLoadProfileRegisterMessageBuilder builder = getLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder.fromXml(msgEntry.getContent());
             LoadProfileReader reader = builder.getLoadProfileReader();
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!");
@@ -846,7 +850,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
             for (Register register : builder.getRegisters()) {
                 channelInfos.add(new ChannelInfo(channelInfos.size(), register.getObisCode().toString(), Unit.getUndefined(), register.getSerialNumber(),
-                        Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(register.getObisCode(), Unit.getUndefined())));
+                        this.readingTypeUtilService.getReadingTypeFrom(register.getObisCode(), Unit.getUndefined())));
             }
             LoadProfileReader lpr = constructDateTimeCorrectdLoadProfileReader(new LoadProfileReader(reader.getProfileObisCode(),
                     reader.getStartReadingTime(), reader.getEndReadingTime(), reader.getLoadProfileId(), reader.getDeviceIdentifier(), channelInfos,
@@ -909,17 +913,17 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
     public MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
         try {
             LegacyPartialLoadProfileMessageBuilder builder = getPartialLoadProfileMessageBuilder();
-            builder = (LegacyPartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
             this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
-            if (profileData.size() == 0) {
+            if (profileData.isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "LoadProfile returned no data.");
             } else {
                 for (ProfileData data : profileData) {
-                    if (data.getIntervalDatas().size() == 0) {
+                    if (data.getIntervalDatas().isEmpty()) {
                         return MessageResult.createFailed(msgEntry, "LoadProfile returned no interval data.");
                     }
                 }

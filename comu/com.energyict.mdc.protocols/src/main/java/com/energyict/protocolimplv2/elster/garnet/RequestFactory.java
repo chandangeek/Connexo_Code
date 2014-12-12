@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.common.Connection;
@@ -39,6 +40,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.ReadingSelecto
 import com.energyict.protocolimplv2.elster.garnet.structure.field.RepeaterDiagnostic;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.SessionKeyPart;
 
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -53,6 +55,9 @@ public class RequestFactory {
     private static final int REMOTE_CONCENTRATOR_DEVICE_ID = 0;
     private static final int NR_OF_METERS_PER_REGISTER_READING_RESPONSE = 6;
 
+    private final Clock clock;
+    private final PropertySpecService propertySpecService;
+
     private Connection connection;
     private ComChannel comChannel;
     private GarnetProperties properties;
@@ -63,13 +68,14 @@ public class RequestFactory {
      */
     private Map<String, Data> cachedData;
 
-    public RequestFactory() {
+    public RequestFactory(Clock clock, PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
         this.cachedData = new HashMap<>();
+        this.clock = clock;
     }
 
-    public RequestFactory(ComChannel comChannel, GarnetProperties properties) {
-        this.comChannel = comChannel;
-        this.properties = properties;
+    public Clock getClock() {
+        return clock;
     }
 
     public ConcentratorVersionResponseStructure readConcentratorVersion() throws GarnetException {
@@ -179,7 +185,7 @@ public class RequestFactory {
 
         for(int i = 1; i < 18; i++) {
             DiscoverRepeatersResponseStructure discoveredRepeatersStructure = discoverRepeaters(i);
-            HashMap<Address, RepeaterDiagnostic> repeaterMap = discoveredRepeatersStructure.getRepeaterMap();
+            Map<Address, RepeaterDiagnostic> repeaterMap = discoveredRepeatersStructure.getRepeaterMap();
             for (Map.Entry<Address, RepeaterDiagnostic> entry : repeaterMap.entrySet()) {
                 repeaterDiagnosticMap.put(entry.getKey().getAddress(), entry.getValue());
             }
@@ -328,12 +334,11 @@ public class RequestFactory {
         }
     }
 
-
     protected RequestFrame getContactorRequest(int destinationAddress, ContactorMode mode, String serialNumber) {
         RequestFrame request = new RequestFrame();
         request.setDestinationAddress(new Address(destinationAddress));
         request.setFunction(new Function(FunctionCode.CONTACTOR_REQUEST));
-        ContactorRequestStructure contactorRequestStructure = new ContactorRequestStructure(getTimeZone());
+        ContactorRequestStructure contactorRequestStructure = new ContactorRequestStructure(clock, getTimeZone());
         contactorRequestStructure.setMode(mode);
         contactorRequestStructure.setSerialNumber(serialNumber);
         request.setData(contactorRequestStructure);
@@ -351,7 +356,7 @@ public class RequestFactory {
 
     public Connection getConnection() {
         if (this.connection == null) {
-            this.connection = new GPRSConnection(getComChannel(), getProperties());
+            this.connection = new GPRSConnection(getComChannel(), getProperties(), this.clock);
         }
         return connection;
     }
@@ -366,7 +371,7 @@ public class RequestFactory {
 
     public GarnetProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new GarnetProperties();
+            this.properties = new GarnetProperties(propertySpecService);
         }
         return this.properties;
     }
@@ -382,4 +387,5 @@ public class RequestFactory {
     public int getDeviceIdOfMaster() {
         return getProperties().getDeviceId();
     }
+
 }

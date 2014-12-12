@@ -99,73 +99,93 @@ public class UkHubMessageExecutor extends MessageParser {
         success = true;
         try {
             importMessage(content, messageHandler);
-
-            boolean changeHanSAS = messageHandler.getType().equals(RtuMessageConstant.CHANGE_HAN_SAS);
-            boolean createHan = messageHandler.getType().equals(RtuMessageConstant.CREATE_HAN_NETWORK);
-            boolean removeHan = messageHandler.getType().equals(RtuMessageConstant.REMOVE_HAN_NETWORK);
-            boolean joinZigBeeSlave = messageHandler.getType().equals(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
-            boolean removeZigBeeMirror = messageHandler.getType().equals(RtuMessageConstant.REMOVE_ZIGBEE_MIRROR);
-            boolean removeZigBeeSlave = messageHandler.getType().equals(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
-            boolean removeAllZigBeeSlaves = messageHandler.getType().equals(RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES);
-            boolean backupZigBeeHanParameters = messageHandler.getType().equals(RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS);
-            boolean restoreZigBeeParameters = messageHandler.getType().equals(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
-            boolean readZigBeeStatus = messageHandler.getType().equals(RtuMessageConstant.READ_ZIGBEE_STATUS);
-            boolean zigbeeNCPFirmwareUpgrade = messageHandler.getType().equals(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE);
-            boolean modemPingSetup = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_PING_SETUP);
-            boolean firmwareUpdate = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
-            boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
-            boolean xmlCOnfig = messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
-            boolean enableWebserver = messageHandler.getType().equals(RtuMessageConstant.WEBSERVER_ENABLE);
-            boolean disableWebserver = messageHandler.getType().equals(RtuMessageConstant.WEBSERVER_DISABLE);
-            boolean reboot = messageHandler.getType().endsWith(RtuMessageConstant.REBOOT);
-            boolean readDebugLogbook = messageHandler.getType().equals(RtuMessageConstant.DEBUG_LOGBOOK);
-            boolean readElsterLogbook = messageHandler.getType().equals(RtuMessageConstant.ELSTER_SPECIFIC_LOGBOOK);
-
-            if (changeHanSAS) {
-                changeHanSAS(messageHandler);
-            } else if (createHan) {
-                createHanNetwork(messageHandler);
-            } else if (removeHan) {
-                removeHanNetwork(messageHandler);
-            } else if (joinZigBeeSlave) {
-                joinZigBeeSlave(messageHandler);
-            } else if (removeZigBeeMirror) {
-                removeZigBeeMirror(messageHandler);
-            } else if (removeZigBeeSlave) {
-                removeZigBeeSlave(messageHandler);
-            } else if (removeAllZigBeeSlaves) {
-                removeAllZigBeeSlaves(messageHandler);
-            } else if (backupZigBeeHanParameters) {
-                backupZigBeeHanParameters(messageHandler);
-            } else if (restoreZigBeeParameters) {
-                restoreZigBeeHanParameters(messageHandler);
-            } else if (readZigBeeStatus) {
-                readZigBeeStatus();
-            } else if (modemPingSetup) {
-                modemPingSetup(messageHandler, content);
-            } else if (firmwareUpdate) {
-                firmwareUpdate(messageHandler, content, trackingId);
-            } else if (zigbeeNCPFirmwareUpgrade) {
-                zigbeeNCPFirmwareUpdate(messageHandler, content);
-            } else if (testMessage) {
-                testMessage(messageHandler);
-            } else if (xmlCOnfig) {
-                xmlConfigMessage(messageHandler, content);
-            } else if (enableWebserver) {
-                enableWebserver();
-            } else if (disableWebserver) {
-                disableWebserver();
-            } else if (reboot) {
-                reboot();
-            } else if (readDebugLogbook) {
-                readDebugLogbook(messageHandler);
-            } else if (readElsterLogbook) {
-                readElsterLogbook(messageHandler);
-            } else {
-                log(Level.INFO, "Message not supported : " + content);
-                success = false;
+            switch (messageHandler.getType()) {
+                case RtuMessageConstant.CHANGE_HAN_SAS: {
+                    changeHanSAS(messageHandler);
+                    break;
+                }
+                case RtuMessageConstant.CREATE_HAN_NETWORK: {
+                    createHanNetwork();
+                    break;
+                }
+                case RtuMessageConstant.REMOVE_HAN_NETWORK: {
+                    removeHanNetwork();
+                    break;
+                }
+                case RtuMessageConstant.JOIN_ZIGBEE_SLAVE: {
+                    joinZigBeeSlave(messageHandler);
+                    break;
+                }
+                case RtuMessageConstant.REMOVE_ZIGBEE_MIRROR: {
+                    removeZigBeeMirror(messageHandler);
+                    break;
+                }
+                case RtuMessageConstant.REMOVE_ZIGBEE_SLAVE: {
+                    removeZigBeeSlave(messageHandler);
+                    break;
+                }
+                case RtuMessageConstant.REMOVE_ALL_ZIGBEE_SLAVES: {
+                    removeAllZigBeeSlaves();
+                    break;
+                }
+                case RtuMessageConstant.BACKUP_ZIGBEE_HAN_PARAMETERS: {
+                    backupZigBeeHanParameters();
+                    break;
+                }
+                case RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS: {
+                    restoreZigBeeHanParameters(messageHandler);
+                    break;
+                }
+                case RtuMessageConstant.READ_ZIGBEE_STATUS: {
+                    readZigBeeStatus();
+                    break;
+                }
+                case RtuMessageConstant.GPRS_MODEM_PING_SETUP: {
+                    modemPingSetup(messageHandler);
+                    break;
+                }
+                case RtuMessageConstant.FIRMWARE_UPGRADE: {
+                    firmwareUpdate(messageHandler, content, trackingId);
+                    break;
+                }
+                case RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE: {
+                    zigbeeNCPFirmwareUpdate(messageHandler, content);
+                    break;
+                }
+                case RtuMessageConstant.TEST_MESSAGE: {
+                    testMessage(messageHandler);
+                    break;
+                }
+                case RtuMessageConstant.XMLCONFIG: {
+                    xmlConfigMessage(content);
+                    break;
+                }
+                case RtuMessageConstant.WEBSERVER_ENABLE: {
+                    enableWebserver();
+                    break;
+                }
+                case RtuMessageConstant.WEBSERVER_DISABLE: {
+                    disableWebserver();
+                    break;
+                }
+                case RtuMessageConstant.REBOOT: {
+                    reboot();
+                    break;
+                }
+                case RtuMessageConstant.DEBUG_LOGBOOK: {
+                    readDebugLogbook(messageHandler);
+                    break;
+                }
+                case RtuMessageConstant.ELSTER_SPECIFIC_LOGBOOK: {
+                    readElsterLogbook(messageHandler);
+                    break;
+                }
+                default: {
+                    log(Level.INFO, "Message not supported : " + content);
+                    success = false;
+                }
             }
-        } catch (IOException | BusinessException | SQLException | InterruptedException e) {
+        } catch (IOException | BusinessException | SQLException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
         }
@@ -178,7 +198,7 @@ public class UkHubMessageExecutor extends MessageParser {
         }
     }
 
-    private void xmlConfigMessage(MessageHandler messageHandler, String fullContent) throws IOException {
+    private void xmlConfigMessage(String fullContent) throws IOException {
 
         String firstTag = "<XMLConfig>";
         String lastTag = "</XMLConfig>";
@@ -198,7 +218,7 @@ public class UkHubMessageExecutor extends MessageParser {
 
     }
 
-    private void reboot() throws IOException {
+    private void reboot() {
         getLogger().info("Executing Reboot message.");
         getLogger().info("Warning: Device will reboot at the end of the communication session.");
         ((UkHub) protocol).setReboot(true);
@@ -222,7 +242,7 @@ public class UkHubMessageExecutor extends MessageParser {
         ((UkHub)protocol).setReboot(true);
     }
 
-    private void modemPingSetup(MessageHandler messageHandler, String content) throws IOException {
+    private void modemPingSetup(MessageHandler messageHandler) throws IOException {
         getLogger().info("Executing GPRS Modem Ping Setup message");
 
         int pingInterval = messageHandler.getPingInterval();
@@ -244,7 +264,7 @@ public class UkHubMessageExecutor extends MessageParser {
         log(Level.INFO, "GPRS Modem Ping Setup message successful");
     }
 
-    private void firmwareUpdate(MessageHandler messageHandler, String content, String trackingId) throws IOException, InterruptedException {
+    private void firmwareUpdate(MessageHandler messageHandler, String content, String trackingId) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
@@ -452,7 +472,7 @@ public class UkHubMessageExecutor extends MessageParser {
         log(Level.INFO, "Restore ZigBee Han Keys successful");
     }
 
-    private void backupZigBeeHanParameters(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void backupZigBeeHanParameters() throws IOException, BusinessException, SQLException {
         log(Level.INFO, "Sending message : Backup ZigBee Han Keys");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.backup();
@@ -539,18 +559,18 @@ public class UkHubMessageExecutor extends MessageParser {
 
     }
 
-    private void removeAllZigBeeSlaves(MessageHandler messageHandler) throws IOException {
+    private void removeAllZigBeeSlaves() throws IOException {
         log(Level.INFO, "Sending message : Remove all ZigBee slaves");
         getCosemObjectFactory().getZigBeeSETCControl().unRegisterAllDevices();
     }
 
-    private void createHanNetwork(final MessageHandler messageHandler) throws IOException {
+    private void createHanNetwork() throws IOException {
         log(Level.INFO, "Sending message : Create HAN Network");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.createHan();
     }
 
-    private void removeHanNetwork(final MessageHandler messageHandler) throws IOException {
+    private void removeHanNetwork() throws IOException {
         log(Level.INFO, "Sending message : Remove HAN Network");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.removeHan();
@@ -739,20 +759,20 @@ public class UkHubMessageExecutor extends MessageParser {
         return getDlmsSession().getTimeZone();
     }
 
-    private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void testMessage(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message TestMessage");
         int failures = 0;
         String userFileId = messageHandler.getTestUserFileId();
         Date currentTime;
-        if (!userFileId.equalsIgnoreCase("")) {
+        if (!"".equalsIgnoreCase(userFileId)) {
             if (ParseUtils.isInteger(userFileId)) {
-                UserFile uf = getUserFile(userFileId);
+                UserFile uf = getUserFile();
                 if (uf != null) {
                     byte[] data = uf.loadFileInByteArray();
                     CSVParser csvParser = new CSVParser();
                     csvParser.parse(data);
                     boolean hasWritten;
-                    TestObject to = new TestObject("");
+                    TestObject to;
                     for (int i = 0; i < csvParser.size(); i++) {
                         to = csvParser.getTestObject(i);
                         if (csvParser.isValidLine(to)) {
@@ -775,7 +795,7 @@ public class UkHubMessageExecutor extends MessageParser {
                                     break;
                                     case 2: { // ACTION
                                         GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-                                        if (to.getData().equalsIgnoreCase("")) {
+                                        if ("".equalsIgnoreCase(to.getData())) {
                                             gi.invoke();
                                         } else {
                                             gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
@@ -826,14 +846,14 @@ public class UkHubMessageExecutor extends MessageParser {
 
                             } catch (Exception e) {
                                 if (!hasWritten) {
-                                    if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
+                                    if ((to.getExpected() != null) && (e.getMessage().contains(to.getExpected()))) {
                                         to.setResult(e.getMessage());
                                         log(Level.INFO, "Test " + i + " has successfully finished.");
                                         hasWritten = true;
                                     } else {
                                         log(Level.INFO, "Test " + i + " has failed.");
                                         String eMessage;
-                                        if (e.getMessage().indexOf("\r\n") != -1) {
+                                        if (e.getMessage().contains("\r\n")) {
                                             eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
                                         } else {
                                             eMessage = e.getMessage();
@@ -858,7 +878,7 @@ public class UkHubMessageExecutor extends MessageParser {
                     } else {
                         csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
                     }
-                    createUserFile(uf, csvParser);
+                    createUserFile();
                 } else {
                     throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
                 }
@@ -870,11 +890,11 @@ public class UkHubMessageExecutor extends MessageParser {
         }
     }
 
-    private void createUserFile(UserFile uf, CSVParser csvParser) throws IOException {
+    private void createUserFile() {
         throw new UnsupportedOperationException("Creating new userfiles is not supported");
     }
 
-    private UserFile getUserFile(String userFileId) {
+    private UserFile getUserFile() {
         throw new UnsupportedOperationException("Userfiles are not supported");
     }
 

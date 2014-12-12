@@ -1,22 +1,21 @@
 package com.energyict.protocolimplv2.abnt.common;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
+
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Function;
 import com.energyict.protocolimplv2.abnt.common.structure.HistoryLogResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.PowerFailLogResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.field.HistoryLogRecord;
 import com.energyict.protocolimplv2.abnt.common.structure.field.PowerFailRecord;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +26,15 @@ import java.util.List;
  */
 public class LogBookFactory implements DeviceLogBookSupport {
 
-    public final static ObisCode HISTORY_LOG_OBIS = ObisCode.fromString("0.0.99.98.0.255");
-    public final static ObisCode POWER_FAIL_LOG_OBIS = ObisCode.fromString("1.0.99.97.0.255");
+    public static final ObisCode HISTORY_LOG_OBIS = ObisCode.fromString("0.0.99.98.0.255");
+    public static final ObisCode POWER_FAIL_LOG_OBIS = ObisCode.fromString("1.0.99.97.0.255");
 
     private final AbstractAbntProtocol meterProtocol;
+    private final IssueService issueService;
 
-    public LogBookFactory(AbstractAbntProtocol meterProtocol) {
+    public LogBookFactory(AbstractAbntProtocol meterProtocol, IssueService issueService) {
         this.meterProtocol = meterProtocol;
+        this.issueService = issueService;
     }
 
     @Override
@@ -72,7 +73,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
                     MeterEvent.CONFIGURATIONCHANGE,
                     historyLogRecord.getEvent().getEventCode(),
                     EndDeviceEventTypeMapping.CONFIGURATIONCHANGE.getEventType(),
-                    "Reader ".concat(historyLogRecord.getReaderSerialNumber().getSerialNumber().getText()).concat(" - ").concat(historyLogRecord.getEvent().getEventMessage()),
+                    (("Reader " + historyLogRecord.getReaderSerialNumber().getSerialNumber().getText()) + " - ") + historyLogRecord.getEvent().getEventMessage(),
                     Function.FunctionCode.HISTORY_LOG.getFunctionCode(),
                     0
             );
@@ -119,11 +120,11 @@ public class LogBookFactory implements DeviceLogBookSupport {
     }
 
     private void logBookNotSupported(CollectedLogBook deviceLogBook, ObisCode logBookObisCode) {
-        deviceLogBook.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(deviceLogBook, "logBookXnotsupported", logBookObisCode));
+        deviceLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(deviceLogBook, "logBookXnotsupported", logBookObisCode));
     }
 
     private void logBookParsingException(CollectedLogBook deviceLogBook) {
-        deviceLogBook.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(deviceLogBook, "CouldNotParseLogBookData"));
+        deviceLogBook.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(deviceLogBook, "CouldNotParseLogBookData"));
     }
 
     public AbstractAbntProtocol getMeterProtocol() {
@@ -133,4 +134,5 @@ public class LogBookFactory implements DeviceLogBookSupport {
     public RequestFactory getRequestFactory() {
         return getMeterProtocol().getRequestFactory();
     }
+
 }

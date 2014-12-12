@@ -1,9 +1,26 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.Link;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
@@ -13,27 +30,15 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.messaging.Message;
-import com.energyict.mdc.protocol.api.messaging.MessageTag;
-import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372Messaging;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,7 +56,6 @@ import java.util.logging.Logger;
  */
 public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol, WakeUpProtocolSupport {
 
-
     private IskraMX372Properties properties;
     private String serialnr = null;
     private String devID = null;
@@ -62,10 +66,19 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private ObisCode deviceLogicalName = ObisCode.fromString("0.0.42.0.0.255");
 
     private IskraMx372Messaging messageProtocol;
+    private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final TopologyService topologyService;
 
     public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0, 30), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255)};
     private static final int ELECTRICITY = 0x00;
     private static final int MBUS = 0x01;
+
+    @Inject
+    public IskraMx372(OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService) {
+        super(ormClient);
+        this.readingTypeUtilService = readingTypeUtilService;
+        this.topologyService = topologyService;
+    }
 
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
@@ -309,7 +322,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * channels({@link LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
      * if not then all channels may be returned in the <CODE>ProfileData</CODE>. If {@link LoadProfileReader#channelInfos} contains an empty list
      * or null, then all channels from the corresponding LoadProfile should be fetched.
      * </p>
@@ -332,7 +345,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     private LoadProfileBuilder getLoadProfileBuilder() {
         if (loadProfileBuilder == null) {
-            loadProfileBuilder = new LoadProfileBuilder(this);
+            loadProfileBuilder = new LoadProfileBuilder(this, this.readingTypeUtilService);
         }
         return loadProfileBuilder;
     }
@@ -381,7 +394,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     /**
      * Check if the {@link java.util.TimeZone} is read from the DLMS device, or if the
-     * {@link java.util.TimeZone} from the {@link com.energyict.protocol.MeterProtocol} should be used.
+     * {@link java.util.TimeZone} from the {@link com.energyict.mdc.protocol.api.legacy.MeterProtocol} should be used.
      *
      * @return true is the {@link java.util.TimeZone} is read from the device
      */
@@ -435,7 +448,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     public IskraMx372Messaging getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new IskraMx372Messaging(this);
+            messageProtocol = new IskraMx372Messaging(this, this.topologyService, readingTypeUtilService);
         }
         return messageProtocol;
     }
@@ -443,10 +456,10 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     /**
      * Provides the full list of outstanding messages to the protocol.
      * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * At a later timestamp the framework will query each {@link MessageEntry} (see {@link #queryMessage(MessageEntry)}) to actually
      * perform the message.
      *
-     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @param messageEntries The list of MessageEntry
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(List messageEntries) throws IOException {
@@ -496,9 +509,8 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * @param link                     Link created by the comserver, can be null if a NullDialer is configured
      * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
      *                                 messages with a level lower than warning will only be logged in the file log if active.
-     * @throws com.energyict.cbo.BusinessException
-     *                             if a business exception occurred
-     * @throws java.io.IOException if an io exception occurred
+     * @throws BusinessException if a business exception occurred
+     * @throws IOException if an io exception occurred
      */
     public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
         return getMessageProtocol().executeWakeUp(communicationSchedulerId, link, logger);
@@ -533,4 +545,5 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         }
         return null;
     }
+
 }

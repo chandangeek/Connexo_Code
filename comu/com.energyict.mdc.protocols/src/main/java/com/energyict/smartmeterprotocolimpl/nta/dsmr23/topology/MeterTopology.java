@@ -1,9 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 
 import com.energyict.dlms.DLMSAttribute;
@@ -15,7 +13,6 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -25,7 +22,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedM
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -35,10 +31,10 @@ import java.util.logging.Level;
  */
 public class MeterTopology implements MasterMeter {
 
-    protected static final ObisCode MbusClientObisCode = ObisCode.fromString("0.0.24.1.0.255");
-    protected static final int ObisCodeBFieldIndex = 1;
-    public static final int MaxMbusDevices = 4;
-    protected static String ignoreZombieMbusDevice = "@@@0000000000000";
+    protected static final ObisCode MBUS_CLIENT_OBIS_CODE = ObisCode.fromString("0.0.24.1.0.255");
+    protected static final int OBIS_CODE_B_FIELD_INDEX = 1;
+    public static final int MAX_MBUS_DEVICES = 4;
+    protected static final String IGNORE_ZOMBIE_MBUS_DEVICE = "@@@0000000000000";
 
     private final TopologyService topologyService;
     private final AbstractSmartNtaProtocol protocol;
@@ -57,8 +53,6 @@ public class MeterTopology implements MasterMeter {
      * A list of MbusMeter <CODE>DeviceMappings</CODE>
      */
     protected List<DeviceMapping> mbusMap = new ArrayList<>();
-
-    private BaseDevice rtu;
 
     public MeterTopology(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
         super();
@@ -86,8 +80,8 @@ public class MeterTopology implements MasterMeter {
      */
     protected ComposedCosemObject constructDiscoveryComposedCosemObject() {
         List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
-        for (int i = 1; i <= MaxMbusDevices; i++) {
-            ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
+        for (int i = 1; i <= MAX_MBUS_DEVICES; i++) {
+            ObisCode serialObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBIS_CODE, OBIS_CODE_B_FIELD_INDEX, (byte) i);
             UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
             if (uo != null) {
                 ComposedMbusSerialNumber cMbusSerial = new ComposedMbusSerialNumber(
@@ -129,8 +123,8 @@ public class MeterTopology implements MasterMeter {
     protected List<DeviceMapping> getMbusMapper() throws ConnectionException {
         String mbusSerial;
         List<DeviceMapping> mbusMap = new ArrayList<>();
-        for (int i = 1; i <= MaxMbusDevices; i++) {
-            ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
+        for (int i = 1; i <= MAX_MBUS_DEVICES; i++) {
+            ObisCode serialObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBIS_CODE, OBIS_CODE_B_FIELD_INDEX, (byte) i);
             if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
                 try {
                     Unsigned16 manufacturer = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getManufacturerId()).getUnsigned16();
@@ -138,7 +132,7 @@ public class MeterTopology implements MasterMeter {
                     Unsigned32 identification = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getIdentificationNumber()).getUnsigned32();
                     Unsigned8 deviceType = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getDeviceType()).getUnsigned8();
                     mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
-                    if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
+                    if ((mbusSerial != null) && (!"".equalsIgnoreCase(mbusSerial)) && !mbusSerial.equalsIgnoreCase(IGNORE_ZOMBIE_MBUS_DEVICE)) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
                     }
                 } catch (IOException e) {

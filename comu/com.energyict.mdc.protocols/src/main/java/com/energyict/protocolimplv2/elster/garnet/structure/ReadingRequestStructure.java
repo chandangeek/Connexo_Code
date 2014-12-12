@@ -31,7 +31,7 @@ public class ReadingRequestStructure extends Data<ReadingRequestStructure> {
     public ReadingRequestStructure(RequestFactory requestFactory) {
         super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
-        this.dateTime = new DateTime(requestFactory.getTimeZone());
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone());
         this.readingSelector = new ReadingSelector();
         this.paddingData = new PaddingData(PADDING_DATA_LENGTH);
     }
@@ -49,7 +49,7 @@ public class ReadingRequestStructure extends Data<ReadingRequestStructure> {
     public ReadingRequestStructure parse(byte[] rawData, int offset) throws ParsingException {
         int ptr = offset;
 
-        this.dateTime = new DateTime(requestFactory.getTimeZone()).parse(rawData, ptr);
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone()).parse(rawData, ptr);
         ptr += dateTime.getLength();
 
         this.readingSelector = new ReadingSelector().parse(rawData, ptr);

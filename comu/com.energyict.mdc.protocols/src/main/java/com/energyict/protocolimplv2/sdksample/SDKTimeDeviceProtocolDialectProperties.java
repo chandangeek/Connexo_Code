@@ -3,8 +3,6 @@ package com.energyict.protocolimplv2.sdksample;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.RequiredPropertySpecFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -27,12 +25,6 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
 
     public SDKTimeDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
-    }
-
-    private final PropertySpecService propertySpecService;
-
-    public SDKTimeDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -65,11 +57,11 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
     }
 
     private PropertySpec<TimeDuration> getClockOffsetToWritePropertySpec() {
-        return this.propertySpecService.timeDurationPropertySpec(clockOffsetToWritePropertyName, true, null);
+        return this.getPropertySpecService().timeDurationPropertySpec(clockOffsetToWritePropertyName, true, null);
     }
 
     private PropertySpec<TimeDuration> getClockOffsetToReadPropertySpec() {
-        return this.propertySpecService.timeDurationPropertySpec(clockOffsetToReadPropertyName, true, null);
+        return this.getPropertySpecService().timeDurationPropertySpec(clockOffsetToReadPropertyName, true, null);
     }
 
 }

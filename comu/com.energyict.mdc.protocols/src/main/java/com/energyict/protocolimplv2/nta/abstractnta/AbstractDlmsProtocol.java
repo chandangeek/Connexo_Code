@@ -1,15 +1,13 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -19,11 +17,16 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.dlms.DlmsProperties;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
-import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
-import com.energyict.protocolimplv2.dlms.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
@@ -32,9 +35,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -57,7 +58,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private Dsmr23RegisterFactory registerFactory = null;
     private ComposedMeterInfo meterInfo;
     protected DlmsProperties dlmsProperties;
-    private DlmsConfigurationSupport dlmsConfigurationSupport;
     private DlmsSession dlmsSession;
     private LoadProfileBuilder loadProfileBuilder;
     private DLMSCache dlmsCache;
@@ -66,18 +66,28 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private Dsmr23Messaging dsmr23Messaging;
     protected OfflineDevice offlineDevice;
     private DlmsSecuritySupport dlmsSecuritySupport;
-    private PropertySpecService propertySpecService;
-    private SocketService socketService;
-    private SerialComponentService serialComponentService;
+    private final PropertySpecService propertySpecService;
+    private final SocketService socketService;
+    private final SerialComponentService serialComponentService;
+    private final IssueService issueService;
+    private final TopologyService topologyService;
+    private final MdcReadingTypeUtilService readingTypeUtilService;
 
-    @Inject
-    public AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService) {
+    protected AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;
+        this.issueService = issueService;
+        this.topologyService = topologyService;
+        this.readingTypeUtilService = readingTypeUtilService;
     }
 
-    protected AbstractDlmsProtocol() {
+    protected IssueService getIssueService() {
+        return issueService;
+    }
+
+    protected MdcReadingTypeUtilService getReadingTypeUtilService() {
+        return readingTypeUtilService;
     }
 
     /**
@@ -138,7 +148,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     private DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new DsmrSecuritySupport();
+            dlmsSecuritySupport = new DsmrSecuritySupport(this.propertySpecService);
         }
         return dlmsSecuritySupport;
     }
@@ -170,35 +180,35 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public Dsmr23LogBookFactory getDeviceLogBookFactory() {
         if (logBookFactory == null) {
-            logBookFactory = new Dsmr23LogBookFactory(this);
+            logBookFactory = new Dsmr23LogBookFactory(this, issueService);
         }
         return logBookFactory;
     }
 
     protected Dsmr23Messaging getDsmr23Messaging() {
         if (dsmr23Messaging == null) {
-            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
+            dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this, topologyService, this.issueService, this.readingTypeUtilService), topologyService);
         }
         return dsmr23Messaging;
     }
 
     public MeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
-            this.meterTopology = new MeterTopology(this);
+            this.meterTopology = new MeterTopology(this, issueService);
         }
         return meterTopology;
     }
 
     protected Dsmr23RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new Dsmr23RegisterFactory(this, getDlmsProperties().isBulkRequest());
+            this.registerFactory = new Dsmr23RegisterFactory(this, this.issueService, this.readingTypeUtilService, getDlmsProperties().isBulkRequest());
         }
         return registerFactory;
     }
 
     protected LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, getDlmsProperties().isBulkRequest());
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.issueService, readingTypeUtilService, getDlmsProperties().isBulkRequest());
         }
         return loadProfileBuilder;
     }
@@ -363,29 +373,12 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         logOff();
     }
 
-    /**
-     * A collection of general DLMS properties.
-     * These properties are not related to the security or the protocol dialects.
-     */
-    private DlmsConfigurationSupport getDlmsConfigurationSupport() {
-        if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new DlmsConfigurationSupport();
-        }
-        return dlmsConfigurationSupport;
-    }
-
     public Logger getLogger() { //TODO: usage of old logger should be prevented -> refactor/remove this
         return Logger.getLogger(this.getClass().getName());
     }
 
     public OfflineDevice getOfflineDevice() {
         return offlineDevice;
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-        getSecuritySupport().setPropertySpecService(propertySpecService);
     }
 
     @Override
@@ -418,16 +411,11 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     }
 
     public SocketService getSocketService() {
-        if(this.socketService == null){
-            return Bus.getSocketService();
-        }
         return socketService;
     }
 
     public SerialComponentService getSerialComponentService() {
-        if(this.serialComponentService == null){
-            return Bus.getSerialComponentService();
-        }
         return serialComponentService;
     }
+
 }

@@ -22,6 +22,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -41,7 +42,6 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -59,6 +59,7 @@ import java.util.logging.Level;
 public class RtuPlusServerMessages implements DeviceMessageSupport {
 
     private final DlmsSession session;
+    private final IssueService issueService;
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
 
     private Set<DeviceMessageId> supportedMessages = EnumSet.of(
@@ -135,8 +136,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD2
     );
 
-    public RtuPlusServerMessages(DlmsSession session) {
+    public RtuPlusServerMessages(DlmsSession session, IssueService issueService) {
         this.session = session;
+        this.issueService = issueService;
     }
 
     public Set<DeviceMessageId> getSupportedMessages() {
@@ -177,7 +179,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_DEVICE_TYPE)) {
                     setDeviceType(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_RESET_PLC_OFDM_MAC_COUNTERS)) {
-                    resetPlcOfdmMacCounters(pendingMessage);
+                    resetPlcOfdmMacCounters();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_PAN_ID)) {
                     setPanId(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_TONE_MASK_ATTRIBUTE_NAME)) {
@@ -218,29 +220,29 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.UPLINK_CONFIGURATION_WRITE_UPLINK_PING_TIMEOUT)) {
                     writeUplinkPingTimeout(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PPP_CONFIGURATION_SET_IDLE_TIME)) {
-                    setPPPIdleTime(pendingMessage);
+                    setPPPIdleTime();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_PREFER_GPRS_UPSTREAM_COMMUNICATION)) {
-                    preferGPRSUpstreamCommunication(pendingMessage);
+                    preferGPRSUpstreamCommunication();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_ENABLE_MODEM_WATCHDOG)) {
                     enableModemWatchdog(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.NETWORK_CONNECTIVITY_SET_MODEM_WATCHDOG_PARAMETERS)) {
                     setModemWatchdogParameters(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_ENABLE_SSL)) {
-                    enableSSL(pendingMessage);
+                    enableSSL();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.ALARM_CONFIGURATION_CONFIGURE_PUSH_EVENT_NOTIFICATION)) {
                     configurePushEventNotification(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CLOCK_SET_SYNCHRONIZE_TIME)) {
-                    syncTime(pendingMessage);
+                    syncTime();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_REBOOT_DEVICE)) {
-                    rebootDevice(pendingMessage);
+                    rebootDevice();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.DEVICE_ACTIONS_REBOOT_APPLICATION)) {
-                    rebootApplication(pendingMessage);
+                    rebootApplication();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_SET_DEVICENAME)) {
                     setDeviceName(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_SET_NTPADDRESS)) {
-                    setNTPAddress(pendingMessage);
+                    setNTPAddress();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONFIGURATION_CHANGE_SYNC_NTPSERVER)) {
-                    syncNTPServer(pendingMessage);
+                    syncNTPServer();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_AUTOMATIC_ROUTE_MANAGEMENT)) {
                     setAutomaticRouteManagement(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_ENABLE_SNR)) {
@@ -280,9 +282,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.OUTPUT_CONFIGURATION_WRITE_OUTPUT_STATE)) {
                     writeOutputState(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_ACTIVATE_FIREWALL)) {
-                    activateFirewall(pendingMessage);
+                    activateFirewall();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_DEACTIVATE_FIREWALL)) {
-                    deactivateFirewall(pendingMessage);
+                    deactivateFirewall();
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_CONFIGURE_FW_GPRS)) {
                     configureFWGPRS(pendingMessage);
                 } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.FIREWALL_CONFIGURE_FW_LAN)) {
@@ -300,7 +302,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                 }   //Else: throw communication exception
-            } catch (IndexOutOfBoundsException | ParseException | NumberFormatException e) {
+            } catch (IndexOutOfBoundsException | NumberFormatException e) {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
             }
@@ -309,7 +311,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         return result;
     }
 
-    private void setFWDefaultState(OfflineDeviceMessage pendingMessage) throws IOException, ParseException {
+    private void setFWDefaultState(OfflineDeviceMessage pendingMessage) throws IOException {
         this.session.getCosemObjectFactory().getFirewallSetup().setEnabledByDefault(getSingleBooleanAttribute(pendingMessage));
     }
 
@@ -334,11 +336,11 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.session.getCosemObjectFactory().getFirewallSetup().setGPRSPortSetup(new FirewallSetup.InterfaceFirewallConfiguration(isDLMSAllowed, isHTTPAllowed, isSSHAllowed));
     }
 
-    private void deactivateFirewall(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void deactivateFirewall() throws IOException {
         this.session.getCosemObjectFactory().getFirewallSetup().deactivate();
     }
 
-    private void activateFirewall(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void activateFirewall() throws IOException {
         this.session.getCosemObjectFactory().getFirewallSetup().activate();
     }
 
@@ -508,11 +510,11 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.session.getCosemObjectFactory().getG3NetworkManagement().setAutomaticRouteManagement(pingEnabled, routeRequestEnabled, pathRequestEnabled);
     }
 
-    private void setNTPAddress(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void setNTPAddress() {
         //TODO port from 8.11
     }
 
-    private void syncNTPServer(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void syncNTPServer() throws IOException {
         this.session.getCosemObjectFactory().getNTPServerAddress().ntpSync();
     }
 
@@ -521,22 +523,22 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.session.getCosemObjectFactory().getData(DEVICE_NAME_OBISCODE).setValueAttr(OctetString.fromString(name));
     }
 
-    private void rebootApplication(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void rebootApplication() throws IOException {
         this.session.getCosemObjectFactory().getLifeCycleManagement().restartApplication();
     }
 
-    private void rebootDevice(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void rebootDevice() throws IOException {
         this.session.getCosemObjectFactory().getLifeCycleManagement().rebootDevice();
     }
 
-    private void syncTime(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void syncTime() throws IOException {
         Calendar cal = Calendar.getInstance(session.getTimeZone());
         Date currentTime = new Date();
         cal.setTime(currentTime);
         session.getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(cal));
     }
 
-    private void enableSSL(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void enableSSL() {
         //TODO port from 8.11
     }
 
@@ -559,11 +561,11 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.session.getCosemObjectFactory().getModemWatchdogConfiguration().enableWatchdog(enable);
     }
 
-    private void preferGPRSUpstreamCommunication(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void preferGPRSUpstreamCommunication() {
         //TODO port from 8.11
     }
 
-    private void setPPPIdleTime(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void setPPPIdleTime() {
         //TODO port from 8.11
     }
 
@@ -734,7 +736,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.session.getCosemObjectFactory().getPLCOFDMType2MACSetup().writePANID(getSingleIntegerAttribute(pendingMessage));
     }
 
-    private void resetPlcOfdmMacCounters(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void resetPlcOfdmMacCounters() throws IOException {
         this.session.getCosemObjectFactory().getPLCOFDMType2PHYAndMACCounters().reset();
     }
 
@@ -844,7 +846,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueService.newWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -852,7 +854,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) throws IOException {
-        return com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.notSupported",
+        return this.issueService.newWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());

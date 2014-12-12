@@ -24,7 +24,7 @@ public class OpenSessionRequestStructure extends Data<OpenSessionRequestStructur
     public OpenSessionRequestStructure(RequestFactory requestFactory) {
         super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
-        this.dateTime = new DateTime(requestFactory.getTimeZone());
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone());
         this.firstPartOfSessionKey = new SessionKeyPart();
         this.firstPartOfSessionKey.generateRandomHalfOfSessionKey();
     }
@@ -41,7 +41,7 @@ public class OpenSessionRequestStructure extends Data<OpenSessionRequestStructur
     public OpenSessionRequestStructure parse(byte[] rawData, int offset) throws ParsingException {
         int ptr = offset;
 
-        this.dateTime = new DateTime(requestFactory.getTimeZone()).parse(rawData, ptr);
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone()).parse(rawData, ptr);
         ptr += dateTime.getLength();
 
         this.firstPartOfSessionKey = new SessionKeyPart().parse(rawData, ptr);

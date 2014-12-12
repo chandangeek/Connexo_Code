@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.elster.jupiter.properties.PropertySpec;
+
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -26,38 +28,22 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractMTU155Message {
 
-    /**
-     * An offlineDeviceMessageAttribute representing an empty attribute.
-     * The name and value of this attribute are both returned as empty Strings (<code>""</code>).
-     */
-    private static final OfflineDeviceMessageAttribute emptyOfflineDeviceMessageAttribute = new OfflineDeviceMessageAttribute() {
-
-        @Override
-        public PropertySpec getPropertySpec() {
-            return null;
-        }
-
-        @Override
-        public String getName() {
-            return "";
-        }
-
-        @Override
-        public String getDeviceMessageAttributeValue() {
-            return "";
-        }
-    };
-
     private final MTU155 protocol;
     private final RequestFactory factory;
     private final Logger logger;
+    private final IssueService issueService;
 
     public abstract boolean canExecuteThisMessage(OfflineDeviceMessage message);
 
-    public AbstractMTU155Message(Messaging messaging) {
+    public AbstractMTU155Message(Messaging messaging, IssueService issueService) {
+        this.issueService = issueService;
         this.protocol = messaging.getProtocol();
-        this. factory = messaging.getProtocol().getRequestFactory();
+        this.factory = messaging.getProtocol().getRequestFactory();
         this.logger = messaging.getProtocol().getLogger();
+    }
+
+    protected IssueService getIssueService() {
+        return issueService;
     }
 
     public CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
@@ -82,7 +68,7 @@ public abstract class AbstractMTU155Message {
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
              collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.Other,
-                    com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(message, "DeviceMessage.failed",   //Device message ({0}, {1} - {2})) failed: {3}
+                    this.issueService.newWarning(message, "DeviceMessage.failed",   //Device message ({0}, {1} - {2})) failed: {3}
                             message.getDeviceMessageId(),
                             message.getSpecification().getCategory().getName(),
                             message.getSpecification().getName(),
@@ -118,17 +104,17 @@ public abstract class AbstractMTU155Message {
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
         if (this.factory instanceof SmsRequestFactory) {
-            StringBuffer msg = new StringBuffer();
-            msg.append("SMS identification numbers: ");
+            StringBuilder builder = new StringBuilder();
+            builder.append("SMS identification numbers: ");
             Iterator<WriteDataBlock> it = writeDataBlockList.iterator();
             while (it.hasNext()) {
                 WriteDataBlock next = it.next();
-                msg.append(next.getWdb());
+                builder.append(next.getWdb());
                 if (it.hasNext()) {
-                    msg.append(", ");
+                    builder.append(", ");
                 }
             }
-            collectedMessage.setDeviceProtocolInformation(msg.toString());
+            collectedMessage.setDeviceProtocolInformation(builder.toString());
         }
     }
 
@@ -145,13 +131,12 @@ public abstract class AbstractMTU155Message {
     /**
      * Searches for the {@link OfflineDeviceMessageAttribute}
      * in the given {@link OfflineDeviceMessage} which corresponds
-     * with the provided name. If no match is found, then the
-     * {@link #emptyOfflineDeviceMessageAttribute}
-     * attribute is returned
+     * with the provided name. If no match is found, then a new
+     * {@link EmptyOfflineDeviceMessageAttribute} is created and returned.
      *
      * @param offlineDeviceMessage the offlineDeviceMessage to search in
      * @param attributeName        the name of the OfflineDeviceMessageAttribute to return
-     * @return the requested OfflineDeviceMessageAttribute or {@link #emptyOfflineDeviceMessageAttribute}
+     * @return the OfflineDeviceMessageAttribute
      */
     protected OfflineDeviceMessageAttribute getDeviceMessageAttribute(OfflineDeviceMessage offlineDeviceMessage, String attributeName) {
         for (OfflineDeviceMessageAttribute offlineDeviceMessageAttribute : offlineDeviceMessage.getDeviceMessageAttributes()) {
@@ -159,7 +144,7 @@ public abstract class AbstractMTU155Message {
                 return offlineDeviceMessageAttribute;
             }
         }
-        return emptyOfflineDeviceMessageAttribute;
+        return new EmptyOfflineDeviceMessageAttribute();
     }
 
     public MTU155 getProtocol() {
@@ -173,4 +158,23 @@ public abstract class AbstractMTU155Message {
     public Logger getLogger() {
         return logger;
     }
+
+    private static class EmptyOfflineDeviceMessageAttribute implements OfflineDeviceMessageAttribute {
+
+        @Override
+        public PropertySpec getPropertySpec() {
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return "";
+        }
+
+        @Override
+        public String getDeviceMessageAttributeValue() {
+            return "";
+        }
+    }
+
 }

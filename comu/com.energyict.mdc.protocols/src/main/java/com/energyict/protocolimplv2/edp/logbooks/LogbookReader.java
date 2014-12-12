@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
-import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
+
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.protocolimplv2.edp.CX20009;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -26,9 +28,11 @@ public class LogbookReader implements DeviceLogBookSupport {
 
     private final CX20009 protocol;
     private final List<AbstractLogbookParser> logBookParsers;
+    private final IssueService issueService;
 
-    public LogbookReader(CX20009 protocol) {
+    public LogbookReader(CX20009 protocol, IssueService issueService) {
         this.protocol = protocol;
+        this.issueService = issueService;
         logBookParsers = new ArrayList<>();
         logBookParsers.add(new StandardLogbookParser(protocol));
         logBookParsers.add(new ContractedPowerLogbookParser(protocol));
@@ -73,11 +77,12 @@ public class LogbookReader implements DeviceLogBookSupport {
                     collectedLogBook.setMeterEvents(logBookParser.parseEvents(bufferData));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                        collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode()
+                                .toString()));
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }
@@ -87,4 +92,5 @@ public class LogbookReader implements DeviceLogBookSupport {
     private Calendar getCalendar() {
         return ProtocolUtils.getCalendar(protocol.getTimeZone());
     }
+
 }

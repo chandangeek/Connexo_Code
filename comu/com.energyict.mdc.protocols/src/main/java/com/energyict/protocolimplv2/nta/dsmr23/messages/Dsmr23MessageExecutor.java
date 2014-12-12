@@ -37,6 +37,9 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -82,10 +85,13 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     public static final String SEPARATOR = ";";
-    private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
+    private static final byte[] DEFAULT_MONITORED_ATTRIBUTE = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
-    public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    private final TopologyService topologyService;
+
+    public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol, TopologyService topologyService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(protocol, issueService, readingTypeUtilService);
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -96,8 +102,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         List<OfflineDeviceMessage> mbusMessages = getMbusMessages(pendingMessages);
         if (!mbusMessages.isEmpty()) {
             // Execute messages for MBus devices
-            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol());
-            mbusMessageExecutor.executePendingMessages(mbusMessages).getCollectedMessages().forEach(collectedMessage -> result.addCollectedMessages(collectedMessage));
+            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(getProtocol(), this.getIssueService(), this.getReadingTypeUtilService(), this.topologyService);
+            mbusMessageExecutor
+                    .executePendingMessages(mbusMessages)
+                    .getCollectedMessages()
+                    .forEach(result::addCollectedMessages);
         }
 
         for (OfflineDeviceMessage pendingMessage : masterMessages) {
@@ -225,8 +234,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         );
         Date fromDate = new Date(Long.valueOf(fromDateEpoch));
         try {
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(fullLoadProfileContent);
+            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+            builder.fromXml(fullLoadProfileContent);
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -290,10 +299,6 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private DateFormat getDefaultDateFormatter() {
-//        User user = MeteringWarehouse.getCurrentUser();
-//        DateFormat formatter = new SimpleDateFormat(user.getDateFormat() + " " + user.getLongTimeFormat());
-//        formatter.setTimeZone(MeteringWarehouse.getCurrent().getSystemTimeZone());
-//        return formatter;
         return new SimpleDateFormat();
     }
 
@@ -306,8 +311,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             Date fromDate = new Date(Long.valueOf(fromDateEpoch));
             Date toDate = new Date(Long.valueOf(toDateEpoch));
 
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(fullLoadProfileContent);
+            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+            builder.fromXml(fullLoadProfileContent);
 
             LoadProfileReader lpr = builder.getLoadProfileReader();  //Does not contain the correct from & to date yet, they were stored in separate attributes
             LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), lpr.getMeterSerialNumber(), lpr.getLoadProfileIdentifier());
@@ -493,7 +498,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 return new NullData();
             }
             case BOOLEAN: {
-                return new BooleanObject(value.equalsIgnoreCase("1"));
+                return new BooleanObject("1".equalsIgnoreCase(value));
             }
             case BIT_STRING: {
                 return new BitString(Integer.parseInt(value));
@@ -551,7 +556,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private void setMonitoredValue(Limiter loadLimiter) throws IOException {
         Limiter.ValueDefinitionType vdt = loadLimiter.new ValueDefinitionType();
         vdt.addDataType(new Unsigned16(3));
-        OctetString os = OctetString.fromByteArray(defaultMonitoredAttribute);
+        OctetString os = OctetString.fromByteArray(DEFAULT_MONITORED_ATTRIBUTE);
         vdt.addDataType(os);
         vdt.addDataType(new Integer8(2));
         loadLimiter.writeMonitoredValue(vdt);
@@ -786,4 +791,5 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
         return mbusMessages;
     }
+
 }

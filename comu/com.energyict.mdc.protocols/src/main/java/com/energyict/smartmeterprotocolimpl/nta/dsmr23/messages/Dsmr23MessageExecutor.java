@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -19,17 +18,15 @@ import com.energyict.mdc.protocol.api.device.data.MeterData;
 import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.lookups.Lookup;
 import com.energyict.mdc.protocol.api.lookups.LookupEntry;
 
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.AxdrType;
@@ -57,73 +54,31 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.UserFileShadow;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.data.MeterData;
-import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
-import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.lookups.Lookup;
-import com.energyict.mdc.protocol.api.lookups.LookupEntry;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
-import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
-import com.energyict.protocolimpl.generic.csvhandling.TestObject;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
@@ -134,8 +89,7 @@ import java.util.logging.Level;
  */
 public class Dsmr23MessageExecutor extends MessageParser {
 
-    private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
-    private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
+    private static final byte[] DEFAULT_MONITORED_ATTRIBUTE = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
 
     protected final DlmsSession dlmsSession;
     protected final AbstractSmartNtaProtocol protocol;
@@ -161,123 +115,155 @@ public class Dsmr23MessageExecutor extends MessageParser {
             MessageHandler messageHandler = getMessageHandler();
             try {
                 importMessage(content, messageHandler);
-
-                /* All eMeter related messages */
-                boolean xmlConfig = messageHandler.getType().equals(RtuMessageConstant.XMLCONFIG);
-                boolean firmware = messageHandler.getType().equals(RtuMessageConstant.FIRMWARE_UPGRADE);
-                boolean p1Text = messageHandler.getType().equals(RtuMessageConstant.P1TEXTMESSAGE);
-                boolean p1Code = messageHandler.getType().equals(RtuMessageConstant.P1CODEMESSAGE);
-                boolean connect = messageHandler.getType().equals(RtuMessageConstant.CONNECT_LOAD);
-                boolean disconnect = messageHandler.getType().equals(RtuMessageConstant.DISCONNECT_LOAD);
-                boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
-                boolean llConfig = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_CONFIGURE);
-                boolean llClear = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_DISABLE);
-                boolean llSetGrId = messageHandler.getType().equals(RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST);
-                boolean touCalendar = messageHandler.getType().equals(RtuMessageConstant.TOU_ACTIVITY_CAL);
-                boolean touSpecialDays = messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS);
-                boolean specialDelEntry = messageHandler.getType().equals(RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE);
-                boolean setTime = messageHandler.getType().equals(RtuMessageConstant.SET_TIME);
-                boolean fillUpDB = messageHandler.getType().equals(RtuMessageConstant.ME_MAKING_ENTRIES);
-                boolean gprsParameters = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_SETUP);
-                boolean gprsCredentials = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
-                boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
-                boolean testSecurityMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_SECURITY_MESSAGE);
-                boolean globalReset = messageHandler.getType().equals(RtuMessageConstant.GLOBAL_METER_RESET);
-                boolean factorySettings = messageHandler.getType().equals(RtuMessageConstant.RESTORE_FACTORY_SETTINGS);
-                boolean wakeUpWhiteList = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
-                boolean changeHLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
-                boolean changeLLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
-                boolean changeGlobalkey = messageHandler.getType().equals(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY);
-                boolean changeAuthkey = messageHandler.getType().equals(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY);
-                boolean activateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ACTIVATE);
-                boolean deActivateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
-                boolean actSecuritLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
-                boolean changeAuthLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
-                boolean enableAuthLevelP0 = messageHandler.getType().equals(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0);
-                boolean disableAuthLevelP0 = messageHandler.getType().equals(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0);
-                boolean enableAuthLevelP3 = messageHandler.getType().equals(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P3);
-                boolean disableAuthLevelP3 = messageHandler.getType().equals(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3);
-                boolean partialLoadProfile = messageHandler.getType().equals(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag());
-                boolean loadProfileRegisterRequest = messageHandler.getType().equals(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag());
-                boolean resetAlarmRegisterRequest = messageHandler.getType().equals(RtuMessageConstant.RESET_ALARM_REGISTER);
-                boolean isChangeDefaultResetWindow = messageHandler.getType().equals(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW);
-
-                /* All MbusMeter related messages */
-                if (xmlConfig) {
-                    doXmlConfig(content);
-                } else if (firmware) {
-                    doFirmwareUpgrade(messageHandler);
-                } else if (p1Code) {
-                    setP1Code(messageHandler);
-                } else if (p1Text) {
-                    setP1Text(messageHandler);
-                } else if (connect) {
-                    doConnect(messageHandler);
-                } else if (disconnect) {
-                    doDisconnect(messageHandler);
-                } else if (connectMode) {
-                    setConnectMode(messageHandler);
-                } else if (llConfig) {
-                    loadLimitConfiguration(messageHandler);
-                } else if (llClear) {
-                    clearLoadLimiting(messageHandler);
-                } else if (llSetGrId) {
-                    setLoadLimitGroupId(messageHandler);
-                } else if (touCalendar) {
-                    upgradeCalendar(messageHandler);
-                } else if (touSpecialDays) {
-                    upgradeSpecialDays(messageHandler);
-                } else if (specialDelEntry) {
-                    deleteSpecialDay(messageHandler);
-                } else if (setTime) {
-                    setTime(messageHandler);
-                } else if (fillUpDB) {
-                    createDataBaseEntries(messageHandler);
-                } else if (gprsParameters) {
-                    setGPRSParameters(messageHandler);
-                } else if (gprsCredentials) {
-                    setGPRSCredentials(messageHandler);
-                } else if (globalReset) {
-                    doGlobalReset();
-                } else if (factorySettings) {
-                    restoreFactorySettings();
-                } else if (wakeUpWhiteList) {
-                    setWakeUpWhiteList(messageHandler);
-                } else if (changeHLSSecret) {
-                    changeHLSSecret();
-                } else if (changeAuthkey) {
-                    changeAuthenticationKey();
-                } else if (changeGlobalkey) {
-                    changeGlobalKey();
-                } else if (changeLLSSecret) {
-                    changeLLSSecret();
-                } else if (activateSMS) {
-                    activateSms();
-                } else if (deActivateSMS) {
-                    deactivateSms();
-                } else if (actSecuritLevel) {
-                    getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
-                } else if (changeAuthLevel) {
-                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler);
-                } else if (enableAuthLevelP0) {
-                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 0, true);
-                } else if (disableAuthLevelP0) {
-                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 0, false);
-                } else if (enableAuthLevelP3) {
-                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 3, true);
-                } else if (disableAuthLevelP3) {
-                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 3, false);
-                } else if (partialLoadProfile) {
-                    msgResult = doReadPartialLoadProfile(msgEntry);
-                } else if (loadProfileRegisterRequest) {
-                    msgResult = doReadLoadProfileRegisters(msgEntry);
-                } else if (resetAlarmRegisterRequest) {
-                    resetAlarmRegister();
-                } else if (isChangeDefaultResetWindow) {
-                    changeDefaultResetWindow(messageHandler);
-                } else {
-                    msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
-                    log(Level.INFO, "Message not supported : " + content);
+                switch (messageHandler.getType()) {
+                    case RtuMessageConstant.XMLCONFIG: {
+                        doXmlConfig(content);
+                        break;
+                    }
+                    case RtuMessageConstant.FIRMWARE_UPGRADE: {
+                        doFirmwareUpgrade(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.P1CODEMESSAGE: {
+                        setP1Code(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.P1TEXTMESSAGE: {
+                        setP1Text(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.CONNECT_LOAD: {
+                        doConnect(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.DISCONNECT_LOAD: {
+                        doDisconnect(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.CONNECT_CONTROL_MODE: {
+                        setConnectMode(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.LOAD_LIMIT_CONFIGURE: {
+                        loadLimitConfiguration(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.LOAD_LIMIT_DISABLE: {
+                        clearLoadLimiting(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.LOAD_LIMIT_EMERGENCY_PROFILE_GROUP_ID_LIST: {
+                        setLoadLimitGroupId(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.TOU_ACTIVITY_CAL: {
+                        upgradeCalendar(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.TOU_SPECIAL_DAYS: {
+                        upgradeSpecialDays(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.TOU_SPECIAL_DAYS_DELETE: {
+                        deleteSpecialDay(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.SET_TIME: {
+                        setTime(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.ME_MAKING_ENTRIES: {
+                        createDataBaseEntries(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.GPRS_MODEM_SETUP: {
+                        setGPRSParameters(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.GPRS_MODEM_CREDENTIALS: {
+                        setGPRSCredentials(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.GLOBAL_METER_RESET: {
+                        doGlobalReset();
+                        break;
+                    }
+                    case RtuMessageConstant.RESTORE_FACTORY_SETTINGS: {
+                        restoreFactorySettings();
+                        break;
+                    }
+                    case RtuMessageConstant.WAKEUP_ADD_WHITELIST: {
+                        setWakeUpWhiteList(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_CHANGE_HLS_SECRET: {
+                        changeHLSSecret(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY: {
+                        changeAuthenticationKey(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY: {
+                        changeGlobalKey(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_CHANGE_LLS_SECRET: {
+                        changeLLSSecret(messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.WAKEUP_ACTIVATE: {
+                        activateSms();
+                        break;
+                    }
+                    case RtuMessageConstant.WAKEUP_DEACTIVATE: {
+                        deactivateSms();
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_ACTIVATE_SECURITY: {
+                        getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL: {
+                        msgResult = changeAuthenticationLevel(msgEntry, messageHandler);
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0: {
+                        msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 0, true);
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0: {
+                        msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 0, false);
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P3: {
+                        msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 3, true);
+                        break;
+                    }
+                    case RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3: {
+                        msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 3, false);
+                        break;
+                    }
+                    case LegacyPartialLoadProfileMessageBuilder.MESSAGETAG: {
+                        msgResult = doReadPartialLoadProfile(msgEntry);
+                        break;
+                    }
+                    case LegacyLoadProfileRegisterMessageBuilder.MESSAGETAG: {
+                        msgResult = doReadLoadProfileRegisters(msgEntry);
+                        break;
+                    }
+                    case RtuMessageConstant.RESET_ALARM_REGISTER: {
+                        resetAlarmRegister();
+                        break;
+                    }
+                    case RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW: {
+                        changeDefaultResetWindow(messageHandler);
+                        break;
+                    }
+                    default: {
+                        msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
+                        log(Level.INFO, "Message not supported : " + content);
+                    }
                 }
 
                 // Some messages create their own messageResult
@@ -297,7 +283,8 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 }
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
-            } catch (BusinessException | IOException | InterruptedException e) {
+            }
+            catch (BusinessException | IOException e) {
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
             }
@@ -305,27 +292,8 @@ public class Dsmr23MessageExecutor extends MessageParser {
         }
     }
 
-    private void installMbus(MessageHandler messageHandler) throws IOException {
-        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) messageHandler.getMbusInstallChannel());
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
-        mbusClient.installSlave(0);     //Means: pick the next primary address that is available
-    }
-
     protected Dsmr23MbusMessageExecutor getMbusMessageExecutor() {
         return new Dsmr23MbusMessageExecutor(protocol);
-    }
-
-    //Cryptoserver protocol overrides this implemenation
-    protected void serviceKeyHlsSecret(MessageHandler messageHandler) throws IOException {
-        throw new IOException("Received message to write the service HLS secret, but Cryptoserver usage is not supported in this protocol");
-    }
-
-    protected void serviceKeyAK(MessageHandler messageHandler) throws IOException {
-        throw new IOException("Received message to write the service authentication key, but Cryptoserver usage is not supported in this protocol");
-    }
-
-    protected void serviceKeyEK(MessageHandler messageHandler) throws IOException {
-        throw new IOException("Received message to write the service encryption key, but Cryptoserver usage is not supported in this protocol");
     }
 
     protected NTAMessageHandler getMessageHandler() {
@@ -344,7 +312,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         try {
             log(Level.INFO, "Handling message Read LoadProfile Registers.");
             LegacyLoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            builder.fromXml(msgEntry.getContent());
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!");
             }
@@ -600,195 +568,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         doGlobalReset();
     }
 
-    private MessageResult testSecurityMessage(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException, BusinessException, SQLException {
-        log(Level.INFO, "Handling message TestSecurityMessage");
-        String userFileId = messageHandler.getTestUserFileId();
-
-        UserFile uf;
-        try {
-            uf = findUserFile(userFileId);
-        } catch (NumberFormatException e) {
-            log(Level.INFO, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
-            return MessageResult.createFailed(messageEntry, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
-        }
-        if (uf == null) {
-            log(Level.INFO, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
-            return MessageResult.createFailed(messageEntry, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
-        }
-
-        StringBuilder sb = new StringBuilder();
-        try {
-            FileInputStream fstream = new FileInputStream(uf.getShadow().getFile());
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String strLine;
-            //Read File Line By Line
-            while ((strLine = br.readLine()) != null) {
-                String trim = strLine.trim();
-                String line = trim.replaceAll(" ", "");
-                byte[] frame = ProtocolTools.getBytesFromHexString(line, "");
-                DLMSConnection dlmsConnection = dlmsSession.getDLMSConnection();
-                if (dlmsConnection instanceof TCPIPConnection || dlmsConnection instanceof SecureConnection) {
-                    try {
-                        byte[] bytes = dlmsConnection.sendRawBytes(frame);
-                        sb.append(ProtocolTools.getHexStringFromBytes(bytes, " ").trim());
-                    } catch (IOException | DLMSConnectionException e) {
-                        String msg = "Error while sending [" + strLine + "]:" + e.getMessage();
-                        log(Level.WARNING, msg);
-                        sb.append(msg);
-                    }
-                    sb.append("\n");
-                } else {
-                    log(Level.SEVERE, "Error while sending bytes to meter, expected a TCP/IP connection, but was " + dlmsConnection.getClass().getSimpleName());
-                    in.close();
-                    return MessageResult.createFailed(messageEntry, "Error while sending bytes to meter, expected a TCP/IP connection, but was " + dlmsConnection.getClass().getSimpleName());
-                }
-            }
-            //Close the input stream
-            in.close();
-        } catch (Exception e) {
-            log(Level.SEVERE, "Error while parsing or sending user file: " + e.getMessage());
-            return MessageResult.createFailed(messageEntry, "Error while parsing or sending user file: " + e.getMessage());
-        }
-
-//        UserFileShadow userFileShadow = ProtocolTools.createUserFileShadow(uf.getName() + "_results_" + String.valueOf(new Date().getTime()), sb.toString().getBytes(), uf.getFolderId(), "txt");
-//        mw().getUserFileFactory().create(userFileShadow);
-
-        return MessageResult.createSuccess(messageEntry);
-    }
-
-    private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
-        log(Level.INFO, "Handling message TestMessage");
-        int failures = 0;
-        String userFileId = messageHandler.getTestUserFileId();
-        Date currentTime;
-        if (!userFileId.equalsIgnoreCase("")) {
-            if (ParseUtils.isInteger(userFileId)) {
-                UserFile uf = findUserFile(userFileId);
-                if (uf != null) {
-                    byte[] data = uf.loadFileInByteArray();
-                    CSVParser csvParser = new CSVParser();
-                    csvParser.parse(data);
-                    boolean hasWritten;
-                    TestObject to = new TestObject("");
-                    for (int i = 0; i < csvParser.size(); i++) {
-                        to = csvParser.getTestObject(i);
-                        if (csvParser.isValidLine(to)) {
-                            currentTime = new Date(System.currentTimeMillis());
-                            hasWritten = false;
-                            try {
-                                switch (to.getType()) {
-                                    case 0: { // GET
-                                        GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
-                                        to.setResult("0x" + ParseUtils.decimalByteToString(gr.getResponseData()));
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 1: { // SET
-                                        GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
-                                        gw.write(ParseUtils.hexStringToByteArray(to.getData()));
-                                        to.setResult("OK");
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 2: { // ACTION
-                                        GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-                                        if (to.getData().equalsIgnoreCase("")) {
-                                            gi.invoke();
-                                        } else {
-                                            gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
-                                        }
-                                        to.setResult("OK");
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 3: { // MESSAGE
-                                        // do nothing, no longer supported
-                                        //OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
-                                        //rms.setContents(csvParser.getTestObject(i).getData());
-                                        //rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
-                                        //OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
-                                        //doMessage(rm);
-                                        //if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
-                                        //    to.setResult("OK");
-                                        //} else {
-                                        //    to.setResult("MESSAGE failed, current state " + rm.getState().getId());
-                                        //}
-                                        //hasWritten = true;
-                                    }
-                                    break;
-                                    case 4: { // WAIT
-                                        waitCyclus(Integer.parseInt(to.getData()));
-                                        to.setResult("OK");
-                                        hasWritten = true;
-                                    }
-                                    break;
-                                    case 5: {
-                                        // do nothing, it's no valid line
-                                    }
-                                    break;
-                                    default: {
-                                        throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
-                                    }
-                                }
-                                to.setTime(currentTime.getTime());
-
-                                // Check if the expected value is the same as the result
-                                if ((to.getExpected() == null) || (!to.getExpected().equalsIgnoreCase(to.getResult()))) {
-                                    to.setResult("Failed - " + to.getResult());
-                                    failures++;
-                                    log(Level.INFO, "Test " + i + " has successfully finished, but the result didn't match the expected value.");
-                                } else {
-                                    log(Level.INFO, "Test " + i + " has successfully finished.");
-                                }
-
-                            } catch (Exception e) {
-                                if (!hasWritten) {
-                                    if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
-                                        to.setResult(e.getMessage());
-                                        log(Level.INFO, "Test " + i + " has successfully finished.");
-                                        hasWritten = true;
-                                    } else {
-                                        log(Level.INFO, "Test " + i + " has failed.");
-                                        String eMessage;
-                                        if (e.getMessage().indexOf("\r\n") != -1) {
-                                            eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
-                                        } else {
-                                            eMessage = e.getMessage();
-                                        }
-                                        to.setResult("Failed. " + eMessage);
-                                        hasWritten = true;
-                                        failures++;
-                                    }
-                                    to.setTime(currentTime.getTime());
-                                }
-                            } finally {
-                                if (!hasWritten) {
-                                    to.setResult("Failed - Unknow exception ...");
-                                    failures++;
-                                    to.setTime(currentTime.getTime());
-                                }
-                            }
-                        }
-                    }
-                    if (failures == 0) {
-                        csvParser.addLine("All the tests are successfully finished.");
-                    } else {
-                        csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
-                    }
-//                    mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getRtuFromDatabaseBySerialNumber().getFolderId()));
-                } else {
-                    throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
-                }
-            } else {
-                throw new IOException("UserFileId is not a valid number");
-            }
-        } else {
-            throw new IOException("No userfile id is given.");
-        }
-    }
-
-    private UserFile findUserFile(String userFileId) {
+    private UserFile findUserFile() {
         throw new UnsupportedOperationException("UserFiles are not longer supported by Jupiter");
     }
 
@@ -880,7 +660,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         if (codeTable == null) {
             throw new IOException("CodeTable-ID can not be empty.");
         } else {
-            Code ct = this.findCode(codeTable);
+            Code ct = this.findCode();
             List calendars = ct.getCalendars();
             Array sdArray = new Array();
 
@@ -910,7 +690,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         }
     }
 
-    private Code findCode(String codeTable) throws IOException {
+    private Code findCode() {
         // Todo: port Code to jupiter, return null as the previous code would have returned null too.
         throw new UnsupportedOperationException("Code is not longer supported by Jupiter");
     }
@@ -930,7 +710,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         }
 
         if (codeTable != null) {
-            Code ct = this.findCode(codeTable);
+            Code ct = this.findCode();
             ActivityCalendarMessage acm = new ActivityCalendarMessage(ct, getMeterConfig());
             acm.parse();
 
@@ -961,7 +741,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
         Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
         try {
-            Lookup lut = this.findLookup(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
+            Lookup lut = this.findLookup();
             if (lut == null) {
                 throw new IOException("No lookuptable defined with id '" + messageHandler.getEpGroupIdListLookupTableId() + "'");
             } else {
@@ -978,7 +758,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         }
     }
 
-    private Lookup findLookup(int lookupId) {
+    private Lookup findLookup() {
         // Todo: Lookup will NOT be ported to jupiter
         throw new UnsupportedOperationException("Looku is not longer supported by Jupiter");
     }
@@ -1078,7 +858,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         try {
             clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
         } catch (IOException e) {
-            if (e.getMessage().indexOf("Could not write the emergencyProfile structure.Cosem Data-Access-Result exception Type unmatched") != -1) { // do it oure way
+            if (e.getMessage().contains("Could not write the emergencyProfile structure.Cosem Data-Access-Result exception Type unmatched")) { // do it oure way
                 emptyStruct = new Structure();
                 emptyStruct.addDataType(new NullData());
                 emptyStruct.addDataType(new NullData());
@@ -1125,7 +905,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
         log(Level.INFO, "Handling message Disconnect");
 
-        if (!messageHandler.getDisconnectDate().equals("")) { // use the disconnectControlScheduler
+        if (!"".equals(messageHandler.getDisconnectDate())) { // use the disconnectControlScheduler
 
             Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
             SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
@@ -1151,7 +931,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         }
 
         log(Level.INFO, "Handling message Connect");
-        if (!messageHandler.getConnectDate().equals("")) {    // use the disconnectControlScheduler
+        if (!"".equals(messageHandler.getConnectDate())) {    // use the disconnectControlScheduler
 
             Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
             SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getDisconnectControlSchedule().getObisCode());
@@ -1200,12 +980,12 @@ public class Dsmr23MessageExecutor extends MessageParser {
             String str = "Not a valid entry for the userFile.";
             throw new IOException(str);
         }
-        UserFile uf = this.findUserFile(userFileID);
+        UserFile uf = this.findUserFile();
 
         byte[] imageData = uf.loadFileInByteArray();
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         it.upgrade(imageData);
-        if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
+        if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
             it.imageActivation();
 
             //Below is a solution for not immediately activating the image so the current connection isn't lost
@@ -1218,7 +998,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
 //					sas.writeExecutionTime(dateArray);
 
 
-        } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
+        } else if (!"".equalsIgnoreCase(messageHandler.getActivationDate())) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
             String strDate = messageHandler.getActivationDate();
             Array dateArray = convertUnixToDateTimeArray(strDate);
@@ -1234,12 +1014,6 @@ public class Dsmr23MessageExecutor extends MessageParser {
     private void changeDefaultResetWindow(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Change default reset window.");
         getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.5.255")).setValueAttr(new Unsigned32(messageHandler.getDefaultResetWindow()));
-    }
-
-    private void changeAdministrativeStatus(MessageHandler messageHandler) throws IOException {
-        int status = messageHandler.getAdministrativeStatus();
-        log(Level.INFO, "Changing administrative status to " + status);
-        getCosemObjectFactory().getData(DSMR40RegisterFactory.AdministrativeStatusObisCode).setValueAttr(new TypeEnum(status));
     }
 
     protected MessageResult changeDiscoveryOnPowerUp(MessageEntry msgEntry, int enable) throws IOException {
@@ -1267,7 +1041,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
     protected void setMonitoredValue(Limiter loadLimiter) throws IOException {
         Limiter.ValueDefinitionType vdt = loadLimiter.new ValueDefinitionType();
         vdt.addDataType(new Unsigned16(3));
-        OctetString os = OctetString.fromByteArray(defaultMonitoredAttribute);
+        OctetString os = OctetString.fromByteArray(DEFAULT_MONITORED_ATTRIBUTE);
         vdt.addDataType(os);
         vdt.addDataType(new Integer8(2));
         loadLimiter.writeMonitoredValue(vdt);
@@ -1311,7 +1085,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 return new NullData();
             }
             case BOOLEAN: {
-                return new BooleanObject(value.equalsIgnoreCase("1"));
+                return new BooleanObject("1".equalsIgnoreCase(value));
             }
             case BIT_STRING: {
                 return new BitString(Integer.parseInt(value));
@@ -1359,7 +1133,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal1.setTime(startTime);
         cal1.getTime();
-        if (type.equalsIgnoreCase("15")) {
+        if ("15".equalsIgnoreCase(type)) {
             if (cal1.get(Calendar.MINUTE) < 15) {
                 cal1.set(Calendar.MINUTE, 14);
                 cal1.set(Calendar.SECOND, 40);
@@ -1374,12 +1148,12 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 cal1.set(Calendar.SECOND, 40);
             }
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("day")) {
+        } else if ("day".equalsIgnoreCase(type)) {
             cal1.set(Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime()) / 3600000)));
             cal1.set(Calendar.MINUTE, 59);
             cal1.set(Calendar.SECOND, 40);
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("month")) {
+        } else if ("month".equalsIgnoreCase(type)) {
             cal1.set(Calendar.DATE, cal1.getActualMaximum(Calendar.DAY_OF_MONTH));
             cal1.set(Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime()) / 3600000)));
             cal1.set(Calendar.MINUTE, 59);
@@ -1409,17 +1183,17 @@ public class Dsmr23MessageExecutor extends MessageParser {
     private Date setBeforeNextInterval(Date startTime, String type, TimeZone timeZone) throws IOException {
         Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal1.setTime(startTime);
-        int zoneOffset = 0;
-        if (type.equalsIgnoreCase("15")) {
+        int zoneOffset;
+        if ("15".equalsIgnoreCase(type)) {
             cal1.add(Calendar.MINUTE, 15);
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("day")) {
+        } else if ("day".equalsIgnoreCase(type)) {
             zoneOffset = timeZone.getOffset(cal1.getTimeInMillis()) / 3600000;
             cal1.add(Calendar.DAY_OF_MONTH, 1);
             zoneOffset = zoneOffset - (timeZone.getOffset(cal1.getTimeInMillis()) / 3600000);
             cal1.add(Calendar.HOUR_OF_DAY, zoneOffset);
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("month")) {
+        } else if ("month".equalsIgnoreCase(type)) {
             zoneOffset = timeZone.getOffset(cal1.getTimeInMillis()) / 3600000;
             cal1.add(Calendar.MONTH, 1);
             cal1.set(Calendar.DATE, cal1.getActualMaximum(Calendar.DAY_OF_MONTH));
@@ -1429,23 +1203,6 @@ public class Dsmr23MessageExecutor extends MessageParser {
         }
 
         throw new IOException("Invalid intervaltype.");
-    }
-
-    private void waitCyclus(int delay) throws IOException {
-        try {
-            int nrOfPolls = (delay / (20)) + (delay % (20) == 0 ? 0 : 1);
-            for (int i = 0; i < nrOfPolls; i++) {
-                if (i < nrOfPolls - 1) {
-                    ProtocolTools.delay(20000);
-                } else {
-                    ProtocolTools.delay((delay - (i * (20))) * 1000);
-                }
-                log(Level.INFO, "Keeping connection alive");
-                getCosemObjectFactory().getClock().getDateTime();
-            }
-        } catch (IOException e) {
-            throw new IOException("Could not keep connection alive." + e.getMessage());
-        }
     }
 
     protected Throwable getRootCause(NestedIOException e) {
@@ -1458,17 +1215,6 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     public AbstractSmartNtaProtocol getProtocol() {
         return protocol;
-    }
-
-    /**
-     * *************************************************************************
-     */
-    /* These methods require database access ...
-    /*****************************************************************************/
-    private BaseDevice getRtuFromDatabaseBySerialNumber() {
-        String serial = this.protocol.getSerialNumber();
-        DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(serial);
-        return deviceIdentifier.findDevice();
     }
 
 }

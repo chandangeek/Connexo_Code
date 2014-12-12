@@ -4,9 +4,11 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdw.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -24,9 +26,7 @@ public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter {
     private final String serialNumber;
     private final int physicalAddress;
 
-    /**
-     * Default constructor for EIServer instantiations
-     */
+    @Inject
     public SlaveMeter() {
         this(null, null, -1);
     }
@@ -135,4 +135,5 @@ public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter {
     public DLMSMeterConfig getMeterConfig() {
         return this.meterProtocol.getDlmsSession().getMeterConfig();
     }
+
 }

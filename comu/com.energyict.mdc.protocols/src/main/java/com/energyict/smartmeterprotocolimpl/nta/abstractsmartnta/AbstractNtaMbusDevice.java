@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -54,18 +55,11 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
 
     public abstract MessageProtocol getMessageProtocol();
 
-    protected AbstractNtaMbusDevice(TopologyService topologyService, OrmClient ormClient) {
+    protected AbstractNtaMbusDevice(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService) {
         this.topologyService = topologyService;
-        this.meterProtocol = new WebRTUKP(topologyService, ormClient);
+        this.meterProtocol = new WebRTUKP(topologyService, readingTypeUtilService, ormClient);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
-    }
-
-    public AbstractNtaMbusDevice(AbstractSmartNtaProtocol meterProtocol, TopologyService topologyService, final String serialNumber, final int physicalAddress) {
-        this.meterProtocol = meterProtocol;
-        this.topologyService = topologyService;
-        this.serialNumber = serialNumber;
-        this.physicalAddress = physicalAddress;
     }
 
     protected TopologyService getTopologyService() {

@@ -14,13 +14,13 @@ public class DiscoverRepeatersRequestStructure extends Data<DiscoverRepeatersReq
 
     public static final FunctionCode FUNCTION_CODE = FunctionCode.DISCOVER_REPEATERS_REQUEST;
 
+    private final RequestFactory requestFactory;
     private DateTime dateTime;
-    private RequestFactory requestFactory;
 
     public DiscoverRepeatersRequestStructure(RequestFactory requestFactory) {
         super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
-        this.dateTime = new DateTime(requestFactory.getTimeZone());
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone());
     }
 
     @Override
@@ -30,7 +30,7 @@ public class DiscoverRepeatersRequestStructure extends Data<DiscoverRepeatersReq
 
     @Override
     public DiscoverRepeatersRequestStructure parse(byte[] rawData, int offset) throws ParsingException {
-        this.dateTime = new DateTime(requestFactory.getTimeZone()).parse(rawData, offset);
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone()).parse(rawData, offset);
         return this;
     }
 

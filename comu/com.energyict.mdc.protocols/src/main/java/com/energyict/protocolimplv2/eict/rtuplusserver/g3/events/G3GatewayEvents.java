@@ -1,21 +1,28 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.events;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -27,9 +34,11 @@ public class G3GatewayEvents {
 
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.99.98.0.255");
     private final DlmsSession dlmsSession;
+    private final IssueService issueService;
 
-    public G3GatewayEvents(DlmsSession dlmsSession) {
+    public G3GatewayEvents(DlmsSession dlmsSession, IssueService issueService) {
         this.dlmsSession = dlmsSession;
+        this.issueService = issueService;
     }
 
     public List<CollectedLogBook> readEvents(List<LogBookReader> logBooks) {
@@ -49,11 +58,11 @@ public class G3GatewayEvents {
                     collectedLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
+                        collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }
@@ -69,7 +78,7 @@ public class G3GatewayEvents {
         return abstractData.getArray();
     }
 
-    private final BasicEvent getBasicEvent(AbstractDataType abstractEventData) throws IOException {
+    private BasicEvent getBasicEvent(AbstractDataType abstractEventData) throws IOException {
         if (abstractEventData.isStructure()) {
             Structure structure = abstractEventData.getStructure();
             return structure != null ? new BasicEvent(structure, dlmsSession.getTimeZone()) : null;
@@ -88,7 +97,7 @@ public class G3GatewayEvents {
 
         private final TimeZone timeZone;
 
-        public BasicEvent(Structure eventStructure, TimeZone timeZone) throws IOException {
+        private BasicEvent(Structure eventStructure, TimeZone timeZone) throws IOException {
             super(eventStructure.getBEREncodedByteArray(), 0, 0);
             this.timeZone = timeZone;
         }
@@ -97,22 +106,23 @@ public class G3GatewayEvents {
             return new MeterEvent(getEventTime(), getEisCode(), getProtocolCode(), getDescription());
         }
 
-        private final Date getEventTime() throws IOException {
+        private Date getEventTime() throws IOException {
             OctetString eventDateString = getDataType(DATE_TIME_INDEX).getOctetString();
             AXDRDateTime timeStamp = new AXDRDateTime(eventDateString.getBEREncodedByteArray(), 0, timeZone);
             return timeStamp.getValue().getTime();
         }
 
-        private final int getEisCode() {
+        private int getEisCode() {
             return getDataType(EIS_CODE_INDEX).intValue();
         }
 
-        private final int getProtocolCode() {
+        private int getProtocolCode() {
             return getDataType(PROTOCOL_CODE_INDEX).intValue();
         }
 
-        private final String getDescription() {
+        private String getDescription() {
             return getDataType(DESCRIPTION_INDEX).getOctetString().stringValue();
         }
     }
+
 }

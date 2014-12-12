@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterInstallat
 import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNumber;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.PaddingData;
 
+import java.time.Clock;
 import java.util.TimeZone;
 
 /**
@@ -24,7 +25,7 @@ public class ContactorResponseStructure extends Data<ContactorResponseStructure>
     private static final int LENGTH_OF_CONTACTOR_STATUS_MASK = 1;
     private static final int PADDING_DATA_LENGTH = 5;
 
-    private DateTime dateTime;
+    private final DateTime dateTime;
     private MeterSerialNumber serialNumber;
     private ContactorFeedback contactorFeedback;
     private ContactorMode mode;
@@ -34,11 +35,11 @@ public class ContactorResponseStructure extends Data<ContactorResponseStructure>
     private final TimeZone timeZone;
     private final FunctionCode functionCode;
 
-    public ContactorResponseStructure(TimeZone timeZones, FunctionCode functionCode) {
+    public ContactorResponseStructure(Clock clock, TimeZone timeZones, FunctionCode functionCode) {
         super(FUNCTION_CODE);
         this.timeZone = timeZones;
         this.functionCode = functionCode;
-        this.dateTime = new DateTime(timeZone);
+        this.dateTime = new DateTime(clock, timeZone);
         this.serialNumber = new MeterSerialNumber();
         this.contactorFeedback = new ContactorFeedback();
         this.mode = new ContactorMode();

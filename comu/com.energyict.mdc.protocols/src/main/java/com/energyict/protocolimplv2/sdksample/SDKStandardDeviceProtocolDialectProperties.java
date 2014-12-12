@@ -4,7 +4,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -29,13 +28,6 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
         super(propertySpecService);
     }
 
-    private final PropertySpecService propertySpecService;
-
-    public SDKStandardDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
-        super();
-        this.propertySpecService = propertySpecService;
-    }
-
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.SDK_SAMPLE_STANDARD_DEVICE_PROTOCOL_DIALECT_NAME.getName();
@@ -47,7 +39,7 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
     }
 
     private PropertySpec getDoSomeThingPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(doSomeThingPropertyName, false, new BooleanFactory());
+        return this.getPropertySpecService().basicPropertySpec(doSomeThingPropertyName, false, new BooleanFactory());
     }
 
     @Override

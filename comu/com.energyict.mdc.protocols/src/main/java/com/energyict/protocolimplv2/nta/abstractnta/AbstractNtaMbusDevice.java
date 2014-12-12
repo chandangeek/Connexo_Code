@@ -1,10 +1,13 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -28,13 +31,14 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 import com.energyict.protocols.exception.UnsupportedMethodException;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -59,11 +63,12 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     private final AbstractDlmsProtocol meterProtocol;
     private final String serialNumber;
     private final int physicalAddress;
-    private PropertySpecService propertySpecService;
+    private final TopologyService topologyService;
 
-    public AbstractNtaMbusDevice(PropertySpecService propertySpecService, IssueService issueService) {
+    public AbstractNtaMbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
         this.propertySpecService = propertySpecService;
-        this.meterProtocol = new AM100(propertySpecService, issueService);
+        this.topologyService = topologyService;
+        this.meterProtocol = new WebRTUKP(this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }
@@ -80,20 +85,8 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
         return propertySpecService;
     }
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    // TODO Implement me
-    @Override
-    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-    }
-
-    public AbstractNtaMbusDevice(AbstractDlmsProtocol meterProtocol, String serialNumber, int physicalAddress) {
-        this.meterProtocol = meterProtocol;
-        this.serialNumber = serialNumber;
-        this.physicalAddress = physicalAddress;
+    protected TopologyService getTopologyService() {
+        return topologyService;
     }
 
     @Override
@@ -266,6 +259,8 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     @Override
     public String getVersion() {
         return null;
+    }
+
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         throw new UnsupportedMethodException(this.getClass(), "fetchLoadProfileConfiguration");
     }
@@ -333,9 +328,4 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
         return null;
     }
 
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
 }

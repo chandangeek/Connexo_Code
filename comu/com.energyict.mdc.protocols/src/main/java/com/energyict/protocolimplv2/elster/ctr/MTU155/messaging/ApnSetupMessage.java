@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -29,9 +30,8 @@ public class ApnSetupMessage extends AbstractMTU155Message {
     public static final int PASS_MAX_LENGTH = 30;
     public static final int USER_MAX_LENGTH = 30;
 
-
-    public ApnSetupMessage(Messaging messaging) {
-        super(messaging);
+    public ApnSetupMessage(Messaging messaging, IssueService issueService) {
+        super(messaging, issueService);
     }
 
     @Override

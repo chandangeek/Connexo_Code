@@ -23,6 +23,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.PoolingResponseWitho
 import com.energyict.protocolimplv2.elster.garnet.structure.RadioParametersResponseStructure;
 import com.energyict.protocolimplv2.elster.garnet.structure.ReadingResponseStructure;
 
+import java.time.Clock;
 import java.util.TimeZone;
 
 /**
@@ -128,29 +129,30 @@ public class ResponseFrame implements Frame<ResponseFrame> {
      * <b>Warning:</b> This method may only be used when data is already decrypted. So make sure to decrypt the frame first!
      *
      * @throws ParsingException in case the data could not be parsed correct
+     * @param clock The Clock
      */
-    public void doParseData() throws ParsingException {
+    public void doParseData(Clock clock) throws ParsingException {
         if (function.getFunctionCode().equals(FunctionCode.LOGBOOK_EVENT_RESPONSE)) {
-            data = new LogBookEventResponseStructure(getTimeZone()).parse(data.getBytes(), 0);
+            data = new LogBookEventResponseStructure(clock, getTimeZone()).parse(data.getBytes(), 0);
         } else if (function.getFunctionCode().equals(FunctionCode.CONCENTRATOR_VERSION_RESPONSE)) {
-            data = new ConcentratorVersionResponseStructure(getTimeZone()).parse(data.getBytes(), 0);
+            data = new ConcentratorVersionResponseStructure(clock, getTimeZone()).parse(data.getBytes(), 0);
         } else if (function.getFunctionCode().equals(FunctionCode.OPEN_SESSION_RESPONSE)) {
-            data = new OpenSessionResponseStructure(getTimeZone()).parse(data.getBytes(), 0);
+            data = new OpenSessionResponseStructure(clock, getTimeZone()).parse(data.getBytes(), 0);
         } else if (function.getFunctionCode().equals(FunctionCode.POOLING_RESPONSE_WITHOUT_LOGS)) {
-            data = new PoolingResponseWithoutLogsStructure(getTimeZone()).parse(data.getBytes(), 0);
+            data = new PoolingResponseWithoutLogsStructure(clock, getTimeZone()).parse(data.getBytes(), 0);
         } else if (function.getFunctionCode().equals(FunctionCode.POOLING_RESPONSE_WITH_LOGS)) {
-            data = new PoolingResponseWithLogsStructure(getTimeZone()).parse(data.getBytes(), 0);
+            data = new PoolingResponseWithLogsStructure(clock, getTimeZone()).parse(data.getBytes(), 0);
         } else if (function.getFunctionCode().equals(FunctionCode.DISCOVER_METERS_RESPONSE)) {
-            data = new DiscoverMetersResponseStructure(getTimeZone()).parse(data.getBytes(), 0);
+            data = new DiscoverMetersResponseStructure(clock, getTimeZone()).parse(data.getBytes(), 0);
         } else if (function.getFunctionCode().equals(FunctionCode.CHECKPOINT_READING_RESPONSE) ||
                 function.getFunctionCode().equals(FunctionCode.ONLINE_READING_RESPONSE)) {
-            data = new ReadingResponseStructure(getTimeZone()).parse(data.getBytes(), 0);
+            data = new ReadingResponseStructure(clock, getTimeZone()).parse(data.getBytes(), 0);
         } else if (function.getFunctionCode().equals(FunctionCode.CONCENTRATOR_STATUS_RESPONSE)) {
-            data = new ConcentratorStatusResponseStructure(getTimeZone()).parse(data.getBytes(), 0);
+            data = new ConcentratorStatusResponseStructure(clock, getTimeZone()).parse(data.getBytes(), 0);
         } else if (function.getFunctionCode().equals(FunctionCode.CONTACTOR_RESPONSE)) {
-            data = new ContactorResponseStructure(getTimeZone(), FunctionCode.CONTACTOR_RESPONSE).parse(data.getBytes(), 0);
+            data = new ContactorResponseStructure(clock, getTimeZone(), FunctionCode.CONTACTOR_RESPONSE).parse(data.getBytes(), 0);
         } else if (function.getFunctionCode().equals(FunctionCode.DISCOVER_REPEATERS_RESPONSE)) {
-            data = new DiscoverRepeatersResponseStructure(getTimeZone()).parse(data.getBytes(), 0);
+            data = new DiscoverRepeatersResponseStructure(clock, getTimeZone()).parse(data.getBytes(), 0);
         } else if (function.getFunctionCode().equals(FunctionCode.NOT_EXECUTED_RESPONSE)) {
             data = new NotExecutedErrorResponseStructure(getTimeZone()).parse(data.getBytes(), 0);
         } else if (function.getFunctionCode().equals(FunctionCode.RADIO_PARAMETERS_RESPONSE)) {

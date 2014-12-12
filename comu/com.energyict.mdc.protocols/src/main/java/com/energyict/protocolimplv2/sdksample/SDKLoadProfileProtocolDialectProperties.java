@@ -5,7 +5,6 @@ import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -28,13 +27,6 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
 
     public SDKLoadProfileProtocolDialectProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
-    }
-
-    private final PropertySpecService propertySpecService;
-
-    public SDKLoadProfileProtocolDialectProperties(PropertySpecService propertySpecService) {
-        super();
-        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -63,7 +55,7 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
     }
 
     private PropertySpec<ObisCode> getNotSupportedLoadProfileObisCodePropertySpec() {
-        return this.propertySpecService.basicPropertySpec(notSupportedLoadProfileObisCodePropertyName, false, new ObisCodeValueFactory());
+        return this.getPropertySpecService().basicPropertySpec(notSupportedLoadProfileObisCodePropertyName, false, new ObisCodeValueFactory());
     }
 
 }

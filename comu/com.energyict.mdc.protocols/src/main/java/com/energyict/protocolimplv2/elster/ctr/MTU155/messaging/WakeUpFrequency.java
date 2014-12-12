@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -21,8 +22,8 @@ public class WakeUpFrequency extends AbstractMTU155Message {
 
     public static final String OBJECT_ID = "E.7.0";
 
-    public WakeUpFrequency(Messaging messaging) {
-        super(messaging);
+    public WakeUpFrequency(Messaging messaging, IssueService issueService) {
+        super(messaging, issueService);
     }
 
     @Override

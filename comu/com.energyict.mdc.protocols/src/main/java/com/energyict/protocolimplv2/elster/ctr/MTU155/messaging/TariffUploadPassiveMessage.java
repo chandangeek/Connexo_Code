@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -27,11 +28,10 @@ import java.util.Date;
 public class TariffUploadPassiveMessage extends AbstractMTU155Message {
 
     private static final String OBJECT_ID = "11.0.B";
-    private static final String OBJECT_ID_CURRENT = "17.0.0";
     private static final String OBJECT_ID_FUTURE = "17.0.1";
 
-    public TariffUploadPassiveMessage(Messaging messaging) {
-        super(messaging);
+    public TariffUploadPassiveMessage(Messaging messaging, IssueService issueService) {
+        super(messaging, issueService);
     }
 
     @Override

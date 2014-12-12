@@ -18,6 +18,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.M
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -51,13 +52,15 @@ public class ReadingResponseStructure extends Data<ReadingResponseStructure> {
     private BitMapCollection<MeterInstallationStatusBitMaskField> meterInstallationStatusCollection;
     private List<MeterConsumption> consumptionList;
 
+    private final Clock clock;
     private final TimeZone timeZone;
 
-    public ReadingResponseStructure(TimeZone timeZone) {
+    public ReadingResponseStructure(Clock clock, TimeZone timeZone) {
         super(FUNCTION_CODE);
+        this.clock = clock;
         this.timeZone = timeZone;
-        this.dateTime = new DateTime(timeZone);
-        this.readingDateTime = new DateTime(timeZone);
+        this.dateTime = new DateTime(clock, timeZone);
+        this.readingDateTime = new DateTime(clock, timeZone);
         this.readingSelector = new ReadingSelector();
         this.meterTariffCollection = new BitMapCollection<>(LENGTH_OF_METER_TARIFF_STATUSES, NR_OF_METERS, TARIFF_START_INDEX, MeterTariffStatus.class);
         this.concentratorConfiguration = new ConcentratorConfiguration();
@@ -101,14 +104,14 @@ public class ReadingResponseStructure extends Data<ReadingResponseStructure> {
     public ReadingResponseStructure parse(byte[] rawData, int offset) throws ParsingException {
         int ptr = offset;
 
-        this.dateTime = new DateTime(getTimeZone()).parse(rawData, ptr);
+        this.dateTime = new DateTime(this.clock, getTimeZone()).parse(rawData, ptr);
         ptr += dateTime.getLength();
 
         this.readingSelector = new ReadingSelector().parse(rawData, ptr);
         this.meterTariffCollection.parse(rawData, ptr);
         ptr += readingSelector.getLength();
 
-        this.readingDateTime = new DateTime(getTimeZone()).parse(rawData, ptr);
+        this.readingDateTime = new DateTime(this.clock, getTimeZone()).parse(rawData, ptr);
         ptr += dateTime.getLength();
 
         this.concentratorConfiguration.parse(rawData, ptr);

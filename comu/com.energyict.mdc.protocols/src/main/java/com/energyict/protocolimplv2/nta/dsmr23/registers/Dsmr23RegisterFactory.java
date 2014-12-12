@@ -4,10 +4,9 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -38,7 +37,8 @@ import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.IOExceptionHandler;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -83,10 +83,12 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     private final AbstractDlmsProtocol protocol;
     private final boolean supportsBulkRequests;
     protected final IssueService issueService;
+    protected final MdcReadingTypeUtilService readingTypeUtilService;
 
-    public Dsmr23RegisterFactory(AbstractDlmsProtocol protocol, IssueService issueService, boolean supportsBulkRequests) {
+    public Dsmr23RegisterFactory(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, boolean supportsBulkRequests) {
         this.protocol = protocol;
         this.issueService = issueService;
+        this.readingTypeUtilService = readingTypeUtilService;
         this.supportsBulkRequests = supportsBulkRequests;
     }
 
@@ -100,7 +102,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
      */
     public List<CollectedRegister> readRegisters(List<OfflineRegister> allRegisters) {
         List<OfflineRegister> validRegisters = filterOutAllInvalidRegisters(allRegisters);
-        List<CollectedRegister> collectedRegisters = new ArrayList<CollectedRegister>();
+        List<CollectedRegister> collectedRegisters = new ArrayList<>();
         ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(validRegisters, supportsBulkRequests);
         for (OfflineRegister register : allRegisters) {
             if (!validRegisters.contains(register)) {
@@ -131,7 +133,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                 if (rv != null) {
                     CollectedRegister deviceRegister = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory()
                             .createMaximumDemandCollectedRegister(getRegisterIdentifier(register),
-                                    Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
+                                    this.readingTypeUtilService.getReadingTypeFrom(register.getAmrRegisterObisCode(), register.getUnit()));
                     deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
                     deviceRegister.setCollectedTimeStamps(rv.getReadTime(), rv.getFromTime(), rv.getToTime(), rv.getEventTime());
                     collectedRegisters.add(deviceRegister);
@@ -190,7 +192,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     protected ComposedCosemObject constructComposedObjectFromRegisterList(List<OfflineRegister> registers, boolean supportsBulkRequest) {
 
         if (registers != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (OfflineRegister register : registers) {
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
 
@@ -355,7 +357,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         long mask = 134217728;
         for (int i = 0; i < 4; i++) {
             if ((value & mask) == mask) {
-                strBuilder.append("Decryption error on Mbus " + (i + 1) + "\r\n");
+                strBuilder.append("Decryption error on Mbus ").append(i + 1).append("\r\n");
             }
             mask = mask << 1;
         }

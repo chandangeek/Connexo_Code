@@ -56,7 +56,7 @@ public class EMeterMessageExecutor extends MessageParser {
 
                 log(Level.INFO, "Handling message: Connect");
 
-                if (!messageHandler.getConnectDate().equals("") && !messageHandler.getConnectDate().equals("0")) {    // use the disconnectControlScheduler
+                if (!"".equals(messageHandler.getConnectDate()) && !"0".equals(messageHandler.getConnectDate())) {    // use the disconnectControlScheduler
 
                     Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
                     SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(DISCONNECTOR_CTR_SCHEDULE_OBIS));
@@ -78,7 +78,7 @@ public class EMeterMessageExecutor extends MessageParser {
 
                 log(Level.INFO, "Handling message: Disconnect");
 
-                if (!messageHandler.getDisconnectDate().equals("") && !messageHandler.getDisconnectDate().equals("0")) { // use the disconnectControlScheduler
+                if (!"".equals(messageHandler.getDisconnectDate()) && !"0".equals(messageHandler.getDisconnectDate())) { // use the disconnectControlScheduler
 
                     Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
                     SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(DISCONNECTOR_CTR_SCHEDULE_OBIS));
@@ -154,10 +154,6 @@ public class EMeterMessageExecutor extends MessageParser {
         return this.emeter.getCosemObjectFactory();
     }
 
-    private DLMSMeterConfig getMeterConfig() {
-        return this.emeter.getMeterConfig();
-    }
-
     /**
      * Get the corrected obiscode to match the physical address in the B-field
      *
@@ -167,4 +163,5 @@ public class EMeterMessageExecutor extends MessageParser {
     private ObisCode getCorrectedObisCode(ObisCode obisCode) {
         return ProtocolTools.setObisCodeField(obisCode, 1, (byte) emeter.getPhysicalAddress());
     }
+
 }

@@ -1,13 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
-import java.util.ArrayList;
+import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -21,12 +25,9 @@ import java.util.Properties;
  */
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
-    public MBusDevice() {
-        super();
-    }
-
-    public MBusDevice(final AbstractSmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
-        super(meterProtocol, serialNumber, physicalAddress);
+    @Inject
+    public MBusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
+        super(topologyService, readingTypeUtilService, ormClient);
     }
 
     @Override
@@ -62,7 +63,7 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
      * @return a List of String objects
      */
     public List<String> getRequiredKeys() {
-        return new ArrayList<String>();
+        return Collections.emptyList();
     }
 
     /**
@@ -71,15 +72,15 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
      * @return a List of String objects
      */
     public List<String> getOptionalKeys() {
-        return new ArrayList<String>();
+        return Collections.emptyList();
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
+        return new LegacyLoadProfileRegisterMessageBuilder(this.getTopologyService());
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
+        return new LegacyPartialLoadProfileMessageBuilder(this.getTopologyService());
     }
 
 }

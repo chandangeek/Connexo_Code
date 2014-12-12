@@ -1,30 +1,33 @@
 package com.energyict.protocolimpl.dlms.edp;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.messaging.Message;
-import com.energyict.mdc.protocol.api.messaging.MessageTag;
-import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.edp.logbooks.LogbookReader;
 import com.energyict.protocolimpl.dlms.edp.registers.EDPStoredValues;
 import com.energyict.protocolimpl.dlms.edp.registers.RegisterReader;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,6 +54,11 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     private LogbookReader logbookReader;
     private LoadProfileReader loadProfileReader;
     private EDPStoredValues storedValues;
+
+    @Inject
+    public CX20009(OrmClient ormClient) {
+        super(ormClient);
+    }
 
     @Override
     public Date getTime() throws IOException {
@@ -167,10 +175,7 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     public void disconnect() {
         try {
             getDLMSConnection().disconnectMAC();
-        } catch (IOException e) {
-            //absorb -> trying to close communication
-            getLogger().log(Level.FINEST, e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             //absorb -> trying to close communication
             getLogger().log(Level.FINEST, e.getMessage());
         }

@@ -6,6 +6,8 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
+
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages.Dsmr50MessageExecutor;
@@ -24,8 +26,8 @@ import java.util.List;
  */
 public class SagemComDsmr50MessageExecutor extends Dsmr50MessageExecutor {
 
-    public SagemComDsmr50MessageExecutor(AbstractSmartNtaProtocol protocol) {
-        super(protocol);
+    public SagemComDsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
+        super(protocol, topologyService);
     }
 
     @Override

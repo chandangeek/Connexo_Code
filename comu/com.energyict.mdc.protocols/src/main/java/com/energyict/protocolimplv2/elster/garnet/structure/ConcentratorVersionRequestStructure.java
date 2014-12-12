@@ -6,6 +6,8 @@ import com.energyict.protocolimplv2.elster.garnet.frame.field.Data;
 import com.energyict.protocolimplv2.elster.garnet.frame.field.FunctionCode;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.DateTime;
 
+import java.time.Clock;
+
 /**
  * @author sva
  * @since 23/05/2014 - 13:28
@@ -15,12 +17,12 @@ public class ConcentratorVersionRequestStructure extends Data<ConcentratorVersio
     public static final FunctionCode FUNCTION_CODE = FunctionCode.CONCENTRATOR_VERSION_REQUEST;
 
     private DateTime dateTime;
-    private RequestFactory requestFactory;
+    private final RequestFactory requestFactory;
 
     public ConcentratorVersionRequestStructure(RequestFactory requestFactory) {
         super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
-        this.dateTime = new DateTime(requestFactory.getTimeZone());
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone());
     }
 
     @Override
@@ -30,7 +32,7 @@ public class ConcentratorVersionRequestStructure extends Data<ConcentratorVersio
 
     @Override
     public ConcentratorVersionRequestStructure parse(byte[] rawData, int offset) throws ParsingException {
-        this.dateTime = new DateTime(requestFactory.getTimeZone()).parse(rawData, offset);
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone()).parse(rawData, offset);
         return this;
     }
 

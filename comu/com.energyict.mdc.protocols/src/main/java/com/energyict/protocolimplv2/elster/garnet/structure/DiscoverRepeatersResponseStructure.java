@@ -10,6 +10,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.RepeaterDiagno
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,12 +29,14 @@ public class DiscoverRepeatersResponseStructure extends Data<DiscoverRepeatersRe
 
     private HashMap<Address, RepeaterDiagnostic> repeaters;
 
+    private final Clock clock;
     private final TimeZone timeZone;
 
-    public DiscoverRepeatersResponseStructure(TimeZone timeZone) {
+    public DiscoverRepeatersResponseStructure(Clock clock, TimeZone timeZone) {
         super(FUNCTION_CODE);
+        this.clock = clock;
         this.timeZone = timeZone;
-        this.dateTime = new DateTime(timeZone);
+        this.dateTime = new DateTime(clock, timeZone);
         this.repeaters = new HashMap<>(NR_OF_POSITIONS);
     }
 
@@ -70,7 +73,7 @@ public class DiscoverRepeatersResponseStructure extends Data<DiscoverRepeatersRe
     public DiscoverRepeatersResponseStructure parse(byte[] rawData, int offset) throws ParsingException {
         int ptr = offset;
 
-        this.dateTime = new DateTime(getTimeZone()).parse(rawData, ptr);
+        this.dateTime = new DateTime(this.clock, getTimeZone()).parse(rawData, ptr);
         ptr += dateTime.getLength();
 
         for (int i = 0; i < NR_OF_POSITIONS; i++) {

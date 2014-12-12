@@ -1,8 +1,12 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
@@ -35,6 +39,10 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
 
     DeviceIdentifier deviceIdentifier;
     private RequestFactory requestFactory;
+
+    protected CtrInboundDeviceProtocol(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus) {
+        super(propertySpecService, issueService, readingTypeUtilService, thesaurus);
+    }
 
     @Override
     public DiscoverResultType doDiscovery() {

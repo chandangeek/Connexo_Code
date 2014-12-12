@@ -26,9 +26,7 @@ import java.util.TimeZone;
 /**
  * Class that holds all DLMS device properties (general, dialect & security related)
  * Based on these properties, a DLMS session and its connection layer can be fully configured.
- * <p/>
- * The list of optional and required properties that is shown in EIServer is held in {@link com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport}
- * <p/>
+ *
  * Copyrights EnergyICT
  * Date: 14-jul-2011
  * Time: 11:26:48

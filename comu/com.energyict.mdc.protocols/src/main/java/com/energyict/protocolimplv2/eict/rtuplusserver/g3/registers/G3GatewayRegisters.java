@@ -5,6 +5,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
@@ -20,7 +21,6 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.*;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping.GprsModemSetupMapping;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.io.IOException;
 
@@ -40,9 +40,11 @@ public class G3GatewayRegisters {
     private final RegisterMapping[] registerMappings;
     private final CustomRegisterMapping[] customRegisterMappings;
     private final DlmsSession session;
+    private final IssueService issueService;
 
-    public G3GatewayRegisters(DlmsSession dlmsSession) {
+    public G3GatewayRegisters(DlmsSession dlmsSession, IssueService issueService) {
         this.session = dlmsSession;
+        this.issueService = issueService;
 
         this.customRegisterMappings = new CustomRegisterMapping[]{
                 new FirewallSetupCustomRegisterMapping(session.getCosemObjectFactory()),
@@ -66,9 +68,7 @@ public class G3GatewayRegisters {
 
     public CollectedRegister readRegister(OfflineRegister register) {
         ObisCode obisCode = register.getObisCode();
-
         try {
-
             //First check if we can read it out as a normal register (there is only 1 normal register at this time)
             if (obisCode.equals(GSM_FIELD_STRENGTH)) {
                 Quantity quantityValue = session.getCosemObjectFactory().getRegister(obisCode).getQuantityValue();
@@ -133,9 +133,9 @@ public class G3GatewayRegisters {
         CollectedRegister collectedRegister = getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register),
                 register.getReadingType());
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, Bus.getIssueService().newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
     }

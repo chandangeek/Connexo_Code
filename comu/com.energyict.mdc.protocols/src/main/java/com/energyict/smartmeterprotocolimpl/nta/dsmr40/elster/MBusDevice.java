@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster;
 
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 
@@ -18,8 +19,8 @@ import javax.inject.Inject;
 public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice {
 
     @Inject
-    public MBusDevice(TopologyService topologyService, OrmClient ormClient) {
-        super(topologyService, ormClient);
+    public MBusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
+        super(topologyService, readingTypeUtilService, ormClient);
     }
 
     @Override

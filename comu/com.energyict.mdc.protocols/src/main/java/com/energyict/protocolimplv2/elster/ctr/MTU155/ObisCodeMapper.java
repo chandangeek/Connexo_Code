@@ -2,6 +2,8 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -20,7 +22,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -37,6 +38,8 @@ import java.util.logging.Logger;
  */
 public abstract class ObisCodeMapper {
 
+    private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final IssueService issueService;
     protected Logger logger;
     protected DeviceIdentifier deviceIdentifier;
 
@@ -64,6 +67,11 @@ public abstract class ObisCodeMapper {
     public static final String OBIS_IDENTIFIER_TARIFF_SCHEME = "0.0.13.0.0.255";
     public static final String OBIS_VOLUNTARY_PARAMETERS_PROFILE_0 = "0.1.25.9.0.255";
     public static final String OBIS_GASDAY_START_TIME = "7.0.0.9.3.255";
+
+    protected ObisCodeMapper(MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService) {
+        this.readingTypeUtilService = readingTypeUtilService;
+        this.issueService = issueService;
+    }
 
     /**
      * Maps the obiscodes to a CTR Object's ID
@@ -172,7 +180,6 @@ public abstract class ObisCodeMapper {
         CTRAbstractValue value = object.getValue()[regMap.getValueIndex()];
 
         if (isObis(oc, OBIS_DEVICE_STATUS)) {
-
             String description = DeviceStatus.fromStatusCode(value.getIntValue()).getDescription();
             Quantity quantity = new Quantity((BigDecimal) value.getValue(), Unit.getUndefined());
             return new RegisterValue(oc, quantity, null, null, null, new Date(), 0, description);
@@ -342,7 +349,7 @@ public abstract class ObisCodeMapper {
 
     private CollectedRegister createDeviceRegister(ObisCode obisCode, Unit unit) {
         return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(obisCode, obisCode, getDeviceIdentifier()),
-                Bus.getMdcReadingTypeUtilService().getReadingTypeFrom(obisCode, unit));
+                this.readingTypeUtilService.getReadingTypeFrom(obisCode, unit));
     }
 
     protected CollectedRegister createCollectedRegister(RegisterValue registerValue) {
@@ -354,21 +361,16 @@ public abstract class ObisCodeMapper {
 
     protected CollectedRegister createNotSupportedCollectedRegister(ObisCode obisCode, Unit unit) {
         CollectedRegister failedRegister = createDeviceRegister(obisCode, unit);
-        failedRegister.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(obisCode, "registerXnotsupported", obisCode));
+        failedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(obisCode, "registerXnotsupported", obisCode));
         return failedRegister;
     }
 
     protected CollectedRegister createIncompatibleCollectedRegister(ObisCode obisCode, String message) {
         CollectedRegister failedRegister = createDeviceRegister(obisCode, Unit.getUndefined());
-        failedRegister.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(obisCode, "registerXincompatible", obisCode, message));
+        failedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newWarning(obisCode, "registerXincompatible", obisCode, message));
         return failedRegister;
     }
 
-    /**
-     * Lazy getter for the logger
-     *
-     * @return: the logger
-     */
     public Logger getLogger() {
         if (logger == null) {
             if (requestFactory == null) {
@@ -421,47 +423,4 @@ public abstract class ObisCodeMapper {
         this.deviceIdentifier = deviceIdentifier;
     }
 
-    public enum BillingPeriodClosureReason {
-        DOES_NOT_EXIST,
-        SWITCH_OF_VENDOR,
-        CHANGE_OF_CONTRACT,
-        CHANGE_OF_CONSUMER,
-        SWITCH_OF_DISTRIBUTOR,
-        END_OF_BILLING_PERIOD,
-        START_OF_NEW_TARIFF_SCHEME,
-        GENERIC,
-        UNKNOWN;
-
-        public String getReason() {
-            switch (this) {
-                case DOES_NOT_EXIST:
-                    return "Does not exist";
-                case SWITCH_OF_VENDOR:
-                    return "For switching of vendor";
-                case CHANGE_OF_CONTRACT:
-                    return "For change of contract";
-                case CHANGE_OF_CONSUMER:
-                    return "For change of end consumer (transfer)";
-                case SWITCH_OF_DISTRIBUTOR:
-                    return "For switching of distributor";
-                case END_OF_BILLING_PERIOD:
-                    return "For the end of the billing period";
-                case START_OF_NEW_TARIFF_SCHEME:
-                    return "For the start of a new tariff scheme";
-                case GENERIC:
-                    return "Generic";
-                default:
-                    return "Unknown";
-            }
-        }
-
-        public static BillingPeriodClosureReason valueFromOrdinal(int ordinal) {
-            for (BillingPeriodClosureReason indicator : values()) {
-                if (indicator.ordinal() == ordinal) {
-                    return indicator;
-                }
-            }
-            return UNKNOWN;
-        }
-    }
 }

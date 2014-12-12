@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -18,7 +19,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.ProfileChannel;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.StartOfGasDayParser;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.CTRObjectInfo;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
@@ -39,11 +39,8 @@ public class LoadProfileBuilder {
     public static final ObisCode VOLUME_MEASUREMENT_PROFILE = ObisCode.fromString("0.0.99.2.0.255");
     public static final ObisCode TOTALIZERS_PROFILE = ObisCode.fromString("0.0.99.3.0.255");
 
-    public static final String[] FLOW_MEASUREMENT_OBJECT_IDS = new String[]{"1.0.0", "1.2.0", "4.0.0", "7.0.0"};
-    public static final String[] VOLUME_MEASUREMENT_OBJECT_IDS = new String[]{"1.1.0", "1.3.0", "1.F.0"};
-    public static final String[] TOTALIZERS_OBJECT_IDS = new String[]{"2.0.0", "2.1.0", "2.3.0", "1.2.3"};
-
-    private MTU155 meterProtocol;
+    private final MTU155 meterProtocol;
+    private final IssueService issueService;
 
     /**
      * The list of LoadProfileReaders which are expected to be fetched
@@ -65,17 +62,16 @@ public class LoadProfileBuilder {
      */
     protected StartOfGasDayParser startOfGasDayParser;
 
-    public LoadProfileBuilder(MTU155 meterProtocol) {
+    public LoadProfileBuilder(MTU155 meterProtocol, IssueService issueService) {
         this.meterProtocol = meterProtocol;
+        this.issueService = issueService;
     }
 
     /**
-     * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles for the {@link #meterProtocol}
-     *
+     * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles for the {@link #meterProtocol}.
      *
      * @param loadProfileReaders a list of definitions of expected loadProfiles to read
      * @return the list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are in the device
-     * @throws java.io.IOException when error occurred during dataFetching or -Parsing
      */
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
         expectedLoadProfileReaders = loadProfileReaders;
@@ -194,7 +190,7 @@ public class LoadProfileBuilder {
                         channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                         collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);
                     } catch (IOException e) {   // A non-blocking issue occurred during readout of this loadProfile, but it is still possible to read out the other loadProfiles.
-                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, Bus.getIssueService().newProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e));
+                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e));
                         collectedIntervalData.clear();
                         break;
                     }
@@ -204,7 +200,7 @@ public class LoadProfileBuilder {
                 collectedLoadProfileList.add(collectedLoadProfile);
             } else {
                 CollectedLoadProfile collectedLoadProfile = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(lpr.getLoadProfileIdentifier());
-                Issue problem = Bus.getIssueService().newWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue problem = this.issueService.newWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
                 collectedLoadProfileList.add(collectedLoadProfile);
             }
@@ -220,13 +216,13 @@ public class LoadProfileBuilder {
      * @return the merged set of IntervalData
      */
     private List<IntervalData> mergeChannelIntervalData(List<IntervalData> collectedIntervalData, List<IntervalData> channelIntervalData) throws IOException {
-        if (collectedIntervalData.size() == 0) {
+        if (collectedIntervalData.isEmpty()) {
             return channelIntervalData;
         } else if (collectedIntervalData.size() == channelIntervalData.size()) {
             for (int i = 0; i < collectedIntervalData.size(); i++) {
                 IntervalData collectedData = collectedIntervalData.get(i);
                 IntervalData channelData = channelIntervalData.get(i);
-                IntervalValue channelValue = (IntervalValue) channelData.getIntervalValues().get(0);
+                IntervalValue channelValue = channelData.getIntervalValues().get(0);
                 collectedData.addValue(channelValue.getNumber(), channelValue.getProtocolStatus(), channelValue.getEiStatus());
             }
             return collectedIntervalData;

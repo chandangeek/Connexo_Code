@@ -2,11 +2,15 @@ package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -32,7 +36,6 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -55,12 +58,8 @@ import java.util.Set;
 public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Inject
-    public WebRTUKP(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService) {
-        super(propertySpecService, socketService, serialComponentService);
-    }
-
-    public WebRTUKP() {
-        super();
+    public WebRTUKP(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService);
     }
 
     @Override

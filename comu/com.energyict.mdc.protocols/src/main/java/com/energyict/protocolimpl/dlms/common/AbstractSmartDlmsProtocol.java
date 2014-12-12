@@ -39,6 +39,10 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
         this.ormClient = ormClient;
     }
 
+    protected OrmClient getOrmClient() {
+        return ormClient;
+    }
+
     /**
      * <p></p>
      *

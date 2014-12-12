@@ -34,7 +34,7 @@ public class XemexMessageExecutor extends Dsmr40MessageExecutor {
     @Override
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
-            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol, this.getTopologyService());
+            Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol);
             return mbusMessageExecutor.executeMessageEntry(msgEntry);
         } else {
             MessageResult msgResult = null;

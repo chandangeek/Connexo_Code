@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
@@ -27,8 +28,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
@@ -56,10 +55,16 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
     private final TopologyService topologyService;
+    private final MdcReadingTypeUtilService readingTypeUtilService;
 
-    protected AbstractSmartNtaProtocol(TopologyService topologyService, OrmClient ormClient) {
+    protected AbstractSmartNtaProtocol(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
         super(ormClient);
         this.topologyService = topologyService;
+        this.readingTypeUtilService = readingTypeUtilService;
+    }
+
+    protected MdcReadingTypeUtilService getReadingTypeUtilService() {
+        return readingTypeUtilService;
     }
 
     public abstract MessageProtocol getMessageProtocol();
@@ -343,7 +348,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
 
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.readingTypeUtilService);
         }
         return loadProfileBuilder;
     }

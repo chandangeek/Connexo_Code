@@ -1,7 +1,12 @@
 package com.energyict.protocolimplv2.eict.gatewayz3;
 
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -17,12 +22,9 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.common.AbstractDlmsProtocol;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -38,8 +40,8 @@ import java.util.Set;
 public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Inject
-    public GateWayZ3(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public GateWayZ3(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService);
     }
 
     @Override

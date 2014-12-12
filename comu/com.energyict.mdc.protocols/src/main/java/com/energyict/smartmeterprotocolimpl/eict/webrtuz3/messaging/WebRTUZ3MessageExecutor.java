@@ -80,7 +80,7 @@ import java.util.logging.Logger;
 public class WebRTUZ3MessageExecutor extends MessageParser {
 
     private static final ObisCode RF_FIRMWARE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
-    private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
+    private static final byte[] DEFAULT_MONITORED_ATTRIBUTE = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
     private final WebRTUZ3 protocol;
 
     public WebRTUZ3MessageExecutor(final WebRTUZ3 protocol) {
@@ -155,7 +155,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         String str = "Not a valid entry for the current meter message (" + content + ").";
                         throw new IOException(str);
                     }
-                    UserFile uf = getUserFile(userFileID);
+                    UserFile uf = getUserFile();
                     if (!(uf instanceof UserFile)) {
                         String str = "Not a valid entry for the userfileID " + userFileID;
                         throw new IOException(str);
@@ -164,7 +164,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     byte[] imageData = uf.loadFileInByteArray();
                     ImageTransfer it = getCosemObjectFactory().getImageTransfer();
                     it.upgrade(imageData);
-                    if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
+                    if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
                         it.imageActivation();
 
                         //Below is a solution for not immediately activating the image so the current connection isn't lost
@@ -176,7 +176,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 //
 //					sas.writeExecutionTime(dateArray);
 
-                    } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
+                    } else if (!"".equalsIgnoreCase(messageHandler.getActivationDate())) {
                         SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
                         String strDate = messageHandler.getActivationDate();
                         Array dateArray = convertUnixToDateTimeArray(strDate);
@@ -195,7 +195,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         String str = "Not a valid entry for the current meter message (" + content + ").";
                         throw new IOException(str);
                     }
-                    UserFile uf = getUserFile(userFileID);
+                    UserFile uf = getUserFile();
                     if (!(uf instanceof UserFile)) {
                         String str = "Not a valid entry for the userfileID " + userFileID;
                         throw new IOException(str);
@@ -205,7 +205,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     ImageTransfer it = getCosemObjectFactory().getImageTransfer(RF_FIRMWARE_OBISCODE);
                     it.upgrade(imageData);
 
-                    if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
+                    if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
 
                         it.imageActivation();
 
@@ -218,7 +218,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 //
 //					sas.writeExecutionTime(dateArray);
 
-                    } else if (!messageHandler.getActivationDate().equalsIgnoreCase("")) {
+                    } else if (!"".equalsIgnoreCase(messageHandler.getActivationDate())) {
                         SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
                         String strDate = messageHandler.getActivationDate();
                         Array dateArray = convertUnixToDateTimeArray(strDate);
@@ -250,7 +250,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     log(Level.INFO, "Handling message: Connect");
 
-                    if (!messageHandler.getConnectDate().equals("")) {    // use the disconnectControlScheduler
+                    if (!"".equals(messageHandler.getConnectDate())) {    // use the disconnectControlScheduler
                         Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
                         SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getDisconnectControlScheduleObis(messageHandler.getOutputId()));
 
@@ -273,7 +273,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     log(Level.INFO, "Handling message: Disconnect");
 
-                    if (!messageHandler.getDisconnectDate().equals("")) { // use the disconnectControlScheduler
+                    if (!"".equals(messageHandler.getDisconnectDate())) { // use the disconnectControlScheduler
 
                         Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
                         SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getDisconnectControlScheduleObis(messageHandler.getOutputId()));
@@ -336,7 +336,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         clearLLimiter.writeEmergencyProfile(clearLLimiter.new EmergencyProfile(emptyStruct.getBEREncodedByteArray(), 0, 0));
                     } catch (IOException e) {
                         e.printStackTrace();
-                        if (e.getMessage().indexOf("Could not write the emergencyProfile structure.Cosem Data-Access-Result exception Type unmatched") != -1) { // do it oure way
+                        if (e.getMessage().contains("Could not write the emergencyProfile structure.Cosem Data-Access-Result exception Type unmatched")) { // do it oure way
                             emptyStruct = new Structure();
                             emptyStruct.addDataType(new NullData());
                             emptyStruct.addDataType(new NullData());
@@ -441,7 +441,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
                     try {
-                        Lookup lut = getLookup(messageHandler);
+                        Lookup lut = getLookup();
                         if (lut == null) {
                             throw new IOException("No lookuptable defined with id '" + messageHandler.getEpGroupIdListLookupTableId() + "'");
                         } else {
@@ -469,7 +469,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     String codeTable = messageHandler.getTOUCodeTable();
                     String userFile = messageHandler.getTOUUserFile();
 
-                    boolean activateNow = (activateDate != null) && (activateDate.equalsIgnoreCase("0"));
+                    boolean activateNow = (activateDate != null) && ("0".equalsIgnoreCase(activateDate));
 
                     if ((codeTable == null) && (userFile == null)) {
                         throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
@@ -479,7 +479,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     if (codeTable != null) {
 
-                        Code ct = getCodeTable(codeTable);
+                        Code ct = getCodeTable();
                         if (ct == null) {
                             throw new IOException("No CodeTable defined with id '" + codeTable + "'");
                         } else {
@@ -526,7 +526,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         throw new IOException("CodeTable-ID can not be empty.");
                     } else {
 
-                        Code ct = getCodeTable(codeTable);
+                        Code ct = getCodeTable();
                         if (ct == null) {
                             throw new IOException("No CodeTable defined with id '" + codeTable + "'");
                         } else {
@@ -591,7 +591,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                         int entries = messageHandler.getMEEntries();
                         String type = messageHandler.getMEInterval();
                         Long millis = Long.parseLong(messageHandler.getMEStartDate()) * 1000;
-                        Date startTime = new Date(Long.parseLong(messageHandler.getMEStartDate()) * 1000);
+                        Date startTime = new Date(millis);
                         startTime = getFirstDate(startTime, type);
                         while (entries > 0) {
                             log(Level.INFO, "Setting meterTime to: " + startTime);
@@ -637,15 +637,15 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     int failures = 0;
                     String userFileId = messageHandler.getTestUserFileId();
                     Date currentTime;
-                    if (!userFileId.equalsIgnoreCase("")) {
+                    if (!"".equalsIgnoreCase(userFileId)) {
                         if (ParseUtils.isInteger(userFileId)) {
-                            UserFile uf = getUserFile(userFileId);
+                            UserFile uf = getUserFile();
                             if (uf != null) {
                                 byte[] data = uf.loadFileInByteArray();
                                 CSVParser csvParser = new CSVParser();
                                 csvParser.parse(data);
                                 boolean hasWritten;
-                                TestObject to = new TestObject("");
+                                TestObject to;
                                 for (int i = 0; i < csvParser.size(); i++) {
                                     to = csvParser.getTestObject(i);
                                     if (csvParser.isValidLine(to)) {
@@ -668,7 +668,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                                                 break;
                                                 case 2: { // ACTION
                                                     GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-                                                    if (to.getData().equalsIgnoreCase("")) {
+                                                    if ("".equalsIgnoreCase(to.getData())) {
                                                         gi.invoke();
                                                     } else {
                                                         gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
@@ -720,14 +720,14 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                             if (!hasWritten) {
-                                                if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
+                                                if ((to.getExpected() != null) && (e.getMessage().contains(to.getExpected()))) {
                                                     to.setResult(e.getMessage());
                                                     getLogger().log(Level.INFO, "Test " + i + " has successfully finished.");
                                                     hasWritten = true;
                                                 } else {
                                                     getLogger().log(Level.INFO, "Test " + i + " has failed.");
                                                     String eMessage;
-                                                    if (e.getMessage().indexOf("\r\n") != -1) {
+                                                    if (e.getMessage().contains("\r\n")) {
                                                         eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
                                                     } else {
                                                         eMessage = e.getMessage();
@@ -752,7 +752,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                                 } else {
                                     csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
                                 }
-                                createUserFile(uf, csvParser);
+                                createUserFile();
                             } else {
                                 throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
                             }
@@ -852,24 +852,20 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
         }
     }
 
-    private void createUserFile(UserFile uf, CSVParser csvParser) throws IOException {
+    private void createUserFile() throws UnsupportedException {
         throw new UnsupportedException("Creating userfiles is not supported yet");
-//        mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getRtuFromDatabaseBySerialNumber().getFolderId()));
     }
 
-    private Code getCodeTable(String codeTable) throws UnsupportedException {
+    private Code getCodeTable() throws UnsupportedException {
         throw new UnsupportedException("CodeTables are not supported yet");
-//        return mw().getCodeFactory().find(Integer.parseInt(codeTable));
     }
 
-    private Lookup getLookup(MessageHandler messageHandler) throws UnsupportedException {
+    private Lookup getLookup() throws UnsupportedException {
         throw new UnsupportedException("LookupTables are not supported yet");
-//        return mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
     }
 
-    private UserFile getUserFile(String userFileID) throws UnsupportedException {
+    private UserFile getUserFile() throws UnsupportedException {
         throw new UnsupportedException("Userfiles are not supported yet.");
-//        return mw().getUserFileFactory().find(Integer.parseInt(userFileID));
     }
 
     private boolean isEmeterMessage(final String serialNumber) {
@@ -921,7 +917,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
     private int validateAndGetOutputId(String outputId) throws IOException {
         try {
             int id;
-            if ((outputId != null) && (!outputId.trim().equals(""))) {
+            if ((outputId != null) && (!"".equals(outputId.trim()))) {
                 id = Integer.valueOf(outputId);
             } else {
                 id = 0;
@@ -938,7 +934,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
     private void setMonitoredValue(Limiter loadLimiter) throws IOException {
         Limiter.ValueDefinitionType vdt = loadLimiter.new ValueDefinitionType();
         vdt.addDataType(new Unsigned16(3));
-        OctetString os = OctetString.fromByteArray(defaultMonitoredAttribute);
+        OctetString os = OctetString.fromByteArray(DEFAULT_MONITORED_ATTRIBUTE);
         vdt.addDataType(os);
         vdt.addDataType(new Integer8(2));
         loadLimiter.writeMonitoredValue(vdt);
@@ -982,7 +978,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     return new NullData();
                 }
                 case BOOLEAN: {
-                    return new BooleanObject(value.equalsIgnoreCase("1"));
+                    return new BooleanObject("1".equalsIgnoreCase(value));
                 }
                 case BIT_STRING: {
                     return new BitString(Integer.parseInt(value));
@@ -1034,7 +1030,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
         Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal1.setTime(startTime);
         cal1.getTime();
-        if (type.equalsIgnoreCase("15")) {
+        if ("15".equalsIgnoreCase(type)) {
             if (cal1.get(Calendar.MINUTE) < 15) {
                 cal1.set(Calendar.MINUTE, 14);
                 cal1.set(Calendar.SECOND, 40);
@@ -1049,12 +1045,12 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                 cal1.set(Calendar.SECOND, 40);
             }
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("day")) {
+        } else if ("day".equalsIgnoreCase(type)) {
             cal1.set(Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime()) / 3600000)));
             cal1.set(Calendar.MINUTE, 59);
             cal1.set(Calendar.SECOND, 40);
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("month")) {
+        } else if ("month".equalsIgnoreCase(type)) {
             cal1.set(Calendar.DATE, cal1.getActualMaximum(Calendar.DAY_OF_MONTH));
             cal1.set(Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime()) / 3600000)));
             cal1.set(Calendar.MINUTE, 59);
@@ -1085,17 +1081,17 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
     private Date setBeforeNextInterval(Date startTime, String type, TimeZone timeZone) throws IOException {
         Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal1.setTime(startTime);
-        int zoneOffset = 0;
-        if (type.equalsIgnoreCase("15")) {
+        int zoneOffset;
+        if ("15".equalsIgnoreCase(type)) {
             cal1.add(Calendar.MINUTE, 15);
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("day")) {
+        } else if ("day".equalsIgnoreCase(type)) {
             zoneOffset = timeZone.getOffset(cal1.getTimeInMillis()) / 3600000;
             cal1.add(Calendar.DAY_OF_MONTH, 1);
             zoneOffset = zoneOffset - (timeZone.getOffset(cal1.getTimeInMillis()) / 3600000);
             cal1.add(Calendar.HOUR_OF_DAY, zoneOffset);
             return cal1.getTime();
-        } else if (type.equalsIgnoreCase("month")) {
+        } else if ("month".equalsIgnoreCase(type)) {
             zoneOffset = timeZone.getOffset(cal1.getTimeInMillis()) / 3600000;
             cal1.add(Calendar.MONTH, 1);
             cal1.set(Calendar.DATE, cal1.getActualMaximum(Calendar.DAY_OF_MONTH));

@@ -142,7 +142,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
-                    newPropertySpecBuilder(new EncryptedStringFactory()).
+                    newPropertySpecBuilder(EncryptedStringFactory.class).
                     name(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString()).finish();
         }
     },
@@ -154,7 +154,7 @@ public enum DeviceSecurityProperty {
         @Override
         protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.
-                    newPropertySpecBuilder(new EncryptedStringFactory()).
+                    newPropertySpecBuilder(EncryptedStringFactory.class).
                     name(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString()).finish();
         }
     }

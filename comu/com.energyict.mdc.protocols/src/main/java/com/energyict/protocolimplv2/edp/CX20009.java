@@ -1,12 +1,13 @@
 package com.energyict.protocolimplv2.edp;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -18,12 +19,14 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimplv2.edp.logbooks.LogbookReader;
 import com.energyict.protocolimplv2.edp.messages.EDPMessageExecutor;
 import com.energyict.protocolimplv2.edp.messages.EDPMessaging;
@@ -35,7 +38,6 @@ import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionTy
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
 import com.energyict.protocols.mdc.protocoltasks.EDPSerialDeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -51,18 +53,13 @@ import java.util.Set;
  */
 public class CX20009 extends AbstractDlmsProtocol {
 
-
     private LogbookReader logbookReader = null;
     private RegisterReader registerReader;
     private EDPMessaging edpMessaging;
 
     @Inject
-    public CX20009(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService) {
-        super(propertySpecService, socketService, serialComponentService);
-    }
-
-    public CX20009() {
-        super();
+    public CX20009(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService);
     }
 
     @Override
@@ -201,21 +198,21 @@ public class CX20009 extends AbstractDlmsProtocol {
 
     private LogbookReader getLogbookReader() {
         if (logbookReader == null) {
-            logbookReader = new LogbookReader(this);
+            logbookReader = new LogbookReader(this, this.getIssueService());
         }
         return logbookReader;
     }
 
     private EDPMessaging getMessaging() {
         if (edpMessaging == null) {
-            edpMessaging = new EDPMessaging(new EDPMessageExecutor(this));
+            edpMessaging = new EDPMessaging(new EDPMessageExecutor(this, this.getIssueService(), this.getReadingTypeUtilService()));
         }
         return edpMessaging;
     }
 
     public RegisterReader getRegisterReader() {
         if (registerReader == null) {
-            registerReader = new RegisterReader(this);
+            registerReader = new RegisterReader(this, this.getIssueService());
         }
         return registerReader;
     }

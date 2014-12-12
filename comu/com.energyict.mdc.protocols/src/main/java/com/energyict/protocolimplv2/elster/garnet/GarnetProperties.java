@@ -35,15 +35,16 @@ public class GarnetProperties implements HasDynamicProperties {
     public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(0, TimeDuration.TimeUnit.MILLISECONDS);
     public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
 
-    private final List<PropertySpec> propertySpecs = Arrays.asList(
-            PropertySpecService.INSTANCE.get().bigDecimalPropertySpecWithValues(DEVICE_ID, true, DEFAULT_DEVICE_ID),
-            PropertySpecService.INSTANCE.get().referencePropertySpec(TIMEOUT, false, FactoryIds.TIMEZONE_IN_USE));
-
+    private final PropertySpecService propertySpecService;
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
 
     private byte[] manufacturerKey;
     private byte[] customerKey;
+
+    public GarnetProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     /**
      * The security set of a device. It contains all properties related to security.
@@ -171,11 +172,18 @@ public class GarnetProperties implements HasDynamicProperties {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return propertySpecs;
+        return Arrays.asList(
+                this.propertySpecService.bigDecimalPropertySpecWithValues(DEVICE_ID, true, DEFAULT_DEVICE_ID),
+                this.propertySpecService.referencePropertySpec(TIMEOUT, false, FactoryIds.TIMEZONE_IN_USE));
     }
 
     @Override
     public PropertySpec getPropertySpec(String s) {
-        return propertySpecs.stream().filter(propertySpec -> propertySpec.getName().equals(s)).findAny().orElse(null);
+        return this.getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getName().equals(s))
+                .findAny()
+                .orElse(null);
     }
+
 }

@@ -116,9 +116,9 @@ public class AS300MessageExecutor extends MessageParser {
             } else if (isUpdatePricingInformationMessage(content)) {
                 updatePricingInformation(content);
             } else if (isConnectControlMessage(content)) {
-                doConnect(content);
+                doConnect();
             } else if (isDisconnectControlMessage(content)) {
-                doDisconnect(content);
+                doDisconnect();
             } else if (isSetDisconnectControlMode(content)) {
                 setDisconnectControlMode(content);
             } else if (isTextToEMeterDisplayMessage(content)) {
@@ -149,19 +149,9 @@ public class AS300MessageExecutor extends MessageParser {
                     success = false;
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | BusinessException | SQLException e) {
             logMessage = e.getMessage();
             success = false;
-        } catch (BusinessException e) {
-            logMessage = e.getMessage();
-            success = false;
-        } catch (SQLException e) {
-            logMessage = e.getMessage();
-            success = false;
-        } catch (InterruptedException e) {
-            logMessage = e.getMessage();
-            success = false;
-            Thread.currentThread().interrupt();
         }
 
         if (success) {
@@ -292,7 +282,7 @@ public class AS300MessageExecutor extends MessageParser {
         String activationDateString = getValueFromXMLAttribute(ACTIVATION_DATE, content);
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
-            if (!activationDateString.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -320,7 +310,7 @@ public class AS300MessageExecutor extends MessageParser {
         return content.substring(startIndex + tag.length() + 2, endIndex);
     }
 
-    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
+    private String getValueFromXMLAttribute(String tag, String content) {
         int startIndex = content.indexOf(tag + "=\"");
         int endIndex = content.indexOf("\"", startIndex + tag.length() + 2);
         try {
@@ -340,7 +330,7 @@ public class AS300MessageExecutor extends MessageParser {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date activationDate = null;
         try {
-            if (!activationDateString.equalsIgnoreCase("0") && !activationDateString.equals("")) {
+            if (!"0".equalsIgnoreCase(activationDateString) && !"".equals(activationDateString)) {
                 activationDate = formatter.parse(activationDateString);
             }
         } catch (ParseException e) {
@@ -376,7 +366,7 @@ public class AS300MessageExecutor extends MessageParser {
         }
     }
 
-    private void updateFirmware(MessageHandler messageHandler, String content, String trackingId) throws IOException, InterruptedException {
+    private void updateFirmware(MessageHandler messageHandler, String content, String trackingId) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
@@ -514,13 +504,13 @@ public class AS300MessageExecutor extends MessageParser {
         }
     }
 
-    private void doConnect(final String content) throws IOException {
+    private void doConnect() throws IOException {
         log(Level.INFO, "Received Disconnect Control - Remote Connect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteReconnect();
     }
 
-    private void doDisconnect(final String content) throws IOException {
+    private void doDisconnect() throws IOException {
         log(Level.INFO, "Received Disconnect Control - Disconnect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteDisconnect();

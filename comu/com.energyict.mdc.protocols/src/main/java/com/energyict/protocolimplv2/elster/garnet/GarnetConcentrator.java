@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -32,6 +32,8 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.common.TopologyMaintainer;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
@@ -40,10 +42,10 @@ import com.energyict.protocols.exception.UnsupportedMethodException;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -65,23 +67,19 @@ public class GarnetConcentrator implements DeviceProtocol {
     private LogBookFactory logBookFactory;
     private ConcentratorMessaging messaging;
 
-    private PropertySpecService propertySpecService;
-    private SocketService socketService;
-    private SerialComponentService serialComponentService;
-
-    public GarnetConcentrator() {
-    }
+    private final PropertySpecService propertySpecService;
+    private final SocketService socketService;
+    private final SerialComponentService serialComponentService;
+    private final IssueService issueService;
+    private final Clock clock;
 
     @Inject
-    public GarnetConcentrator(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService) {
+    public GarnetConcentrator(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, Clock clock) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        this.issueService = issueService;
+        this.clock = clock;
     }
 
     @Override
@@ -110,23 +108,14 @@ public class GarnetConcentrator implements DeviceProtocol {
     }
 
     private SerialComponentService getSerialComponentService() {
-        if(this.serialComponentService == null){
-            return Bus.getSerialComponentService();
-        }
         return this.serialComponentService;
     }
 
     private SocketService getSocketService() {
-        if(this.socketService == null){
-            return Bus.getSocketService();
-        }
         return this.socketService;
     }
 
     private PropertySpecService getPropertySpecService() {
-        if(this.propertySpecService == null){
-            return Bus.getPropertySpecService();
-        }
         return this.propertySpecService;
     }
 
@@ -174,7 +163,7 @@ public class GarnetConcentrator implements DeviceProtocol {
         List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             CollectedLoadProfileConfiguration configuration = getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier(), false);
-            configuration.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
+            configuration.setFailureInformation(ResultType.NotSupported, this.issueService.newProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
             collectedLoadProfileConfigurations.add(configuration);
         }
         return collectedLoadProfileConfigurations;
@@ -317,42 +306,42 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     public RequestFactory getRequestFactory() {
         if (requestFactory == null) {
-            this.requestFactory = new RequestFactory();
+            this.requestFactory = new RequestFactory(this.clock, propertySpecService);
         }
         return requestFactory;
     }
 
     public RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
-            this.registerFactory = new RegisterFactory(this);
+            this.registerFactory = new RegisterFactory(this, issueService);
         }
         return registerFactory;
     }
 
     public LogBookFactory getLogBookFactory() {
         if (this.logBookFactory == null) {
-            this.logBookFactory = new LogBookFactory(this);
+            this.logBookFactory = new LogBookFactory(this, issueService);
         }
         return logBookFactory;
     }
 
     public ConcentratorMessaging getMessaging() {
         if (this.messaging == null) {
-            this.messaging = new ConcentratorMessaging(this);
+            this.messaging = new ConcentratorMessaging(this, issueService);
         }
         return messaging;
     }
 
     public SecuritySupport getSecuritySupport() {
         if (securitySupport == null) {
-            this.securitySupport = new SecuritySupport();
+            this.securitySupport = new SecuritySupport(propertySpecService);
         }
         return securitySupport;
     }
 
     public TopologyMaintainer getTopologyMaintainer() {
         if (topologyMaintainer == null) {
-            this.topologyMaintainer = new TopologyMaintainer(this);
+            this.topologyMaintainer = new TopologyMaintainer(this, issueService);
         }
         return topologyMaintainer;
     }

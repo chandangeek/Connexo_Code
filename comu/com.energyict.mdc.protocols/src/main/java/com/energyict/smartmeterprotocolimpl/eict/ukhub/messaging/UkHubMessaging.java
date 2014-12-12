@@ -35,7 +35,7 @@ public class UkHubMessaging extends GenericMessaging implements MessageProtocol 
      */
     @Override
     public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> categories = new ArrayList<>();
         categories.add(ProtocolMessageCategories.getHanManagementCategory());
         categories.add(getTestCategory());
         categories.add(getXmlConfigCategory());
@@ -89,4 +89,5 @@ public class UkHubMessaging extends GenericMessaging implements MessageProtocol 
     public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
         return this.messageExecutor.executeMessageEntry(messageEntry);
     }
+
 }

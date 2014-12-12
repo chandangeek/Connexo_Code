@@ -27,12 +27,6 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
         super(propertySpecService);
     }
 
-    private final PropertySpecService propertySpecService;
-
-    public ACE4000DeviceProtocolDialect(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.ACE4000_DEVICE_PROTOCOL_DIALECT_NAME.getName();
@@ -44,11 +38,11 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec retriesPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     @Override

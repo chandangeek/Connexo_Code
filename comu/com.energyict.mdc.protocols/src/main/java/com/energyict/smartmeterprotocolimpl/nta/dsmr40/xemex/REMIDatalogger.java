@@ -2,13 +2,14 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
+
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.eventhandling.XemexEventProfile;
@@ -29,8 +30,8 @@ public class REMIDatalogger extends E350 {
     private XemexLoadProfileBuilder loadProfileBuilder;
 
     @Inject
-    public REMIDatalogger(TopologyService topologyService, OrmClient ormClient) {
-        super(topologyService, ormClient);
+    public REMIDatalogger(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(topologyService, ormClient, readingTypeUtilService);
     }
 
     @Override
@@ -44,7 +45,7 @@ public class REMIDatalogger extends E350 {
     @Override
     public XemexLoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new XemexLoadProfileBuilder(this);
+            this.loadProfileBuilder = new XemexLoadProfileBuilder(this, this.getReadingTypeUtilService());
         }
         return loadProfileBuilder;
     }

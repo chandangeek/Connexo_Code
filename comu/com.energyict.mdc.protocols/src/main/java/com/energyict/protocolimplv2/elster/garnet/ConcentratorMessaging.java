@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -10,9 +10,10 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.elster.garnet.common.InstallationConfig;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
@@ -23,8 +24,6 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNum
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.ContactorStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterInstallationStatusBitMaskField;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -37,10 +36,12 @@ import java.util.Set;
 public class ConcentratorMessaging implements DeviceMessageSupport {
 
     private final GarnetConcentrator deviceProtocol;
+    private final IssueService issueService;
     private ErrorCode errorCode;
 
-    public ConcentratorMessaging(GarnetConcentrator deviceProtocol) {
+    public ConcentratorMessaging(GarnetConcentrator deviceProtocol, IssueService issueService) {
         this.deviceProtocol = deviceProtocol;
+        this.issueService = issueService;
     }
 
     @Override
@@ -128,14 +129,14 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
             }
         } catch (NotExecutedException e) {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
-                collectedMessage.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newProblem(pendingMessage, "operationNotSupported"));
+                collectedMessage.setFailureInformation(ResultType.NotSupported, this.issueService.newProblem(pendingMessage, "operationNotSupported"));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
-                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, Bus.getIssueService().newProblem(pendingMessage, "topologyMismatch", deviceProtocol.getSerialNumber()));
+                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, this.issueService.newProblem(pendingMessage, "topologyMismatch", deviceProtocol.getSerialNumber()));
             } else {
-                collectedMessage.setFailureInformation(ResultType.InCompatible, Bus.getIssueService().newProblem(pendingMessage, "CouldNotParseMessageData"));
+                collectedMessage.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(pendingMessage, "CouldNotParseMessageData"));
             }
         } catch (GarnetException e) {
-            collectedMessage.setFailureInformation(ResultType.InCompatible, Bus.getIssueService().newProblem(pendingMessage, "CouldNotParseMessageData"));
+            collectedMessage.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(pendingMessage, "CouldNotParseMessageData"));
         }
         return collectedMessage;
     }
@@ -148,7 +149,7 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
         ContactorStatus.ContactorState statusPhase2 = isReconnect ? ContactorStatus.ReconnectStatus.fromContactorCode(feedbackCode >> 2 & 0x03) : ContactorStatus.DisconnectStatus.fromContactorCode(feedbackCode >> 2 & 0x03);
         ContactorStatus.ContactorState statusPhase3 = isReconnect ? ContactorStatus.ReconnectStatus.fromContactorCode(feedbackCode >> 4 & 0x03) : ContactorStatus.DisconnectStatus.fromContactorCode(feedbackCode >> 2 & 0x03);
 
-        builder.append("Phase 1: " + statusPhase1.getContactorInfo());
+        builder.append("Phase 1: ").append(statusPhase1.getContactorInfo());
         builder.append(nrOfPhases > 1 ? ", Phase 2: " + statusPhase2.getContactorInfo() : "");
         builder.append(nrOfPhases > 2 ? ", Phase 3: " + statusPhase3.getContactorInfo() : "");
 
@@ -194,18 +195,14 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
-        return Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.notSupported",
+        return this.issueService.newWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
     }
 
-    protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
-        return createMessageFailedIssue(pendingMessage, e.getMessage());
-    }
-
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueService.newWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),

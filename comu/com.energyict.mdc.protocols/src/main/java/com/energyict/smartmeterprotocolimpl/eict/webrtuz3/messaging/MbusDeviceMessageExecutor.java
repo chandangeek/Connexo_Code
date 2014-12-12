@@ -1,15 +1,22 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.protocolimpl.generic.MessageParser;
-import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter;
@@ -62,7 +69,7 @@ public class MbusDeviceMessageExecutor extends MessageParser {
 
                 getLogger().log(Level.INFO, "Handling MbusMessage: Connect");
 
-                if (!messageHandler.getConnectDate().equals("") && !messageHandler.getConnectDate().equals("0")) {    // use the disconnectControlScheduler
+                if (!"".equals(messageHandler.getConnectDate()) && !"0".equals(messageHandler.getConnectDate())) {    // use the disconnectControlScheduler
 
                     Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getConnectDate());
                     SingleActionSchedule sasConnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS));
@@ -85,7 +92,7 @@ public class MbusDeviceMessageExecutor extends MessageParser {
 
                 getLogger().log(Level.INFO, "Handling MbusMessage: Disconnect");
 
-                if (!messageHandler.getDisconnectDate().equals("") && !messageHandler.getDisconnectDate().equals("0")) {    // use the disconnectControlScheduler
+                if (!"".equals(messageHandler.getDisconnectDate()) && !"0".equals(messageHandler.getDisconnectDate())) {    // use the disconnectControlScheduler
 
                     Array executionTimeArray = convertUnixToDateTimeArray(messageHandler.getDisconnectDate());
                     SingleActionSchedule sasDisconnect = getCosemObjectFactory().getSingleActionSchedule(getCorrectedObisCode(MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS));
@@ -237,15 +244,6 @@ public class MbusDeviceMessageExecutor extends MessageParser {
         return this.mbusMeter.getCosemObjectFactory();
     }
 
-    private DLMSMeterConfig getMeterConfig() {
-        return this.mbusMeter.getMeterConfig();
-    }
-
-    /**
-     * Getter for the logger
-     *
-     * @return
-     */
     private Logger getLogger() {
         return this.mbusMeter.getLogger();
     }

@@ -1,8 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -26,8 +28,8 @@ public class WriteMeterMasterDataMessage extends AbstractMTU155Message {
     private static final int SERIAL_MAX_LENGTH = 13;
     private static final int MAX_CALIBER = 999999;
 
-    public WriteMeterMasterDataMessage(Messaging messaging) {
-        super(messaging);
+    public WriteMeterMasterDataMessage(Messaging messaging, IssueService issueService) {
+        super(messaging, issueService);
     }
 
     @Override
@@ -90,4 +92,5 @@ public class WriteMeterMasterDataMessage extends AbstractMTU155Message {
         AbstractCTRObject object = objectFactory.parse(rawData, 0, AttributeType.getValueAndObjectId());
         getFactory().writeRegister(object);
     }
+
 }

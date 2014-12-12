@@ -26,7 +26,7 @@ public class ConfirmSuccessfulLogReceive extends Data<ConfirmSuccessfulLogReceiv
     public ConfirmSuccessfulLogReceive(RequestFactory requestFactory) {
         super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
-        this.dateTime = new DateTime(requestFactory.getTimeZone());
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone());
         this.logBookEventNr = new LogBookEventNr();
         this.paddingData = new PaddingData(PADDING_DATA_LENGTH);
     }
@@ -34,7 +34,7 @@ public class ConfirmSuccessfulLogReceive extends Data<ConfirmSuccessfulLogReceiv
     public ConfirmSuccessfulLogReceive(RequestFactory requestFactory, int logBookNr) {
         super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
-        this.dateTime = new DateTime(requestFactory.getTimeZone());
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone());
         this.logBookEventNr = new LogBookEventNr(logBookNr);
         this.paddingData = new PaddingData(PADDING_DATA_LENGTH);
     }

@@ -6,12 +6,10 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.Register;
@@ -20,6 +18,7 @@ import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.inbound.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -184,7 +183,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     private void checkRtuRegistersForLoadProfile() throws BusinessException {
         Device device = this.loadProfile.getDevice();
 
-        List<Register> allRegisters = device.getRegisters();
+        List<com.energyict.mdc.device.data.Register> allRegisters = device.getRegisters();
         allRegisters.addAll(
                 this.topologyService
                     .findPhysicalConnectedDevices(device)
@@ -194,7 +193,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
 
         for (Channel channel : this.topologyService.getAllChannels(this.loadProfile)) {
             boolean contains = false;
-            for (Register register : allRegisters) {
+            for (com.energyict.mdc.device.data.Register register : allRegisters) {
                 contains |= register.getRegisterTypeObisCode().equals(channel.getRegisterTypeObisCode());
             }
             if (!contains) {
@@ -355,7 +354,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     }
 
 
-    public int getRegisterSpecIdForRegister(com.energyict.mdc.protocol.api.device.data.Register register) {
+    public long getRegisterSpecIdForRegister(com.energyict.mdc.protocol.api.device.data.Register register) {
         Device device = null;
         for (Channel channel : this.topologyService.getAllChannels(this.getLoadProfile())) {
             if (channel.getDevice().getSerialNumber().equals(register.getSerialNumber())) {
@@ -364,7 +363,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             }
         }
         if (device != null) {
-            for (BaseRegister rtuRegister : device.getRegisters()) {
+            for (com.energyict.mdc.device.data.Register rtuRegister : device.getRegisters()) {
                 if (rtuRegister.getRegisterSpecObisCode().equalsIgnoreBChannel(register.getObisCode())) {
                     return rtuRegister.getRegisterSpecId();
                 }

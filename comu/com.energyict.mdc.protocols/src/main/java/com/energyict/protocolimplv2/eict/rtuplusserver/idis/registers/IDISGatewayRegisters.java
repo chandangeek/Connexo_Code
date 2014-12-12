@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers;
 
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
@@ -29,10 +31,12 @@ public class IDISGatewayRegisters {
     public static final ObisCode SERIAL_NUMBER_OBIS = ObisCode.fromString("0.0.96.1.0.255");
 
     private final DlmsSession session;
+    private final IssueService issueService;
     private final RegisterMapping[] registerMappings;
 
-    public IDISGatewayRegisters(DlmsSession session) {
+    public IDISGatewayRegisters(DlmsSession session, IssueService issueService) {
         this.session = session;
+        this.issueService = issueService;
 
         this.registerMappings = new RegisterMapping[]{
                 new GprsModemSetupMapping(session.getLogger(), session.getCosemObjectFactory()),
@@ -76,9 +80,9 @@ public class IDISGatewayRegisters {
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
         CollectedRegister collectedRegister = com.energyict.mdc.protocol.api.CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register), register.getReadingType());
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
     }

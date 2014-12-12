@@ -71,8 +71,8 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
     public static final ObisCode MbusDisconnectOutputState = ObisCode.fromString("0.x.24.4.130.255");
 
     protected final AbstractSmartNtaProtocol protocol;
-    private Map<Register, ComposedRegister> composedRegisterMap = new HashMap<Register, ComposedRegister>();
-    protected Map<Register, DLMSAttribute> registerMap = new HashMap<Register, DLMSAttribute>();
+    private Map<Register, ComposedRegister> composedRegisterMap = new HashMap<>();
+    protected Map<Register, DLMSAttribute> registerMap = new HashMap<>();
 
     public Dsmr23RegisterFactory(final AbstractSmartNtaProtocol protocol) {
         this.protocol = protocol;
@@ -101,7 +101,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
      */
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
         registers = filterOutAllInvalidRegisters(registers);
-        List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
+        List<RegisterValue> registerValues = new ArrayList<>();
         ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(registers, this.protocol.supportsBulkRequests());
         for (Register register : registers) {
             RegisterValue rv = null;
@@ -155,7 +155,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
      * @return  the validated list containing all valid registers
      */
     protected List<Register> filterOutAllInvalidRegisters(List<Register> registers) {
-        List<Register> validRegisters = new ArrayList<Register>();
+        List<Register> validRegisters = new ArrayList<>();
 
         for (Register register : registers) {
             if (this.protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) != -1) {
@@ -182,7 +182,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
     protected ComposedCosemObject constructComposedObjectFromRegisterList(List<Register> registers, boolean supportsBulkRequest) {
 
         if (registers != null) {
-            List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+            List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (Register register : registers) {
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
 
@@ -347,7 +347,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
         long mask = 134217728;
         for (int i = 0; i < 4; i++) {
             if ((value & mask) == mask) {
-                strBuilder.append("Decryption error on Mbus " + (i + 1) + "\r\n");
+                strBuilder.append("Decryption error on Mbus ").append(i + 1).append("\r\n");
             }
             mask = mask << 1;
         }

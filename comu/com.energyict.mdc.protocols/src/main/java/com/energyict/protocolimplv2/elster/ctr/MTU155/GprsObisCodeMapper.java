@@ -1,10 +1,13 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRConnectionException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
@@ -21,7 +24,8 @@ import java.util.logging.Level;
  */
 public class GprsObisCodeMapper extends ObisCodeMapper {
 
-    public GprsObisCodeMapper(MTU155 protocol) {
+    public GprsObisCodeMapper(MTU155 protocol, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService) {
+        super(readingTypeUtilService, issueService);
         this.deviceIdentifier = protocol.getDeviceIdentifier();
         this.requestFactory = protocol.getRequestFactory();
         this.isEK155Protocol = false;
@@ -31,8 +35,8 @@ public class GprsObisCodeMapper extends ObisCodeMapper {
     /**
      * Read the registers from the device.
      *
-     * @param rtuRegisters: the list of {@link com.energyict.mdw.offline.OfflineRegister}s to read
-     * @return: a list containing all {@link com.energyict.mdc.meterdata.CollectedRegister}s
+     * @param rtuRegisters: the list of {@link OfflineRegister}s to read
+     * @return: a list containing all {@link CollectedRegister}s
      */
     public List<CollectedRegister> readRegisters(List<OfflineRegister> rtuRegisters) {
         List<CollectedRegister> collectedRegisters = new ArrayList<>(rtuRegisters.size());

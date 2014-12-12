@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.M
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterRelayStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterSensorStatus;
 
+import java.time.Clock;
 import java.util.TimeZone;
 
 /**
@@ -33,10 +34,10 @@ public class ConcentratorStatusResponseStructure extends Data<ConcentratorStatus
 
     private final TimeZone timeZone;
 
-    public ConcentratorStatusResponseStructure(TimeZone timeZone) {
+    public ConcentratorStatusResponseStructure(Clock clock, TimeZone timeZone) {
         super(FUNCTION_CODE);
         this.timeZone = timeZone;
-        this.dateTime = new DateTime(timeZone);
+        this.dateTime = new DateTime(clock, timeZone);
         this.concentratorConfiguration = new ConcentratorConfiguration();
         this.meterReadingStatusCollection = new BitMapCollection<>(LENGTH_OF_METER_READING_STATUSES, NR_OF_METERS, MeterReadingStatus.class);
         this.meterRelayStatusCollection = new BitMapCollection<>(LENGTH_OF_METER_RELAY_STATUSES, NR_OF_METERS, MeterRelayStatus.class);

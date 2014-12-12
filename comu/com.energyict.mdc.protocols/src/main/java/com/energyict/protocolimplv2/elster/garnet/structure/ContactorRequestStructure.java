@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNum
 import com.energyict.protocolimplv2.elster.garnet.structure.field.PaddingData;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.UserId;
 
+import java.time.Clock;
 import java.util.TimeZone;
 
 /**
@@ -31,10 +32,10 @@ public class ContactorRequestStructure extends Data<ContactorRequestStructure> {
 
    private final TimeZone timeZone;
 
-    public ContactorRequestStructure(TimeZone timeZones) {
+    public ContactorRequestStructure(Clock clock, TimeZone timeZones) {
         super(FUNCTION_CODE);
         this.timeZone = timeZones;
-        this.dateTime = new DateTime(timeZone);
+        this.dateTime = new DateTime(clock, timeZone);
         this.disp = new Part();
         this.userId = new UserId();
         this.serialNumber = new MeterSerialNumber();

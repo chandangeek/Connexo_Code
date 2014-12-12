@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.Message;
@@ -10,7 +11,6 @@ import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
 import com.energyict.protocolimpl.dlms.g3.messaging.messages.PlcOfdmMacSetupMessages;
 import com.energyict.protocolimpl.dlms.g3.messaging.messages.SixLoWPanMessages;
 import com.energyict.protocolimpl.dlms.g3.messaging.messages.WritePlcG3TimeoutMessage;
-import com.energyict.protocolimpl.dlms.g3.messaging.messages.WritePlcPskMessage;
 import com.energyict.protocolimpl.messaging.AnnotatedMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
@@ -69,15 +69,21 @@ public class AM540Messaging extends G3Messaging {
     };
 
     protected final AM540 protocol;
+    private final TopologyService topologyService;
     private Dsmr40Messaging dsmr40Messaging;
 
-    public AM540Messaging(AM540 protocol) {
-        this(protocol, ANNOTATED_MESSAGES);
+    public AM540Messaging(AM540 protocol, TopologyService topologyService) {
+        this(protocol, topologyService, ANNOTATED_MESSAGES);
     }
 
-    public AM540Messaging(AM540 protocol, Class<? extends AnnotatedMessage>[] messages) {
+    public AM540Messaging(AM540 protocol, TopologyService topologyService, Class<? extends AnnotatedMessage>[] messages) {
         super(protocol.getDlmsSession(), messages);
         this.protocol = protocol;
+        this.topologyService = topologyService;
+    }
+
+    protected TopologyService getTopologyService() {
+        return topologyService;
     }
 
     @Override
@@ -91,7 +97,7 @@ public class AM540Messaging extends G3Messaging {
 
     @Override
     public List<MessageCategorySpec> getMessageCategories() {
-        List<MessageCategorySpec> allMessages = new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> allMessages = new ArrayList<>();
 
         //Annotated messages
         allMessages.addAll(super.getAnnotatedMessageCategories());
@@ -150,7 +156,7 @@ public class AM540Messaging extends G3Messaging {
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {
-        return new Dsmr50MessageExecutor(protocol);
+        return new Dsmr50MessageExecutor(protocol, this.topologyService);
     }
 
     @Override

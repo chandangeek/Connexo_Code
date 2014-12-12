@@ -5,6 +5,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -29,8 +30,8 @@ import java.util.logging.Level;
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
     @Inject
-    public Dsmr40Protocol(TopologyService topologyService, OrmClient ormClient) {
-        super(topologyService, ormClient);
+    public Dsmr40Protocol(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
+        super(topologyService, readingTypeUtilService, ormClient);
     }
 
     @Override

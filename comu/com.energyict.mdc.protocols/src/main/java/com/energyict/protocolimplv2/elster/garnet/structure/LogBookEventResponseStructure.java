@@ -24,6 +24,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.logbook.SensorInAlar
 import com.energyict.protocolimplv2.elster.garnet.structure.logbook.SimpleEvent;
 import com.energyict.protocolimplv2.elster.garnet.structure.logbook.SlaveRegistrationEvent;
 
+import java.time.Clock;
 import java.util.TimeZone;
 
 /**
@@ -34,6 +35,8 @@ public class LogBookEventResponseStructure extends Data<LogBookEventResponseStru
 
     public static final FunctionCode FUNCTION_CODE = FunctionCode.LOGBOOK_EVENT_RESPONSE;
     private static final boolean PARSE_AS_BIG_ENDIAN = true;
+
+    private final Clock clock;
 
     private DateTime dateTime;
     private ConcentratorModel model;
@@ -47,16 +50,17 @@ public class LogBookEventResponseStructure extends Data<LogBookEventResponseStru
 
     private final TimeZone timeZone;
 
-    public LogBookEventResponseStructure(TimeZone timeZone) {
+    public LogBookEventResponseStructure(Clock clock, TimeZone timeZone) {
         super(FUNCTION_CODE);
+        this.clock = clock;
         this.timeZone = timeZone;
-        this.dateTime = new DateTime(timeZone);
+        this.dateTime = new DateTime(clock, timeZone);
         this.model = new ConcentratorModel();
         this.userId = new UserId();
         this.logNr = new LogBookEventNr();
         this.totalNrOfLogs = new LogBookEventNr();
         this.sourceOfEvent = new Address(PARSE_AS_BIG_ENDIAN);
-        this.dateTimeOfEvent = new DateTime(timeZone);
+        this.dateTimeOfEvent = new DateTime(clock, timeZone);
         this.eventCode = new LogBookEventCode();
     }
 
@@ -113,7 +117,7 @@ public class LogBookEventResponseStructure extends Data<LogBookEventResponseStru
                 this.eventData = new SlaveRegistrationEvent().parse(rawData, ptr);
                 break;
             case SCHEDULING_CONFIGURATION:
-                this.eventData = new SchedulingConfigurationEvent(getTimeZone()).parse(rawData, ptr);
+                this.eventData = new SchedulingConfigurationEvent(this.clock, getTimeZone()).parse(rawData, ptr);
                 break;
             case CUSTOMER_CONFIGURATION:
                 this.eventData = new CustomerConfigurationEvent().parse(rawData, ptr);

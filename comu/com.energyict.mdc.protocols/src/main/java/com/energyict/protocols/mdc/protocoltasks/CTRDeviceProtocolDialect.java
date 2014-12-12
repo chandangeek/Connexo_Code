@@ -35,12 +35,6 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
         super(propertySpecService);
     }
 
-    private final PropertySpecService propertySpecService;
-
-    public CTRDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.CTR_DEVICE_PROTOCOL_DIALECT_NAME.getName();
@@ -52,31 +46,31 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(TIMEOUT_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec retriesPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(RETRIES_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec delayAfterErrorPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec forcedDelayPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(FORCED_DELAY_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(FORCED_DELAY_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec addressPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(ADDRESS_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(ADDRESS_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     private PropertySpec sendEndOfSessionPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(SEND_END_OF_SESSION_PROPERTY_NAME, false, new BooleanFactory());
+        return this.getPropertySpecService().basicPropertySpec(SEND_END_OF_SESSION_PROPERTY_NAME, false, new BooleanFactory());
     }
 
     private PropertySpec maxAllowedInvalidProfileResponsesPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME, false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME, false, new BigDecimalFactory());
     }
 
     @Override

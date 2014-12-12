@@ -14,6 +14,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.logbook.LogBookEvent
 import com.energyict.protocolimplv2.elster.garnet.structure.logbook.SimpleEvent;
 import com.energyict.protocolimplv2.elster.garnet.structure.logbook.SlaveRegistrationEvent;
 
+import java.time.Clock;
 import java.util.TimeZone;
 
 /**
@@ -24,6 +25,7 @@ public class PoolingResponseWithLogsStructure extends Data<PoolingResponseWithLo
 
     public static final FunctionCode FUNCTION_CODE = FunctionCode.POOLING_RESPONSE_WITH_LOGS;
 
+    private final Clock clock;
     private DateTime dateTime;
     private ConcentratorModel model;
     private UserId userId;
@@ -36,16 +38,17 @@ public class PoolingResponseWithLogsStructure extends Data<PoolingResponseWithLo
 
     private final TimeZone timeZone;
 
-    public PoolingResponseWithLogsStructure(TimeZone timeZone) {
+    public PoolingResponseWithLogsStructure(Clock clock, TimeZone timeZone) {
         super(FUNCTION_CODE);
+        this.clock = clock;
         this.timeZone = timeZone;
-        this.dateTime = new DateTime(timeZone);
+        this.dateTime = new DateTime(clock, timeZone);
         this.model = new ConcentratorModel();
         this.userId = new UserId();
         this.logNr = new LogBookEventNr();
         this.totalNrOfLogs = new LogBookEventNr();
         this.sourceOfEvent = new Address();
-        this.dateTimeOfEvent = new DateTime(timeZone);
+        this.dateTimeOfEvent = new DateTime(clock, timeZone);
         this.eventCode = new LogBookEventCode();
     }
 

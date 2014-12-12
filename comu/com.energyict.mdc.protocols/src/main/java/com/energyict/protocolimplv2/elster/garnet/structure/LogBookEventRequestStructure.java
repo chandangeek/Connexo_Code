@@ -27,7 +27,7 @@ public class LogBookEventRequestStructure extends Data<LogBookEventRequestStruct
     public LogBookEventRequestStructure(RequestFactory requestFactory, int logBookEventNr) {
         super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
-        this.dateTime = new DateTime(requestFactory.getTimeZone());
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone());
         this.logBookEventNr = new LogBookEventNr(logBookEventNr);
         this.paddingData = new PaddingData(PADDING_DATA_LENGTH);
     }

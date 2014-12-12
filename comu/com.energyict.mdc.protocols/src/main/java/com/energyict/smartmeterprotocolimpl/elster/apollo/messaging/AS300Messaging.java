@@ -1,22 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
 import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
-import com.energyict.protocols.messaging.MessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessaging;
-import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
+
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 
 import java.io.IOException;
@@ -36,8 +30,6 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol 
     private static final String READ_ACTIVITY_CALENDAR = "ReadActivityCalendar";
     private static final String SET_STANDING_CHARGE = "SetStandingCharge";
     private static final String ID_OF_USER_FILE = "ID of user file containing the price information";
-    private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
-    private static final String ACTIVATION_DATE_TAG = "ActivationDate";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final String STANDING_CHARGE = "Standing charge";
     protected static final String DISCONNECT_CONTROL_RECONNECT = "DisconnectControlReconnect";
@@ -58,7 +50,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol 
      */
     @Override
     public List getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
+        List<MessageCategorySpec> categories = new ArrayList<>();
 
         MessageCategorySpec pricingInformationCategory = ProtocolMessageCategories.getPricingInformationCategory();
         pricingInformationCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Set price per unit (p/kWh)", SET_PRICE_PER_UNIT, false, ACTIVATION_DATE, ID_OF_USER_FILE));

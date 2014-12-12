@@ -10,6 +10,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.DateTime;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.SessionKeyPart;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.Version;
 
+import java.time.Clock;
 import java.util.TimeZone;
 
 /**
@@ -20,6 +21,7 @@ public class OpenSessionResponseStructure extends Data<OpenSessionResponseStruct
 
     public static final FunctionCode FUNCTION_CODE = FunctionCode.OPEN_SESSION_RESPONSE;
 
+    private final Clock clock;
     private DateTime dateTime;
     private SessionKeyPart secondPartOfSessionKey;
     private ConcentratorModel concentratorModel;
@@ -28,10 +30,11 @@ public class OpenSessionResponseStructure extends Data<OpenSessionResponseStruct
 
     private final TimeZone timeZone;
 
-    public OpenSessionResponseStructure(TimeZone timeZone) {
+    public OpenSessionResponseStructure(Clock clock, TimeZone timeZone) {
         super(FUNCTION_CODE);
+        this.clock = clock;
         this.timeZone = timeZone;
-        this.dateTime = new DateTime(timeZone);
+        this.dateTime = new DateTime(clock, timeZone);
         this.secondPartOfSessionKey = new SessionKeyPart();
         this.secondPartOfSessionKey.generateRandomHalfOfSessionKey();
         this.concentratorModel = new ConcentratorModel();
@@ -54,7 +57,7 @@ public class OpenSessionResponseStructure extends Data<OpenSessionResponseStruct
     public OpenSessionResponseStructure parse(byte[] rawData, int offset) throws ParsingException {
         int ptr = offset;
 
-        this.dateTime = new DateTime(getTimeZone()).parse(rawData, ptr);
+        this.dateTime = new DateTime(this.clock, getTimeZone()).parse(rawData, ptr);
         ptr += dateTime.getLength();
 
         this.secondPartOfSessionKey = new SessionKeyPart().parse(rawData, ptr);

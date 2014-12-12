@@ -1,19 +1,21 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-
 import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocols.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 /**
  * Copyrights EnergyICT
@@ -23,8 +25,8 @@ import javax.inject.Inject;
 public class Mx382 extends AbstractSmartNtaProtocol {
 
     @Inject
-    public Mx382(TopologyService topologyService, OrmClient ormClient) {
-        super(topologyService, ormClient);
+    public Mx382(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
+        super(topologyService, readingTypeUtilService, ormClient);
     }
 
     @Override
@@ -38,7 +40,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
         } catch (IOException e) {
             getLogger().warning("Failed while initializing the DLMS connection.");
         }
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                                  //HDLC:         9600 baud, 8N1
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);

@@ -1,6 +1,12 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -27,6 +33,14 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServerMessages;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
@@ -37,15 +51,7 @@ import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.common.AbstractDlmsProtocol;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
-import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
-
-import javax.inject.Inject;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -78,17 +84,16 @@ public class RtuPlusServer implements DeviceProtocol {
     private DLMSCache dlmsCache = null;
     private ComChannel comChannel = null;
 
-    private PropertySpecService propertySpecService;
-    private SocketService socketService;
+    private final PropertySpecService propertySpecService;
+    private final SocketService socketService;
+    private final IssueService issueService;
 
     @Inject
-    public RtuPlusServer(PropertySpecService propertySpecService) {
-        super(propertySpecService);
-    }
-    @Inject
-    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService) {
+    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService) {
+        super();
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
+        this.issueService = issueService;
     }
 
     @Override
@@ -121,12 +126,6 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-        getSecuritySupport().setPropertySpecService(propertySpecService);
-    }
-
-    @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.comChannel = comChannel;
         this.offlineDevice = offlineDevice;
@@ -145,16 +144,10 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     private SocketService getSocketService() {
-        if(this.socketService == null){
-            return Bus.getSocketService();
-        }
         return this.socketService;
     }
 
     private PropertySpecService getPropertySpecService() {
-        if(this.propertySpecService == null){
-            return Bus.getPropertySpecService();
-        }
         return propertySpecService;
     }
 
@@ -240,7 +233,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private G3GatewayRegisters getG3GatewayRegisters() {
         if (g3GatewayRegisters == null) {
-            g3GatewayRegisters = new G3GatewayRegisters(getDlmsSession());
+            g3GatewayRegisters = new G3GatewayRegisters(getDlmsSession(), this.issueService);
         }
         return g3GatewayRegisters;
     }
@@ -286,14 +279,14 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private G3GatewayEvents getG3GatewayEvents() {
         if (g3GatewayEvents == null) {
-            g3GatewayEvents = new G3GatewayEvents(getDlmsSession());
+            g3GatewayEvents = new G3GatewayEvents(getDlmsSession(), issueService);
         }
         return g3GatewayEvents;
     }
 
     private RtuPlusServerMessages getRtuPlusServerMessages() {
         if (rtuPlusServerMessages == null) {
-            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession());
+            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), issueService);
         }
         return rtuPlusServerMessages;
     }
@@ -325,7 +318,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new DsmrSecuritySupport();
+            dlmsSecuritySupport = new DsmrSecuritySupport(this.getPropertySpecService());
         }
         return dlmsSecuritySupport;
     }

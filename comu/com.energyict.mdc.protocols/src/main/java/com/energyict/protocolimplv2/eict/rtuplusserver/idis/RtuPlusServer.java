@@ -7,6 +7,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -35,7 +36,6 @@ import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -45,6 +45,7 @@ import java.util.*;
  * @author sva
  * @since 15/10/2014 - 10:55
  */
+@SuppressWarnings("unused")
 public class RtuPlusServer implements DeviceProtocol {
 
     private ComChannel comChannel;
@@ -56,22 +57,15 @@ public class RtuPlusServer implements DeviceProtocol {
     private IDISGatewayRegisters idisGatewayRegisters;
     private IDISGatewayDynamicPropertySupportSupport dynamicPropertySupport;
 
-    private PropertySpecService propertySpecService;
-    private SocketService socketService;
-
-    public RtuPlusServer() {
-    }
+    private final PropertySpecService propertySpecService;
+    private final SocketService socketService;
+    private final IssueService issueService;
 
     @Inject
-    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService) {
+    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-        getDlmsSecuritySupport().setPropertySpecService(propertySpecService);
+        this.issueService = issueService;
     }
 
     @Override
@@ -235,16 +229,10 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     private SocketService getSocketService() {
-        if(this.socketService == null){
-            return Bus.getSocketService();
-        }
         return this.socketService;
     }
 
     private PropertySpecService getPropertySpecService() {
-        if(this.propertySpecService == null){
-            return Bus.getPropertySpecService();
-        }
         return this.propertySpecService;
     }
 
@@ -295,28 +283,28 @@ public class RtuPlusServer implements DeviceProtocol {
 
     public IDISGatewayRegisters getIDISGatewayRegisters() {
         if (this.idisGatewayRegisters == null) {
-            this.idisGatewayRegisters = new IDISGatewayRegisters(getDlmsSession());
+            this.idisGatewayRegisters = new IDISGatewayRegisters(getDlmsSession(), issueService);
         }
         return this.idisGatewayRegisters;
     }
 
     public IDISGatewayEvents getIDISGatewayEvents() {
         if (this.idisGatewayEvents == null) {
-            this.idisGatewayEvents = new IDISGatewayEvents(getDlmsSession());
+            this.idisGatewayEvents = new IDISGatewayEvents(getDlmsSession(), this.issueService);
         }
         return this.idisGatewayEvents;
     }
 
     public IDISGatewayMessages getIDISGatewayMessages() {
         if (this.idisGatewayMessages == null) {
-            this.idisGatewayMessages = new IDISGatewayMessages(getDlmsSession());
+            this.idisGatewayMessages = new IDISGatewayMessages(getDlmsSession(), issueService);
         }
         return this.idisGatewayMessages;
     }
 
     public DsmrSecuritySupport getDlmsSecuritySupport() {
         if (this.dlmsSecuritySupport == null) {
-            this.dlmsSecuritySupport = new DsmrSecuritySupport();
+            this.dlmsSecuritySupport = new DsmrSecuritySupport(this.propertySpecService);
         }
         return this.dlmsSecuritySupport;
     }

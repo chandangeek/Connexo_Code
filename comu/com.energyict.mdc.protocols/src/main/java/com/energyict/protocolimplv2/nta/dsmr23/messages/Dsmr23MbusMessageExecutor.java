@@ -10,6 +10,10 @@ import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -55,9 +59,11 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
     public static final OctetString MBUS_CLIENT_VALUE_INFORMATION_BLOCK_USE_CORRECTED = OctetString.fromByteArray(new byte[]{0x13});
     public static final OctetString MBUS_CLIENT_VALUE_INFORMATION_BLOCK_USE_UNCORRECTED = OctetString.fromByteArray(new byte[]{(byte) 0x93, (byte) 0x3A});
 
-    public Dsmr23MbusMessageExecutor(AbstractDlmsProtocol protocol) {
-        super(protocol);
+    public final TopologyService topologyService;
 
+    public Dsmr23MbusMessageExecutor(AbstractDlmsProtocol protocol, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService) {
+        super(protocol, issueService, readingTypeUtilService);
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -191,8 +197,8 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             Date fromDate = new Date(Long.valueOf(fromDateEpoch));
             Date toDate = new Date(Long.valueOf(toDateEpoch));
 
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(fullLoadProfileContent);
+            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+            builder.fromXml(fullLoadProfileContent);
 
             LoadProfileReader lpr = builder.getLoadProfileReader();  //Does not contain the correct from & to date yet, they were stored in separate attributes
             LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), lpr.getMeterSerialNumber(), lpr.getLoadProfileIdentifier());
@@ -240,8 +246,8 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
         String fullLoadProfileContent = LoadProfileMessageUtils.createLoadProfileRegisterMessage("LoadProfileRegister", "fromDate", loadProfileContent);
         Date fromDate = new Date(Long.valueOf(fromDateEpoch));
         try {
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(fullLoadProfileContent);
+            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
+            builder.fromXml(fullLoadProfileContent);
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);

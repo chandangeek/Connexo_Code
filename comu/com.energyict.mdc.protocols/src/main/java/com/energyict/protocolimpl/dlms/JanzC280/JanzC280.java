@@ -39,6 +39,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;

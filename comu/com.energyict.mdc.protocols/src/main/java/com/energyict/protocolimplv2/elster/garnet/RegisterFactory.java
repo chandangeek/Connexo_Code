@@ -4,12 +4,14 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
+
 import com.energyict.protocolimplv2.elster.garnet.common.InstallationConfig;
 import com.energyict.protocolimplv2.elster.garnet.common.ReadingResponse;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
@@ -30,7 +32,6 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.M
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterSensorStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterTariffStatus;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,9 +72,11 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private static final Unit REACTIVE_ENERGY_UNIT = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR);
 
     private final GarnetConcentrator meterProtocol;
+    private final IssueService issueService;
 
-    public RegisterFactory(GarnetConcentrator meterProtocol) {
+    public RegisterFactory(GarnetConcentrator meterProtocol, IssueService issueService) {
         this.meterProtocol = meterProtocol;
+        this.issueService = issueService;
     }
 
     @Override
@@ -322,19 +325,19 @@ public class RegisterFactory implements DeviceRegisterSupport {
 
     private CollectedRegister createNotSupportedCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.NotSupported, Bus.getIssueService().newWarning(register, "registerXnotsupported", register.getObisCode()));
+        failedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register, "registerXnotsupported", register.getObisCode()));
         return failedRegister;
     }
 
     private CollectedRegister createTopologyMisMatchCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, Bus.getIssueService().newWarning(register, "topologyMismatch"));
+        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, this.issueService.newWarning(register, "topologyMismatch"));
         return failedRegister;
     }
 
     private CollectedRegister createCouldNotParseCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.InCompatible, Bus.getIssueService().newProblem(register, "CouldNotParseRegisterData"));
+        failedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(register, "CouldNotParseRegisterData"));
         return failedRegister;
     }
 

@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
@@ -21,23 +22,23 @@ import java.util.List;
  */
 public class IskraMx372MbusMessaging  extends GenericMessaging implements MessageProtocol {
 
+    private final TopologyService topologyService;
+
+    public IskraMx372MbusMessaging(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
 
     /**
      * Abstract method to define your message categories *
      */
     @Override
     public List getMessageCategories() {
-        List messageCategories = new ArrayList();
+        List<MessageCategorySpec> messageCategories = new ArrayList<>();
         MessageCategorySpec cat = new MessageCategorySpec(RtuMessageCategoryConstants.BASICMESSAGES_DESCRIPTION);
-
-        MessageSpec msgSpec = addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false);
-        cat.addMessageSpec(msgSpec);
-        msgSpec = addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false);
-        cat.addMessageSpec(msgSpec);
-        msgSpec = addMessageWithValue("Set vif to mbus device", RtuMessageConstant.MBUS_SET_VIF, false);
-        cat.addMessageSpec(msgSpec);
+        cat.addMessageSpec(addBasicMsg("Connect meter", RtuMessageConstant.CONNECT_LOAD, false));
+        cat.addMessageSpec(addBasicMsg("Disconnect meter", RtuMessageConstant.DISCONNECT_LOAD, false));
+        cat.addMessageSpec(addMessageWithValue("Set vif to mbus device", RtuMessageConstant.MBUS_SET_VIF, false));
         messageCategories.add(cat);
-
         return messageCategories;
     }
 
@@ -66,7 +67,6 @@ public class IskraMx372MbusMessaging  extends GenericMessaging implements Messag
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(List messageEntries) throws IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**
@@ -82,10 +82,11 @@ public class IskraMx372MbusMessaging  extends GenericMessaging implements Messag
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
+        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
+        return new LegacyPartialLoadProfileMessageBuilder(this.topologyService);
     }
+
 }

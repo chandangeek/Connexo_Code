@@ -6,6 +6,7 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -32,15 +33,8 @@ import java.util.List;
  */
 public class WebRTUKPLoadProfileBuilder extends LoadProfileBuilder {
 
-    public static final ObisCode MBUS_OBISCODE = ObisCode.fromString("0.x.24.2.1.255");
-
-    /**
-     * Default constructor
-     *
-     * @param meterProtocol the {@link #meterProtocol}
-     */
-    public WebRTUKPLoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol) {
-        super(meterProtocol);
+    public WebRTUKPLoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(meterProtocol, readingTypeUtilService);
     }
 
     /**
@@ -51,7 +45,7 @@ public class WebRTUKPLoadProfileBuilder extends LoadProfileBuilder {
      * @throws java.io.IOException if an error occurred during dataFetching or -Parsing
      */
     protected List<CapturedRegisterObject> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
-        List<CapturedRegisterObject> channelRegisters = new ArrayList<CapturedRegisterObject>();
+        List<CapturedRegisterObject> channelRegisters = new ArrayList<>();
         if (getExpectedLoadProfileReaders() != null) {
             for (LoadProfileReader lpr : getExpectedLoadProfileReaders()) {
                 ComposedProfileConfig cpc = getLpConfigMap().get(lpr);
@@ -69,7 +63,7 @@ public class WebRTUKPLoadProfileBuilder extends LoadProfileBuilder {
                     List<CapturedObject> capturedObjects = pg.getCapturedObjectsFromDataContainter(dc);
 
                     // Convert each captured object to a register (DLMSAttribute + device serial number)
-                    List<CapturedRegisterObject> coRegisters = new ArrayList<CapturedRegisterObject>();
+                    List<CapturedRegisterObject> coRegisters = new ArrayList<>();
                     for (CapturedObject co : capturedObjects) {
                         String deviceSerialNumber = getMeterProtocol().getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
                         DLMSAttribute dlmsAttribute = new DLMSAttribute(getCorrectedChannelInfoObisCode(co), co.getAttributeIndex(), co.getClassId());

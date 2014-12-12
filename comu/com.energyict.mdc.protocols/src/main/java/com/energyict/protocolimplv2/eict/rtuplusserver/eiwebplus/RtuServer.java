@@ -31,7 +31,6 @@ import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 import com.energyict.protocols.impl.channels.inbound.EIWebPlusConnectionType;
 import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialect;
-import com.energyict.protocols.mdc.services.impl.Bus;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -58,28 +57,21 @@ import java.util.Set;
  * Time: 13:40
  * Author: khe
  */
+@SuppressWarnings("unused")
 public class RtuServer implements DeviceProtocol {
 
     private OfflineDevice offlineDevice;
-    private NoOrPasswordSecuritySupport securitySupport = new NoOrPasswordSecuritySupport();
     private LegacyMessageConverter messageConverter;
 
-    private PropertySpecService propertySpecService;
-    private Clock clock;
-
-    public RtuServer() {
-    }
+    private final PropertySpecService propertySpecService;
+    private final NoOrPasswordSecuritySupport securitySupport;
+    private final Clock clock;
 
     @Inject
     public RtuServer(PropertySpecService propertySpecService, Clock clock) {
         this.propertySpecService = propertySpecService;
         this.clock = clock;
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-        this.securitySupport.setPropertySpecService(propertySpecService);
+        this.securitySupport = new NoOrPasswordSecuritySupport(propertySpecService);
     }
 
     @Override
@@ -125,7 +117,12 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public String getSerialNumber() {
-        return this.offlineDevice != null ? this.offlineDevice.getSerialNumber() : "";
+        if (this.offlineDevice != null) {
+            return this.offlineDevice.getSerialNumber();
+        }
+        else {
+            return "";
+        }
     }
 
     @Override
@@ -159,9 +156,6 @@ public class RtuServer implements DeviceProtocol {
     }
 
     private Clock getClock() {
-        if(this.clock == null){
-            return Bus.getClock();
-        }
         return this.clock;
     }
 

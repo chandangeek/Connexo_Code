@@ -17,6 +17,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.M
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -46,12 +47,14 @@ public class DiscoverMetersResponseStructure extends Data<DiscoverMetersResponse
     private BitMapCollection<MeterTariffStatus> meterTariffStatusCollection;
     private List<MeterSerialNumber> meterSerialNumberCollection;
 
+    private final Clock clock;
     private final TimeZone timeZone;
 
-    public DiscoverMetersResponseStructure(TimeZone timeZone) {
+    public DiscoverMetersResponseStructure(Clock clock, TimeZone timeZone) {
         super(FUNCTION_CODE);
+        this.clock = clock;
         this.timeZone = timeZone;
-        this.dateTime = new DateTime(timeZone);
+        this.dateTime = new DateTime(clock, timeZone);
         this.meterModelCollection = new BitMapCollection<>(LENGTH_OF_METER_MODELS, NR_OF_METERS, MeterModel.class);
         this.meterReadingStatusCollection = new BitMapCollection<>(LENGTH_OF_METER_READING_STATUSES, NR_OF_METERS, MeterReadingStatus.class);
         this.concentratorConfiguration = new ConcentratorConfiguration();
@@ -90,7 +93,7 @@ public class DiscoverMetersResponseStructure extends Data<DiscoverMetersResponse
     public DiscoverMetersResponseStructure parse(byte[] rawData, int offset) throws ParsingException {
         int ptr = offset;
 
-        this.dateTime = new DateTime(getTimeZone()).parse(rawData, ptr);
+        this.dateTime = new DateTime(this.clock, getTimeZone()).parse(rawData, ptr);
         ptr += dateTime.getLength();
 
         this.meterModelCollection.parse(rawData, ptr);

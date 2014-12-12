@@ -1,18 +1,18 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.MessageProtocol;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
-import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -24,12 +24,8 @@ import java.util.Properties;
 public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Inject
-    public MbusDevice(TopologyService topologyService, OrmClient ormClient) {
-        super(topologyService, ormClient);
-    }
-
-    public MbusDevice(AbstractSmartNtaProtocol meterProtocol, TopologyService topologyService, String serialNumber, int physicalAddress) {
-        super(meterProtocol, topologyService, serialNumber, physicalAddress);
+    public MbusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
+        super(topologyService, ormClient, readingTypeUtilService);
     }
 
     @Override
@@ -66,7 +62,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
      *
      * @param properties properties to add
      */
-    public void addProperties(final Properties properties) {
+    public void addProperties(Properties properties) {
         //TODO implement proper functionality.
     }
 
@@ -76,7 +72,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
      * @return a List of String objects
      */
     public List<String> getRequiredKeys() {
-        return new ArrayList<String>();
+        return Collections.emptyList();
     }
 
     /**
@@ -85,7 +81,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
      * @return a List of String objects
      */
     public List<String> getOptionalKeys() {
-        return new ArrayList<String>();
+        return Collections.emptyList();
     }
 
 }

@@ -20,7 +20,7 @@ public class PoolingRequestStructure extends Data<PoolingRequestStructure> {
     public PoolingRequestStructure(RequestFactory requestFactory) {
         super(FUNCTION_CODE);
         this.requestFactory = requestFactory;
-        this.dateTime = new DateTime(requestFactory.getTimeZone());
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone());
     }
 
     @Override
@@ -30,7 +30,7 @@ public class PoolingRequestStructure extends Data<PoolingRequestStructure> {
 
     @Override
     public PoolingRequestStructure parse(byte[] rawData, int offset) throws ParsingException {
-        this.dateTime = new DateTime(requestFactory.getTimeZone()).parse(rawData, offset);
+        this.dateTime = new DateTime(requestFactory.getClock(), requestFactory.getTimeZone()).parse(rawData, offset);
         return this;
     }
 

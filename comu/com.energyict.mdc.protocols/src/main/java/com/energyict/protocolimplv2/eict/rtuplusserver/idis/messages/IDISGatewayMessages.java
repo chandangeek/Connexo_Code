@@ -19,6 +19,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -73,10 +74,13 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
             DeviceMessageId.DEVICE_ACTIONS_REBOOT_DEVICE,
             DeviceMessageId.DEVICE_ACTIONS_REBOOT_APPLICATION
     );
-    private final DlmsSession session;
 
-    public IDISGatewayMessages(DlmsSession session) {
+    private final DlmsSession session;
+    private final IssueService issueService;
+
+    public IDISGatewayMessages(DlmsSession session, IssueService issueService) {
         this.session = session;
+        this.issueService = issueService;
     }
 
     @Override
@@ -372,7 +376,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     private Issue messageFailed(OfflineDeviceMessage pendingMessage, String message) {
-        return com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.failed",
+        return this.issueService.newWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -380,7 +384,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     }
 
     private Issue messageUnsupported(OfflineDeviceMessage pendingMessage) throws IOException {
-        return com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(pendingMessage, "DeviceMessage.notSupported",
+        return this.issueService.newWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());

@@ -1,12 +1,13 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -35,6 +36,8 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
@@ -47,7 +50,6 @@ import com.energyict.protocols.impl.channels.sms.InboundProximusSmsConnectionTyp
 import com.energyict.protocols.impl.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.protocols.impl.channels.sms.ProximusSmsComChannel;
 import com.energyict.protocols.mdc.protocoltasks.CTRDeviceProtocolDialect;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
@@ -65,7 +67,7 @@ import java.util.logging.Logger;
  */
 public class MTU155 implements DeviceProtocol {
 
-    private final DeviceProtocolSecurityCapabilities securityCapabilities = new Mtu155SecuritySupport();
+    private final DeviceProtocolSecurityCapabilities securityCapabilities;
 
     /**
      * The offline rtu
@@ -97,24 +99,20 @@ public class MTU155 implements DeviceProtocol {
     private LoadProfileBuilder loadProfileBuilder;
     private Messaging messaging;
 
-    private PropertySpecService propertySpecService;
-    private SerialComponentService serialComponentService;
-    private IssueService issueService;
-
-    public MTU155() {
-    }
+    private final PropertySpecService propertySpecService;
+    private final SerialComponentService serialComponentService;
+    private final IssueService issueService;
+    private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final TopologyService topologyService;
 
     @Inject
-    public MTU155(PropertySpecService propertySpecService, SerialComponentService serialComponentService, IssueService issueService) {
+    public MTU155(PropertySpecService propertySpecService, SerialComponentService serialComponentService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService) {
+        this.readingTypeUtilService = readingTypeUtilService;
+        this.topologyService = topologyService;
+        this.securityCapabilities = new Mtu155SecuritySupport(propertySpecService);
         this.propertySpecService = propertySpecService;
         this.serialComponentService = serialComponentService;
         this.issueService = issueService;
-    }
-
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-        this.securityCapabilities.setPropertySpecService(propertySpecService);
     }
 
     @Override
@@ -235,7 +233,7 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new CTRDeviceProtocolDialect(propertySpecService));
+        dialects.add(new CTRDeviceProtocolDialect(this.propertySpecService));
         return dialects;
     }
 
@@ -253,26 +251,23 @@ public class MTU155 implements DeviceProtocol {
         return getObisCodeMapper().readRegisters(rtuRegisters);
     }
 
-    /**
-     * @return
-     */
     protected GprsObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
-            obisCodeMapper = new GprsObisCodeMapper(this);
+            obisCodeMapper = new GprsObisCodeMapper(this, this.readingTypeUtilService, this.getIssueService());
         }
         return obisCodeMapper;
     }
 
     private LoadProfileBuilder getLoadProfileBuilder() {
         if (loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, issueService);
         }
         return loadProfileBuilder;
     }
 
     public Messaging getMessaging() {
         if (messaging == null) {
-            this.messaging = new Messaging(this);
+            this.messaging = new Messaging(this, this.topologyService, issueService);
         }
         return messaging;
     }
@@ -285,9 +280,6 @@ public class MTU155 implements DeviceProtocol {
     }
 
     private IssueService getIssueService() {
-        if(this.issueService == null){
-            return Bus.getIssueService();
-        }
         return this.issueService;
     }
 
@@ -421,7 +413,7 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport();
+        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(this.propertySpecService);
         TypedProperties securityProperties = mtu155SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
         if (this.allProperties != null) {
             this.allProperties.setAllProperties(securityProperties); // this will add the dialectProperties to the deviceProperties
@@ -442,16 +434,10 @@ public class MTU155 implements DeviceProtocol {
     }
 
     private SerialComponentService getSerialComponentService() {
-        if(this.serialComponentService == null){
-            return Bus.getSerialComponentService();
-        }
         return this.serialComponentService;
     }
 
     private PropertySpecService getPropertySpecService() {
-        if(this.propertySpecService == null){
-            return Bus.getPropertySpecService();
-        }
         return this.propertySpecService;
     }
 
@@ -468,4 +454,5 @@ public class MTU155 implements DeviceProtocol {
     public PropertySpec getPropertySpec(String s) {
         return null;
     }
+
 }

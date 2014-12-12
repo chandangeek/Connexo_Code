@@ -1,17 +1,18 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.TimeZone;
@@ -24,13 +25,15 @@ import java.util.TimeZone;
  */
 public class IskraMx372MbusMessageExecutor extends MessageParser {
 
-    IskraMx372 iskraMx372;
+    private final IskraMx372 iskraMx372;
+    private final TopologyService topologyService;
 
     private ObisCode valveState = ObisCode.fromString("0.0.128.30.31.255");
     private ObisCode valveControl = ObisCode.fromString("0.0.128.30.30.255");
 
-    public IskraMx372MbusMessageExecutor(IskraMx372 iskraMx372Protocol) {
+    public IskraMx372MbusMessageExecutor(IskraMx372 iskraMx372Protocol, TopologyService topologyService) {
         this.iskraMx372 = iskraMx372Protocol;
+        this.topologyService = topologyService;
     }
 
     @Override
@@ -90,7 +93,7 @@ public class IskraMx372MbusMessageExecutor extends MessageParser {
      * @return true if this is the message, false otherwise
      */
     private boolean isItThisMessage(MessageEntry messageEntry, String messageTag) {
-        return messageEntry.getContent().indexOf(messageTag) >= 0;
+        return messageEntry.getContent().contains(messageTag);
     }
 
     private void connectDisconnectDevice(MessageEntry messageEntry, boolean connect) throws IOException {
@@ -110,32 +113,28 @@ public class IskraMx372MbusMessageExecutor extends MessageParser {
         iskraMx372.getCosemObjectFactory().getGenericWrite(obisCode, 2, 1).write(berEncodedByteArray);
     }
 
-    private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) throws SAXException, IOException {
+    private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         return iskraMx372.getMessageProtocol().doReadLoadProfileRegisters(msgEntry);
     }
 
-    private MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) throws IOException, SAXException {
+    private MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
         return iskraMx372.getMessageProtocol().doReadPartialLoadProfile(msgEntry);
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
+        return new LegacyLoadProfileRegisterMessageBuilder(this.topologyService);
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
+        return new LegacyPartialLoadProfileMessageBuilder(this.topologyService);
     }
 
     private int getMbusAddress(String serialNumber) throws IOException {
         return iskraMx372.getPhysicalAddressFromSerialNumber(serialNumber);
     }
 
-     /**
-     * Log the given message to the logger with the INFO level
-     *
-     * @param messageToLog
-     */
      private void infoLog(String messageToLog) {
         iskraMx372.getLogger().info(messageToLog);
      }
+
 }

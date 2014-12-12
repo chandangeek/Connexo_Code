@@ -23,7 +23,7 @@ import java.util.logging.Level;
  */
 public class MeterTopology {
 
-    private static final int ObisCodeBFieldIndex = 1;
+    private static final int OBIS_CODE_B_FIELD_INDEX = 1;
 
     /**
      * Device channel mappings
@@ -46,21 +46,21 @@ public class MeterTopology {
     /**
      * A map of physicalAddresses and DLMSAttributes for the mbusSerialNumbers
      */
-    private Map<Integer, DLMSAttribute> mbusSerialAttributes = new HashMap<Integer, DLMSAttribute>();
+    private Map<Integer, DLMSAttribute> mbusSerialAttributes = new HashMap<>();
 
     /**
      * A map of physicalAddresses and DLMSAttributes for the emeterSerialNumbers
      */
-    private Map<Integer, DLMSAttribute> emeterSerialAttributes = new HashMap<Integer, DLMSAttribute>();
+    private Map<Integer, DLMSAttribute> emeterSerialAttributes = new HashMap<>();
 
     /**
      * A list of EMeter <CODE>DeviceMappings</CODE>
      */
-    private List<DeviceMapping> eMeterMap = new ArrayList<DeviceMapping>();
+    private List<DeviceMapping> eMeterMap = new ArrayList<>();
     /**
      * A list of MbusMeter <CODE>DeviceMappings</CODE>
      */
-    private List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
+    private List<DeviceMapping> mbusMap = new ArrayList<>();
 
 
     public MeterTopology(WebRTUZ3 meterProtocol) {
@@ -82,9 +82,9 @@ public class MeterTopology {
      * Construct the discovery <CODE>ComposedCosemObject</CODE>. This will contain all the available serialNumbers from Emeters and MbusMeters
      */
     protected void constructDiscoveryComposedCosemObject() {
-        List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
+        List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
         for (int i = MBUS_DEVICES.getFrom(); i <= MBUS_DEVICES.getTo(); i++) {
-            ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, ObisCodeBFieldIndex, (byte) i);
+            ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, OBIS_CODE_B_FIELD_INDEX, (byte) i);
             UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
             if (uo != null) {
                 mbusSerialAttributes.put(i, new DLMSAttribute(serialObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
@@ -92,7 +92,7 @@ public class MeterTopology {
             }
         }
         for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
-            ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, ObisCodeBFieldIndex, (byte) i);
+            ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, OBIS_CODE_B_FIELD_INDEX, (byte) i);
             UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
             if (uo != null) {
                 emeterSerialAttributes.put(i, new DLMSAttribute(serialObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
@@ -116,12 +116,12 @@ public class MeterTopology {
 //        // check if all the mbus devices are configured in EIServer
 //        checkToUpdateMbusMeters(mbusMap);
 
-        StringBuffer sb = new StringBuffer();
-        sb.append("Found ").append(this.mbusMap.size()).append(" MBus devices: ").append("\r\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("Found ").append(this.mbusMap.size()).append(" MBus devices: ").append("\r\n");
         for (DeviceMapping deviceMapping : this.mbusMap) {
-            sb.append(deviceMapping).append("\r\n");
+            builder.append(deviceMapping).append("\r\n");
         }
-        this.meterProtocol.getLogger().log(Level.INFO, sb.toString());
+        this.meterProtocol.getLogger().log(Level.INFO, builder.toString());
 
     }
 
@@ -139,12 +139,12 @@ public class MeterTopology {
 //        // check if all the mbus devices are configured in EIServer
 //        checkToUpdateEMeters(eMeterMap);
 
-        StringBuffer sb = new StringBuffer();
-        sb.append("Found ").append(this.eMeterMap.size()).append(" eMeter devices: ").append("\r\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append("Found ").append(this.eMeterMap.size()).append(" eMeter devices: ").append("\r\n");
         for (DeviceMapping deviceMapping : this.eMeterMap) {
-            sb.append(deviceMapping).append("\r\n");
+            builder.append(deviceMapping).append("\r\n");
         }
-        this.meterProtocol.getLogger().log(Level.INFO, sb.toString());
+        this.meterProtocol.getLogger().log(Level.INFO, builder.toString());
 
     }
 
@@ -158,14 +158,14 @@ public class MeterTopology {
      */
     protected List<DeviceMapping> getMbusMapper() throws ConnectionException {
         String mbusSerial;
-        List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
+        List<DeviceMapping> mbusMap = new ArrayList<>();
         for (int i = MBUS_DEVICES.getFrom(); i <= MBUS_DEVICES.getTo(); i++) {
             try {
-                ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, ObisCodeBFieldIndex, (byte) i);
+                ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, OBIS_CODE_B_FIELD_INDEX, (byte) i);
                 if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
                     OctetString serialOctetString = this.discoveryComposedCosemObject.getAttribute(this.mbusSerialAttributes.get(i)).getOctetString();
                     mbusSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
-                    if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase(""))) {
+                    if ((mbusSerial != null) && (!"".equalsIgnoreCase(mbusSerial))) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
                     }
                 }
@@ -188,19 +188,19 @@ public class MeterTopology {
      */
     protected List<DeviceMapping> getEmeterMapper() throws ConnectionException {
         String eMeterSerial;
-        List<DeviceMapping> eMeterMap = new ArrayList<DeviceMapping>();
+        List<DeviceMapping> eMeterMap = new ArrayList<>();
         for (int i = EMETER_DEVICES.getFrom(); i <= EMETER_DEVICES.getTo(); i++) {
             try {
-                ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, ObisCodeBFieldIndex, (byte) i);
+                ObisCode serialObisCode = ProtocolTools.setObisCodeField(SERIALNR_OBISCODE, OBIS_CODE_B_FIELD_INDEX, (byte) i);
                 if (this.meterProtocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
                     OctetString serialOctetString = this.discoveryComposedCosemObject.getAttribute(this.emeterSerialAttributes.get(i)).getOctetString();
                     eMeterSerial = serialOctetString != null ? serialOctetString.stringValue() : null;
-                    if ((eMeterSerial != null) && (!eMeterSerial.equalsIgnoreCase(""))) {
+                    if ((eMeterSerial != null) && (!"".equalsIgnoreCase(eMeterSerial))) {
                         eMeterMap.add(new DeviceMapping(eMeterSerial, i));
                     }
                 }
             } catch (IOException e) {
-                if (e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1) {
+                if (e.getMessage().contains("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error")) {
                     throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
                 }
                 //log(Level.FINE, "Could not retrieve the eMeter serialNumber for channel " + i + ": " + e.getMessage());
@@ -295,4 +295,5 @@ public class MeterTopology {
     protected ComposedCosemObject getDiscoveryComposedCosemObject() {
         return discoveryComposedCosemObject;
     }
+
 }

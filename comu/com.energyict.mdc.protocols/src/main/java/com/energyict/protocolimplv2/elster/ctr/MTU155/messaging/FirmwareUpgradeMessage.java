@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
@@ -46,8 +47,8 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
 
     private SealConfig sealConfig;
 
-    public FirmwareUpgradeMessage(Messaging messaging) {
-        super(messaging);
+    public FirmwareUpgradeMessage(Messaging messaging, IssueService issueService) {
+        super(messaging, issueService);
         sealConfig = new SealConfig(getFactory());
     }
 

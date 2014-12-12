@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.MessageSeeds;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
@@ -72,9 +73,11 @@ public class RegisterFactory implements DeviceRegisterSupport {
     private InstrumentationPageResponse instrumentationPage;
 
     private final AbstractAbntProtocol meterProtocol;
+    private final IssueService issueService;
 
-    public RegisterFactory(AbstractAbntProtocol meterProtocol) {
+    public RegisterFactory(AbstractAbntProtocol meterProtocol, IssueService issueService) {
         this.meterProtocol = meterProtocol;
+        this.issueService = issueService;
     }
 
     @Override
@@ -109,7 +112,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 registerNotSupported(register, collectedRegister);
             }
         } catch (ParsingException e) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newProblem(collectedRegister, "CouldNotParseRegisterData"));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueService.newProblem(collectedRegister, "CouldNotParseRegisterData"));
         }
     }
 
@@ -227,11 +230,11 @@ public class RegisterFactory implements DeviceRegisterSupport {
         }
     }
 
-    private void readPowerFailureLog(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
+    private void readPowerFailureLog(CollectedRegister collectedRegister) throws ParsingException {
         setCollectedData(collectedRegister, getPowerFailLog().getBytes());
     }
 
-    private void readHistoryLog(OfflineRegister register, CollectedRegister collectedRegister) throws ParsingException {
+    private void readHistoryLog(CollectedRegister collectedRegister) throws ParsingException {
         setCollectedData(collectedRegister, getHistoryLog().getBytes());
     }
 
@@ -243,9 +246,9 @@ public class RegisterFactory implements DeviceRegisterSupport {
         } else if (register.getObisCode().equals(INSTALLATION_CODE_HEX_OBIS)) {
             setCollectedText(collectedRegister, getInstallationCode().getInstallationCodeAsHex());
         } else if (register.getObisCode().equals(POWER_FAILURE_LOG_OBIS)) {
-            readPowerFailureLog(register, collectedRegister);
+            readPowerFailureLog(collectedRegister);
         } else if (register.getObisCode().equals(HISTORY_LOG_OBIS)) {
-            readHistoryLog(register, collectedRegister);
+            readHistoryLog(collectedRegister);
         }
     }
 
@@ -342,7 +345,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private void registerNotSupported(OfflineRegister register, CollectedRegister collectedRegister) {
-        collectedRegister.setFailureInformation(ResultType.NotSupported, com.energyict.protocols.mdc.services.impl.Bus.getIssueService().newWarning(register, "registerXnotsupported", register.getObisCode()));
+        collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(register, "registerXnotsupported", register.getObisCode()));
     }
 
     private boolean registerNotYetCollected(CollectedRegister collectedRegister) {

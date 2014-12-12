@@ -21,10 +21,9 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
 
     public final String authenticationTranslationKeyConstant = "GarnetSecuritySupport.authenticationlevel.0";
     public final String encryptionTranslationKeyConstant = "GarnetSecuritySupport.encryptionlevel.1";
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
 
-    @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    public SecuritySupport(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
@@ -44,9 +43,6 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
             this.accessLevel = accessLevel;
         }
 
-        protected int getAccessLevel() {
-            return this.accessLevel;
-        }
     }
 
     /**
@@ -61,9 +57,6 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
             this.accessLevel = accessLevel;
         }
 
-        protected int getAccessLevel() {
-            return this.accessLevel;
-        }
     }
 
     @Override

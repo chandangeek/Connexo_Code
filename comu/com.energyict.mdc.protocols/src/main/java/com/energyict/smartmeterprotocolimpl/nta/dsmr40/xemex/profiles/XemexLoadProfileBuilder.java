@@ -1,10 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.profiles;
 
-import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGDLMSProfileIntervals;
@@ -22,18 +24,13 @@ import java.util.logging.Level;
  */
 public class XemexLoadProfileBuilder extends LGLoadProfileBuilder {
 
-    /**
-     * Default constructor
-     *
-     * @param meterProtocol the {@link #meterProtocol}
-     */
-    public XemexLoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol) {
-        super(meterProtocol);
+    public XemexLoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(meterProtocol, readingTypeUtilService);
     }
 
     @Override
     public List<ProfileData> getLoadProfileData(final List<LoadProfileReader> loadProfiles) throws IOException {
-        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        List<ProfileData> profileDataList = new ArrayList<>();
         ProfileGeneric profile;
         ProfileData profileData;
         for (LoadProfileReader lpr : loadProfiles) {

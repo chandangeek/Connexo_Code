@@ -1,19 +1,21 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
-import com.energyict.mdw.cpo.PropertySpecFactory;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372MbusMessaging;
 
-import java.util.ArrayList;
+import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -26,38 +28,19 @@ import java.util.logging.Logger;
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
-    private int mbusAddress = -1;        // this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
-    private int physicalAddress = -1;    // this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
-    private int medium = 15;
-
-    private String customerID;
-    private String rtuType;
-    private Unit mbusUnit;
-
     private IskraMx372 iskra;
+    private String customerID;
     public BaseDevice mbus;
     private Logger logger;
 
-    public MbusDevice() {
-    }
-
-    public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, BaseDevice rtu, Unit unit, IskraMx372 protocol) throws InvalidPropertyException, MissingPropertyException {
-        this.mbusAddress = mbusAddress;
-        this.physicalAddress = phyAddress;
-        this.customerID = serial;
-        this.medium = mbusMedium;
-        this.mbus = rtu;
-        this.mbusUnit = unit;
-        this.logger = protocol.getLogger();
-        this.iskra = protocol;
-        if (mbus != null) {
-//            setProperties(mbus.getProtocolProperties().toStringProperties());
-        }
+    @Inject
+    public MbusDevice(TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, OrmClient ormClient) {
+        super(topologyService, ormClient, readingTypeUtilService);
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new IskraMx372MbusMessaging();
+        return new IskraMx372MbusMessaging(this.getTopologyService());
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
@@ -98,17 +81,10 @@ public class MbusDevice extends AbstractNtaMbusDevice {
      * @param properties properties to add
      */
     public void addProperties(Properties properties) {
-        try {
-            setProperties(properties);
-        } catch (InvalidPropertyException e) {
-            e.printStackTrace();
-        } catch (MissingPropertyException e) {
-            e.printStackTrace();
-        }
+        setProperties(properties);
     }
 
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        rtuType = properties.getProperty("DeviceType", "mbus");
+    public void setProperties(Properties properties) {
     }
 
     /**
@@ -117,7 +93,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
      * @return a List of String objects
      */
     public List<String> getRequiredKeys() {
-        return new ArrayList(0);
+        return Collections.emptyList();
     }
 
     /**
@@ -126,7 +102,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
      * @return a List of String objects
      */
     public List<String> getOptionalKeys() {
-        return new ArrayList(0);
+        return Collections.emptyList();
     }
 
     public String getCustomerID() {
@@ -135,23 +111,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Override
     public int getPhysicalAddress() {
-        return physicalAddress;
-    }
-
-    public int getMbusAddress() {
-        return mbusAddress;
-    }
-
-    public int getMedium() {
-        return medium;
-    }
-
-    public String getRtuType() {
-        return rtuType;
-    }
-
-    public Unit getMbusUnit() {
-        return mbusUnit;
+        return -1;
     }
 
     public IskraMx372 getIskra() {
@@ -171,4 +131,5 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     public Logger getLogger() {
         return logger;
     }
+
 }

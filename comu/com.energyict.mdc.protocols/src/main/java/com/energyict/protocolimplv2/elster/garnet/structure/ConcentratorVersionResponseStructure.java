@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.CustomerCode;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.DateTime;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.PaddingData;
 
+import java.time.Clock;
 import java.util.TimeZone;
 
 /**
@@ -22,6 +23,7 @@ public class ConcentratorVersionResponseStructure extends Data<ConcentratorVersi
     public static final int PADDING_DATA_LENGTH = 2;
     public static final FunctionCode FUNCTION_CODE = FunctionCode.CONCENTRATOR_VERSION_RESPONSE;
 
+    private final Clock clock;
     private DateTime dateTime;
     private ConcentratorModel concentratorModel;
     private ConcentratorSerialNumber serialNumber;
@@ -31,10 +33,11 @@ public class ConcentratorVersionResponseStructure extends Data<ConcentratorVersi
 
     private final TimeZone timeZone;
 
-    public ConcentratorVersionResponseStructure(TimeZone timeZone) {
+    public ConcentratorVersionResponseStructure(Clock clock, TimeZone timeZone) {
         super(FUNCTION_CODE);
+        this.clock = clock;
         this.timeZone = timeZone;
-        this.dateTime = new DateTime(timeZone);
+        this.dateTime = new DateTime(clock, timeZone);
         this.concentratorModel = new ConcentratorModel();
         this.serialNumber = new ConcentratorSerialNumber();
         this.firmwareVersion = new ConcentratorFirmwareVersion();
@@ -58,7 +61,7 @@ public class ConcentratorVersionResponseStructure extends Data<ConcentratorVersi
     public ConcentratorVersionResponseStructure parse(byte[] rawData, int offset) throws ParsingException {
         int ptr = offset;
 
-        this.dateTime = new DateTime(getTimeZone()).parse(rawData, ptr);
+        this.dateTime = new DateTime(this.clock, getTimeZone()).parse(rawData, ptr);
         ptr += dateTime.getLength();
 
         this.concentratorModel = new ConcentratorModel().parse(rawData, ptr);

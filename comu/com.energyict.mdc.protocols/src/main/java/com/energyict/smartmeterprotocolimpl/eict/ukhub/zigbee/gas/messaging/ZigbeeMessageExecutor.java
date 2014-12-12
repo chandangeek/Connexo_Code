@@ -1,5 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.UserFileFactory;
+import com.energyict.mdc.protocol.api.UserFileShadow;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ParseUtils;
@@ -23,29 +34,18 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
-import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.protocolimpl.base.ActivityCalendarController;
+import com.energyict.protocolimpl.base.Base64EncoderDecoder;
+import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
 import com.energyict.protocolimpl.generic.csvhandling.TestObject;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
-import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.UserFileShadow;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocolimpl.base.ActivityCalendarController;
-import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300TimeOfUseMessageBuilder;
@@ -77,7 +77,6 @@ public class ZigbeeMessageExecutor extends MessageParser {
     private static final String SET_CONVERSION_FACTOR = "SetConversionFactor";
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
-    private static final String TARIFF_LABEL = "TariffLabel";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final ObisCode PRICE_MATRIX_OBISCODE = ObisCode.fromString("0.0.1.61.0.255");   //TODO C field, 1 or 2? (A+ or A-)
     private static final ObisCode STANDING_CHARGE_OBISCODE = ObisCode.fromString("0.0.0.61.2.255");
@@ -134,9 +133,9 @@ public class ZigbeeMessageExecutor extends MessageParser {
             } else if (isTextToDisplayMessage(content)) {
                 sendTextToDisplay(content);
             } else if (isConnectControlMessage(content)) {
-                doConnect(content);
+                doConnect();
             } else if (isDisconnectControlMessage(content)) {
-                doDisconnect(content);
+                doDisconnect();
             } else {
 
                 MessageHandler messageHandler = new NTAMessageHandler();
@@ -155,7 +154,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
                     success = false;
                 }
             }
-        } catch (IOException | BusinessException | SQLException | InterruptedException e) {
+        } catch (IOException | BusinessException | SQLException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
         }
@@ -168,7 +167,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         }
     }
 
-    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
+    private String getValueFromXMLAttribute(String tag, String content) {
         int startIndex = content.indexOf(tag + "=\"");
         int endIndex = content.indexOf("\"", startIndex + tag.length() + 2);
         try {
@@ -489,19 +488,19 @@ public class ZigbeeMessageExecutor extends MessageParser {
         }
     }
 
-    private void doConnect(final String content) throws IOException {
+    private void doConnect() throws IOException {
         log(Level.INFO, "Received Remote Connect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteReconnect();
     }
 
-    private void doDisconnect(final String content) throws IOException {
+    private void doDisconnect() throws IOException {
         log(Level.INFO, "Received Remote Disconnect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteDisconnect();
     }
 
-    private void doFirmwareUpgrade(MessageHandler messageHandler, final String content, final String trackingId) throws IOException, InterruptedException {
+    private void doFirmwareUpgrade(MessageHandler messageHandler, final String content, final String trackingId) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
@@ -682,20 +681,20 @@ public class ZigbeeMessageExecutor extends MessageParser {
         return this.protocol.getTimeZone();
     }
 
-    private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void testMessage(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message TestMessage");
         int failures = 0;
         String userFileId = messageHandler.getTestUserFileId();
         Date currentTime;
-        if (!userFileId.equalsIgnoreCase("")) {
+        if (!"".equalsIgnoreCase(userFileId)) {
             if (com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileId)) {
-                UserFile uf = findUserFile(userFileId);
+                UserFile uf = findUserFile();
                 if (uf != null) {
                     byte[] data = uf.loadFileInByteArray();
                     CSVParser csvParser = new CSVParser();
                     csvParser.parse(data);
                     boolean hasWritten;
-                    TestObject to = new TestObject("");
+                    TestObject to;
                     for (int i = 0; i < csvParser.size(); i++) {
                         to = csvParser.getTestObject(i);
                         if (csvParser.isValidLine(to)) {
@@ -718,7 +717,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
                                     break;
                                     case 2: { // ACTION
                                         GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-                                        if (to.getData().equalsIgnoreCase("")) {
+                                        if ("".equalsIgnoreCase(to.getData())) {
                                             gi.invoke();
                                         } else {
                                             gi.invoke(com.energyict.protocolimpl.generic.ParseUtils.hexStringToByteArray(to.getData()));
@@ -770,14 +769,14 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
                             } catch (Exception e) {
                                 if (!hasWritten) {
-                                    if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
+                                    if ((to.getExpected() != null) && (e.getMessage().contains(to.getExpected()))) {
                                         to.setResult(e.getMessage());
                                         log(Level.INFO, "Test " + i + " has successfully finished.");
                                         hasWritten = true;
                                     } else {
                                         log(Level.INFO, "Test " + i + " has failed.");
                                         String eMessage;
-                                        if (e.getMessage().indexOf("\r\n") != -1) {
+                                        if (e.getMessage().contains("\r\n")) {
                                             eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
                                         } else {
                                             eMessage = e.getMessage();
@@ -802,7 +801,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
                     } else {
                         csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
                     }
-                    createUserFile(uf, csvParser);
+                    createUserFile();
                 } else {
                     throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
                 }
@@ -814,11 +813,11 @@ public class ZigbeeMessageExecutor extends MessageParser {
         }
     }
 
-    private void createUserFile(UserFile uf, CSVParser csvParser) throws IOException {
+    private void createUserFile() {
         throw new UnsupportedOperationException("Userfiles is not longer supported by Jupiter");
     }
 
-    private UserFile findUserFile(String userFileId) {
+    private UserFile findUserFile() {
         throw new UnsupportedOperationException("Userfiles is not longer supported by Jupiter");
     }
 

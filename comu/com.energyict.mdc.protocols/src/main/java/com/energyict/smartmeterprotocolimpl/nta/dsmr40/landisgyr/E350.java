@@ -1,16 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
@@ -33,14 +34,14 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     protected MessageProtocol messageProtocol;
 
     @Inject
-    public E350(TopologyService topologyService, OrmClient ormClient) {
-        super(topologyService, ormClient);
+    public E350(TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(topologyService, ormClient, readingTypeUtilService);
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Dsmr40Messaging(new Dsmr40MessageExecutor(this));
+            messageProtocol = new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getTopologyService()));
         }
         return messageProtocol;
     }
@@ -73,7 +74,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
         } catch (IOException e) {
             getLogger().warning("Failed while initializing the DLMS connection.");
         }
-        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                                  //HDLC:         9600 baud, 8N1
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -110,7 +111,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     @Override
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LGLoadProfileBuilder(this);
+            this.loadProfileBuilder = new LGLoadProfileBuilder(this, this.getReadingTypeUtilService());
             ((LGLoadProfileBuilder) loadProfileBuilder).setCumulativeCaptureTimeChannel(((Dsmr40Properties) getProperties()).getCumulativeCaptureTimeChannel());
         }
         return loadProfileBuilder;
@@ -125,4 +126,5 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     public AXDRDateTimeDeviationType getDateTimeDeviationType() {
         return AXDRDateTimeDeviationType.Negative;
     }
+
 }

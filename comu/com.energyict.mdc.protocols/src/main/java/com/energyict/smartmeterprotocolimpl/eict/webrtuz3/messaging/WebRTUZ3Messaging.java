@@ -98,4 +98,5 @@ public class WebRTUZ3Messaging extends GenericMessaging implements MessageProtoc
     public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
         return this.messageExecutor.executeMessageEntry(messageEntry);
     }
+
 }

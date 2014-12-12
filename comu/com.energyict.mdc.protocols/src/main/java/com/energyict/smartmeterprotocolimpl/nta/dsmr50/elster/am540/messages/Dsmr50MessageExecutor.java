@@ -2,6 +2,8 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.SpecialDaysTable;
+
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 import com.energyict.mdc.protocol.api.codetables.CodeDayType;
@@ -32,8 +34,8 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     private static final String RESUME = "resume";
 
-    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol) {
-        super(protocol);
+    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TopologyService topologyService) {
+        super(protocol, topologyService);
     }
 
     @Override
@@ -66,7 +68,7 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
                 SpecialDaysTable specialDaysTable = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
 
                 //Create day type IDs (incremental 0-based)
-                Map<Integer, Integer> dayTypeIds = new HashMap<Integer, Integer>();  //Map the DB id's of the day types to a proper 0-based index that can be used in the AXDR array
+                Map<Integer, Integer> dayTypeIds = new HashMap<>();  //Map the DB id's of the day types to a proper 0-based index that can be used in the AXDR array
                 List<CodeDayType> dayTypes = ct.getDayTypes();
                 for (int dayTypeIndex = 0; dayTypeIndex < dayTypes.size(); dayTypeIndex++) {
                     CodeDayType dayType = dayTypes.get(dayTypeIndex);

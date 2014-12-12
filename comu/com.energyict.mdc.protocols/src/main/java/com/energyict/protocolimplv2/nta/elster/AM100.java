@@ -1,6 +1,15 @@
 package com.energyict.protocolimplv2.nta.elster;
 
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
+
+import javax.inject.Inject;
 
 /**
  * The AM100 implementation of the NTA spec
@@ -9,6 +18,11 @@ import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
  * @since 30/10/12 (9:58)
  */
 public class AM100 extends WebRTUKP {
+
+    @Inject
+    public AM100(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService);
+    }
 
     @Override
     public String getProtocolDescription() {

@@ -1,17 +1,19 @@
 package com.energyict.protocolimplv2.abnt.elster;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -23,13 +25,13 @@ import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
 import com.energyict.protocolimplv2.abnt.common.LoadProfileBuilder;
@@ -49,7 +51,6 @@ import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialC
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.protocols.mdc.services.impl.Bus;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
@@ -72,16 +73,17 @@ public class A1055 extends AbstractAbntProtocol {
     private LoadProfileBuilder loadProfileBuilder;
     private MessageFactory messageFactory;
     private DeviceProtocolSecurityCapabilities securitySupport;
-    private PropertySpecService propertySpecService;
-    private SerialComponentService serialComponentService;
-
-    public A1055() {
-    }
+    private final PropertySpecService propertySpecService;
+    private final SerialComponentService serialComponentService;
+    private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final IssueService issueService;
 
     @Inject
-    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService) {
+    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService) {
         this.propertySpecService = propertySpecService;
         this.serialComponentService = serialComponentService;
+        this.readingTypeUtilService = readingTypeUtilService;
+        this.issueService = issueService;
     }
 
     @Override
@@ -113,12 +115,6 @@ public class A1055 extends AbstractAbntProtocol {
     }
 
     @Override
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-        getSecuritySupport().setPropertySpecService(propertySpecService);
-    }
-
-    @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         setOfflineDevice(offlineDevice);
         getRequestFactory().setComChannel(comChannel);
@@ -145,9 +141,6 @@ public class A1055 extends AbstractAbntProtocol {
     }
 
     private SerialComponentService getSerialComponentService() {
-        if(this.serialComponentService == null) {
-            return Bus.getSerialComponentService();
-        }
         return this.serialComponentService;
     }
 
@@ -322,28 +315,28 @@ public class A1055 extends AbstractAbntProtocol {
 
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.readingTypeUtilService, this.issueService);
         }
         return this.loadProfileBuilder;
     }
 
     public RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new RegisterFactory(this);
+            this.registerFactory = new RegisterFactory(this, issueService);
         }
         return this.registerFactory;
     }
 
     public LogBookFactory getLogBookFactory() {
         if (this.logBookFactory == null) {
-            this.logBookFactory = new LogBookFactory(this);
+            this.logBookFactory = new LogBookFactory(this, issueService);
         }
         return this.logBookFactory;
     }
 
     public MessageFactory getMessageFactory() {
         if (this.messageFactory == null) {
-            this.messageFactory = new MessageFactory(this);
+            this.messageFactory = new MessageFactory(this, issueService);
         }
         return this.messageFactory;
     }

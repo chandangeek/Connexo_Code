@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -18,6 +19,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocolimpl.base.CachedMeterTime;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
@@ -28,6 +30,7 @@ import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging.WebRTUZ3Mess
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.MeterTopology;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,6 +44,8 @@ import java.util.List;
  * Time: 14:15:14
  */
 public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol {
+
+    private static final int OBIS_CODE_B_FIELD_INDEX = 1;
 
     /**
      * Contains properties related to the WebRTUZ3 protocol
@@ -70,7 +75,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
     /**
      * Contains a summary of all the slaveMeters
      */
-    private List<SlaveMeter> slaveMeters = new ArrayList<SlaveMeter>();
+    private List<SlaveMeter> slaveMeters = new ArrayList<>();
 
     /**
      * Represents the <CODE>LoadProfileBuilder</CODE> to use
@@ -78,14 +83,15 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
     private LoadProfileBuilder loadProfileBuilder;
 
     private WebRTUZ3Messaging messageProtocol = new WebRTUZ3Messaging(new WebRTUZ3MessageExecutor(this));
+    private final MdcReadingTypeUtilService readingTypeUtilService;
 
-    private static final int ObisCodeBFieldIndex = 1;
+    @Inject
+    public WebRTUZ3(OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService) {
+        super(ormClient);
+        this.readingTypeUtilService = readingTypeUtilService;
+    }
 
 //    /**
-//     * Contains a Map of all the requested objects in this communicationSession
-//     */
-//    private Map<DLMSAttribute, AbstractDataType> sessionCachedObjects = new HashMap<DLMSAttribute, AbstractDataType>();
-
     @Override
     protected WebRTUZ3Properties getProperties() {
         if (properties == null) {
@@ -143,15 +149,14 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      * Get the firmware version of the meter
      *
      * @return the version of the meter firmware
-     * @throws java.io.IOException Thrown in case of an exception
-     * @throws UnsupportedException Thrown if method is not supported
+     * @throws IOException Thrown in case of an exception
      */
     public String getFirmwareVersion() throws IOException {
         try {
             StringBuilder firmware = new StringBuilder();
             firmware.append(getMeterInfo().getFirmwareVersion());
             String rfFirmware = getRFFirmwareVersion();
-            if (!rfFirmware.equalsIgnoreCase("")) {
+            if (!"".equalsIgnoreCase(rfFirmware)) {
                 firmware.append(" - RF-FirmwareVersion : ");
                 firmware.append(rfFirmware);
             }
@@ -268,7 +273,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      * @return A list of meterEvents
      */
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         EMeterEventProfile eventProfile = new EMeterEventProfile(this, getDlmsSession());
         meterEvents.addAll(eventProfile.getEvents(lastLogbookDate));
 
@@ -363,7 +368,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
     public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
         int address = getPhysicalAddressFromSerialNumber(serialNumber);
         if (address != -1) {
-            return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
+            return ProtocolTools.setObisCodeField(obisCode, OBIS_CODE_B_FIELD_INDEX, (byte) address);
         }
         return null;
     }
@@ -385,7 +390,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      */
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this);
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.readingTypeUtilService);
         }
         return this.loadProfileBuilder;
     }
@@ -403,10 +408,10 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
     /**
      * Provides the full list of outstanding messages to the protocol.
      * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link com.energyict.protocol.MessageEntry} (see {@link #queryMessage(com.energyict.protocol.MessageEntry)}) to actually
+     * At a later timestamp the framework will query each {@link MessageEntry} (see {@link #queryMessage(MessageEntry)}) to actually
      * perform the message.
      *
-     * @param messageEntries a list of {@link com.energyict.protocol.MessageEntry}s
+     * @param messageEntries The List of MessageEntry
      * @throws java.io.IOException if a logical error occurs
      */
     public void applyMessages(final List messageEntries) throws IOException {
