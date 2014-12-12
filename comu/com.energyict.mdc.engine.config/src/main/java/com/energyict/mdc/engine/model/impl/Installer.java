@@ -49,17 +49,12 @@ public class Installer {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
         this.createPrivileges();
-        this.assignPrivilegesToDefaultRoles();
         this.createEventTypes();
         this.createTranslations();
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "communicationInfrastructure.communicationInfrastructures", "communicationInfrastructure.communicationInfrastructures.description", new String[] {Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE});
-    }
-
-    private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.ADMINISTRATE_COMMUNICATION_INFRASTRUCTURE, Privileges.VIEW_COMMUNICATION_INFRASTRUCTURE});
+        this.userService.createResourceWithPrivileges("MDC", "communicationAdministration.communicationAdministrations", "communicationAdministration.communicationAdministrations.description", new String[] {Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION});
     }
 
     private void createTranslations() {
