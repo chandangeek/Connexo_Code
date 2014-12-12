@@ -30,6 +30,8 @@ public interface MeteringService {
 
     Optional<Meter> findMeter(long id);
 
+    Optional<Meter> findMeter(String mRid);
+
     Optional<EndDevice> findEndDevice(String mRid);
 
     Optional<MeterActivation> findMeterActivation(long meterActivationId);

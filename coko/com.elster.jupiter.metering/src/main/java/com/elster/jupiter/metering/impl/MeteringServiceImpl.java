@@ -150,6 +150,12 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
     }
 
     @Override
+    public Optional<Meter> findMeter(String mRid) {
+        List<Meter> meters = dataModel.mapper(Meter.class).select(Operator.EQUAL.compare("mRID", mRid));
+        return meters.isEmpty() ? Optional.empty() : Optional.of(meters.get(0));
+    }
+
+    @Override
     public Optional<EndDevice> findEndDevice(String mRid) {
         List<EndDevice> endDevices = dataModel.mapper(EndDevice.class).select(Operator.EQUAL.compare("mRID", mRid));
         return endDevices.isEmpty() ? Optional.empty() : Optional.of(endDevices.get(0));
