@@ -9,7 +9,6 @@ import java.time.Clock;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -46,12 +45,6 @@ public class PartiesApplication extends Application implements BinderProvider {
     @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
         this.restQueryService = restQueryService;
-    }
-
-    public void activate(ComponentContext context) {
-    }
-
-    public void deactivate(ComponentContext context) {
     }
 
     public PartyService getPartyService() {
