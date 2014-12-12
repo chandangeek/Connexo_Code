@@ -35,12 +35,10 @@ public class InstallerImpl {
         try{
             InternalDirectoryImpl directory = createDirectory();
 
-            GroupImpl administrators = createRole(UserService.DEFAULT_ADMIN_ROLE, "Administrative privileges");
-            GroupImpl meterExperts = createRole(UserService.DEFAULT_METER_EXPERT_ROLE, "Full meter management privileges");
-            GroupImpl meterOperators = createRole(UserService.DEFAULT_METER_OPERATOR_ROLE, "Meter operation privileges");
+            GroupImpl administrators = createRole(UserService.DEFAULT_ADMIN_ROLE, UserService.DEFAULT_ADMIN_ROLE_DESCRIPTION);
 
             grantSystemAdministratorPrivileges(administrators);
-            createAdministratorUser(directory, new GroupImpl[] {administrators, meterExperts, meterOperators});
+            createAdministratorUser(directory, new GroupImpl[]{administrators});
         }
         catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);

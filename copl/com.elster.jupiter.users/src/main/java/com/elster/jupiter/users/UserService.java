@@ -10,8 +10,7 @@ public interface UserService {
     String COMPONENTNAME = "USR";
 
     String DEFAULT_ADMIN_ROLE = "Administrators";
-    String DEFAULT_METER_EXPERT_ROLE = "Meter expert";
-    String DEFAULT_METER_OPERATOR_ROLE = "Meter operator";
+    String DEFAULT_ADMIN_ROLE_DESCRIPTION = "Administrative privileges";
 
     User createUser(String name, String description);
 
