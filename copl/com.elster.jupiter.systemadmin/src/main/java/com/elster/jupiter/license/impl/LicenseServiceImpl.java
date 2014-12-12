@@ -132,13 +132,13 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
         if (dataModel.isInstalled()) {
             List<License> licenses = dataModel.mapper(License.class).find();
             for (License license : licenses) {
-                Dictionary<String, String> props=new Hashtable<String, String>();
-                props.put("com.elster.jupiter.license.application.key",license.getApplicationKey());
-                if(license.getStatus().equals(License.Status.ACTIVE) || license.getGracePeriodInDays() > 0){
-                    props.put("com.elster.jupiter.license.rest.key",license.getApplicationKey());
+                Dictionary<String, String> props = new Hashtable<String, String>();
+                props.put("com.elster.jupiter.license.application.key", license.getApplicationKey());
+                if (license.getStatus().equals(License.Status.ACTIVE) || license.getGracePeriodInDays() > 0) {
+                    props.put("com.elster.jupiter.license.rest.key", license.getApplicationKey());
                 }
 
-                if(context != null){
+                if (context != null) {
                     licenseServices.add(context.registerService(License.class, license, props));
                 }
             }
@@ -146,7 +146,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService {
     }
 
     private void unregisterApps() {
-        for(ServiceRegistration<License> service : licenseServices){
+        for (ServiceRegistration<License> service : licenseServices) {
             service.unregister();
         }
 
