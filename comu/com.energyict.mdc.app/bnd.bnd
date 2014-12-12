@@ -1,5 +1,6 @@
 -classpath: target/classes
 -dsannotations: *
-Bundle-Activator: com.energyict.mdc.app.Activator
-Private-Package: com.energyict.mdc.app
+Bundle-Activator: com.energyict.mdc.app.impl.Activator
+Private-Package: com.energyict.mdc.app.impl
+Export-Package: com.energyict.mdc.app
 -include: -../development.bnd
