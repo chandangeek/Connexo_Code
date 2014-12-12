@@ -133,11 +133,6 @@ public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "";
-    }
-
-    @Override
     public void setCache(Object cacheObject) {
         // nothing to set
     }

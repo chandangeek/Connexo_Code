@@ -137,11 +137,6 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "";
-    }
-
-    @Override
     public void setCache(Object cacheObject) {
 
     }
