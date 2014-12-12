@@ -19,6 +19,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
+ * This is an artificial const5ruction to allow FrontEnd to re-use the common component for properties. Yes, this is poor design, but at the
+ * same time we could avoid adding the properties to the device itself (where they belong).
  * Created by bvn on 12/1/14.
  */
 public class DeviceProtocolPropertyResource {
