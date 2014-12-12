@@ -1,9 +1,9 @@
 package com.elster.jupiter.yellowfin.impl;
 
-/*import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.orm.callback.InstallService;*/
+import com.elster.jupiter.orm.callback.InstallService;
 
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.hof.mi.web.service.*;
@@ -11,6 +11,7 @@ import com.hof.util.Base64;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.xml.rpc.ServiceException;
 import java.io.File;
@@ -18,11 +19,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
-public class YellowfinServiceImpl implements YellowfinService/*, InstallService*/ {
+@Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, InstallService.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
+public class YellowfinServiceImpl implements YellowfinService, InstallService {
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
     private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.user";
     private static final String YELLOWFIN_WEBSERVICES_PASSWORD = "com.elster.jupiter.yellowfin.password";
@@ -45,7 +50,7 @@ public class YellowfinServiceImpl implements YellowfinService/*, InstallService*
     private String yellowfinWebServiceUser = DEFAULT_YELLOWFIN_USER;
     private String yellowfinWebServicePassword = DEFAULT_YELLOWFIN_PASSWORD;
 
-   // private volatile MessageService messageService;
+   private volatile MessageService messageService;
 
     @Activate
     public void activate(BundleContext context) {
@@ -70,10 +75,10 @@ public class YellowfinServiceImpl implements YellowfinService/*, InstallService*
         yellowfinUrl = yellowfinUrl.isEmpty() ? DEFAULT_YELLOWFIN_URL : yellowfinUrl;
     }
 
-    //@Reference
-    //public void setMessageService(MessageService messageService) {
-    //    this.messageService = messageService;
-    //}
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
 
     @Override
     public String getYellowfinUrl(){
@@ -206,7 +211,7 @@ public class YellowfinServiceImpl implements YellowfinService/*, InstallService*
         //ap.setPassword("admin");
         rsr.setPerson(ap);
 
-// This is the Session ID
+        // This is the Session ID
         //rsr.setLoginSessionId(sessionId);
         if (rssbs != null) {
             try {
@@ -261,7 +266,7 @@ public class YellowfinServiceImpl implements YellowfinService/*, InstallService*
         return null;
     }
 
-    /*@Override
+    @Override
     public void install() {
         try {
             QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
@@ -277,5 +282,5 @@ public class YellowfinServiceImpl implements YellowfinService/*, InstallService*
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "MSG");
-    }*/
+    }
 }
