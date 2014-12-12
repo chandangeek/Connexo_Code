@@ -1,2 +1,3 @@
 -classpath: target/classes 
+Include-Resource: README.HTML
 Export-Package: com.elster.jupiter.cbo
