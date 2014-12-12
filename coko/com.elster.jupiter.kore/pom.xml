@@ -95,6 +95,7 @@
                 <module>../com.elster.jupiter.parties</module>
                 <module>../com.elster.jupiter.parties.rest</module>
                 <module>../com.elster.jupiter.system.app</module>
+                <module>../com.elster.jupiter.system.app.help</module>
                 <module>../com.elster.jupiter.systemadmin.extjs</module>
                 <module>../com.elster.jupiter.systemadmin.rest</module>
                 <module>../com.elster.jupiter.validation</module>
