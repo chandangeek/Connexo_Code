@@ -2,9 +2,22 @@ package com.elster.jupiter.export.processor.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.export.*;
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.readings.*;
+import com.elster.jupiter.export.DataExportException;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataProcessor;
+import com.elster.jupiter.export.FatalDataExportException;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.IntervalBlock;
+import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
@@ -13,13 +26,21 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
-import java.io.*;
-import java.nio.file.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public class StandardCsvDataProcessor implements DataProcessor {
@@ -222,7 +243,7 @@ public class StandardCsvDataProcessor implements DataProcessor {
         if (!fileNameUpdated.toString().isEmpty()) {
             fileNameUpdated.append('_');
         }
-        fileNameUpdated.append( date.format(formatter)).append('.').append(extension);
+        fileNameUpdated.append(date.format(formatter)).append('.').append(extension);
 
         Path path = fileSystem.getPath(this.path);
         if (path.isAbsolute()) {
@@ -256,7 +277,7 @@ public class StandardCsvDataProcessor implements DataProcessor {
 
     private Map<Instant, DataValidationStatus> getDataValidationStatusMap(Optional<Instant> instantRef, List<? extends BaseReading> readings) {
         Map<Instant, DataValidationStatus> statuses = new HashMap<>();
-        if(instantRef.isPresent()) {
+        if (instantRef.isPresent()) {
             List<DataValidationStatus> dataValidationStatuses = validationService.getEvaluator(meter, Interval.sinceEpoch().toOpenClosedRange())
                     .getValidationStatus(forValidation(instantRef.get(), meter), readings);
             dataValidationStatuses.stream().forEach(s -> statuses.put(s.getReadingTimestamp(), s));
@@ -273,15 +294,16 @@ public class StandardCsvDataProcessor implements DataProcessor {
         if (latestProcessedTimestamp.isPresent()) {
             Optional<Meter> meterOptional = readingContainer.getMeter(latestProcessedTimestamp.get());
             if (!meterOptional.isPresent()) {
-                throw new DataExportException(new LocalizedException(thesaurus, MessageSeeds.INVALID_READING_CONTAINER, new IllegalArgumentException()) {});
+                throw new DataExportException(new LocalizedException(thesaurus, MessageSeeds.INVALID_READING_CONTAINER, new IllegalArgumentException()) {
+                });
             }
             meter = meterOptional.get();
         }
     }
 
     private Optional<Channel> findChannel(MeterActivation meterActivation) {
-        for(Channel channel : meterActivation.getChannels()) {
-            if(channel.getReadingTypes().contains(readingType)) {
+        for (Channel channel : meterActivation.getChannels()) {
+            if (channel.getReadingTypes().contains(readingType)) {
                 return Optional.of(channel);
             }
         }

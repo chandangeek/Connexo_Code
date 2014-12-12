@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>kore</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>export.processors</artifactId>
@@ -27,12 +27,12 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>export</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <artifactId>properties</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>properties</artifactId>
+            <artifactId>export</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -40,36 +40,27 @@
             <artifactId>validation</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
+
         <!-- TEST -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap.h2</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging.h2</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.persistence</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
-            <version>1.0</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

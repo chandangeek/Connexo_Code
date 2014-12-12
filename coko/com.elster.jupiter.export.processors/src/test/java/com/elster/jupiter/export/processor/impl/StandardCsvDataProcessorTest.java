@@ -8,8 +8,18 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.readings.*;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.IntervalBlock;
+import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -29,11 +39,15 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -203,7 +217,7 @@ public class StandardCsvDataProcessorTest {
     }
 
     @Test
-    public  void testExportToCsvWithAbsolutePath() {
+    public void testExportToCsvWithAbsolutePath() {
         processor = new StandardCsvDataProcessor(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
 
         runExport();
@@ -216,7 +230,7 @@ public class StandardCsvDataProcessorTest {
     }
 
     @Test
-    public  void testExportToCsvWithRelativePath() {
+    public void testExportToCsvWithRelativePath() {
         when(propertyPath.getValue()).thenReturn("dailies");
         processor = new StandardCsvDataProcessor(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
 
@@ -229,7 +243,7 @@ public class StandardCsvDataProcessorTest {
     }
 
     @Test
-    public  void testExportToCsvWithoutPath() {
+    public void testExportToCsvWithoutPath() {
         properties = Arrays.asList(propertyPrefix, propertyExtension, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile);
         processor = new StandardCsvDataProcessor(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
 
@@ -274,7 +288,7 @@ public class StandardCsvDataProcessorTest {
 
     private Map<String, Object> getPropertyMap(List<DataExportProperty> properties) {
         Map<String, Object> propertyMap = new HashMap<>();
-        for(DataExportProperty dataExportProperty : properties) {
+        for (DataExportProperty dataExportProperty : properties) {
             propertyMap.put(dataExportProperty.getName(), dataExportProperty.getValue());
         }
         return propertyMap;
