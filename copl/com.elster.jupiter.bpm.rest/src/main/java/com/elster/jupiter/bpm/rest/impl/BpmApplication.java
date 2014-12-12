@@ -5,7 +5,6 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.rest.util.BinderProvider;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -43,14 +42,6 @@ public class BpmApplication extends Application implements BinderProvider{
     @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
     public void setLicense(License license) {
         this.license = license;
-    }
-
-    @Activate
-    public void activate(ComponentContext context) {
-    }
-
-    @Deactivate
-    public void deactivate(ComponentContext context) {
     }
 
     @Override
