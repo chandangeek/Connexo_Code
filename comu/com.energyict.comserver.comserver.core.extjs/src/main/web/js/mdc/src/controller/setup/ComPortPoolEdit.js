@@ -47,6 +47,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         var me = this,
             widget = Ext.widget('comPortPoolEdit'),
             model = Ext.create(Mdc.model.ComPortPool),
+            protocolDetectionCombo = widget.down('combobox[name=discoveryProtocolPluggableClassId]'),
             isInbound = false,
             form,
             title;
@@ -62,6 +63,15 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                 me.getStore('Mdc.store.ComPortTypesWithOutServlet').load();
                 widget.down('form combobox[name=type]').store = me.getStore('Mdc.store.ComPortTypesWithOutServlet');
                 break;
+        }
+
+        if (isInbound) {
+            protocolDetectionCombo.show();
+            protocolDetectionCombo.enable();
+            protocolDetectionCombo.getStore().load();
+        } else {
+            protocolDetectionCombo.hide();
+            protocolDetectionCombo.disable();
         }
 
         model.set('direction', type);
@@ -90,6 +100,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                 var comServerType = record.get('comServerType'),
                     form = widget.down('form'),
                     isInbound = (record.get('direction').toLowerCase() === 'inbound'),
+                    protocolDetectionCombo = form.down('combobox[name=discoveryProtocolPluggableClassId]'),
                     title;
 
                 me.comPortPoolModel = record;
@@ -99,8 +110,15 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                 title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + record.get('name') + '\'';
 
                 form.setTitle(title);
-                form.down('[name=discoveryProtocolPluggableClassId]').setVisible(isInbound);
-                form.down('[name=discoveryProtocolPluggableClassId]').setDisabled(!isInbound);
+                if (isInbound) {
+                    protocolDetectionCombo.show();
+                    protocolDetectionCombo.enable();
+                    protocolDetectionCombo.getStore().load();
+                } else {
+                    protocolDetectionCombo.hide();
+                    protocolDetectionCombo.disable();
+                }
+
                 form.down('[name=direction_visual]').show();
                 form.down('[name=type]').setDisabled(true);
                 form.loadRecord(record);

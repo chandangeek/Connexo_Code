@@ -110,12 +110,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
             form = itemPanel.down('form'),
             model = this.getModel('Mdc.model.ComPortPool'),
             id = record.getId();
-
-        deviceDiscoveryProtocolsStore = this.getStore('Mdc.store.DeviceDiscoveryProtocols');
-
         itemPanel.setLoading(this.getModel('Mdc.model.ComPortPool'));
-
-        !deviceDiscoveryProtocolsStore.getCount() && deviceDiscoveryProtocolsStore.load();
         model.load(id, {
             success: function (record) {
                 if (!form.isDestroyed) {
@@ -133,6 +128,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
     editComPortPool: function (record) {
         var router = this.getController('Uni.controller.history.Router'),
             id = record.getId();
+
         router.getRoute('administration/comportpools/edit').forward({id: id});
     },
 
