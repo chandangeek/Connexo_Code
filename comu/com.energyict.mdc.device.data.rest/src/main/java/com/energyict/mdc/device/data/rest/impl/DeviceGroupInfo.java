@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.groups.SearchCriteria;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.DeviceService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,37 +35,36 @@ public class DeviceGroupInfo {
         deviceGroupInfo.name = endDeviceGroup.getName();
         deviceGroupInfo.dynamic = endDeviceGroup.isDynamic();
         if (endDeviceGroup.isDynamic()) {
-           DeviceType deviceType = null;
-           for (SearchCriteria criteriaToAdd : ((QueryEndDeviceGroup) endDeviceGroup).getSearchCriteria()) {
-               deviceGroupInfo.criteria.add(new SearchCriteriaInfo(criteriaToAdd));
+            DeviceType deviceType = null;
+            for (SearchCriteria criteriaToAdd : ((QueryEndDeviceGroup) endDeviceGroup).getSearchCriteria()) {
+                deviceGroupInfo.criteria.add(new SearchCriteriaInfo(criteriaToAdd));
 
-               String criteriaName = criteriaToAdd.getCriteriaName();
-               List<Object> values = criteriaToAdd.getCriteriaValues();
+                String criteriaName = criteriaToAdd.getCriteriaName();
+                List<Object> values = criteriaToAdd.getCriteriaValues();
 
-               if ("deviceConfiguration.deviceType.name".equals(criteriaName)) {
-                   for (Object value : values) {
-                       String deviceTypeName = (String) value;
-                       Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceTypeByName(deviceTypeName);
-                       if (deviceTypeOptional.isPresent()) {
-                           deviceType = deviceTypeOptional.get();
-                           deviceGroupInfo.deviceTypeIds.add(deviceType.getId());
-                       }
-                   }
-               }
-               else if ("deviceConfiguration.name".equals(criteriaName)) {
-                   for (Object value : values) {
-                       if (deviceType != null) {
-                           String deviceConfigurationName = (String) value;
-                           List<DeviceConfiguration> configs = deviceType.getConfigurations();
-                           for (DeviceConfiguration config : configs) {
-                               if (config.getName().equals(deviceConfigurationName)) {
-                                   deviceGroupInfo.deviceConfigurationIds.add(config.getId());
-                               }
-                           }
-                       }
-                   }
-               }
-           }
+                if ("deviceConfiguration.deviceType.name".equals(criteriaName)) {
+                    for (Object value : values) {
+                        String deviceTypeName = (String) value;
+                        Optional<DeviceType> deviceTypeOptional = deviceConfigurationService.findDeviceTypeByName(deviceTypeName);
+                        if (deviceTypeOptional.isPresent()) {
+                            deviceType = deviceTypeOptional.get();
+                            deviceGroupInfo.deviceTypeIds.add(deviceType.getId());
+                        }
+                    }
+                } else if ("deviceConfiguration.name".equals(criteriaName)) {
+                    for (Object value : values) {
+                        if (deviceType != null) {
+                            String deviceConfigurationName = (String) value;
+                            List<DeviceConfiguration> configs = deviceType.getConfigurations();
+                            for (DeviceConfiguration config : configs) {
+                                if (config.getName().equals(deviceConfigurationName)) {
+                                    deviceGroupInfo.deviceConfigurationIds.add(config.getId());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         return deviceGroupInfo;
     }
