@@ -7,8 +7,8 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.pluggable.security.Privileges;
 
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
@@ -39,7 +39,7 @@ public class ProtocolDialectResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getProtocolDialects(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<ProtocolDialectConfigurationProperties> pagedDialectProtocols = ListPager.of(device.getProtocolDialects(), new ProtocolDialectComparator()).from(queryParameters).find();
@@ -50,7 +50,7 @@ public class ProtocolDialectResource {
     @GET
     @Path("/{protocolDialectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_PROTOCOL,Privileges.VIEW_PROTOCOL})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public ProtocolDialectInfo getProtocolDialects(@PathParam("mRID") String mRID, @PathParam("protocolDialectId") long protocolDialectId, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(mRID, protocolDialectId);
@@ -62,7 +62,7 @@ public class ProtocolDialectResource {
     @Path("/{protocolDialectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_PROTOCOL)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
     public ProtocolDialectInfo updateProtocolDialect(@PathParam("mRID") String mRID,
                                                       @PathParam("protocolDialectId") long protocolDialectId,
                                                       @Context UriInfo uriInfo,
