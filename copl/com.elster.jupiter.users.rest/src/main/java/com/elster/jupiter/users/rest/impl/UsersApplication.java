@@ -7,7 +7,6 @@ import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -43,15 +42,6 @@ public class UsersApplication extends Application implements BinderProvider {
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
-
-    @Activate
-    public void activate(ComponentContext context) {
-    }
-
-    @Deactivate
-    public void deactivate(ComponentContext context) {
-    }
-
 
     @Override
     public Binder getBinder() {
