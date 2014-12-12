@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -32,11 +33,11 @@ import java.util.logging.Logger;
 public class WhiteBoard extends Application implements BinderProvider {
     private volatile HttpService httpService;
     private volatile UserService userService;
+    private volatile JsonService jsonService;
     private volatile LicenseService licenseService;
     private volatile MessageService messageService;
     private volatile TransactionService transactionService;
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
-    private boolean generateEvents;
 
     private final static String SESSION_TIMEOUT = "com.elster.jupiter.session.timeout";
     private int sessionTimeout = 600; // default value 10 min
@@ -56,6 +57,11 @@ public class WhiteBoard extends Application implements BinderProvider {
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
     }
 
     @Reference
@@ -81,7 +87,7 @@ public class WhiteBoard extends Application implements BinderProvider {
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(HttpResource resource) {
         String alias = getAlias(resource.getAlias());
-        HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, messageService, eventAdminHolder);
+        HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, messageService, jsonService, eventAdminHolder);
         try {
             httpService.registerResources(alias, resource.getLocalName(), httpContext);
             resources.add(resource);
@@ -121,6 +127,10 @@ public class WhiteBoard extends Application implements BinderProvider {
                 sessionTimeout = timeout;
             }
         }
+    }
+
+    MessageService getMessageService(){
+        return this.messageService;
     }
 
     int getSessionTimeout() {
