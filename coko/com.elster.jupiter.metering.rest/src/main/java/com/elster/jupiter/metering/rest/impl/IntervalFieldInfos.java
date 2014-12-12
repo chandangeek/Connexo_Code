@@ -18,7 +18,7 @@ public class IntervalFieldInfos {
         intervals.add(intervalFieldInfo);
         total++;
     }
-    
+
     public void add(int time, String name) {
         IntervalFieldInfo intervalFieldInfo = new IntervalFieldInfo();
         intervalFieldInfo.name = name;
