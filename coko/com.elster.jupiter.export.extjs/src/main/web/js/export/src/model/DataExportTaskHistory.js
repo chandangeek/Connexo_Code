@@ -19,7 +19,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             persist: false,
             mapping: function (data) {
                 if (data.statusDate && (data.statusDate !== 0)) {
-                    return data.statusPrefix + ' ' + moment(data.statusDate).format('ddd, DD MMM YYYY hh:mm:ss');
+                    return data.statusPrefix + ' ' + moment(data.statusDate).format('ddd, DD MMM YYYY HH:mm:ss');
                 }
                 return data.statusPrefix;
             }
@@ -29,7 +29,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             persist: false,
             mapping: function (data) {
                 if (data.startedOn && (data.startedOn !== 0)) {
-                    return moment(data.startedOn).format('ddd, DD MMM YYYY hh:mm:ss');
+                    return moment(data.startedOn).format('ddd, DD MMM YYYY HH:mm:ss');
                 }
                 return '-';
             }
@@ -39,7 +39,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             persist: false,
             mapping: function (data) {
                 if (data.finishedOn && (data.finishedOn !== 0)) {
-                    return moment(data.finishedOn).format('ddd, DD MMM YYYY hh:mm:ss');
+                    return moment(data.finishedOn).format('ddd, DD MMM YYYY HH:mm:ss');
                 }
                 return '-';
             }
@@ -49,7 +49,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             persist: false,
             mapping: function (data) {
                 if (data.exportPeriodFrom && (data.exportPeriodFrom !== 0)) {
-                    return moment(data.exportPeriodFrom).format('ddd, DD MMM YYYY hh:mm:ss');
+                    return moment(data.exportPeriodFrom).format('ddd, DD MMM YYYY HH:mm:ss');
                 }
                 return '-';
             }
@@ -59,7 +59,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             persist: false,
             mapping: function (data) {
                 if (data.exportPeriodTo && (data.exportPeriodTo !== 0)) {
-                    return moment(data.exportPeriodTo).format('ddd, DD MMM YYYY hh:mm:ss');
+                    return moment(data.exportPeriodTo).format('ddd, DD MMM YYYY HH:mm:ss');
                 }
                 return '-';
             }
@@ -70,8 +70,8 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             mapping: function (data) {
                 if ((data.exportPeriodFrom && data.exportPeriodFrom !== 0) &&
                     (data.exportPeriodTo && data.exportPeriodTo !== 0)) {
-                    return 'From ' + moment(data.exportPeriodFrom).format('ddd, DD MMM YYYY hh:mm:ss') +
-                        ' to ' + moment(data.exportPeriodTo).format('ddd, DD MMM YYYY hh:mm:ss');
+                    return 'From ' + moment(data.exportPeriodFrom).format('ddd, DD MMM YYYY HH:mm:ss') +
+                        ' to ' + moment(data.exportPeriodTo).format('ddd, DD MMM YYYY HH:mm:ss');
                 }
                 return '-';
             }
