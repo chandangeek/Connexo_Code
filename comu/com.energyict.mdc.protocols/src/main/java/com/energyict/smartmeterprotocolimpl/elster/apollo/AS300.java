@@ -48,7 +48,7 @@ import java.util.logging.Logger;
  * Date: 29-jun-2011
  * Time: 11:32:30
  */
-public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, TimeOfUseMessaging, WakeUpProtocolSupport {
+public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
     protected AS300Properties properties;
     private AS300ObjectFactory objectFactory;
@@ -177,18 +177,8 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster AS300-P (SSWG IC) DLMS";
-    }
-
-    /**
-     * Returns the version
-     *
-     * @return the version string
-     */
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     public String getSerialNumber() {
@@ -249,24 +239,6 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public String writeValue(final MessageValue value) {
         return getMessageProtocol().writeValue(value);
-    }
-
-    /**
-     * Returns the message builder capable of generating and parsing 'time of use' messages.
-     *
-     * @return The {@link MessageBuilder} capable of generating and parsing 'time of use' messages.
-     */
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return getMessageProtocol().getTimeOfUseMessageBuilder();
-    }
-
-    /**
-     * Returns the config object for the TimeOfUseMessages
-     *
-     * @return the config object
-     */
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        return getMessageProtocol().getTimeOfUseMessagingConfig();
     }
 
     /**

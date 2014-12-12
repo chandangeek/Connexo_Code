@@ -47,7 +47,7 @@ public class OutboundTcpIpConnectionTypeTest {
     }
     @Test(expected = UnknownHostException.class)
     public void testConnectToUnknownHost () throws Throwable {
-        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType();
+        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService());
 
         ArrayList<ConnectionProperty> properties = getConnectionProperties("www.ditiszekereendomeinnaamdienietbestaat.zelfsdeextentiebestaatniet", DEFAULT_HTTP_PORT, 1);
 
@@ -65,7 +65,7 @@ public class OutboundTcpIpConnectionTypeTest {
 
     @Test
     public void testTimeoutIsRespected () throws SocketTimeoutException {
-        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType();
+        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService());
 
         int timeOut = 1;    // seconds
         ArrayList<ConnectionProperty> properties = getConnectionProperties("10.0.13.13", DEFAULT_HTTP_PORT, timeOut);
@@ -139,7 +139,7 @@ public class OutboundTcpIpConnectionTypeTest {
     }
 
     private OutboundTcpIpConnectionType newTcpIpConnectionType () {
-        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType();
+        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType(Bus.getPropertySpecService(), Bus.getSocketService());
         TypedProperties properties = TypedProperties.empty();
         properties.setProperty(OutboundIpConnectionType.HOST_PROPERTY_NAME, "jira.eict.vpdc");
         properties.setProperty(OutboundIpConnectionType.PORT_PROPERTY_NAME, new BigDecimal(DEFAULT_HTTP_PORT));

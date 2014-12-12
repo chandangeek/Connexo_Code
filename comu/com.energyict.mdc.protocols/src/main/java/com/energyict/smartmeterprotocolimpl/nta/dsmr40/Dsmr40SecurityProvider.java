@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40;
 
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
 import java.util.Properties;
 import java.util.Random;
@@ -19,6 +19,10 @@ public class Dsmr40SecurityProvider extends NTASecurityProvider {
      */
     public Dsmr40SecurityProvider(Properties properties) {
         super(properties);
+        initializeRespondingFrameCounterHandler();
+    }
+
+    protected void initializeRespondingFrameCounterHandler() {
         setRespondingFrameCounterHandling(new DSMR40RespondingFrameCounterHandler());
     }
 
@@ -29,7 +33,7 @@ public class Dsmr40SecurityProvider extends NTASecurityProvider {
      */
     @Override
     public byte[] getHLSSecret() {
-        String hexPassword = this.properties.getProperty(Dsmr40Properties.DSMR_40_HEX_PASSWORD);
+        String hexPassword = getProperties().getProperty(Dsmr40Properties.DSMR_40_HEX_PASSWORD);
         if (hexPassword != null) {
             return com.energyict.dlms.DLMSUtils.hexStringToByteArray(hexPassword);
         } else {

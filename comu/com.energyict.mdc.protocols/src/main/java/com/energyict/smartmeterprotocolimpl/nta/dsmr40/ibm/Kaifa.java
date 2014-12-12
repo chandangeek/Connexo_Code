@@ -23,6 +23,8 @@ import java.io.IOException;
  */
 public class Kaifa extends E350 {
 
+    private Dsmr40Messaging messageProtocol = null;
+
     @Inject
     public Kaifa(TopologyService topologyService, OrmClient ormClient) {
         super(topologyService, ormClient);
@@ -53,7 +55,10 @@ public class Kaifa extends E350 {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this, this.getTopologyService()));
+        if (messageProtocol == null) {
+            messageProtocol = new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this));
+        }
+        return messageProtocol;
     }
 
     @Override

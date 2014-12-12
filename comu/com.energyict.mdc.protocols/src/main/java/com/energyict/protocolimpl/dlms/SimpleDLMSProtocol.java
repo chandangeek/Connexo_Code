@@ -29,7 +29,7 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -162,9 +162,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * "password"  (MeterProtocol.PASSWORD) </p>
      *
      * @param properties contains a set of protocol specific key value pairs
-     * @throws com.energyict.mdc.protocol.api.InvalidPropertyException
+     * @throws InvalidPropertyException
      *          if a property value is not compatible with the device type
-     * @throws com.energyict.mdc.protocol.api.MissingPropertyException
+     * @throws MissingPropertyException
      *          if a required property is not present
      */
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
@@ -543,6 +543,11 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         return null;
     }
 
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
+    }
+
     /**
      * Terminates the logical connection with the device.
      * The implementer should not close the inputStream and outputStream. This
@@ -564,11 +569,6 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         }
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EICT Simple DLMS Protocol";
-    }
-
     /**
      * @return the version of the specific protocol implementation
      */
@@ -580,10 +580,8 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * Get the firmware version of the meter
      *
      * @return the version of the meter firmware
-     *         </p>
-     * @throws IOException Thrown in case of an exception
      */
-    public String getFirmwareVersion() throws IOException {
+    public String getFirmwareVersion() {
         return "UnKnow";
     }
 
@@ -639,7 +637,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param from          retrieve all data starting with from date
      * @param to            retrieve all data until to date
      * @return profile data containing interval records and optional meter events between from and to
-     * @throws com.energyict.mdc.protocol.api.UnsupportedException
+     * @throws UnsupportedException
      *                             if meter does not support a to date to request the profile data
      */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws UnsupportedException {
@@ -651,7 +649,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *
      * @param channelId index of the channel. Indexes start with 1
      * @return meter register value as Quantity
-     * @throws com.energyict.mdc.protocol.api.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
@@ -664,7 +662,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      *
      * @param name register name
      * @return meter register value as Quantity
-     * @throws com.energyict.mdc.protocol.api.UnsupportedException
+     * @throws UnsupportedException
      *                             Thrown if the method is not supported by the protocol
      * @deprecated Replaced by the RegisterProtocol interface method readRegister(...)
      */
@@ -702,8 +700,10 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @return the value for the specified register
      *         </p><p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.mdc.protocol.api.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
+     * @throws NoSuchRegisterException
+     *                             if the device does not support the specified register
      */
     public String getRegister(String name) throws IOException {
         return doGetRegister(name);
@@ -764,9 +764,9 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param value to set the register.
      *              </p>
      * @throws java.io.IOException <br>
-     * @throws com.energyict.mdc.protocol.api.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
-     * @throws com.energyict.mdc.protocol.api.NoSuchRegisterException
+     * @throws NoSuchRegisterException
      *                             if the device does not support the specified register
      */
     public void setRegister(String name, String value) throws IOException {
@@ -803,7 +803,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     /**
      * Initializes the device, typically clearing all profile data
      *
-     * @throws com.energyict.mdc.protocol.api.UnsupportedException
+     * @throws UnsupportedException
      *                             if the device does not support this operation
      */
     public void initializeDevice() throws UnsupportedException {
@@ -941,9 +941,6 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         optionalKeys.add(NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
         optionalKeys.add(NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
         optionalKeys.add(NTASecurityProvider.MASTERKEY);
-        optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
-        optionalKeys.add(NTASecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
-        optionalKeys.add(NTASecurityProvider.NEW_HLS_SECRET);
         return optionalKeys;
     }
 

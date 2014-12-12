@@ -261,7 +261,7 @@ public class BillingDataRegisterFactoryImpl implements BillingDataRegisterFactor
                  BillingDataRegister bdr = (BillingDataRegister)it.next();
                  if (bdr.getObisCode().getE() == totalRegisterRate) {
                     ObisCode obisCode = new ObisCode(bdr.getObisCode().getA(),bdr.getObisCode().getB(),bdr.getObisCode().getC(),bdr.getObisCode().getD(),0,bdr.getObisCode().getF());
-                    RegisterValue registerValue = new RegisterValue(obisCode,bdr.getRegisterValue().getQuantity(),bdr.getRegisterValue().getEventTime(),bdr.getRegisterValue().getFromTime(),bdr.getRegisterValue().getToTime(),bdr.getRegisterValue().getReadTime(),bdr.getRegisterValue().getRtuRegisterId(), bdr.getRegisterValue().getText());
+                    RegisterValue registerValue = new RegisterValue(obisCode,bdr.getRegisterValue().getQuantity(),bdr.getRegisterValue().getEventTime(),bdr.getRegisterValue().getFromTime(),bdr.getRegisterValue().getToTime(),bdr.getRegisterValue().getReadTime(),bdr.getRegisterValue().getRegisterSpecId(), bdr.getRegisterValue().getText());
                     extraBillingDataRegisters.add(new BillingDataRegister(obisCode, bdr.getDescription(), registerValue));
                  }
              }

@@ -13,11 +13,6 @@ import com.energyict.protocolimpl.modbus.eimeter.EIMeter;
 public class Cube350 extends EIMeter {
 
     @Override
-    public String getProtocolDescription() {
-        return "Northern Design Cube350";
-    }
-
-    @Override
     protected String getDeviceName() {
         return "Cube 350";
     }

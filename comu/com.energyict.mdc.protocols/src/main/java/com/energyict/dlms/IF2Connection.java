@@ -64,7 +64,7 @@ public class IF2Connection implements DLMSConnection {
     /**
      * The timeout in milli seconds to wait for a valid response
      */
-    private int timeout;
+    private long timeout;
 
     /**
      * The address used to identify the client
@@ -154,16 +154,6 @@ public class IF2Connection implements DLMSConnection {
         return this.hhuSignOn;
     }
 
-    /**
-     * Get the connection type id (IF2 has id 4)
-     *
-     * @return The connection id
-     * @see ConnectionMode
-     */
-    public int getType() {
-        return ConnectionMode.IF2.getMode();
-    }
-
     public byte[] sendRawBytes(byte[] data) throws IOException {
         return new byte[0];
     }
@@ -200,11 +190,9 @@ public class IF2Connection implements DLMSConnection {
         return this.maxRetries;
     }
 
-    /**
-     * @return The ApplicationServiceObject, in our case always 'null'
-     */
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return null;
+    @Override
+    public int getMaxTries() {
+        return getMaxRetries() + 1;
     }
 
     /**
@@ -246,11 +234,12 @@ public class IF2Connection implements DLMSConnection {
         return connectionId == HIGH_SPEED_CID;
     }
 
-    private void delay(int ms) {
+    private void delay(long ms) {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+
         }
     }
 
@@ -330,11 +319,11 @@ public class IF2Connection implements DLMSConnection {
         return sendRequest(encryptedRequest);
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(long timeout) {
         this.timeout = timeout;
     }
 
-    public int getTimeout() {
+    public long getTimeout() {
         return timeout;
     }
 

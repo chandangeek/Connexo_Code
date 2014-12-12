@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
@@ -17,7 +14,6 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import java.io.IOException;
 
 /**
- * @author gna
  *
  * Disconnect Control States and State Transitions:
  *

@@ -7,6 +7,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 
@@ -44,7 +45,7 @@ public class SAPAssignmentItem {
         try {
             final AbstractDataType abstractDataType = AXDRDecoder.decode(axdrBytes);
             if (!(abstractDataType instanceof Structure)) {
-                throw new IOException("Expected [" + Structure.class.getName() + "] but received [" + abstractDataType.getClass().getName() + "]!");
+                throw new ProtocolException("Expected [" + Structure.class.getName() + "] but received [" + abstractDataType.getClass().getName() + "]!");
             }
             return fromStructure((Structure) abstractDataType);
         } catch (IOException e) {
@@ -54,15 +55,15 @@ public class SAPAssignmentItem {
 
     public static SAPAssignmentItem fromStructure(Structure structure) throws IOException {
         if (structure.nrOfDataTypes() != 2) {
-            throw new IOException("Expected [2] items in SAPAssignmentItem structure but found [" + structure.nrOfDataTypes() + "]");
+            throw new ProtocolException("Expected [2] items in SAPAssignmentItem structure but found [" + structure.nrOfDataTypes() + "]");
         }
         final AbstractDataType abstractSapAddress = structure.getDataType(0);
         if (!(abstractSapAddress instanceof Unsigned16)) {
-            throw new IOException("Expected [" + Unsigned16.class.getName() + "] type for SAP address but was [" + abstractSapAddress.getClass().getName() + "]");
+            throw new ProtocolException("Expected [" + Unsigned16.class.getName() + "] type for SAP address but was [" + abstractSapAddress.getClass().getName() + "]");
         }
         final AbstractDataType abstractLogicalDeviceName = structure.getDataType(1);
         if (!(abstractLogicalDeviceName instanceof OctetString)) {
-            throw new IOException("Expected [" + OctetString.class.getName() + "] type for LogicalDeviceName but was [" + abstractLogicalDeviceName.getClass().getName() + "]");
+            throw new ProtocolException("Expected [" + OctetString.class.getName() + "] type for LogicalDeviceName but was [" + abstractLogicalDeviceName.getClass().getName() + "]");
         }
         return new SAPAssignmentItem(
                 ((Unsigned16) abstractSapAddress).getValue(),

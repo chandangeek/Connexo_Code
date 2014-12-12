@@ -78,11 +78,6 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "Hydreka";
-    }
-
-    @Override
     public String getProtocolVersion() {
         return "$Date: 2013-01-11 11:48:08 +0100 (vr, 11 jan 2013) $";
     }

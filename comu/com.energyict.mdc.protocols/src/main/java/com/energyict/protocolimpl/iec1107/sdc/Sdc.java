@@ -32,11 +32,6 @@ public class Sdc extends SdcBase {
     
     protected RegisterConfig getRegs() {
         return regs;
-    }    
-
-    @Override
-    public String getProtocolDescription() {
-        return "SDC LM30x IEC1107";
     }
 
     public String getProtocolVersion() {

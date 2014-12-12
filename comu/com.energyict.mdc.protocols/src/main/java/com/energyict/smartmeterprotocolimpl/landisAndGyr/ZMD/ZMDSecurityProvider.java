@@ -8,8 +8,7 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
  */
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocolimpl.base.SecurityLevelException;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -43,7 +42,7 @@ public class ZMDSecurityProvider extends NTASecurityProvider {
     }
 
     @Override
-    public byte[] getCallingAuthenticationValue() throws SecurityLevelException {
+    public byte[] getCallingAuthenticationValue() {
 
         switch (this.securityLevel) {
             case 0:

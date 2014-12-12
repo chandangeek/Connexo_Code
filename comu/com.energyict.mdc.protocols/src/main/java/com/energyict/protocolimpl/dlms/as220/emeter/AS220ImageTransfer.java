@@ -106,7 +106,6 @@ public class AS220ImageTransfer {
 	 *
 	 */
 	public void upgrade() throws IOException {
-		try {
 			this.size = new Unsigned32(data.length);
 
 			getAs220().getLogger().info("Upgrading AM500 module with new firmware image of size [" + this.size + "] bytes");
@@ -149,9 +148,6 @@ public class AS220ImageTransfer {
 
 			} else {
 				throw new IOException("Could not perform the upgrade because meter does not allow it.");
-			}
-		} catch (InterruptedException e) {
-            //Absorb exception
 		}
 	}
 

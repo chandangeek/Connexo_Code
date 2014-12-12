@@ -66,11 +66,6 @@ public class PN16 extends MBus {
         return "NOT YET IMPLEMENTED";
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "NZR PN16";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

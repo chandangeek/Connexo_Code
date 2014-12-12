@@ -11,6 +11,8 @@ import java.time.Clock;
 
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
@@ -50,6 +52,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile PropertySpecService propertySpecService;
     private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private volatile SocketService socketService;
+    private volatile SerialComponentService serialComponentService;
 
     private Injector injector;
 
@@ -60,7 +64,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
@@ -68,6 +72,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.setClock(clock);
         this.setPropertySpecService(propertySpecService);
         this.setTopologyService(topologyService);
+        this.setSocketService(socketService);
+        this.setSerialComponentService(serialComponentService);
         this.activate();
         this.install();
     }
@@ -89,6 +95,8 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 bind(Clock.class).toInstance(clock);
                 bind(OrmClient.class).toInstance(ormClient);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(SocketService.class).toInstance(socketService);
+                bind(SerialComponentService.class).toInstance(serialComponentService);
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceProtocolService.class).toInstance(DeviceProtocolServiceImpl.this);
             }
@@ -169,6 +177,18 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     public MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
         return mdcReadingTypeUtilService;
+    }
+
+    @Reference
+    public void setSocketService(SocketService socketService) {
+        this.socketService = socketService;
+        Bus.setSocketService(socketService);
+    }
+
+    @Reference
+    public void setSerialComponentService(SerialComponentService serialComponentService) {
+        this.serialComponentService = serialComponentService;
+        Bus.setSerialComponentService(serialComponentService);
     }
 
     @Override

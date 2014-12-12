@@ -133,7 +133,32 @@ public enum DeviceSecurityProperty {
                     markRequired().
                     finish();
         }
-    };
+    },
+
+    /**
+     * The manufacturer key used for encryption of bytes
+     */
+    MANUFACTURER_ENCRYPTION_KEY {
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
+            return propertySpecService.
+                    newPropertySpecBuilder(new EncryptedStringFactory()).
+                    name(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString()).finish();
+        }
+    },
+
+    /**
+     * The customer key used for encryption of bytes
+     */
+    CUSTOMER_ENCRYPTION_KEY{
+        @Override
+        protected PropertySpec doGetPropertySpec(PropertySpecService propertySpecService) {
+            return propertySpecService.
+                    newPropertySpecBuilder(new EncryptedStringFactory()).
+                    name(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString()).finish();
+        }
+    }
+    ;
 
     private PropertySpec cachedPropertySpec;
 

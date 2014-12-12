@@ -471,11 +471,6 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
         return strBuff.toString();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Landis&Gyr MaxSys 2510 SMD";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

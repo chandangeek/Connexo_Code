@@ -8,6 +8,8 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -126,7 +128,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 
 
 		} else {
-			throw new IOException("Could not perform the upgrade because meter does not allow it.");
+			throw new ProtocolException("Could not perform the upgrade because meter does not allow it.");
 		}
 
 	}
@@ -199,9 +201,9 @@ public class P3ImageTransfer extends AbstractCosemObject {
 
 			if(previousMissingBlock == getFirstMissingBlock().getValue()){
 				if(retryBlock++ == this.maxBlockRetryCount){
-					throw new IOException("Exceeding the maximum retry for block " + getFirstMissingBlock().getValue() + ", Image transfer is canceled.");
+					throw new ProtocolException("Exceeding the maximum retry for block " + getFirstMissingBlock().getValue() + ", Image transfer is canceled.");
 				} else if(totalRetry++ == this.maxTotalRetryCount){
-					throw new IOException("Exceeding the total maximum retry count, Image transfer is canceled.");
+					throw new ProtocolException("Exceeding the total maximum retry count, Image transfer is canceled.");
 				}
 			} else {
 				previousMissingBlock = getFirstMissingBlock().getValue();
@@ -243,7 +245,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 			return this.transferEnabled;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the transfer enabled state." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the transfer enabled state." + e.getMessage());
 		}
 	}
 	/**
@@ -257,7 +259,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 			write(ATTRB_TRANSFER_ENABLED, new BooleanObject(state).getBEREncodedByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not set the transfer enabled state." + e.getMessage());
+			throw new NestedIOException(e, "Could not set the transfer enabled state." + e.getMessage());
 		}
 	}
 
@@ -274,7 +276,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 			return this.imageMaxBlockSize;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not get the maximum block size." + e.getMessage());
+			throw new NestedIOException(e, "Could not get the maximum block size." + e.getMessage());
 		}
 	}
 
@@ -287,7 +289,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 			invoke(INITIATE_IMAGE_TRANSFER, getImageSize().getBEREncodedByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not initiate the image transfer." + e.getMessage());
+			throw new NestedIOException(e, "Could not initiate the image transfer." + e.getMessage());
 		}
 	}
 
@@ -300,7 +302,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 			invoke(IMAGE_VERIFICTION, new Unsigned16(0).getBEREncodedByteArray());
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not verify the image." + e.getMessage());
+			throw new NestedIOException(e, "Could not verify the image." + e.getMessage());
 		}
 	}
 
@@ -321,13 +323,13 @@ public class P3ImageTransfer extends AbstractCosemObject {
 						retry--;
 						DLMSUtils.delay(delay);
 					} else {
-						throw new IOException("Could not verify the image." + e.getMessage());
+						throw new NestedIOException(e, "Could not verify the image." + e.getMessage());
 					}
 				}
 			}
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not verify the image." + e.getMessage());
+			throw new NestedIOException(e, "Could not verify the image." + e.getMessage());
 		}
 	}
 
@@ -340,7 +342,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 			invoke(IMAGE_VERIFICATION_ACTIVATION, new Unsigned16(0).getBEREncodedByteArray());
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not activate image." + e.getMessage());
+			throw new NestedIOException(e, "Could not activate image." + e.getMessage());
 		}
 	}
 
@@ -361,13 +363,13 @@ public class P3ImageTransfer extends AbstractCosemObject {
 						retry--;
                         DLMSUtils.delay(delay);
 					} else {
-						throw new IOException("Could not verify the image." + e.getMessage());
+						throw new ProtocolException("Could not verify the image." + e.getMessage());
 					}
 				}
 			}
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not verify the image." + e.getMessage());
+			throw new NestedIOException(e, "Could not verify the image." + e.getMessage());
 		}
 	}
 
@@ -385,7 +387,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 			write(ATTRB_IMAGE_BLOCK_TRANSFER, imageBlock.getBEREncodedByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not write the current image block with offset: " + blockOffset.getValue() + "." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the current image block with offset: " + blockOffset.getValue() + "." + e.getMessage());
 		}
 	}
 
@@ -406,7 +408,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 		} catch (IOException e) {
 			e.printStackTrace();
 			if(e.getMessage().indexOf("Connection reset by peer: socket write error") > -1){
-				throw new IOException(e.getMessage());
+				throw new NestedIOException(e, e.getMessage());
 			}
 			// Catch and go to the next!
 			if(DEBUG) {
@@ -434,7 +436,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 			return imageMissingBlocks;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the missing blocks." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the missing blocks." + e.getMessage());
 		}
 	}
 	/**
@@ -455,7 +457,7 @@ public class P3ImageTransfer extends AbstractCosemObject {
 			return this.firstMissingBlockOffset;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the first missing block." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the first missing block." + e.getMessage());
 		}
 	}
 	/**

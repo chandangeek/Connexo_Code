@@ -4,6 +4,7 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import java.io.IOException;
@@ -31,12 +32,6 @@ public class LocalSecurityProvider implements SecurityProvider {
     private Long initialFrameCounter;
     private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
-	/** Property name of the new AuthenticationKey */
-	public static final String NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
-	/** Property name of the new Global encryption Key */
-	public static final String NEW_GLOBAL_KEY = "NewGlobalKey";
-	/** Property name of the new HighLevel security Secret */
-	public static final String NEW_HLS_SECRET = "NewHLSSecret";
 	/** Property name of the DataTransport EncryptionKey */
 	public static final String DATATRANSPORTKEY = "DataTransportKey";
 	/** Property name of the Master key, or KeyEncryptionKey */
@@ -101,14 +96,14 @@ public class LocalSecurityProvider implements SecurityProvider {
 		return this.authenticationPassword;
 	}
 
-	public byte[] getCallingAuthenticationValue() throws IOException {
+	public byte[] getCallingAuthenticationValue() throws UnsupportedException {
 
 		switch(this.securityLevel){
 		case 0: return new byte[0];
 		case 1: {
 			return getHLSSecret();
 		}
-		case 2: throw new IOException("SecurityLevel 2 is not implemented.");
+		case 2: throw new UnsupportedException("SecurityLevel 2 is not implemented.");
 		case 3: {	// this is a ClientToServer challenge for MD5
 			generateClientToServerChallenge();
 			return this.cTOs;
@@ -166,7 +161,7 @@ public class LocalSecurityProvider implements SecurityProvider {
      * @return the encrypted Value to send back to the meter
      */
     public byte[] associationEncryptionByManufacturer(final byte[] respondingAuthenticationValue) throws IOException {
-        throw new IOException("High level security 2 is not supported.");
+        throw new UnsupportedException("High level security 2 is not supported.");
     }
 
     /**
@@ -174,6 +169,11 @@ public class LocalSecurityProvider implements SecurityProvider {
      */
     public long getInitialFrameCounter() {
         return initialFrameCounter != null ? initialFrameCounter : RANDOM.nextLong();
+    }
+
+    @Override
+    public void setInitialFrameCounter(long initialFrameCounter) {
+        this.initialFrameCounter = initialFrameCounter;
     }
 
     /**
@@ -192,78 +192,15 @@ public class LocalSecurityProvider implements SecurityProvider {
         return this.respondingFrameCounterHandler;
     }
 
-    public void changeEncryptionKey() throws IOException {
-        this.dataTransportPassword = getNEWGlobalKey();
+    @Override
+    public void changeEncryptionKey(byte[] newEncryptionKey) throws IOException {
+        this.dataTransportPassword = newEncryptionKey;
     }
 
-    public void changeAuthenticationKey() throws IOException {
-        this.authenticationPassword = getNEWAuthenticationKey();
+    @Override
+    public void changeAuthenticationKey(byte[] newAuthenticationKey) throws IOException {
+        this.authenticationPassword = newAuthenticationKey;
     }
-
-    //********** Return new keys for KeyChange functionality **********/
-
-
-	/**
-	 * @return the new data encryption Authentication Key
-	 */
-	public byte[] getNEWAuthenticationKey() throws IOException {
-        return DLMSUtils.hexStringToByteArray(getNEWAuthenticationKeys()[0]);
-    }
-
-    /**
-     * @return the new authentication Key, as a String array
-     * @throws IOException
-     */
-    public String[] getNEWAuthenticationKeys() throws IOException {
-		if(this.properties.containsKey(NEW_AUTHENTICATION_KEY)){
-            return new String[]{this.properties.getProperty(NEW_AUTHENTICATION_KEY)};
-		}
-		throw new IllegalArgumentException("New authenticationKey is not correctly filled in.");
-	}
-
-	/**
-     * @return the new encryption Key
-	 */
-	public byte[] getNEWGlobalKey() throws IOException {
-        return DLMSUtils.hexStringToByteArray(getNEWGlobalKeys()[0]);
-    }
-
-    /**
-     * @return the new encryption Key, as a String array
-     * @throws IOException
-     */
-    public String[] getNEWGlobalKeys() throws IOException {
-		if(this.properties.containsKey(NEW_GLOBAL_KEY)){
-            return new String[]{this.properties.getProperty(NEW_GLOBAL_KEY)};
-		}
-		throw new IllegalArgumentException("New globalKey is not correctly filled in.");
-	}
-	/**
-	 * @return the new HLS secret
-	 */
-	public byte[] getNEWHLSSecret() throws IOException {
-		if(this.properties.containsKey(NEW_HLS_SECRET)){
-			return DLMSUtils.hexStringToByteArray(this.properties.getProperty(NEW_HLS_SECRET));
-		}
-		throw new IllegalArgumentException("New HLSSecret is not correctly filled in.");
-	}
-
-	/**
-	 * @return the new LLS secret
-	 * @return
-	 * @throws IOException
-	 */
-	public byte[] getNEWLLSSecret() throws IOException {
-		if(this.properties.containsKey(NEW_LLS_SECRET)){
-			String newLlsSecret = this.properties.getProperty(NEW_LLS_SECRET);
-			byte[] byteWord = new byte[newLlsSecret.length()];
-			for(int i = 0; i < newLlsSecret.length(); i++){
-				byteWord[i] = (byte)newLlsSecret.charAt(i);
-			}
-			return byteWord;
-		}
-		throw new IllegalArgumentException("New LLSSecret is not correctly filled in.");
-	}
 
 	public byte[] getDedicatedKey() {
 		if (dedicatedKey == null) {

@@ -45,7 +45,6 @@ import com.energyict.protocolimpl.meteridentification.KV2;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -234,11 +233,6 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink {
             }
         }
         return 0;
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "General Electric KV2 ANSI C12";
     }
 
     public String getProtocolVersion() {

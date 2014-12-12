@@ -5,8 +5,8 @@ import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
-import com.energyict.mdc.protocol.api.impl.device.messages.PLCConfigurationDeviceMessage;
+
+
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 

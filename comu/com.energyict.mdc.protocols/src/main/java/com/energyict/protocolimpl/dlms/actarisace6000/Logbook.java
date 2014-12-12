@@ -33,21 +33,22 @@ public class Logbook {
     private static final int EVENT_ASYNCHRONOUS_EOB=4;
     private static final int EVENT_INDEX_DPM=5;
     private static final int EVENT_RESTORE_INTERNAL_INDEX=6;
-    private static final int EVENT_INDEX_CI=7;
+    private static final int EVENT_INDEX_CI_NOT_USED = 7;
     private static final int EVENT_DAY_PROFILE_CL=8;
     private static final int EVENT_RESTORE_INTERNAL_DAY_PROFILE=9;
-    private static final int EVENT_DAY_PROFILE_CI=10;
+    private static final int EVENT_DAY_PROFILE_CI_NOT_USED = 10;
     private static final int EVENT_SEASON_SM=11;
     private static final int EVENT_RESTORE_INTERNAL_SEASON=12;
-    private static final int EVENT_SEASON_CI=13;
+    private static final int EVENT_SEASON_CI_NOT_USED = 13;
     private static final int EVENT_DST_WITH_SEASON=14;
-    private static final int EVENT_EXTERNAL_SYNCHRO_AND_DST_WITH_SEASON=15;
-    // 16, 17
+    private static final int EVENT_EXTERNAL_SYNCHRO_AND_DST_WITH_SEASON_NOT_USED = 15;
+    private static final int EVENT_ENTER_DOWNLOAD_MODE = 16;
+    private static final int EVENT_SAVE_MANUFACTURER_PARAMETERS = 17;
     private static final int EVENT_ASSOCIATION_LN_PROGRAMMING=18;
-    private static final int EVENT_EXCESS_ENERGY_ABOVE_THRESHOLD_ER=19;
-    private static final int EVENT_EXCESS_ENERGY_UNDER_THRESHOLD_ER=20;
-    private static final int EVENT_EXCESS_ENERGY_ABOVE_THRESHOLD_LP=21;
-    private static final int EVENT_EXCESS_ENERGY_UNDER_THRESHOLD_LP=22;
+    private static final int EVENT_INDEX_PARAMETER = 19;
+    private static final int EVENT_EOR = 20;
+    private static final int EVENT_NOT_USED_2 = 21;
+    private static final int EVENT_NOT_USED_3 = 22;
     private static final int EVENT_NON_FATAL_ALARM_APPEARANCE=23;
     private static final int EVENT_NON_FATAL_ALARM_DISAPPEARANCE=24;
     private static final int EVENT_FATAL_ALARM_APPEARANCE=25;
@@ -55,9 +56,9 @@ public class Logbook {
     private static final int EVENT_CLEAR_NON_FATAL_ALARMS=27;
     private static final int EVENT_CLEAR_FATAL_ALARMS=28;
     private static final int EVENT_INTERNAL_CLOCK_SYNCHRO=29;
-    private static final int EVENT_EXTERNAL_CLOCK_SYNCHRO=30;
+    private static final int EVENT_EXTERNAL_CLOCK_SYNCHRO_NOT_USED = 30;
     private static final int EVENT_CLOCK_SETTING=31;
-    private static final int EVENT_EXTERNAL_SYNCHRO_AND_DST_WITHOUT_SEASON=32;
+    private static final int EVENT_EXTERNAL_SYNCHRO_AND_DST_WITHOUT_SEASON_NOT_USED = 32;
     private static final int EVENT_DST_WITHOUT_SEASON=33;
     private static final int EVENT_AC_FAIL_APPEARANCE=34;
     private static final int EVENT_AC_FAIL_DISAPPEARANCE=35;
@@ -75,10 +76,23 @@ public class Logbook {
     private static final int EVENT_LOAD_PROFILE_RESET=47;
     private static final int EVENT_PASSWORD_RESTORATION=48;
     private static final int EVENT_INDEX_CLOCK_LOSS=49;
-    private static final int EVENT_SUCCESSFULL_COMMUNICATION=50;
-    private static final int EVENT_COMMUNICATION_WITH_CONTRACT=51;
+    private static final int EVENT_SUCCESSFUL_COMMUNICATION = 50;
+    private static final int EVENT_COMMUNICATION_WITH_CONTRACT_NOT_USED = 51;
+    private static final int EVENT_MANUFACTURER_ALARM_APPEARANCE = 52;
+    private static final int EVENT_CLEAR_MANUFACTURER_ALARMS = 53;
+    private static final int EVENT_RESET_TER = 54;
+    private static final int EVENT_RWP_MODE_START = 55;
+    private static final int EVENT_RWP_MODE_END = 56;
+    private static final int EVENT_RESET_MAGNET_DATA = 57;
+    private static final int EVENT_CLEAR_MAGNET_ALARM = 58;
+    private static final int EVENT_RESET_DIPS_NUMBER = 59;
+    private static final int EVENT_WRONG_PASSWORD_LOCK = 60;
+    private static final int EVENT_WRONG_PHASE_SEQUENCE = 61;
+    private static final int EVENT_REVERSE_TOTAL_ENERGY = 62;
 
-    /** Creates a new instance of Logbook */
+    /**
+     * Creates a new instance of Logbook
+     */
     public Logbook(TimeZone timeZone) {
         this.timeZone=timeZone;
     }
@@ -97,7 +111,8 @@ public class Logbook {
 
             MeterEvent meterEvent = buildMeterEvent(eventType,eventParameter,eventTimeStamp);
             if (meterEvent != null) meterEvents.add(meterEvent);
-            if (DEBUG >= 1) System.out.println("KV_DEBUG> eventType="+eventType+", eventParameter="+eventParameter+", eventId="+eventId+", eventTimeStamp="+eventTimeStamp);
+            if (DEBUG >= 1)
+                System.out.println("KV_DEBUG> eventType=" + eventType + ", eventParameter=" + eventParameter + ", eventId=" + eventId + ", eventTimeStamp=" + eventTimeStamp);
         }
 
 
@@ -138,8 +153,8 @@ public class Logbook {
             case EVENT_RESTORE_INTERNAL_INDEX:
                 message = "Restore internal index";
                 break;
-            case EVENT_INDEX_CI:
-                message = "Index CI";
+            case EVENT_INDEX_CI_NOT_USED:
+                message = "Index CI not used";
                 break;
             case EVENT_DAY_PROFILE_CL:
                 message = "Day profile CL";
@@ -147,8 +162,8 @@ public class Logbook {
             case EVENT_RESTORE_INTERNAL_DAY_PROFILE:
                 message = "Restore internal day profile";
                 break;
-            case EVENT_DAY_PROFILE_CI:
-                message = "Day profile CI";
+            case EVENT_DAY_PROFILE_CI_NOT_USED:
+                message = "Day profile CI not used";
                 break;
             case EVENT_SEASON_SM:
                 message = "Season SM";
@@ -156,34 +171,37 @@ public class Logbook {
             case EVENT_RESTORE_INTERNAL_SEASON:
                 message = "Restore internal season";
                 break;
-            case EVENT_SEASON_CI:
-                message = "Season CI";
+            case EVENT_SEASON_CI_NOT_USED:
+                message = "Season CI not used";
                 break;
             case EVENT_DST_WITH_SEASON:
                 message = "DST with season";
                 break;
-            case EVENT_EXTERNAL_SYNCHRO_AND_DST_WITH_SEASON:
-                message = "External synchro and DST with season";
+            case EVENT_EXTERNAL_SYNCHRO_AND_DST_WITH_SEASON_NOT_USED:
+                message = "External synchro and DST with season not used";
+                break;
+            case EVENT_ENTER_DOWNLOAD_MODE:
+                message = "Enter download mode";
+                break;
+            case EVENT_SAVE_MANUFACTURER_PARAMETERS:
+                message = "Save manufacturer parameters";
+                eiCode = MeterEvent.CONFIGURATIONCHANGE;
                 break;
             case EVENT_ASSOCIATION_LN_PROGRAMMING:
                 message = "Association LN programming";
                 eiCode = MeterEvent.CONFIGURATIONCHANGE;
                 break;
-            case EVENT_EXCESS_ENERGY_ABOVE_THRESHOLD_ER:
-                message = "Excess energy above threshold ER";
-                eiCode = MeterEvent.METER_ALARM;
+            case EVENT_INDEX_PARAMETER:
+                message = "Index parameter";
                 break;
-            case EVENT_EXCESS_ENERGY_UNDER_THRESHOLD_ER:
-                message = "Excess energy under threshold ER";
-                eiCode = MeterEvent.METER_ALARM;
+            case EVENT_EOR:
+                message = "EOR";
                 break;
-            case EVENT_EXCESS_ENERGY_ABOVE_THRESHOLD_LP:
-                message = "Excess energy above threshold LP";
-                eiCode = MeterEvent.METER_ALARM;
+            case EVENT_NOT_USED_2:
+                message = "Not used 2";
                 break;
-            case EVENT_EXCESS_ENERGY_UNDER_THRESHOLD_LP:
-                message = "Excess energy under threshold LP";
-                eiCode = MeterEvent.METER_ALARM;
+            case EVENT_NOT_USED_3:
+                message = "Not used 3";
                 break;
             case EVENT_NON_FATAL_ALARM_APPEARANCE:
                 message = "Non fatal alarm appearance";
@@ -210,16 +228,16 @@ public class Logbook {
                 message = "Internal clock synchro";
                 eiCode = MeterEvent.SETCLOCK;
                 break;
-            case EVENT_EXTERNAL_CLOCK_SYNCHRO:
-                message = "External clock synchro";
+            case EVENT_EXTERNAL_CLOCK_SYNCHRO_NOT_USED:
+                message = "External clock synchro not used";
                 eiCode = MeterEvent.SETCLOCK;
                 break;
             case EVENT_CLOCK_SETTING:
                 message = "clock setting";
                 eiCode = MeterEvent.SETCLOCK;
                 break;
-            case EVENT_EXTERNAL_SYNCHRO_AND_DST_WITHOUT_SEASON:
-                message = "External synchro and DST without season";
+            case EVENT_EXTERNAL_SYNCHRO_AND_DST_WITHOUT_SEASON_NOT_USED:
+                message = "External synchro and DST without season not used";
                 break;
             case EVENT_DST_WITHOUT_SEASON:
                 message = "DST without season";
@@ -279,11 +297,50 @@ public class Logbook {
             case EVENT_INDEX_CLOCK_LOSS:
                 message = "Index clock loss";
                 break;
-            case EVENT_SUCCESSFULL_COMMUNICATION:
-                message = "Successfull communication";
+            case EVENT_SUCCESSFUL_COMMUNICATION:
+                message = "Successful communication";
                 break;
-            case EVENT_COMMUNICATION_WITH_CONTRACT:
-                message = "Communication with contract";
+            case EVENT_COMMUNICATION_WITH_CONTRACT_NOT_USED:
+                message = "Communication with contract not used";
+                break;
+            case EVENT_MANUFACTURER_ALARM_APPEARANCE:
+                message = "Manufacturer alarm appearance";
+                eiCode = MeterEvent.METER_ALARM;
+                break;
+            case EVENT_CLEAR_MANUFACTURER_ALARMS:
+                message = "Clear manufacturer alarms";
+                eiCode = MeterEvent.ALARM_REGISTER_CLEARED;
+                break;
+            case EVENT_RESET_TER:
+                message = "Reset TER";
+                break;
+            case EVENT_RWP_MODE_START:
+                message = "RWP mode start";
+                break;
+            case EVENT_RWP_MODE_END:
+                message = "RWP mode end";
+                break;
+            case EVENT_RESET_MAGNET_DATA:
+                message = "Reset magnet data";
+                break;
+            case EVENT_CLEAR_MAGNET_ALARM:
+                message = "Clear magnet alarm";
+                eiCode = MeterEvent.ALARM_REGISTER_CLEARED;
+                break;
+            case EVENT_RESET_DIPS_NUMBER:
+                message = "Reset DIPS number";
+                break;
+            case EVENT_WRONG_PASSWORD_LOCK:
+                message = "Wrong password lock";
+                eiCode = MeterEvent.N_TIMES_WRONG_PASSWORD;
+                break;
+            case EVENT_WRONG_PHASE_SEQUENCE:
+                message = "Wrong phase sequence";
+                eiCode = MeterEvent.PHASE_FAILURE;
+                break;
+            case EVENT_REVERSE_TOTAL_ENERGY:
+                message = "Reverse total energy";
+                eiCode = MeterEvent.REVERSE_RUN;
                 break;
 
             default:

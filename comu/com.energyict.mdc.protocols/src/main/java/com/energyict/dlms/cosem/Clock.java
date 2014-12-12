@@ -18,6 +18,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.attributes.ClockAttributes;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
@@ -116,6 +117,9 @@ public class Clock extends AbstractCosemObject {
 		} else {
             byte[] responseData;
             responseData = getResponseData(ClockAttributes.TIME);
+            if (DEBUG == 1) {
+				ProtocolUtils.printResponseData(responseData);
+			}
             return getDateTime(responseData,protocolLink.getRoundTripCorrection());
         }
     }
@@ -320,7 +324,7 @@ public class Clock extends AbstractCosemObject {
 
     public int getDstFlag() throws IOException {
         if (dstFlag == -1) {
-			throw new IOException("Clock, getDstFlag, dstFlag not evaluated. getDateTime() should invoked first.");
+			throw new ProtocolException("Clock, getDstFlag, dstFlag not evaluated. getDateTime() should invoked first.");
 		}
         return dstFlag;
     }

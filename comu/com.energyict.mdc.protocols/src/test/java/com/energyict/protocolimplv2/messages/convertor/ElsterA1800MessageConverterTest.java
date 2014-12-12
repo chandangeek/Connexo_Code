@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.elster.a1800.A1800;
-import com.energyict.mdc.protocol.api.impl.device.messages.ChannelConfigurationDeviceMessage;
+
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;

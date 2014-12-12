@@ -71,6 +71,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private Logger logger;
     private Long cachedMeterTimeDifference = null;
     private ACE4000MessageExecutor messageExecutor = null;
+    private DeviceProtocolSecurityPropertySet securityProperties;
 
     @Inject
     public ACE4000Outbound(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService) {
@@ -95,7 +96,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "Actaris ACE4000";
+        return "Actaris ACE4000 MeterXML";
     }
 
     @Override
@@ -109,7 +110,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-09-25 10:05:52 +0200 (Thu, 25 Sep 2014) $";
     }
 
     @Override
@@ -356,6 +357,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        securityProperties = deviceProtocolSecurityPropertySet;
         //TODO use the password property for SMS communication
     }
 

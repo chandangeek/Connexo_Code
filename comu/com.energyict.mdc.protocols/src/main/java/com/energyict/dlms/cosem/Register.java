@@ -1,9 +1,3 @@
-/*
- * Register.java
- *
- * Created on 17 augustus 2004, 17:17
- */
-
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.DLMSUtils;
@@ -15,6 +9,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -61,7 +56,7 @@ public class Register extends AbstractCosemObject implements CosemObject {
 			return (getValue(getResponseData(REGISTER_VALUE)));
 		}
     }
-    public long getValue(byte[] responseData) throws IOException {
+    public long getValue(byte[] responseData) throws ProtocolException {
         value = DLMSUtils.parseValue2long(responseData);
         return value;
     }

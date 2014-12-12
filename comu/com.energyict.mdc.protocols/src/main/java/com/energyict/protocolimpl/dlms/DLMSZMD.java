@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms;
 
 
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSObis;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DataContainer;
@@ -12,7 +13,9 @@ import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -29,6 +32,8 @@ import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocolimpl.dlms.siemenszmd.LogBookReader;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocols.messaging.MessageBuilder;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.messaging.Message;
@@ -50,9 +55,32 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
+/**
+ * @version  2.0
+ * @author   Koenraad Vanderschaeve
+ * <P>
+ * <B>Description :</B><BR>
+ * Class that implements the Siemens ZMD DLMS profile implementation
+ * <BR>
+ * <B>@beginchanges</B><BR>
+KV|08042003|Initial version
+KV|08102003|Set default of RequestTimeZone to 0
+KV|10102003|generate OTHER MeterEvent when statusbit is not supported
+KV|27102003|changed code for correct dst transition S->W
+KV|20082004|Extended with obiscode mapping for register reading
+KV|17032005|improved registerreading
+KV|23032005|Changed header to be compatible with protocol version tool
+KV|30032005|Improved registerreading, configuration data
+KV|31032005|Handle DataContainerException
+KV|15072005|applyEvents() done AFTER getting the logbook!
+KV|10102006|extension to support cumulative values in load profile
+KV|10102006|fix to support 64 bit values in load profile
+ * @endchanges
+ */
 @Deprecated /** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD) instead. **/
-public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol, TimeOfUseMessaging {
+public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol {
     private static final byte DEBUG=0;
 
     private final MessageProtocol messageProtocol;
@@ -98,55 +126,16 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         return calendar;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G/Siemens ZMD DLMS-SN";
-    }
-
     /** ProtocolVersion **/
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-09-23 16:26:10 +0200 (Tue, 23 Sep 2014) $";
     }
 
     protected void getEventLog(ProfileData profileData,Calendar fromCalendar, Calendar toCalendar) throws IOException {
-        DataContainer dc = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCalendar,toCalendar);
-
-        if (DEBUG>=1) {
-			dc.printDataContainer();
-		}
-
-        if (DEBUG>=1) {
-           getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getCaptureObjectsAsDataContainer().printDataContainer();
-        }
-
-        int index=0;
-        if (eventIdIndex == -1) {
-            Iterator it = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getCaptureObjects().iterator();
-            while(it.hasNext()) {
-                CapturedObject capturedObject = (CapturedObject)it.next();
-                if (capturedObject.getLogicalName().getObisCode().equals(ObisCode.fromString("0.0.96.240.12.255")) &&
-                    (capturedObject.getAttributeIndex() == 2) &&
-                    (capturedObject.getClassId() == 3)) {
-					break;
-				} else {
-					index++;
-				}
-            }
-        }
-
-        for (int i=0;i<dc.getRoot().getNrOfElements();i++) {
-           Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
-           int id=0;
-           if (eventIdIndex == -1) {
-               id = dc.getRoot().getStructure(i).getInteger(index);
-           }
-           else {
-               id = dc.getRoot().getStructure(i).convert2Long(eventIdIndex).intValue();
-           }
-           MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
-           if (meterEvent != null) {
+        LogBookReader logBookReader = new LogBookReader(this);
+        List<MeterEvent> meterEvents = logBookReader.getEventLog(fromCalendar, toCalendar);
+        for (MeterEvent meterEvent : meterEvents) {
 			profileData.addEvent(meterEvent);
-		}
         }
     }
 
@@ -301,6 +290,8 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
 
         } // for (i=0;i<intervalList.length;i++) {
 
+        // In case of double intervals (which can occur if a time shift has been done) then merge them together
+        profileData.setIntervalDatas(ProtocolTools.mergeDuplicateIntervalsIncludingIntervalStatus(profileData.getIntervalDatas()));
     } // ProfileData buildProfileData(...)
 
     // KV 15122003
@@ -427,7 +418,16 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         try {
 			ObisCodeMapper ocm = new ObisCodeMapper(getCosemObjectFactory(), getMeterConfig(), this);
 			return ocm.getRegisterValue(obisCode);
+        } catch (NestedIOException e) {
+            if (ProtocolTools.getRootCause(e) instanceof ConnectionException || ProtocolTools.getRootCause(e) instanceof DLMSConnectionException) {
+                throw e;    // In case of a connection exception (of which we cannot recover), do throw the error.
+            }
+            String msg = "Problems while reading register " + obisCode.toString() + ": " + e.getMessage();
+            getLogger().log(Level.WARNING, msg);
+            throw new NoSuchRegisterException(msg);
 		} catch (Exception e) {
+            String msg = "Problems while reading register " + obisCode.toString() + ": " + e.getMessage();
+            getLogger().log(Level.WARNING, msg);
 			throw new NoSuchRegisterException("Problems while reading register " + obisCode.toString() + ": " + e.getMessage());
 		}
     }
@@ -486,23 +486,5 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
 
     public String writeValue(final MessageValue value) {
         return this.messageProtocol.writeValue(value);
-    }
-
-    /**
-     * Returns the message builder capable of generating and parsing 'time of use' messages.
-     *
-     * @return The {@link MessageBuilder} capable of generating and parsing 'time of use' messages.
-     */
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return ((ZmdMessages) this.messageProtocol).getTimeOfUseMessageBuilder();
-    }
-
-    /**
-     * Get the TimeOfUseMessagingConfig object that contains all the capabilities for the current protocol
-     *
-     * @return the config object
-     */
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        return ((ZmdMessages) this.messageProtocol).getTimeOfUseMessagingConfig();
     }
 }

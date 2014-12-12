@@ -1,9 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.messaging.FirmwareUpdateMessaging;
 import com.energyict.protocols.messaging.FirmwareUpdateMessagingConfig;
@@ -28,7 +28,7 @@ import java.util.List;
  * Date: 8-aug-2011
  * Time: 14:32:04
  */
-public class AS300Messaging extends GenericMessaging implements MessageProtocol, TimeOfUseMessaging, FirmwareUpdateMessaging {
+public class AS300Messaging extends GenericMessaging implements MessageProtocol {
 
     private final AS300MessageExecutor messageExecutor;
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
@@ -42,6 +42,8 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
     private static final String STANDING_CHARGE = "Standing charge";
     protected static final String DISCONNECT_CONTROL_RECONNECT = "DisconnectControlReconnect";
     protected static final String DISCONNECT_CONTROL_DISCONNECT = "DisconnectControlDisconnect";
+    protected static final String SET_DISCONNECT_CONTROL_MODE = "SetControlMode";
+    protected static final String CONTROL_MODE = "Control mode (range 0 - 6)";
     protected static final String TEXT_TO_EMETER_DISPLAY = "TextToEmeterDisplay";
     protected static final String TEXT_TO_IHD = "TextToInHomeDisplay";
     protected static final String MESSAGE = "Message";
@@ -74,6 +76,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
         MessageCategorySpec connectDisconnectCat = new MessageCategorySpec("Connect/disconnect");
         connectDisconnectCat.addMessageSpec(addMsgWithValues("Disconnect Control - Reconnect", DISCONNECT_CONTROL_RECONNECT, false, false));
         connectDisconnectCat.addMessageSpec(addMsgWithValues("Disconnect Control - Disconnect", DISCONNECT_CONTROL_DISCONNECT, false, false));
+        connectDisconnectCat.addMessageSpec(addMsgWithValues("Disconnect Control - Write control mode", SET_DISCONNECT_CONTROL_MODE, false, true, CONTROL_MODE));
         categories.add(connectDisconnectCat);
 
         MessageCategorySpec textMessagesCat = new MessageCategorySpec("Display");
@@ -133,34 +136,6 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
      */
     public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
         return this.messageExecutor.executeMessageEntry(messageEntry);
-    }
-
-    /**
-     * Returns the message builder capable of generating and parsing 'time of use' messages.
-     *
-     * @return The {@link MessageBuilder} capable of generating and parsing 'time of use' messages.
-     */
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return new AS300TimeOfUseMessageBuilder();
-    }
-
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        TimeOfUseMessagingConfig config = new TimeOfUseMessagingConfig();
-        config.setNeedsName(true);
-        config.setSupportsUserFiles(true);
-        config.setSupportsCodeTables(true);
-        config.setZipContent(true);
-        return config;
-    }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        FirmwareUpdateMessagingConfig config = new FirmwareUpdateMessagingConfig();
-        config.setSupportsUserFiles(true);
-        return config;
-    }
-
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return new AS300FirmwareUpdateMessageBuilder();
     }
 
     @Override

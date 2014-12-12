@@ -11,7 +11,9 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.Date;
@@ -208,7 +210,7 @@ public class FileTransfer extends AbstractCosemObject {
 
 
 		} else {
-			throw new IOException("Could not perform the upgrade because meter does not allow it.");
+			throw new ProtocolException("Could not perform the upgrade because meter does not allow it.");
 		}
 
 	}
@@ -306,9 +308,9 @@ public class FileTransfer extends AbstractCosemObject {
 
 			if(previousMissingBlock == this.getImageFirstNotTransferedBlockNumber().getValue()){
 				if(retryBlock++ == this.maxBlockRetryCount){
-					throw new IOException("Exceeding the maximum retry for block " + this.getImageFirstNotTransferedBlockNumber().getValue() + ", Image transfer is canceled.");
+					throw new ProtocolException("Exceeding the maximum retry for block " + this.getImageFirstNotTransferedBlockNumber().getValue() + ", Image transfer is canceled.");
 				} else if(totalRetry++ == this.maxTotalRetryCount){
-					throw new IOException("Exceeding the total maximum retry count, Image transfer is canceled.");
+					throw new ProtocolException("Exceeding the total maximum retry count, Image transfer is canceled.");
 				}
 			} else {
 				previousMissingBlock = this.getImageFirstNotTransferedBlockNumber().getValue();
@@ -353,13 +355,13 @@ public class FileTransfer extends AbstractCosemObject {
 						retry--;
                         DLMSUtils.delay(delay);
 					} else {
-						throw new IOException("Could not verify the image." + e.getMessage());
+						throw new ProtocolException("Could not verify the image." + e.getMessage());
 					}
 				}
 			}
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not verify the image." + e.getMessage());
+			throw new NestedIOException(e, "Could not verify the image." + e.getMessage());
 		}
 	}
 
@@ -376,7 +378,7 @@ public class FileTransfer extends AbstractCosemObject {
 			return this.imageMaxBlockSize;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not get the maximum block size." + e.getMessage());
+			throw new NestedIOException(e, "Could not get the maximum block size." + e.getMessage());
 		}
 	}
 
@@ -395,7 +397,7 @@ public class FileTransfer extends AbstractCosemObject {
 			return this.imageTransferBlocksStatus;
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not read the imagetransferblock status." + e.getMessage());
+			throw new NestedIOException(e, "Could not read the imagetransferblock status." + e.getMessage());
 		}
 	}
 
@@ -412,7 +414,7 @@ public class FileTransfer extends AbstractCosemObject {
 			return this.getImageFirstNotTransferedBlockNumber();
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the first not transfered block number." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the first not transfered block number." + e.getMessage());
 		}
 	}
 
@@ -430,7 +432,7 @@ public class FileTransfer extends AbstractCosemObject {
 			return this.imageTransferEnabled;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the transfer enabled state." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the transfer enabled state." + e.getMessage());
 		}
 	}
 
@@ -444,7 +446,7 @@ public class FileTransfer extends AbstractCosemObject {
 			write(ATTRB_IMAGE_TRANSFER_ENABLED, new BooleanObject(state).getBEREncodedByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not write the transfer enabled state." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the transfer enabled state." + e.getMessage());
 		}
 	}
 
@@ -465,7 +467,7 @@ public class FileTransfer extends AbstractCosemObject {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the transfer enabled state." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the transfer enabled state." + e.getMessage());
 		}
 	}
 
@@ -490,7 +492,7 @@ public class FileTransfer extends AbstractCosemObject {
 			return this.imageTransferStatus;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not read the transferStatus." + e.getMessage());
+			throw new NestedIOException(e, "Could not read the transferStatus." + e.getMessage());
 		}
 	}
 
@@ -507,7 +509,7 @@ public class FileTransfer extends AbstractCosemObject {
 			return this.imageToActivateInfo;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not read the imageToActivateInfo." + e.getMessage());
+			throw new NestedIOException(e, "Could not read the imageToActivateInfo." + e.getMessage());
 		}
 	}
 	/**
@@ -534,7 +536,7 @@ public class FileTransfer extends AbstractCosemObject {
 				write(IMAGE_TRANSFER_INITIATE_SN, imageInfo.getBEREncodedByteArray());
 			}
 		} catch (IOException e) {
-			throw new IOException("Could not initiate the imageTransfer" + e.getMessage());
+			throw new NestedIOException(e, "Could not initiate the imageTransfer" + e.getMessage());
 		}
 	}
 
@@ -560,7 +562,7 @@ public class FileTransfer extends AbstractCosemObject {
 				write(IMAGE_BLOCK_TRANSFER_SN, imageData.getBEREncodedByteArray());
 			}
 		} catch (IOException e) {
-		    throw new IOException("Could not write the current imageData block" + e.getMessage());
+		    throw new NestedIOException(e, "Could not write the current imageData block" + e.getMessage());
 		}
 	}
 
@@ -578,7 +580,7 @@ public class FileTransfer extends AbstractCosemObject {
 		try{
 		    invoke(IMAGE_VERIFICATION, new Integer8(0).getBEREncodedByteArray());
 		} catch (IOException e) {
-		    throw new IOException("Could not verify the imageData" + e.getMessage());
+		    throw new NestedIOException(e, "Could not verify the imageData" + e.getMessage());
 		}
 	    } else {
 		write(IMAGE_VERIFICATION_SN, new Integer8(0).getBEREncodedByteArray());
@@ -604,7 +606,7 @@ public class FileTransfer extends AbstractCosemObject {
 				write(IMAGE_ACTIVATION_SN, new Integer8(0).getBEREncodedByteArray());
 			}
 		} catch (IOException e) {
-		    throw new IOException("Could not activate the image." + e.getMessage());
+		    throw new NestedIOException(e, "Could not activate the image." + e.getMessage());
 		}
 	}
 

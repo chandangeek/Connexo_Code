@@ -1,6 +1,5 @@
 package com.energyict.protocols.impl.channels.serial.direct.rxtx;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.ConnectionException;
@@ -21,7 +20,7 @@ import javax.inject.Named;
 public class RxTxPlainSerialConnectionType extends RxTxSerialConnectionType {
 
     @Inject
-    public RxTxPlainSerialConnectionType(@Named(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME) SerialComponentService plainRxTxSerialComponentService, PropertySpecService propertySpecService) {
+    public RxTxPlainSerialConnectionType(@Named(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME) SerialComponentService plainRxTxSerialComponentService) {
         super(plainRxTxSerialComponentService);
     }
 

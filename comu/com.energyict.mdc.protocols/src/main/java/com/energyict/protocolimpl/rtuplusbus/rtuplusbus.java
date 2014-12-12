@@ -634,11 +634,6 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     //  M  I  S  C  E  L  E  A  N  E  O  U  S
     //
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT RTU RtuPlusBus";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

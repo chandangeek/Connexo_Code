@@ -14,8 +14,11 @@ import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.inbound.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -75,7 +78,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
     /**
      * Contains a list of Registers to read
      */
-    private List<com.energyict.mdc.protocol.api.device.data.Register> registers;
+    private List<Register> registers;
 
     /**
      * The LoadProfile to read
@@ -123,11 +126,11 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         return loadProfileId;
     }
 
-    public List<com.energyict.mdc.protocol.api.device.data.Register> getRegisters() {
+    public List<Register> getRegisters() {
         return registers;
     }
 
-    public void setRegisters(final List<com.energyict.mdc.protocol.api.device.data.Register> registers) {
+    public void setRegisters(final List<Register> registers) {
         this.registers = registers;
     }
 
@@ -160,7 +163,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             builder.append("<");
             builder.append(RtuRegistersTag);
             builder.append(">");
-            for (com.energyict.mdc.protocol.api.device.data.Register register : this.registers) {
+            for (Register register : this.registers) {
                 builder.append("<");
                 builder.append(RegisterTag);
                 addAttribute(builder, RegisterObiscodeTag, register.getObisCode());
@@ -305,6 +308,21 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             }
 
             @Override
+            public DeviceIdentifierType getDeviceIdentifierType() {
+                return DeviceIdentifierType.SerialNumber;
+            }
+
+            @Override
+            public String getXmlType() {
+                return null;
+            }
+
+            @Override
+            public void setXmlType(String ignore) {
+
+            }
+
+            @Override
             public BaseDevice<?, ?, ?> findDevice() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper Device ...");
             }
@@ -312,6 +330,26 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             @Override
             public BaseLoadProfile findLoadProfile() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper LoadProfile ...");
+            }
+
+            @Override
+            public LoadProfileIdentifierType getLoadProfileIdentifierType() {
+                return LoadProfileIdentifierType.Other;
+            }
+
+            @Override
+            public List<Object> getIdentifier() {
+                return null;
+            }
+
+            @Override
+            public String getXmlType() {
+                return null;
+            }
+
+            @Override
+            public void setXmlType(String ignore) {
+
             }
         });
     }
@@ -328,7 +366,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
         if (device != null) {
             for (BaseRegister rtuRegister : device.getRegisters()) {
                 if (rtuRegister.getRegisterSpecObisCode().equalsIgnoreBChannel(register.getObisCode())) {
-                    return (int) rtuRegister.getRegisterSpecId();
+                    return rtuRegister.getRegisterSpecId();
                 }
             }
         }
@@ -375,7 +413,7 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
                 } else if (RtuRegistersTag.equals(localName)) {
                     registers = new ArrayList<>();
                 } else if (RegisterTag.equals(localName)) {
-                    registers.add(new com.energyict.mdc.protocol.api.device.data.Register(-1, ObisCode.fromString(atts.getValue(namespaceURI, RegisterObiscodeTag)), atts.getValue(namespaceURI, RtuRegisterSerialNumber)));
+                    registers.add(new Register(-1, ObisCode.fromString(atts.getValue(namespaceURI, RegisterObiscodeTag)), atts.getValue(namespaceURI, RtuRegisterSerialNumber)));
                 }
             }
         }

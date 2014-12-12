@@ -5,6 +5,7 @@ import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -24,6 +25,10 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
      * This value holds the name of the Property that contains an ObisCode that we don't support for this session
      */
     public static final String notSupportedLoadProfileObisCodePropertyName = "NotSupportedLoadProfile";
+
+    public SDKLoadProfileProtocolDialectProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     private final PropertySpecService propertySpecService;
 

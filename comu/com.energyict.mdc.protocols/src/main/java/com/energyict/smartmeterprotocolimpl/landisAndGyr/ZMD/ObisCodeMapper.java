@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
@@ -94,10 +95,10 @@ public class ObisCodeMapper {
             return new RegisterValue(register, new Quantity(new BigInteger(String.valueOf(this.protocol.requestConfigurationProgramChanges())), Unit.getUndefined()));
         } else if (obisCode.equals(ObisCode.fromString("0.0.96.6.0.255"))) {    // Battery usage counter
             com.energyict.dlms.cosem.Register cosemRegister = cof.getRegister(obisCode);
-            return new RegisterValue(register, com.energyict.genericprotocolimpl.common.ParseUtils.registerToQuantity(cosemRegister));
+            return new RegisterValue(register, ParseUtils.registerToQuantity(cosemRegister));
         } else if (obisCode.equals(ObisCode.fromString("0.0.96.6.3.255"))) {    // Battery voltage
             com.energyict.dlms.cosem.Register cosemRegister = cof.getRegister(obisCode);
-            return new RegisterValue(register, com.energyict.genericprotocolimpl.common.ParseUtils.registerToQuantity(cosemRegister));
+            return new RegisterValue(register, ParseUtils.registerToQuantity(cosemRegister));
         } else if (obisCode.equals(ObisCode.fromString("0.0.13.0.0.255"))) {    // Activity Calendar Name
             return new RegisterValue(register, null, null, null, null, new Date(), 0,
                     new String(cof.getActivityCalendar(obisCode).readCalendarNameActive().getOctetStr()));

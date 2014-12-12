@@ -64,12 +64,6 @@ public class XemexMeterTopology extends MeterTopology {
         // get an MbusDeviceMap
         this.mbusMap = getMbusMapper();
 
-        if (!this.mbusMap.isEmpty()) {
-            // check if all the mbus devices are configured in EIServer
-            checkToUpdateMbusMeters(mbusMap);
-            checkForDisappearedMbusMeters(mbusMap);
-        }
-
         StringBuilder sb = new StringBuilder();
         sb.append("Found ").append(this.mbusMap.size()).append(" MBus devices: ").append("\r\n");
         for (DeviceMapping deviceMapping : this.mbusMap) {
@@ -99,18 +93,4 @@ public class XemexMeterTopology extends MeterTopology {
         }
         return mbusMap;
     }
-
-    private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusMap) {
-        Device gatewayDevice = getRtuFromDatabaseBySerialNumber();
-        if (gatewayDevice != null) {
-            List<Device> mbusSlaves = this.getTopologyService().findPhysicalConnectedDevices(gatewayDevice);
-            mbusSlaves.stream()
-                    .filter(mbus -> !mbusMap.contains(new DeviceMapping(mbus.getSerialNumber())))
-                    .forEach(mbus -> {
-                        log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device - detaching from gateway.");
-                        getTopologyService().clearPhysicalGateway(mbus);
-            });
-        }
-    }
-
 }

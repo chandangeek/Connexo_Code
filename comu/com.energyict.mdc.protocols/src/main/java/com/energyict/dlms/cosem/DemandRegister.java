@@ -1,9 +1,3 @@
-/*
- * DemandRegister.java
- *
- * Created on 20 augustus 2004, 9:14
- */
-
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.DataContainer;

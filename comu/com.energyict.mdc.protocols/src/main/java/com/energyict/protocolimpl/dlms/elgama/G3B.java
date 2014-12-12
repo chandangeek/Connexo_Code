@@ -130,18 +130,13 @@ public class G3B extends AbstractDLMSProtocol {
         return getProfileChannel().getNumberOfChannels();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elgama G3B";
-    }
-
     /**
      * Getter for the protocol version
      *
      * @return the protocol version (being the date of the latest commit)
      */
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-09-30 17:16:32 +0200 (Tue, 30 Sep 2014) $";
     }
 
     /**
@@ -318,9 +313,6 @@ public class G3B extends AbstractDLMSProtocol {
         optionalKeys.add(LocalSecurityProvider.DATATRANSPORTKEY);
         optionalKeys.add(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
         optionalKeys.add(LocalSecurityProvider.MASTERKEY);
-        optionalKeys.add(LocalSecurityProvider.NEW_GLOBAL_KEY);
-        optionalKeys.add(LocalSecurityProvider.NEW_AUTHENTICATION_KEY);
-        optionalKeys.add(LocalSecurityProvider.NEW_HLS_SECRET);
         return optionalKeys;
     }
 

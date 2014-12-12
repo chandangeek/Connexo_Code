@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocolimpl.base.SecurityLevelException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -34,18 +34,12 @@ public class ZMDSecurityProvider extends NTASecurityProvider {
      */
     public ZMDSecurityProvider(Properties properties) {
         super(properties);
-        String sl = properties.getProperty("SecurityLevel", "1");
-		if(sl.indexOf(":") != -1){
-			this.securityLevel = Integer.parseInt(sl.substring(0, sl.indexOf(":")));
-		} else {
-			this.securityLevel = Integer.parseInt(sl);
-		}
     }
 
     @Override
-    public byte[] getCallingAuthenticationValue() throws SecurityLevelException {
+    public byte[] getCallingAuthenticationValue() throws UnsupportedException {
 
-        switch (this.securityLevel) {
+        switch (this.getSecurityLevel()) {
             case 0:
                 return new byte[0];
             case 1: {

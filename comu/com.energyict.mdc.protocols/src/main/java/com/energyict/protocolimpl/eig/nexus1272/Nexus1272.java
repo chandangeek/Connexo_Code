@@ -155,11 +155,6 @@ public class Nexus1272 extends AbstractProtocol  {
 	}
 
     @Override
-    public String getProtocolDescription() {
-        return "Nexus 1272";
-    }
-
-	@Override
 	public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
 	}

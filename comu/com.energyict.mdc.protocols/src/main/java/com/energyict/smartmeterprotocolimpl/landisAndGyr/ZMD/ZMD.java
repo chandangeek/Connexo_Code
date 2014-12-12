@@ -1,26 +1,27 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSObis;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.DemandResetProtocol;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -28,6 +29,9 @@ import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.DemandResetProtocol;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -41,20 +45,17 @@ import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
-import com.energyict.protocols.messaging.TimeOfUseMessaging;
-import com.energyict.protocols.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.events.LogBookReader;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging.ZMDMessages;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -66,7 +67,7 @@ import java.util.logging.Logger;
  * Date: 13/12/11
  * Time: 16:02
  */
-public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtocol, MessageProtocol, ProtocolLink, TimeOfUseMessaging {
+public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtocol, MessageProtocol, ProtocolLink {
 
     protected static final ObisCode[] SerialNumberSelectionObjects = {
             // Identification numbers 1.1, 1.2, 1.3 and 1.4
@@ -83,6 +84,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
     private StoredValuesImpl storedValuesImpl = null;
 
     private RegisterReader registerReader;
+    private LogBookReader logBookReader;
     private LoadProfileBuilder loadProfileBuilder;
 
     private int dstFlag;
@@ -108,7 +110,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
      * @return the requested Properties
      */
     @Override
-    protected ZMDProperties getProperties() {
+    public ZMDProperties getProperties() {
          if (properties == null) {
             properties = new ZMDProperties();
         }
@@ -125,45 +127,24 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
     }
 
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
+        try {
+            getDlmsSession().init();
+        } catch (IOException e) {
+            getLogger().warning("Failed while initializing the DLMS connection.");
+    }
+        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                            //HDLC:         9600 baud, 8N1
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
+        hhuSignOn.enableDataReadout(datareadout);
+        getDlmsSession().getDLMSConnection().setHHUSignOn(hhuSignOn, "", 0);      //IEC1107:      300 baud, 7E1
+//        getDlmsSession().getDLMSConnection().setSNRMType(1);
+    }
+
     protected SecurityProvider getSecurityProvider() {
-        return  getProperties().getSecurityProvider();
+        return getProperties().getSecurityProvider();
     }
 
-    /**
-     * Getter for the context ID
-     *
-     * @return the context ID
-     */
-    protected int getContextId() {
-        if (getReference() == ProtocolLink.LN_REFERENCE) {
-            return (getProperties().getDataTransportSecurityLevel() == 0) ? AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING :
-                    AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING;
-        } else if (getReference() == ProtocolLink.SN_REFERENCE) {
-            return (getProperties().getDataTransportSecurityLevel() == 0) ? AssociationControlServiceElement.SHORT_NAME_REFERENCING_NO_CIPHERING :
-                    AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING;
-        } else {
-            throw new IllegalArgumentException("Invalid reference method, only 0 and 1 are allowed.");
-        }
-    }
-
-    /**
-     * Returns a boolean whether or not there's encryption used
-     *
-     * @return boolean
-     */
-    protected boolean isCiphered() {
-        return (getContextId() == AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_WITH_CIPHERING) || (getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING);
-    }
-
-    /**
-     * Configure the {@link com.energyict.dlms.aso.ConformanceBlock} which is used for the DLMS association.
-     *
-     * @return the conformanceBlock, if null is returned then depending on the reference,
-     *         the default value({@link com.energyict.dlms.aso.ConformanceBlock#DEFAULT_LN_CONFORMANCE_BLOCK} or {@link com.energyict.dlms.aso.ConformanceBlock#DEFAULT_SN_CONFORMANCE_BLOCK}) will be used
-     */
-    protected ConformanceBlock configureConformanceBlock() {
-        return new ConformanceBlock(1573408L);
-    }
 
     protected byte[] getSystemIdentifier() {
         return null;
@@ -324,65 +305,9 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
      * @throws java.io.IOException when a logical error occurred
      */
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
-        Calendar cal = Calendar.getInstance(getTimeZone());
-        cal.setTime(lastLogbookDate);
-        return getEventLog(cal);
+       return getLogBookReader().getMeterEvents(lastLogbookDate);
     }
 
-    /**
-     * Getter for the MeterEvent list
-     *
-     * @param fromCalendar the time to start collection events from the device
-     * @return a list of MeterEvents
-     */
-    public List<MeterEvent> getEventLog(Calendar fromCalendar) throws IOException {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-
-        Calendar toCalendar = ProtocolUtils.getCalendar(getTimeZone()); // Must be in the device time zone
-        DataContainer dc = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCalendar, toCalendar);
-
-        int index = 0;
-        int eventIdIndex = getProperties().getEventIdIndex();
-
-        if (eventIdIndex == -1) {
-            Iterator it = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getCaptureObjects().iterator();
-            while (it.hasNext()) {
-                CapturedObject capturedObject = (CapturedObject) it.next();
-                if (capturedObject.getLogicalName().getObisCode().equals(ObisCode.fromString("0.0.96.240.12.255")) &&
-                        (capturedObject.getAttributeIndex() == 2) &&
-                        (capturedObject.getClassId() == 3)) {
-                    break;
-                } else {
-                    index++;
-                }
-            }
-        }
-
-        for (int i = 0; i < dc.getRoot().getNrOfElements(); i++) {
-            Date dateTime = dc.getRoot().getStructure(i).getOctetString(0).toDate(getTimeZone());
-            int id = 0;
-            if (eventIdIndex == -1) {
-                id = dc.getRoot().getStructure(i).getInteger(index);
-            } else {
-                id = dc.getRoot().getStructure(i).convert2Long(eventIdIndex).intValue();
-            }
-            MeterEvent meterEvent = EventNumber.toMeterEvent(id, dateTime);
-            if (meterEvent != null) {
-                meterEvents.add(meterEvent);
-            }
-        }
-        return meterEvents;
-    }
-
-    /**
-     * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles from the meter.
-     * Build up a list of <CODE>LoadProfileConfiguration</CODE> objects and return them so the
-     * framework can validate them to the configuration in EIServer
-     *
-     * @param loadProfilesToRead the <CODE>List</CODE> of <CODE>LoadProfileReaders</CODE> to indicate which profiles will be read
-     * @return a list of <CODE>LoadProfileConfiguration</CODE> objects corresponding with the meter
-     * @throws java.io.IOException if a communication or parsing error occurred
-     */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
         List<LoadProfileConfiguration> loadProfileConfigurations = getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
         return loadProfileConfigurations;
@@ -408,6 +333,13 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
+    public LogBookReader getLogBookReader() {
+        if (logBookReader == null) {
+            logBookReader = new LogBookReader(this);
+        }
+        return logBookReader;
+    }
+
     private LoadProfileBuilder getLoadProfileBuilder() {
         if (loadProfileBuilder == null) {
             loadProfileBuilder = new LoadProfileBuilder(this);
@@ -415,16 +347,11 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         return loadProfileBuilder;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Landis+Gyr ZMx Family";
-    }
-
     /**
      * Returns the protocol version
      */
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-09-23 11:13:20 +0200 (Tue, 23 Sep 2014) $";
     }
 
     /**
@@ -554,23 +481,4 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         }
         return iConfigProgramChange;
     }
-
-    /**
-     * Returns the message builder capable of generating and parsing 'time of use' messages.
-     *
-     * @return The {@link MessageBuilder} capable of generating and parsing 'time of use' messages.
-     */
-    public TimeOfUseMessageBuilder getTimeOfUseMessageBuilder() {
-        return this.messageProtocol.getTimeOfUseMessageBuilder();
-    }
-
-    /**
-     * Get the TimeOfUseMessagingConfig object that contains all the capabilities for the current protocol
-     *
-     * @return the config object
-     */
-    public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
-        return this.messageProtocol.getTimeOfUseMessagingConfig();
-    }
-
 }

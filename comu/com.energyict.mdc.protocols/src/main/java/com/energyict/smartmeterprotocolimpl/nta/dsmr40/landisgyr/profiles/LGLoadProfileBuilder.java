@@ -14,6 +14,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.profiles.Dsmr40Loa
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -27,6 +28,11 @@ import java.util.logging.Level;
  * </pre>
  */
 public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
+
+    /**
+     * If true, subtract 15 minutes from the to date to read out MBus load profiles
+     */
+    private boolean fixMBusToDate = true;
 
     /**
      * Default constructor
@@ -61,18 +67,23 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
             ObisCode lpObisCode = getMeterProtocol().getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
-                getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
+                Date toDate = lpr.getEndReadingTime();
+                if (fixMBusToDate && !lpr.getMeterSerialNumber().equals(getMeterProtocol().getSerialNumber())) {     //MBus load profile
+                    toDate.setTime(toDate.getTime() - 900000);                                      //Read to current time - 15 minutes, see RFC 168
+                }
+                fixMBusToDate = true;       //Reset to default for next LP requests
+                getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + toDate);
                 profile = getMeterProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
+                profile.setDsmr4SelectiveAccessFormat(true);
                 profileData = new ProfileData(lpr.getLoadProfileId());
                 profileData.setChannelInfos(getChannelInfoMap().get(lpr));
                 Calendar fromCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
                 fromCalendar.setTime(lpr.getStartReadingTime());
                 Calendar toCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
-                toCalendar.setTime(lpr.getEndReadingTime());
+                toCalendar.setTime(toDate);
 
-                //TODO it is possible that we need to check for the masks ...
                 LGDLMSProfileIntervals intervals = new LGDLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), LGDLMSProfileIntervals.DefaultClockMask,
-                        getStatusMasksMap().get(lpr), -1, getProfileIntervalStatusBits());
+                        getStatusMasksMap().get(lpr), this.channelMaskMap.get(lpr), getProfileIntervalStatusBits());
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval(), getMeterProtocol().getTimeZone()));
 
                 profileDataList.add(profileData);
@@ -80,6 +91,10 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
         }
 
         return profileDataList;
+    }
+
+    public void setFixMBusToDate(boolean fixMBusToDate) {
+        this.fixMBusToDate = fixMBusToDate;
     }
 
     public ProfileIntervalStatusBits getProfileIntervalStatusBits() {

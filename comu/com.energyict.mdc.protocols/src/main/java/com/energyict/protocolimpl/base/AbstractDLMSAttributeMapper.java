@@ -59,7 +59,7 @@ public abstract class AbstractDLMSAttributeMapper implements DLMSAttributeMapper
 						register.getFromTime(),
 						register.getToTime(),
 						register.getReadTime(),
-						register.getRtuRegisterId(),
+						register.getRegisterSpecId(),
 						register.getText()
 				);
 			}

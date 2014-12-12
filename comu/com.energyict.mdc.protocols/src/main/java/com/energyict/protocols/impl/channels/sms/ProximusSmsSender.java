@@ -1,5 +1,6 @@
 package com.energyict.protocols.impl.channels.sms;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -236,7 +237,7 @@ public class ProximusSmsSender {
      * @return a version string
      */
     public String getVersion() {
-        return "$Date: 2013-06-26 15:21:25 +0200 (Mit, 26 Jun 2013) $";
+        return "$Date: 2013-06-26 15:21:25 +0200 (Wed, 26 Jun 2013) $";
     }
 
     public String getConnectionURL() {
@@ -344,6 +345,13 @@ public class ProximusSmsSender {
             return ResultType.INTERNAL_ERROR;
         }
 
+        public static ResultType getResultTypeFromByteStream(byte[] bytes) {
+            ResultType type = ResultType.values()[bytes[0]];
+            if (bytes[1] != 0) {
+                byte[] subArray = ProtocolTools.getSubArray(bytes, 2);
+                type.setFailureInformation(ProtocolTools.getAsciiFromBytes(subArray));
+            }
+            return type;
+        }
     }
-
 }

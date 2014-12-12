@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages;
 
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
+import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
@@ -23,9 +23,9 @@ public class XemexMessaging extends Dsmr40Messaging {
 
     private final Dsmr40MessageExecutor messageExecutor;
 
-    public XemexMessaging(final GenericMessageExecutor messageExecutor) {
-        super(messageExecutor);
-        this.messageExecutor = (Dsmr40MessageExecutor) messageExecutor;
+    public XemexMessaging(final MessageParser messageParser) {
+        super(messageParser);
+        this.messageExecutor = (Dsmr40MessageExecutor) messageParser;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class XemexMessaging extends Dsmr40Messaging {
         return catConfigurationParameters;
     }
 
-    private MessageCategorySpec getConnectivityCategory() {
+    protected MessageCategorySpec getConnectivityCategory() {
         MessageCategorySpec catGPRSModemSetup = new MessageCategorySpec(
                 RtuMessageCategoryConstants.CHANGECONNECTIVITY);
         MessageSpec msgSpec = addChangeGPRSSetup(

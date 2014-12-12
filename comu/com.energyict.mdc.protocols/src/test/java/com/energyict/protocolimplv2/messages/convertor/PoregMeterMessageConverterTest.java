@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg2;
-import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
+
 import com.energyict.mdc.protocol.api.device.messages.DSTAlgorithm;
 import org.junit.Test;
 import org.junit.runner.RunWith;

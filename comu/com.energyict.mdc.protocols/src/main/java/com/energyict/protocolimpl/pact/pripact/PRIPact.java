@@ -166,11 +166,6 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         // ", TariffName="++getPactRegisterFactory().getMeterReadingsInterpreter().getCurrentTariffName()
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "PRI PACT";
-    }
-
     public String getProtocolVersion() {
         // return "$Revision: 1.29 $";
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";

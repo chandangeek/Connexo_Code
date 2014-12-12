@@ -30,11 +30,12 @@ import java.util.logging.Level;
  */
 public class ProfileDataReader {
 
-    protected JanzC280 janzC280;
-
     private static ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("1.0.99.98.0.255");
     private static ObisCode QUALITY_LOG = ObisCode.fromString("1.0.99.98.1.255");
+    private static final int MILLIS_IN_SECOND = 1000;
     private static long BASE_NUMBER_OF_SECONDS = (long) 946684800; // = number of seconds 1 Jan 1970 UTC - 1 Jan 2000 UTC
+
+    protected JanzC280 janzC280;
 
     public ProfileDataReader(JanzC280 janzC280) {
         this.janzC280 = janzC280;
@@ -128,7 +129,7 @@ public class ProfileDataReader {
      */
     private Calendar getCalendarFromHoraLegal(long horaLegal) {
         Calendar gmtCal = ProtocolUtils.getCleanGMTCalendar();
-        gmtCal.setTimeInMillis((BASE_NUMBER_OF_SECONDS + horaLegal) * 1000);
+        gmtCal.setTimeInMillis((BASE_NUMBER_OF_SECONDS + horaLegal) * MILLIS_IN_SECOND);
 
         Calendar localCal = Calendar.getInstance(janzC280.getTimeZone());
         localCal.set(Calendar.YEAR, gmtCal.get(Calendar.YEAR));
@@ -148,9 +149,9 @@ public class ProfileDataReader {
      * @return hora legal timestamp
      */
     private long getHoraLegalFromCalendar(Calendar cal) {
-        long timestamp = cal.getTimeInMillis() / 1000;
+        long timestamp = cal.getTimeInMillis() / MILLIS_IN_SECOND;
         timestamp -= BASE_NUMBER_OF_SECONDS;
-        timestamp += (janzC280.getTimeZone().getRawOffset() * 36000);
+        timestamp += (janzC280.getTimeZone().getRawOffset() / MILLIS_IN_SECOND);
         timestamp += (janzC280.getTimeZone().inDaylightTime(cal.getTime()) ? 3600 : 0);
         return timestamp;
     }
@@ -162,10 +163,11 @@ public class ProfileDataReader {
         return events;
     }
 
-    protected ChannelInfo getChannelInfo(int iChannelNumber) throws IOException {
-        ObisCode obisCode = ObisCode.fromString("1.0.99.128." + (iChannelNumber + 1) + ".255");
+    protected ChannelInfo getChannelInfo(int index) throws IOException {
+        Integer chnNumber = janzC280.getEnabledChannelNumbers().get(index);
+        ObisCode obisCode = ObisCode.fromString("1.0.99.128." + chnNumber + ".255");
         RegisterValue registerValue = janzC280.readRegister(obisCode);
-        return new ChannelInfo(iChannelNumber, "1.0.99.1." + (iChannelNumber + 1) + ".255", registerValue.getQuantity().getUnit());
+        return new ChannelInfo(index, chnNumber - 1, "1.0.99.1." + chnNumber + ".255", registerValue.getQuantity().getUnit());
     }
 
     private int getEiServerStatus(byte[] eventDef) {

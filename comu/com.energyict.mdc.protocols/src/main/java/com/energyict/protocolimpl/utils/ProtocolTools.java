@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -27,6 +28,8 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -396,15 +399,23 @@ public final class ProtocolTools {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new ProtocolInterruptedException(e);
         }
     }
 
     public static Date roundUpToNearestInterval(Date timeStamp, int intervalInMinutes) {
-        int intervalMillis = intervalInMinutes * MILLIS * SECONDS;
+        long intervalMillis = (long) intervalInMinutes * MILLIS * SECONDS;
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(timeStamp);
+        if (Math.abs(intervalInMinutes) >= (31 * 24 * 60)) { // In case of monthly intervals
+            cal.set(Calendar.DAY_OF_MONTH, 1);
+        }
+        if (Math.abs(intervalInMinutes) >=  (24 * 60) ) {    // In case of daily/monthly intervals
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+        }
+
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
@@ -416,11 +427,12 @@ public final class ProtocolTools {
         Calendar returnDate = Calendar.getInstance();
         returnDate.setTime(timeStamp);
         if (intervalInMinutes > 0) {
-            returnDate.add(Calendar.MILLISECOND, overTime != 0 ? (int) beforeTime : 0);
+            returnDate.add(Calendar.SECOND, overTime != 0 ? (int) (beforeTime / 1000) : 0);         // The seconds      - split up to avoid int limit
+            returnDate.add(Calendar.MILLISECOND, overTime != 0 ? (int) (beforeTime % 1000) : 0);    // The milliseconds
         } else {
-            returnDate.add(Calendar.MILLISECOND, (overTime != 0 ? (int) overTime : 0) * (-1));
+            returnDate.add(Calendar.SECOND, (overTime != 0 ? (int) (overTime / 1000) : 0) * (-1));          // The seconds      - split up to avoid int limit
+            returnDate.add(Calendar.MILLISECOND, (overTime != 0 ? (int) (overTime % 1000) : 0) * (-1));     // The milliseconds
         }
-
         return returnDate.getTime();
     }
 
@@ -487,7 +499,57 @@ public final class ProtocolTools {
         return getUnsignedIntFromBytes(value);
     }
 
+    /**
+     * Creates an unsigned BigInteger value that represents a given byte array
+     *
+     * @param value: the given byte array
+     * @return the resulting BigInteger
+     */
+    public static BigInteger getUnsignedBigIntegerFromBytes(byte[] value) {
+        return new BigInteger(1, value);    // Forcing the signum to positive gives you the unsigned equivalent
+    }
 
+    /**
+     * Creates an unsigned BigInteger value that represents a given byte array, taking into account Little Endian byte order
+     *
+     * @param value: the given byte array
+     * @return the resulting BigInteger
+     */
+    public static BigInteger getUnsignedBigIntegerFromBytesLE(byte[] value, int offset, int length) {
+        value = ProtocolTools.getSubArray(value, offset, offset + length);
+        value = ProtocolTools.getReverseByteArray(value);
+        return getUnsignedBigIntegerFromBytes(value);
+    }
+
+    /**
+     * Creates an signed BigInteger value that represents a given byte array
+     *
+     * @param value: the given byte array
+     * @return the resulting BigInteger
+     */
+    public static BigInteger getSignedBigIntegerFromBytes(byte[] value) {
+        return new BigInteger(value);
+    }
+
+    /**
+     * Creates an signed BigInteger value that represents a given byte array, taking into account Little Endian byte order
+     *
+     * @param value: the given byte array
+     * @return the resulting BigInteger
+     */
+    public static BigInteger getSignedBigIntegerFromBytesLE(byte[] value, int offset, int length) {
+        value = ProtocolTools.getSubArray(value, offset, offset + length);
+        value = ProtocolTools.getReverseByteArray(value);
+        return getSignedBigIntegerFromBytes(value);
+    }
+
+    /**
+     * Rounds down to the nearest interval or to the nearest hour if the interval is daily/monthly
+     *
+     * @param timeStamp
+     * @param intervalInMinutes
+     * @return
+     */
     public static Date roundDownToNearestInterval(Date timeStamp, int intervalInMinutes) {
         return roundUpToNearestInterval(timeStamp, intervalInMinutes * (-1));
     }
@@ -594,6 +656,59 @@ public final class ProtocolTools {
     }
 
     /**
+     * Merge the duplicate intervals from the given list of IntervalData elements.
+     * When merging multiple IntervalData elements, the Eis/protocol statuses are merged as well.
+     *
+     * @param intervals the list of IntervalData elements which should be checked for doubles
+     * @return the merged list of IntervalData elements (which now should no longer contain duplicate intervals)
+     */
+    public static List<IntervalData> mergeDuplicateIntervalsIncludingIntervalStatus(List<IntervalData> intervals) {
+        List<IntervalData> mergedIntervals = new ArrayList<IntervalData>();
+        for (IntervalData id2compare : intervals) {
+            boolean allreadyProcessed = false;
+            for (IntervalData merged : mergedIntervals) {
+                if (merged.getEndTime().compareTo(id2compare.getEndTime()) == 0) {
+                    allreadyProcessed = true;
+                    break;
+                }
+            }
+
+            if (!allreadyProcessed) {
+                List<IntervalData> toAdd = new ArrayList<IntervalData>();
+                for (IntervalData id : intervals) {
+                    if (id.getEndTime().compareTo(id2compare.getEndTime()) == 0) {
+                        toAdd.add(id);
+                    }
+                }
+                IntervalValue[] intervalValues = new IntervalValue[id2compare.getValueCount()];
+                IntervalData md = new IntervalData(id2compare.getEndTime());
+
+                for (IntervalData intervalData : toAdd) {
+                    for (int i = 0; i < intervalValues.length; i++) {
+                        IntervalValue intervalValue = (IntervalValue) intervalData.getIntervalValues().get(i);
+                        if (intervalValues[i] == null) {
+                            intervalValues[i] = intervalValue;
+                        } else {
+                            intervalValues[i] = new IntervalValue(
+                                    NumberTools.add(intervalValues[i].getNumber(), intervalValue.getNumber()),
+                                    intervalValues[i].getProtocolStatus() | intervalValue.getProtocolStatus(),
+                                    intervalValues[i].getEiStatus() | intervalValue.getEiStatus()
+                            );
+                        }
+                        md.addEiStatus(intervalData.getEiStatus());
+                        md.addProtocolStatus(intervalData.getProtocolStatus());
+                    }
+                }
+
+                md.setIntervalValues(Arrays.asList(intervalValues));
+                mergedIntervals.add(md);
+            }
+
+        }
+        return mergedIntervals;
+    }
+
+    /**
      * This method converts a byte array to a readable string. Unprintable
      * characters are replaced by a '.'
      *
@@ -645,6 +760,17 @@ public final class ProtocolTools {
         return ObisCode.fromByteArray(ln);
     }
 
+    public static final boolean equalsIgnoreBField(final ObisCode first, final ObisCode second) {
+        final ObisCode firstNoBField = setObisCodeField(first, 1, (byte) 0);
+        final ObisCode secondNoBField = setObisCodeField(second, 1, (byte) 0);
+        return firstNoBField.equals(secondNoBField);
+    }
+
+    /**
+     * @param registerValue
+     * @param obisCode
+     * @return
+     */
     public static RegisterValue setRegisterValueObisCode(RegisterValue registerValue, ObisCode obisCode) {
         return new RegisterValue(
                 obisCode,
@@ -653,7 +779,7 @@ public final class ProtocolTools {
                 registerValue.getFromTime(),
                 registerValue.getToTime(),
                 registerValue.getReadTime(),
-                registerValue.getRtuRegisterId(),
+                registerValue.getRegisterSpecId(),
                 registerValue.getText()
         );
     }
@@ -903,6 +1029,7 @@ public final class ProtocolTools {
      * <ul>
      * <li>"1"</li>
      * <li>"true"</li>
+     * <li>"yes"</li>
      * <li>"enable"</li>
      * <li>"enabled"</li>
      * <li>"on"</li>
@@ -918,6 +1045,7 @@ public final class ProtocolTools {
             String bool = boolAsString.trim();
             isTrue |= bool.equalsIgnoreCase("true");
             isTrue |= bool.equalsIgnoreCase("1");
+            isTrue |= bool.equalsIgnoreCase("yes");
             isTrue |= bool.equalsIgnoreCase("enable");
             isTrue |= bool.equalsIgnoreCase("enabled");
             isTrue |= bool.equalsIgnoreCase("on");
@@ -1010,10 +1138,10 @@ public final class ProtocolTools {
             if (object instanceof String) {
                 return (String) object;
             } else {
-                throw new IOException("Compressed object should be a java.lang.String but was [" + object.getClass().getName() + "]");
+                throw new ProtocolException("Compressed object should be a java.lang.String but was [" + object.getClass().getName() + "]");
             }
         } catch (ClassNotFoundException e) {
-            throw new IOException(e.getMessage());
+            throw new ProtocolException(e.getMessage());
         }
     }
 
@@ -1034,10 +1162,10 @@ public final class ProtocolTools {
             if (object instanceof byte[]) {
                 return (byte[]) object;
             } else {
-                throw new IOException("Compressed object should be a byte[] but was [" + object.getClass().getName() + "]");
+                throw new ProtocolException("Compressed object should be a byte[] but was [" + object.getClass().getName() + "]");
             }
         } catch (ClassNotFoundException e) {
-            throw new IOException(e.getMessage());
+            throw new ProtocolException(e.getMessage());
         }
     }
 
@@ -1184,5 +1312,38 @@ public final class ProtocolTools {
             cause = cause.getCause();
         }
         return cause;
+    }
+
+    /**
+     * Visualise the given number taking into account the maximum number of characters the visualisation can use.<br></br>
+     * If the visualisation would take more characters, the number is rounded.
+     *
+     * @param value The Number to format
+     * @param maximumNumberOfChars The maximum number of (non-negative) characters to limit the number to<br></br>
+     * Examples:<br></br>
+     *  <ul>
+     *      <li>visualiseFormattedNumber(123.456f, 5) = 123.4</li>
+     *      <li>visualiseFormattedNumber(-123.456f, 5) = -123.4</li>
+     *      <li>visualiseFormattedNumber(12345678, 5) = 12345678</li>
+     *  </ul>
+     *
+     * @return the formatted number visualisation
+     */
+    public static String visualiseFormattedNumber(Number value, int maximumNumberOfChars) {
+        MathContext mathContext = new MathContext(maximumNumberOfChars -1, RoundingMode.HALF_DOWN);
+        BigDecimal bigDecimal = new BigDecimal(value.toString(), mathContext);
+        return bigDecimal.toPlainString();
+    }
+
+    /**
+     * Remove all leading zeros from a given string.
+     * If the text contains only zeros, "0" will be returned;
+     */
+    public static String removeLeadingZerosFromString(String text) {
+        text = text.replaceFirst("^0*", "");
+        if (text.isEmpty()) {
+            text = "0";
+        }
+        return text;
     }
 }

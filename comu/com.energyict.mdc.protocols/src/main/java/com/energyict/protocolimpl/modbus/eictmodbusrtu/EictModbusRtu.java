@@ -65,11 +65,6 @@ public class EictModbusRtu extends Modbus {
         setRegisterFactory(new RegisterFactory(this));
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT RTU Modbus";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

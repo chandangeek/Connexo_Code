@@ -11,6 +11,7 @@
 package com.energyict.dlms.axrdencoding;
 
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class Array extends AbstractDataType implements Iterable<AbstractDataType
 	public Array(byte[] berEncodedData, int offset, int level) throws IOException {
 		offsetBegin = offset;
 		if (berEncodedData[offset] != AxdrType.ARRAY.getTag()) {
-			throw new IOException("Array, invalid identifier " + berEncodedData[offset]);
+			throw new ProtocolException("Array, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
 		dataTypes = new ArrayList<AbstractDataType>();
@@ -196,11 +197,11 @@ public class Array extends AbstractDataType implements Iterable<AbstractDataType
     public <T extends AbstractDataType> T getDataType(int index, Class<T> expectedClass) throws IOException {
         final int dataTypes = nrOfDataTypes();
         if (dataTypes <= index) {
-            throw new IOException("Invalid index [" + index + "] while reading [" + expectedClass.getSimpleName() + "]. Array contains only [" + dataTypes + "] items.");
+            throw new ProtocolException("Invalid index [" + index + "] while reading [" + expectedClass.getSimpleName() + "]. Array contains only [" + dataTypes + "] items.");
         }
         final AbstractDataType dataType = getDataType(index);
         if (!dataType.getClass().getName().equalsIgnoreCase(expectedClass.getName())) {
-            throw new IOException("Invalid dataType at index [" + index + "]. Expected [" + expectedClass.getSimpleName() + "] but received [" + dataType.getClass().getSimpleName() + "]");
+            throw new ProtocolException("Invalid dataType at index [" + index + "]. Expected [" + expectedClass.getSimpleName() + "] but received [" + dataType.getClass().getSimpleName() + "]");
         }
         return (T) getDataType(index);
     }

@@ -4,6 +4,7 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.io.IOException;
@@ -25,6 +26,10 @@ public class PowerFailureLog extends AbstractEvent {
         super(dc, deviationType);
     }
 
+    public PowerFailureLog(DataContainer dc) {
+        super(dc);
+    }
+
     /**
      * <b><u>Note:</u></b> This will do nothing
      * Build a list of MeterEvents
@@ -35,7 +40,7 @@ public class PowerFailureLog extends AbstractEvent {
     }
 
     @Override
-    public List<MeterEvent> getMeterEvents() throws IOException {
+    public List<MeterEvent> getMeterEvents() throws ProtocolException {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         int size = this.dcEvents.getRoot().getNrOfElements();
         Date eventTimeStamp = null;

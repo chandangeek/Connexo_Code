@@ -1,16 +1,23 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.AS330D;
+import com.energyict.protocolimpl.dlms.g3.SerialNumber;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-
+import java.util.Date;
 /**
  * Copyrights EnergyICT
  * Date: 22/03/12
@@ -23,12 +30,25 @@ public class DisconnectControlMapper extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        final Disconnector disconnector = as330D.getSession().getCosemObjectFactory().getDisconnector(getObisCode());
-        final TypeEnum controlState = disconnector.getControlState();
+    public RegisterValue readRegister(DlmsSession session) throws IOException {
+        final Disconnector disconnector = session.getCosemObjectFactory().getDisconnector(getObisCode());
+        return parse(disconnector.getControlState());
+    }
+
+    @Override
+    public int getAttributeNumber() {
+        return DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber();
+    }
+
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        final TypeEnum controlState = ((TypeEnum) abstractDataType);
         final BigDecimal value = BigDecimal.valueOf(controlState.getValue());
         final Quantity quantity = new Quantity(value, Unit.get(""));
         return new RegisterValue(getObisCode(), quantity);
     }
 
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.DISCONNECT_CONTROL.getClassId();
+    }
 }

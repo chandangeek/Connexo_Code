@@ -81,23 +81,23 @@ public class SioCaseModemConnectionTypeTest extends AbstractModemTests {
 
     private List<ConnectionProperty> getProperProperties (ComPort comPort) {
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.DELAY_BEFORE_SEND);
-        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl commandTimeout = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.COMMAND_TIMEOUT);
-        commandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        commandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl commandTries = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.COMMAND_TRIES);
         commandTries.setValue(new BigDecimal(1));
         ConnectionTaskPropertyImpl modemInitStrings = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.MODEM_INIT_STRINGS);
         modemInitStrings.setValue("");
         ConnectionTaskPropertyImpl delayAfterConnect = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.DELAY_AFTER_CONNECT);
-        delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.CONNECT_TIMEOUT);
-        connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.MODEM_DIAL_PREFIX);
         dialPrefix.setValue("");
         ConnectionTaskPropertyImpl addressSelector = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.MODEM_ADDRESS_SELECTOR);
         addressSelector.setValue("");
         ConnectionTaskPropertyImpl dtrToggleDelay = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.DTR_TOGGLE_DELAY);
-        dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.MILLISECONDS));
+        dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl phoneNumber = new ConnectionTaskPropertyImpl(TypedCaseModemProperties.PHONE_NUMBER_PROPERTY_NAME);
         phoneNumber.setValue(PHONE_NUMBER);
         ConnectionProperty comPortConnectionProperty = mock(ConnectionProperty.class);

@@ -21,6 +21,7 @@ import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.protocolimpl.iec1107.Channel;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -31,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -146,16 +148,16 @@ public class LoadProfileBuilder {
 
         for (CapturedObject capturedObject : captureObjects.subList(4, captureObjects.size())) {
             ObisCode registerObisCode = ObisCode.fromString(capturedObject.getLogicalName().toString());
-            ChannelInfo loadProfileChannelInfo = getLoadProfileChannelInfo(lpr, registerObisCode);
-            if (loadProfileChannelInfo != null) {
+            Optional<ChannelInfo> channelInfoOptional = loadProfileContains(lpr, registerObisCode);
+            if (channelInfoOptional.isPresent()) {
                 ScalerUnit scalerUnit = loadProfileInformation.get(registerObisCode);
 
                 if (scalerUnit != null) {
                     if (scalerUnit.getUnitCode() != 0) {
-                        ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), registerObisCode.toString(), scalerUnit.getEisUnit(), meterProtocol.getMeterSerialNumber(), true, loadProfileChannelInfo.getReadingType());
+                        ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), registerObisCode.toString(), scalerUnit.getEisUnit(), meterProtocol.getMeterSerialNumber(), true, channelInfoOptional.get().getReadingType());
                         channelInfos.add(channelInfo);
                     } else {
-                        ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), registerObisCode.toString(), Unit.getUndefined(), meterProtocol.getMeterSerialNumber(), true, loadProfileChannelInfo.getReadingType());
+                        ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), registerObisCode.toString(), Unit.getUndefined(), meterProtocol.getMeterSerialNumber(), true, channelInfoOptional.get().getReadingType());
                         channelInfos.add(channelInfo);
                     }
                 }
@@ -166,13 +168,13 @@ public class LoadProfileBuilder {
     }
 
 
-    private ChannelInfo getLoadProfileChannelInfo(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
+    private Optional<ChannelInfo> loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
         for (ChannelInfo channelInfo : lpr.getChannelInfos()) {
             if (channelInfo.getChannelObisCode().equals(obisCode)) {
-                return channelInfo;
+                return Optional.of(channelInfo);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**

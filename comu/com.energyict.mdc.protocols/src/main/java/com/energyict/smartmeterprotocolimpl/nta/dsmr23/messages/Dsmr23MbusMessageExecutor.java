@@ -13,22 +13,13 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -37,11 +28,17 @@ import com.energyict.mdc.protocol.api.device.data.MeterData;
 import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
 import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -56,7 +53,7 @@ import java.util.logging.Level;
  * Date: 18-jul-2011
  * Time: 8:38:27
  */
-public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
+public class Dsmr23MbusMessageExecutor extends MessageParser {
 
     private final AbstractSmartNtaProtocol protocol;
     private final TopologyService topologyService;
@@ -191,16 +188,13 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         log(Level.INFO, "Handling MbusMessage Decommission MBus device");
 
         getMBusClient(serialNumber).deinstallSlave();
-
-        //Need to clear the gateWay
-        //TODO this is not fully compliant with the HTTP comserver ...
-        Device mbus = (Device) getRtuFromDatabaseBySerialNumber(serialNumber);
-        if (mbus != null) {
-            this.topologyService.clearPhysicalGateway(mbus);
-        }
     }
 
     private void setConnectMode(final MessageHandler messageHandler, final String serialNumber) throws IOException {
+        if (!protocol.hasBreaker()) {
+            throw new IOException("Cannot write connect mode, breaker is not supported!");
+        }
+
         log(Level.INFO, "Handling MbusMessage ConnectControl mode");
         String mode = messageHandler.getConnectControlMode();
 
@@ -225,7 +219,11 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void doDisconnectMessage(final MessageHandler messageHandler, final String serialNumber) throws IOException {
+    protected void doDisconnectMessage(final MessageHandler messageHandler, final String serialNumber) throws IOException {
+        if (!protocol.hasBreaker()) {
+            throw new IOException("Cannot execute disconnect message, breaker is not supported!");
+        }
+
         log(Level.INFO, "Handling MbusMessage Disconnect");
 
         if (!"".equals(messageHandler.getDisconnectDate())) {    // use the disconnectControlScheduler
@@ -248,7 +246,11 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void doConnectMessage(MessageHandler messageHandler, String serialNumber) throws IOException {
+    protected void doConnectMessage(MessageHandler messageHandler, String serialNumber) throws IOException {
+        if (!protocol.hasBreaker()) {
+            throw new IOException("Cannot execute connect message, breaker is not supported!");
+        }
+
         log(Level.INFO, "Handling MbusMessage Connect");
 
         if (!"".equals(messageHandler.getConnectDate())) {    // use the disconnectControlScheduler
@@ -288,9 +290,17 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         try {
             log(Level.INFO, "Handling message Read LoadProfile Registers.");
             LegacyLoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
-            builder.fromXml(msgEntry.getContent());
+            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
+                return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!");
+            }
 
-            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectedLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
+            LoadProfileBuilder loadProfileBuilder = this.protocol.getLoadProfileBuilder();
+            if (loadProfileBuilder instanceof LGLoadProfileBuilder) {
+                ((LGLoadProfileBuilder) loadProfileBuilder).setFixMBusToDate(false);    //Don't subtract 15 minutes from the to date
+            }
+
+            LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileDatas = this.protocol.getLoadProfileData(Arrays.asList(lpr));
 
@@ -310,15 +320,20 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
                 return MessageResult.createFailed(msgEntry, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
             }
 
+            Register previousRegister = null;
             MeterReadingData mrd = new MeterReadingData();
-            for (com.energyict.mdc.protocol.api.device.data.Register register : builder.getRegisters()) {
+            for (Register register : builder.getRegisters()) {
+                if (register.equals(previousRegister)) {
+                    continue;    //Don't add the same intervals twice if there's 2 channels with the same obiscode
+                }
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRegisterSpecIdForRegister(register));
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), register.getRegisterSpecId());
                         mrd.add(registerValue);
                     }
                 }
+                previousRegister = register;
             }
 
             MeterData md = new MeterData();
@@ -342,6 +357,11 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             LoadProfileReader lpr = builder.getLoadProfileReader();
 
             lpr = checkLoadProfileReader(lpr, msgEntry);
+
+            LoadProfileBuilder loadProfileBuilder = this.protocol.getLoadProfileBuilder();
+            if (loadProfileBuilder instanceof LGLoadProfileBuilder) {
+                ((LGLoadProfileBuilder) loadProfileBuilder).setFixMBusToDate(false);    //Don't subtract 15 minutes from the to date
+            }
 
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
             final List<ProfileData> profileData = this.protocol.getLoadProfileData(Arrays.asList(lpr));
@@ -379,24 +399,17 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
      */
     private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, final MessageEntry msgEntry) {
         if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
-            return new LoadProfileReader(lpr.getProfileObisCode(),
-                    lpr.getStartReadingTime(),
-                    lpr.getEndReadingTime(),
-                    lpr.getLoadProfileId(),
-                    lpr.getDeviceIdentifier(),
-                    lpr.getChannelInfos(),
-                    msgEntry.getSerialNumber(),
-                    lpr.getLoadProfileIdentifier());
+            return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), lpr.getDeviceIdentifier(), lpr.getChannelInfos(), msgEntry.getSerialNumber(), lpr.getLoadProfileIdentifier());
         } else {
             return lpr;
         }
     }
 
-    private DLMSMeterConfig getMeterConfig() {
+    protected DLMSMeterConfig getMeterConfig() {
         return this.dlmsSession.getMeterConfig();
     }
 
-    private CosemObjectFactory getCosemObjectFactory() {
+    protected CosemObjectFactory getCosemObjectFactory() {
         return this.dlmsSession.getCosemObjectFactory();
     }
 
@@ -413,24 +426,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         this.dlmsSession.getLogger().log(level, msg);
     }
 
-    private int getMbusAddress(String serialNumber) {
+    protected int getMbusAddress(String serialNumber) {
         return this.protocol.getPhysicalAddressFromSerialNumber(serialNumber) - 1;
     }
-
-    /**
-     * *************************************************************************
-     */
-    /* These methods require database access ...  TODO we should do this using the framework ...
-    /*****************************************************************************/
-    protected BaseDevice getRtuFromDatabaseBySerialNumber(String serialNumber) {
-        List<DeviceFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(DeviceFactory.class);
-        for (DeviceFactory factory : factories) {
-            List<BaseDevice<BaseChannel, BaseLoadProfile<BaseChannel>, BaseRegister>> devices = factory.findDevicesBySerialNumber(serialNumber);
-            if (!devices.isEmpty()) {
-                return devices.get(0);
-            }
-        }
-        return null;
-    }
-
 }

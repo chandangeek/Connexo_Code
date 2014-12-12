@@ -30,6 +30,14 @@ public enum G3ProfileType {
         return obisCode;
     }
 
+    public boolean isDaily() {
+        return this == DAILY_PROFILE;
+    }
+
+    public boolean isMonthly() {
+        return this == MONTHLY_PROFILE;
+    }
+
     public static G3ProfileType fromProfileId(final int profileId) {
         for (final G3ProfileType profileType : values()) {
             if (profileType.profileId == profileId) {

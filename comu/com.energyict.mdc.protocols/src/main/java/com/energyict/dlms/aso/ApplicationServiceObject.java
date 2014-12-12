@@ -1,5 +1,9 @@
 package com.energyict.dlms.aso;
 
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
@@ -10,6 +14,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 /**
@@ -99,17 +104,21 @@ public class ApplicationServiceObject {
      * Create an ApplicationAssociation.
      * Depending on the securityLevel encrypted challenges will be used to authenticate the client and server
      * If aarqTimeout is not 0, use it to receive the AARE. Else, use the 'normal' timeout.
+     *
+     * @throws UnsupportedException    in case of unsupported security level
+     * @throws IOException             timeout or other communication related error
+     * @throws DLMSConnectionException association to the meter failed
      */
-    public void createAssociation(int aarqTimeout) throws IOException {
+    public void createAssociation(int aarqTimeout) throws UnsupportedException, IOException, DLMSConnectionException {
         byte[] request = this.acse.createAssociationRequest();
-        int normalTimeout = this.protocolLink.getDLMSConnection().getTimeout();
+        long normalTimeout = getDlmsConnection().getTimeout();
         if (isConfirmedAssociation()) {
             if (aarqTimeout != 0) {      //Use this timeout only for receiving the AARE
-                this.protocolLink.getDLMSConnection().setTimeout(aarqTimeout);
+                getDlmsConnection().setTimeout(aarqTimeout);
             }
-            byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
+            byte[] response = getDlmsConnection().sendRequest(request);
             if (aarqTimeout != 0) {      //Use the normal timeout for further communication
-                this.protocolLink.getDLMSConnection().setTimeout(normalTimeout);
+                getDlmsConnection().setTimeout(normalTimeout);
             }
             this.acse.analyzeAARE(response);
             getSecurityContext().setResponseSystemTitle(this.acse.getRespondingAPTtitle());
@@ -127,17 +136,21 @@ public class ApplicationServiceObject {
             }
             handleHighLevelSecurityAuthentication();
         } else {
-            this.protocolLink.getDLMSConnection().sendUnconfirmedRequest(request);
+            getDlmsConnection().sendUnconfirmedRequest(request);
             this.associationStatus = ASSOCIATION_CONNECTED;
         }
     }
 
-    public void createAssociation() throws IOException {
+    private DLMSConnection getDlmsConnection() {
+        return this.protocolLink.getDLMSConnection();
+    }
+
+    public void createAssociation() throws IOException, DLMSConnectionException {
         createAssociation(0);
     }
 
-    private final boolean isConfirmedAssociation() {
-        return this.protocolLink.getDLMSConnection().getInvokeIdAndPriorityHandler().getCurrentInvokeIdAndPriorityObject().needsResponse();
+    protected boolean isConfirmedAssociation() {
+        return getDlmsConnection().getInvokeIdAndPriorityHandler().getCurrentInvokeIdAndPriorityObject().needsResponse();
     }
 
     /**
@@ -167,7 +180,7 @@ public class ApplicationServiceObject {
             case HLS3_MD5: {
                 if (this.acse.getRespondingAuthenticationValue() != null) {
                     plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
-                    decryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
+                    decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
                     throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
@@ -179,7 +192,7 @@ public class ApplicationServiceObject {
             case HLS4_SHA1: {
                 if (this.acse.getRespondingAuthenticationValue() != null) {
                     plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
-                    decryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
+                    decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
                     throw new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
@@ -218,14 +231,22 @@ public class ApplicationServiceObject {
         // We have to make a distinction between the response from HLS5_GMAC or one of the below ones.
         if (this.securityContext.getAuthenticationType() != AuthenticationTypes.HLS5_GMAC) {
             byte[] plainText = ProtocolUtils.concatByteArrays(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
-            cToSEncrypted = this.securityContext.associationEncryption(plainText);
+            cToSEncrypted = associationEncryption(plainText);
         } else {
             cToSEncrypted = this.securityContext.createHighLevelAuthenticationGMACResponse(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), encryptedResponse);
         }
         if (!Arrays.equals(cToSEncrypted, encryptedResponse)) {
-            throw new IOException("HighLevelAuthentication failed, client and server challenges do not match.");
+            throw new ProtocolException("HighLevelAuthentication failed, client and server challenges do not match.");
         } else {
             this.associationStatus = ASSOCIATION_CONNECTED;
+        }
+    }
+
+    private byte[] associationEncryption(byte[] plainText) throws IOException {
+        try {
+            return this.securityContext.associationEncryption(plainText);
+        } catch (NoSuchAlgorithmException e) {
+            throw new ProtocolException(this.securityContext.getAuthenticationType() + " algorithm isn't a valid algorithm type." + e.getMessage());
         }
     }
 
@@ -272,17 +293,20 @@ public class ApplicationServiceObject {
     /**
      * Release the current association
      *
-     * @throws IOException
+     * @throws IOException             timeout or other communication error
+     * @throws AssociationControlServiceElement.ACSEParsingException
+     *                                 unexpected end of RLRE
+     * @throws DLMSConnectionException association release failed
      */
-    public void releaseAssociation() throws IOException {
+    public void releaseAssociation() throws AssociationControlServiceElement.ACSEParsingException, IOException, DLMSConnectionException {
         this.associationStatus = ASSOCIATION_READY_FOR_DISCONNECTION;
         byte[] request = this.acse.releaseAssociationRequest();
         if (isConfirmedAssociation()) {
-            byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
+            byte[] response = getDlmsConnection().sendRequest(request);
             this.acse.analyzeRLRE(response);
             this.associationStatus = ASSOCIATION_DISCONNECTED;
         } else {
-            this.protocolLink.getDLMSConnection().sendUnconfirmedRequest(request);
+            getDlmsConnection().sendUnconfirmedRequest(request);
             this.associationStatus = ASSOCIATION_DISCONNECTED;
         }
     }

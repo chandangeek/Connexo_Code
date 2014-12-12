@@ -13,8 +13,8 @@ import java.util.List;
  */
 public class StandardEventLog extends EventsLog {
 
-	private static final int EVENT_TARIFF_SHIFT_TIME = 19;
-	private static final int EVENT_SELF_CHECK_AFTER_FIRMWARE = 20;
+	protected static final int EVENT_TARIFF_SHIFT_TIME = 19;
+	protected static final int EVENT_SELF_CHECK_AFTER_FIRMWARE = 20;
 
     public StandardEventLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);

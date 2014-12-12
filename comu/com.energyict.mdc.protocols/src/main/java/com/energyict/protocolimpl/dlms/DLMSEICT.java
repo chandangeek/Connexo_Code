@@ -4,7 +4,7 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -69,13 +69,8 @@ public class DLMSEICT extends DLMSSN {
         return new ConformanceBlock(1573408L);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT RTU DLMS";
-    }
-
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     protected void buildProfileData(byte bNROfChannels,ProfileData profileData,ScalerUnit[] scalerunit,UniversalObject[] intervalList)  throws IOException

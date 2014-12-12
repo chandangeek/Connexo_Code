@@ -580,12 +580,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		getLogger().info("Set time successful");
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Ametek Power Jem10";
-    }
-
-	public String getProtocolVersion() {
+    public String getProtocolVersion() {
 		////getLogger().info("call getProtocolVersion()");
 		return "$Revision: 1.3 $";
 	}

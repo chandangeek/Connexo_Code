@@ -4,6 +4,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -23,6 +24,10 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
      * This value holds the name of the Property that will do something
      */
     public final String doSomeThingPropertyName = "DoSomeThing";
+
+    public SDKStandardDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     private final PropertySpecService propertySpecService;
 

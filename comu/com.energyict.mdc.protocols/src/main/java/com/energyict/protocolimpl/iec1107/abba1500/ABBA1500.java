@@ -355,11 +355,6 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
                 "MaxNrOfDaysProfileData");
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Elster/ABB A1500 IEC1107";
-    }
-
     /**
      * The protocol version
      */
@@ -609,7 +604,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
                             billingPointRegister.getFromTime(),
                             billingPointRegister.getToTime(),
                             billingPointRegister.getReadTime(),
-                            billingPointRegister.getRtuRegisterId(),
+                            billingPointRegister.getRegisterSpecId(),
                             billingPointRegister.getText()
                     );
                 }

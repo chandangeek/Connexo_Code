@@ -2,7 +2,6 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.genericprotocolimpl.nta.eventhandling.ExtraEvents;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.Date;
@@ -11,17 +10,21 @@ import java.util.List;
 public class FraudDetectionLog extends AbstractEvent {
 
     // Fraud detection log
-    private static final int EVENT_EVENT_LOG_CLEARED = 255;
-    private static final int EVENT_TERMINAL_COVER_REMOVED = 40;
-    private static final int EVENT_TERMINAL_COVER_CLOSED = 41;
-    private static final int EVENT_STRONG_DC_FIELD = 42;
-    private static final int EVENT_STRONG_DC_FIELD_GONE = 43;
-    private static final int EVENT_METER_COVER_REMOVED = 44;
-    private static final int EVENT_METER_COVER_CLOSED = 45;
-    private static final int EVENT_TIMES_WRONG_PASSWORD = 46;
+    protected static final int EVENT_EVENT_LOG_CLEARED = 255;
+    protected static final int EVENT_TERMINAL_COVER_REMOVED = 40;
+    protected static final int EVENT_TERMINAL_COVER_CLOSED = 41;
+    protected static final int EVENT_STRONG_DC_FIELD = 42;
+    protected static final int EVENT_STRONG_DC_FIELD_GONE = 43;
+    protected static final int EVENT_METER_COVER_REMOVED = 44;
+    protected static final int EVENT_METER_COVER_CLOSED = 45;
+    protected static final int EVENT_TIMES_WRONG_PASSWORD = 46;
 
     public FraudDetectionLog(DataContainer dc, final AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);
+    }
+
+    public FraudDetectionLog(DataContainer dc) {
+        super(dc);
     }
 
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {

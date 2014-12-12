@@ -9,12 +9,7 @@ package com.energyict.protocolimpl.dlms.prime;
 public class PrimeMeter extends AbstractPrimeMeter {
 
     @Override
-    public String getProtocolDescription() {
-        return "Generic Prime Meter (for RTU+Server usage)";
-    }
-
-    @Override
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 }

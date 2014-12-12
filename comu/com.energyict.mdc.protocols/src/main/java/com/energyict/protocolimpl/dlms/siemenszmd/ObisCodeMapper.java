@@ -87,7 +87,7 @@ public class ObisCodeMapper {
             return new RegisterValue(obisCode, new Quantity(new BigInteger(String.valueOf(this.protocol.requestConfigurationProgramChanges())), Unit.getUndefined()));
         } else if (obisCode.equals(ObisCode.fromString("0.0.96.6.0.255"))) {    // Battery usage counter
             Register register = cof.getRegister(obisCode);
-            return new RegisterValue(obisCode, com.energyict.genericprotocolimpl.common.ParseUtils.registerToQuantity(register));
+            return new RegisterValue(obisCode, com.energyict.protocolimpl.generic.ParseUtils.registerToQuantity(register));
         } else if (obisCode.equals(ObisCode.fromString("0.0.13.0.0.255"))) {    // Activity Calendar Name
             return new RegisterValue(obisCode, null, null, null, null, new Date(), 0,
                     new String(cof.getActivityCalendar(obisCode).readCalendarNameActive().getOctetStr()));

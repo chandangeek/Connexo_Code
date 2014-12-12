@@ -5,13 +5,18 @@
 
 package com.energyict.dlms;
 
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+
 /**
+ * DLMS protocols should implement this interface.
+ * It is used to communicate with DLMS devices.
+ *
  * @author Koen
  */
 public interface ProtocolLink {
@@ -82,5 +87,11 @@ public interface ProtocolLink {
 	 * @return the {@link StoredValues} object
 	 */
 	StoredValues getStoredValues();
+
+    /**
+     * The ApplicationServiceObject. It is used by most protocols to setup, maintain and release the application association to the device.
+     * Some old protocols don't have this (they manually build and send the AA requests), they return null.
+     */
+    public ApplicationServiceObject getAso();
 
 }

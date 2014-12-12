@@ -11,6 +11,7 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.Date;
@@ -135,7 +136,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
                 throw new NestedIOException(e, "Data, getValue(), invalid data value type. ");
             }
         } else {
-            throw new IOException("Data, getValue(), invalid data value type...");
+            throw new ProtocolException("Data, getValue(), invalid data value type...");
         }
     }
 
@@ -153,7 +154,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
         } else if (dataContainer.getRoot().isString(0)) {
             return ((String) dataContainer.getRoot().getElement(0)).trim();
         }
-        throw new IOException("Data, getString(), invalid data value type...");
+        throw new ProtocolException("Data, getString(), invalid data value type...");
     }
 
     /**
@@ -217,9 +218,9 @@ public class Data extends AbstractCosemObject implements CosemObject {
     public <T extends AbstractDataType> T getValueAttr(Class<T> expectedClass) throws IOException {
         final AbstractDataType valueAttr = getValueAttr();
         if (valueAttr == null) {
-            throw new IOException("Received 'null' while reading data value as [" + expectedClass.getSimpleName() + "].");
+            throw new ProtocolException("Received 'null' while reading data value as [" + expectedClass.getSimpleName() + "].");
         } else if (!valueAttr.getClass().getName().equalsIgnoreCase(expectedClass.getName())) {
-            throw new IOException("Received invalid class [" + valueAttr.getClass().getSimpleName() + "] while reading data value. Expected [" + expectedClass.getSimpleName() + "].");
+            throw new ProtocolException("Received invalid class [" + valueAttr.getClass().getSimpleName() + "] while reading data value. Expected [" + expectedClass.getSimpleName() + "].");
         }
         return (T) valueAttr;
     }

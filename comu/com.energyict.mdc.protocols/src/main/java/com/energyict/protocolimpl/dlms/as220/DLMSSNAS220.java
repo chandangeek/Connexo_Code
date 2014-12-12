@@ -73,7 +73,7 @@ import java.util.logging.Logger;
  *      KV 30082004 Reengineered to use cosem package
  *@endchanges
  */
-public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, FirmwareUpdateMessaging {
+public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism {
 
     private static final String PR_OPTICAL_BAUDRATE = "OpticalBaudrate";
     private static final String PR_PROFILE_TYPE = "ProfileType";
@@ -268,6 +268,10 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         XdlmsAse xdlmsAse = new XdlmsAse(isCiphered() ? localSecurityProvider.getDedicatedKey() : null, true, PROPOSED_QOS, PROPOSED_DLMS_VERSION, cb, MAX_PDU_SIZE);
         aso = new ApplicationServiceObject(xdlmsAse, this, securityContext, getContextId());
         dlmsConnection = new SecureConnection(aso, connection);
+    }
+
+    public ApplicationServiceObject getAso() {
+        return aso;
     }
 
     /**
@@ -735,10 +739,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return logger;
     }
 
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return aso;
-    }
-
     /**
      * Getter for property cosemObjectFactory.
      *
@@ -787,19 +787,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
      */
     public int getRoundTripCorrection() {
         return iRoundtripCorrection;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return new FirmwareUpdateMessageBuilder();
-    }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        FirmwareUpdateMessagingConfig config = new FirmwareUpdateMessagingConfig();
-        config.setSupportsUserFiles(true);
-        return config;
     }
 
     /**

@@ -76,6 +76,10 @@ public class KaifaHHUConnection extends IEC1107HHUConnection {
                 if (parityCheck) {
                     iNewKar &= 0x7F;
                 } // mask paritybit! if 7,E,1 cause we know we always receive ASCII here!
+                if (logger.isDebugEnabled()) {
+                    ProtocolUtils.outputHex((iNewKar));
+                }
+
                 if ((byte) iNewKar == NAK) {
                     sendBreak();
                 }
@@ -106,7 +110,8 @@ public class KaifaHHUConnection extends IEC1107HHUConnection {
         try {
             Thread.sleep((ack.length * 10 * 1000) / 300);
         } catch (InterruptedException e) {
-            throw new NestedIOException(e);
+            Thread.currentThread().interrupt();
+
         }
     }
 

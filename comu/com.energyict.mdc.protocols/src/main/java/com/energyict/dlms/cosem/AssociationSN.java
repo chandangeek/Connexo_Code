@@ -49,9 +49,9 @@ public class AssociationSN extends AbstractCosemObject {
 	}
 
 	/**
-	 * Getter for the default {@link ObisCode} of this object
+	 * Getter for the default ObisCode of this object
 	 *
-	 * @return the logicalName ({@link ObisCode}) of this object
+	 * @return the logicalName ObisCode of this object
 	 */
 	public static ObisCode getDefaultObisCode() {
 		return OBISCODE;

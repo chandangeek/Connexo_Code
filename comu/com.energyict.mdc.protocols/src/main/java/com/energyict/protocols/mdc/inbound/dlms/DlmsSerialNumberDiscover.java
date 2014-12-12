@@ -20,7 +20,7 @@ import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 import com.energyict.protocols.mdc.inbound.dlms.aso.SimpleApplicationServiceObject;

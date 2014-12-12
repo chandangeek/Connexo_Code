@@ -22,8 +22,8 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.RegisterMonitor;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -40,9 +40,11 @@ import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -145,7 +147,8 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             idis.getLogger().log(Level.SEVERE, "Error executing message: " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
         } catch (InterruptedException e) {
-            throw new IOException(e.getMessage());
+            Thread.currentThread().interrupt();
+            throw new CommunicationException(MessageSeeds.INTERRUPTED_DURING_COMMUNICATION);
         }
         idis.getLogger().log(Level.SEVERE, "Unexpected message: " + messageEntry.getContent());
         return MessageResult.createFailed(messageEntry);
@@ -303,7 +306,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         try {
             idis.getLogger().log(Level.INFO, "Configuration download message received.");
             String xmlData = getIncludedContent(messageEntry.getContent());
-            XMLParser parser = new XMLParser(idis, idis.getCosemObjectFactory());
+            XMLParser parser = new XMLParser(idis.getLogger(), idis.getCosemObjectFactory());
 
             parser.parseXML(xmlData);
             List<Object[]> parsedObjects = parser.getParsedObjects();

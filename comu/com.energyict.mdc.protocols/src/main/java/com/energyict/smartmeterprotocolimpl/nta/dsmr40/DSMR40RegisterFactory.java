@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
@@ -11,7 +12,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.genericprotocolimpl.common.EncryptionStatus;
+import com.energyict.protocolimpl.generic.EncryptionStatus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -41,9 +42,10 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
     public static final ObisCode SecurityPolicyObisCode = ObisCode.fromString("0.0.43.0.0.2");
     public static final ObisCode HighLevelSecurityObisCode = ObisCode.fromString("0.0.40.0.0.6");
     public static final ObisCode GPRSNetworkInformation = ObisCode.fromString("0.1.94.31.4.255");
+    public static final ObisCode ConfigurationObject = ObisCode.fromString("0.1.94.31.3.255");
 
     public static final ObisCode AdministrativeStatusObisCode = ObisCode.fromString("0.1.94.31.0.255");
-    private static final int BULK_RESQUEST_LIMIT = 16;  //DSMR4.0 meters don't support more than 16 registers in 1 bulk request
+    private static final int BULK_RESQUEST_LIMIT = 5;  //The number of attributes in a bulk request should be smaller than 16. Note that 2 or 3 attributes are read out for every register!
 
     public DSMR40RegisterFactory(final AbstractSmartNtaProtocol protocol) {
         super(protocol);
@@ -54,7 +56,7 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
         List<Register> toRead;
         List<RegisterValue> result = new ArrayList<RegisterValue>();
         int count = 0;
-        while (((count + 1) * BULK_RESQUEST_LIMIT) <= registers.size()) {    //Read out in steps of 16 registers
+        while (((count + 1) * BULK_RESQUEST_LIMIT) <= registers.size()) {    //Read out in steps of 5 registers
             toRead = registers.subList(count * BULK_RESQUEST_LIMIT, (count + 1) * BULK_RESQUEST_LIMIT);
             result.addAll(super.readRegisters(toRead));
             count++;
@@ -99,6 +101,12 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
                     } else if (rObisCode.equals(AdministrativeStatusObisCode)) {
                         this.registerMap.put(register, new DLMSAttribute(AdministrativeStatusObisCode, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                         dlmsAttributes.add(this.registerMap.get(register));
+                    } else if (rObisCode.equals(GPRSNetworkInformation)) {
+                        this.registerMap.put(register, new DLMSAttribute(GPRSNetworkInformation, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
+                        dlmsAttributes.add(this.registerMap.get(register));
+                    } else if (rObisCode.equals(ConfigurationObject)) {
+                        this.registerMap.put(register, new DLMSAttribute(ConfigurationObject, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
+                        dlmsAttributes.add(this.registerMap.get(register));
                     }
                 } catch (IOException e) {
                     this.protocol.getLogger().warning("Could not process register: " + register);
@@ -140,6 +148,18 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
         } else if (rObisCode.equals(AdministrativeStatusObisCode)) {
             int adminStatus = abstractDataType.intValue();
             return new RegisterValue(register, new Quantity(BigDecimal.valueOf(adminStatus), Unit.getUndefined()), null, null, null, new Date(), 0, AdministrativeStatus.getDescriptionForValue(adminStatus));
+        } else if (rObisCode.equals(ConfigurationObject)) {
+            Structure config = abstractDataType.getStructure();
+            BitString flags = config.getDataType(1).getBitString();
+            return new RegisterValue(register, new Quantity(flags.intValue(), Unit.get("")), null, null, new Date(), new Date(), 0, "Active flags: " + flags.asBitSet().toString());
+        } else if (rObisCode.equals(GPRSNetworkInformation)) {
+            Structure networkInformation = abstractDataType.getStructure();
+            if (networkInformation != null) {
+                int signal_strength = networkInformation.getDataType(0).intValue();
+                int base_stations = networkInformation.getDataType(1).intValue();
+                String network_id = networkInformation.getDataType(2).getOctetString().stringValue();
+                return new RegisterValue(register, "Signal strength: " + signal_strength + ", number of base stations: " + base_stations + ", network ID: " + network_id);
+            }
         } else if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE) || rObisCode.equals(MODULE_FIRMWARE_SIGNATURE)) {
             return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.getContentByteArray()));
         }
@@ -183,9 +203,10 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
 
     private enum AdministrativeStatus {
 
-        OPT_OUT(0, "Administrative off (Opt Out)"),
-        DEFAULT(1, "Administrative on (Default)"),
-        OPT_IN(2, "Meter is administrative on and reading of profile data is allowed (Opt In)");
+        UNDEFINED(0, "Undefined"),
+        OPT_OUT(1, "Administrative off (Opt Out)"),
+        DEFAULT(2, "Administrative on (Default)"),
+        OPT_IN(3, "Meter is administrative on and reading of profile data is allowed (Opt In)");
 
         private final int value;
         private final String description;

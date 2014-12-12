@@ -1,13 +1,26 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.AS330D;
+import com.energyict.protocolimpl.dlms.g3.SerialNumber;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
 * Copyrights EnergyICT
@@ -21,11 +34,20 @@ class ProducerConsumerMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        final CosemObjectFactory cof = as330D.getSession().getCosemObjectFactory();
+    public RegisterValue readRegister(DlmsSession dlmsSession) throws IOException {
+        final CosemObjectFactory cof = dlmsSession.getCosemObjectFactory();
         final Data data = cof.getData(getObisCode());
-        final TypeEnum valueAttr = data.getValueAttr(TypeEnum.class);
+        return parse(data.getValueAttr(TypeEnum.class));
+    }
+
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        final TypeEnum valueAttr = (TypeEnum) abstractDataType;
         final String textValue = valueAttr.getValue() == 0 ? "CONSUMER_MODE" : "PRODUCER_MODE";
         return new RegisterValue(getObisCode(), textValue);
+    }
+
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.DATA.getClassId();
     }
 }

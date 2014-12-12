@@ -12,6 +12,7 @@ import com.energyict.dlms.cosem.attributes.GenericDlmsClassAttribute;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -77,13 +78,13 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
                 return dataResult[index];
             }
         } else {
-            throw new IOException("Unable to read attribute [" + attribute + "]. Expected DataAccessResult or DataType but Value is still null.");
+            throw new ProtocolException("Unable to read attribute [" + attribute + "]. Expected DataAccessResult or DataType but Value is still null.");
         }
     }
 
     private boolean isGetWithListSupported() {
         if (isUseGetWithList()) {
-            ApplicationServiceObject serviceObject = getProtocolLink().getDLMSConnection().getApplicationServiceObject();
+            ApplicationServiceObject serviceObject = getProtocolLink().getAso();
             if (serviceObject != null) {
                 ConformanceBlock block = serviceObject.getAssociationControlServiceElement().getXdlmsAse().getNegotiatedConformanceBlock();
                 if (block != null) {
@@ -94,14 +95,14 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         return false;
     }
 
-    private int getAttributeIndex(DLMSAttribute attribute) throws IOException {
+    private int getAttributeIndex(DLMSAttribute attribute) throws ProtocolException {
         for (int i = 0; i < attributes.length; i++) {
             DLMSAttribute dlmsAttribute = attributes[i];
             if (dlmsAttribute.equals(attribute)) {
                 return i;
             }
         }
-        throw new IOException("ComposedCosemObject does not contain attribute [" + attribute + "].");
+        throw new ProtocolException("ComposedCosemObject does not contain attribute [" + attribute + "].");
     }
 
     private void readAttribute(DLMSAttribute attribute) throws IOException {
@@ -119,7 +120,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
                             dataResult[i] = new DataAccessResultType(DataAccessResultCode.byResultCode(dataWithList[i][1] & 0x0FF));
                             break;
                         default:
-                            throw new IOException("Invalid response while reading GetResponseWithList: expected '0' or '1' but was " + dataWithList[i][0]);
+                            throw new ProtocolException("Invalid response while reading GetResponseWithList: expected '0' or '1' but was " + dataWithList[i][0]);
                     }
                 }
             } else {

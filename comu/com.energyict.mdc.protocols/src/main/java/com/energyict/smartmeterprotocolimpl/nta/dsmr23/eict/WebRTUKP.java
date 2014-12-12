@@ -25,7 +25,7 @@ import java.io.IOException;
  * Date: 15-jul-2011
  * Time: 11:58:33
  */
-public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging, HHUEnabler {
+public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
 
     @Inject
     public WebRTUKP(TopologyService topologyService, OrmClient ormClient) {
@@ -48,11 +48,6 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadPro
         return AXDRDateTimeDeviationType.Negative;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT WebRTU KP NTA DSMR 2.3";
-    }
-
     /**
      * Returns the implementation version
      *
@@ -60,7 +55,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadPro
      */
     @Override
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
@@ -81,7 +76,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadPro
         } catch (IOException e) {
             getLogger().warning("Failed while initializing the DLMS connection.");
         }
-        HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -90,7 +85,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadPro
 
     private String getProperDeviceId() {
         String deviceId = getProperties().getDeviceId();
-        if (deviceId != null && !"".equalsIgnoreCase(deviceId)) {
+        if(deviceId != null && !deviceId.equalsIgnoreCase("")){
             return deviceId;
         } else {
             return "!"; // the Kamstrup device requires a '!' sign in the IEC1107 signOn

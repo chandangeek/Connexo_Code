@@ -15,7 +15,9 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -79,6 +81,14 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         return dataContainer;
     }
 
+    /**
+     * Enable this to use the DSMR4.0 selective access range descriptor.
+     * The from/to date will contain a specified DOW, specific hundredths of seconds, a specified timezone deviation.
+     */
+    public void setDsmr4SelectiveAccessFormat(boolean dsmr4SelectiveAccessFormat) {
+        this.dsmr4SelectiveAccessFormat = dsmr4SelectiveAccessFormat;
+    }
+
     public DataContainer getBuffer(long fromCalendar, long toCalendar) throws IOException {
         byte[] responseData = getBufferResponseData(fromCalendar, toCalendar);
         DataContainer dataContainer = new DataContainer();
@@ -107,6 +117,10 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
 
     public byte[] getBufferData(Calendar fromCalendar, Calendar toCalendar, List<CapturedObject> channels) throws IOException {
         return getBufferResponseData(fromCalendar, toCalendar, channels);
+    }
+
+    public byte[] getBufferData(int fromEntry, int toEntry, int fromValue, int toValue) throws IOException {
+        return getBufferResponseData(fromEntry, toEntry, fromValue, toValue);
     }
 
     public UniversalObject[] getBufferAsUniversalObjects() throws IOException {
@@ -224,7 +238,12 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new IOException("Could not calculate the number of channels");
+            String msg = "Could not calculate the number of channels";
+            if (e.getMessage() != null) {
+                msg += ": ";
+                msg += e.getMessage();
+            }
+            throw new NestedIOException(e, msg);
         }
         return count;
     }
@@ -304,7 +323,7 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
     }
 
     public long getValue() throws IOException {
-        throw new IOException("Data, getValue(), invalid data value type...");
+        throw new ProtocolException("Data, getValue(), invalid data value type...");
     }
 
     public byte[] getData(int attr, Calendar from, Calendar to) throws IOException {

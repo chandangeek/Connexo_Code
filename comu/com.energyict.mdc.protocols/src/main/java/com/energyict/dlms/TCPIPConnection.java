@@ -38,7 +38,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
     private int maxRetries;
     private int clientAddress;
     private int serverAddress;
-    int timeout;
+    long timeout;
     private long forceDelay;
 
     private int iskraWrapper = 0;
@@ -68,10 +68,6 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
         this.boolTCPIPConnected = false;
         this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
 
-    }
-
-    public int getType() {
-        return ConnectionMode.TCPIP.getMode();
     }
 
     public long getForceDelay() {
@@ -129,6 +125,10 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 
         while (true) {
             if ((kar = readIn()) != -1) {
+                if (DEBUG >= 2) {
+                    ProtocolUtils.outputHex(kar);
+                }
+
                 switch (state) {
 
                     /*
@@ -345,11 +345,11 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(long timeout) {
         this.timeout = timeout;
     }
 
-    public int getTimeout() {
+    public long getTimeout() {
         return timeout;
     }
 
@@ -525,8 +525,9 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
         return maxRetries;
     }
 
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return null;
+    @Override
+    public int getMaxTries() {
+        return getMaxRetries() + 1;
     }
 
 }

@@ -4,6 +4,7 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.io.IOException;
@@ -46,11 +47,15 @@ public abstract class AbstractEvent {
         this.deviationType = deviationType;
     }
 
+    public AbstractEvent(DataContainer dc) {
+        this(dc, AXDRDateTimeDeviationType.Negative);
+    }
+
     /**
      * @return the a MeterEvent List
      * @throws java.io.IOException
      */
-    public List<MeterEvent> getMeterEvents() throws IOException {
+    public List<MeterEvent> getMeterEvents() throws ProtocolException {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         int size = this.dcEvents.getRoot().getNrOfElements();
         Date eventTimeStamp = null;

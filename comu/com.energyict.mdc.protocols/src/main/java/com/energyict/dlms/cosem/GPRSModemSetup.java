@@ -9,7 +9,9 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributeobjects.QualityOfService;
 import com.energyict.dlms.cosem.attributeobjects.QualityOfServiceElement;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 
@@ -64,7 +66,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			return this.apn;
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the Access Point Name(apn)." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the Access Point Name(apn)." + e.getMessage());
 		}
 	}
 
@@ -91,7 +93,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			this.apn = apn;
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not write the Access Point Name(apn)." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the Access Point Name(apn)." + e.getMessage());
 		}
 	}
 
@@ -115,7 +117,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			return this.pincode;
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the pincode." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the pincode." + e.getMessage());
 		}
 	}
 
@@ -142,7 +144,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			this.pincode = pincode;
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not write the pincode." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the pincode." + e.getMessage());
 		}
 	}
 
@@ -166,7 +168,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			return this.qualityOfService;
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the quality of service." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the quality of service." + e.getMessage());
 		}
 	}
 
@@ -191,7 +193,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 		if(getQualityOfService().getDataType(QOS_DEFAULT).isStructure()){
 			return (Structure)getQualityOfService().getDataType(QOS_DEFAULT);
 		} else {
-			throw new IOException("The QOS structure does not contain a default QOS structure ...");
+			throw new ProtocolException("The QOS structure does not contain a default QOS structure ...");
 		}
 	}
 
@@ -204,7 +206,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 		if(getQualityOfService().getDataType(QOS_REQUESTED).isStructure()){
 			return (Structure)getQualityOfService().getDataType(QOS_REQUESTED);
 		} else {
-			throw new IOException("The QOS structure does not contain a requested QOS structure ...");
+			throw new ProtocolException("The QOS structure does not contain a requested QOS structure ...");
 		}
 	}
 
@@ -219,7 +221,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 			this.qualityOfService = qos;
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new IOException("Could not write the pincode." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the pincode." + e.getMessage());
 		}
 	}
 

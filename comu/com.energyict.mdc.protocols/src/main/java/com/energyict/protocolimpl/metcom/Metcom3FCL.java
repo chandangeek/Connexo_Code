@@ -124,8 +124,4 @@ public class Metcom3FCL extends Metcom3 {
        }
     } // private ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException
 
-    @Override
-    public String getProtocolDescription() {
-        return "Metcom3 FCL Protocol Base";
-    }
 }

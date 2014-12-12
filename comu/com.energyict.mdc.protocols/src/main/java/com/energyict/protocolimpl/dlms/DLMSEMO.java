@@ -4,7 +4,6 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -13,6 +12,7 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.inject.Inject;
@@ -22,6 +22,19 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
 
+/**
+ * @version  2.0
+ * @author   Koenraad Vanderschaeve
+ * <P>
+ * <B>Description :</B><BR>
+ * Class that implements the Enermet E700 DLMS profile implementation
+ * <BR>
+ * <B>@beginchanges</B><BR>
+KV|08042003|Initial version
+KV|23032005|Changed header to be compatible with protocol version tool
+KV|31032005|Handle DataContainerException
+ *  @endchanges
+ */
 public class DLMSEMO extends DLMSSN {
 
     private static final byte DEBUG=0;
@@ -169,13 +182,8 @@ public class DLMSEMO extends DLMSSN {
         }
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Enernet E7xx DLMS";
-    }
-
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 } // public class DLMSEMO
 

@@ -1,5 +1,6 @@
 package com.energyict.dlms;
 
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
 
@@ -35,7 +36,7 @@ public class LLCConnection extends CosemPDUConnection {
                 } else {
                     while (readInArray() != null) {
                     }
-                    throw new IOException("LLC packet should start with 0x90!");
+                    throw new ProtocolException("LLC packet should start with 0x90!");
                 }
             }
             if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {

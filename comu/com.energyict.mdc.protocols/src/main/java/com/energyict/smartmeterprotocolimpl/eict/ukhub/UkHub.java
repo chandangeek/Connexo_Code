@@ -2,10 +2,6 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
 import com.energyict.dialer.core.impl.IPDialer;
 import com.energyict.dialer.core.impl.SocketStreamConnection;
-import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.Link;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -14,7 +10,10 @@ import com.energyict.dlms.IF2HHUSignon;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -22,8 +21,9 @@ import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.Link;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
@@ -32,7 +32,6 @@ import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
-import com.energyict.smartmeterprotocolimpl.common.SmartMeterToolProtocol;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.composedobjects.ComposedMeterInfo;
@@ -45,7 +44,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -53,7 +51,7 @@ import java.util.logging.Logger;
  * The UK hub has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE, more specifically Zigbee HAN functionality
  * and Prepayment
  */
-public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, SmartMeterToolProtocol, WakeUpProtocolSupport {
+public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
     /**
      * The properties to use for this protocol
@@ -77,11 +75,6 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     @Inject
     public UkHub(OrmClient ormClient) {
         super(ormClient);
-    }
-
-    @Override
-    public void addProperties(Properties properties) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**
@@ -279,18 +272,13 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         return new ArrayList<>();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EnergyICT AM110R (SSWG IC) DLMS";
-    }
-
     /**
      * Returns the version
      *
      * @return the version string
      */
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     /**

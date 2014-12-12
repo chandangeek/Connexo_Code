@@ -6,6 +6,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
@@ -57,14 +58,15 @@ public class IDISMBus extends IDIS {
                 obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
                 long serialNumberValue = getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10).getIdentificationNumber().getValue();
                 if (serialNumberValue != 0) {
-                    serial = ProtocolTools.getHexStringFromInt((int) serialNumberValue, 4, "");
+                    serial = String.valueOf(serialNumberValue);
                     receivedSerialNumbers.add(serial);
                     if (serial.equals(expectedSerialNumber)) {
+                        getLogger().info("Found connected MBus device with serial number '" + serial + "' on channel '" + i + "'. This will be used as B-field for MBus related obiscodes.");
                     setGasSlotId(i);
-                        break;
+                        return;
                 }
                 }
-            } catch (IOException e) {
+            } catch (DataAccessResultException e) {
                 // fetch next
             }
         }
@@ -115,11 +117,6 @@ public class IDISMBus extends IDIS {
             messageHandler = new IDISMBusMessageHandler(this);
         }
         return messageHandler;
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "Elster AS220/AS1440 AM500 PLC IDIS Mbus Slave";
     }
 
     @Override

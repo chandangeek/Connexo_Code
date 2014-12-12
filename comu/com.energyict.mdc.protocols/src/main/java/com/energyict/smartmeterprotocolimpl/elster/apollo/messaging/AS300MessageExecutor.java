@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
@@ -21,10 +22,6 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
@@ -38,9 +35,13 @@ import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import org.xml.sax.SAXException;
 
@@ -60,7 +61,7 @@ import java.util.logging.Logger;
  * Date: 8-aug-2011
  * Time: 15:02:14
  */
-public class AS300MessageExecutor extends GenericMessageExecutor {
+public class AS300MessageExecutor extends MessageParser {
 
     private static final ObisCode ChangeOfSupplierObisCode = ObisCode.fromString("0.128.128.1.0.255");
     private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("1.0.1.64.0.255");
@@ -115,9 +116,11 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             } else if (isUpdatePricingInformationMessage(content)) {
                 updatePricingInformation(content);
             } else if (isConnectControlMessage(content)) {
-                doConnect();
+                doConnect(content);
             } else if (isDisconnectControlMessage(content)) {
-                doDisconnect();
+                doDisconnect(content);
+            } else if (isSetDisconnectControlMode(content)) {
+                setDisconnectControlMode(content);
             } else if (isTextToEMeterDisplayMessage(content)) {
                 sendTextToDisplay(content, true);
             } else if (isTextToIHDMessage(content)) {
@@ -158,6 +161,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         } catch (InterruptedException e) {
             logMessage = e.getMessage();
             success = false;
+            Thread.currentThread().interrupt();
         }
 
         if (success) {
@@ -381,7 +385,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             resume = true;
         }
 
-        if (!com.energyict.genericprotocolimpl.common.ParseUtils.isInteger(userFileID)) {
+        if (!com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileID)) {
             throw new IOException("Not a valid entry for the userFile.");
         }
         UserFile uf = this.findUserFile(Integer.parseInt(userFileID));
@@ -510,16 +514,25 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void doConnect() throws IOException {
-        log(Level.INFO, "Received Remote Connect message.");
+    private void doConnect(final String content) throws IOException {
+        log(Level.INFO, "Received Disconnect Control - Remote Connect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteReconnect();
     }
 
-    private void doDisconnect() throws IOException {
-        log(Level.INFO, "Received Disconnect Control - Disonnect message.");
+    private void doDisconnect(final String content) throws IOException {
+        log(Level.INFO, "Received Disconnect Control - Disconnect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteDisconnect();
+    }
+
+    private void setDisconnectControlMode(final String content) throws IOException {
+        log(Level.INFO, "Received Set Disconnect Control Mode message.");
+        String[] parts = content.split("=");
+        int controlMode = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
+        Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
+        connector.writeControlMode(new TypeEnum(controlMode));
+        log(Level.INFO, "Successfully set control mode to " + controlMode);
     }
 
     private void sendTextToDisplay(final String content, final boolean sendToEMeter) throws IOException {
@@ -667,6 +680,10 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
     private boolean isDisconnectControlMessage(final String messageContent) {
         return (messageContent != null) && messageContent.contains(AS300Messaging.DISCONNECT_CONTROL_DISCONNECT);
+    }
+
+    private boolean isSetDisconnectControlMode(final String messageContent) {
+        return (messageContent != null) && messageContent.contains(AS300Messaging.SET_DISCONNECT_CONTROL_MODE);
     }
 
     private boolean isTextToEMeterDisplayMessage(final String messageContent) {

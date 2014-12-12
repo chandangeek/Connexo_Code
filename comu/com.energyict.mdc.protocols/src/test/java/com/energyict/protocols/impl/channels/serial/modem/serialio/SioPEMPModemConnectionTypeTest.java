@@ -64,21 +64,21 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
 
     private List<ConnectionProperty> getProperProperties (ComPort comPort) {
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.DELAY_BEFORE_SEND);
-        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.COMMAND_TIMEOUT);
-        atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(1));
         ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.MODEM_INIT_STRINGS);
         atModemInitStrings.setValue("");
         ConnectionTaskPropertyImpl delayAfterConnect = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.DELAY_AFTER_CONNECT);
-        delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.CONNECT_TIMEOUT);
-        connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.MODEM_DIAL_PREFIX);
         dialPrefix.setValue("");
         ConnectionTaskPropertyImpl dtrToggleDelay = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.DTR_TOGGLE_DELAY);
-        dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.MILLISECONDS));
+        dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl phoneNumber = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.PHONE_NUMBER_PROPERTY_NAME);
         phoneNumber.setValue(PHONE_NUMBER);
         ConnectionTaskPropertyImpl modemConfigurationKey = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.MODEM_CONFIGURATION_KEY);

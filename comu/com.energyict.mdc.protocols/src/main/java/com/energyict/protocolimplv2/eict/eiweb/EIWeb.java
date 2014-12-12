@@ -56,9 +56,10 @@ public class EIWeb implements DeviceProtocol {
     private final Clock clock;
     private final PropertySpecService propertySpecService;
     private OfflineDevice offlineDevice;
-    private SimplePasswordSecuritySupport securitySupport;
+    private SimplePasswordSecuritySupport securitySupport = new SimplePasswordSecuritySupport();
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
     private LegacyMessageConverter messageConverter;
+    private PropertySpecService propertySpecService;
 
     @Inject
     public EIWeb(Clock clock, PropertySpecService propertySpecService) {
@@ -193,7 +194,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new NoParamsDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new NoParamsDeviceProtocolDialect(propertySpecService));
     }
 
     @Override
@@ -258,7 +259,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2013-12-02 10:52:21 +0100 (Mon, 02 Dec 2013) $";
     }
 
     @Override

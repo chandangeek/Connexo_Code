@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.energyict.dlms.DLMSReference;
-import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
@@ -27,6 +28,7 @@ public class G3Properties extends DlmsProtocolProperties {
     public static final String AARQ_RETRIES = "AARQRetries";
     public static final String DEFAULT_AARQ_RETRIES = "2";
     public static final String AARQ_TIMEOUT = "AARQTimeout";
+    public static final String PSK = "PSK";
     public static final String DEFAULT_AARQ_TIMEOUT = "0";      //Means: not used
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
     public static final String PROP_LASTSEENDATE = "LastSeenDate";
@@ -34,7 +36,7 @@ public class G3Properties extends DlmsProtocolProperties {
     private G3SecurityProvider g3SecurityProvider;
 
     public G3Properties() {
-        this(new Properties());
+        this(null);
     }
 
     public G3Properties(Properties properties) {
@@ -84,6 +86,7 @@ public class G3Properties extends DlmsProtocolProperties {
         optional.add(AARQ_RETRIES);
         optional.add(VALIDATE_INVOKE_ID);
         optional.add(AARQ_TIMEOUT);
+        optional.add(PSK);
         return optional;
     }
 
@@ -112,7 +115,7 @@ public class G3Properties extends DlmsProtocolProperties {
     @Override
     public G3SecurityProvider getSecurityProvider() {
         if (g3SecurityProvider == null) {
-            g3SecurityProvider = new G3SecurityProvider(this);
+            g3SecurityProvider = new G3SecurityProvider(this.getProtocolProperties());
         }
         return g3SecurityProvider;
     }

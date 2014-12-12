@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageSpec;
@@ -23,6 +24,7 @@ public class AS300DPETMessaging extends AS300Messaging {
     public static final String KEY = "Key";
 
     private static final String ID_OF_THE_METER_GROUP = "ID of the meter group";
+    private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
 
     public AS300DPETMessaging(final AS300MessageExecutor messageExecutor) {
         super(messageExecutor);

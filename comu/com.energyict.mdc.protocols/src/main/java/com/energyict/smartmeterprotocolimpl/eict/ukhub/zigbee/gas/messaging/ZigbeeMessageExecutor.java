@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.ScalerUnit;
@@ -15,14 +16,20 @@ import com.energyict.dlms.cosem.ChangeOfSupplierManagement;
 import com.energyict.dlms.cosem.ChangeOfTenantManagement;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
-import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
+import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.protocolimpl.generic.MessageParser;
+import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
+import com.energyict.protocolimpl.generic.csvhandling.TestObject;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
+import com.energyict.protocolimpl.generic.messages.MessageHandler;
+import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Environment;
@@ -59,7 +66,7 @@ import java.util.logging.Level;
  * Date: 10-aug-2011
  * Time: 15:02:34
  */
-public class ZigbeeMessageExecutor extends GenericMessageExecutor {
+public class ZigbeeMessageExecutor extends MessageParser {
 
     private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("7.0.1.64.0.255");
     private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("7.0.1.64.1.255");
@@ -70,6 +77,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     private static final String SET_CONVERSION_FACTOR = "SetConversionFactor";
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
+    private static final String TARIFF_LABEL = "TariffLabel";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final ObisCode PRICE_MATRIX_OBISCODE = ObisCode.fromString("0.0.1.61.0.255");   //TODO C field, 1 or 2? (A+ or A-)
     private static final ObisCode STANDING_CHARGE_OBISCODE = ObisCode.fromString("0.0.0.61.2.255");
@@ -126,9 +134,9 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
             } else if (isTextToDisplayMessage(content)) {
                 sendTextToDisplay(content);
             } else if (isConnectControlMessage(content)) {
-                doConnect();
+                doConnect(content);
             } else if (isDisconnectControlMessage(content)) {
-                doDisconnect();
+                doDisconnect(content);
             } else {
 
                 MessageHandler messageHandler = new NTAMessageHandler();
@@ -138,6 +146,8 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                     changeOfTenant(messageHandler);
                 } else if (isChangeOfSupplierMessage(messageHandler)) {
                     changeOfSupplier(messageHandler);
+                } else if (isTestMessage(messageHandler)) {
+                    testMessage(messageHandler);
                 } else if (isFirmwareUpgradeMessage(content)) {
                     doFirmwareUpgrade(messageHandler, content, trackingId);
                 } else {
@@ -158,7 +168,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private String getValueFromXMLAttribute(String tag, String content) {
+    private String getValueFromXMLAttribute(String tag, String content) throws IOException {
         int startIndex = content.indexOf(tag + "=\"");
         int endIndex = content.indexOf("\"", startIndex + tag.length() + 2);
         try {
@@ -479,13 +489,13 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void doConnect() throws IOException {
+    private void doConnect(final String content) throws IOException {
         log(Level.INFO, "Received Remote Connect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteReconnect();
     }
 
-    private void doDisconnect() throws IOException {
+    private void doDisconnect(final String content) throws IOException {
         log(Level.INFO, "Received Remote Disconnect message.");
         Disconnector connector = getCosemObjectFactory().getDisconnector(DISCONNECTOR);
         connector.remoteDisconnect();
@@ -495,13 +505,14 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
-         boolean resume = false;
+        boolean resume = false;
         if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
             resume = true;
         }
 
-        if (!com.energyict.genericprotocolimpl.common.ParseUtils.isInteger(userFileID)) {
-            throw new IOException("Not a valid entry for the userFile.");
+        if (!com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileID)) {
+            String str = "Not a valid entry for the userFile.";
+            throw new IOException(str);
         }
         UserFile uf = this.findUserFile(Integer.parseInt(userFileID));
 
@@ -536,7 +547,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
             Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
             sas.writeExecutionTime(dateArray);
         } else {
-             it.imageActivation();
+            it.imageActivation();
         }
     }
 
@@ -635,6 +646,10 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         return (messageHandler != null) && RtuMessageConstant.CHANGE_OF_SUPPLIER.equalsIgnoreCase(messageHandler.getType());
     }
 
+    private boolean isTestMessage(final MessageHandler messageHandler) {
+        return (messageHandler != null) && (RtuMessageConstant.TEST_MESSAGE.equalsIgnoreCase(messageHandler.getType()));
+    }
+
     private boolean isChangeOfTenantMessage(final MessageHandler messageHandler) {
         return (messageHandler != null) && RtuMessageConstant.CHANGE_OF_TENANT.equalsIgnoreCase(messageHandler.getType());
     }
@@ -648,7 +663,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     }
 
     private boolean isFirmwareUpgradeMessage(final String messageContent) {
-        return (messageContent != null) &&  messageContent.contains(RtuMessageConstant.FIRMWARE_UPGRADE);
+        return (messageContent != null) && messageContent.contains(RtuMessageConstant.FIRMWARE_UPGRADE);
     }
 
     public ActivityCalendarController getActivityCalendarController() {
@@ -666,6 +681,164 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     protected TimeZone getTimeZone() {
         return this.protocol.getTimeZone();
     }
+
+    private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+        log(Level.INFO, "Handling message TestMessage");
+        int failures = 0;
+        String userFileId = messageHandler.getTestUserFileId();
+        Date currentTime;
+        if (!userFileId.equalsIgnoreCase("")) {
+            if (com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileId)) {
+                UserFile uf = findUserFile(userFileId);
+                if (uf != null) {
+                    byte[] data = uf.loadFileInByteArray();
+                    CSVParser csvParser = new CSVParser();
+                    csvParser.parse(data);
+                    boolean hasWritten;
+                    TestObject to = new TestObject("");
+                    for (int i = 0; i < csvParser.size(); i++) {
+                        to = csvParser.getTestObject(i);
+                        if (csvParser.isValidLine(to)) {
+                            currentTime = new Date(System.currentTimeMillis());
+                            hasWritten = false;
+                            try {
+                                switch (to.getType()) {
+                                    case 0: { // GET
+                                        GenericRead gr = getCosemObjectFactory().getGenericRead(to.getObisCode(), DLMSUtils.attrLN2SN(to.getAttribute()), to.getClassId());
+                                        to.setResult("0x" + com.energyict.protocolimpl.generic.ParseUtils.decimalByteToString(gr.getResponseData()));
+                                        hasWritten = true;
+                                    }
+                                    break;
+                                    case 1: { // SET
+                                        GenericWrite gw = getCosemObjectFactory().getGenericWrite(to.getObisCode(), to.getAttribute(), to.getClassId());
+                                        gw.write(com.energyict.protocolimpl.generic.ParseUtils.hexStringToByteArray(to.getData()));
+                                        to.setResult("OK");
+                                        hasWritten = true;
+                                    }
+                                    break;
+                                    case 2: { // ACTION
+                                        GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
+                                        if (to.getData().equalsIgnoreCase("")) {
+                                            gi.invoke();
+                                        } else {
+                                            gi.invoke(com.energyict.protocolimpl.generic.ParseUtils.hexStringToByteArray(to.getData()));
+                                        }
+                                        to.setResult("OK");
+                                        hasWritten = true;
+                                    }
+                                    break;
+                                    case 3: { // MESSAGE
+                                        //Do nothing, no longer supported
+
+                                        //OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
+                                        //rms.setContents(csvParser.getTestObject(i).getData());
+                                        //rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
+                                        //OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
+                                        //doMessage(rm);
+                                        //if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
+                                        //    to.setResult("OK");
+                                        //} else {
+                                        //    to.setResult("MESSAGE failed, current state " + rm.getState().getId());
+                                        //}
+                                        //hasWritten = true;
+                                    }
+                                    break;
+                                    case 4: { // WAIT
+                                        waitCyclus(Integer.parseInt(to.getData()));
+                                        to.setResult("OK");
+                                        hasWritten = true;
+                                    }
+                                    break;
+                                    case 5: {
+                                        // do nothing, it's no valid line
+                                    }
+                                    break;
+                                    default: {
+                                        throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
+                                    }
+                                }
+                                to.setTime(currentTime.getTime());
+
+                                // Check if the expected value is the same as the result
+                                if ((to.getExpected() == null) || (!to.getExpected().equalsIgnoreCase(to.getResult()))) {
+                                    to.setResult("Failed - " + to.getResult());
+                                    failures++;
+                                    log(Level.INFO, "Test " + i + " has successfully finished, but the result didn't match the expected value.");
+                                } else {
+                                    log(Level.INFO, "Test " + i + " has successfully finished.");
+                                }
+
+                            } catch (Exception e) {
+                                if (!hasWritten) {
+                                    if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
+                                        to.setResult(e.getMessage());
+                                        log(Level.INFO, "Test " + i + " has successfully finished.");
+                                        hasWritten = true;
+                                    } else {
+                                        log(Level.INFO, "Test " + i + " has failed.");
+                                        String eMessage;
+                                        if (e.getMessage().indexOf("\r\n") != -1) {
+                                            eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
+                                        } else {
+                                            eMessage = e.getMessage();
+                                        }
+                                        to.setResult("Failed. " + eMessage);
+                                        hasWritten = true;
+                                        failures++;
+                                    }
+                                    to.setTime(currentTime.getTime());
+                                }
+                            } finally {
+                                if (!hasWritten) {
+                                    to.setResult("Failed - Unknow exception ...");
+                                    failures++;
+                                    to.setTime(currentTime.getTime());
+                                }
+                            }
+                        }
+                    }
+                    if (failures == 0) {
+                        csvParser.addLine("All the tests are successfully finished.");
+                    } else {
+                        csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
+                    }
+                    createUserFile(uf, csvParser);
+                } else {
+                    throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
+                }
+            } else {
+                throw new IOException("UserFileId is not a valid number");
+            }
+        } else {
+            throw new IOException("No userfile id is given.");
+        }
+    }
+
+    private void createUserFile(UserFile uf, CSVParser csvParser) throws IOException {
+        throw new UnsupportedOperationException("Userfiles is not longer supported by Jupiter");
+    }
+
+    private UserFile findUserFile(String userFileId) {
+        throw new UnsupportedOperationException("Userfiles is not longer supported by Jupiter");
+    }
+
+    private void waitCyclus(int delay) throws IOException {
+        try {
+            int nrOfPolls = (delay / (20)) + (delay % (20) == 0 ? 0 : 1);
+            for (int i = 0; i < nrOfPolls; i++) {
+                if (i < nrOfPolls - 1) {
+                    ProtocolTools.delay(20000);
+                } else {
+                    ProtocolTools.delay((delay - (i * (20))) * 1000);
+                }
+                log(Level.INFO, "Keeping connection alive");
+                getCosemObjectFactory().getClock().getDateTime();
+            }
+        } catch (IOException e) {
+            throw new IOException("Could not keep connection alive." + e.getMessage());
+        }
+    }
+
 
     private UserFile findUserFile(int userFileID) {
         List<UserFileFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(UserFileFactory.class);

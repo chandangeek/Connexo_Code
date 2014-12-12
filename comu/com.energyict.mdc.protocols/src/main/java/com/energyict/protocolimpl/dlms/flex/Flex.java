@@ -14,6 +14,7 @@ SVA|16072012|Taken a local copy of all stuff reused from Iskra protocol - this i
  */
 package com.energyict.protocolimpl.dlms.flex;
 
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
@@ -371,6 +372,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     private void CheckAARE(byte[] responseData) throws IOException {
         int i;
+        int iLength;
         String strResultSourceDiagnostics = "";
         InitiateResponse initiateResponse = new InitiateResponse();
 
@@ -461,6 +463,14 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                                 initiateResponse.lNegotiatedConformance = (ProtocolUtils.getInt(responseData, i + 8) & 0x00FFFFFF); // conformance has only 3 bytes, 24 bit
                                 initiateResponse.sServerMaxReceivePduSize = ProtocolUtils.getShort(responseData, i + 12);
                                 initiateResponse.sVAAName = ProtocolUtils.getShort(responseData, i + 14);
+                                /*
+                                System.out.println(initiateResponse.bNegotiatedDLMSVersionNR + " "+
+                                                   initiateResponse.bNegotiatedQualityOfService + " "+
+                                                   initiateResponse.lNegotiatedConformance + " "+
+                                                   initiateResponse.sServerMaxReceivePduSize + " " +
+                                                   initiateResponse.sVAAName);
+                                */
+
                             } else if (DLMS_PDU_CONFIRMED_SERVICE_ERROR == responseData[i + 3]) {
                                 if (0x01 == responseData[i + 4]) {
                                     strResultSourceDiagnostics += ", InitiateError";
@@ -525,7 +535,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
 
     }
 
-    private CapturedObjects getCapturedObjects() throws IOException {
+    private CapturedObjects getCapturedObjects() throws UnsupportedException, IOException {
         if (capturedObjects == null) {
             byte[] responseData;
             int i;
@@ -964,6 +974,11 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
     }
 
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
+    }
+
     public void connect() throws IOException {
         try {
             getDLMSConnection().connectMAC();
@@ -1151,13 +1166,8 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return serialnr;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G ZxF AD-FG DLMS";
-    }
-
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

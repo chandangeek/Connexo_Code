@@ -12,6 +12,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -142,9 +143,8 @@ public class ImageTransfer extends AbstractCosemObject {
      * 		- the image to transfer
      *
      * @throws java.io.IOException if something went wrong during the upgrade.
-     * @throws InterruptedException when interrupted while sleeping
      */
-    public void upgrade(byte[] data) throws IOException, InterruptedException {
+    public void upgrade(byte[] data) throws IOException {
         this.upgrade(data, true);
     }
 
@@ -157,9 +157,8 @@ public class ImageTransfer extends AbstractCosemObject {
      * 		- indicate whether you need to add zeros to the last block to match the blockSize
      *
      * @throws java.io.IOException when something went wrong during the upgrade
-     * @throws InterruptedException when interrupted while sleeping
      */
-    public void upgrade(byte[] data, boolean additionalZeros) throws IOException, InterruptedException {
+    public void upgrade(byte[] data, boolean additionalZeros) throws IOException {
         upgrade(data, additionalZeros, DEFAULT_IMAGE_NAME, false);
     }
 
@@ -192,9 +191,8 @@ public class ImageTransfer extends AbstractCosemObject {
      * @param checkForMissingBlocks
      *      - whether or not to resend lost blocks
      * @throws java.io.IOException when something went wrong during the upgrade
-     * @throws InterruptedException when interrupted while sleeping
      */
-    public void upgrade(byte[] data, boolean additionalZeros, String imageIdentifier, boolean checkForMissingBlocks) throws IOException, InterruptedException {
+    public void upgrade(byte[] data, boolean additionalZeros, String imageIdentifier, boolean checkForMissingBlocks) throws IOException {
 
         // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
         updateState(ImageTransferCallBack.ImageTransferState.ENABLE_IMAGE_TRANSFER, imageIdentifier, 0, data.length, 0);
@@ -230,7 +228,7 @@ public class ImageTransfer extends AbstractCosemObject {
 
 
         } else {
-            throw new IOException("Could not perform the upgrade because meter does not allow it.");
+            throw new ProtocolException("Could not perform the upgrade because meter does not allow it.");
         }
 
     }
@@ -288,7 +286,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * Do the first 2 steps of a firmware upgrade.
      * Use this to allow more progress feedback to the user
      */
-    public void initialize(byte[] data) throws IOException, InterruptedException {
+    public void initialize(byte[] data) throws IOException {
         this.data = data;
         this.size = new Unsigned32(data.length);
 
@@ -308,7 +306,7 @@ public class ImageTransfer extends AbstractCosemObject {
 
             imageTransferInitiate(imageInitiateStructure);
         } else {
-            throw new IOException("Could not perform the upgrade because meter does not allow it.");
+            throw new ProtocolException("Could not perform the upgrade because meter does not allow it.");
         }
     }
 
@@ -442,9 +440,9 @@ public class ImageTransfer extends AbstractCosemObject {
 
             if (previousMissingBlock == this.getImageFirstNotTransferedBlockNumber().getValue()) {
                 if (retryBlock++ == this.maxBlockRetryCount) {
-                    throw new IOException("Exceeding the maximum retry for block " + this.getImageFirstNotTransferedBlockNumber().getValue() + ", Image transfer is canceled.");
+                    throw new ProtocolException("Exceeding the maximum retry for block " + this.getImageFirstNotTransferedBlockNumber().getValue() + ", Image transfer is canceled.");
                 } else if (totalRetry++ == this.maxTotalRetryCount) {
-                    throw new IOException("Exceeding the total maximum retry count, Image transfer is canceled.");
+                    throw new ProtocolException("Exceeding the total maximum retry count, Image transfer is canceled.");
                 }
             } else {
                 previousMissingBlock = this.getImageFirstNotTransferedBlockNumber().getValue();
@@ -476,9 +474,8 @@ public class ImageTransfer extends AbstractCosemObject {
      * Verify the image. If the result is a temporary failure, then wait a few seconds and retry it.
      *
      * @throws java.io.IOException
-     * @throws InterruptedException
      */
-    public void verifyAndRetryImage() throws IOException, InterruptedException {
+    public void verifyAndRetryImage() throws IOException {
         int retry = 3;
         while (retry >= 0) {
             try {
@@ -507,7 +504,6 @@ public class ImageTransfer extends AbstractCosemObject {
     /**
      * Verify the image. If the result is a temporary failure, then wait a few seconds and check the.
      * @throws java.io.IOException
-     * @throws InterruptedException
      */
     public void verifyAndPollForSuccess() throws IOException {
         try {
@@ -539,9 +535,9 @@ public class ImageTransfer extends AbstractCosemObject {
                         getLogger().info("Image validation state: [Image verification successful].");
                         return;
                     case 4:
-                        throw new IOException("Image verification failed].");
+                        throw new ProtocolException("Image verification failed].");
                     default:
-                        throw new IOException("Invalid state [" + transferStatus.getValue() + "] while polling for verification status.");
+                        throw new ProtocolException("Invalid state [" + transferStatus.getValue() + "] while polling for verification status.");
                 }
             } catch (DataAccessResultException e) {
                 if (isTemporaryFailure(e) || isHardwareFailure(e)) {
@@ -551,10 +547,9 @@ public class ImageTransfer extends AbstractCosemObject {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new IOException("Interrupted while polling the image verification. [" + e.getMessage() + "]");
             }
         }
-        throw new IOException("Image verification failed, even after a few polls!");
+        throw new ProtocolException("Image verification failed, even after a few polls!");
     }
 
     /**
@@ -574,9 +569,9 @@ public class ImageTransfer extends AbstractCosemObject {
                         getLogger().info("Image activation state: [Image activation successful].");
                         return;
                     case 7:
-                        throw new IOException("Image activation failed].");
+                        throw new ProtocolException("Image activation failed].");
                     default:
-                        throw new IOException("Invalid state [" + transferStatus.getValue() + "] while polling for activation status.");
+                        throw new ProtocolException("Invalid state [" + transferStatus.getValue() + "] while polling for activation status.");
                 }
             } catch (DataAccessResultException e) {
                 if (isTemporaryFailure(e) || isHardwareFailure(e)) {
@@ -586,10 +581,9 @@ public class ImageTransfer extends AbstractCosemObject {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new IOException("Interrupted while polling the image activation. [" + e.getMessage() + "]");
             }
         }
-        throw new IOException("Image activation failed, even after a few polls!");
+        throw new ProtocolException("Image activation failed, even after a few polls!");
     }
 
     /**

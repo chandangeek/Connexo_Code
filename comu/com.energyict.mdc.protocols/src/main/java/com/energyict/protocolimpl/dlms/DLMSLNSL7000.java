@@ -26,6 +26,7 @@
  */
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -278,6 +279,11 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         aarq[4] = (byte) (((int) aarq.length & 0xFF) - 5); // Total length of frame - headerlength
 
         return aarq;
+    }
+
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
     }
 
     /**
@@ -1311,13 +1317,8 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         return serialnr;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Actaris SL7000 DLMS";
-    }
-
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     public String getFirmwareVersion() throws IOException {

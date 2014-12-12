@@ -576,11 +576,6 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         getLogger().info("--> sync the metertime with the systemtime here");
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EICT Test Protocol";
-    }
-
     public String getProtocolVersion() {
         //getLogger().info("call getProtocolVersion()");
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";

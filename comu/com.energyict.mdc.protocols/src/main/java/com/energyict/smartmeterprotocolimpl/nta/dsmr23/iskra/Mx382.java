@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 
 import com.energyict.mdc.device.topology.TopologyService;
@@ -19,7 +20,7 @@ import javax.inject.Inject;
  * Date: 15-jul-2011
  * Time: 11:59:24
  */
-public class Mx382 extends AbstractSmartNtaProtocol implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
+public class Mx382 extends AbstractSmartNtaProtocol {
 
     @Inject
     public Mx382(TopologyService topologyService, OrmClient ormClient) {
@@ -29,6 +30,20 @@ public class Mx382 extends AbstractSmartNtaProtocol implements PartialLoadProfil
     @Override
     public MessageProtocol getMessageProtocol() {
         return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, this.getTopologyService()));
+    }
+
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
+        try {
+            getDlmsSession().init();
+        } catch (IOException e) {
+            getLogger().warning("Failed while initializing the DLMS connection.");
+        }
+        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                                  //HDLC:         9600 baud, 8N1
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
+        hhuSignOn.enableDataReadout(datareadout);
+        getDlmsSession().getDLMSConnection().setHHUSignOn(hhuSignOn, "", 0);      //IEC1107:      300 baud, 7E1
+        getDlmsSession().getDLMSConnection().setSNRMType(1);                      //Uses a specific parameter length for the HDLC signon (SNRM request)
     }
 
     /**
@@ -41,11 +56,6 @@ public class Mx382 extends AbstractSmartNtaProtocol implements PartialLoadProfil
         return AXDRDateTimeDeviationType.Negative;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Iskraemeco Mx382 NTA DSMR2.3";
-    }
-
     /**
      * Returns the implementation version
      *
@@ -53,6 +63,6 @@ public class Mx382 extends AbstractSmartNtaProtocol implements PartialLoadProfil
      */
     @Override
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 }

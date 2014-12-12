@@ -78,13 +78,8 @@ public class GasDevice extends AS220 implements MessageProtocol{
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "Elster AS220/AS1440 AM500 PLC Mbus Slave";
-    }
-
-    @Override
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
 	@Override
@@ -284,21 +279,4 @@ public class GasDevice extends AS220 implements MessageProtocol{
 		}
 		return this.messaging;
 	}
-
-	/**
-	 * FirmwareUpgrade is not supported but it's there because we inherit from AS220 ...
-	 */
-    @Override
-	public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-	    return null;
-	}
-
-    /**
-     * FirmwareUpgrade is not supported but it's there because we inherit from AS220 ...
-     */
-    @Override
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        return new FirmwareUpdateMessagingConfig();
-    }
-
 }

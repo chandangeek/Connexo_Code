@@ -1,0 +1,174 @@
+package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
+
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
+import com.energyict.mdw.cpo.PropertySpecFactory;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372MbusMessaging;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+/**
+ * Copyrights EnergyICT
+ * User: sva
+ * Date: 24/01/12
+ * Time: 16:27
+ */
+public class MbusDevice extends AbstractNtaMbusDevice {
+
+    private int mbusAddress = -1;        // this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
+    private int physicalAddress = -1;    // this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
+    private int medium = 15;
+
+    private String customerID;
+    private String rtuType;
+    private Unit mbusUnit;
+
+    private IskraMx372 iskra;
+    public BaseDevice mbus;
+    private Logger logger;
+
+    public MbusDevice() {
+    }
+
+    public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, BaseDevice rtu, Unit unit, IskraMx372 protocol) throws InvalidPropertyException, MissingPropertyException {
+        this.mbusAddress = mbusAddress;
+        this.physicalAddress = phyAddress;
+        this.customerID = serial;
+        this.medium = mbusMedium;
+        this.mbus = rtu;
+        this.mbusUnit = unit;
+        this.logger = protocol.getLogger();
+        this.iskra = protocol;
+        if (mbus != null) {
+//            setProperties(mbus.getProtocolProperties().toStringProperties());
+        }
+    }
+
+    @Override
+    public MessageProtocol getMessageProtocol() {
+        return new IskraMx372MbusMessaging();
+    }
+
+    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
+        return ((IskraMx372MbusMessaging) getMessageProtocol()).getLoadProfileRegisterMessageBuilder();
+    }
+
+    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
+        return ((IskraMx372MbusMessaging) getMessageProtocol()).getPartialLoadProfileMessageBuilder();
+    }
+
+    /**
+     * Returns the implementation version
+     *
+     * @return a version string
+     */
+    public String getVersion() {
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        addProperties(properties.toStringProperties());
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+    }
+
+    /**
+     * add the properties
+     *
+     * @param properties properties to add
+     */
+    public void addProperties(Properties properties) {
+        try {
+            setProperties(properties);
+        } catch (InvalidPropertyException e) {
+            e.printStackTrace();
+        } catch (MissingPropertyException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        rtuType = properties.getProperty("DeviceType", "mbus");
+    }
+
+    /**
+     * Returns a list of required property keys
+     *
+     * @return a List of String objects
+     */
+    public List<String> getRequiredKeys() {
+        return new ArrayList(0);
+    }
+
+    /**
+     * Returns a list of optional property keys
+     *
+     * @return a List of String objects
+     */
+    public List<String> getOptionalKeys() {
+        return new ArrayList(0);
+    }
+
+    public String getCustomerID() {
+        return customerID;
+    }
+
+    @Override
+    public int getPhysicalAddress() {
+        return physicalAddress;
+    }
+
+    public int getMbusAddress() {
+        return mbusAddress;
+    }
+
+    public int getMedium() {
+        return medium;
+    }
+
+    public String getRtuType() {
+        return rtuType;
+    }
+
+    public Unit getMbusUnit() {
+        return mbusUnit;
+    }
+
+    public IskraMx372 getIskra() {
+        return iskra;
+    }
+
+    public BaseDevice getMbus() {
+        return mbus;
+    }
+
+    /**
+     * Getter for the used Logger
+     *
+     * @return the Logger
+     */
+    @Override
+    public Logger getLogger() {
+        return logger;
+    }
+}

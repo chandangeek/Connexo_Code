@@ -158,11 +158,6 @@ public class FP93 extends AbstractProtocol implements MessageProtocol{
         return deviceID;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EMCO FP93 Steam Meter";
-    }
-
     /**
      * Override this method to control the protocolversion This method is informational only.
      *

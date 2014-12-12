@@ -321,11 +321,6 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return result;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "EMH LZQJ VDEW";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
@@ -632,7 +627,7 @@ public class LZQJ extends PluggableMeterProtocol implements HHUEnabler, Protocol
                             billingPointRegister.getFromTime(),
                             billingPointRegister.getToTime(),
                             billingPointRegister.getReadTime(),
-                            billingPointRegister.getRtuRegisterId(),
+                            billingPointRegister.getRegisterSpecId(),
                             billingPointRegister.getText()
                     );
                 }

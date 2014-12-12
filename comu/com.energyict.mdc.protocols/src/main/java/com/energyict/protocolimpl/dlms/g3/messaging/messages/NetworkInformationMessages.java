@@ -21,6 +21,6 @@ public interface NetworkInformationMessages {
     @RtuMessageDescription(category = CATEGORY, description = "Path request", tag = "PathRequest")
     interface PathRequestMessage extends AnnotatedMessage {
         @RtuMessageAttribute(tag = "groupId", defaultValue = "", required = false)
-        java.lang.String getGroupId();
+        String getGroupId();
     }
 }

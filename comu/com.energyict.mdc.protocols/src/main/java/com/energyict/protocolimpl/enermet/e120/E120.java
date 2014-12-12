@@ -233,11 +233,6 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Enermet E120 ODEP";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

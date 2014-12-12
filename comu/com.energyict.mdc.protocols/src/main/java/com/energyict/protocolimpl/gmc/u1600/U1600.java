@@ -9,7 +9,6 @@ package com.energyict.protocolimpl.gmc.u1600;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -107,11 +106,6 @@ public class U1600 extends AbstractProtocol {
         Calendar calendarTo = ProtocolUtils.getCalendar(getTimeZone());
         calendarTo.setTime(to);
         return u1600Profile.getProfileData(calendarFrom.getTime(),calendarTo.getTime());
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "GMC U1600";
     }
 
     public String getProtocolVersion() {

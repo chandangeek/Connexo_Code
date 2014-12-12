@@ -6,13 +6,13 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.generic.StatusCodeProfile;
 
 import java.io.IOException;
 import java.util.ArrayList;

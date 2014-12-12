@@ -517,12 +517,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		getLogger().info("Set time successful");
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "Ametek Power JemStar";
-    }
-
-	public String getProtocolVersion() {
+    public String getProtocolVersion() {
 		////getLogger().info("call getProtocolVersion()");
 		return "$Revision: 1.3 $";
 	}

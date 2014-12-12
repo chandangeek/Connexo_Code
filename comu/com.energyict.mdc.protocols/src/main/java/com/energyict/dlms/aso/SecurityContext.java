@@ -1,11 +1,14 @@
 package com.energyict.dlms.aso;
 
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.encryption.AesGcm128;
 import com.energyict.encryption.BitVector;
 import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.dlms.protocolimplv2.SecurityProvider;
+
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -181,16 +184,12 @@ public class SecurityContext {
      * @return the cihperText
      * @throws IOException when the desired Encryption algorithm isn't supported
      */
-    public byte[] associationEncryption(byte[] plainText) throws IOException {
-        try {
-            byte[] digest;
-            MessageDigest md = MessageDigest.getInstance(this.authenticationAlgorithm.getAlgorithm());
-            md.reset();
-            digest = md.digest(plainText);
-            return digest;
-        } catch (NoSuchAlgorithmException e) {
-            throw new IOException(this.authenticationAlgorithm + " algorithm isn't a valid algorithm type." + e.getMessage());
-        }
+    public byte[] associationEncryption(byte[] plainText) throws NoSuchAlgorithmException {
+        byte[] digest;
+        MessageDigest md = MessageDigest.getInstance(this.authenticationAlgorithm.getAlgorithm());
+        md.reset();
+        digest = md.digest(plainText);
+        return digest;
     }
 
     /**
@@ -206,9 +205,8 @@ public class SecurityContext {
      * @param plainText - the text to encrypt ...
      * @return the cipherText (or the plainText when no security has to be
      *         applied)
-     * @throws IOException when Keys could not be fetched
      */
-    public byte[] dataTransportEncryption(byte[] plainText) throws IOException {
+    public byte[] dataTransportEncryption(byte[] plainText) throws UnsupportedException {
         int offset = 0;
         try {
             switch (this.securityPolicy) {
@@ -312,7 +310,7 @@ public class SecurityContext {
                     return secApdu;
                 } // authenticated and encrypted
                 default:
-                    throw new ConnectionException("Unknown securityPolicy: " + this.securityPolicy);
+                    throw new UnsupportedException("Unknown securityPolicy: " + this.securityPolicy);
             }
         } finally {
             incFrameCounter();
@@ -327,7 +325,7 @@ public class SecurityContext {
      * @param plainText to encrypt using GMAC
      * @return the secured APDU
      */
-    public byte[] highLevelAuthenticationGMAC(byte[] plainText) throws IOException {
+    public byte[] highLevelAuthenticationGMAC(byte[] plainText) {
         int offset = 0;
         List<byte[]> plainArray = new ArrayList<byte[]>();
         plainArray.add(new byte[]{getHLS5SecurityControlByte()});
@@ -361,11 +359,10 @@ public class SecurityContext {
      * This way you can check if the meter has calculated the same one and both systems are then authenticated
      *
      * @param clientChallenge our challenge we originally send to the meter
-     * @param cipheredFrame the ciphered frame we received from the meter
+     * @param cipheredFrame   the ciphered frame we received from the meter
      * @return the encrypted packet
-     * @throws IOException
      */
-    public byte[] createHighLevelAuthenticationGMACResponse(byte[] clientChallenge, byte[] cipheredFrame) throws IOException {
+    public byte[] createHighLevelAuthenticationGMACResponse(byte[] clientChallenge, byte[] cipheredFrame) {
         byte[] fc = ProtocolUtils.getSubArray2(cipheredFrame, 1, FRAME_COUNTER_SIZE);
         int offset = 0;
         List<byte[]> plainArray = new ArrayList<byte[]>();
@@ -424,7 +421,7 @@ public class SecurityContext {
      * @throws IOException         when Keys could not be fetched
      * @throws ConnectionException when the decryption fails
      */
-    public byte[] dataTransportDecryption(byte[] cipherFrame) throws IOException, DLMSConnectionException {
+    public byte[] dataTransportDecryption(byte[] cipherFrame) throws UnsupportedException, ConnectionException, DLMSConnectionException {
         switch (this.securityPolicy) {
             case SECURITYPOLICY_NONE: {
                 return cipherFrame;
@@ -501,7 +498,7 @@ public class SecurityContext {
                 }
             }
             default:
-                throw new ConnectionException("Unknown securityPolicy: "
+                throw new UnsupportedException("Unknown securityPolicy: "
                         + this.securityPolicy);
         }
     }
@@ -712,7 +709,7 @@ public class SecurityContext {
      *
      * @return true if it is, false otherwise
      */
-    public boolean isDedicatedCiphering(){
+    public boolean isDedicatedCiphering() {
         return this.cipheringType == CIPHERING_TYPE_DEDICATED;
     }
 

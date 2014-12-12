@@ -67,17 +67,17 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
 
     private List<ConnectionProperty> getProperProperties (ComPort comPort) {
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_BEFORE_SEND);
-        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TIMEOUT);
-        atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(1));
         ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_INIT_STRINGS);
         atModemInitStrings.setValue("ATS0=0E0V1");
         ConnectionTaskPropertyImpl delayAfterConnect = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_AFTER_CONNECT);
-        delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_CONNECT_TIMEOUT);
-        connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_DIAL_PREFIX);
         dialPrefix.setValue("");
         ConnectionTaskPropertyImpl addressSelector = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_ADDRESS_SELECTOR);
@@ -219,9 +219,9 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         ComPort comPort = getProperlyMockedComPort(comChannel, rxTxSerialPort);
 
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_BEFORE_SEND);
-        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TIMEOUT);
-        atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(3));
         ConnectionProperty comPortConnectionProperty = mock(ConnectionProperty.class);
@@ -295,10 +295,10 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
 
         List<ConnectionProperty> properProperties = new ArrayList<ConnectionProperty>();
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_BEFORE_SEND);
-        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         properProperties.add(delayBeforeSendProperty);
         ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TIMEOUT);
-        atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         properProperties.add(atCommandTimeout);
         ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(1));
@@ -307,10 +307,10 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         atModemInitStrings.setValue("ATS0=0E0V1;ATM0;ATS1=0");
         properProperties.add(atModemInitStrings);
         ConnectionTaskPropertyImpl delayAfterConnect = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_AFTER_CONNECT);
-        delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         properProperties.add(delayAfterConnect);
         ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_CONNECT_TIMEOUT);
-        connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         properProperties.add(connectTimeOut);
         ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_DIAL_PREFIX);
         dialPrefix.setValue("");

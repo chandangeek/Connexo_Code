@@ -25,7 +25,7 @@ import java.util.List;
  * Time: 16:04
  * Author: khe
  */
-public class MBusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
+public class MBusDevice extends AbstractNtaMbusDevice {
 
     @Inject
     public MBusDevice(TopologyService topologyService, OrmClient ormClient) {
@@ -37,18 +37,13 @@ public class MBusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
         return new Dsmr23MbusMessaging();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Landis+Gyr Mbus Slave NTA DSMR 4.0";
-    }
-
     /**
      * Returns the implementation version
      *
      * @return a version string
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     @Override

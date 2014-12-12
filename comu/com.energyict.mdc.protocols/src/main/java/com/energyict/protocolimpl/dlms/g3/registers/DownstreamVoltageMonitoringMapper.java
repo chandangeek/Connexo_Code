@@ -1,7 +1,10 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.RegisterMonitor;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -9,6 +12,7 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.AS330D;
 
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * Copyrights EnergyICT
@@ -25,9 +29,13 @@ public class DownstreamVoltageMonitoringMapper extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        RegisterMonitor registerMonitor = as330D.getSession().getCosemObjectFactory().getRegisterMonitor(getObisCode());
-        Array thresholds = registerMonitor.readThresholds();
+    public RegisterValue readRegister(DlmsSession session) throws IOException {
+        RegisterMonitor registerMonitor = session.getCosemObjectFactory().getRegisterMonitor(getObisCode());
+        return parse(registerMonitor.readThresholds(), unit);
+    }
+
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        Array thresholds = ((Array) abstractDataType);
 
         String separator = "";
         StringBuilder sb = new StringBuilder();
@@ -38,9 +46,15 @@ public class DownstreamVoltageMonitoringMapper extends G3Mapping {
             sb.append(": ");
             sb.append(((Unsigned16) thresholds.getDataType(index)).getValue());
             sb.append(" ");
-            sb.append(unit.toString());
+            sb.append(this.unit.toString());
             separator = ", ";
         }
         return new RegisterValue(getObisCode(), sb.toString());
     }
+
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.REGISTER_MONITOR.getClassId();
+    }
+
 }

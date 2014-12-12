@@ -52,7 +52,7 @@ public class AS300DPET extends AS300 {
         EventLogs logs = new EventLogs(this);
         Calendar fromCalendar = Calendar.getInstance(getTimeZone());
         if (lastLogReading == null) {
-            lastLogReading = com.energyict.genericprotocolimpl.common.ParseUtils.getClearLastMonthDate(getTimeZone());
+            lastLogReading = ParseUtils.getClearLastMonthDate(getTimeZone());
         }
         fromCalendar.setTime(lastLogReading);
         return logs.getEventLog(fromCalendar);
@@ -88,11 +88,6 @@ public class AS300DPET extends AS300 {
             OctetString serialNumber = (OctetString) getObjectFactory().getSerialNumber().getValueAttr();
             return serialNumber.stringValue();
         }
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "Elster AS300D-PET DLMS";
     }
 
     @Override

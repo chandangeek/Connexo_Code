@@ -25,6 +25,7 @@ import java.util.logging.Level;
  * Date: 18/07/11
  * Time: 13:57
  */
+@Deprecated //Never released, technical class
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
     @Inject
@@ -71,13 +72,8 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "EnergyICT NTA DSMR 4.0";
-    }
-
-    @Override
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-11-25 16:08:19 +0100 (Tue, 25 Nov 2014) $";
     }
 
     @Override
@@ -105,8 +101,8 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
         if (getCache() == null) {
             setCache(new DLMSCache());
         }
-        if ((((DLMSCache) getCache()).getObjectList() == null) || ((Dsmr40Properties) getProperties()).getForcedToReadCache()) {
-            getLogger().info(((Dsmr40Properties) getProperties()).getForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
+        if ((((DLMSCache) getCache()).getObjectList() == null) || ((Dsmr40Properties) getProperties()).isForcedToReadCache()) {
+            getLogger().info(((Dsmr40Properties) getProperties()).isForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
             requestConfiguration();
             ((DLMSCache) getCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
         } else {

@@ -37,18 +37,13 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return new Dsmr23MbusMessaging();
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Iskraemeco Mbus Slave NTA DSMR 2.3";
-    }
-
     /**
      * Returns the implementation version
      *
      * @return a version string
      */
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     @Override

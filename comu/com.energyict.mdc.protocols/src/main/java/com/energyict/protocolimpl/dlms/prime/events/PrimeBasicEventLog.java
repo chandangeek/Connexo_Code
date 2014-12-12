@@ -7,7 +7,6 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.ApolloEvents;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.dlms.DLMSMeterEventMapper;
@@ -136,11 +135,11 @@ public class PrimeBasicEventLog {
         }
 
         protected int getEisEventCode(int meterEventCode) {
-            return ApolloEvents.find(meterEventCode, eventGroup).getEIServerCode();
+            return PrimeEvents.find(meterEventCode, eventGroup).getEIServerCode();
         }
 
         protected String getEventMessage(int meterEventCode) {
-        	final StringBuilder builder = new StringBuilder(ApolloEvents.find(meterEventCode, eventGroup).getDescription());
+        	final StringBuilder builder = new StringBuilder(PrimeEvents.find(meterEventCode, eventGroup).getDescription());
 
         	if (this.eventGroup == POWER_CONTRACT_GROUP && meterEventCode == CONTRACT_POWER_CHANGED) {
 

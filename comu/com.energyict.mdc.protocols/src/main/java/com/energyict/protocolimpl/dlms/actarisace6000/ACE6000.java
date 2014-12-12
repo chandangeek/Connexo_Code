@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
@@ -561,6 +562,11 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return doGetDemandValues(fromCalendar,
                 bNROfChannels,
                 includeEvents);
+    }
+
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used, AARQ is manually built here
     }
 
     private ProfileData doGetDemandValues(Calendar fromCalendar, byte bNROfChannels, boolean includeEvents) throws IOException {
@@ -1336,16 +1342,11 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return serialnr;
     } // public String getSerialNumber() throws IOException
 
-    @Override
-    public String getProtocolDescription() {
-        return "Actaris ACE6000";
-    }
-
     /**
      * Protocol Version *
      */
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-10-30 17:01:03 +0100 (Thu, 30 Oct 2014) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

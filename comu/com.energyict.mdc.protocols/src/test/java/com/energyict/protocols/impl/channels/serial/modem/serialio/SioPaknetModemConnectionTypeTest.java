@@ -77,21 +77,21 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
 
     private List<ConnectionProperty> getProperProperties() {
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.DELAY_BEFORE_SEND);
-        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.COMMAND_TIMEOUT);
-        atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(1));
         ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.MODEM_INIT_STRINGS);
         atModemInitStrings.setValue("1:0,2:0,3:0,4:10,5:0,6:5");
         ConnectionTaskPropertyImpl delayAfterConnect = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.DELAY_AFTER_CONNECT);
-        delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.CONNECT_TIMEOUT);
-        connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.MODEM_DIAL_PREFIX);
         dialPrefix.setValue("");
         ConnectionTaskPropertyImpl dtrToggleDelay = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.DTR_TOGGLE_DELAY);
-        dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.MILLISECONDS));
+        dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl phoneNumber = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.PHONE_NUMBER_PROPERTY_NAME);
         phoneNumber.setValue(PHONE_NUMBER);
 
@@ -218,13 +218,13 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
 
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.DELAY_BEFORE_SEND);
-        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
+        delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl commandTimeout = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.COMMAND_TIMEOUT);
-        commandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
+        commandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionTaskPropertyImpl commandTries = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.COMMAND_TRIES);
         commandTries.setValue(new BigDecimal(3));
         ConnectionTaskPropertyImpl dtrToggleDelay = new ConnectionTaskPropertyImpl(TypedPaknetModemProperties.DTR_TOGGLE_DELAY);
-        dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.MILLISECONDS));
+        dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.TimeUnit.MILLISECONDS));
         ConnectionProperty comPortName = mock(ConnectionProperty.class);
         when(comPortName.getName()).thenReturn(SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName());
         when(comPortName.getValue()).thenReturn(this.comPortName);

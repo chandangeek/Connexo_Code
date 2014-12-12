@@ -1,19 +1,6 @@
-/**
- * @version 2.0
- * @author Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Class that implements the DLMS COSEM meter protocol of the Iskra ME37x meter with LN referencing.
- * <BR>
- * <B>@beginchanges</B><BR>
-KV|11042007|Initial version
-KV|23072007|Work around due to a bug in the meter to allow requesting more then 1 day of load profile for data compression meters
-GN|03032008|Added external MBus functionality
-GN|07112008|Only read the MBus unit when mbus is enabled, older meters don't have the MBus register...
- * @endchanges
- */
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec;
@@ -97,6 +84,20 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+/**
+ * @version 2.0
+ * @author Koenraad Vanderschaeve
+ * <P>
+ * <B>Description :</B><BR>
+ * Class that implements the DLMS COSEM meter protocol of the Iskra ME37x meter with LN referencing.
+ * <BR>
+ * <B>@beginchanges</B><BR>
+KV|11042007|Initial version
+KV|23072007|Work around due to a bug in the meter to allow requesting more then 1 day of load profile for data compression meters
+GN|03032008|Added external MBus functionality
+GN|07112008|Only read the MBus unit when mbus is enabled, older meters don't have the MBus register...
+ * @endchanges
+ */
 public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
@@ -963,6 +964,10 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         }
     }
 
+    public ApplicationServiceObject getAso() {
+        return null;
+    }
+
     public void connect() throws IOException {
         try {
             getDLMSConnection().connectMAC();
@@ -1158,13 +1163,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         return serialnr;
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "Iskraemeco Mx372 DLMS";
-    }
-
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
     public String getFirmwareVersion() {

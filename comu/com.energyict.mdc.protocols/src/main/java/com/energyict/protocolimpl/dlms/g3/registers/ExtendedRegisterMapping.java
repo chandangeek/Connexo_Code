@@ -1,14 +1,25 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocolimpl.dlms.g3.AS330D;
+import com.energyict.protocolimpl.dlms.g3.SerialNumber;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Date;
-
 /**
  * Copyrights EnergyICT
  * Date: 22/03/12
@@ -21,10 +32,23 @@ public class ExtendedRegisterMapping extends G3Mapping {
     }
 
     @Override
-    public RegisterValue readRegister(AS330D as330D) throws IOException {
-        final ExtendedRegister extendedRegister = as330D.getSession().getCosemObjectFactory().getExtendedRegister(getObisCode());
-        final Quantity quantityValue = extendedRegister.getQuantityValue();
-        final Date captureTime = extendedRegister.getCaptureTime();
+    public RegisterValue readRegister(DlmsSession session) throws IOException {
+        final ExtendedRegister extendedRegister = session.getCosemObjectFactory().getExtendedRegister(getObisCode());
+        return parse(extendedRegister.getValueAttr(), extendedRegister.getScalerUnit().getEisUnit(), extendedRegister.getCaptureTime());
+    }
+
+    public RegisterValue parse(AbstractDataType abstractDataType, Unit unit, Date captureTime) throws IOException {
+        final Quantity quantityValue = new Quantity(abstractDataType.longValue(), unit);
         return new RegisterValue(getObisCode(), quantityValue, captureTime);
+    }
+
+    @Override
+    public int[] getAttributeNumbers() {
+        return new int[]{ExtendedRegisterAttributes.VALUE.getAttributeNumber(), ExtendedRegisterAttributes.UNIT.getAttributeNumber(), ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(),};
+    }
+
+    @Override
+    public int getDLMSClassId() {
+        return DLMSClassId.EXTENDED_REGISTER.getClassId();
     }
 }

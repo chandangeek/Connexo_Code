@@ -2,8 +2,6 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
-import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
@@ -11,6 +9,8 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
+import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
@@ -164,14 +164,10 @@ public class MK10 extends AbstractProtocol {
 		ti.setTime();
 	}
 
-    @Override
-    public String getProtocolDescription() {
-        return "EDMI MK10";
-    }
-
-	public String getProtocolVersion() {
+    /** Protocol version **/
+    public String getProtocolVersion() {
 		sendDebug("getProtocolVersion()");
-		return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+		return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
 	}
 
 	public String getFirmwareVersion() throws IOException, UnsupportedException {

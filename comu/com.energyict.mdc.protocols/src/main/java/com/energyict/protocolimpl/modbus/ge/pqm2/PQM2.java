@@ -60,11 +60,6 @@ public class PQM2 extends Modbus  {
         return (String)getRegisterFactory().findRegister("firmware version").objectValueWithParser("firmware version");
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "GE PQM2";
-    }
-
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }

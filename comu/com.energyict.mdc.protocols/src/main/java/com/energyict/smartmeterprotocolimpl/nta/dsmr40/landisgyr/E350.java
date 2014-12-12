@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
@@ -15,6 +16,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuild
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -27,6 +30,7 @@ import java.io.IOException;
 public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
 
     private LoadProfileBuilder loadProfileBuilder;
+    protected MessageProtocol messageProtocol;
 
     @Inject
     public E350(TopologyService topologyService, OrmClient ormClient) {
@@ -34,13 +38,16 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "Landis+Gyr E350 XEMEX NTA DSMR 4.0";
+    public MessageProtocol getMessageProtocol() {
+        if (messageProtocol == null) {
+            messageProtocol = new Dsmr40Messaging(new Dsmr40MessageExecutor(this));
+        }
+        return messageProtocol;
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-11-25 16:08:19 +0100 (Tue, 25 Nov 2014) $";
     }
 
     /**
@@ -90,8 +97,8 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
         if (getCache() == null) {
             setCache(new DLMSCache());
         }
-        if ((((DLMSCache) getCache()).getObjectList() == null) || ((Dsmr40Properties) getProperties()).getForcedToReadCache()) {
-            getLogger().info(((Dsmr40Properties) getProperties()).getForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
+        if ((((DLMSCache) getCache()).getObjectList() == null) || ((Dsmr40Properties) getProperties()).isForcedToReadCache()) {
+            getLogger().info(((Dsmr40Properties) getProperties()).isForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
             requestConfiguration();
             ((DLMSCache) getCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
         } else {
@@ -104,6 +111,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     public LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
             this.loadProfileBuilder = new LGLoadProfileBuilder(this);
+            ((LGLoadProfileBuilder) loadProfileBuilder).setCumulativeCaptureTimeChannel(((Dsmr40Properties) getProperties()).getCumulativeCaptureTimeChannel());
         }
         return loadProfileBuilder;
     }

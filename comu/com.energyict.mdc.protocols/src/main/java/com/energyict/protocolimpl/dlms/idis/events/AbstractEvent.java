@@ -35,9 +35,8 @@ public abstract class AbstractEvent {
 
     /**
      * @return the MeterEvent List
-     * @throws java.io.IOException
      */
-    public List<MeterEvent> getMeterEvents() throws IOException {
+    public List<MeterEvent> getMeterEvents() {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         int size = this.dcEvents.getRoot().getNrOfElements();
         Date eventTimeStamp;

@@ -15,6 +15,7 @@ import java.util.Properties;
  * @author gna
  *
  */
+@Deprecated
 public class DLMSZMD_EXT extends DLMSZMD{
 
 	private int profileInterval;
@@ -45,14 +46,9 @@ public class DLMSZMD_EXT extends DLMSZMD{
         return super.getProfileData(lastReading, includeEvents);
     }
 
-    @Override
-    public String getProtocolDescription() {
-        return "L&G/Siemens ZMD DLMS-SN_EXT";
-    }
-
     /** ProtocolVersion **/
     public String getProtocolVersion() {
-        return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
+        return "$Date: 2014-06-20 14:07:47 +0200 (Fri, 20 Jun 2014) $";
     }
 
 }

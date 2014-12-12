@@ -2,6 +2,7 @@ package com.energyict.protocols.impl.channels;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelType;
 
 /**
  * Provides an implementation of the {@link ComChannel} interface
@@ -71,6 +72,11 @@ public class VoidComChannel implements ComChannel {
     @Override
     public TypedProperties getProperties() {
         return this.connectionTaskProperties;
+    }
+
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.NOT_DEFINED;
     }
 
     @Override

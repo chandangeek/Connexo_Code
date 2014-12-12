@@ -21,7 +21,7 @@ import java.util.List;
  * @author sva
  * @since 30/01/13 - 10:18
  */
-public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
+public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Inject
     public MbusDevice(TopologyService topologyService, OrmClient ormClient) {
@@ -31,11 +31,6 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     @Override
     public MessageProtocol getMessageProtocol() {
         return new XemexMbusMessaging();
-    }
-
-    @Override
-    public String getProtocolDescription() {
-        return "XEMEX ReMI Mbus Slave";
     }
 
     /**
