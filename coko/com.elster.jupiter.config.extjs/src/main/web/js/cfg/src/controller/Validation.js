@@ -471,7 +471,7 @@ Ext.define('Cfg.controller.Validation', {
             });
             filter.setFilter('unitOfMeasure', 'Unit of measure', unitOfMeasureRecord.get('name'), false);
         }
-        if (intervalsCombo.getValue()) {
+        if (!Ext.isEmpty(intervalsCombo.getValue())) {
             intervalsRecord = intervalsCombo.findRecord(intervalsCombo.valueField, intervalsCombo.getValue());
             properties.push({
                 property: 'time',
