@@ -4,6 +4,7 @@ import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.TaskService;
@@ -19,17 +20,19 @@ class Installer {
 	private DataModel dataModel;
 	private MessageService messageService;
 	private TaskService taskService;
+	private MeteringService meteringService;
 	
-	Installer (DataModel dataModel, MessageService messageService, TaskService taskService) {
+	Installer (DataModel dataModel, MessageService messageService, TaskService taskService, MeteringService meteringService) {
 		this.dataModel = dataModel;
 		this.messageService = messageService;
 		this.taskService = taskService;
+		this.meteringService = meteringService;
 	}
 	
 	void install() {
 		List<LifeCycleCategory> categories = new ArrayList<>();
 		for (LifeCycleCategoryKind category : LifeCycleCategoryKind.values()) {
-			LifeCycleCategory newCategory = new LifeCycleCategoryImpl(dataModel).init(category);
+			LifeCycleCategory newCategory = new LifeCycleCategoryImpl(dataModel, meteringService).init(category);
 			try {
 				dataModel.persist(newCategory);
 			} catch (UnderlyingSQLFailedException ex){

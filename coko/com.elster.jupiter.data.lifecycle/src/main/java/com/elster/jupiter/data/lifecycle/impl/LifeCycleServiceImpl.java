@@ -20,13 +20,11 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.google.inject.AbstractModule;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
@@ -34,9 +32,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.streams.Functions.asStream;
 
 @Component(name="com.elster.jupiter.data.lifecycle", property = "name=" + LifeCycleService.COMPONENTNAME, service = {LifeCycleService.class, TranslationKeyProvider.class, InstallService.class})
 public class LifeCycleServiceImpl implements LifeCycleService, InstallService, TranslationKeyProvider {
@@ -71,7 +70,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	@Override
 	public void install() {		
 		dataModel.install(true, true);
-		new Installer(dataModel, messageService, taskService).install();
+		new Installer(dataModel, messageService, taskService, meteringService).install();
 	}
 	
 	@Override
@@ -95,6 +94,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 			protected void configure() {
 				bind(DataModel.class).toInstance(dataModel);
 				bind(Thesaurus.class).toInstance(thesaurus);
+				bind(MeteringService.class).toInstance(meteringService);
 			}
 		});
 	}
@@ -164,17 +164,19 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 		logger.info("Removing logging up to " + instant);
 		ormService.dropAuto(LifeCycleClass.LOGGING, instant, logger);
 		PurgeConfiguration purgeConfiguration = PurgeConfiguration.builder()
-				.registerLimit(limit(getCategory(LifeCycleCategoryKind.REGISTER).getRetention()))
-				.intervalLimit(limit(getCategory(LifeCycleCategoryKind.INTERVAL).getRetention()))
-				.dailyLimit(limit(getCategory(LifeCycleCategoryKind.DAILY).getRetention()))
-				.eventLimit(limit(getCategory(LifeCycleCategoryKind.ENDDEVICEEVENT).getRetention()))
+				.registerRetention(getCategory(LifeCycleCategoryKind.REGISTER).getRetention())
+				.intervalRetention(getCategory(LifeCycleCategoryKind.INTERVAL).getRetention())
+				.dailyRetention(getCategory(LifeCycleCategoryKind.DAILY).getRetention())
+				.eventRetention(getCategory(LifeCycleCategoryKind.ENDDEVICEEVENT).getRetention())
 				.logger(logger)
 				.build();
+		//meteringService.configurePurge(purgeConfiguration);
+		idsService.purge(logger);
 		meteringService.purge(purgeConfiguration);
 		instant = clock.instant().plus(360,ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
 		logger.info("Adding partitions up to " + instant);
-		idsService.extendTo(instant,logger);
 		ormService.createPartitions(instant, logger);
+		idsService.extendTo(instant,logger);		
 	}
 	
 	@Override
@@ -182,8 +184,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 		return getCategories().stream()
 			.map(LifeCycleCategoryImpl.class::cast)
 			.map(lifeCycleCategory -> lifeCycleCategory.asOf(instant))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
+			.flatMap(asStream())
 			.collect(Collectors.toList());
 	}
 
