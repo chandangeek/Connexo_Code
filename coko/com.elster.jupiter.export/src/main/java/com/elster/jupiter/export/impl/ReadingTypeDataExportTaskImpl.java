@@ -224,9 +224,9 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
 
     private boolean hasBusyOccurrence() {
         return getLastOccurrence()
-                    .map(DataExportOccurrence::getStatus)
-                    .orElse(DataExportStatus.SUCCESS)
-                    .equals(DataExportStatus.BUSY);
+                .map(DataExportOccurrence::getStatus)
+                .orElse(DataExportStatus.SUCCESS)
+                .equals(DataExportStatus.BUSY);
     }
 
     private boolean hasQueuedMessages() {
@@ -234,9 +234,9 @@ class ReadingTypeDataExportTaskImpl implements IReadingTypeDataExportTask {
         Optional<IDataExportOccurrence> lastDataExportOccurrence = getLastOccurrence();
         return lastOccurrence.isPresent() &&
                 lastDataExportOccurrence.map(IDataExportOccurrence::getTaskOccurrence)
-                .map(TaskOccurrence::getId)
-                .map(i -> !i.equals(lastOccurrence.get().getId()))
-                .orElse(true);
+                        .map(TaskOccurrence::getId)
+                        .map(i -> !i.equals(lastOccurrence.get().getId()))
+                        .orElse(true);
     }
 
     @Override
