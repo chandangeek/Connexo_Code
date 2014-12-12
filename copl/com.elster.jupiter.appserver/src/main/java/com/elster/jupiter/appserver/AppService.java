@@ -1,5 +1,6 @@
 package com.elster.jupiter.appserver;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.cron.CronExpression;
 import java.util.Optional;
 
@@ -17,6 +18,8 @@ public interface AppService {
     List<SubscriberExecutionSpec> getSubscriberExecutionSpecs();
 
     List<AppServer> findAppServers();
+
+    Query<AppServer> getAppServerQuery();
 
     void stop();
 }
