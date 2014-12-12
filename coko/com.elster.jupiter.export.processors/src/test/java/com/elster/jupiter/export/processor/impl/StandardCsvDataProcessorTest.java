@@ -33,10 +33,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -117,7 +114,7 @@ public class StandardCsvDataProcessorTest {
     private FileSystem fileSystem;
 
     StandardCsvDataProcessor processor;
-    private List<DataExportProperty> properties;
+    List<DataExportProperty> properties;
     private Path tempDirectory;
 
     @Before
@@ -158,7 +155,6 @@ public class StandardCsvDataProcessorTest {
         when(propertyUpdateSeparateFile.getValue()).thenReturn("true");
         when(propertyPath.getName()).thenReturn("fileFormat.path");
         when(propertyPath.getValue()).thenReturn("c:\\export");
-
         when(dataExportOccurrence.getTriggerTime()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
 
         when(item.getReadingContainer()).thenReturn(readingContainer);
@@ -208,7 +204,7 @@ public class StandardCsvDataProcessorTest {
 
     @Test
     public  void testExportToCsvWithAbsolutePath() {
-        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory, validationService);
+        processor = new StandardCsvDataProcessor(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
 
         runExport();
 
@@ -222,7 +218,7 @@ public class StandardCsvDataProcessorTest {
     @Test
     public  void testExportToCsvWithRelativePath() {
         when(propertyPath.getValue()).thenReturn("dailies");
-        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory, validationService);
+        processor = new StandardCsvDataProcessor(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
 
         runExport();
 
@@ -235,7 +231,7 @@ public class StandardCsvDataProcessorTest {
     @Test
     public  void testExportToCsvWithoutPath() {
         properties = Arrays.asList(propertyPrefix, propertyExtension, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile);
-        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory, validationService);
+        processor = new StandardCsvDataProcessor(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
 
         runExport();
 
@@ -258,7 +254,7 @@ public class StandardCsvDataProcessorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testIllegalArgumentException() {
-        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory, validationService);
+        processor = new StandardCsvDataProcessor(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
@@ -269,11 +265,19 @@ public class StandardCsvDataProcessorTest {
     @Test(expected = DataExportException.class)
     public void testNoMeter() {
         when(readingContainer.getMeter(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(Optional.empty());
-        processor = new StandardCsvDataProcessor(dataExportService, appService, properties, thesaurus, fileSystem, tempDirectory, validationService);
+        processor = new StandardCsvDataProcessor(dataExportService, appService, getPropertyMap(properties), thesaurus, fileSystem, tempDirectory, validationService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
         processor.processData(data);
+    }
+
+    private Map<String, Object> getPropertyMap(List<DataExportProperty> properties) {
+        Map<String, Object> propertyMap = new HashMap<>();
+        for(DataExportProperty dataExportProperty : properties) {
+            propertyMap.put(dataExportProperty.getName(), dataExportProperty.getValue());
+        }
+        return propertyMap;
     }
 
 }
