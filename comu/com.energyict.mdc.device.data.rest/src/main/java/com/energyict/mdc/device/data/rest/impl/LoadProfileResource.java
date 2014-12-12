@@ -73,7 +73,7 @@ public class LoadProfileResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getAllLoadProfiles(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<LoadProfile> allLoadProfiles = device.getLoadProfiles();
@@ -85,7 +85,7 @@ public class LoadProfileResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lpid}")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getLoadProfile(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
         LoadProfileInfo loadProfileInfo = LoadProfileInfo.from(loadProfile);
@@ -145,7 +145,7 @@ public class LoadProfileResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{lpid}/data")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getLoadProfileData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
@@ -163,7 +163,7 @@ public class LoadProfileResource {
     @Path("{lpid}/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VALIDATE_MANUAL)
+    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL)
     public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
 
         Instant start = validationInfo.lastChecked == null ? null : Instant.ofEpochMilli(validationInfo.lastChecked);
@@ -222,7 +222,7 @@ public class LoadProfileResource {
     @Path("{lpid}/validationstatus")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,Privileges.FINE_TUNE_VALIDATION_CONFIGURATION})
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
         ValidationStatusInfo deviceValidationStatusInfo = determineStatus(loadProfile);

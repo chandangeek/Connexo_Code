@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -20,6 +21,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 
@@ -41,8 +43,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -85,8 +89,27 @@ public class DeviceGroupResource {
         return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext));
     }
 
-    private EndDeviceGroup fetchDeviceGroup(long id, SecurityContext securityContext) {
+    private EndDeviceGroup fetchDeviceGroup(long id, @Context SecurityContext securityContext) {
         return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    @GET
+    @Path("/{id}/devices")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    public PagedInfoList getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId, @Context SecurityContext securityContext) {
+        EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId, securityContext);
+        List<? extends EndDevice> allEndDevices = endDeviceGroup.getMembers(Instant.now());
+        List<? extends EndDevice> endDevices =
+            ListPager.of(allEndDevices).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+
+        List<Device> devices = new ArrayList<Device>();
+        for (EndDevice endDevice: endDevices) {
+            devices.add(deviceService.findDeviceById(endDevice.getId()));
+        }
+        //List<Device> subList = devices.subList(0, Math.min(queryParameters.getLimit() + 1, endDevices.size() + 1));
+        List<DeviceInfo> deviceInfos = DeviceInfo.from(devices);
+        return PagedInfoList.asJson("devices", deviceInfos, queryParameters);
     }
 
     @GET

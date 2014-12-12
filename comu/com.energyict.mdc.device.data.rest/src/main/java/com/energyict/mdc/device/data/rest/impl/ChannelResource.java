@@ -73,7 +73,7 @@ public class ChannelResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannels(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
@@ -100,7 +100,7 @@ public class ChannelResource {
     @GET
     @Path("/{channelid}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannel(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
         ChannelInfo channelInfo = ChannelInfo.from(channel);
@@ -126,7 +126,7 @@ public class ChannelResource {
     @GET
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
@@ -146,7 +146,7 @@ public class ChannelResource {
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_DATA)
     public Response editChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @BeanParam QueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         Meter meter = resourceHelper.getMeterFor(device);
@@ -218,7 +218,7 @@ public class ChannelResource {
     @Path("{channelid}/validationstatus")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,Privileges.FINE_TUNE_VALIDATION_CONFIGURATION})
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
         Channel channel = doGetChannel(mrid, loadProfileId, channelId);
         ValidationStatusInfo deviceValidationStatusInfo = determineStatus(channel);
@@ -236,7 +236,7 @@ public class ChannelResource {
     @Path("{channelid}/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VALIDATE_MANUAL)
+    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL)
     public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
 
         Instant start = validationInfo.lastChecked == null ? null : Instant.ofEpochMilli(validationInfo.lastChecked);

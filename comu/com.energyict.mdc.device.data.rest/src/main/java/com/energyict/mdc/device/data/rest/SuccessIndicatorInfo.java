@@ -15,6 +15,9 @@ public class SuccessIndicatorInfo {
     public ComSession.SuccessIndicator id;
     public String displayValue;
     public Integer retries;
+    
+    public SuccessIndicatorInfo() {
+    }
 
     public SuccessIndicatorInfo(ComSession.SuccessIndicator successIndicator, Thesaurus thesaurus) throws RuntimeException {
         this.id=successIndicator;
