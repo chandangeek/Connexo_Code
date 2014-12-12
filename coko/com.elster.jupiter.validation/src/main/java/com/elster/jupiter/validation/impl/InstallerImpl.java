@@ -40,18 +40,15 @@ public class InstallerImpl {
             LOGGER.log(Level.SEVERE, "Could not install datamodel : " + ex.getMessage(), ex);
         }
         createPrivileges();
-        assignPrivilegesToDefaultRoles();
         setTranslations();
         createEventTypes();
     }
 
     private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "validationConfiguration.validationConfigurations", "validationConfiguration.validationConfigurations.description", new String[] {Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION});
-    }
-
-    private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION});
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_VALIDATION_CONFIGURATION});
+        this.userService.createResourceWithPrivileges("MDC", "validation.validations", "validation.validations.description", new String[]
+                {Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
+                Privileges.VALIDATE_MANUAL,
+                Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION});
     }
 
     private void createEventTypes() {
