@@ -7,6 +7,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableMap;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -40,20 +41,24 @@ public class HttpContextImpl implements HttpContext {
             "index.html",
             "index-dev.html"};
 
+    static final String LOGOUT_QUEUE_DEST = "LogoutQueueDest";
+
     private final WhiteBoard whiteboard;
     private final Resolver resolver;
     private final UserService userService;
+    private final JsonService jsonService;
     private final MessageService messageService;
     private final TransactionService transactionService;
     private final AtomicReference<EventAdmin> eventAdminHolder;
 
-    HttpContextImpl(WhiteBoard whiteboard, Resolver resolver, UserService userService, TransactionService transactionService, MessageService messageService, AtomicReference<EventAdmin> eventAdminHolder) {
+    HttpContextImpl(WhiteBoard whiteboard, Resolver resolver, UserService userService, TransactionService transactionService, MessageService messageService, JsonService jsonService, AtomicReference<EventAdmin> eventAdminHolder) {
         this.resolver = resolver;
         this.userService = userService;
         this.transactionService = transactionService;
         this.eventAdminHolder = eventAdminHolder;
         this.whiteboard = whiteboard;
         this.messageService = messageService;
+        this.jsonService = jsonService;
     }
 
     @Override
@@ -137,11 +142,7 @@ public class HttpContextImpl implements HttpContext {
     }
 
     private boolean logoutRequested(HttpServletRequest request) {
-        if (request.getParameter("logout") != null && request.getParameter("logout").equals("true")) {
-
-            return true;
-        }
-        return false;
+        return (request.getParameter("logout") != null && request.getParameter("logout").equals("true")) ? true : false;
     }
 
     private void clearSession(HttpServletRequest request) {
@@ -149,11 +150,11 @@ public class HttpContextImpl implements HttpContext {
         if (session != null) {
             User user =( User )session.getAttribute("user");
             if(user!=null){
-                //Optional<DestinationSpec> found = messageService.getDestinationSpec(LOGOUT_QUEUE_DEST);
-                //if (found.isPresent()) {
-                //    found.get().message(user.getName()).send();
-                //}
-                //logoutYellowfin(user.getName());
+                Optional<DestinationSpec> found = messageService.getDestinationSpec(LOGOUT_QUEUE_DEST);
+                if (found.isPresent()) {
+                    String json = jsonService.serialize(user.getName());
+                    found.get().message(json).send();
+                }
             }
             session.invalidate();
 
