@@ -6,8 +6,8 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 public interface MeteringService {
     String COMPONENTNAME = "MTR";
@@ -54,7 +54,7 @@ public interface MeteringService {
 
     Condition hasAccountability(Instant when);
 
-	Query<Meter> getMeterQuery();
+    Query<Meter> getMeterQuery();
 
     Optional<UsagePoint> findUsagePoint(String mRID);
 
@@ -65,8 +65,8 @@ public interface MeteringService {
     List<EndDeviceEventType> getAvailableEndDeviceEventTypes();
 
     Optional<EndDeviceEventType> getEndDeviceEventType(String mRID);
-    
+
     void configurePurge(PurgeConfiguration purgeConfiguration);
-    
+
     void purge(PurgeConfiguration purgeConfiguration);
 }
