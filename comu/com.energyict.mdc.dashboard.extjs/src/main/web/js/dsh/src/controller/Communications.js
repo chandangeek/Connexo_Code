@@ -10,7 +10,8 @@ Ext.define('Dsh.controller.Communications', {
 
     views: [
         'Dsh.view.Communications',
-        'Dsh.view.widget.PreviewCommunication'
+        'Dsh.view.widget.PreviewCommunication',
+        'Dsh.view.widget.PreviewConnection'
     ],
 
     stores: [
@@ -53,8 +54,8 @@ Ext.define('Dsh.controller.Communications', {
             selector: '#communicationPreviewActionMenu'
         },
         {
-            ref: 'connectionsPreviewActionMenu',
-            selector: '#connectionsPreviewActionMenu'
+            ref: 'connectionsPreviewActionBtn',
+            selector: '#connectionsPreviewActionBtn'
         }
     ],
 
@@ -79,17 +80,13 @@ Ext.define('Dsh.controller.Communications', {
         store.load();
     },
 
-    initMenu: function (record, menuItems) {
-        var me = this,
-            gridActionsMenu = this.getCommunicationsGridActionMenu().menu,
-            previewCommActionsMenu = this.getCommunicationPreviewActionMenu().menu,
-            previewConnActionsMenu = this.getConnectionsPreviewActionMenu().menu;
+    initMenu: function (record, menuItems, me) {
+
+        this.getCommunicationsGridActionMenu().menu.removeAll();
+        this.getCommunicationPreviewActionMenu().menu.removeAll();
+        this.getConnectionsPreviewActionBtn().menu.removeAll();
 
         Ext.suspendLayouts();
-
-        gridActionsMenu.removeAll();
-        previewCommActionsMenu.removeAll();
-        previewConnActionsMenu.removeAll();
 
         Ext.each(record.get('comTasks'), function (item) {
             if (record.get('sessionId') !== 0) {
@@ -126,11 +123,11 @@ Ext.define('Dsh.controller.Communications', {
             }
         };
 
-        gridActionsMenu.add(menuItems);
-        previewCommActionsMenu.add(menuItems);
+        this.getCommunicationsGridActionMenu().menu.add(menuItems);
+        this.getCommunicationPreviewActionMenu().menu.add(menuItems);
 
         if(record.get('connectionTask').comSessionId!==0){
-            previewConnActionsMenu.add(connectionMenuItem);
+            this.getConnectionsPreviewActionBtn().menu.add(connectionMenuItem);
         }
 
         Ext.resumeLayouts();
@@ -143,7 +140,7 @@ Ext.define('Dsh.controller.Communications', {
             record = selected[0],
             menuItems = [];
         if (record ) {
-            this.initMenu(record, menuItems);
+            this.initMenu(record, menuItems, me);
             preview.loadRecord(record);
             preview.setTitle(record.get('name') + ' on ' + record.get('device').name);
             if (record.getData().connectionTask) {
