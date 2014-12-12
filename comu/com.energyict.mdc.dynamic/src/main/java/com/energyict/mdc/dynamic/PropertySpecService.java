@@ -1,5 +1,8 @@
 package com.energyict.mdc.dynamic;
 
+import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
@@ -53,6 +56,26 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
     public PropertySpec referencePropertySpec (String name, boolean required, FactoryIds factoryId);
 
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
+
+    public PropertySpec<Boolean> booleanPropertySpec(String name, boolean required, Boolean defaultValue);
+
+    /**
+     * Creates a PropertySPec that references a TimeZone object.
+     *<br/>
+     * For now the list of possible values will only contain:
+     * <ul>
+     *     <li>GMT</li>
+     *     <li>Europe/Brussels</li>
+     *     <li>EST</li>
+     *     <li>Europe/Moscow</li>
+     *     </ul>
+     *
+     * @param name The PropertySpec name
+     * @param required A flag that indicates if the PropertySpec should be required or not
+     * @param defaultValue The default value
+     * @return the newly created propertyspec
+     */
+    public PropertySpec timeZonePropertySpec(String name, boolean required, TimeZone defaultValue);
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
