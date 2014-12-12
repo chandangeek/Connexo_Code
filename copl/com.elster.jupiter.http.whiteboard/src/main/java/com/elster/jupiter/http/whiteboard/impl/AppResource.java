@@ -28,15 +28,13 @@ public class AppResource {
     private static final String[] SYSTEM_ADMIN_PRIVILEGES = {"privilege.administrate.userAndRole","privilege.view.userAndRole","privilege.view.license","privilege.upload.license","privilege.administrate.period","privilege.view.period",
             "privilege.administrate.dataExportTask","privilege.view.dataExportTask","privilege.update.dataExportTask","privilege.update.schedule.dataExportTask","privilege.run.dataExportTask",
             "privilege.administrate.dataPurge","privilege.view.dataPurge"};
-    private static final String[] MULTI_SENSE_PRIVILEGES = {"privilege.view.issue","privilege.comment.issue","privilege.close.issue","privilege.assign.issue","privilege.action.issue",
-            "privilege.view.creationRule","privilege.administrate.creationRule","privilege.view.assignmentRule","privilege.administrate.validationConfiguration",
-            "privilege.view.validationConfiguration","privilege.administrate.schedule","privilege.view.schedule","privilege.administrate.communicationInfrastructure",
-            "privilege.view.communicationInfrastructure","privilege.administrate.protocol","privilege.view.protocol","privilege.administrate.deviceConfiguration",
-            "privilege.administrate.deviceCommand","privilege.view.deviceCommand",
-            "privilege.view.deviceConfiguration","privilege.administrate.device","privilege.view.device","privilege.view.validateManual","privilege.view.fineTuneValidationConfiguration","privilege.view.scheduleDevice",
-            "privilege.administrate.deviceGroup","privilege.administrate.deviceOfEnumeratedGroup","privilege.view.deviceGroupDetail",
-            "privilege.import.inventoryManagement","privilege.revoke.inventoryManagement","privilege.create.inventoryManagement","privilege.administrate.deviceSecurity",
-            "privilege.view.deviceSecurity"};
+    private static final String[] MULTI_SENSE_PRIVILEGES = {"privilege.close.issue","privilege.comment.issue","privilege.view.issue","privilege.assign.issue","privilege.action.issue","privilege.view.creationRule","privilege.administrate.creationRule","privilege.view.assignmentRule"
+            ,"privilege.administrate.sharedCommunicationSchedule","privilege.view.sharedCommunicationSchedule","privilege.administrate.validationConfiguration","privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration","privilege.view.validationConfiguration"
+            ,"privilege.view.validateManual","privilege.view.fineTuneValidationConfiguration.onDevice","privilege.administrate.masterData","privilege.view.masterData","privilege.administrate.deviceType","privilege.view.deviceType","view.device.security.properties.level1"
+            ,"view.device.security.properties.level2","view.device.security.properties.level3","view.device.security.properties.level4","edit.device.security.properties.level1","edit.device.security.properties.level2","edit.device.security.properties.level4"
+            ,"edit.device.security.properties.level3","execute.device.message.level1","execute.device.message.level3","execute.device.message.level2","execute.device.message.level4","privilege.add.device","privilege.administrate.deviceData"
+            ,"privilege.administrate.deviceCommunication","privilege.operate.deviceCommunication","privilege.administrate.deviceGroup","privilege.view.deviceGroupDetail","privilege.administrate.deviceOfEnumeratedGroup","privilege.revoke.inventoryManagement"
+            ,"privilege.import.inventoryManagement","privilege.administrate.communicationAdministration","privilege.view.communicationAdministration"};
     private static final String[] APP_YELLOWFIN_PRIVILEGES = {"privilege.view.*"};
     private static final String[] BPM_CONSOLE_PRIVILEGES = {"privilege.view.bpm"};
     private static final String APP_SYSTEM_ADMIN_KEY = "SYS";
