@@ -103,7 +103,7 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, new PasswordFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, PasswordFactory.class));
         }
     },
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(DeviceMessageId.SECURITY_ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY, "Enable/disable temporary encryption key") {
@@ -233,14 +233,14 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, new PasswordFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, PasswordFactory.class));
         }
     },
     CHANGE_WEBPORTAL_PASSWORD2(DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD2, "Change the webportal password 2"){
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, new PasswordFactory()));
+            propertySpecs.add(propertySpecService.basicPropertySpec(newPasswordAttributeName, true, PasswordFactory.class));
         }
     };
 
