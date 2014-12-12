@@ -5,7 +5,6 @@ import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import java.time.Clock;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -13,9 +12,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.parties.rest" , service=Application.class , immediate = true , property = {"alias=/prt", "app=SYS", "name=" + PartiesApplication.COMPONENT_NAME} )
+@Component(name = "com.elster.jupiter.parties.rest", service = Application.class, immediate = true, property = {"alias=/prt", "app=SYS", "name=" + PartiesApplication.COMPONENT_NAME})
 public class PartiesApplication extends Application implements BinderProvider {
 
     public static final String COMPONENT_NAME = "PRT";
@@ -25,7 +25,6 @@ public class PartiesApplication extends Application implements BinderProvider {
     private volatile PartyService partyService;
     private volatile UserService userService;
     private volatile Clock clock;
-
 
 
     @Override
