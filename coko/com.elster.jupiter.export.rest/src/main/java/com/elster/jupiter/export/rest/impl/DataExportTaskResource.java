@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -33,12 +34,10 @@ import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -46,7 +45,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -54,9 +52,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Path("/dataexporttask")
 public class DataExportTaskResource {
@@ -203,24 +199,23 @@ public class DataExportTaskResource {
     @Path("/{id}/history")
     @Produces(MediaType.APPLICATION_JSON)
     public DataExportTaskHistoryInfos getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
-                                                               @QueryParam("filter") JSONArray filterArray, @Context UriInfo uriInfo) {
+                                                               @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        Map<String, Long> filter = getFilterMap(filterArray);
         ReadingTypeDataExportTask task = fetchDataExportTask(id, securityContext);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
                 .setStart(queryParameters.getStart())
                 .setLimit(queryParameters.getLimit());
 
-        if (filter.get("startedOnFrom") != null) {
-            occurrencesFinder.withStartDateIn(Range.closed(Instant.ofEpochMilli(filter.get("startedOnFrom")),
-                    filter.get("startedOnTo") != null ? Instant.ofEpochMilli(filter.get("startedOnTo")) : Instant.now()));
+        if (filter.hasProperty("startedOnFrom")) {
+            occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
+                    filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
         }
-        if (filter.get("finishedOnFrom") != null) {
-            occurrencesFinder.withEndDateIn(Range.closed(Instant.ofEpochMilli(filter.get("finishedOnFrom")),
-                    filter.get("finishedOnTo") != null ? Instant.ofEpochMilli(filter.get("finishedOnTo")) : Instant.now()));
+        if (filter.hasProperty("finishedOnFrom")) {
+            occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"),
+                    filter.hasProperty("finishedOnTo") ? filter.getInstant("finishedOnTo") : Instant.now()));
         }
-        if (filter.get("exportPeriodContains") != null) {
-            occurrencesFinder.withExportPeriodContaining(Instant.ofEpochMilli(filter.get("exportPeriodContains")));
+        if (filter.hasProperty("exportPeriodContains")) {
+            occurrencesFinder.withExportPeriodContaining(filter.getInstant("exportPeriodContains"));
         }
 
         List<? extends DataExportOccurrence> occurrences = occurrencesFinder.find();
@@ -261,22 +256,6 @@ public class DataExportTaskResource {
         DataExportOccurrenceLogInfos infos = new DataExportOccurrenceLogInfos(queryParameters.clipToLimit(occurrences), thesaurus);
         infos.total = queryParameters.determineTotal(occurrences.size());
         return infos;
-    }
-
-
-    private Map<String, Long> getFilterMap(JSONArray filterArray) {
-        Map<String, Long> filterMap = new HashMap<>();
-        if (filterArray != null) {
-            for (int i = 0; i < filterArray.length(); i++) {
-                try {
-                    JSONObject object = filterArray.getJSONObject(i);
-                    filterMap.put(object.getString("property"), Long.valueOf(object.get("value").toString()));
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-        return filterMap;
     }
 
     private ReadingTypeDataExportTask findTaskOrThrowException(DataExportTaskInfo info) {
