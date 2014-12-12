@@ -16,7 +16,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMapping;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingImpl;
-import com.energyict.mdc.protocol.pluggable.security.Privileges;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,22 +61,11 @@ public class Installer {
         catch (Exception e) {
             e.printStackTrace();
         }
-        createPrivileges();
-        assignPrivilegesToDefaultRoles();
         createSecurityAdapterMappings();
         createMessageAdapterMappings();
         createCapabilityMappings();
         createEventTypes();
         createTranslations();
-    }
-
-    private void createPrivileges() {
-        this.userService.createResourceWithPrivileges("MDC", "protocol.protocols", "protocol.protocols.description", new String[] {Privileges.ADMINISTRATE_PROTOCOL, Privileges.VIEW_PROTOCOL});
-    }
-
-    private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {Privileges.ADMINISTRATE_PROTOCOL, Privileges.VIEW_PROTOCOL});
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_PROTOCOL});
     }
 
     private void createCapabilityMappings() {
