@@ -253,6 +253,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SAGEMCOM_CX2009_DSMR(220, "com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.CX20009", FamilyRule.DSMR_NTA),
     SOCOMEC_COUNTIS_E44(221, "com.energyict.protocolimpl.modbus.socomec.countis.e44.E44"),
     EMH_NXT4(222, "com.energyict.protocolimpl.iec1107.emh.nxt4.NXT4"),
+    ELSTER_A1055(223, "com.energyict.protocolimplv2.abnt.elster.A1055"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -270,7 +271,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ELSTER_EK155(10015, "com.energyict.genericprotocolimpl.elster.ek155.EK155"),
     ELSTER_EK280(10016, "com.elster.genericprotocolimpl.dlms.ek280.EK280"),
     IDIS_RTUPLUSSERVER(10017, "com.energyict.genericprotocolimpl.rtuplusserver.idis.RtuPlusServer", FamilyRule.ELSTER_IDIS),
-    ELSTER_A1055(10018, "com.energyict.protocolimplv2.abnt.elster.A1055"),
 
     //Not released, only technical class
     JEM10(20001, "com.energyict.protocolimpl.ametek.Jem10"),
