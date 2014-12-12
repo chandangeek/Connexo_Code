@@ -46,6 +46,16 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                     '</tpl>',
                 '</table>'
             )
+        },
+        {
+            xtype: 'container',
+            itemId: 'target-container',
+            layout: 'vbox',
+            style: {
+                marginRight: '20px'
+            },
+            items: [
+            ]
         }
     ],
 
@@ -70,10 +80,12 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
 
     reload: function () {
         var me = this,
+            targetContainer = me.down('#target-container'),
             elm = me.down('#servers-dataview'),
             store = Ext.getStore(me.store);
 
         me.setLoading();
+        targetContainer.removeAll();
         store.load(function () {
             var title = '<h3>' + Uni.I18n.translatePlural('overview.widget.communicationServers.header', store.count(), 'DSH', 'Active communication servers ({0})') + '</h3>';
             me.down('#connection-summary-title-panel').update(title);
@@ -102,7 +114,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                 data: groups
             }));
 
-            me.add(
+            targetContainer.add(
                 {
                     xtype: 'button',
                     ui: 'link',
