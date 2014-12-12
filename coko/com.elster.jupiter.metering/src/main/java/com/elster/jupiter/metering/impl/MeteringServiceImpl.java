@@ -36,14 +36,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.Period;
-import java.util.Optional;
-
 import com.google.inject.AbstractModule;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -51,10 +44,13 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-
+import java.time.Clock;
+import java.time.Instant;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + MeteringService.COMPONENTNAME)
@@ -377,42 +373,42 @@ public class MeteringServiceImpl implements MeteringService, InstallService {
 
     @Override
     public void purge(PurgeConfiguration purgeConfiguration) {
-    	new DataPurger(purgeConfiguration,this).purge();
+        new DataPurger(purgeConfiguration, this).purge();
     }
-    
+
     @Override
     public void configurePurge(PurgeConfiguration purgeConfiguration) {
-    	registerVaults().stream()
-    		.filter(testRetention(purgeConfiguration.registerRetention()))
-    		.forEach(vault -> vault.setRetentionDays(purgeConfiguration.registerDays()));
-    	intervalVaults().stream()
-			.filter(testRetention(purgeConfiguration.intervalRetention()))
-			.forEach(vault -> vault.setRetentionDays(purgeConfiguration.intervalDays()));  
-    	dailyVaults().stream()
-			.filter(testRetention(purgeConfiguration.dailyRetention()))
-			.forEach(vault -> vault.setRetentionDays(purgeConfiguration.dailyDays()));  
+        registerVaults().stream()
+                .filter(testRetention(purgeConfiguration.registerRetention()))
+                .forEach(vault -> vault.setRetentionDays(purgeConfiguration.registerDays()));
+        intervalVaults().stream()
+                .filter(testRetention(purgeConfiguration.intervalRetention()))
+                .forEach(vault -> vault.setRetentionDays(purgeConfiguration.intervalDays()));
+        dailyVaults().stream()
+                .filter(testRetention(purgeConfiguration.dailyRetention()))
+                .forEach(vault -> vault.setRetentionDays(purgeConfiguration.dailyDays()));
     }
-    
+
     private Predicate<Vault> testRetention(Optional<Period> periodHolder) {
-    	return vault -> periodHolder.filter(period -> !vault.getRetention().equals(period)).isPresent();
+        return vault -> periodHolder.filter(period -> !vault.getRetention().equals(period)).isPresent();
     }
-    
+
     List<Vault> registerVaults() {
-    	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.IRREGULARVAULTID)
-    			.map( vault -> Arrays.asList(vault))
-    			.orElse(Collections.emptyList());
+        return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.IRREGULARVAULTID)
+                .map(vault -> Arrays.asList(vault))
+                .orElse(Collections.emptyList());
     }
-    
+
     List<Vault> intervalVaults() {
-    	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.INTERVALVAULTID)
-    			.map( vault -> Arrays.asList(vault))
-    			.orElse(Collections.emptyList());
+        return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.INTERVALVAULTID)
+                .map(vault -> Arrays.asList(vault))
+                .orElse(Collections.emptyList());
     }
-    
+
     List<Vault> dailyVaults() {
-    	return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.DAILYVAULTID)
-    			.map( vault -> Arrays.asList(vault))
-    			.orElse(Collections.emptyList());
+        return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.DAILYVAULTID)
+                .map(vault -> Arrays.asList(vault))
+                .orElse(Collections.emptyList());
     }
-    
+
 }
