@@ -1,1 +1,0 @@
-gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Deliver data\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_Deliver_data/Deliver_data.htm\"><book  src=\"toc25.js\"  name=\"Configure data export\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_Deliver_data/Configure_data_export.htm\" /></data>";
