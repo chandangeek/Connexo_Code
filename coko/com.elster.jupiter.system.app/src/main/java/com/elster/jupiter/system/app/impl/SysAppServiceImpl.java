@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 @Component(
         name = "com.elster.jupiter.system.app",
         service = {SysAppService.class, InstallService.class},
-        property = "name="+SysAppService.COMPONENTNAME,
+        property = "name=" + SysAppService.COMPONENTNAME,
         immediate = true
 )
 public class SysAppServiceImpl implements SysAppService, InstallService {
@@ -25,7 +25,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService {
 
     private volatile UserService userService;
 
-    public SysAppServiceImpl(){
+    public SysAppServiceImpl() {
     }
 
     @Inject
@@ -45,7 +45,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME,"DES","LIC","TME","BPM");
+        return Arrays.asList(UserService.COMPONENTNAME, "DES", "LIC", "TME", "BPM");
     }
 
     @Reference
