@@ -55,7 +55,7 @@
             <artifactId>devtools</artifactId>
             <scope>test</scope>
         </dependency>
- 		<dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap.h2</artifactId>
             <scope>test</scope>
