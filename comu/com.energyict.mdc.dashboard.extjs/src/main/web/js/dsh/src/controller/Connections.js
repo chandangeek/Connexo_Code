@@ -71,13 +71,13 @@ Ext.define('Dsh.controller.Connections', {
 
     init: function () {
         this.control({
-            '#connectionsdetails': {
+            'connections-details #connectionsdetails': {
                 selectionchange: this.onSelectionChange
             },
-            '#communicationsdetails': {
+            'connections-details #communicationsdetails': {
                 selectionchange: this.onCommunicationSelectionChange
             },
-            '#connectionsActionMenu': {
+            'connections-details #connectionsActionMenu': {
                 click: this.selectAction,
                 afterrender: this.initConnectionMenu
             }
