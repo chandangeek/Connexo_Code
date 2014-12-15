@@ -13,6 +13,7 @@ import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.TaskServiceAlreadyLaunched;
+import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Where;
@@ -184,6 +185,7 @@ public class TaskServiceImpl implements TaskService, InstallService {
     @Reference
     public void setScheduleExpressionParser(CronExpressionParser cronExpressionParser) {
         CompositeScheduleExpressionParser scheduleExpressionParser = new CompositeScheduleExpressionParser();
+        scheduleExpressionParser.add(PeriodicalScheduleExpressionParser.INSTANCE);
         scheduleExpressionParser.add(new TemporalExpressionParser());
         scheduleExpressionParser.add(cronExpressionParser);
         scheduleExpressionParser.add(Never.NEVER);
