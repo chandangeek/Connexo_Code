@@ -70,11 +70,6 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import java.security.Principal;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -86,6 +81,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
+
+import java.security.Principal;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -188,7 +189,6 @@ public class DeviceGroupTest {
                 new IdsModule(),
                 new MeteringModule(),
                 new InMemoryMessagingModule(),
-                new EventsModule(),
                 new ValidationModule(),
                 new SchedulingModule(),
                 new ProtocolPluggableModule(),
