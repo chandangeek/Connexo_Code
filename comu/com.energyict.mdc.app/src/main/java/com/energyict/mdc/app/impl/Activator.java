@@ -1,4 +1,4 @@
-package com.energyict.mdc.app;
+package com.energyict.mdc.app.impl;
 
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.BundleResolver;
