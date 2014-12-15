@@ -270,7 +270,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.adp_add_rev_link_cost, true, new BooleanFactory()));
         }
     },
-    SetBroadCastLogTableEntryTTLAttributeName(DeviceMessageId.PLC_CONFIGURATION_SET_BROAD_CAST_LOG_TABLE_ENTRY_TTL, "Set broadcast log table entry TTL"){
+    SetBroadCastLogTableEntryTTLAttributeName(DeviceMessageId.PLC_CONFIGURATION_SET_BROADCAST_LOG_TABLE_ENTRY_TTL_ATTRIBUTENAME, "Set broadcast log table entry TTL attribute name"){
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);

@@ -136,7 +136,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecEnum {
         }
     },
     BILLING_RESET_CONTRACT_1(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET_CONTRACT_1, "Billing reset contract 1"),
-    BILLING_RESET_CONTRACT_2(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET_CONTRACT_1, "Billing reset contract 2"),
+    BILLING_RESET_CONTRACT_2(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET_CONTRACT_2, "Billing reset contract 2"),
     SET_PASSIVE_EOB_DATETIME(DeviceMessageId.DEVICE_ACTIONS_SET_PASSIVE_EOB_DATETIME, "Set passive EOB date") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
