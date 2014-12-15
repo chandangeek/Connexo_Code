@@ -1,8 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.PagedInfoList;
+import com.energyict.mdc.common.rest.QueryParameters;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -15,13 +18,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.PagedInfoList;
-import com.energyict.mdc.common.rest.QueryParameters;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CommunicationResource {
 
@@ -39,7 +38,7 @@ public class CommunicationResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public PagedInfoList getCommunications(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<DeviceComTaskExecutionInfo> infos = device.getComTaskExecutions().stream()
@@ -52,7 +51,7 @@ public class CommunicationResource {
     @Path("/{comTaskExecId}/run")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunication(@PathParam("mRID") String mRID, @PathParam("comTaskExecId") long comTaskExecId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         ComTaskExecution comTaskExecution = findComTaskExecutionOrThrowException(device, comTaskExecId);
@@ -64,7 +63,7 @@ public class CommunicationResource {
     @Path("/{comTaskExecId}/runnow")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationNow(@PathParam("mRID") String mRID, @PathParam("comTaskExecId") long comTaskExecId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         ComTaskExecution comTaskExecution = findComTaskExecutionOrThrowException(device, comTaskExecId);
@@ -76,7 +75,7 @@ public class CommunicationResource {
     @Path("/{comTaskExecId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activateDeactiveCommunication(@PathParam("mRID") String mRID, @PathParam("comTaskExecId") long comTaskExecId, DeviceComTaskExecutionInfo info) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         ComTaskExecution comTaskExecution = findComTaskExecutionOrThrowException(device, comTaskExecId);
@@ -87,29 +86,29 @@ public class CommunicationResource {
         }
         return Response.ok(deviceComTaskExecutionInfoFactory.from(comTaskExecution, comTaskExecution.getLastSession())).build();
     }
-    
+
     @PUT
     @Path("/activate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activateAllCommunication(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         device.getComTaskExecutions().stream().forEach(cte -> activateComTaskExecution(cte));
         return Response.ok().build();
     }
-    
+
     @PUT
     @Path("/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response deactivateAllCommunication(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         device.getComTaskExecutions().stream().forEach(cte -> deactivateComTaskExecution(cte));
         return Response.ok().build();
     }
-    
+
     private ComTaskExecution findComTaskExecutionOrThrowException(Device device, long comTaskExecId) {
         Optional<ComTaskExecution> comTaskExecution = device.getComTaskExecutions().stream().filter(cte -> cte.getId() == comTaskExecId).findAny();
         return comTaskExecution.orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_COMMUNICATION, comTaskExecId, device.getmRID()));
@@ -120,7 +119,7 @@ public class CommunicationResource {
             comTaskExecution.updateNextExecutionTimestamp();
         }
     }
-    
+
     private void deactivateComTaskExecution(ComTaskExecution comTaskExecution) {
         if (!comTaskExecution.isOnHold()) {
             comTaskExecution.putOnHold();

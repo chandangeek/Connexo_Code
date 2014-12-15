@@ -8,6 +8,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -18,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -57,6 +59,11 @@ public class DeviceMessageResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})
     public DeviceMessageInfos getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<DeviceMessageInfo> infos = device.getMessages().stream().
@@ -79,6 +86,10 @@ public class DeviceMessageResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})
     public Response createDeviceMessage(@PathParam("mRID") String mrid, DeviceMessageInfo deviceMessageInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(deviceMessageInfo.messageSpecification.id);
@@ -105,6 +116,10 @@ public class DeviceMessageResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("{deviceMessageId}")
+    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})
     public DeviceMessageInfo updateDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId, DeviceMessageInfo deviceMessageInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceMessage<?> deviceMessage = findDeviceMessageOrThrowException(device, deviceMessageId);

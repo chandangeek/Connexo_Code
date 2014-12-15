@@ -263,13 +263,13 @@ public class ResourceHelper {
                     : conditionDevice.and(where("serialNumber").likeIgnoreCase(serialNumber));
         }
         if (filter.hasProperty("deviceTypes")) {
-            List<String> deviceTypes = filter.getStringList("deviceTypes");
+            List<Integer> deviceTypes = filter.getIntegerList("deviceTypes");
             if (!deviceTypes.isEmpty()) {
                 conditionDevice = conditionDevice.and(createMultipleConditions(deviceTypes, "deviceConfiguration.deviceType.id"));
             }
         }
         if (filter.hasProperty("deviceConfigurations")) {
-            List<String> deviceConfigurations = filter.getStringList("deviceConfigurations");
+            List<Integer> deviceConfigurations = filter.getIntegerList("deviceConfigurations");
             if (!deviceConfigurations.isEmpty()) {
                 conditionDevice = conditionDevice.and(createMultipleConditions(deviceConfigurations, "deviceConfiguration.id"));
             }
@@ -277,10 +277,10 @@ public class ResourceHelper {
         return conditionDevice;
     }
 
-    private Condition createMultipleConditions(List<String> params, String conditionField) {
+    private Condition createMultipleConditions(List<Integer> params, String conditionField) {
         Condition condition = Condition.FALSE;
-        for (String value : params) {
-            condition = condition.or(where(conditionField).isEqualTo(value.trim()));
+        for (int value : params) {
+            condition = condition.or(where(conditionField).isEqualTo(value));
         }
         return condition;
     }
