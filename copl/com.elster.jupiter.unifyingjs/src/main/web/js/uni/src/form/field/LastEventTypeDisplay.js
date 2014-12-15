@@ -53,8 +53,6 @@ Ext.define('Uni.form.field.LastEventTypeDisplay', {
         });
 
         tooltip += '</table>';
-
-        Ext.defer(this.deferredRenderer, 1, this, [result, field, tooltip]);
-        return '<span style="display: inline-block; width: 115px; float: left;">' + result + '</span>';
+        return '<span style="display: inline-block; width: 115px; float: left;" >' + result + '</span><span style="display: inline-block; width: 16px; height: 16px;" class="icon-info-small" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
     }
 });

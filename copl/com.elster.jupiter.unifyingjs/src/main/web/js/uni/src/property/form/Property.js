@@ -74,6 +74,8 @@ Ext.define('Uni.property.form.Property', {
         var me = this;
         var registry = Uni.property.controller.Registry;
 
+        Ext.suspendLayouts();
+
         me.removeAll();
         properties.each(function (property) {
             if (!(property instanceof Uni.property.model.Property)) {
@@ -102,6 +104,8 @@ Ext.define('Uni.property.form.Property', {
                 me.add(field);
             }
         });
+
+        Ext.resumeLayouts();
 
         this.initialised = true;
     },
