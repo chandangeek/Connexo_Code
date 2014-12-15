@@ -27,6 +27,7 @@ public class AppServerImpl implements AppServer {
     private String cronString;
     private transient CronExpression scheduleFrequency;
     private boolean recurrentTaskActive;
+    private boolean active;
     private final DataModel dataModel;
     private final CronExpressionParser cronExpressionParser;
     private final MessageService messageService;
@@ -105,6 +106,18 @@ public class AppServerImpl implements AppServer {
     public void setRecurrentTaskActive(boolean recurrentTaskActive) {
         this.recurrentTaskActive = recurrentTaskActive;
     }
+
+
+    public boolean isActive() {
+        return active;
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+
 
     @Override
     public void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {

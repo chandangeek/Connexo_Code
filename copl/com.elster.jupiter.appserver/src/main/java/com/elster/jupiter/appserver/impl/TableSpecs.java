@@ -20,6 +20,7 @@ public enum TableSpecs {
             Column idColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
             table.column("RECURRENTTASKSACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("recurrentTaskActive").add();
+            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
             table.primaryKey("APS_PK_APPSERVER").on(idColumn).add();
         }
 
