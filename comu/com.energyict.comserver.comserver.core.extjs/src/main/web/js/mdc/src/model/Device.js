@@ -2,7 +2,8 @@ Ext.define('Mdc.model.Device', {
     extend: 'Ext.data.Model',
     requires: [
         'Mdc.model.DeviceLabel',
-        'Mdc.model.DeviceConnection'
+        'Mdc.model.DeviceConnection',
+        'Mdc.model.DeviceCommunication'
     ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
@@ -47,7 +48,20 @@ Ext.define('Mdc.model.Device', {
             type: 'hasMany',
             model: 'Mdc.model.DeviceConnection',
             associationKey: 'connections',
-            remoteFilter: true
+            remoteFilter: true,
+            storeConfig: {
+                pageSize: 5
+            }
+        },
+        {
+            name: 'communications',
+            type: 'hasMany',
+            model: 'Mdc.model.DeviceCommunication',
+            associationKey: 'communications',
+            remoteFilter: true,
+            storeConfig: {
+                pageSize: 5
+            }
         }
     ],
 

@@ -81,6 +81,12 @@ Ext.define('Mdc.controller.setup.Devices', {
                     widget.down('device-connections-list').reconfigure(deviceConnectionsStore);
                 });
 
+                var deviceCommunicationsStore = device.communications();
+                deviceCommunicationsStore.getProxy().setUrl(mRID);
+                deviceCommunicationsStore.load(function() {
+                    widget.down('device-communications-list').reconfigure(deviceCommunicationsStore);
+                });
+
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId')});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
