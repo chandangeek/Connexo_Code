@@ -38,4 +38,13 @@ public class ReadingTypeResource {
     		.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
+    @GET
+    @Path("/{mRID}/calculated")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ReadingTypeInfos getCalculatedReadingType(@PathParam("mRID") String mRID) {
+        return meteringService.getReadingType(mRID)
+                .map(rt -> rt.getCalculatedReadingType())
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
+                .map(readingType -> new ReadingTypeInfos(readingType)).orElse(new ReadingTypeInfos());
+    }
  }
