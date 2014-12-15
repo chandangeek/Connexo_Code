@@ -21,6 +21,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
     ],
 
     items: {
-        xtype: 'devicegroups-preview-form'
+        xtype: 'devicegroups-preview-form',
+        itemId: 'deviceGroupPreviewForm'
     }
 });

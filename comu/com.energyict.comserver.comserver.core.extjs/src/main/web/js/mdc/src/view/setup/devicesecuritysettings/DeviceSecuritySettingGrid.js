@@ -49,7 +49,10 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: 'Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingActionMenu',
+                menu: {
+                    xtype: 'device-security-setting-action-menu',
+                    itemId: 'deviceSecurityGridMenu'
+                },
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     return !record.data.userHasEditPrivilege
                 }

@@ -8,32 +8,19 @@ Ext.define('Mdc.view.setup.devicegroup.PreviewForm', {
         type: 'vbox',
         align: 'stretch'
     },
+    defaults: {
+        labelWidth: 150
+    },
+
     items: [
-        {
-            xtype: 'container',
-            layout: {
-                type: 'column'
-            },
-            items: [
                 {
-                    xtype: 'container',
-                    columnWidth: 0.5,
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
-                    defaults: {
-                        labelWidth: 250
-                    },
-                    items: [
-                        {
                             xtype: 'displayfield',
                             name: 'name',
                             fieldLabel: Uni.I18n.translate('devicegroup.name', 'MDC', 'Name'),
                             itemId: 'deviceGroupName'
 
-                        },
-                        {
+                },
+                {
                             xtype: 'displayfield',
                             name: 'dynamic',
                             fieldLabel: Uni.I18n.translate('devicegroup.type', 'MDC', 'Type'),
@@ -44,21 +31,8 @@ Ext.define('Mdc.view.setup.devicegroup.PreviewForm', {
                                     return Uni.I18n.translate('devicegroup.static', 'MDC', 'Static')
                                 }
                             }
-                        }
-                    ]
                 },
                 {
-                    xtype: 'container',
-                    columnWidth: 0.5,
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
-                    defaults: {
-                        labelWidth: 250
-                    },
-                    items: [
-                        {
                             xtype: 'fieldcontainer',
                             columnWidth: 0.5,
                             fieldLabel: Uni.I18n.translate('deviceGroup.searchCriteria', 'MDC', 'Search criteria'),
@@ -70,12 +44,8 @@ Ext.define('Mdc.view.setup.devicegroup.PreviewForm', {
                             items: [
 
                             ]
-                        }
-                    ]
                 }
 
-            ]
-        }
       ]
 
 });
