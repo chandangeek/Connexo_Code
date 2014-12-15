@@ -1,4 +1,4 @@
-package com.elster.jupiter.system.app;
+package com.elster.jupiter.system.app.impl;
 
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.BundleResolver;
