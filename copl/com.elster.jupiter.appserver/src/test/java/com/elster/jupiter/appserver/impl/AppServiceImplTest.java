@@ -46,6 +46,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -144,6 +146,7 @@ public class AppServiceImplTest {
         when(destination.message(anyString())).thenReturn(messageBuilder);
         when(nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
+        when(appServerFactory.getOptional(any())).thenReturn(Optional.<AppServer>empty());
 
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
@@ -474,5 +477,10 @@ public class AppServiceImplTest {
         }
     }
 
+    @Test
+    public void testGetHostName() throws UnknownHostException {
+        System.out.println(InetAddress.getLocalHost().getHostName());
+
+    }
 
 }
