@@ -41,6 +41,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -132,12 +134,26 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
     }
 
     private void tryActivate(BundleContext context) {
-        String appServerName = context.getProperty(APPSERVER_NAME);
+        String appServerName = determineAppServerName(context);
         if (appServerName != null) {
             activateAs(appServerName);
         } else {
             activateAnonymously();
         }
+    }
+
+    private String determineAppServerName(BundleContext context) {
+        return getAppServerNameFromProperty(context).orElseGet(() -> {
+            try {
+                return InetAddress.getLocalHost().getHostName();
+            } catch (UnknownHostException e) {
+                return null;
+            }
+        });
+    }
+
+    private Optional<String> getAppServerNameFromProperty(BundleContext context) {
+        return Optional.ofNullable(context.getProperty(APPSERVER_NAME));
     }
 
     private void activateAnonymously() {
@@ -180,7 +196,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
         return new Class<?>[]{InvalidateCacheRequest.class};
     }
 
-    Thesaurus getThesaurus() {
+    public Thesaurus getThesaurus() {
         return thesaurus;
     }
 

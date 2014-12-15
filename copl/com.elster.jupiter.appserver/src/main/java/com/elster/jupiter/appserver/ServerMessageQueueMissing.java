@@ -8,7 +8,9 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class ServerMessageQueueMissing extends LocalizedException {
 
-    public ServerMessageQueueMissing(String destinationName, Thesaurus thesaurus) {
+	private static final long serialVersionUID = 1L;
+
+	public ServerMessageQueueMissing(String destinationName, Thesaurus thesaurus) {
         super(thesaurus, MessageSeeds.SERVER_MESSAGE_QUEUE_MISSING, destinationName);
         set("destination", destinationName);
     }

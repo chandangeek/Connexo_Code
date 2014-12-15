@@ -21,7 +21,6 @@ public final class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppS
 
     private final FileImportService fileImportService;
 
-    @SuppressWarnings("unused")
     @Inject
 	ImportScheduleOnAppServerImpl(DataModel dataModel, FileImportService fileImportService) {
         this.dataModel = dataModel;

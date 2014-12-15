@@ -13,9 +13,10 @@ import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
 
-    APS_APPSERVER(AppServer.class) {
+    APS_APPSERVER {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+        	Table<AppServer> table = dataModel.addTable(name(), AppServer.class);
             table.map(AppServerImpl.class);
             Column idColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
@@ -25,9 +26,10 @@ public enum TableSpecs {
         }
 
     },
-    APS_SUBSCRIBEREXECUTIONSPEC(SubscriberExecutionSpec.class) {
+    APS_SUBSCRIBEREXECUTIONSPEC {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+        	Table<SubscriberExecutionSpec> table = dataModel.addTable(name(), SubscriberExecutionSpec.class);       
             table.map(SubscriberExecutionSpecImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("THREADCOUNT").type("NUMBER").notNull().conversion(NUMBER2INT).map("threadCount").add();
@@ -38,9 +40,10 @@ public enum TableSpecs {
             table.primaryKey("APS_PK_SUBSCRIBEREXECUTIONSPEC").on(idColumn).add();
         }
     },
-    APS_IMPORTSCHEDULEONSERVER(ImportScheduleOnAppServer.class) {
+    APS_IMPORTSCHEDULEONSERVER {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+        	Table<ImportScheduleOnAppServer> table = dataModel.addTable(name(), ImportScheduleOnAppServer.class);
             table.map(ImportScheduleOnAppServerImpl.class);
             Column appServerColumn = table.column("APPSERVER").varChar(NAME_LENGTH).notNull().map("appServerName").add();
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
@@ -48,18 +51,7 @@ public enum TableSpecs {
             table.primaryKey("APS_PK_IMPORTSCHEDULEONSERVER").on(appServerColumn, importScheduleColumn).add();
         }
     };
-
-    private final Class<?> api;
-
-    TableSpecs(Class<?> api) {
-        this.api = api;
-    }
-
-    public void addTo(DataModel component) {
-        Table table = component.addTable(name(), api);
-        describeTable(table);
-    }
-
-    abstract void describeTable(Table table);
+    
+    abstract void addTo(DataModel dataModel);
 
 }
