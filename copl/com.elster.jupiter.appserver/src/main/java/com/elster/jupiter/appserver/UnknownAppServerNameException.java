@@ -5,7 +5,9 @@ import com.elster.jupiter.nls.Thesaurus;
 
 public class UnknownAppServerNameException extends LocalizedException {
 
-    public UnknownAppServerNameException(String appServerName, Thesaurus thesaurus) {
+	private static final long serialVersionUID = 1L;
+
+	public UnknownAppServerNameException(String appServerName, Thesaurus thesaurus) {
         super(thesaurus, MessageSeeds.APPSERVER_NAME_UNKNOWN, appServerName);
         set("appServerName", appServerName);
     }

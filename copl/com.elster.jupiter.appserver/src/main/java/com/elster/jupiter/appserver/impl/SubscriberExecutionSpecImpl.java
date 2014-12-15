@@ -23,7 +23,6 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
     private final DataModel dataModel;
     private final MessageService messageService;
 
-    @SuppressWarnings("unused")
     @Inject
 	SubscriberExecutionSpecImpl(DataModel dataModel, MessageService messageService) {
     	this.dataModel = dataModel;
