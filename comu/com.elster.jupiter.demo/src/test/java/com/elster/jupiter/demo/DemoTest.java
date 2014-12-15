@@ -1,6 +1,7 @@
 package com.elster.jupiter.demo;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -133,6 +134,7 @@ public class DemoTest {
                 new InMemoryMessagingModule(),
                 new IdsModule(),
                 new MeteringModule(),
+                new DataVaultModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
