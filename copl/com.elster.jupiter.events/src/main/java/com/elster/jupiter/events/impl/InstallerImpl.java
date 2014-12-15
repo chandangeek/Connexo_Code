@@ -14,13 +14,10 @@ import com.elster.jupiter.orm.DataModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Logger;
 
 import static com.elster.jupiter.events.EventService.JUPITER_EVENTS;
 
 public class InstallerImpl {
-
-    private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
     private static final int RETRY_DELAY = 60;
 

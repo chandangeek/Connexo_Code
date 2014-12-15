@@ -10,7 +10,8 @@ import javax.inject.Inject;
 
 public class EventPropertyTypeImpl implements EventPropertyType {
 
-    private String eventTypeTopic; // used for persistence TODO : replace with Reference to EventType
+    @SuppressWarnings("unused")
+	private String eventTypeTopic; 
     private String name;
     private ValueType valueType;
     private String accessPath;

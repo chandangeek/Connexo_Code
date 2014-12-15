@@ -12,9 +12,10 @@ import static com.elster.jupiter.orm.Table.*;
 
 public enum TableSpecs {
 
-    EVT_EVENTTYPE(EventType.class) {
+    EVT_EVENTTYPE {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+        	Table<EventType> table = dataModel.addTable(name(),EventType.class);
         	table.map(EventTypeImpl.class);
         	table.cache();
             Column topicColumn = table.column("TOPIC").varChar(NAME_LENGTH).notNull().map("topic").add();
@@ -23,13 +24,13 @@ public enum TableSpecs {
             table.column("CATEGORY").varChar(NAME_LENGTH).notNull().map("category").add();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("PUBLISH").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("publish").add();
-
             table.primaryKey("EVT_PK_EVENTTYPE").on(topicColumn).add();
         }
     },
-    EVT_EVENTPROPERTYTYPE(EventPropertyType.class) {
+    EVT_EVENTPROPERTYTYPE {
         @Override
-        void describeTable(Table table) {
+        void addTo(DataModel dataModel) {
+        	Table<EventPropertyType> table = dataModel.addTable(name(), EventPropertyType.class);
         	table.map(EventPropertyTypeImpl.class);
             Column topicColumn = table.column("TOPIC").varChar(NAME_LENGTH).notNull().map("eventTypeTopic").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
@@ -41,19 +42,8 @@ public enum TableSpecs {
             table.unique("EVT_UK_EVENTPROPERTYTYPE").on(topicColumn, positionColumn).add();
             table.foreignKey("EVT_FK_EVENTTYPE_PROPERTY").references(EVT_EVENTTYPE.name()).onDelete(DeleteRule.CASCADE).map("eventType").reverseMap("eventPropertyTypes").on(topicColumn).composition().add();
         }
-    };
-
-    private Class<?> api;
+    };   
     
-    TableSpecs(Class<?> api) {
-    	this.api = api;
-    }
-    
-    public void addTo(DataModel component) {
-        Table table = component.addTable(name(),api);
-        describeTable(table);
-    }
-
-    abstract void describeTable(Table table);
+    abstract void addTo(DataModel dataModel);
 
 }
