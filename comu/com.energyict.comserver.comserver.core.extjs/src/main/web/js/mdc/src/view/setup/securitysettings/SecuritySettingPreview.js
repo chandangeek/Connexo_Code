@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceSecurity'),
+            hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'security-settings-action-menu'

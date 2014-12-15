@@ -14,21 +14,21 @@ Ext.define('Mdc.controller.history.Setup', {
                 logbooktypes: {
                     title: 'Logbook types',
                     route: 'logbooktypes',
-                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                    privileges: ['privilege.administrate.masterData','privilege.view.masterData'],
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showLogbookTypes',
                     items: {
                         create: {
                             title: 'Add logbook type',
                             route: 'add',
-                            privileges: ['privilege.administrate.deviceConfiguration'],
+                            privileges: ['privilege.administrate.masterData'],
                             controller: 'Mdc.controller.setup.LogbookTypes',
                             action: 'showLogbookTypeCreateView'
                         },
                         edit: {
                             title: 'Edit logbook type',
                             route: '{id}/edit',
-                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                            privileges: ['privilege.administrate.masterData'],
                             controller: 'Mdc.controller.setup.LogbookTypes',
                             action: 'showLogbookTypeEditView',
                             callback: function (route) {
@@ -45,21 +45,21 @@ Ext.define('Mdc.controller.history.Setup', {
                 devicetypes: {
                     title: 'Device types',
                     route: 'devicetypes',
-                    privileges: ['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration'],
+                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showDeviceTypes',
                     items: {
                         create: {
                             title: 'Add device type',
                             route: 'add',
-                            privileges: [['privilege.administrate.deviceConfiguration'],['privilege.administrate.protocol','privilege.view.protocol']],
+                            privileges: ['privilege.administrate.deviceType'],
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeCreateView'
                         },
                         view: {
                             title: 'Overview',
                             route: '{deviceTypeId}',
-                            privileges: ['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration'],
+                            privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeDetailsView',
                             callback: function (route) {
@@ -74,19 +74,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                 edit: {
                                     title: 'Edit',
                                     route: 'edit',
-                                    privileges: [['privilege.administrate.deviceConfiguration'],['privilege.administrate.protocol','privilege.view.protocol']],
+                                    privileges: ['privilege.administrate.deviceType'],
                                     controller: 'Mdc.controller.setup.DeviceTypes',
                                     action: 'showDeviceTypeEditView'
                                 },
                                 logbooktypes: {
                                     title: 'Logbook types',
                                     route: 'logbooktypes',
+                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                     controller: 'Mdc.controller.setup.DeviceTypes',
                                     action: 'showDeviceTypeLogbookTypesView',
                                     items: {
                                         add: {
                                             title: 'Add logbook types',
                                             route: 'add',
+                                            privileges: ['privilege.administrate.deviceType'],
                                             controller: 'Mdc.controller.setup.DeviceTypes',
                                             action: 'showAddLogbookTypesView'
                                         }
@@ -95,12 +97,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                 loadprofiles: {
                                     title: 'Load profiles',
                                     route: 'loadprofiles',
+                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                     controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
                                     action: 'showDeviceTypeLoadProfileTypesView',
                                     items: {
                                         add: {
                                             title: 'Add load profiles',
                                             route: 'add',
+                                            privileges: ['privilege.administrate.deviceType'],
                                             controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
                                             action: 'showDeviceTypeLoadProfileTypesAddView'
                                         }
@@ -109,21 +113,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                 deviceconfigurations: {
                                     title: 'Device configurations',
                                     route: 'deviceconfigurations',
-                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
                                     action: 'showDeviceConfigurations',
                                     items: {
                                         create: {
                                             title: 'Add device configuration',
                                             route: 'create',
-                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                            privileges: ['privilege.administrate.deviceType'],
                                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                                             action: 'showDeviceConfigurationCreateView'
                                         },
                                         view: {
                                             title: 'Device configuration',
                                             route: '{deviceConfigurationId}',
-                                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                            privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                                             action: 'showDeviceConfigurationDetailsView',
                                             callback: function (route) {
@@ -138,28 +142,28 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 edit: {
                                                     title: 'Edit device configuration',
                                                     route: 'edit',
-                                                    privileges: ['privilege.administrate.deviceConfiguration'],
+                                                    privileges: ['privilege.administrate.deviceType'],
                                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
                                                     action: 'showDeviceConfigurationEditView'
                                                 },
                                                 loadprofiles: {
                                                     title: 'Load profiles',
                                                     route: 'loadprofiles',
-                                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.LoadProfileConfigurations',
                                                     action: 'showDeviceConfigurationLoadProfilesView',
                                                     items: {
                                                         add: {
                                                             title: 'Add load profile',
                                                             route: 'add',
-                                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurations',
                                                             action: 'showDeviceConfigurationLoadProfilesAddView'
                                                         },
                                                         edit: {
                                                             title: 'Edit load profile',
                                                             route: '{loadProfileConfigurationId}/edit',
-                                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurations',
                                                             action: 'showDeviceConfigurationLoadProfilesEditView',
                                                             callback: function (route) {
@@ -174,7 +178,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                         channels: {
                                                             title: 'Load profile',
                                                             route: '{loadProfileConfigurationId}/channels',
-                                                            privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                                            privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
                                                             action: 'showDeviceConfigurationLoadProfilesConfigurationDetailsView',
                                                             callback: function (route) {
@@ -189,14 +193,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                                 add: {
                                                                     title: 'Add channel configuration',
                                                                     route: 'add',
-                                                                    privileges: ['privilege.administrate.deviceConfiguration'],
+                                                                    privileges: ['privilege.administrate.deviceType'],
                                                                     controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
                                                                     action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsAddView'
                                                                 },
                                                                 edit: {
                                                                     title: 'Edit channel configuration',
                                                                     route: '{channelId}/edit',
-                                                                    privileges: ['privilege.administrate.deviceConfiguration'],
+                                                                    privileges: ['privilege.administrate.deviceType'],
                                                                     controller: 'Mdc.controller.setup.LoadProfileConfigurationDetails',
                                                                     action: 'showDeviceConfigurationLoadProfilesConfigurationChannelsEditView'
                                                                 }
@@ -207,21 +211,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 logbookconfigurations: {
                                                     title: 'Logbook configurations',
                                                     route: 'logbookconfigurations',
-                                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
                                                     action: 'showDeviceConfigurationLogbooksView',
                                                     items: {
                                                         add: {
                                                             title: 'Add logbook configuration',
                                                             route: 'add',
-                                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                                                             action: 'showAddDeviceConfigurationLogbooksView'
                                                         },
                                                         edit: {
                                                             title: 'Edit logbook configuration',
                                                             route: '{logbookConfigurationId}/edit',
-                                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.DeviceConfigurations',
                                                             action: 'showEditDeviceConfigurationLogbooksView'
                                                         }
@@ -231,21 +235,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 registerconfigurations: {
                                                     title: 'Register configurations',
                                                     route: 'registerconfigurations',
-                                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.RegisterConfigs',
                                                     action: 'showRegisterConfigs',
                                                     items: {
                                                         create: {
                                                             title: 'Add register configuration',
                                                             route: 'create',
-                                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.RegisterConfigs',
                                                             action: 'showRegisterConfigurationCreateView'
                                                         },
                                                         edit: {
                                                             title: 'Edit register configuration',
                                                             route: '{registerConfigurationId}/edit',
-                                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.RegisterConfigs',
                                                             action: 'showRegisterConfigurationEditView'
                                                         }
@@ -255,28 +259,28 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 securitysettings: {
                                                     title: 'Security settings',
                                                     route: 'securitysettings',
-                                                    privileges: ['privilege.administrate.deviceSecurity','privilege.view.deviceSecurity'],
+                                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.SecuritySettings',
                                                     action: 'showSecuritySettings',
                                                     items: {
                                                         create: {
                                                             title: 'Add security setting',
                                                             route: 'create',
-                                                            privileges: ['privilege.administrate.deviceSecurity'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showSecuritySettingsCreateView'
                                                         },
                                                         edit: {
                                                             title: 'Edit security setting',
                                                             route: '{securitySettingId}/edit',
-                                                            privileges: ['privilege.administrate.deviceSecurity'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showSecuritySettingsEditView'
                                                         },
                                                         executionLevels: {
                                                             title: 'Add privileges',
                                                             route: '{securitySettingId}/privileges/add',
-                                                            privileges: ['privilege.administrate.deviceSecurity'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showAddExecutionLevelsView'
                                                         }
@@ -286,21 +290,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 comtaskenablements: {
                                                     title: 'Communication task configurations',
                                                     route: 'comtaskenablements',
-                                                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
+                                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.CommunicationTasks',
                                                     action: 'showCommunicationTasks',
                                                     items: {
                                                         create: {
                                                             title: 'Add communication task configuration',
                                                             route: 'create',
-                                                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
                                                             action: 'showAddCommunicationTaskView'
                                                         },
                                                         edit: {
                                                             title: 'Edit communication task configuration',
                                                             route: '{comTaskEnablementId}/edit',
-                                                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.CommunicationTasks',
                                                             action: 'showEditCommunicationTaskView',
                                                             callback: function (route) {
@@ -318,14 +322,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 connectionmethods: {
                                                     title: 'Connection methods',
                                                     route: 'connectionmethods',
-                                                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
+                                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.ConnectionMethods',
                                                     action: 'showConnectionMethods',
                                                     items: {
                                                         addoutbound: {
                                                             title: 'Add outbound connection method',
                                                             route: 'addoutbound',
-                                                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.ConnectionMethods',
                                                             action: 'showAddConnectionMethodView',
                                                             params: {
@@ -335,7 +339,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                         addinbound: {
                                                             title: 'Add inbound connection method',
                                                             route: 'addinbound',
-                                                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.ConnectionMethods',
                                                             action: 'showAddConnectionMethodView',
                                                             params: {
@@ -345,7 +349,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                         edit: {
                                                             title: 'Edit connection method',
                                                             route: '{connectionMethodId}/edit',
-                                                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.ConnectionMethods',
                                                             action: 'showConnectionMethodEditView',
                                                             callback: function (route) {
@@ -363,14 +367,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 protocols: {
                                                     title: 'Protocol dialects',
                                                     route: 'protocols',
-                                                    privileges: ['privilege.administrate.protocol','privilege.view.protocol'],
+                                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.ProtocolDialects',
                                                     action: 'showProtocolDialectsView',
                                                     items: {
                                                         edit: {
                                                             title: 'Edit protocol dialect',
                                                             route: '{protocolDialectId}/edit',
-                                                            privileges: ['privilege.administrate.protocol'],
+                                                            privileges: ['privilege.administrate.deviceType'],
                                                             controller: 'Mdc.controller.setup.ProtocolDialects',
                                                             action: 'showProtocolDialectsEditView',
                                                             callback: function (route) {
@@ -404,7 +408,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 messages: {
                                                     title: 'Commands',
                                                     route: 'messages',
-                                                    privileges: ['privilege.administrate.deviceCommand','privilege.view.deviceCommand'],
+                                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                                     controller: 'Mdc.controller.setup.Messages',
                                                     action: 'showMessagesOverview'
                                                 }
@@ -415,14 +419,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                 registertypes: {
                                     title: 'Register types',
                                     route: 'registertypes',
-                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                    privileges: ['privilege.administrate.deviceType', 'privilege.view.deviceType'],
                                     controller: 'Mdc.controller.setup.RegisterMappings',
                                     action: 'showRegisterMappings',
                                     items: {
                                         add: {
                                             title: 'Add register types',
                                             route: 'add',
-                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                            privileges: ['privilege.administrate.deviceType'],
                                             controller: 'Mdc.controller.setup.RegisterMappings',
                                             action: 'addRegisterMappings'
                                         }
@@ -435,14 +439,14 @@ Ext.define('Mdc.controller.history.Setup', {
                 loadprofiletypes: {
                     title: 'Load profile types',
                     route: 'loadprofiletypes',
-                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                    privileges: ['privilege.administrate.masterData','privilege.view.masterData'],
                     controller: 'Mdc.controller.setup.LoadProfileTypes',
                     action: 'showLoadProfileTypes',
                     items: {
                         create: {
                             title: 'Add profile type',
                             route: 'create',
-                            privileges: ['privilege.administrate.deviceConfiguration'],
+                            privileges: ['privilege.administrate.masterData'],
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
                             action: 'showEdit',
                             items: {
@@ -457,7 +461,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         edit: {
                             title: 'Edit profile type',
                             route: '{id}/edit',
-                            privileges: ['privilege.administrate.deviceConfiguration'],
+                            privileges: ['privilege.administrate.masterData'],
                             controller: 'Mdc.controller.setup.LoadProfileTypes',
                             action: 'showEdit',
                             callback: function (route) {
@@ -482,21 +486,21 @@ Ext.define('Mdc.controller.history.Setup', {
                 comservers: {
                     title: 'Communication servers',
                     route: 'comservers',
-                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
+                    privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showComServers',
                     items: {
                         onlineadd: {
                             title: 'Add online communication server',
                             route: 'add/online',
-                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                            privileges: ['privilege.administrate.communicationAdministration'],
                             controller: 'Mdc.controller.setup.ComServerEdit',
                             action: 'showOnlineAddView'
                         },
                         edit: {
                             title: 'Edit communication server',
                             route: '{id}/edit',
-                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                            privileges: ['privilege.administrate.communicationAdministration'],
                             controller: 'Mdc.controller.setup.ComServerEdit',
                             action: 'showEditView',
                             callback: function (route) {
@@ -511,7 +515,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         detail: {
                             title: 'Overview',
                             route: '{id}',
-                            privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
+                            privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
                             controller: 'Mdc.controller.setup.ComServerOverview',
                             action: 'showOverview',
                             redirect: 'administration/comservers/detail/overview',
@@ -526,42 +530,42 @@ Ext.define('Mdc.controller.history.Setup', {
                                 overview: {
                                     title: 'Overview',
                                     route: 'overview',
-                                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
+                                    privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
                                     controller: 'Mdc.controller.setup.ComServerOverview',
                                     action: 'showOverview'
                                 },
                                 edit: {
                                     title: 'Edit',
                                     route: 'edit_',
-                                    privileges: ['privilege.administrate.communicationInfrastructure'],
+                                    privileges: ['privilege.administrate.communicationAdministration'],
                                     controller: 'Mdc.controller.setup.ComServerEdit',
                                     action: 'showEditView'
                                 },
                                 comports: {
                                     title: 'Communication ports',
                                     route: 'comports',
-                                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
+                                    privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
                                     controller: 'Mdc.controller.setup.ComServerComPortsView',
                                     action: 'showView',
                                     items: {
                                         addInbound: {
                                             title: 'Add inbound communication port',
                                             route: 'add/inbound',
-                                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                                            privileges: ['privilege.administrate.communicationAdministration'],
                                             controller: 'Mdc.controller.setup.ComServerComPortsEdit',
                                             action: 'showAddInbound'
                                         },
                                         addOutbound: {
                                             title: 'Add outbound communication port',
                                             route: 'add/outbound',
-                                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                                            privileges: ['privilege.administrate.communicationAdministration'],
                                             controller: 'Mdc.controller.setup.ComServerComPortsEdit',
                                             action: 'showAddOutbound',
                                             items: {
                                                 addComPortPool: {
                                                     title: 'Add communication port pool',
                                                     route: 'addPool',
-                                                    privileges: ['privilege.administrate.communicationInfrastructure'],
+                                                    privileges: ['privilege.administrate.communicationAdministration'],
                                                     controller: 'Mdc.controller.setup.ComServerComPortsEdit',
                                                     action: 'showAddComPortPool'
                                                 }
@@ -570,7 +574,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                         edit: {
                                             title: 'Edit communication port',
                                             route: '{direction}/{comPortId}/edit',
-                                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                                            privileges: ['privilege.administrate.communicationAdministration'],
                                             controller: 'Mdc.controller.setup.ComServerComPortsEdit',
                                             action: 'showEditView',
                                             callback: function (route) {
@@ -585,7 +589,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 addComPortPool: {
                                                     title: 'Add communication port pool',
                                                     route: 'addPool',
-                                                    privileges: ['privilege.administrate.communicationInfrastructure'],
+                                                    privileges: ['privilege.administrate.communicationAdministration'],
                                                     controller: 'Mdc.controller.setup.ComServerComPortsEdit',
                                                     action: 'showAddComPortPool'
                                                 }
@@ -600,14 +604,13 @@ Ext.define('Mdc.controller.history.Setup', {
                 devicecommunicationprotocols: {
                     title: 'Communication protocols',
                     route: 'devicecommunicationprotocols',
-                    privileges: ['privilege.administrate.protocol','privilege.view.protocol'],
-                    controller: 'Mdc.controller.setup.SetupOverview',
+                    privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],                    controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showDeviceCommunicationProtocols',
                     items: {
                         edit: {
                             title: 'Edit communication protocol',
                             route: '{id}/edit',
-                            privileges: ['privilege.administrate.protocol'],
+                            privileges: ['privilege.administrate.communicationAdministration'],
                             controller: 'Mdc.controller.setup.DeviceCommunicationProtocols',
                             action: 'showDeviceCommunicationProtocolEditView',
                             callback: function (route) {
@@ -630,28 +633,28 @@ Ext.define('Mdc.controller.history.Setup', {
                 comportpools: {
                     title: 'Communication port pools',
                     route: 'comportpools',
-                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
+                    privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
                     controller: 'Mdc.controller.setup.SetupOverview',
                     action: 'showComPortPools',
                     items: {
                         addinbound: {
                             title: Uni.I18n.translate('comPortPool.title.addInbound', 'MDC', 'Add inbound communication port pool'),
                             route: 'add/inbound',
-                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                            privileges: ['privilege.administrate.communicationAdministration'],
                             controller: 'Mdc.controller.setup.ComPortPoolEdit',
                             action: 'showInboundAddView'
                         },
                         addoutbound: {
                             title: Uni.I18n.translate('comPortPool.title.addOutbound', 'MDC', 'Add outbound communication port pool'),
                             route: 'add/outbound',
-                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                            privileges: ['privilege.administrate.communicationAdministration'],
                             controller: 'Mdc.controller.setup.ComPortPoolEdit',
                             action: 'showOutboundAddView'
                         },
                         edit: {
                             title: 'Edit communication port pool',
                             route: '{id}/edit',
-                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                            privileges: ['privilege.administrate.communicationAdministration'],
                             controller: 'Mdc.controller.setup.ComPortPoolEdit',
                             action: 'showEditView',
                             callback: function (route) {
@@ -666,7 +669,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         detail: {
                             title: 'Detail',
                             route: '{id}',
-                            privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
+                            privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
                             controller: 'Mdc.controller.setup.ComPortPoolOverview',
                             action: 'showOverview',
                             redirect: 'administration/comportpools/detail/overview',
@@ -681,28 +684,28 @@ Ext.define('Mdc.controller.history.Setup', {
                                 overview: {
                                     title: 'Overview',
                                     route: 'overview',
-                                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
+                                    privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
                                     controller: 'Mdc.controller.setup.ComPortPoolOverview',
                                     action: 'showOverview'
                                 },
                                 edit: {
                                     title: 'Edit',
                                     route: 'edit_',
-                                    privileges: ['privilege.administrate.communicationInfrastructure'],
+                                    privileges: ['privilege.administrate.communicationAdministration'],
                                     controller: 'Mdc.controller.setup.ComPortPoolEdit',
                                     action: 'showEditView'
                                 },
                                 comports: {
                                     title: 'Communication ports',
                                     route: 'comports',
-                                    privileges: ['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure'],
+                                    privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
                                     controller: 'Mdc.controller.setup.ComPortPoolComPortsView',
                                     action: 'showView',
                                     items: {
                                         add: {
                                             title: 'Add communication port',
                                             route: 'add',
-                                            privileges: ['privilege.administrate.communicationInfrastructure'],
+                                            privileges: ['privilege.administrate.communicationAdministration'],
                                             controller: 'Mdc.controller.setup.ComPortPoolComPortsView',
                                             action: 'showAddComPortView'
                                         }
@@ -715,18 +718,21 @@ Ext.define('Mdc.controller.history.Setup', {
                 registertypes: {
                     title: 'Register types',
                     route: 'registertypes',
+                    privileges: ['privilege.administrate.masterData','privilege.view.masterData'],
                     controller: 'Mdc.controller.setup.RegisterTypes',
                     action: 'showRegisterTypes',
                     items: {
                         create: {
                             title: 'Add register type',
                             route: 'add',
+                            privileges: ['privilege.administrate.masterData'],
                             controller: 'Mdc.controller.setup.RegisterTypes',
                             action: 'showRegisterTypeCreateView'
                         },
                         edit: {
                             title: 'Edit register type',
                             route: '{id}/edit',
+                            privileges: ['privilege.administrate.masterData'],
                             controller: 'Mdc.controller.setup.RegisterTypes',
                             action: 'showRegisterTypeEditView',
                             callback: function (route) {
@@ -743,18 +749,21 @@ Ext.define('Mdc.controller.history.Setup', {
                 registergroups: {
                     title: 'Register groups',
                     route: 'registergroups',
+                    privileges: ['privilege.administrate.masterData','privilege.view.masterData'],
                     controller: 'Mdc.controller.setup.RegisterGroups',
                     action: 'showRegisterGroups',
                     items: {
                         create: {
                             title: Uni.I18n.translate('registerGroup.create', 'USM', 'Add register group'),
                             route: 'add',
+                            privileges: ['privilege.administrate.masterData'],
                             controller: 'Mdc.controller.setup.RegisterGroups',
                             action: 'showRegisterGroupCreateView'
                         },
                         edit: {
                             title: Uni.I18n.translate('registerGroup.edit', 'USM', 'Edit register group'),
                             route: '{id}/edit',
+                            privileges: ['privilege.administrate.masterData'],
                             controller: 'Mdc.controller.setup.RegisterGroups',
                             action: 'showRegisterGroupEditView',
                             callback: function (route) {
@@ -771,18 +780,21 @@ Ext.define('Mdc.controller.history.Setup', {
                 communicationtasks: {
                     title: 'Communication tasks',
                     route: 'communicationtasks',
+                    privileges: ['privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
                     controller: 'Mdc.controller.setup.Comtasks',
                     action: 'showCommunicationTasksView',
                     items: {
                         create: {
                             title: 'Add communication task',
                             route: 'create',
+                            privileges: ['privilege.administrate.communicationAdministration'],
                             controller: 'Mdc.controller.setup.Comtasks',
                             action: 'showCommunicationTasksCreateEdit'
                         },
                         edit: {
                             title: 'Edit communication task',
                             route: '{id}/edit',
+                            privileges: ['privilege.administrate.communicationAdministration'],
                             controller: 'Mdc.controller.setup.Comtasks',
                             action: 'showCommunicationTasksCreateEdit',
                             callback: function (route) {
@@ -799,14 +811,14 @@ Ext.define('Mdc.controller.history.Setup', {
                 communicationschedules: {
                     title: 'Shared communication schedules',
                     route: 'communicationschedules',
-                    privileges: ['privilege.administrate.schedule','privilege.view.schedule'],
+                    privileges: ['privilege.administrate.sharedCommunicationSchedule','privilege.view.sharedCommunicationSchedule'],
                     controller: 'Mdc.controller.setup.CommunicationSchedules',
                     action: 'showCommunicationSchedules',
                     items: {
                         create: {
                             title: 'Add shared communication schedule',
                             route: 'create',
-                            privileges: ['privilege.administrate.schedule'],
+                            privileges: ['privilege.administrate.sharedCommunicationSchedule'],
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
                             action: 'showCommunicationSchedulesEditView'
                         },
@@ -814,7 +826,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: 'Edit shared communication schedule',
                             route: '{id}/edit',
                             controller: 'Mdc.controller.setup.CommunicationSchedules',
-                            privileges: ['privilege.administrate.schedule'],
+                            privileges: ['privilege.administrate.sharedCommunicationSchedule'],
                             action: 'showCommunicationSchedulesEditView',
                             callback: function (route) {
                                 this.getApplication().on('loadCommunicationSchedule', function (record) {

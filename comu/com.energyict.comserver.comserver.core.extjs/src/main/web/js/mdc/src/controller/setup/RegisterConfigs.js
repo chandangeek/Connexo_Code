@@ -176,7 +176,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             },
             {
                 property: 'deviceconfigurationid',
-                value: this.deviceConfigId
+                value: parseInt(this.deviceConfigId)
             }
         ]));
         registerTypesOfDevicetypeStore.getProxy().startParam = null;

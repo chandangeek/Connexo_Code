@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.messages.MessagesCategoriesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommand'),
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceType'),
                 menu: {
                     xtype: 'menu',
                     itemId: 'messages-categories-actionmenu',
