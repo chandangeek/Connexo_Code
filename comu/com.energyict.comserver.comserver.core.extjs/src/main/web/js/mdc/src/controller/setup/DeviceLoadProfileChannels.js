@@ -1,7 +1,8 @@
 Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Mdc.store.TimeUnits'
+        'Mdc.store.TimeUnits',
+        'Uni.util.Common'
     ],
 
     views: [
@@ -11,12 +12,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
     models: [
         'Mdc.model.Device',
         'Mdc.model.LoadProfileOfDevice',
-        'Mdc.model.ChannelOfLoadProfilesOfDevice'
+        'Mdc.model.ChannelOfLoadProfilesOfDevice',
+        'Mdc.model.filter.DeviceChannelsFilter'
     ],
 
     stores: [
         'Mdc.store.ChannelsOfLoadProfilesOfDevice',
-        'TimeUnits'
+        'TimeUnits',
+        'Mdc.store.Clipboard'
     ],
 
     refs: [
@@ -27,6 +30,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
         {
             ref: 'preview',
             selector: 'deviceLoadProfileChannelsSetup #deviceLoadProfileChannelsPreview'
+        },
+        {
+            ref: 'channelsFilterForm',
+            selector: '#device-channels-filter nested-form'
         }
     ],
 
@@ -40,52 +47,62 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
             },
             '#channelActionMenu': {
                 click: this.chooseAction
+            },
+            '#device-channels-filter button[action=applyfilter]': {
+                click: this.applyFilter
+            },
+            '#device-channels-filter button[action=clearfilter]': {
+                click: this.clearFilter
             }
         });
     },
 
-    showOverview: function (mRID, loadProfileId) {
+    showOverview: function (mRID) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
-            loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             channelsOfLoadProfilesOfDeviceStore = me.getStore('Mdc.store.ChannelsOfLoadProfilesOfDevice'),
-            timeUnitsStore = me.getStore('TimeUnits'),
+            loadProfilesStore = me.getStore('Mdc.store.LoadProfilesOfDevice'),
+            router = me.getController('Uni.controller.history.Router'),
             widget,
             showPage = function () {
-                channelsOfLoadProfilesOfDeviceStore.getProxy().setUrl({
-                    mRID: mRID,
-                    loadProfileId: loadProfileId
-                });
-                channelsOfLoadProfilesOfDeviceStore.load();
-                widget = Ext.widget('deviceLoadProfileChannelsSetup', {
-                    mRID: mRID,
-                    loadProfileId: loadProfileId,
-                    router: me.getController('Uni.controller.history.Router')
-                });
-                me.getApplication().fireEvent('changecontentevent', widget);
                 deviceModel.load(mRID, {
                     success: function (record) {
                         me.getApplication().fireEvent('loadDevice', record);
-                    }
-                });
-                loadProfileOfDeviceModel.getProxy().setUrl(mRID);
-                loadProfileOfDeviceModel.load(loadProfileId, {
-                    success: function (record) {
-                        if (!widget.isDestroyed) {
-                            me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-                            widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
-                            widget.down('#deviceLoadProfileChannelsIntervalAndLastReading').loadRecord(record);
-                        }
+                        widget = Ext.widget('deviceLoadProfileChannelsSetup', {
+                            mRID: mRID,
+                            router: router,
+                            device: record
+                        });
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        me.initFilter();
                     }
                 });
             };
+        me.getStore('Mdc.store.Clipboard').set('latest-device-channels-filter', router.queryParams.filter);
         me.mRID = mRID;
-        me.loadProfileId = loadProfileId;
-        timeUnitsStore.load({
-            callback: function () {
-                showPage();
-            }
+        loadProfilesStore.getProxy().setUrl(mRID);
+        channelsOfLoadProfilesOfDeviceStore.setFilterModel(router.filter);
+        channelsOfLoadProfilesOfDeviceStore.getProxy().setUrl(mRID);
+        Uni.util.Common.loadNecessaryStores([
+            'Mdc.store.LoadProfilesOfDevice',
+            'TimeUnits'
+        ], function () {
+            showPage();
         });
+    },
+
+    applyFilter: function () {
+        this.getChannelsFilterForm().updateRecord();
+        this.getChannelsFilterForm().getRecord().save();
+    },
+
+    clearFilter: function () {
+        this.getChannelsFilterForm().getRecord().getProxy().destroy();
+    },
+
+    initFilter: function () {
+        var router = this.getController('Uni.controller.history.Router');
+        this.getChannelsFilterForm().loadRecord(router.filter);
     },
 
     showPreview: function (selectionModel, record) {
@@ -109,19 +126,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannels', {
             filterParams = {};
 
         switch (item.action) {
-            case 'viewData':
-                route = 'devices/device/loadprofiles/loadprofile/channels/channel/tableData';
-                break;
-            case 'viewDetails':
-                filterParams.onlySuspect = false;
-                route = 'devices/device/loadprofiles/loadprofile/channels/channel';
-                break;
             case 'validateNow':
                 me.showValidateNowMessage(menu.record);
                 break;
             case 'viewSuspects':
                 filterParams.onlySuspect = true;
-                route = 'devices/device/loadprofiles/loadprofile/channels/channel/tableData';
+                route = 'devices/device/channels/channel/tableData';
                 break;
         }
 

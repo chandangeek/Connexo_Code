@@ -31,11 +31,29 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 hrefTarget: '_self'
             });
         }
+        if (this.device.get('hasLoadProfiles')) {
+            this.add({
+                text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device']),
+                itemId: 'channelsLink',
+                href: '#/devices/' + mRID + '/channels',
+                hrefTarget: '_self'
+            });
+        }
         if (this.device.get('hasLogBooks')) {
             this.add({
                 text: Uni.I18n.translate('devicemenu.logbooks', 'MDC', 'Logbooks'),
                 itemId: 'logbooksLink',
                 href: '#/devices/' + mRID + '/logbooks',
+                hrefTarget: '_self'
+            });
+        }
+        if (this.device.get('hasLogBooks')) {
+            this.add({
+                text: Uni.I18n.translate('devicemenu.events', 'MDC', 'Events'),
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration']),
+                itemId: 'events',
+                href: '#/devices/' + mRID + '/events',
                 hrefTarget: '_self'
             });
         }
@@ -107,5 +125,4 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             item.addCls(cls);
         }
     }
-
 });

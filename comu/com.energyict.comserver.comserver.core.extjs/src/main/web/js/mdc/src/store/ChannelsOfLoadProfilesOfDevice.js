@@ -1,18 +1,22 @@
 Ext.define('Mdc.store.ChannelsOfLoadProfilesOfDevice', {
-    extend: 'Ext.data.Store',
+    extend: 'Uni.data.store.Filterable',
     model: 'Mdc.model.ChannelOfLoadProfilesOfDevice',
     storeId: 'LoadProfilesOfDevice',
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/loadprofiles/{loadProfileId}/channels',
+        urlTpl: '/api/ddr/devices/{mRID}/channels',
         reader: {
             type: 'json',
             root: 'channels'
         },
+        timeout: 300000,
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
 
-        setUrl: function (params) {
-            this.url = this.urlTpl.replace('{mRID}', params.mRID).replace('{loadProfileId}', params.loadProfileId);
+        setUrl: function (mRID) {
+                this.url = this.urlTpl.replace('{mRID}', mRID)
         }
     }
 });

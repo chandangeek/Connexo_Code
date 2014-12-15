@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
     alias: 'widget.deviceLoadProfilesData',
     itemId: 'deviceLoadProfilesData',
     requires: [
-        'Mdc.view.setup.deviceloadprofiles.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofiles.TableView',
         'Mdc.view.setup.deviceloadprofiles.GraphView',
         'Mdc.view.setup.deviceloadprofiles.SideFilter'
@@ -17,7 +16,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
 
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('deviceloadprofiles.loadProfileData', 'MDC', 'Load profile data'),
             tools: [
                 {
                     xtype: 'button',
@@ -67,20 +65,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
                             xtype: 'deviceLoadProfilesGraphView'
                         }
                     ]
-                }
-            ]
-        };
-
-        me.side = {
-            xtype: 'panel',
-            ui: 'medium',
-            items: [
-                {
-                    xtype: 'deviceLoadProfilesSubMenuPanel',
-                    router: me.router
-                },
-                {
-                    xtype: 'deviceLoadProfileDataSideFilter'
                 }
             ]
         };

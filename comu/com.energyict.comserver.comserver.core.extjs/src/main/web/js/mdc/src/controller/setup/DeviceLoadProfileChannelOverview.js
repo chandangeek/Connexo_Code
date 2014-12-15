@@ -1,8 +1,12 @@
 Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
     extend: 'Ext.app.Controller',
+    requires: [
+        'Mdc.controller.setup.DeviceLoadProfileChannelData'
+    ],
 
     views: [
-        'Mdc.view.setup.deviceloadprofilechannels.Overview'
+        'Mdc.view.setup.deviceloadprofilechannels.Overview',
+        'Mdc.view.setup.deviceloadprofilechannels.TabbedDeviceChannelsView'
     ],
 
     models: [
@@ -11,45 +15,68 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
         'Mdc.model.ChannelOfLoadProfilesOfDevice'
     ],
 
-    showOverview: function (mRID, loadProfileId, channelId) {
+    showOverview: function (mRID, channelId, tabController) {
         var me = this,
-            loadProfileModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             channelModel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
-            widget = Ext.widget('deviceLoadProfileChannelOverview', {
-                router: me.getController('Uni.controller.history.Router')
+            router = me.getController('Uni.controller.history.Router'),
+            widget,
+            tabWidget,
+            defer = {
+                param: null,
+                callback: null,
+                resolve: function (arg) {
+                    arg && this.callback.apply(this, this.param)
+                },
+                setCallback: function (fn) {
+                    this.callback = fn;
+                    this.resolve(this.param)
+                },
+                setParam: function () {
+                    this.param = arguments;
+                    this.resolve(this.callback)
+                }
+            };
+
+        defer.setCallback(function (device) {
+
+            tabWidget = Ext.widget('tabbedDeviceChannelsView', {
+                router: router,
+                device: device,
+                channelsListLink: me.getController('Mdc.controller.setup.DeviceLoadProfileChannelData').makeLinkToList(router)
             });
 
-        me.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
+            widget = Ext.widget('deviceLoadProfileChannelOverview', {
+                router: me.getController('Uni.controller.history.Router'),
+                device: device
+            });
+
+            tabWidget.down('#channel-specifications').add(widget);
+            tabController.showTab(0);
+            me.getApplication().fireEvent('changecontentevent', tabWidget);
+            widget.setLoading(true);
+            channelModel.getProxy().setUrl({
+                mRID: mRID
+            });
+            channelModel.load(channelId, {
+                success: function (record) {
+                    if (!widget.isDestroyed) {
+                        me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
+                        tabWidget.down('#channelTabPanel').setTitle(record.get('name'));
+                        widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(record);
+                        widget.setLoading(false);
+                        widget.down('deviceLoadProfileChannelsActionMenu').record = record;
+                    }
+                }
+            });
+        });
+
 
         me.getModel('Mdc.model.Device').load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
+                defer.setParam(record)
             }
         });
 
-        loadProfileModel.getProxy().setUrl(mRID);
-        loadProfileModel.load(loadProfileId, {
-            success: function (record) {
-                me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-            }
-        });
-
-        channelModel.getProxy().setUrl({
-            mRID: mRID,
-            loadProfileId: loadProfileId
-        });
-        channelModel.load(channelId, {
-            success: function (record) {
-                if (!widget.isDestroyed) {
-                    me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
-                    widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(record);
-                    widget.down('#deviceLoadProfileChannelSubMenuPanel').setParams(mRID, loadProfileId, record);
-                    widget.setLoading(false);
-                    widget.down('deviceLoadProfileChannelsActionMenu').record = record;
-                    widget.down('#viewDetails').hide();
-                }
-            }
-        });
     }
 });

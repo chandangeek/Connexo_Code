@@ -18,39 +18,72 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
         'TimeUnits'
     ],
 
-    showOverview: function (mRID, loadProfileId) {
+    showOverview: function (mRID, loadProfileId, tabController) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             loadProfileOfDeviceModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             timeUnitsStore = me.getStore('TimeUnits'),
             widget,
+            tabWidget,
+            defer = {
+                param: null,
+                callback: null,
+                resolve: function (arg) {
+                    arg && this.callback.apply(this, this.param)
+                },
+                setCallback: function (fn) {
+                    this.callback = fn;
+                    this.resolve(this.param)
+                },
+                setParam: function () {
+                    this.param = arguments;
+                    this.resolve(this.callback)
+                }
+            },
             showPage = function () {
-                loadProfileOfDeviceModel.getProxy().setUrl(mRID);
-                widget = Ext.widget('deviceLoadProfilesOverview', {
-                    mRID: mRID,
-                    router: me.getController('Uni.controller.history.Router')
-                });
-                me.getApplication().fireEvent('changecontentevent', widget);
-                widget.setLoading(true);
-                deviceModel.load(mRID, {
-                    success: function (record) {
-                        me.getApplication().fireEvent('loadDevice', record);
-                    }
-                });
-                loadProfileOfDeviceModel.load(loadProfileId, {
-                    success: function (record) {
-                        if (!widget.isDestroyed) {
-                            me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-                            widget.down('#deviceLoadProfilesPreviewForm').loadRecord(record);
-                            widget.down('#deviceLoadProfilesSubMenuPanel').setParams(mRID, record);
-                            widget.down('deviceLoadProfilesActionMenu').record = record;
-                            widget.down('#viewDetails').hide();
-                            widget.setLoading(false);
+                defer.setCallback(function (device) {
+                    loadProfileOfDeviceModel.getProxy().setUrl(mRID);
+                    tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
+                        device: device,
+                        loadProfileId: loadProfileId,
+                        toggleId: 'loadProfileLink',
+                        router: me.getController('Uni.controller.history.Router')
+                    });
+                    widget = Ext.widget('deviceLoadProfilesOverview', {
+                        mRID: mRID,
+                        router: me.getController('Uni.controller.history.Router'),
+                        device: device
+                    });
+                    me.getApplication().fireEvent('changecontentevent', tabWidget);
+                    tabWidget.down('#deviceLoadProfileDataSideFilter').setVisible(false);
+                    tabWidget.down('#loadProfile-specifications').add(widget);
+                    tabController.showTab(0);
+                    widget.setLoading(true);
+
+                    loadProfileOfDeviceModel.load(loadProfileId, {
+                        success: function (record) {
+                            if (!widget.isDestroyed) {
+                                me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
+                                widget.down('#deviceLoadProfilesPreviewForm').loadRecord(record);
+                                tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
+                                widget.down('deviceLoadProfilesActionMenu').record = record;
+                                widget.setLoading(false);
+                            }
                         }
-                    }
+                    });
                 });
             };
-
-        timeUnitsStore.getCount() ? showPage() : timeUnitsStore.on('load', showPage, me, {single: true});
+        deviceModel.load(mRID, {
+            success: function (record) {
+                me.getApplication().fireEvent('loadDevice', record);
+                defer.setParam(record)
+            }
+        });
+        if (timeUnitsStore.getCount() > 0) {
+            showPage();
+        } else {
+            timeUnitsStore.on('load', showPage, me, {single: true});
+            timeUnitsStore.load();
+        }
     }
 });

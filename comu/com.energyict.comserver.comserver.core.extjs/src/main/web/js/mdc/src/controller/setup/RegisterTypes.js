@@ -249,7 +249,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                         unitOfMeasureStore.load({
                             callback: function (store) {
                                 widget.down('form').loadRecord(registerType);
-                                widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' ' + registerType.get('name') + '</h1>');
+                                widget.down('#registerTypeEditCreateTitle').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + registerType.get('name') + '\'');
                                 readingTypeStore = widget.down('#readingTypeCombo').getStore();
                                 readingTypeStore.getProxy().setExtraParam('filter', Ext.encode([
                                     {
@@ -312,7 +312,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             callback: function (store) {
                 unitOfMeasureStore.load({
                     callback: function (store) {
-                        widget.down('#registerTypeEditCreateTitle').update('<h1>' + Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Add register type') + '</h1>');
+                        widget.down('#registerTypeEditCreateTitle').setTitle(Uni.I18n.translate('registerType.createRegisterType', 'MDC', 'Add register type'));
                         widget.down('#measurementUnitComboBox').on('change', me.loadReadingTypes, me);
                         widget.down('#timeOfUseComboBox').on('change', me.loadReadingTypes, me);
                         widget.setLoading(false);

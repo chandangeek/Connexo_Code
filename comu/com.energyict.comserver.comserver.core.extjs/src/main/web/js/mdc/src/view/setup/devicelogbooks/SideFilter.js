@@ -5,7 +5,6 @@ Ext.define('Mdc.view.setup.devicelogbooks.SideFilter', {
         'Ext.form.field.Date'
     ],
     alias: 'widget.deviceLogbookDataSideFilter',
-    itemId: 'deviceLogbookDataSideFilter',
     ui: 'medium',
     width: 250,
     items: {

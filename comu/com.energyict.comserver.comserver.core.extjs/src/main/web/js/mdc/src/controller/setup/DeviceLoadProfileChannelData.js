@@ -15,7 +15,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
     stores: [
         'Mdc.store.ChannelOfLoadProfileOfDeviceData',
         'Mdc.store.DataIntervalAndZoomLevels',
-        'Mdc.store.LoadProfileDataDurations'
+        'Mdc.store.LoadProfileDataDurations',
+        'Mdc.store.Clipboard'
     ],
 
     refs: [
@@ -34,11 +35,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         {ref: 'deviceLoadProfileChannelDataPreview', selector: '#deviceLoadProfileChannelDataPreview'},
         {
             ref: 'sideFilter',
-            selector: 'deviceLoadProfileChannelData #deviceLoadProfileChannelDataSideFilter'
+            selector: '#deviceLoadProfileChannelDataSideFilter'
         },
         {
             ref: 'sideFilterForm',
-            selector: 'deviceLoadProfileChannelData #deviceLoadProfileChannelDataFilterForm'
+            selector: '#deviceLoadProfileChannelDataFilterForm'
         },
         {
             ref: 'filterPanel',
@@ -59,10 +60,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             'deviceLoadProfileChannelData #deviceLoadProfileChannelDataGrid': {
                 select: this.showPreview
             },
-            'deviceLoadProfileChannelData #deviceLoadProfileDataFilterApplyBtn': {
+            '#deviceLoadProfileDataFilterApplyBtn': {
                 click: this.applyFilter
             },
-            'deviceLoadProfileChannelData #deviceLoadProfileDataFilterResetBtn': {
+            '#deviceLoadProfileDataFilterResetBtn': {
                 click: this.clearFilter
             },
             'deviceLoadProfileChannelData #deviceLoadProfileChannelGraphView': {
@@ -75,101 +76,123 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         });
     },
 
-    showTableOverview: function (mRID, loadProfileId, channelId) {
-        this.showOverview(mRID, loadProfileId, channelId, true);
+    showTableOverview: function (mRID, channelId, tabController) {
+        this.showOverview(mRID, channelId, true, tabController);
     },
 
-    showGraphOverview: function (mRID, loadProfileId, channelId) {
-        this.showOverview(mRID, loadProfileId, channelId, false);
+    showGraphOverview: function (mRID, channelId, tabController) {
+        this.showOverview(mRID, channelId, false, tabController);
     },
 
-    showOverview: function (mRID, loadProfileId, channelId, isTable) {
+    showOverview: function (mRID, channelId, isTable, tabController) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             models = {
                 device: me.getModel('Mdc.model.Device'),
-                loadProfile: me.getModel('Mdc.model.LoadProfileOfDevice'),
                 channel: me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice')
             },
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
             router = me.getController('Uni.controller.history.Router'),
-            widget;
+            widget,
+            tabWidget,
+            defer = {
+                param: null,
+                callback: null,
+                resolve: function (arg) {
+                    arg && this.callback.apply(this, this.param)
+                },
+                setCallback: function (fn) {
+                    this.callback = fn;
+                    this.resolve(this.param)
+                },
+                setParam: function () {
+                    this.param = arguments;
+                    this.resolve(this.callback)
+                }
+            };
 
         dataStore.removeAll(true);
 
         viewport.setLoading();
         dataStore.getProxy().setUrl({
             mRID: mRID,
-            loadProfileId: loadProfileId,
             channelId: channelId
         });
 
         models.device.load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
-            }
-        });
-
-        models.loadProfile.getProxy().setUrl(mRID);
-        models.loadProfile.load(loadProfileId, {
-            success: function (record) {
-                me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
+                defer.setParam(record)
             }
         });
 
         models.channel.getProxy().setUrl({
-            mRID: mRID,
-            loadProfileId: loadProfileId
+            mRID: mRID
         });
 
         models.channel.load(channelId, {
             success: function (record) {
-                var dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
-                    durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
-                    viewOnlySuspects;
-                durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
-                widget = Ext.widget('deviceLoadProfileChannelData', {
-                    router: me.getController('Uni.controller.history.Router'),
-                    channel: record
-                });
-                me.channelModel = record;
-                me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
-                if (isTable) {
-                    widget.down('#deviceLoadProfileChannelSubMenuPanel #channelOfLoadProfileOfDeviceDataLink').hide();
-                    widget.down('#deviceLoadProfileChannelSubMenuPanel #channelOfLoadProfileOfDeviceDataTableLink').show();
-                } else {
-                    widget.down('#deviceLoadProfileChannelSubMenuPanel #channelOfLoadProfileOfDeviceDataTableLink').hide();
-                    widget.down('#deviceLoadProfileChannelSubMenuPanel #channelOfLoadProfileOfDeviceDataLink').show();
-                }
-                widget.down('#deviceLoadProfileChannelSubMenuPanel').setParams(mRID, loadProfileId, record);
-                me.getApplication().fireEvent('changecontentevent', widget);
-                viewport.setLoading(false);
-                Ext.getBody().mask( 'Loading...' );
-                widget.setLoading();
-                widget.down('#deviceLoadProfileChannelGraphViewBtn').setDisabled(!isTable);
-                widget.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(isTable);
-                widget.down('#deviceLoadProfileChannelTableView').setVisible(isTable);
-                dataStore.on('load', function () {
-                    if (!widget.isDestroyed) {
-                        if (!isTable) {
-                            me.showGraphView(record);
+                defer.setCallback(function (device) {
+                    var dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
+                        durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
+                        viewOnlySuspects;
+                    durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
+                    tabWidget = Ext.widget('tabbedDeviceChannelsView', {
+                        router: router,
+                        device: device,
+                        channelsListLink: me.makeLinkToList(router)
+                    });
+
+                    widget = Ext.widget('deviceLoadProfileChannelData', {
+                        router: me.getController('Uni.controller.history.Router'),
+                        channel: record,
+                        device: device,
+                        mRID: device.get('mRID')
+                    });
+                    me.channelModel = record;
+
+                    tabWidget.down('#channel-data').add(widget);
+                    tabWidget.down('#deviceLoadProfileChannelDataSideFilter').setVisible(true);
+                    me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
+                    me.getApplication().fireEvent('changecontentevent', tabWidget);
+                    tabController.showTab(1);
+                    tabWidget.down('#channelTabPanel').setTitle(record.get('name'));
+                    viewport.setLoading(false);
+                    Ext.getBody().mask('Loading...');
+                    widget.setLoading();
+                    widget.down('#deviceLoadProfileChannelGraphViewBtn').setDisabled(!isTable);
+                    widget.down('#deviceLoadProfileChannelTableViewBtn').setDisabled(isTable);
+                    widget.down('#deviceLoadProfileChannelTableView').setVisible(isTable);
+                    dataStore.on('load', function () {
+                        if (!widget.isDestroyed) {
+                            if (!isTable) {
+                                me.showGraphView(record);
+                            }
+                            widget.down('#deviceLoadProfileChannelGraphView').setVisible(!isTable);
+                            widget.setLoading(false);
+                            Ext.getBody().unmask();
                         }
-                        widget.down('#deviceLoadProfileChannelGraphView').setVisible(!isTable);
-                        widget.setLoading(false);
-                        Ext.getBody().unmask();
+                    }, me);
+                    if (Ext.isEmpty(router.filter.data.intervalStart)) {
+                        viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
+                        me.setDefaults(dataIntervalAndZoomLevels, viewOnlySuspects);
+                        delete router.queryParams.onlySuspect;
                     }
-                }, me);
-                if (Ext.isEmpty(router.filter.data.intervalStart)) {
-                    viewOnlySuspects = (router.queryParams.onlySuspect === 'true');
-                    me.setDefaults(dataIntervalAndZoomLevels, viewOnlySuspects);
-                    delete router.queryParams.onlySuspect;
-                }
-                dataStore.setFilterModel(router.filter);
-                me.getSideFilterForm().loadRecord(router.filter);
-                me.setFilterView();
-                dataStore.load();
+                    dataStore.setFilterModel(router.filter);
+                    me.getSideFilterForm().loadRecord(router.filter);
+                    me.setFilterView();
+                    dataStore.load();
+                });
             }
         });
+    },
+
+    makeLinkToList: function (router) {
+        var link = '<a href="{0}">' + Uni.I18n.translate('deviceloadprofiles.channels', 'MDC', 'Channels').toLowerCase() + '</a>',
+            filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter'),
+            queryParams = filter ? {filter: filter} : null;
+
+        return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl(null, queryParams));
     },
 
     showGraphView: function (channelRecord) {
@@ -246,9 +269,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
             showTable = button.action === 'showTableView';
 
         if (showTable) {
-            router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/tableData').forward(router.arguments, router.queryParams);
+            router.getRoute('devices/device/channels/channel/tableData').forward(router.arguments, router.queryParams);
         } else {
-            router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/data').forward(router.arguments, router.queryParams);
+            router.getRoute('devices/device/channels/channel/data').forward(router.arguments, router.queryParams);
         }
 
     },
@@ -301,7 +324,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
         router.filter.set('duration', all.count + all.timeUnit);
         router.filter.set('onlySuspect', viewOnlySuspects);
         router.filter.set('onlyNonSuspect', false);
-        me.getPage().down('#suspect').setValue(viewOnlySuspects);
+        me.getSideFilter().down('#suspect').setValue(viewOnlySuspects);
     },
 
     setFilterView: function () {

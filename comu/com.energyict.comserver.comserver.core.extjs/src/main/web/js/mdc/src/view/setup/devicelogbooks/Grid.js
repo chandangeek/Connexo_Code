@@ -1,11 +1,9 @@
 Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceLogbooksGrid',
-    itemId: 'deviceLogbooksGrid',
     store: 'Mdc.store.LogbooksOfDevice',
     router: null,
-    forceFit: true,
-    autoScroll: false,
+    overflowY: 'auto',
     requires: [
         'Uni.grid.column.Action',
         'Uni.grid.column.Obis',

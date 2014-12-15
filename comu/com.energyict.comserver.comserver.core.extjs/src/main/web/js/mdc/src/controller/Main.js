@@ -39,7 +39,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceLoadProfileData',
         'Mdc.controller.setup.DeviceLoadProfileOverview',
         'Mdc.controller.setup.DeviceLoadProfiles',
-        'Mdc.controller.setup.DeviceLogbookData',
+        'Mdc.controller.setup.DeviceEvents',
         'Mdc.controller.setup.DeviceLogbookOverview',
         'Mdc.controller.setup.DeviceLogbooks',
         'Mdc.controller.setup.DeviceProtocolDialects',
@@ -77,7 +77,11 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.Messages',
         'Mdc.controller.setup.DeviceCommunicationTaskHistory',
         'Mdc.controller.setup.DeviceConnectionHistory',
-        'Mdc.controller.setup.AddDeviceGroupAction'
+        'Mdc.controller.setup.AddDeviceGroupAction',
+        'Mdc.controller.setup.DeviceRegisterTab',
+        'Mdc.controller.setup.DeviceLogBookTab',
+        'Mdc.controller.setup.DeviceLoadProfileTab',
+        'Mdc.controller.setup.DeviceChannelTab'
     ],
 
     refs: [

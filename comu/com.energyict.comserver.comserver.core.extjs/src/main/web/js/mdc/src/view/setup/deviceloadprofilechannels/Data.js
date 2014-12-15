@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
     alias: 'widget.deviceLoadProfileChannelData',
     itemId: 'deviceLoadProfileChannelData',
     requires: [
-        'Mdc.view.setup.deviceloadprofilechannels.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofilechannels.TableView',
         'Mdc.view.setup.deviceloadprofilechannels.GraphView',
         'Mdc.view.setup.deviceloadprofilechannels.SideFilter',
@@ -17,7 +16,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
         var me = this;
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('deviceloadprofiles.channels.channelData', 'MDC', 'Channel data'),
             tools: [
                 {
                     xtype: 'button',
@@ -57,20 +55,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Data', {
                             xtype: 'deviceLoadProfileChannelGraphView'
                         }
                     ]
-                }
-            ]
-        };
-
-        me.side = {
-            xtype: 'panel',
-            ui: 'medium',
-            items: [
-                {
-                    xtype: 'deviceLoadProfileChannelSubMenuPanel',
-                    router: me.router
-                },
-                {
-                    xtype: 'deviceLoadProfileChannelDataSideFilter'
                 }
             ]
         };

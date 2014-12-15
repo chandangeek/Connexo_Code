@@ -231,7 +231,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                         connectionStrategiesStore.load({
                             callback: function () {
                                 var title = direction === 'Outbound' ? Uni.I18n.translate('deviceconnectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method') : Uni.I18n.translate('deviceconnectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
-                                widget.down('#deviceConnectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
+                                widget.down('#deviceConnectionMethodEditAddTitle').setTitle(title);
                                 widget.setLoading(false);
                             }
                         });
@@ -504,7 +504,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                         connectionStrategiesStore.load({
                                             callback: function () {
                                                 var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + connectionMethod.get('name') + '\'';
-                                                widget.down('#deviceConnectionMethodEditAddTitle').update('<h1>' + title + '</h1>');
+                                                widget.down('#deviceConnectionMethodEditAddTitle').setTitle(title);
                                                 me.getDeviceConnectionMethodEditView().down('#communicationPortPoolComboBox').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#connectionStrategyComboBox').setDisabled(false);

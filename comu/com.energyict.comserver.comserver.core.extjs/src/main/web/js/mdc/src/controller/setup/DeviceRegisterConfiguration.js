@@ -12,7 +12,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         'setup.deviceregisterconfiguration.billing.Detail',
         'setup.deviceregisterconfiguration.Setup',
         'setup.deviceregisterconfiguration.Grid',
-        'setup.deviceregisterconfiguration.ValidationPreview'
+        'setup.deviceregisterconfiguration.ValidationPreview',
+        'setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
     ],
 
     stores: [
@@ -22,7 +23,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     refs: [
         {ref: 'deviceRegisterConfigurationGrid', selector: '#deviceRegisterConfigurationGrid'},
         {ref: 'deviceRegisterConfigurationSetup', selector: '#deviceRegisterConfigurationSetup'},
-        {ref: 'deviceRegisterConfigurationPreview', selector: '#deviceRegisterConfigurationPreview'}
+        {ref: 'deviceRegisterConfigurationPreview', selector: '#deviceRegisterConfigurationPreview'},
+        {ref: 'stepsMenu', selector: '#stepsMenu'}
     ],
 
     init: function () {
@@ -111,7 +113,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         widget.down('#deviceRegisterConfigurationActionMenu').record = record;
     },
 
-    showDeviceRegisterConfigurationDetailsView: function (mRID, registerId) {
+    showDeviceRegisterConfigurationDetailsView: function (mRID, registerId, tabController) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
         contentPanel.setLoading(true);
@@ -123,19 +125,25 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type');
-                        var widget = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID: mRID, registerId: registerId, router: me.getController('Uni.controller.history.Router')});
+                        var widget = Ext.widget('tabbedDeviceRegisterView',{device: device, router: me.getController('Uni.controller.history.Router')});
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        var form = widget.down('#deviceRegisterConfigurationDetailForm');
+                        widget.down('#registerTabPanel').setTitle(register.get('name'));
+                        var config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID: mRID, registerId: registerId, router: me.getController('Uni.controller.history.Router')});
+                        var form = config.down('#deviceRegisterConfigurationDetailForm');
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         form.loadRecord(register);
-                        widget.down('#stepsMenu').setTitle(register.get('name'));
                         if (!register.data.detailedValidationInfo.validationActive) {
-                            widget.down('#validateNowRegister').hide();
+                            config.down('#validateNowRegister').hide();
                         }
-                        widget.down('#deviceRegisterConfigurationActionMenu').record = register;
+                        config.down('#deviceRegisterConfigurationActionMenu').record = register;
+
+                        widget.down('#register-specifications').add(config);
+
+
                     },
                     callback: function () {
                         contentPanel.setLoading(false);
+                        tabController.showTab(0);
                     }
                 });
             }

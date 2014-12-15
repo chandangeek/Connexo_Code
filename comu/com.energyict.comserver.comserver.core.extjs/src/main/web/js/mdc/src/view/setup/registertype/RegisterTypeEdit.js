@@ -34,19 +34,15 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
     initComponent: function () {
         this.content = [
             {
-                xtype: 'container',
+                xtype: 'panel',
+                ui: 'large',
+                itemId: 'registerTypeEditCreateTitle',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
 
                 items: [
-                    {
-                        xtype: 'component',
-                        html: '',
-                        itemId: 'registerTypeEditCreateTitle'
-                    },
-
                     {
                         xtype: 'component',
                         html: '',

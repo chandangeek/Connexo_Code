@@ -7,9 +7,8 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
         'Uni.form.field.ReadingTypeDisplay',
         'Mdc.view.setup.deviceloadprofilechannels.ValidationOverview'
     ],
-
+    device: null,
     router: null,
-
     initComponent: function () {
         var me = this;
 
@@ -33,6 +32,15 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
                             showTimeAttribute: false
                         },
                         {
+                            name: 'interval',
+                            fieldLabel: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval'),
+                            renderer: function (value) {
+                                var res = '';
+                                value ? res = '{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit) : null;
+                                return res
+                            }
+                        },
+                        {
                             xtype: 'obis-displayfield',
                             name: 'obisCode'
                         },
@@ -47,12 +55,33 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
                         {
                             fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC', 'Number of fraction digits'),
                             name: 'nbrOfFractionDigits'
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.loadProfile', 'MDC', 'Load profile'),
+                            name: 'loadProfileId',
+                            renderer: function (value) {
+                                var res = '',
+                                    device;
+                                if (value instanceof Mdc.model.LoadProfileOfDevice) {
+                                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofile/data').buildUrl({mRID: me.mRID, loadProfileId: value.get('id')});
+                                    res = '<a href="' + url + '">' + value.get('name') + '</a>';
+                                } else if (Ext.isNumber(value)) {
+                                    var loadProfile = Mdc.model.LoadProfileOfDevice;
+                                    loadProfile.getProxy().setUrl(me.device.get('mRID'));
+                                    loadProfile.load(value, {
+                                        success: function (record) {
+                                            me.down('[name=loadProfileId]').setValue(record)
+                                        }
+                                    })
+                                }
+                                return res
+                            }
+                        },
+                        {
+                            xtype: 'deviceloadprofilechannelsoverview-validation',
+                            router: me.router
                         }
                     ]
-                },
-                {
-                    xtype: 'deviceloadprofilechannelsoverview-validation',
-                    router: me.router
                 }
             ]
         };

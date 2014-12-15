@@ -30,7 +30,10 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
 
         me.content = [
             {
-                xtype: 'container',
+                xtype: 'panel',
+                ui: 'large',
+                title: 'test',
+                itemId: 'deviceCommunicationProtocolEditCreateTitle',
                 overflowY: true,
                 layout: {
                     type: 'vbox',
@@ -38,11 +41,11 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                 },
 
                 items: [
-                    {
-                        xtype: 'component',
-                        html: '',
-                        itemId: 'deviceCommunicationProtocolEditCreateTitle'
-                    },
+//                    {
+//                        xtype: 'component',
+//                        html: '',
+//
+//                    },
                     {
                         xtype: 'container',
                         items: [

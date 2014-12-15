@@ -15,18 +15,15 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeEdit', {
     initComponent: function () {
         this.content = [
             {
-                xtype: 'container',
+                xtype: 'panel',
+                ui: 'large',
+                itemId: 'logbookTypeEditCreateTitle',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
 
                 items: [
-                    {
-                        xtype: 'component',
-                        html: '',
-                        itemId: 'logbookTypeEditCreateTitle'
-                    },
                     {
                         xtype: 'component',
                         html: '',

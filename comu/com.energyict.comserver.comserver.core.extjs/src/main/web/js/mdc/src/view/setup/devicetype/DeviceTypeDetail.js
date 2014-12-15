@@ -19,7 +19,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
 
             items: [
                 {
-                    xtype: 'container',
+                    xtype: 'panel',
+                    ui: 'large',
                     layout: {
                         type: 'hbox',
                         align: 'stretch'
@@ -27,11 +28,12 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                     defaults: {
                         xtype: 'container'
                     },
+                    title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                     items: [
-                        {
-                            html: '<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>',
-                            itemId: 'deviceTypePreviewTitle'
-                        },
+//                        {
+//                            html: '<h1>' + Uni.I18n.translate('general.overview', 'MDC', 'Overview') + '</h1>',
+//                            itemId: 'deviceTypePreviewTitle'
+//                        },
                         {
                             flex: 1
                         },

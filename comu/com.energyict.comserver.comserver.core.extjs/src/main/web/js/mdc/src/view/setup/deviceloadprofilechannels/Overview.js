@@ -4,13 +4,12 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
     itemId: 'deviceLoadProfileChannelOverview',
 
     requires: [
-        'Mdc.view.setup.deviceloadprofilechannels.SubMenuPanel',
         'Mdc.view.setup.deviceloadprofilechannels.ValidationOverview',
         'Mdc.view.setup.deviceloadprofilechannels.ActionMenu'
     ],
 
     router: null,
-
+    device: null,
     initComponent: function () {
         var me = this;
 
@@ -21,7 +20,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
                 items: [
                     {
                         ui: 'large',
-                        title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                         flex: 1,
                         items:  {
                             xtype: 'form',
@@ -115,11 +113,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
                 ]
             }
         ];
-
-        me.side = {
-            xtype: 'deviceLoadProfileChannelSubMenuPanel',
-            router: me.router
-        };
 
         me.callParent(arguments);
     }
