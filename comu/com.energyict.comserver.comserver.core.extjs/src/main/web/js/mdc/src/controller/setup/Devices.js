@@ -69,10 +69,16 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getApplication().fireEvent('loadDevice', device);
 
                 var widget = Ext.widget('deviceSetup', {router: router, device: device});
-                var devicesStore = device.labels();
-                devicesStore.getProxy().setUrl(mRID);
-                devicesStore.load(function() {
-                    widget.renderFlag(devicesStore);
+                var deviceLabelsStore = device.labels();
+                deviceLabelsStore.getProxy().setUrl(mRID);
+                deviceLabelsStore.load(function() {
+                    widget.renderFlag(deviceLabelsStore);
+                });
+
+                var deviceConnectionsStore = device.connections();
+                deviceConnectionsStore.getProxy().setUrl(mRID);
+                deviceConnectionsStore.load(function() {
+                    widget.down('device-connections-list').reconfigure(deviceConnectionsStore);
                 });
 
                 me.getApplication().fireEvent('changecontentevent', widget);
