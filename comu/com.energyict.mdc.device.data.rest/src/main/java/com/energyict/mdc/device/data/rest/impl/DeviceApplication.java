@@ -33,6 +33,7 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -123,7 +124,9 @@ public class DeviceApplication extends Application implements InstallService {
                 ConnectionMethodResource.class,
                 ComSessionResource.class,
                 DeviceMessageResource.class,
-                DeviceLabelResource.class
+                DeviceLabelResource.class,
+                ConnectionResource.class,
+                CommunicationResource.class
         );
     }
 
@@ -341,6 +344,8 @@ public class DeviceApplication extends Application implements InstallService {
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(favoritesService).to(FavoritesService.class);
             bind(topologyService).to(TopologyService.class);
+            bind(DeviceConnectionTaskInfoFactory.class).to(DeviceConnectionTaskInfoFactory.class);
+            bind(DeviceComTaskExecutionInfoFactory.class).to(DeviceComTaskExecutionInfoFactory.class);
         }
     }
 
