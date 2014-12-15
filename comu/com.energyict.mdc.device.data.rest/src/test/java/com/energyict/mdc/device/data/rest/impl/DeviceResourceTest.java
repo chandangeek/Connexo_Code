@@ -173,6 +173,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         }
 
         @Override
+        public Optional<ReadingType> getCalculatedReadingType() {
+            return Optional.empty();
+        }
+
+        @Override
         public boolean isRegular() {
             return false;
         }
