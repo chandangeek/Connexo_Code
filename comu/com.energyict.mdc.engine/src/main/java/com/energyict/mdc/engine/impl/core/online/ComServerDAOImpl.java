@@ -59,6 +59,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import com.elster.jupiter.events.EventService;
@@ -252,6 +253,9 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public OfflineDevice findDevice(DeviceIdentifier<?> identifier) {
+//        if(identifier.getDeviceIdentifierType().equals(DeviceIdentifierType.CallHomeId)){
+//            identifier.getIdentifier()
+//        }
         BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = identifier.findDevice();
         if (device != null) {
             return new OfflineDeviceImpl((Device) device, DeviceOffline.needsEverything, new OfflineDeviceServiceProvider());
