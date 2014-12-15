@@ -1,10 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,8 +16,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.util.Currency;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -98,5 +101,36 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     	assertThat(ReadingTypeImpl.getCurrency(0, thesaurus)).isEqualTo(Currency.getInstance("XXX"));
     	assertThat(ReadingTypeImpl.getCurrency(999, thesaurus)).isEqualTo(Currency.getInstance("XXX"));
     	assertThat(ReadingTypeImpl.getCurrency(978, thesaurus)).isEqualTo(Currency.getInstance("EUR"));
+    }
+
+    @Test
+    public void testSelfIsBulkQuantityReadingType(){
+        ReadingTypeImpl bulkReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, ALIAS);
+        assertThat(bulkReadingType.isCumulative()).isTrue();
+    }
+
+    @Test
+    public void testSelfIsNotBulkQuantityReadingType(){
+        ReadingTypeImpl bulkReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID, ALIAS);
+        assertThat(bulkReadingType.isCumulative()).isFalse();
+    }
+
+    @Test
+    public void testUnexistingCalculatedReadingType(){
+        ReadingTypeImpl bulkReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID, ALIAS);
+        assertThat(bulkReadingType.getCalculatedReadingType().isPresent()).isFalse();
+    }
+
+    @Test
+    public void testCalculatedReadingType(){
+        String expectedDeltaReadingTypeCode = "0.0.7.4.0.8.2.9.16.9.110.0.0.0.0.0.0.0";
+        ReadingTypeImpl bulkReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, ALIAS);
+        ReadingType calcReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(expectedDeltaReadingTypeCode, "Calculated");
+        DataMapper<ReadingType> mapper = mock(DataMapper.class);
+        when(dataModel.mapper(ReadingType.class)).thenReturn(mapper);
+        when(mapper.getOptional(expectedDeltaReadingTypeCode)).thenReturn(Optional.of(calcReadingType));
+        Optional<ReadingType> calculatedReadingType = bulkReadingType.getCalculatedReadingType();
+        assertThat(calculatedReadingType.isPresent()).isTrue();
+        assertThat(calculatedReadingType.get().getMRID()).isEqualTo(expectedDeltaReadingTypeCode);
     }
 }

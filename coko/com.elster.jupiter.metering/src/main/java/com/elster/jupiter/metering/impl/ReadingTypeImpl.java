@@ -307,8 +307,18 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     public boolean isRegular() {
     	return getIntervalLength().isPresent();
     }
-    
-    @Override
+
+	@Override
+	public Optional<ReadingType> getCalculatedReadingType() {
+		if (isCumulative()){
+			ReadingTypeCodeBuilder builder = this.builder();
+			builder.accumulate(Accumulation.DELTADELTA);
+			return dataModel.mapper(ReadingType.class).getOptional(builder.code());
+		}
+		return Optional.empty();
+	}
+
+	@Override
 	public boolean isBulkQuantityReadingType(ReadingType readingType) {
 		ReadingTypeImpl other = (ReadingTypeImpl) readingType;
 		return 
@@ -415,7 +425,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     public Currency getCurrency() {
 		return currency;
 	}
-    
+
     static TimeAttribute extractTimeAttribute(String mRID) {
 		String[] parts = mRID.split("\\.");
 		if (parts.length != MRID_FIELD_COUNT) {

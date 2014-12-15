@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import java.util.Currency;
+import java.util.Optional;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
@@ -32,8 +33,9 @@ public interface ReadingType extends IdentifiedObject {
 	MetricMultiplier getMultiplier();
 	ReadingTypeUnit getUnit();
 	Currency getCurrency();
-	
+
 	boolean isBulkQuantityReadingType(ReadingType readingType);
+	Optional<ReadingType> getCalculatedReadingType();
 	boolean isRegular();
 	default boolean isCumulative() {
 		return getAccumulation().isCumulative();
