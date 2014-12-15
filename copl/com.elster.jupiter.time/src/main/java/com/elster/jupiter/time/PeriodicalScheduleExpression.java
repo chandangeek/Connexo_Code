@@ -10,6 +10,7 @@ import java.time.temporal.IsoFields;
 import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -273,8 +274,10 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         }
     }
 
-    enum Period {
-        YEAR(ChronoField.YEAR), MONTH(ChronoField.MONTH_OF_YEAR), WEEK(IsoFields.WEEK_OF_WEEK_BASED_YEAR) {
+    public enum Period {
+        YEAR(ChronoField.YEAR, "years"),
+        MONTH(ChronoField.MONTH_OF_YEAR, "months"),
+        WEEK(IsoFields.WEEK_OF_WEEK_BASED_YEAR, "weeks") {
             public ZonedDateTime truncate(ZonedDateTime time) {
                 ZonedDateTime result = time;
                 for (Period period : values()) {
@@ -286,15 +289,20 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
                         .with(ChronoField.SECOND_OF_MINUTE, 0)
                         .with(ChronoField.MILLI_OF_SECOND, 0);
             }
-        }, DAY(ChronoField.DAY_OF_MONTH), HOUR(ChronoField.HOUR_OF_DAY), MINUTE(ChronoField.MINUTE_OF_HOUR);
+        },
+        DAY(ChronoField.DAY_OF_MONTH, "days"),
+        HOUR(ChronoField.HOUR_OF_DAY, "hours"),
+        MINUTE(ChronoField.MINUTE_OF_HOUR, "seconds");
 
         private final TemporalField temporalField;
+        private final String identifier;
 
-        Period(TemporalField temporalField) {
+        Period(TemporalField temporalField, String identifier) {
             this.temporalField = temporalField;
+            this.identifier = identifier;
         }
 
-        public ZonedDateTime truncate(ZonedDateTime time) {
+        ZonedDateTime truncate(ZonedDateTime time) {
             ZonedDateTime result = time;
             for (Period period : values()) {
                 if (period.compareTo(this) > 0 && period != WEEK) {
@@ -304,6 +312,15 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             return result.with(ChronoField.SECOND_OF_MINUTE, 0).with(ChronoField.MILLI_OF_SECOND, 0);
         }
 
+        public String getIdentifier() {
+            return identifier;
+        }
+
+        public static Optional<Period> of(String identifier) {
+            return Arrays.stream(values())
+                    .filter(e -> e.identifier.equals(identifier))
+                    .findFirst();
+        }
     }
 
     private interface DayOfMonth {
@@ -409,7 +426,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         }
 
         public class HourlyBuilder {
-            Builder at(int minute, int seconds) {
+            public Builder at(int minute, int seconds) {
                 build.offset = new Hourly(Period.HOUR, minute, seconds);
                 return Builder.this;
             }
@@ -420,7 +437,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         }
 
         public class DailyBuilder {
-            Builder at(int hour, int minute, int seconds) {
+            public Builder at(int hour, int minute, int seconds) {
                 build.offset = new Daily(Period.DAY, hour, minute, seconds);
                 return Builder.this;
             }
@@ -431,7 +448,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         }
 
         public class WeeklyBuilder {
-            Builder at(DayOfWeek dayOfWeek, int hour, int minute, int seconds) {
+            public Builder at(DayOfWeek dayOfWeek, int hour, int minute, int seconds) {
                 build.offset = new Weekly(Period.WEEK, dayOfWeek, hour, minute, seconds);
                 return Builder.this;
             }
@@ -442,12 +459,12 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         }
 
         public class MonthlyBuilder {
-            Builder at(int dayOfMonth, int hour, int minute, int seconds) {
+            public Builder at(int dayOfMonth, int hour, int minute, int seconds) {
                 build.offset = new Monthly(Period.MONTH, new NthDayOfMonth(dayOfMonth), hour, minute, seconds);
                 return Builder.this;
             }
 
-            Builder atLastDayOfMonth(int hour, int minute, int seconds) {
+            public Builder atLastDayOfMonth(int hour, int minute, int seconds) {
                 build.offset = new Monthly(Period.MONTH, LastDayOfMonth.LAST, hour, minute, seconds);
                 return Builder.this;
             }
@@ -458,12 +475,12 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
         }
 
         public class YearlyBuilder {
-            Builder at(int monthOfYear, int dayOfMonth, int hour, int minute, int seconds) {
+            public Builder at(int monthOfYear, int dayOfMonth, int hour, int minute, int seconds) {
                 build.offset = new Yearly(Period.YEAR, monthOfYear, new NthDayOfMonth(dayOfMonth), hour, minute, seconds);
                 return Builder.this;
             }
 
-            Builder atLastDayOfMonth(int monthOfYear, int hour, int minute, int seconds) {
+            public Builder atLastDayOfMonth(int monthOfYear, int hour, int minute, int seconds) {
                 build.offset = new Yearly(Period.YEAR, monthOfYear, LastDayOfMonth.LAST, hour, minute, seconds);
                 return Builder.this;
             }

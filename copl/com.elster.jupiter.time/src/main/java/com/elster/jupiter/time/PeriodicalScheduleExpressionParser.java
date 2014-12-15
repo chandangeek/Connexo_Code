@@ -45,6 +45,39 @@ public enum PeriodicalScheduleExpressionParser implements ScheduleExpressionPars
     }
 
     private PeriodicalScheduleExpression doParse(Matcher matcher) {
+        RawParseData data = doParseRaw(matcher);
+        if (data == null) {
+            return null;
+        }
+
+        switch (data.period) {
+            case YEAR:
+                return data.last ? every(data.count).years().atLastDayOfMonth(data.months, data.hours, data.minutes, data.seconds).build()
+                        : every(data.count).years().at(data.months, data.days, data.hours, data.minutes, data.seconds).build();
+            case MONTH:
+                return data.last ? every(data.count).months().atLastDayOfMonth(data.hours, data.minutes, data.seconds).build()
+                        : every(data.count).months().at(data.days, data.hours, data.minutes, data.seconds).build();
+            case WEEK:
+                return data.dayOfWeek == null ? null : every(data.count).weeks().at(data.dayOfWeek, data.hours, data.minutes, data.seconds).build();
+            case DAY:
+                return every(data.count).days().at(data.hours, data.minutes, data.seconds).build();
+            case HOUR:
+                return every(data.count).hours().at(data.minutes, data.seconds).build();
+            case MINUTE:
+            default:
+                return every(data.count).minutes().at(data.seconds).build();
+        }
+    }
+
+    public Optional<RawParseData> parseRaw(String string) {
+        Matcher matcher = PATTERN.matcher(string);
+        if (matcher.matches()) {
+            return Optional.ofNullable(doParseRaw(matcher));
+        }
+        return Optional.empty();
+    }
+
+    private RawParseData doParseRaw(Matcher matcher) {
         int count = Integer.parseInt(matcher.group(COUNT_GROUP));
         Period period = Period.valueOf(matcher.group(PERIOD_GROUP));
 
@@ -82,23 +115,66 @@ public enum PeriodicalScheduleExpressionParser implements ScheduleExpressionPars
                 seconds = Integer.valueOf(matcher.group(SECOND_GROUP));
         }
 
-        switch (period) {
-            case YEAR:
-                return last ? every(count).years().atLastDayOfMonth(months, hours, minutes, seconds).build()
-                        : every(count).years().at(months, days, hours, minutes, seconds).build();
-            case MONTH:
-                return last ? every(count).months().atLastDayOfMonth(hours, minutes, seconds).build()
-                        : every(count).months().at(days, hours, minutes, seconds).build();
-            case WEEK:
-                return dayOfWeek == null ? null : every(count).weeks().at(dayOfWeek, hours, minutes, seconds).build();
-            case DAY:
-                return every(count).days().at(hours, minutes, seconds).build();
-            case HOUR:
-                return every(count).hours().at(minutes, seconds).build();
-            case MINUTE:
-            default:
-                return every(count).minutes().at(seconds).build();
+        return new RawParseData(count, period, seconds, minutes, hours, days, last, dayOfWeek, months);
+    }
 
+    public static class RawParseData {
+        private int count;
+        private Period period;
+        private int seconds = 0;
+        private int minutes = 0;
+        private int hours = 0;
+        private int days = 0;
+        private boolean last = false;
+        private DayOfWeek dayOfWeek = null;
+        private int months = 0;
+
+        public RawParseData(int count, Period period, int seconds, int minutes, int hours, int days, boolean last, DayOfWeek dayOfWeek, int months) {
+            this.count = count;
+            this.period = period;
+            this.seconds = seconds;
+            this.minutes = minutes;
+            this.hours = hours;
+            this.days = days;
+            this.last = last;
+            this.dayOfWeek = dayOfWeek;
+            this.months = months;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public Period getPeriod() {
+            return period;
+        }
+
+        public int getSeconds() {
+            return seconds;
+        }
+
+        public int getMinutes() {
+            return minutes;
+        }
+
+        public int getHours() {
+            return hours;
+        }
+
+        public int getDays() {
+            return days;
+        }
+
+        public boolean isLast() {
+            return last;
+        }
+
+        public DayOfWeek getDayOfWeek() {
+            return dayOfWeek;
+        }
+
+        public int getMonths() {
+            return months;
         }
     }
 
