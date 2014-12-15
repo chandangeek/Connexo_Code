@@ -7,11 +7,10 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
 import javax.inject.Inject;
 import java.util.Arrays;
