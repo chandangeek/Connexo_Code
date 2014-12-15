@@ -77,12 +77,6 @@
 
         <!--INTEGRATION TESTS-->
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.protocols</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-inmemory</artifactId>
             <scope>test</scope>
