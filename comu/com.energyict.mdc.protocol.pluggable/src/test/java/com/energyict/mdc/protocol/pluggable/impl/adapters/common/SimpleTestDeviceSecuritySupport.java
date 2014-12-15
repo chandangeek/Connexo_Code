@@ -41,9 +41,9 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
     @Inject
     public SimpleTestDeviceSecuritySupport(PropertySpecService propertySpecService) {
         super();
-        this.firstPropSpec = propertySpecService.basicPropertySpec(FIRST_PROPERTY_NAME, false, new StringFactory());
-        this.secondPropSpec = propertySpecService.basicPropertySpec(SECOND_PROPERTY_NAME, false, new StringFactory());
-        this.thirdPropSpec = propertySpecService.basicPropertySpec(THIRD_PROPERTY_NAME, false, new StringFactory());
+        this.firstPropSpec = propertySpecService.basicPropertySpec(FIRST_PROPERTY_NAME, false, StringFactory.class);
+        this.secondPropSpec = propertySpecService.basicPropertySpec(SECOND_PROPERTY_NAME, false, StringFactory.class);
+        this.thirdPropSpec = propertySpecService.basicPropertySpec(THIRD_PROPERTY_NAME, false, StringFactory.class);
     }
 
     @Override
