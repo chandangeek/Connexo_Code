@@ -40,8 +40,10 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -186,6 +188,14 @@ public class RelativePeriodResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RelativePeriodCategoryInfos getCategories(@Context UriInfo uriInfo) {
         return new RelativePeriodCategoryInfos(timeService.getRelativePeriodCategories(), thesaurus);
+    }
+
+    @Path("/weekstarts")
+    @GET
+    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFirstDayOfWeek() {
+        return Response.ok(WeekFields.of(Locale.getDefault()).getFirstDayOfWeek().getValue()).build();
     }
 
     private ZonedDateTime getZonedDateTime(RelativeDatePreviewInfo relativeDatePreviewInfo) {
