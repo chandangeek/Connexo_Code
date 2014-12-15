@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.time.TimeService;
@@ -136,6 +137,7 @@ public class ConsoleCommands {
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         CompositeScheduleExpressionParser composite = new CompositeScheduleExpressionParser();
         composite.add(cronExpressionParser);
+        composite.add(PeriodicalScheduleExpressionParser.INSTANCE);
         composite.add(new TemporalExpressionParser());
         composite.add(Never.NEVER);
         this.scheduleExpressionParser = composite;
