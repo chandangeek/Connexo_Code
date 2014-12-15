@@ -2,10 +2,12 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +42,15 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecEnum {
         }
     },
     UseCorrectedValues(DeviceMessageId.MBUS_SETUP_USE_CORRECTED_VALUES, "Use corrected values"),
-    UseUncorrectedValues(DeviceMessageId.MBUS_SETUP_USE_UNCORRECTED_VALUES, "Use uncorrected values");
+    UseUncorrectedValues(DeviceMessageId.MBUS_SETUP_USE_UNCORRECTED_VALUES, "Use uncorrected values"),
+    Commission_With_Channel(DeviceMessageId.MBUS_SETUP_COMMISSION_WITH_CHANNEL, "Commission wih channel"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(DeviceMessageConstants.mbusChannel, true, BigDecimal.ONE, BigDecimals.TWO,  BigDecimals.THREE, BigDecimals.FOUR));
+        }
+    },
+    ;
 
     private DeviceMessageId id;
     private String defaultTranslation;

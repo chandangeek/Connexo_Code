@@ -60,19 +60,33 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.basicPropertySpec(pskAttributeName, true, new HexStringFactory()));
         }
     },
-    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY, "Change encryption key with value") {
+    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY, "Change encryption key with the value") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(newEncryptionKeyAttributeName, true, PasswordFactory.class));
         }
+    }, CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS(DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS, "Change encryption key with new values") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName, true, PasswordFactory.class));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, true, PasswordFactory.class));
+        }
     },
     CHANGE_AUTHENTICATION_KEY(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY, "Change authentication key"),
-    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY, "Change authentication key with value") {
+    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY, "Change authentication key with the value") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
             propertySpecs.add(propertySpecService.basicPropertySpec(newAuthenticationKeyAttributeName, true, PasswordFactory.class));
+        }
+    }, CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS, "Change authentication key with new values") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName, true, PasswordFactory.class));
+            propertySpecs.add(propertySpecService.basicPropertySpec(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, true, PasswordFactory.class));
         }
     },
     CHANGE_PASSWORD(DeviceMessageId.SECURITY_CHANGE_PASSWORD, "Change password"),

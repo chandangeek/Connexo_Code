@@ -373,6 +373,9 @@ public class DeviceMessageConstants {
     public static final String openKeyAttributeName = "MBusSetupDeviceMessage.openKey";
     public static final String transferKeyAttributeName = "MBusSetupDeviceMessage.transferKey";
     public static final String defaultKeyAttributeName = "MBusSetupDeviceMessage.defaultKey";
+    public static final String dib = "MBusSetupDeviceMessage.dib";
+    public static final String vib = "MBusSetupDeviceMessage.vib";
+    public static final String mbusChannel = "MBusSetupDeviceMessage.channel";
 
     public static final String AnalogOutValue = "DeviceActionMessage.AnalogOutValue";
     public static final String OutputOn = "DeviceActionMessage.OutputOn";
