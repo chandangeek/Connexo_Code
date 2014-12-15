@@ -8,8 +8,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
@@ -54,7 +57,12 @@ public class DataExportTaskInfo {
         if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
             schedule = null;
         } else {
-            schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) dataExportTask.getScheduleExpression());
+            ScheduleExpression scheduleExpression = dataExportTask.getScheduleExpression();
+            if (scheduleExpression instanceof TemporalExpression) {
+                schedule = new PeriodicalExpressionInfo((TemporalExpression) scheduleExpression);
+            } else {
+                schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
+            }
         }
 
         exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod(), thesaurus);
