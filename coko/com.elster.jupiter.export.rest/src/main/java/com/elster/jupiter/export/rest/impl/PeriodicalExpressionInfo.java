@@ -73,6 +73,10 @@ public class PeriodicalExpressionInfo {
                 return;
             case DAYS:
                 int days = expression.getOffset().getCount();
+                if ("weeks".equals(timeUnit)) {
+                    dayOfWeek = DayOfWeek.of(days);
+                    return;
+                }
                 if (days > 28) {
                     lastDayOfMonth = true;
                     return;
@@ -83,7 +87,6 @@ public class PeriodicalExpressionInfo {
                 offsetMonths = expression.getOffset().getCount();
                 return;
             default:
-                return;
         }
     }
 
