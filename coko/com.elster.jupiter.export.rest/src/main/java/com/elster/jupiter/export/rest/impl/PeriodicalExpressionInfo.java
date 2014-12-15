@@ -2,6 +2,7 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
+import com.elster.jupiter.time.TemporalExpression;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.DayOfWeek;
@@ -44,6 +45,46 @@ public class PeriodicalExpressionInfo {
         offsetHours = rawParseData.getHours();
         offsetMinutes = rawParseData.getMinutes();
         offsetSeconds = rawParseData.getSeconds();
+    }
+
+    /**
+     *  To be able to see previously defined schedules
+     */
+    public PeriodicalExpressionInfo(TemporalExpression expression) {
+        count = expression.getEvery().getCount();
+        timeUnit = expression.getEvery().getTimeUnit().getDescription();
+
+        offsetSeconds = 0;
+        offsetMinutes = 0;
+        offsetHours = 0;
+        offsetDays = 0;
+        offsetMonths = 0;
+        lastDayOfMonth = false;
+        dayOfWeek = null;
+        switch(expression.getOffset().getTimeUnit()) {
+            case SECONDS:
+                offsetSeconds = expression.getOffset().getCount();
+                return;
+            case MINUTES:
+                offsetMinutes = expression.getOffset().getCount();
+                return;
+            case HOURS:
+                offsetHours = expression.getOffset().getCount();
+                return;
+            case DAYS:
+                int days = expression.getOffset().getCount();
+                if (days > 28) {
+                    lastDayOfMonth = true;
+                    return;
+                }
+                offsetDays = days;
+                return;
+            case MONTHS:
+                offsetMonths = expression.getOffset().getCount();
+                return;
+            default:
+                return;
+        }
     }
 
     public PeriodicalScheduleExpression toExpression() {
