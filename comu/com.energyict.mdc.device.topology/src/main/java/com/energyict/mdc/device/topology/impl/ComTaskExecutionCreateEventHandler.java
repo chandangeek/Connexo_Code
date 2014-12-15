@@ -38,4 +38,9 @@ public class ComTaskExecutionCreateEventHandler extends ComTaskExecutionEventHan
         return "com/energyict/mdc/device/data/comtaskexecution/CREATED";
     }
 
+    @Reference
+    @SuppressWarnings("unused")
+    public void setTopologyService(ServerTopologyService topologyService) {
+        this.setReferencedTopologyService(topologyService);
+    }
 }
