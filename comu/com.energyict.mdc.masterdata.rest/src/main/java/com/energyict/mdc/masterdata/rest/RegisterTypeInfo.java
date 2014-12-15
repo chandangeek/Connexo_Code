@@ -40,7 +40,7 @@ public class RegisterTypeInfo {
         this.timeOfUse = measurementType.getTimeOfUse();
         ReadingType readingType = measurementType.getReadingType();
         this.readingType = new ReadingTypeInfo(readingType);
-        if (readingType.isBulkQuantityReadingType()){
+        if (readingType.isCumulative()){
             readingType.getCalculatedReadingType().ifPresent(
                     rt -> this.calculatedReadingType = new ReadingTypeInfo(rt)
             );
