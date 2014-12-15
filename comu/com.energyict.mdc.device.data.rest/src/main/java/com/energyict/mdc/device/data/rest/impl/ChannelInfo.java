@@ -24,6 +24,7 @@ public class ChannelInfo {
     public PhenomenonInfo unitOfMeasure;
     public Instant lastReading;
     public ReadingTypeInfo readingType;
+    public ReadingTypeInfo calculatedReadingType;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
     public BigDecimal multiplier;
@@ -43,6 +44,10 @@ public class ChannelInfo {
         info.unitOfMeasure = PhenomenonInfo.from(channel.getPhenomenon());
         info.lastReading = channel.getLastReading().orElse(null);
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
+        if (channel.getReadingType().isCumulative()) {
+            channel.getReadingType().getCalculatedReadingType().ifPresent(
+                    rt -> info.calculatedReadingType = new ReadingTypeInfo(rt));
+        }
         info.multiplier = channel.getMultiplier();
         info.overflowValue = channel.getOverflow();
         info.flowUnit = channel.getPhenomenon().getUnit().isFlowUnit() ? "flow" : "volume";

@@ -54,6 +54,7 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
     public MultiplierMode multiplierMode;
     @JsonProperty("lastReading")
     public ReadingInfo lastReading;
+    public boolean isCumulative;
 
     public RegisterInfo() {}
 
@@ -68,6 +69,7 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
         this.unitOfMeasure = registerSpec.getUnit();
+        this.isCumulative = true;
 
         Optional<RE> lastReading = register.getLastReading();
         if (lastReading.isPresent()) {

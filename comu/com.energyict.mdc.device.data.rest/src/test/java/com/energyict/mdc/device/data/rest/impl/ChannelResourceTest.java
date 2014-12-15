@@ -82,6 +82,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         
         Interval interval = new Interval(new Date(intervalStart), new Date(intervalEnd));
         when(channel.getChannelData(interval)).thenReturn(asList(loadProfileReading, addedloadProfileReading, editedProfileReading, removedProfileReading));
+        ReadingType rt = mock(ReadingType.class);
+        when(rt.isCumulative()).thenReturn(false);
+        when(channel.getReadingType()).thenReturn(rt);
         when(loadProfileReading.getInterval()).thenReturn(interval);
         when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
         when(thesaurus.getString(BATTERY_LOW, BATTERY_LOW)).thenReturn(BATTERY_LOW);
