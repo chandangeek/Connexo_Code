@@ -100,12 +100,12 @@ public interface TopologyService {
      * the same as the  target Device, in that case,
      * the added segment will be a direct or final segment.
      *
-     * @param source
-     * @param target
-     * @param intermediateHop
-     * @param timeToLive
-     * @param cost
-     * @return
+     * @param source The source Device
+     * @param target The target Device
+     * @param intermediateHop The intermediate Device
+     * @param timeToLive The time to live
+     * @param cost The segment's cost
+     * @return The newly created segment
      */
     public G3CommunicationPathSegment addCommunicationSegment(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost);
 
