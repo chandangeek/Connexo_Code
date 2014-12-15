@@ -141,8 +141,9 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
-    public Response editDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(deviceGroupInfo.id)
+    @Path("/{id}")
+    public Response editDeviceGroup(DeviceGroupInfo deviceGroupInfo, @PathParam("id") long id) {
+        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
         endDeviceGroup.setName(deviceGroupInfo.name);
