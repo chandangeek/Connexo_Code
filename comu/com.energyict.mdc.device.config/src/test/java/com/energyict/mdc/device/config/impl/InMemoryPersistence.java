@@ -1,5 +1,31 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.ApplicationContext;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.Translator;
+import com.energyict.mdc.common.impl.MdcCommonModule;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.model.EngineModelService;
+import com.energyict.mdc.engine.model.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
@@ -33,6 +59,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -58,34 +85,14 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.ApplicationContext;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Translator;
-import com.energyict.mdc.common.impl.MdcCommonModule;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.model.EngineModelService;
-import com.energyict.mdc.engine.model.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -93,10 +100,9 @@ import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Optional;
+
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -149,6 +155,8 @@ public class InMemoryPersistence {
     private ChannelTypeDeleteFromLoadProfileTypeEventHandler channelTypeDeleteFromLoadProfileTypeEventHandler;
     private OrmService ormService;
     private LicenseService licenseService;
+    private LicensedProtocolService licensedProtocolService;
+    private ConnectionTypeService connectionTypeService;
 
     public void initializeDatabaseWithMockedProtocolPluggableService(String testName, boolean showSqlLogging) {
         this.initializeDatabase(testName, showSqlLogging, true);
@@ -179,6 +187,8 @@ public class InMemoryPersistence {
             this.injector.getInstance(PluggableService.class);
             if (!mockedProtocolPluggableService) {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+                ((ProtocolPluggableServiceImpl) this.protocolPluggableService).addLicensedProtocolService(this.licensedProtocolService);
+                ((ProtocolPluggableServiceImpl) this.protocolPluggableService).addConnectionTypeService(this.connectionTypeService);
             }
             this.dataModel = this.createNewDeviceConfigurationService();
             ctx.commit();
@@ -226,7 +236,6 @@ public class InMemoryPersistence {
             modules.add(new BasicPropertiesModule());
             modules.add(new MdcDynamicModule());
             modules.add(new ProtocolPluggableModule());
-            modules.add(new ProtocolsModule());
         }
         return modules.toArray(new Module[modules.size()]);
     }
@@ -269,6 +278,10 @@ public class InMemoryPersistence {
         when(this.applicationContext.getTranslator()).thenReturn(translator);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
+        this.licensedProtocolService = mock(LicensedProtocolService.class);
+        when(this.licensedProtocolService.isValidJavaClassName(anyString(), any(License.class))).thenReturn(true);
+        this.connectionTypeService = mock(ConnectionTypeService.class);
+        when(this.connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
     }
 
     public void cleanUpDataBase() throws SQLException {

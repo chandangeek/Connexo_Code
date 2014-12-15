@@ -46,6 +46,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -80,7 +81,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -141,7 +141,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     private Principal principal;
     private ProtocolPluggableServiceImpl protocolPluggableService;
     private EngineModelService engineModelService;
-    private InboundDeviceProtocolService inboundDeviceProtocolService;
     private DeviceConfigurationServiceImpl deviceConfigurationService;
     @Mock
     private ApplicationContext applicationContext;
@@ -149,6 +148,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
     private LicenseService licenseService;
     @Mock
     private LicensedProtocolService licensedProtocolService;
+    @Mock
+    private DeviceProtocolService deviceProtocolService;
     @Mock
     private License license;
 
@@ -194,7 +195,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new ProtocolPluggableModule(),
                 new IssuesModule(),
                 new ValidationModule(),
-                new ProtocolsModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule());
@@ -203,12 +203,13 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             engineModelService = injector.getInstance(EngineModelService.class);
             protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
-            inboundDeviceProtocolService = injector.getInstance(InboundDeviceProtocolService.class);
+            when(this.deviceProtocolService.createProtocol(MyDeviceProtocolPluggableClass.class.getName())).thenReturn(new MyDeviceProtocolPluggableClass());
+            protocolPluggableService.addDeviceProtocolService(this.deviceProtocolService);
             injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
-            SchedulingService schedulingService = injector.getInstance(SchedulingService.class);
+            injector.getInstance(SchedulingService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
         }
@@ -298,8 +299,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         private static State actual;
 
-
-
         public SharedData() {
             if (actual == null) {
                 actual = new State() {
@@ -352,11 +351,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         private final SharedData sharedData = new SharedData();
 
         public MyDeviceProtocolPluggableClass() {
-        }
-
-        @Override
-        public void setPropertySpecService(PropertySpecService propertySpecService) {
-
         }
 
         @Override

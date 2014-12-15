@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.Environment;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.common.impl.MdcCommonModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
@@ -29,11 +28,12 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
@@ -45,6 +45,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -58,6 +59,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -65,9 +67,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -76,6 +75,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -83,6 +83,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -112,10 +113,11 @@ public class PartialConnectionInitiationTaskCrudIT {
     private Injector injector;
     @Mock
     private ApplicationContext applicationContext;
-    private ProtocolPluggableService protocolPluggableService;
+    private ProtocolPluggableServiceImpl protocolPluggableService;
+    private LicensedProtocolService licensedProtocolService;
+    private ConnectionTypeService connectionTypeService;
     private EngineModelService engineModelService;
     private InMemoryBootstrapModule bootstrapModule;
-    private InboundDeviceProtocolPluggableClass discoveryPluggable;
     @Mock
     private LicenseService licenseService;
 
@@ -135,6 +137,7 @@ public class PartialConnectionInitiationTaskCrudIT {
     }
 
     public void initializeDatabase(boolean showSqlLogging) {
+        this.initializeMocks();
         bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
@@ -167,7 +170,6 @@ public class PartialConnectionInitiationTaskCrudIT {
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
                 new IssuesModule(),
-                new ProtocolsModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule(),
@@ -180,8 +182,9 @@ public class PartialConnectionInitiationTaskCrudIT {
             injector.getInstance(MeteringService.class);
             injector.getInstance(MdcReadingTypeUtilService.class);
             engineModelService = injector.getInstance(EngineModelService.class);
-            protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
-            injector.getInstance(InboundDeviceProtocolService.class);
+            protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
+            protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
+            protocolPluggableService.addConnectionTypeService(connectionTypeService);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
             injector.getInstance(PluggableService.class);
@@ -194,6 +197,13 @@ public class PartialConnectionInitiationTaskCrudIT {
         environment.setApplicationContext(applicationContext);
     }
 
+    private void initializeMocks() {
+        this.licensedProtocolService = mock(LicensedProtocolService.class);
+        when(this.licensedProtocolService.isValidJavaClassName(anyString(), any(License.class))).thenReturn(true);
+        this.connectionTypeService = mock(ConnectionTypeService.class);
+        when(this.connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
+    }
+
     @Before
     public void setUp() {
         when(principal.getName()).thenReturn("test");
@@ -204,7 +214,6 @@ public class PartialConnectionInitiationTaskCrudIT {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         initializeDatabase(false);
-        protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
         engineModelService = injector.getInstance(EngineModelService.class);
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -212,8 +221,6 @@ public class PartialConnectionInitiationTaskCrudIT {
             connectionTypePluggableClass.save();
             connectionTypePluggableClass2 = protocolPluggableService.newConnectionTypePluggableClass("NoParamsConnectionType2", OutboundNoParamsConnectionTypeImpl.class.getName());
             connectionTypePluggableClass2.save();
-            discoveryPluggable = protocolPluggableService.newInboundDeviceProtocolPluggableClass("MyDiscoveryName", DlmsSerialNumberDiscover.class.getName());
-            discoveryPluggable.save();
             outboundComPortPool = engineModelService.newOutboundComPortPool();
             outboundComPortPool.setActive(true);
             outboundComPortPool.setComPortType(ComPortType.TCP);
@@ -228,7 +235,6 @@ public class PartialConnectionInitiationTaskCrudIT {
             outboundComPortPool1.save();
             context.commit();
         }
-
     }
 
     @After
@@ -247,7 +253,11 @@ public class PartialConnectionInitiationTaskCrudIT {
 
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
 
-            connectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("MyInitiation", connectionTypePluggableClass, TimeDuration.seconds(60))
+            connectionInitiationTask = deviceConfiguration
+                    .newPartialConnectionInitiationTask(
+                            "MyInitiation",
+                            connectionTypePluggableClass,
+                            TimeDuration.seconds(60))
                     .comPortPool(outboundComPortPool)
                     .build();
             deviceConfiguration.save();
@@ -285,7 +295,11 @@ public class PartialConnectionInitiationTaskCrudIT {
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
             deviceConfiguration.save();
 
-            connectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("MyInitiation", connectionTypePluggableClass, TimeDuration.seconds(60))
+            connectionInitiationTask = deviceConfiguration
+                    .newPartialConnectionInitiationTask(
+                            "MyInitiation",
+                            connectionTypePluggableClass,
+                            TimeDuration.seconds(60))
                     .comPortPool(outboundComPortPool)
                     .build();
             deviceConfiguration.save();
@@ -331,7 +345,11 @@ public class PartialConnectionInitiationTaskCrudIT {
             deviceConfiguration.save();
 
 
-            connectionInitiationTask = deviceConfiguration.newPartialConnectionInitiationTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60))
+            connectionInitiationTask = deviceConfiguration
+                    .newPartialConnectionInitiationTask(
+                            "MyOutbound",
+                            connectionTypePluggableClass,
+                            TimeDuration.seconds(60))
                     .comPortPool(outboundComPortPool)
                     .build();
             deviceConfiguration.save();
@@ -366,7 +384,11 @@ public class PartialConnectionInitiationTaskCrudIT {
 
             deviceConfiguration = deviceType.newConfiguration("Normal").add();
 
-            deviceConfiguration.newPartialConnectionInitiationTask("MyInitiation", inboundConnectionTypePluggableClass, TimeDuration.seconds(60))
+            deviceConfiguration
+                    .newPartialConnectionInitiationTask(
+                            "MyInitiation",
+                            inboundConnectionTypePluggableClass,
+                            TimeDuration.seconds(60))
                     .comPortPool(outboundComPortPool)
                     .build();
             deviceConfiguration.save();

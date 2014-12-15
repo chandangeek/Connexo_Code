@@ -52,7 +52,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+import java.util.Optional;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -156,7 +156,6 @@ public class SecurityPropertySetImplCrudIT {
                 new MdcIOModule(),
                 new EngineModelModule(),
                 new IssuesModule(),
-                new ProtocolsModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new PluggableModule(),
