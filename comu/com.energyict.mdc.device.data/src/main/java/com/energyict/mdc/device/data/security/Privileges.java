@@ -5,7 +5,7 @@ public interface Privileges {
     String ADD_DEVICE = "privilege.add.device";
     String VIEW_DEVICE = "privilege.view.device";
     //Dummy privilege used to cover a REST call which is still not use in front-end
-    String DELETE_DEVICE = "privilege.delete.device";
+    String DELETE_DEVICE = "privilege.remove.device";
 
     String ADMINISTRATE_DEVICE_DATA = "privilege.administrate.deviceData";
 
