@@ -75,7 +75,7 @@ public class DataExportTaskInfo {
         validatedDataOption = dataExportTask.getStrategy().getValidatedDataOption();
 
         String dataFormatter = dataExportTask.getDataFormatter();
-        dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getString(dataFormatter, dataFormatter), Collections.<PropertyInfo>emptyList()) ;
+        dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter), Collections.<PropertyInfo>emptyList()) ;
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
 
         lastExportOccurence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus)).orElse(null);

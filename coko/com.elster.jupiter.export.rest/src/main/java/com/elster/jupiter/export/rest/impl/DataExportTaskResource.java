@@ -38,6 +38,7 @@ import com.google.common.collect.Range;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -114,6 +115,7 @@ public class DataExportTaskResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response addReadingTypeDataExportTask(DataExportTaskInfo info) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
@@ -196,6 +198,7 @@ public class DataExportTaskResource {
     @GET
     @Path("/{id}/history")
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public DataExportTaskHistoryInfos getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
                                                                @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
