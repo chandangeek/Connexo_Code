@@ -11,7 +11,6 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -26,7 +25,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-17 (11:19)
  */
-public abstract class IpConnectionType implements ServerConnectionType {
+public abstract class IpConnectionType implements ConnectionType {
 
     public static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
     public static final String PORT_PROPERTY_NAME = "port";

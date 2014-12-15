@@ -48,6 +48,8 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
+
+import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -60,8 +62,7 @@ import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-07 (14:28)
  */
-public enum
-        TableSpecs {
+public enum TableSpecs {
 
     DDC_DEVICE {
         @Override
@@ -116,57 +117,6 @@ public enum
             table.column("INFOVALUE").varChar().map("propertyValue").add();
             table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId, propertySpec).add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE").on(deviceId).references(DDC_DEVICE.name()).map("device").reverseMap("deviceProperties").composition().add();
-        }
-    },
-
-    DDC_PHYSICALGATEWAYREFERENCE {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<PhysicalGatewayReference> table = dataModel.addTable(name(), PhysicalGatewayReference.class);
-            table.map(PhysicalGatewayReferenceImpl.class);
-            Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
-            Column physicalGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
-            table.primaryKey("PK_DDC_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).add();
-            table.foreignKey("FK_DDC_PHYSGATEWAYREF_ORIGIN").
-                    on(originId).
-                    references(DDC_DEVICE.name()).
-                    onDelete(CASCADE).
-                    map(GatewayReferenceImpl.Field.ORIGIN.fieldName()).
-                    reverseMap("physicalGatewayReferenceDevice").
-                    composition().
-                    add();
-            table.foreignKey("FK_DDC_PHYSGATEWAYREF_GATEWAY").
-                    on(physicalGatewayId).
-                    references(DDC_DEVICE.name()).
-                    onDelete(CASCADE).
-                    map(GatewayReferenceImpl.Field.GATEWAY.fieldName()).
-                    add();
-        }
-    },
-
-    DDC_COMGATEWAYREFERENCE {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<CommunicationGatewayReference> table = dataModel.addTable(name(), CommunicationGatewayReference.class);
-            table.map(CommunicationGatewayReferenceImpl.class);
-            Column originId = table.column("ORIGINID").notNull().number().conversion(NUMBER2LONG).add();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
-            Column communicationGatewayId = table.column("GATEWAYID").notNull().number().conversion(NUMBER2LONG).add();
-            table.primaryKey("PK_DDC_COMMUNICATIONGATEWAYREF").on(originId, intervalColumns.get(0)).add();
-            table.foreignKey("FK_DDC_COMGATEWAYREF_ORIGIN").
-                    on(originId).references(DDC_DEVICE.name()).
-                    onDelete(CASCADE).
-                    map(GatewayReferenceImpl.Field.ORIGIN.fieldName()).
-                    reverseMap("communicationGatewayReferenceDevice").
-                    composition().
-                    add();
-            table.foreignKey("FK_DDC_COMGATEWAYREF_GATEWAY").
-                    on(communicationGatewayId).
-                    references(DDC_DEVICE.name()).
-                    onDelete(CASCADE).
-                    map(GatewayReferenceImpl.Field.GATEWAY.fieldName()).
-                    add();
         }
     },
 

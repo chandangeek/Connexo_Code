@@ -14,6 +14,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
@@ -210,8 +211,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     void setUseDefaultConnectionTask(boolean useDefaultConnectionTask) {
         this.useDefaultConnectionTask = useDefaultConnectionTask;
-        if (this.useDefaultConnectionTask) {
-            this.setConnectionTask(this.connectionTaskService.findDefaultConnectionTaskForDevice(getDevice()));
+        if (useDefaultConnectionTask) {
+            this.setConnectionTask(null);
         }
     }
 
@@ -256,12 +257,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         } else if (this.comPort.isPresent()) {
             throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.getExecutingComPort().getComServer());
         }
-
         if (this.useDefaultConnectionTask) {
-            ConnectionTask<?, ?> defaultConnectionTaskForDevice = this.connectionTaskService.findDefaultConnectionTaskForDevice(getDevice());
-            if (defaultConnectionTaskForDevice != null && defaultConnectionTaskForDevice.getExecutingComServer() != null) {
-                throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.connectionTaskService.findDefaultConnectionTaskForDevice(getDevice()).getExecutingComServer());
-            }
+            this.postEvent(EventType.COMTASKEXECUTION_VALIDATE_OBSOLETE);
         } else if (this.connectionTask.isPresent() && this.connectionTask.get().getExecutingComServer() != null) {
             throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.connectionTask.get().getExecutingComServer());
         }
@@ -642,19 +639,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.lastExecutionFailed = false;
         this.setNextExecutionTimestamp(this.calculateNextExecutionTimestamp(this.getExecutionStartedTimestamp()));
         this.setExecutingComPort(comPort);
-    }
-
-    /**
-     * This will update the object with the given ConnectionTask,
-     * <i>OR</i> the connectionTask will be cleared and configured to use the default ConnectionTask
-     *
-     * @param connectionTask the connectionTask to set or <code>null</code> to clear the connectionTask
-     */
-    protected void assignConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        this.setConnectionTask(connectionTask);
-        if (!this.connectionTask.isPresent()) {
-            this.setUseDefaultConnectionTask(true);
-        }
     }
 
     @Override

@@ -138,9 +138,6 @@ public class SecurityPropertyServiceImplTest {
                 thenReturn(this.deviceProtocolPluggableClass);
         when(this.protocolPluggableService.findSecurityPropertyRelationType(this.deviceProtocolPluggableClass)).thenReturn(this.securityPropertyRelationType);
         when(this.protocolPluggableService.isLicensedProtocolClassName(anyString())).thenReturn(true);
-        when(this.deviceProtocolPluggableClass.getProperties(anyListOf(PropertySpec.class))).thenReturn(TypedProperties.empty());
-        when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(new TestProtocolWithOnlySecurityProperties());
-        when(this.deviceProtocolPluggableClass.getJavaClassName()).thenReturn(TestProtocolWithOnlySecurityProperties.class.getName());
 
         when(this.securityPropertySet.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
         when(this.securityPropertySet.currentUserIsAllowedToEditDeviceProperties()).thenReturn(true);
@@ -172,9 +169,9 @@ public class SecurityPropertyServiceImplTest {
 
     @Test
     public void getSecurityProperties () throws SQLException {
-
         try {
             this.initializeDatabase();
+
             // Business method
             List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, Instant.now(), this.securityPropertySet);
 
@@ -196,6 +193,9 @@ public class SecurityPropertyServiceImplTest {
         this.inMemoryPersistence = new InMemoryPersistence();
         this.inMemoryPersistence.initializeDatabase();
         this.inMemoryPersistence.newDeviceProtocolPluggableClass("SecurityPropertyServiceImplTest", TestProtocolWithOnlySecurityProperties.class.getName());
+        when(this.deviceProtocolPluggableClass.getProperties(anyListOf(PropertySpec.class))).thenReturn(TypedProperties.empty());
+        when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(new TestProtocolWithOnlySecurityProperties(inMemoryPersistence.propertySpecService));
+        when(this.deviceProtocolPluggableClass.getJavaClassName()).thenReturn(TestProtocolWithOnlySecurityProperties.class.getName());
     }
 
     private class InMemoryPersistence {
@@ -302,7 +302,7 @@ public class SecurityPropertyServiceImplTest {
             when(this.principal.getName()).thenReturn("SecurityPropertyServiceImplTest");
             this.licenseService = mock(LicenseService.class);
             when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
-            when(deviceProtocolService.loadProtocolClass(TestProtocolWithOnlySecurityProperties.class.getName())).thenReturn(TestProtocolWithOnlySecurityProperties.class);
+            when(deviceProtocolService.createProtocol(TestProtocolWithOnlySecurityProperties.class.getName())).thenReturn(new TestProtocolWithOnlySecurityProperties(propertySpecService));
         }
 
         private void createOracleAliases(OrmServiceImpl ormService) throws SQLException {

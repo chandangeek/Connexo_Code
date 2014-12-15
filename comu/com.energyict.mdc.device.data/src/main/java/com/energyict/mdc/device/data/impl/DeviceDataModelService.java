@@ -1,13 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -18,6 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.sql.SqlBuilder;
+
 import java.time.Clock;
 import java.util.Map;
 
@@ -55,10 +52,7 @@ public interface DeviceDataModelService {
 
     public DataCollectionKpiService dataCollectionKpiService();
 
-
     public void executeUpdate(SqlBuilder sqlBuilder);
-
-    public void setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(Device device, ConnectionTask connectionTask);
 
     public Map<TaskStatus, Long> fetchTaskStatusCounters(ClauseAwareSqlBuilder builder);
 

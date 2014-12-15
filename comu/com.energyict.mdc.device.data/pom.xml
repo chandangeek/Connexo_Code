@@ -64,7 +64,7 @@
     <dependency>
       <groupId>com.energyict</groupId>
       <artifactId>mdc.tasks</artifactId>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
@@ -77,12 +77,6 @@
     </dependency>
 
     <!-- Testing -->
-    <dependency>
-      <groupId>com.energyict</groupId>
-      <artifactId>mdc.protocols</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>devtools</artifactId>

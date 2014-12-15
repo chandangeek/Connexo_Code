@@ -12,7 +12,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -694,11 +693,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
                         DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS);
 
         public MessageTestDeviceProtocol() {
-        }
-
-        @Override
-        public void setPropertySpecService(PropertySpecService propertySpecService) {
-
         }
 
         @Override

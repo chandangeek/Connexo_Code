@@ -114,24 +114,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             this.getNextExecutionSpecs().save();
         }
         super.postNew();
-        if (this.isDefault()) {
-            this.notifyComTaskExecutionsForDefaultConnectionTask();
-        }
         if (this.getNextExecutionSpecs() != null) {
             this.doUpdateNextExecutionTimestamp(PostingMode.NOW);
         } else {
             // ConnectionStrategy must be ASAP
             this.updateNextExecutionTimeStampBasedOnComTask();
         }
-    }
-
-    /**
-     * Notifies {@link ComTaskExecution}s that link to the same Device
-     * or to Devices that are downstream to this Device
-     * that a default ScheduledConnectionTask was created against the Device.
-     */
-    private void notifyComTaskExecutionsForDefaultConnectionTask() {
-        this.communicationTaskService.setOrUpdateDefaultConnectionTaskOnComTaskInDeviceTopology(getDevice(), this);
     }
 
     @Override

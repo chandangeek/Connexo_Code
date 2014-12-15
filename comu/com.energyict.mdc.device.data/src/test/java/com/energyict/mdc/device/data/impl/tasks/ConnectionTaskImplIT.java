@@ -467,7 +467,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         return createComTaskExecutionAndSetNextExecutionTimeStamp(nextExecutionTimeStamp, comTaskEnablement1);
     }
 
-
     protected ScheduledComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Date nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
         ScheduledComTaskExecution comTaskExecution = createComTaskExecution(comTaskEnablement);
         ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);

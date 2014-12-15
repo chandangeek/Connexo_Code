@@ -28,8 +28,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
@@ -59,7 +57,6 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceTopology;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -72,7 +69,6 @@ import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichI
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.device.data.exceptions.StillGatewayException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
@@ -88,7 +84,6 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -104,7 +99,6 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.engine.model.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
@@ -151,6 +145,7 @@ import java.util.TreeMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.Functions.asStream;
 import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
 import static java.util.stream.Collectors.toList;
 
@@ -192,10 +187,6 @@ public class DeviceImpl implements Device, CanLock {
     private Instant modificationDate;
     private Instant yearOfCertification;
 
-    @Valid
-    private TemporalReference<CommunicationGatewayReference> communicationGatewayReferenceDevice = Temporals.absent();
-    @Valid
-    private TemporalReference<PhysicalGatewayReference> physicalGatewayReferenceDevice = Temporals.absent();
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
     @Valid
@@ -369,7 +360,6 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void delete() {
-        this.validateDelete();
         this.notifyDeviceIsGoingToBeDeleted();
         this.doDelete();
         this.notifyDeleted();
@@ -413,21 +403,6 @@ public class DeviceImpl implements Device, CanLock {
 
     private void deleteProperties() {
         this.deviceProperties.clear();
-    }
-
-    private void validateDelete() {
-        validateGatewayUsage();
-    }
-
-    private void validateGatewayUsage() {
-        List<Device> physicalConnectedDevices = getPhysicalConnectedDevices();
-        if (!physicalConnectedDevices.isEmpty()) {
-            throw StillGatewayException.forPhysicalGateway(thesaurus, this, physicalConnectedDevices.toArray(new Device[physicalConnectedDevices.size()]));
-        }
-        List<Device> communicationReferencingDevices = getCommunicationReferencingDevices();
-        if (!communicationReferencingDevices.isEmpty()) {
-            throw StillGatewayException.forCommunicationGateway(thesaurus, this, communicationReferencingDevices.toArray(new Device[communicationReferencingDevices.size()]));
-        }
     }
 
     @Override
@@ -557,171 +532,6 @@ public class DeviceImpl implements Device, CanLock {
             }
         }
         return RegisterFactory.Numerical.newRegister(this, registerSpec);
-    }
-
-    @Override
-    public List<Device> getPhysicalConnectedDevices() {
-        return this.deviceService.findPhysicalConnectedDevicesFor(this);
-    }
-
-    @Override
-    public Device getPhysicalGateway() {
-        return this.getPhysicalGateway(clock.instant());
-    }
-
-    @Override
-    public Device getPhysicalGateway(Instant timestamp) {
-        return this.physicalGatewayReferenceDevice.effective(timestamp)
-                .map(PhysicalGatewayReference::getGateway)
-                .orElse(null);
-    }
-
-    private void topologyChanged() {
-        List<ComTaskExecution> comTasksForDefaultConnectionTask = this.communicationTaskService.findComTasksByDefaultConnectionTask(this);
-        Device gateway = this.getPhysicalGateway();
-        if (gateway != null) {
-            updateComTasksToUseNewDefaultConnectionTask(comTasksForDefaultConnectionTask);
-        } else {
-            updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
-        }
-
-    }
-
-    private void updateComTasksToUseNonExistingDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
-        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
-            comTaskExecutionUpdater.connectionTask(null);
-            comTaskExecutionUpdater.useDefaultConnectionTask(true);
-            comTaskExecutionUpdater.update();
-        }
-    }
-
-    private void updateComTasksToUseNewDefaultConnectionTask(List<ComTaskExecution> comTasksForDefaultConnectionTask) {
-        ConnectionTask<?, ?> defaultConnectionTaskForGateway = getDefaultConnectionTask();
-        for (ComTaskExecution comTaskExecution : comTasksForDefaultConnectionTask) {
-            ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
-            comTaskExecutionUpdater.useDefaultConnectionTask(defaultConnectionTaskForGateway);
-            comTaskExecutionUpdater.update();
-        }
-    }
-
-    private ConnectionTask<?, ?> getDefaultConnectionTask() {
-        for (ConnectionTaskImpl<?, ?> connectionTask : this.getConnectionTaskImpls()) {
-            if (connectionTask.isDefault()) {
-                return connectionTask;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void setPhysicalGateway(BaseDevice gateway) {
-        if (gateway != null) {
-            Instant currentTime = clock.instant();
-            terminateTemporal(currentTime, this.physicalGatewayReferenceDevice);
-            PhysicalGatewayReferenceImpl physicalGatewayReference =
-                    this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class)
-                            .createFor(Interval.startAt(currentTime), (Device) gateway, this);
-            savePhysicalGateway(physicalGatewayReference);
-            topologyChanged();
-        }
-    }
-
-    private void savePhysicalGateway(PhysicalGatewayReferenceImpl physicalGatewayReference) {
-        Save.action(getId()).validate(this.dataModel, physicalGatewayReference);
-        this.physicalGatewayReferenceDevice.add(physicalGatewayReference);
-    }
-
-    @Override
-    public void clearPhysicalGateway() {
-        terminateTemporal(clock.instant(), this.physicalGatewayReferenceDevice);
-        topologyChanged();
-    }
-
-    private void terminateTemporal(Instant currentTime, TemporalReference<? extends GatewayReference> temporalReference) {
-        Optional<? extends GatewayReference> currentGateway = temporalReference.effective(currentTime);
-        if (currentGateway.isPresent()) {
-            GatewayReference gateway = currentGateway.get();
-            gateway.terminate(currentTime);
-            this.dataModel.update(gateway);
-        }
-    }
-
-    @Override
-    public void setCommunicationGateway(Device gateway) {
-        if (gateway != null) {
-            Instant currentTime = clock.instant();
-            terminateTemporal(currentTime, this.communicationGatewayReferenceDevice);
-            CommunicationGatewayReferenceImpl communicationGatewayReference =
-                    this.dataModel.getInstance(CommunicationGatewayReferenceImpl.class)
-                            .createFor(Interval.startAt(currentTime), gateway, this);
-            saveCommunicationGateway(communicationGatewayReference);
-            topologyChanged();
-        }
-    }
-
-    private void saveCommunicationGateway(CommunicationGatewayReferenceImpl communicationGatewayReference) {
-        Save.action(getId()).validate(this.dataModel, communicationGatewayReference);
-        this.communicationGatewayReferenceDevice.add(communicationGatewayReference);
-    }
-
-    @Override
-    public void clearCommunicationGateway() {
-        terminateTemporal(clock.instant(), this.communicationGatewayReferenceDevice);
-        topologyChanged();
-    }
-
-    @Override
-    public List<Device> getCommunicationReferencingDevices() {
-        return this.deviceService.findCommunicationReferencingDevicesFor(this);
-    }
-
-    @Override
-    public List<Device> getCommunicationReferencingDevices(Instant timestamp) {
-        return this.deviceService.findCommunicationReferencingDevicesFor(this, timestamp);
-    }
-
-    @Override
-    public List<Device> getAllCommunicationReferencingDevices() {
-        return this.getAllCommunicationReferencingDevices(clock.instant());
-    }
-
-    @Override
-    public List<Device> getAllCommunicationReferencingDevices(Instant timestamp) {
-        Map<Long, Device> allDevicesInTopology = new HashMap<>();
-        this.collectAllCommunicationReferencingDevices(timestamp, this, allDevicesInTopology);
-        return new ArrayList<>(allDevicesInTopology.values());
-    }
-
-    private void collectAllCommunicationReferencingDevices(Instant timestamp, Device topologyRoot, Map<Long, Device> devices) {
-        topologyRoot.getCommunicationReferencingDevices(timestamp)
-                .stream()
-                // Filter the devices that were not encountered yet
-                .filter(device -> !devices.containsKey(device.getId()))
-                // and collect the referencing devices for those
-                .forEach(device -> {
-                    devices.put(device.getId(), device);
-                    this.collectAllCommunicationReferencingDevices(timestamp, device, devices);
-        });
-    }
-
-    @Override
-    public DeviceTopology getCommunicationTopology(Range<Instant> period) {
-        return this.deviceService.buildCommunicationTopology(this, period);
-    }
-
-    @Override
-    public Device getCommunicationGateway() {
-        return this.getCommunicationGateway(clock.instant());
-    }
-
-    @Override
-    public Device getCommunicationGateway(Instant timestamp) {
-        Optional<CommunicationGatewayReference> communicationGatewayReferenceOptional = this.communicationGatewayReferenceDevice.effective(timestamp);
-        if (communicationGatewayReferenceOptional.isPresent()) {
-            return communicationGatewayReferenceOptional.get().getGateway();
-        }
-        return null;
     }
 
     @Override
@@ -1421,8 +1231,7 @@ public class DeviceImpl implements Device, CanLock {
         if (found.isPresent()) {
             return found.get().getMeterActivations().stream()
                     .map(m -> getChannel(m, readingTypeSupplier.get()))
-                    .filter(java.util.Optional::isPresent)
-                    .map(java.util.Optional::get)
+                    .flatMap(asStream())
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();
@@ -1658,21 +1467,6 @@ public class DeviceImpl implements Device, CanLock {
             }
         }
         throw new CannotDeleteComScheduleFromDevice(this.thesaurus, comSchedule, this);
-    }
-
-    @Override
-    public int countNumberOfEndDeviceEvents(List<EndDeviceEventType> eventTypes, Interval interval) {
-        int eventCounter = 0;
-        Optional<AmrSystem> amrSystem = this.getMdcAmrSystem();
-        if (amrSystem.isPresent()) {
-            for (Device slaveDevice : this.getPhysicalConnectedDevices()) {
-                Optional<Meter> slaveMeter = amrSystem.get().findMeter(String.valueOf(slaveDevice.getId()));
-                if (slaveMeter.isPresent()) {
-                    eventCounter = eventCounter + this.countUniqueEndDeviceEvents(slaveMeter.get(), eventTypes, interval);
-                }
-            }
-        }
-        return eventCounter;
     }
 
     @Override

@@ -4,10 +4,10 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -20,7 +20,7 @@ import java.util.Set;
 * @author Rudi Vankeirsbilck (rudi)
 * @since 2012-08-13 (14:13)
 */
-public class NoParamsConnectionType implements ServerConnectionType {
+public class NoParamsConnectionType implements ConnectionType {
 
     private static final int HASH_CODE = 13469; // Random prime number
 

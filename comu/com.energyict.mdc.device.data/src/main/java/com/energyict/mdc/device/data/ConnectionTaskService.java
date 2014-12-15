@@ -93,13 +93,11 @@ public interface ConnectionTaskService {
 
     /**
      * Finds the default {@link ConnectionTask} for the specified Device.
-     * The search will start at the Device but if none is found there,
-     * it will continue to the gateway level (if the Device has a gateway of course).
      *
      * @param device The Device for which we need to search the default ConnectionTask
-     * @return The default ConnectionTask for the given Device or <code>null</code> if none was found
+     * @return The default ConnectionTask for the given Device if one exists
      */
-    public ConnectionTask findDefaultConnectionTaskForDevice(Device device);
+    public Optional<ConnectionTask> findDefaultConnectionTaskForDevice(Device device);
 
     /**
      * Finds all the {@link ConnectionTask}s with the specified {@link TaskStatus}.
