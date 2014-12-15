@@ -133,6 +133,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                 {
                     fieldLabel: Uni.I18n.translate('connection.widget.details.commTasks', 'DSH', 'Communication tasks'),
                     name: 'taskCount',
+                    height: 60,
                     renderer: function (val) {
                         var failed = val.numberOfFailedTasks ? val.numberOfFailedTasks : 0,
                             success = val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : 0,
