@@ -19,7 +19,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Setup', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {
