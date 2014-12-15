@@ -27,11 +27,6 @@ public class FakeTransactionService implements TransactionService {
     }
 
     @Override
-    public TransactionBuilder builder() {
-        return null;
-    }
-
-    @Override
     public TransactionContext getContext() {
         return new FakeTransactionContext();
     }
