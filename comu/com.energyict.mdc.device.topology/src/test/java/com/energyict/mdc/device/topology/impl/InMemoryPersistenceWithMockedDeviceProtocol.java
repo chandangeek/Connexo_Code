@@ -50,6 +50,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -134,6 +135,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private TaskService taskService;
     private SchedulingService schedulingService;
     private ValidationService validationService;
+    private DataVaultService dataVaultService;
 
     public InMemoryPersistenceWithMockedDeviceProtocol() {
         this(Clock.systemDefaultZone());
@@ -212,6 +214,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     }
 
     private void initializeMocks(String testName) {
+        this.dataVaultService = mock(DataVaultService.class);
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class);
@@ -292,6 +295,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(DataVaultService.class).toInstance(dataVaultService);
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(EventAdmin.class).toInstance(eventAdmin);

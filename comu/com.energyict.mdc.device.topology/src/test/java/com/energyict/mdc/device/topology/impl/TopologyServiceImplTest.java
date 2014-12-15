@@ -309,7 +309,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Duration expectedTimeToLive = Duration.ofMinutes(1);
 
         // Business method
-        G3CommunicationPathSegment segment = topologyService.addFinalCommunicationSegment(slave, gateway, expectedTimeToLive, expectedCost);
+        G3CommunicationPathSegment segment = topologyService.addCommunicationSegment(slave, gateway, gateway, expectedTimeToLive, expectedCost);
 
         // Asserts
         assertThat(segment).isNotNull();
@@ -335,7 +335,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Duration expectedTimeToLive = Duration.ofMinutes(1);
 
         // Business method
-        G3CommunicationPathSegment segment = topologyService.addIntermediateCommunicationSegment(slave1, gateway, slave2, expectedTimeToLive, expectedCost);
+        G3CommunicationPathSegment segment = topologyService.addCommunicationSegment(slave1, gateway, slave2, expectedTimeToLive, expectedCost);
 
         // Asserts
         assertThat(segment).isNotNull();
@@ -365,9 +365,9 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         topologyService.setPhysicalGateway(slave3, gateway);
         int cost = 17;
         Duration timeToLive = Duration.ofMinutes(1);
-        topologyService.addIntermediateCommunicationSegment(slave1, gateway, slave2, timeToLive, cost);
-        topologyService.addIntermediateCommunicationSegment(slave2, gateway, slave3, timeToLive, cost);
-        topologyService.addFinalCommunicationSegment(slave3, gateway, timeToLive, cost);
+        topologyService.addCommunicationSegment(slave1, gateway, slave2, timeToLive, cost);
+        topologyService.addCommunicationSegment(slave2, gateway, slave3, timeToLive, cost);
+        topologyService.addCommunicationSegment(slave3, gateway, gateway, timeToLive, cost);
 
         // Business method
         G3CommunicationPath communicationPath = topologyService.getCommunicationPath(slave1, gateway);

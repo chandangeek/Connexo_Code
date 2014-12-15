@@ -36,6 +36,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -117,6 +118,8 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private ConnectionTypeService connectionTypeService;
+    @Mock
+    private DataVaultService dataVaultService;
     private DeviceConfigurationService deviceConfigurationService;
     private CommunicationTaskService communicationTaskService;
     private TopologyService topologyService;
@@ -131,6 +134,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(DataVaultService.class).toInstance(dataVaultService);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);

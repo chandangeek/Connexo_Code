@@ -42,6 +42,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -101,6 +102,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
+import org.mockito.Mock;
+
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -148,6 +151,7 @@ public class InMemoryIntegrationPersistence {
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
     private ConnectionTypeService connectionTypeService;
+    private DataVaultService dataVaultService;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -277,6 +281,7 @@ public class InMemoryIntegrationPersistence {
         when(this.applicationContext.getTranslator()).thenReturn(translator);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
+        this.dataVaultService = mock(DataVaultService.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -396,6 +401,7 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(DataVaultService.class).toInstance(dataVaultService);
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(Clock.class).toInstance(clock);

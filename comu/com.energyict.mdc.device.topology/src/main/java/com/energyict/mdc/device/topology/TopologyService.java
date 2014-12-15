@@ -93,9 +93,21 @@ public interface TopologyService {
      */
     public G3CommunicationPath getCommunicationPath(Device source, Device target);
 
-    public G3CommunicationPathSegment addIntermediateCommunicationSegment(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost);
-
-    public G3CommunicationPathSegment addFinalCommunicationSegment(Device source, Device target, Duration timeToLive, int cost);
+    /**
+     * Adds a {@link G3CommunicationPathSegment} from the source to the target
+     * {@link Device}, using the specified intermediate Device.
+     * It is allowed that the intermediate Device is null or
+     * the same as the  target Device, in that case,
+     * the added segment will be a direct or final segment.
+     *
+     * @param source
+     * @param target
+     * @param intermediateHop
+     * @param timeToLive
+     * @param cost
+     * @return
+     */
+    public G3CommunicationPathSegment addCommunicationSegment(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost);
 
     /**
      * Counts the number of communication errors that have occurred in the specified

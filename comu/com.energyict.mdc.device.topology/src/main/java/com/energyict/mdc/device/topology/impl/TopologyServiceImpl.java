@@ -383,13 +383,15 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     @Override
-    public G3CommunicationPathSegment addIntermediateCommunicationSegment(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost) {
-        return this.addCommunicationSegment(source, target, Optional.of(intermediateHop), timeToLive, cost);
-    }
-
-    @Override
-    public G3CommunicationPathSegment addFinalCommunicationSegment(Device source, Device target, Duration timeToLive, int cost) {
-        return this.addCommunicationSegment(source, target, Optional.empty(), timeToLive, cost);
+    public G3CommunicationPathSegment addCommunicationSegment(Device source, Device target, Device intermediateHop, Duration timeToLive, int cost) {
+        Optional<Device> nextHop;
+        if (intermediateHop == null || intermediateHop.getId() == target.getId()) {
+            nextHop = Optional.empty();
+        }
+        else {
+            nextHop = Optional.of(intermediateHop);
+        }
+        return this.addCommunicationSegment(source, target, nextHop, timeToLive, cost);
     }
 
     private G3CommunicationPathSegment addCommunicationSegment(Device source, Device target, Optional<Device> intermediateHop, Duration timeToLive, int cost) {
