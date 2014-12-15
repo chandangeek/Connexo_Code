@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.grid.column.Default'
+        'Uni.grid.column.Default',
+        'Mdc.view.setup.device.ConnectionActionMenu'
     ],
     itemId: 'connectionslist',
     store: null,
@@ -50,97 +51,103 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
         '</tpl>',
         '</table>'
     ),
-    columns: {
-        defaults: {
-            sortable: false,
-            groupable: false,
-            menuDisabled: true
-        },
-        items: [
-            {
-                xtype: 'uni-default-column',
-                dataIndex: 'isDefault',
-                flex: 0.1
-            },
-            {
-                itemId: 'connectionMethod',
-                text: Uni.I18n.translate('device.connections.connectionMethod', 'MDC', 'Connection method'),
-                dataIndex: 'connectionMethod',
-                flex: 1,
-                renderer: function (val, metaData, record) {
-                    var me = this;
-                    metaData.tdAttr = 'data-qtip="' + Ext.htmlEncode(me.connectionTpl.apply(record.getData())) + '"';
-                    return val ? val.name : ''
-                }
-            },
-            {
-                itemId: 'currentState',
-                text: Uni.I18n.translate('device.connections.currentState', 'MDC', 'Current state'),
-                dataIndex: 'currentState',
-                flex: 1,
-                renderer: function (val) {
-                    return val ? val.displayValue : ''
-                }
-            },
-            {
-                itemId: 'latestStatus',
-                text: Uni.I18n.translate('device.connections.latestStatus', 'MDC', 'Latest status'),
-                dataIndex: 'latestStatus',
-                flex: 1,
-                renderer: function (val) {
-                    return val ? val.displayValue : ''
-                }
-            },
-            {
-                itemId: 'latestResult',
-                text: Uni.I18n.translate('device.connections.latestResult', 'MDC', 'Latest result'),
-                dataIndex: 'latestResult',
-                name: 'latestResult',
-                flex: 1,
-                renderer: function (val) {
-                    return val ? val.displayValue : ''
 
-                }
+    initComponent: function(){
+        var me = this;
+        me.columns = {
+            defaults: {
+                sortable: false,
+                    groupable: false,
+                    menuDisabled: true
             },
-            {
-                dataIndex: 'taskCount',
-                itemId: 'taskCount',
-                renderer: function (val) {
-                    var template = '';
-                    if (val.numberOfSuccessfulTasks || val.numberOfFailedTasks || val.numberOfIncompleteTasks) {
-                        template += '<tpl><img src="/apps/dsh/resources/images/widget/running.png" title="Success" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</span></tpl>';
-                        template += '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" title="Failed" class="ct-result ct-failure" style="position: relative; left: 30px"><span style="position: relative; top: -3px; left: 34px">' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</span></tpl>';
-                        template += '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" title="Not executed" class="ct-result ct-incomplete" style="position: relative; left: 56px"><span  style="position: relative; top: -3px; left: 60px">' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</span></tpl>';
-                    }
-                    return template;
+            items: [
+                {
+                    xtype: 'uni-default-column',
+                    dataIndex: 'isDefault',
+                    flex: 0.1
                 },
-                header: Uni.I18n.translate('device.connections.taskCount', 'MDC', 'Communication tasks'),
-                flex: 2
-            },
-            {
-                itemId: 'nextExecution',
-                text: Uni.I18n.translate('device.connections.nextExecution', 'MDC', 'Next connection'),
-                dataIndex: 'nextExecution',
-                xtype: 'datecolumn',
-                format: 'd/m/Y h:i:s',
-                flex: 1
-            },
-            {
-                itemId: 'startDateTime',
-                text: Uni.I18n.translate('device.connections.startDateTime', 'MDC', 'Started on'),
-                dataIndex: 'startDateTime',
-                xtype: 'datecolumn',
-                format: 'd/m/Y h:i:s',
-                flex: 1
-            }
-            //{
-            //    itemId: 'connectionsActionMenu',
-            //    xtype: 'uni-actioncolumn',
-            //    menu: {
-            //        xtype: 'connection-action-menu',
-            //        itemId: 'connectionsActionMenu'
-            //    }
-            //}
-        ]
+                {
+                    itemId: 'connectionMethod',
+                    text: Uni.I18n.translate('device.connections.connectionMethod', 'MDC', 'Connection method'),
+                    dataIndex: 'connectionMethod',
+                    flex: 1,
+                    renderer: function (val, metaData, record) {
+                        var me = this;
+                        metaData.tdAttr = 'data-qtip="' + Ext.htmlEncode(me.connectionTpl.apply(record.getData())) + '"';
+                        return val ? val.name : ''
+                    }
+                },
+                {
+                    itemId: 'currentState',
+                    text: Uni.I18n.translate('device.connections.currentState', 'MDC', 'Current state'),
+                    dataIndex: 'currentState',
+                    flex: 1,
+                    renderer: function (val) {
+                        return val ? val.displayValue : ''
+                    }
+                },
+                {
+                    itemId: 'latestStatus',
+                    text: Uni.I18n.translate('device.connections.latestStatus', 'MDC', 'Latest status'),
+                    dataIndex: 'latestStatus',
+                    flex: 1,
+                    renderer: function (val) {
+                        return val ? val.displayValue : ''
+                    }
+                },
+                {
+                    itemId: 'latestResult',
+                    text: Uni.I18n.translate('device.connections.latestResult', 'MDC', 'Latest result'),
+                    dataIndex: 'latestResult',
+                    name: 'latestResult',
+                    flex: 1,
+                    renderer: function (val) {
+                        return val ? val.displayValue : ''
+
+                    }
+                },
+                {
+                    dataIndex: 'taskCount',
+                    itemId: 'taskCount',
+                    renderer: function (val) {
+                        var template = '';
+                        if (val.numberOfSuccessfulTasks || val.numberOfFailedTasks || val.numberOfIncompleteTasks) {
+                            template += '<tpl><img src="/apps/dsh/resources/images/widget/running.png" title="Success" class="ct-result ct-success"><span style="position: relative; top: -3px; left: 4px">' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</span></tpl>';
+                            template += '<tpl><img src="/apps/dsh/resources/images/widget/blocked.png" title="Failed" class="ct-result ct-failure" style="position: relative; left: 30px"><span style="position: relative; top: -3px; left: 34px">' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</span></tpl>';
+                            template += '<tpl><img src="/apps/dsh/resources/images/widget/stopped.png" title="Not executed" class="ct-result ct-incomplete" style="position: relative; left: 56px"><span  style="position: relative; top: -3px; left: 60px">' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</span></tpl>';
+                        }
+                        return template;
+                    },
+                    header: Uni.I18n.translate('device.connections.taskCount', 'MDC', 'Communication tasks'),
+                    flex: 2
+                },
+                {
+                    itemId: 'nextExecution',
+                    text: Uni.I18n.translate('device.connections.nextExecution', 'MDC', 'Next connection'),
+                    dataIndex: 'nextExecution',
+                    xtype: 'datecolumn',
+                    format: 'd/m/Y h:i:s',
+                    flex: 1
+                },
+                {
+                    itemId: 'startDateTime',
+                    text: Uni.I18n.translate('device.connections.startDateTime', 'MDC', 'Started on'),
+                    dataIndex: 'startDateTime',
+                    xtype: 'datecolumn',
+                    format: 'd/m/Y h:i:s',
+                    flex: 1
+                },
+                {
+                    xtype: 'uni-actioncolumn',
+                    menu: {
+                        xtype: 'device-connection-action-menu',
+                        itemId: 'connectionsActionMenu',
+                        router: me.router
+                    }
+                }
+            ]
+        };
+
+        me.callParent(arguments);
     }
 });

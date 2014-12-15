@@ -240,7 +240,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 },
                 layout: 'fit',
                 items: {
-                    xtype: 'device-connections-list'
+                    xtype: 'device-connections-list',
+                    router: me.router
                 }
             },
             {
@@ -251,7 +252,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 },
                 layout: 'fit',
                 items: {
-                    xtype: 'device-communications-list'
+                    xtype: 'device-communications-list',
+                    router: me.router
                 }
             }
         );

@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.grid.column.Default'
+        'Uni.grid.column.Default',
+        'Mdc.view.setup.device.CommunicationActionMenu'
     ],
     itemId: 'communicationslist',
     store: null,
@@ -46,64 +47,70 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
         '</tpl>',
         '</table>'
     ),
-    columns: {
-        defaults: {
-            sortable: false,
-            groupable: false,
-            menuDisabled: true,
-            flex: 1
-        },
-        items: [
-            {
-                itemId: 'Communication task',
-                text: Uni.I18n.translate('device.communications.comTask', 'MDC', 'Communication task'),
-                dataIndex: 'comTask',
-                renderer: function (val, metaData, record) {
-                    var me = this;
-                    metaData.tdAttr = 'data-qtip="' + Ext.htmlEncode(me.connectionTpl.apply(record.getData())) + '"';
-                    return val ? val.name : ''
-                }
-            },
-            {
-                itemId: 'currentState',
-                text: Uni.I18n.translate('device.communications.currentState', 'MDC', 'Current state'),
-                dataIndex: 'currentState',
-                renderer: function (val) {
-                    return val ? val.displayValue : ''
-                }
-            },
-            {
-                itemId: 'latestResult',
-                text: Uni.I18n.translate('device.communications.latestResult', 'MDC', 'Latest result'),
-                dataIndex: 'latestResult',
-                name: 'latestResult',
-                renderer: function (val) {
-                    return val ? val.displayValue : ''
+    initComponent: function () {
+        var me = this;
 
+        me.columns = {
+            defaults: {
+                sortable: false,
+                groupable: false,
+                menuDisabled: true,
+                flex: 1
+            },
+            items: [
+                {
+                    itemId: 'Communication task',
+                    text: Uni.I18n.translate('device.communications.comTask', 'MDC', 'Communication task'),
+                    dataIndex: 'comTask',
+                    renderer: function (val, metaData, record) {
+                        var me = this;
+                        metaData.tdAttr = 'data-qtip="' + Ext.htmlEncode(me.connectionTpl.apply(record.getData())) + '"';
+                        return val ? val.name : ''
+                    }
+                },
+                {
+                    itemId: 'currentState',
+                    text: Uni.I18n.translate('device.communications.currentState', 'MDC', 'Current state'),
+                    dataIndex: 'currentState',
+                    renderer: function (val) {
+                        return val ? val.displayValue : ''
+                    }
+                },
+                {
+                    itemId: 'latestResult',
+                    text: Uni.I18n.translate('device.communications.latestResult', 'MDC', 'Latest result'),
+                    dataIndex: 'latestResult',
+                    name: 'latestResult',
+                    renderer: function (val) {
+                        return val ? val.displayValue : ''
+
+                    }
+                },
+                {
+                    itemId: 'nextCommunication',
+                    text: Uni.I18n.translate('device.communications.nextCommunication', 'MDC', 'Next communication'),
+                    dataIndex: 'plannedDate',
+                    xtype: 'datecolumn',
+                    format: 'd/m/Y h:i:s'
+                },
+                {
+                    itemId: 'startTime',
+                    text: Uni.I18n.translate('device.communications.startedOn', 'MDC', 'Started on'),
+                    dataIndex: 'startTime',
+                    xtype: 'datecolumn',
+                    format: 'd/m/Y h:i:s'
+                },
+                {
+                    xtype: 'uni-actioncolumn',
+                    menu: {
+                        xtype: 'device-communication-action-menu',
+                        itemId: 'communicationsActionMenu',
+                        router: me.router
+                    }
                 }
-            },
-            {
-                itemId: 'nextCommunication',
-                text: Uni.I18n.translate('device.communications.nextCommunication', 'MDC', 'Next communication'),
-                dataIndex: 'plannedDate',
-                xtype: 'datecolumn',
-                format: 'd/m/Y h:i:s'
-            },
-            {
-                itemId: 'startTime',
-                text: Uni.I18n.translate('device.communications.startedOn', 'MDC', 'Started on'),
-                dataIndex: 'startTime',
-                xtype: 'datecolumn',
-                format: 'd/m/Y h:i:s'
-            }
-            //{
-            //    itemId: 'connectionsActionMenu',
-            //    xtype: 'uni-actioncolumn',
-            //    menu: {
-            //        xtype: 'connection-action-menu',
-            //        itemId: 'connectionsActionMenu'
-            //    }
-            //}
-        ]
+            ]
+        };
+
+        me.callParent(arguments);
     }
 });
