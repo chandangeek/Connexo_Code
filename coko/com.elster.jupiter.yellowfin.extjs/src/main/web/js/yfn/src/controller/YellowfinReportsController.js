@@ -12,6 +12,10 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
 
     refs: [
         {
+            ref: 'reportView',
+            selector: 'report-view'
+        },
+        {
             ref: 'reportFiltersView',
             selector: 'report-view #reportFilters'
         },
@@ -27,7 +31,11 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
             },
             'report-view #refresh-btn':{
                 click:this.generateReport
+            },
+            'report-view #export-report-btn menucheckitem[action=export]':{
+                click:this.exportReport
             }
+
         });
     },
     reportUUID : null,
@@ -99,6 +107,10 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
 
     },
 
+    exportReport:function(button){
+        var me = this;
+        eval("javascript:yellowfin.reports.exportReport("+me.reportId+", '"+button.exportType+"')");
+    },
     loadReportFilters: function (reportUUID) {
         var me = this;
         var router = me.getController('Uni.controller.history.Router');
@@ -145,7 +157,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                             labelAlign: 'top',
                             labelWidth:150,
                             width:300,
-                            fieldLabel: filterRecord.get('filterDisplayName') + ' ' + me.translateFilterType(filterRecord.get('filterType')),
+                            fieldLabel: filterRecord.get('filterDisplayName') + ' ' + wizard.translateFilterType(filterRecord.get('filterType')),
                             value: me.reportFilters[filterName]
                         });
                     }
@@ -153,12 +165,13 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                         var formFields = wizard.createFilterControls(filterRecord, filterOmittable ? "filter": "prompt",me.reportFilters[filterName] );
 
                         formFields = Ext.isArray(formFields) ? formFields : [formFields];
-                        formFields.unshift({
-                            xtype: 'displayfield',
-                            labelAlign: 'left',
-                            labelWidth:300,
-                            fieldLabel: filterDescription + ' ' + me.translateFilterType(filterType)
-                        });
+                        formFields.unshift(
+                            {
+                                xtype: 'displayfield',
+                                labelAlign: 'left',
+                            labelWidth: 200,
+                            fieldLabel: filterDescription + ' ' + wizard.translateFilterType(filterType)
+                            });
 
                         var fieldContainer = {
                             xtype: 'container',
@@ -168,6 +181,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                             },
                             columnWidth: 0.5,
                             maxWidth: 250,
+                            margin:'0 10 0 0',
                             items:formFields
                         };
                         reportFiltersContainer.setVisible(true);
@@ -216,13 +230,13 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
             display:display,
             element: reportContent.getEl().dom,
             showFilters:false,
-            showTitle:true,
+            //showTitle:true,
             filters:me.filterValues,
             width:reportContent.getWidth()-3,
             height:reportContent.getHeight()-38,
-            showExport:true,
-            showSeries:true,
-            showInfo:false,
+            //showExport:true,
+            //showSeries:true,
+            //showInfo:false,
             token: data.token,
             fitTableWidth:false
         }
@@ -251,38 +265,9 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
     getFilterValue:function(filterRecord, queryValue){
         var filterType = filterRecord.get('filterType');
         var filterDisplayType = filterRecord.get('filterDisplayType');
-        var filterId = filterRecord.get('filterDisplayType');
-
         if(filterType == "BETWEEN")
             return [queryValue.from, queryValue.to];
         else return queryValue;
-    },
-    translateFilterType : function(filterType){
-        switch(filterType){
-            case 'EQUAL': return Uni.I18n.translate('generatereport.reportTypeEQUAL', 'YFN', 'Equal to');
-            case 'NOTEQUAL': return Uni.I18n.translate('generatereport.reportTypeNOTEQUAL', 'YFN', 'Different from');
-            case 'GREATER': return Uni.I18n.translate('generatereport.reportTypeGREATER', 'YFN', 'Greater than');
-            case 'GREATEREQUAL': return Uni.I18n.translate('generatereport.reportTypeGREATEREQUAL', 'YFN', 'Greater than or equal to');
-            case 'LESS': return Uni.I18n.translate('generatereport.reportTypeLESS', 'YFN', 'Less than');
-            case 'LESSEQUAL': return Uni.I18n.translate('generatereport.reportTypeLESSEQUAL', 'YFN', 'Less than or equal to');
-            case 'BETWEEN': return Uni.I18n.translate('generatereport.reportTypeBETWEEN', 'YFN', 'Between');
-            case 'NOTBETWEEN': return Uni.I18n.translate('generatereport.reportTypeNOTBETWEEN', 'YFN', 'Not Between');
-            case 'INLIST': return Uni.I18n.translate('generatereport.reportTypeINLIST', 'YFN', 'In List');
-            case 'NOTINLIST': return Uni.I18n.translate('generatereport.reportTypeNOTINLIST', 'YFN', 'Not In List');
-            case 'ISNULL': return Uni.I18n.translate('generatereport.reportTypeISNULL', 'YFN', 'Is Null');
-            case 'ISNOTNULL': return Uni.I18n.translate('generatereport.reportTypeISNOTNULL', 'YFN', 'Is Not Null');
-            case 'EQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeEQUALCOLUMN', 'YFN', 'Equals Column');
-            case 'NOTEQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeNOTEQUALCOLUMN', 'YFN', 'Different from Column');
-            case 'GREATERCOLUMN': return Uni.I18n.translate('generatereport.reportTypeGREATERCOLUMN', 'YFN', 'Greater than Column');
-            case 'GREATEREQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeGREATEREQUALCOLUMN', 'YFN', 'Greater than or Equal to Column');
-            case 'LESSCOLUMN': return Uni.I18n.translate('generatereport.reportTypeLESSCOLUMN', 'YFN', 'Less than Column');
-            case 'LESSEQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeLESSEQUALCOLUMN', 'YFN', 'Less than or Equal to Column');
-            case 'MINIMUMDATE': return Uni.I18n.translate('generatereport.reportTypeMINIMUMDATE', 'YFN', 'Minimum Date');
-            case 'MAXIMUMDATE': return Uni.I18n.translate('generatereport.reportTypeMAXIMUMDATE', 'YFN', 'Maximum Date');
-            case 'LINKFILTER': return Uni.I18n.translate('generatereport.reportTypeLINKFILTER', 'YFN', 'Link to Filter');
-                return filterType;
-        }
     }
-
 
 });

@@ -6,18 +6,19 @@ Ext.define('Mdc.view.generatereport.Step1', {
 
     requires: [
         'Uni.util.FormErrorMessage',
+        'Uni.util.FormInfoMessage',
         'Ext.form.RadioGroup'
 
     ],
 
-    title: Uni.I18n.translate('generatereport.wizard.step1title', 'MDC', 'Step 1 of 4: Select report type'),
+    title: Uni.I18n.translate('generatereport.wizard.step1title', 'MDC', 'Step 1 of 3: Select report type'),
 
     items: [
         {
-            itemId: 'step2-generatereport-errors',
+            itemId: 'step1-generatereport-errors',
             xtype: 'uni-form-error-message',
             hidden: true,
-            text: Uni.I18n.translate('generatereport.noReportPrompts', 'MDC', 'Please select at least one device.')
+            text: Uni.I18n.translate('generatereport.noReportPrompts', 'MDC', 'Please select at least one report.')
         },
         {
             xtype: 'form',

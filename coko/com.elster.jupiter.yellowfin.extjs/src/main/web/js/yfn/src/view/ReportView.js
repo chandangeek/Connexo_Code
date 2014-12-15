@@ -14,29 +14,27 @@ Ext.define('Yfn.view.ReportView', {
         Ext.applyIf(me, {
             items: [
                 {
+                    collapseDirection: 'top',
+                    title: 'Report Name',
                     xtype: 'panel',
                     ui: 'medium',
                     itemId:'reportFilters',
-                    region: 'north',
-                    split: true,
-                    //height: 200,
-                    autoscroll:true,
+                    autoScroll:true,
                     padding:10,
                     collapsible: true,
                     titleCollapse: true,
-                    collapseDirection: 'top',
-                    title: 'Report Name',
+                    maxHeight:400,
                     layout: {
-                        type: 'hbox',
-                        align: 'stretch'
+                        type: 'column'//,
+                       //align: 'stretch'
                     },
                     items: [
                         {
                             itemId:'reportPrompts',
                             xtype: 'fieldcontainer',
-                            labelAlign: 'left',
+                            labelAlign: 'top',
                             labelWidth:50,
-                            fieldLabel: Uni.I18n.translate('generatereport.reportPromptsTitle', 'YFN', 'Prompts'),
+                            fieldLabel: Uni.I18n.translate('generatereport.wizard.mandatoryFilters', 'YFN', 'Mandatory filters'),
                             hidden:true,
                             labelStyle: 'color:#cccccc',
                             layout: {
@@ -49,26 +47,93 @@ Ext.define('Yfn.view.ReportView', {
                             xtype: 'fieldcontainer',
                             hidden:true,
                             labelWidth:50,
+
                             margin:'0 0 0 30', //trbl
                             labelStyle: 'color:#cccccc',
-                            labelAlign: 'left',
-                            fieldLabel: Uni.I18n.translate('generatereport.reportFiltersTitle', 'YFN', 'Filters'),
+                            labelAlign: 'top',
+                            fieldLabel: Uni.I18n.translate('generatereport.wizard.optionalFilters', 'YFN', 'In report filters'),
                             flex: 1,
+                            columnWidth:1,
                             layout: 'column'
                         }
                     ],
                     dockedItems: [
                         {
                             xtype: 'toolbar',
-                            flex: 1,
                             dock: 'right',
                             items: [
+                                /*{
+                                    xtype: 'tbfill'
+                                },
+                                {
+                                    xtype: 'cycle',
+                                    prependText: 'Export to ',
+                                    showText: true,
+                                    itemId: 'export-report-btn',
+                                    menu: {
+                                        xtype: 'menu',
+                                        items: [
+                                            {
+                                                xtype: 'menucheckitem',
+                                                itemId: 'csv-btn',
+                                                action: 'export',
+                                                exportType: 'csv',
+                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'CSV')
+                                            },
+
+                                            {
+                                                xtype: 'menucheckitem',
+                                                itemId: 'doc-btn',
+                                                action: 'export',
+                                                exportType: 'doc',
+                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to Word')
+                                            },
+                                            {
+                                                xtype: 'menucheckitem',
+                                                itemId: 'pdf-btn',
+                                                action: 'export',
+                                                exportType: 'pdf',
+                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to PDF')
+                                            },
+                                            {
+                                                xtype: 'menucheckitem',
+                                                itemId: 'rtf-btn',
+                                                action: 'export',
+                                                exportType: 'rtf',
+                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to RTF')
+                                            },
+                                            {
+                                                xtype: 'menucheckitem',
+                                                itemId: 'txt-btn',
+                                                action: 'export',
+                                                exportType: 'txt',
+                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to TXT')
+                                            },
+                                            {
+                                                xtype: 'menucheckitem',
+                                                itemId: 'xls-btn',
+                                                action: 'export',
+                                                exportType: 'xls',
+                                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to XLS')
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    xtype: 'button',
+                                    itemId: 'chart-btn',
+                                    text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Chart'),
+                                    icon: '/apps/sky/resources/images/form/restore.png'
+                                },
+                                {
+                                    xtype: 'button',
+                                    itemId: 'table-btn',
+                                    text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Table'),
+                                    icon: '/apps/sky/resources/images/form/restore.png'
+                                },*/
                                 {
                                     xtype: 'button',
                                     itemId: 'refresh-btn',
-                                    style: {
-                                        'background-color': '#71adc7'
-                                    },
                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
                                     icon: '/apps/sky/resources/images/form/restore.png'
                                 }
@@ -79,33 +144,13 @@ Ext.define('Yfn.view.ReportView', {
                 {
                     xtype: 'container',
                     itemId:'reportContent',
-                    region: 'center',
-                    split: true,
-                    flex:1,
+                    //flex:1,
                     border:1,
                     style: {
                         borderColor: 'lightgray',
                         borderStyle: 'solid'
                     },
-                    layout: 'fit',
-                    dockedItems: [
-                        {
-                            xtype: 'container',
-                            flex: 1,
-                            dock: 'bottom',
-                            items: [
-                                {
-                                    xtype: 'button',
-                                    itemId: 'refresh-btn',
-                                    style: {
-                                        'background-color': '#71adc7'
-                                    },
-                                    text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
-                                    icon: '/apps/sky/resources/images/form/restore.png'
-                                }
-                            ]
-                        }
-                    ]
+                    layout: 'fit'
                 }
             ]
         });

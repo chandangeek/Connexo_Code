@@ -15,12 +15,12 @@ Ext.define('Yfn.view.generatereport.Navigation', {
         },
         {
             itemId: 'selectReportPrompts',
-            text: Uni.I18n.translate('generatereport.selectReportPrompts', 'YFN', 'Select report prompts')
+            text: Uni.I18n.translate('generatereport.selectReportPrompts', 'YFN', 'Select report filters')
         },
-        {
+        /*{
             itemId: 'selectReportFilters',
             text: Uni.I18n.translate('generatereport.selectReportFilters', 'YFN', 'Select report filters')
-        },
+        },*/
         {
             itemId: 'reportGenerator',
             text: Uni.I18n.translate('generatereport.reportGenerator', 'YFN', 'Report generator')

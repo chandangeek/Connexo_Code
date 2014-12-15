@@ -8,7 +8,8 @@ Ext.define('Yfn.view.generatereport.RadioGroup', {
         groupName:undefined,
         groupItems:[],
         groupDisabled:false,
-        groupSelected:false
+        groupSelected:false,
+        allowBlank:false
 
     },
     layout: 'fit',
@@ -54,6 +55,7 @@ Ext.define('Yfn.view.generatereport.RadioGroup', {
                         disabled : me.groupDisabled,
                         checked : me.groupSelected,
                         inputValue:me.groupValue,
+                        allowBlank:me.allowBlank,
                         name: me.groupName
                     },
                     {
@@ -61,6 +63,7 @@ Ext.define('Yfn.view.generatereport.RadioGroup', {
                         layout:'fit',
                         padding: '0 0 0 20',
                         columns: 1,
+
                         items: items
                     }
                 ]

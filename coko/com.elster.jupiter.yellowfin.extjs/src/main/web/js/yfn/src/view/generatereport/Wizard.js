@@ -29,12 +29,12 @@ Ext.define('Yfn.view.generatereport.Wizard', {
             xtype: 'generatereport-wizard-step3',
             itemId: 'generatereport-wizard-step3',
             navigationIndex: 2
-        },
+        }/*,
         {
             xtype: 'generatereport-wizard-step4',
             itemId: 'generatereport-wizard-step4',
             navigationIndex: 3
-        }
+        }*/
     ],
     bbar: {
         defaults: {
