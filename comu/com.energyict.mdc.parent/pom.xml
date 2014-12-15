@@ -518,12 +518,12 @@
         <module>../com.energyict.mdc.issue.datacollection.extjs</module>
         <module>../com.energyict.mdc.scheduling</module>
         <module>../com.energyict.mdc.scheduling.rest</module>
-        <module>../com.energyict.mdc.protocols</module>
         <module>../com.energyict.mdc.dashboard</module>
         <module>../com.energyict.mdc.dashboard.rest</module>
         <module>../com.energyict.mdc.dashboard.extjs</module>
         <module>../com.energyict.comserver.comserver.core.extjs</module>
         <module>../com.energyict.comserver.comserver.core.rest</module>
+        <module>../com.energyict.mdc.protocols</module>
       </modules>
     </profile>
   </profiles>
