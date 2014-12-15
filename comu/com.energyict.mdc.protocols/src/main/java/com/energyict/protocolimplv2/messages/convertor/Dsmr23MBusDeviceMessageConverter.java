@@ -19,6 +19,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.spec
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +42,7 @@ public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
 
     private final TopologyService topologyService;
 
+    @Inject
     public Dsmr23MBusDeviceMessageConverter(TopologyService topologyService) {
         super();
         this.topologyService = topologyService;

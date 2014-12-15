@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 
+import javax.inject.Inject;
 import java.util.Map;
 
 /**
@@ -20,6 +21,7 @@ import java.util.Map;
  */
 public class CryptoDsmr23MBusMessageConverter extends Dsmr23MBusDeviceMessageConverter {
 
+    @Inject
     public CryptoDsmr23MBusMessageConverter(TopologyService topologyService) {
         super(topologyService);
     }
