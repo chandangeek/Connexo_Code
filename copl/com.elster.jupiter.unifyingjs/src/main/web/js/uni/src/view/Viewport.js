@@ -34,7 +34,6 @@ Ext.define('Uni.view.Viewport', {
         },
         {
             region: 'north',
-            xtype: 'container',
             cls: 'north',
             xtype: 'breadcrumbTrail',
             itemId: 'breadcrumbTrail',
@@ -44,7 +43,12 @@ Ext.define('Uni.view.Viewport', {
             xtype: 'container',
             region: 'center',
             itemId: 'contentPanel',
-            layout: 'fit'
+            layout: 'fit',
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            defaults: {
+                minWidth: 1160
+            }
         }
     ]
 });
