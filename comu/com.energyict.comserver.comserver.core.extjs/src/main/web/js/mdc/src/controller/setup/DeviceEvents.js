@@ -84,13 +84,16 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
             toggleId = 'events',
             title = Uni.I18n.translate('deviceevents.header', 'MDC', 'Events'),
             sideFilter;
-
-        if (Ext.isDefined(logbookId)){
-            dataStoreProxy.setUrl({mRID: mRID, logbookId: logbookId});
+        dataStoreProxy.setUrl({mRID: mRID, logbookId: logbookId});
+        if (Ext.isDefined(logbookId)) {
             title = Uni.I18n.translate('devicelogbooks.event.header', 'MDC', 'Logbook events');
-            toggleId = 'logbooksLink'
-        } else {
-            dataStoreProxy.setUrl({mRID: mRID});
+            toggleId = 'logbooksLink';
+            logbookModel.getProxy().setUrl(mRID);
+            logbookModel.load(logbookId, {
+                success: function (record) {
+                    me.getApplication().fireEvent('logbookOfDeviceLoad', record);
+                }
+            });
         }
 
         me.getModel('Mdc.model.Device').load(mRID, {
@@ -115,12 +118,6 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
                     me.getFilterForm().loadRecord(router.filter);
                     sideFilter.enable();
                     me.setFilterView();
-                });
-                logbookModel.getProxy().setUrl(mRID);
-                logbookModel.load(logbookId, {
-                    success: function (record) {
-                        me.getApplication().fireEvent('logbookOfDeviceLoad', record);
-                    }
                 });
             }
         });
