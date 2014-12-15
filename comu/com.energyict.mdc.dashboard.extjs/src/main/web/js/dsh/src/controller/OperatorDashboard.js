@@ -126,19 +126,20 @@ Ext.define('Dsh.controller.OperatorDashboard', {
             dashboard = me.getDashboard(),
             lastUpdateField = dashboard.down('#last-updated-field');
 
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure', 'privilege.view.communicationInfrastructure',
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device',
             'privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue'])) {
             var connectionModel = me.getModel('Dsh.model.connection.Overview'),
                 communicationModel = me.getModel('Dsh.model.communication.Overview'),
                 myOpenIssuesModel = me.getModel('Dsh.model.opendatacollectionissues.Overview'),
                 issuesWidget = me.getIssuesWidget(),
                 router = this.getController('Uni.controller.history.Router');
-
-            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure', 'privilege.view.communicationInfrastructure'])) {
+            if (Uni.Auth.hasAnyPrivilege(['privilege.view.device'])){
+                me.getFlaggedDevices().reload();
+            }
+            if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
                 connectionModel.setFilter(router.filter);
                 communicationModel.setFilter(router.filter);
                 dashboard.setLoading();
-                me.getFlaggedDevices().reload();
                 me.getCommunicationServers().reload();
                 connectionModel.load(null, {
                         success: function (connections) {
