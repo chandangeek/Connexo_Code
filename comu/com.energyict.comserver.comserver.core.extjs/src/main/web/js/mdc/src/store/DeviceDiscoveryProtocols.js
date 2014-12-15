@@ -8,10 +8,10 @@ Ext.define('Mdc.store.DeviceDiscoveryProtocols', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '../../api/plr/devicediscoveryprotocols',
+        url: '/api/plr/devicediscoveryprotocols',
         reader: {
             type: 'json',
-            root: 'InboundDeviceProtocolPluggableClass'
+            root: 'deviceDiscoveryProtocolInfos'
         }
     }
 
