@@ -41,7 +41,6 @@ public class ReadingTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION,Privileges.VIEW_DEVICE_CONFIGURATION})
     public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryFilter queryFilter) {
         List<ReadingType> readingTypes = meteringService.getAvailableReadingTypes();
         Predicate<ReadingType> filter = getReadingTypeFilterPredicate(queryFilter);
