@@ -1,10 +1,9 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.StopWatch;
 
 /**
  * Provides an implementation for the {@link TransactionService}
