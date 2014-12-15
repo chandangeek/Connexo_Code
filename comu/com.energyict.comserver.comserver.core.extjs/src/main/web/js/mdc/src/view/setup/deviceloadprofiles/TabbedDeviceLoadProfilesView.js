@@ -16,11 +16,11 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TabbedDeviceLoadProfilesView', {
                 itemId: 'loadProfileTabPanel',
                 items: [
                     {
-                        title: 'Specifications',
+                        title: Uni.I18n.translate('deviceloadprofiles.specifications', 'MDC', 'Specifications'),
                         itemId: 'loadProfile-specifications'
                     },
                     {
-                        title: 'Data',
+                        title: Uni.I18n.translate('deviceloadprofiles.readings', 'MDC', 'Readings'),
                         itemId: 'loadProfile-data'
                     }],
                 listeners: {

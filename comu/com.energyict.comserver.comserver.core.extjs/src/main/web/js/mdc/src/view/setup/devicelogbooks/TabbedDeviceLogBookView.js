@@ -14,11 +14,11 @@ Ext.define('Mdc.view.setup.devicelogbooks.TabbedDeviceLogBookView', {
                 ui: 'large',
                 items: [
                     {
-                        title: 'Specifications',
+                        title: Uni.I18n.translate('devicelogbooks.specification', 'MDC', 'Specifications'),
                         itemId: 'logBook-specifications'
                     },
                     {
-                        title: 'Data',
+                        title: Uni.I18n.translate('devicelogbooks.events', 'MDC', 'Events'),
                         itemId: 'logBook-data'
                     }
                 ],

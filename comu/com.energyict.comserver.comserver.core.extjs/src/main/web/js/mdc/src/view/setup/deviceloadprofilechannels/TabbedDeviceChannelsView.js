@@ -17,11 +17,11 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.TabbedDeviceChannelsView', 
                 itemId: 'channelTabPanel',
                 items: [
                     {
-                        title: 'Specifications',
+                        title: Uni.I18n.translate('deviceloadprofiles.specifications', 'MDC', 'Specifications'),
                         itemId: 'channel-specifications'
                     },
                     {
-                        title: 'Data',
+                        title: Uni.I18n.translate('deviceloadprofiles.readings', 'MDC', 'Readings'),
                         itemId: 'channel-data'
                     }],
                 listeners: {
