@@ -32,7 +32,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     renderer: function (val) {
                         var res = '';
                         if (val) {
-                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device'])
+                            Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceData'])
                                 ? res = '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : res = val.name;
                         }
                         return res;
@@ -44,7 +44,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     renderer: function (val) {
                         var res = '';
                         if (val) {
-                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'])
+                            Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType','privilege.view.deviceType'])
                                 ? res = '<a href="#/administration/devicetypes/' + val.id + '">' + val.name + '</a>' : res = val.name;
                         }
                         return res;
@@ -61,7 +61,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                             '">' +
                             val.config.name +
                             '</a>');
-                        if (res !== '' && !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'])) {
+                        if (res !== '' && !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceType','privilege.view.deviceType'])) {
                             res = val.config.name;
                         }
                         return res

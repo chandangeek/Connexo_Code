@@ -24,7 +24,8 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                 dataIndex: 'device',
                 flex: 1,
                 renderer: function (val) {
-                    return '<a href="#/devices/' + val.id + '">' + val.name + '</a>'
+                    return  Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceData'])
+                        ? '<a href="#/devices/' + val.id + '">' + val.name + '</a>' : val.name
                 }
             },
             {

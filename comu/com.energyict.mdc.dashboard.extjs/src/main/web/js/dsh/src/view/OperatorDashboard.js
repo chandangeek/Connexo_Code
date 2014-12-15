@@ -89,6 +89,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     {
                         xtype: 'flagged-devices',
                         itemId: 'flagged-devices',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device']),
                         router: me.router
                     },
                     {
@@ -102,7 +103,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                 margin: '50 0 0 0',
                 items: {
                     xtype: 'device-group-filter',
-                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure', 'privilege.view.communicationInfrastructure']),
+                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                     router: me.router
                 }
             },
@@ -129,7 +130,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                         router: me.router,
                         parent: 'connections',
                         buttonAlign: 'left',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                         buttons: [{
                             text: Uni.I18n.translate('dashboard.widget.connections.link', 'DSH', 'View connections overview'),
                             ui: 'link',
@@ -144,7 +145,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                         parent: 'communications',
                         router: me.router,
                         buttonAlign: 'left',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                         buttons: [{
                             text: Uni.I18n.translate('dashboard.widget.communications.link', 'DSH', 'View communications overview'),
                             ui: 'link',
@@ -157,7 +158,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     xtype: 'communication-servers',
                     width: 300,
                     dock: 'right',
-                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.communicationInfrastructure','privilege.view.communicationInfrastructure']),
+                    hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                     itemId: 'communication-servers',
                     router: me.router,
                     style: 'border-width: 1px !important'   // Andrea: Should be fixed with CSS
