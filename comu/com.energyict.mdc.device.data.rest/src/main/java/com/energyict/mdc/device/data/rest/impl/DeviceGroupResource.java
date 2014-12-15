@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -20,6 +21,7 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.util.LinkedHashMap;
@@ -34,22 +36,40 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Functions.asStream;
 
 @Path("/devicegroups")
 public class DeviceGroupResource {
+
+    private static final Logger LOGGER = Logger.getLogger(DeviceGroupResource.class.getName());
 
     private final MeteringGroupsService meteringGroupsService;
     private final RestQueryService restQueryService;
@@ -66,6 +86,37 @@ public class DeviceGroupResource {
         this.restQueryService = restQueryService;
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
+    }
+
+    @GET
+    @Path("/{id}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id, @Context SecurityContext securityContext) {
+        return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext));
+    }
+
+    private EndDeviceGroup fetchDeviceGroup(long id, @Context SecurityContext securityContext) {
+        return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    @GET
+    @Path("/{id}/devices")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    public PagedInfoList getDevices(@BeanParam QueryParameters queryParameters, @PathParam("id") long deviceGroupId, @Context SecurityContext securityContext) {
+        EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId, securityContext);
+        List<? extends EndDevice> allEndDevices = endDeviceGroup.getMembers(Instant.now());
+        List<? extends EndDevice> endDevices =
+            ListPager.of(allEndDevices).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+
+        List<Device> devices = new ArrayList<Device>();
+        for (EndDevice endDevice: endDevices) {
+            devices.add(deviceService.findDeviceById(endDevice.getId()));
+        }
+        //List<Device> subList = devices.subList(0, Math.min(queryParameters.getLimit() + 1, endDevices.size() + 1));
+        List<DeviceInfo> deviceInfos = DeviceInfo.from(devices);
+        return PagedInfoList.asJson("devices", deviceInfos, queryParameters);
     }
 
     @GET
@@ -112,6 +163,26 @@ public class DeviceGroupResource {
         return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup)).build();
     }
 
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    @Path("/{id}")
+    public Response removeDeviceGroup(DeviceGroupInfo deviceGroupInfo, @PathParam("id") long id) {
+        try {
+            EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+            endDeviceGroup.delete();
+            return Response.ok().build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new WebApplicationException(e.getLocalizedMessage());
+        }
+    }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -148,8 +219,7 @@ public class DeviceGroupResource {
                     .map(HasId::getId);
         }
         List<EndDevice> endDevices = deviceIds.map(number -> meteringService.findEndDevice(number.longValue()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(asStream())
                 .collect(Collectors.toList());
 
         Map<Long, EnumeratedEndDeviceGroup.Entry> currentEntries = enumeratedEndDeviceGroup.getEntries().stream()

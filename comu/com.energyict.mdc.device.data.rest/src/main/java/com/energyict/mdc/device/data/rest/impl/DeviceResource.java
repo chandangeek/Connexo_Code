@@ -14,9 +14,10 @@ import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import java.time.ZoneId;
@@ -55,6 +56,7 @@ public class DeviceResource {
 
     private final DeviceImportService deviceImportService;
     private final DeviceService deviceService;
+    private final TopologyService topologyService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final IssueService issueService;
@@ -70,6 +72,8 @@ public class DeviceResource {
     private final Provider<ConnectionMethodResource> connectionMethodResourceProvider;
     private final Provider<DeviceMessageResource> deviceCommandResourceProvider;
     private final Provider<DeviceLabelResource> deviceLabelResourceProvider;
+    private final Provider<ConnectionResource> connectionResourceProvider;
+    private final Provider<CommunicationResource> communicationResourceProvider;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
@@ -80,6 +84,7 @@ public class DeviceResource {
             ResourceHelper resourceHelper,
             DeviceImportService deviceImportService,
             DeviceService deviceService,
+            TopologyService topologyService,
             DeviceConfigurationService deviceConfigurationService,
             IssueService issueService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
@@ -91,6 +96,8 @@ public class DeviceResource {
             Provider<DeviceScheduleResource> deviceScheduleResourceProvider,
             Provider<DeviceComTaskResource> deviceComTaskResourceProvider,
             Provider<DeviceMessageResource> deviceCommandResourceProvider,
+            Provider<ConnectionResource> connectionResourceProvider,
+            Provider<CommunicationResource> communicationResourceProvider,
             DeviceMessageSpecificationService deviceMessageSpecificationService,
             DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
             DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory,
@@ -102,6 +109,7 @@ public class DeviceResource {
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
         this.deviceService = deviceService;
+        this.topologyService = topologyService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.issueService = issueService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
@@ -116,6 +124,8 @@ public class DeviceResource {
         this.connectionMethodResourceProvider = connectionMethodResourceProvider;
         this.deviceCommandResourceProvider = deviceCommandResourceProvider;
         this.deviceLabelResourceProvider = deviceLabelResourceProvider;
+        this.connectionResourceProvider = connectionResourceProvider;
+        this.communicationResourceProvider = communicationResourceProvider;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
@@ -158,15 +168,15 @@ public class DeviceResource {
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
 
         this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
-        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, deviceService, issueService);
+        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, topologyService, issueService);
     }
 
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
         List<DeviceTopologyInfo> slaves;
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
-            slaves = DeviceTopologyInfo.from(deviceService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
         } else {
-            slaves = DeviceTopologyInfo.from(device.getPhysicalConnectedDevices());
+            slaves = DeviceTopologyInfo.from(topologyService.findPhysicalConnectedDevices(device));
         }
         return slaves;
     }
@@ -187,7 +197,7 @@ public class DeviceResource {
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService);
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService);
     }
 
     /**
@@ -288,10 +298,20 @@ public class DeviceResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         return devicePropertyResourceProvider.get().with(device);
     }
-    
+
     @Path("/{mRID}/devicelabels")
     public DeviceLabelResource getDeviceLabelResource() {
         return deviceLabelResourceProvider.get();
+    }
+    
+    @Path("/{mRID}/connections")
+    public ConnectionResource getConnectionResource() {
+        return connectionResourceProvider.get();
+    }
+    
+    @Path("/{mRID}/communications")
+    public CommunicationResource getCommunicationResource() {
+        return communicationResourceProvider.get();
     }
 
     @GET
@@ -300,7 +320,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.VIEW_DEVICE)
     public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        TopologyTimeline timeline = deviceService.getPysicalTopologyTimeline(device);
+        TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
         Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate)
                 .sorted(Comparator.comparing(Device::getmRID));
@@ -324,7 +344,7 @@ public class DeviceResource {
     }
 
     private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, String> extractor) {
-        Pattern filterPattern = getFilterPattern(name, filter.getString(name));
+        Pattern filterPattern = getFilterPattern(filter.getString(name));
         if (filterPattern != null) {
             return predicate.and(d -> {
                 String stringToSearch = extractor.apply(d);
@@ -365,11 +385,12 @@ public class DeviceResource {
      * @param filter the filter expression
      * @return search pattern
      */
-    private Pattern getFilterPattern(String name, String filter) {
+    private Pattern getFilterPattern(String filter) {
         if (filter != null) {
             filter = Pattern.quote(filter.replace('%', '*'));
             return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
         }
         return null;
     }
+
 }
