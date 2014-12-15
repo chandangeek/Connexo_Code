@@ -306,7 +306,7 @@ public class DataExportTaskResource {
     }
 
     private ScheduleExpression getScheduleExpression(DataExportTaskInfo info) {
-        return info.schedule == null ? Never.NEVER : info.schedule.asScheduleExpression();
+        return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
     }
 
 

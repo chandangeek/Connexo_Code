@@ -6,8 +6,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.util.time.Never;
 
@@ -26,7 +26,7 @@ public class DataExportTaskInfo {
     public boolean active = true;
     public String name = "name";
     public ProcessorInfo dataProcessor;
-    public TemporalExpressionInfo schedule;
+    public PeriodicalExpressionInfo schedule;
     public RelativePeriodInfo exportperiod;
     public RelativePeriodInfo updatePeriod;
     public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
@@ -54,7 +54,7 @@ public class DataExportTaskInfo {
         if (Never.NEVER.equals(dataExportTask.getScheduleExpression())) {
             schedule = null;
         } else {
-            schedule = TemporalExpressionInfo.from((TemporalExpression) dataExportTask.getScheduleExpression());
+            schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) dataExportTask.getScheduleExpression());
         }
 
         exportperiod = new RelativePeriodInfo(dataExportTask.getExportPeriod(), thesaurus);
