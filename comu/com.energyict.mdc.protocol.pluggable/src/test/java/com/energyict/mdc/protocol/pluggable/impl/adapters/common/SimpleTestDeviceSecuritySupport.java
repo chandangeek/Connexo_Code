@@ -7,11 +7,10 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -41,9 +40,9 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
     @Inject
     public SimpleTestDeviceSecuritySupport(PropertySpecService propertySpecService) {
         super();
-        this.firstPropSpec = propertySpecService.basicPropertySpec(FIRST_PROPERTY_NAME, false, new StringFactory());
-        this.secondPropSpec = propertySpecService.basicPropertySpec(SECOND_PROPERTY_NAME, false, new StringFactory());
-        this.thirdPropSpec = propertySpecService.basicPropertySpec(THIRD_PROPERTY_NAME, false, new StringFactory());
+        this.firstPropSpec = propertySpecService.basicPropertySpec(FIRST_PROPERTY_NAME, false, StringFactory.class);
+        this.secondPropSpec = propertySpecService.basicPropertySpec(SECOND_PROPERTY_NAME, false, StringFactory.class);
+        this.thirdPropSpec = propertySpecService.basicPropertySpec(THIRD_PROPERTY_NAME, false, StringFactory.class);
     }
 
     @Override
