@@ -14,6 +14,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
     edit: false,
     returnLink: null,
     categoryStore: undefined,
+    firstDayOfWeekUrl: '/api/tmr/relativeperiods/weekstarts',
 
     setEdit: function () {
         this.down('#cancel-link').href = this.returnLink;
@@ -176,6 +177,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
     onAfterRender: function () {
         var me = this;
 
+        me.getFirstDayOfWeek();
         me.getStartRelativePeriodField().on('periodchange', me.updatePreview, me);
         me.getEndRelativePeriodField().on('periodchange', me.updatePreview, me);
         me.updatePreview();
@@ -199,5 +201,52 @@ Ext.define('Tme.view.relativeperiod.Edit', {
 
     getRelativePeriodPreview: function () {
         return this.down('uni-form-relativeperiodpreview');
+    },
+
+    getFirstDayOfWeek: function () {
+        var me = this;
+        Ext.Ajax.request({
+            url: me.firstDayOfWeekUrl,
+            method: 'GET',
+            success: function (response, data) {
+                var dayNumber = Ext.decode(response.responseText, true);
+
+                me.getStartRelativePeriodField().down('uni-form-field-onperiod #option-dow-combo').setValue(dayNumber);
+                me.getEndRelativePeriodField().down('uni-form-field-onperiod #option-dow-combo').setValue(dayNumber);
+                var intervalsComboStart = me.getStartRelativePeriodField().down('uni-form-field-startperiod #period-interval');
+                var intervalsComboEnd = me.getEndRelativePeriodField().down('uni-form-field-startperiod #period-interval');
+                var intervalsRecordStart = intervalsComboStart.findRecord(intervalsComboStart.valueField, 'weeks');
+                var intervalsRecordEnd = intervalsComboEnd.findRecord(intervalsComboEnd.valueField, 'weeks');
+                var startsOn = Uni.I18n.translate('period.weeks.startsOn', 'UNI', 'week(s) (starts on') + ' ';
+                switch (dayNumber) {
+                    case 1:
+                        startsOn = startsOn + Uni.I18n.translate('general.day.monday', 'UNI', 'Monday') + ')';
+                        break;
+                    case 2:
+                        startsOn = startsOn + Uni.I18n.translate('general.day.tuesday', 'UNI', 'Tuesday') + ')';
+                        break;
+                    case 3:
+                        startsOn = startsOn + Uni.I18n.translate('general.day.wednesday', 'UNI', 'Wednesday') + ')';
+                        break;
+                    case 4:
+                        startsOn = startsOn + Uni.I18n.translate('general.day.thursday', 'UNI', 'Thursday') + ')';
+                        break;
+                    case 5:
+                        startsOn = startsOn + Uni.I18n.translate('general.day.friday', 'UNI', 'Friday') + ')';
+                        break;
+                    case 6:
+                        startsOn = startsOn + Uni.I18n.translate('general.day.saturday', 'UNI', 'Saturday') + ')';
+                        break;
+                    case 7:
+                        startsOn = startsOn + Uni.I18n.translate('general.day.sunday', 'UNI', 'Sunday') + ')';
+                        break;
+                }
+                intervalsRecordStart.set('name', startsOn);
+                intervalsRecordEnd.set('name', startsOn);
+            },
+            failure: function (response) {
+                // Already caught be the default value of the date string.
+            }
+        });
     }
 });
