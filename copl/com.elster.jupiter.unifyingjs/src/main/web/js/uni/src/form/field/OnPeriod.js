@@ -115,13 +115,14 @@ Ext.define('Uni.form.field.OnPeriod', {
                     },
                     {
                         xtype: 'combobox',
+                        itemId: 'option-dow-combo',
                         name: 'period-interval',
                         displayField: 'name',
                         valueField: 'value',
                         queryMode: 'local',
                         editable: false,
                         hideLabel: true,
-                        value: moment().startOf('week').isoWeekday(),
+                        value: 1,
                         width: 128,
                         margin: '0 6 0 6',
                         store: new Ext.data.Store({
