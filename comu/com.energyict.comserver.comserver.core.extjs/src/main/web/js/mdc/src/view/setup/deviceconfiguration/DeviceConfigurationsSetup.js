@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationsSetup', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('deviceConfiguration.addDeviceConfiguration', 'MDC', 'Add device configuration'),
-                                    privileges: ['privilege.administrate.deviceConfiguration'],
+                                    privileges: ['privilege.administrate.deviceType'],
                                     itemId: 'createDeviceConfigurationButton',
                                     action: 'createDeviceConfiguration'
                                 }

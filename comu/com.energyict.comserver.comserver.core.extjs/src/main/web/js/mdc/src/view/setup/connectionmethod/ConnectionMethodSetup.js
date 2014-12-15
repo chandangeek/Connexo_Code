@@ -69,6 +69,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodSetup', {
                 stepItems: [
                     {
                         text: Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method'),
+                        privileges: ['privilege.administrate.deviceType'],
                         itemId: 'createOutboundConnectionButton',
                         action: 'createOutboundConnectionMethod'
                     },
