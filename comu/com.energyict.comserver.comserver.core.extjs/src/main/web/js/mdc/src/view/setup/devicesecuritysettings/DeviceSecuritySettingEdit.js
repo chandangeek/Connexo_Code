@@ -207,12 +207,11 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                                         itemId: 'addEditButton'
                                     },
                                     {
-                                        text: Uni.I18n.translate('general.restoreAll', 'MDC', 'Restore to defaults'),
                                         xtype: 'button',
+                                        text: Uni.I18n.translate('general.restoreToDefaultSettings', 'MDC', 'Restore to default settings'),
+                                        icon: '../sky/build/resources/images/form/restore.png',
                                         itemId: 'restoreAllButton',
-                                        action: 'restoreAll',
-                                        margin: '0 0 0 10',
-                                        disabled: true
+                                        action: 'restoreAll'
                                     },
                                     {
                                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
