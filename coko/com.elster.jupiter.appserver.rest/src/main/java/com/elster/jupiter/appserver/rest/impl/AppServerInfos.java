@@ -2,7 +2,6 @@ package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +18,10 @@ public class AppServerInfos {
         addAll(appServers);
     }
 
-    public AppServerInfo add(AppServer appServer) {
-        AppServerInfo result = new AppServerInfo(appServer);
+    public void add(AppServer appServer) {
+        AppServerInfo result = AppServerInfo.of(appServer);
         appServers.add(result);
         total++;
-        return result;
     }
 
     public void addAll(Iterable<AppServer> appServers) {

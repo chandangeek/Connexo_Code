@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -30,6 +31,7 @@ public class AppServerApplication extends Application implements InstallService 
     public static final String COMPONENT_NAME = "APR";
     private volatile RestQueryService restQueryService;
     private volatile AppService appService;
+    private volatile MessageService messageService;
 
     private NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -49,6 +51,11 @@ public class AppServerApplication extends Application implements InstallService 
     @Reference
     public void setRestQueryService(RestQueryService restQueryService) {
         this.restQueryService = restQueryService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Reference
@@ -89,6 +96,7 @@ public class AppServerApplication extends Application implements InstallService 
                 bind(restQueryService).to(RestQueryService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(appService).to(AppService.class);
+                bind(messageService).to(MessageService.class);
 
             }
         });

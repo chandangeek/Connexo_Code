@@ -1,36 +1,34 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.nls.Thesaurus;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * Created by igh on 11/12/2014.
- */
 public class AppServerInfo {
 
     public String name;
+    public boolean active;
+    public List<SubscriberExecutionSpecInfo> executionSpecs;
 
     public AppServerInfo() {}
 
-    public static AppServerInfo from(AppServer appServer) {
-        AppServerInfo appServerInfo = new AppServerInfo();
-        appServerInfo.name = appServer.getName();
-        return appServerInfo;
+    public static AppServerInfo of(AppServer appServer) {
+        return new AppServerInfo(appServer);
     }
 
     public AppServerInfo(AppServer appServer) {
         name = appServer.getName();
+        active = appServer.isActive();
+        executionSpecs = appServer.getSubscriberExecutionSpecs().stream()
+                .map(SubscriberExecutionSpecInfo::of)
+                .collect(Collectors.toList());
     }
 
     public static List<AppServerInfo> from(List<AppServer> appServers) {
-        List<AppServerInfo> appServerInfos = new ArrayList<>();
-        for (AppServer appServer : appServers) {
-            appServerInfos.add(AppServerInfo.from(appServer));
-        }
-        return appServerInfos;
+        return appServers.stream()
+                .map(AppServerInfo::of)
+                .collect(Collectors.toList());
     }
 
 }
