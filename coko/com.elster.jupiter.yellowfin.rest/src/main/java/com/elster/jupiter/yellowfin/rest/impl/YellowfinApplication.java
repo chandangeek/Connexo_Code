@@ -14,7 +14,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.util.HashSet;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.yellowfin.rest" , service=Application.class , immediate = true , property = {"alias=/yfn", "app=YFN", "name=" + YellowfinApplication.COMPONENT_NAME} )
