@@ -102,8 +102,9 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
 
     @Override
-    public Finder<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue) {
-        Condition condition = where("propertySpec").isEqualTo(propertySpecName).and(where("propertyValue").isEqualTo(propertySpecValue));
-        return DefaultFinder.of(Device.class, condition, this.deviceDataModelService.dataModel(), DeviceProtocolProperty.class);
+    public List<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue) {
+        Condition condition = where("deviceProperties.propertySpec").isEqualTo(propertySpecName).and(where("deviceProperties.propertyValue").isEqualTo(propertySpecValue));
+        return this.deviceDataModelService.dataModel().query(Device.class, DeviceProtocolProperty.class).select(condition);
+
     }
 }

@@ -80,6 +80,6 @@ public interface DeviceService {
      * @param propertySpecValue the value of the property
      * @return a list of all devices matching the given criteria
      */
-    public Finder<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue);
+    public List<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue);
 
 }
