@@ -20,7 +20,7 @@ public aspect ComServerDAOPerformance {
             || execution(public com.energyict.mdc.engine.model.ComPort refreshComPort(java.lang.String))
             || execution(public java.util.List findExecutableOutboundComTasks(com.energyict.mdc.engine.model.OutboundComPort))
             || execution(public java.util.List findExecutableInboundComTasks(com.energyict.mdc.protocol.api.device.offline.OfflineDevice, com.energyict.mdc.engine.model.InboundComPort))
-            || execution(public com.energyict.mdc.protocol.api.device.offline.OfflineDevice findDevice(com.energyict.mdc.protocol.api.inbound.DeviceIdentifier))
+            || execution(public com.energyict.mdc.protocol.api.device.offline.OfflineDevice findDevice(com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier))
             || execution(public com.energyict.mdc.protocol.api.device.offline.OfflineRegister findRegister(com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier))
             || execution(public com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage findDeviceMessage(com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier))
             || execution(public boolean attemptLock(com.energyict.mdc.device.data.tasks.OutboundConnectionTask, com.energyict.mdc.engine.model.ComServer))
@@ -28,9 +28,9 @@ public aspect ComServerDAOPerformance {
             || execution(public boolean attemptLock(com.energyict.mdc.device.data.tasks.ComTaskExecution, com.energyict.mdc.engine.model.ComPort))
             || execution(public boolean isStillPending(int))
             || execution(public boolean areStillPending(java.util.Collection))
-            || execution(public java.util.List getDeviceProtocolSecurityProperties(com.energyict.mdc.protocol.api.inbound.DeviceIdentifier, com.energyict.mdc.engine.model.InboundComPort))
-            || execution(public com.energyict.mdc.common.TypedProperties getDeviceConnectionTypeProperties(com.energyict.mdc.protocol.api.inbound.DeviceIdentifier, com.energyict.mdc.engine.model.InboundComPort))
-            || execution(public com.energyict.mdc.common.TypedProperties getDeviceProtocolProperties(com.energyict.mdc.protocol.api.inbound.DeviceIdentifier)));
+            || execution(public java.util.List getDeviceProtocolSecurityProperties(com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier, com.energyict.mdc.engine.model.InboundComPort))
+            || execution(public com.energyict.mdc.common.TypedProperties getDeviceConnectionTypeProperties(com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier, com.energyict.mdc.engine.model.InboundComPort))
+            || execution(public com.energyict.mdc.common.TypedProperties getDeviceProtocolProperties(com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier)));
 
     Object around (ComServerDAOImpl comServerDAO): useSqlConnection(comServerDAO) {
         LoggingStopWatch stopWatch = new LoggingStopWatch("ComServerDAOImpl.useSqlConnection", PerformanceLogger.INSTANCE);

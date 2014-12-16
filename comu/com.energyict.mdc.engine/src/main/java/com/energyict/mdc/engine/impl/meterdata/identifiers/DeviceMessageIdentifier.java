@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.meterdata.identifiers;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.inbound.MessageIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.util.Arrays;

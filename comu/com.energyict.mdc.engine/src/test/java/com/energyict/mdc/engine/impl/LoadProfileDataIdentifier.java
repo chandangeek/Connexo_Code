@@ -5,8 +5,8 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.inbound.LoadProfileIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 
 import java.util.Arrays;
 import java.util.List;

@@ -60,8 +60,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import com.elster.jupiter.events.EventService;
@@ -71,7 +71,6 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.sql.Fetcher;
 
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.time.Clock;
 import java.util.ArrayList;

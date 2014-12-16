@@ -6,7 +6,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 /**
  * An event indicating the device, uniquely identified by its {@link DeviceIdentifier},

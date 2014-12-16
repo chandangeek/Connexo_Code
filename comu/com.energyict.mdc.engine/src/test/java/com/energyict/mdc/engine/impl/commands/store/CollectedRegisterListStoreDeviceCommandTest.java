@@ -27,7 +27,7 @@ import com.energyict.mdc.metering.impl.ObisCodeToReadingTypeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import java.util.Optional;
 import org.joda.time.DateTime;
 import org.junit.Before;

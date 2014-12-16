@@ -3,8 +3,8 @@ package com.energyict.mdc.engine.impl;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 

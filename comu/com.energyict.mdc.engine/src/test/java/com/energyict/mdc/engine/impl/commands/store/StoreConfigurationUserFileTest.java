@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
 import com.energyict.mdc.engine.model.ComServer;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

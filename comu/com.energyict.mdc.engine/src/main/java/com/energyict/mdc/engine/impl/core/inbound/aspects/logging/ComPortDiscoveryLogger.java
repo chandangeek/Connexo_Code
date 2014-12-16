@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core.inbound.aspects.logging;
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.model.InboundComPort;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
 /**

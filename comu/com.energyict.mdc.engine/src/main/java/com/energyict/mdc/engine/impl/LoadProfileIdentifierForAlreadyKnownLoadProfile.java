@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.inbound.LoadProfileIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.util.Arrays;

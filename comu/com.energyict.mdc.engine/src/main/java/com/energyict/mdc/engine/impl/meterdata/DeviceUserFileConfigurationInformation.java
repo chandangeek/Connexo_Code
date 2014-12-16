@@ -7,7 +7,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 /**
  * Provides an implementation for the {@link CollectedConfigurationInformation}
