@@ -2,6 +2,8 @@ package com.elster.jupiter.yellowfin.rest.impl;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.google.common.collect.ImmutableSet;
@@ -21,6 +23,7 @@ public class YellowfinApplication extends Application implements BinderProvider{
     public static final String APP_KEY = "YFN";
     public static final String COMPONENT_NAME = "YFN";
 
+    private volatile TransactionService transactionService;
     private volatile YellowfinService yellowfinService;
     private volatile YellowfinGroupsService yellowfinGroupsService;
     private volatile License license;
@@ -31,6 +34,11 @@ public class YellowfinApplication extends Application implements BinderProvider{
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(YellowfinResource.class, YellowfinDeviceGroupsResource.class);
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Reference
@@ -61,6 +69,7 @@ public class YellowfinApplication extends Application implements BinderProvider{
         return new AbstractBinder() {
             @Override
             protected void configure() {
+                bind(transactionService).to(TransactionService.class);
                 bind(yellowfinService).to(YellowfinService.class);
                 bind(yellowfinGroupsService).to(YellowfinGroupsService.class);
             }
