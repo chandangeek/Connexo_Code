@@ -134,7 +134,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
                     {
                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                         ui: 'link',
-                        href: me.router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/tableData').buildUrl(me.router.arguments, me.router.queryParams)
+                        href: me.router.getRoute('devices/device/channels/channel/tableData').buildUrl(me.router.arguments, me.router.queryParams)
                     }
                 ]
             }

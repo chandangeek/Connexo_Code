@@ -40,7 +40,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
         });
     },
 
-    showOverview: function (mRID, loadProfileId, channelId) {
+    showOverview: function (mRID, channelId) {
         var me = this,
             models = {
                 device: me.getModel('Mdc.model.Device'),
@@ -59,7 +59,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
 
         dataStore.getProxy().setUrl({
             mRID: mRID,
-            loadProfileId: loadProfileId,
             channelId: channelId
         });
 
@@ -69,16 +68,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
             }
         });
 
-        models.loadProfile.getProxy().setUrl(mRID);
-        models.loadProfile.load(loadProfileId, {
-            success: function (record) {
-                me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-            }
-        });
-
         models.channel.getProxy().setUrl({
-            mRID: mRID,
-            loadProfileId: loadProfileId
+            mRID: mRID
         });
 
         models.channel.load(channelId, {
