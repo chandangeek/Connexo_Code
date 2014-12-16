@@ -223,9 +223,10 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
 
     void setProtocolProperty(String name, Object value);
-    void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
 
-    void removeProperty(String name);
+    void removeProtocolProperty(String name);
+
+    void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
 
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
 
