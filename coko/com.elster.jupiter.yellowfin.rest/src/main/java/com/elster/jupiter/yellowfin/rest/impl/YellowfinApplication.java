@@ -3,6 +3,8 @@ package com.elster.jupiter.yellowfin.rest.impl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.yellowfin.YellowfinService;
+import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
+import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.ComponentContext;
@@ -20,18 +22,21 @@ public class YellowfinApplication extends Application implements BinderProvider{
     public static final String APP_KEY = "YFN";
     public static final String COMPONENT_NAME = "YFN";
 
-    private final Set<Class<?>> classes = new HashSet<>();
-
     private volatile YellowfinService yellowfinService;
+    private volatile YellowfinGroupsService yellowfinGroupsService;
     private volatile License license;
 
     public YellowfinApplication() {
-        classes.add(YellowfinResource.class);
     }
 
     @Override
     public Set<Class<?>> getClasses() {
-        return classes;
+        return ImmutableSet.of(YellowfinResource.class, YellowfinDeviceGroupsResource.class);
+    }
+
+    @Reference
+    public void setYellowfinGroupsService(YellowfinGroupsService yellowfinGroupsService) {
+        this.yellowfinGroupsService = yellowfinGroupsService;
     }
 
     @Reference
@@ -58,6 +63,7 @@ public class YellowfinApplication extends Application implements BinderProvider{
             @Override
             protected void configure() {
                 bind(yellowfinService).to(YellowfinService.class);
+                bind(yellowfinGroupsService).to(YellowfinGroupsService.class);
             }
         };
     }
