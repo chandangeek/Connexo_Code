@@ -22,6 +22,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
@@ -58,6 +59,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
@@ -253,9 +255,19 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public OfflineDevice findDevice(DeviceIdentifier<?> identifier) {
-//        if(identifier.getDeviceIdentifierType().equals(DeviceIdentifierType.CallHomeId)){
-//            identifier.getIdentifier()
-//        }
+
+        // TODO put this where it belongs (in the identifier)
+
+        if(identifier.getDeviceIdentifierType().equals(DeviceIdentifierType.CallHomeId)){
+            List<Device> devicesWithCallHomeId = getDeviceDataService().findDevicesByPropertySpecValue("callHomeId", identifier.getIdentifier());
+            if(devicesWithCallHomeId.size() == 1) {
+                return new OfflineDeviceImpl(devicesWithCallHomeId.get(0), DeviceOffline.needsEverything, new OfflineDeviceServiceProvider());
+            } else if(devicesWithCallHomeId.isEmpty()){
+                return null;
+            } else if(devicesWithCallHomeId.size() > 1){
+                throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, Device.class, "callHomeId : " + identifier.getIdentifier());
+            }
+        }
         BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = identifier.findDevice();
         if (device != null) {
             return new OfflineDeviceImpl((Device) device, DeviceOffline.needsEverything, new OfflineDeviceServiceProvider());

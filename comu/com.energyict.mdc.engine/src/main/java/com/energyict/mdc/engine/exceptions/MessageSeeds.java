@@ -52,6 +52,7 @@ public enum MessageSeeds implements MessageSeed {
     PRETTY_PRINT_TIMEDURATION_SECOND_PLURAL(137, "PrettyPrintTimeDuration.second.plural", "{0} seconds", Level.INFO),
     PRETTY_PRINT_TIMEDURATION_SEPARATOR(138, "PrettyPrintTimeDuration.separator", ", ", Level.INFO),
     PRETTY_PRINT_TIMEDURATION_LAST_SEPARATOR(139, "PrettyPrintTimeDuration.lastSeparator", " and ", Level.INFO),
+    DUPLICATE_FOUND(140, "duplicateFound", "A duplicate '{0}' was found when a unique result was expected for '{1}'", Level.SEVERE),
     ;
 
     private final int number;
