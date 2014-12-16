@@ -105,6 +105,11 @@ public class MessageServiceImpl implements MessageService, InstallService {
         return dataModel.mapper(SubscriberSpec.class).getOptional(destinationSpecName, name);
     }
 
+    @Override
+    public List<SubscriberSpec> getSubscribers() {
+        return dataModel.mapper(SubscriberSpec.class).find();
+    }
+
     @Reference
     public final void setPublisher(Publisher publisher) {
         this.publisher = publisher;
