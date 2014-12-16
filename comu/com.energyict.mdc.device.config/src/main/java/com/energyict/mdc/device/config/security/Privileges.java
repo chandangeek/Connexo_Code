@@ -2,9 +2,11 @@ package com.energyict.mdc.device.config.security;
 
 public interface Privileges {
 
-    String ADMINISTRATE_DEVICE_CONFIGURATION = "privilege.administrate.deviceConfiguration";
-    String VIEW_DEVICE_CONFIGURATION = "privilege.view.deviceConfiguration";
+    String ADMINISTRATE_MASTER_DATA = "privilege.administrate.masterData";
+    String VIEW_MASTER_DATA = "privilege.view.masterData";
 
+    String ADMINISTRATE_DEVICE_TYPE = "privilege.administrate.deviceType";
+    String VIEW_DEVICE_TYPE = "privilege.view.deviceType";
 
     String VIEW_DEVICE_SECURITY_PROPERTIES_1 = "view.device.security.properties.level1";
     String VIEW_DEVICE_SECURITY_PROPERTIES_2 = "view.device.security.properties.level2";
