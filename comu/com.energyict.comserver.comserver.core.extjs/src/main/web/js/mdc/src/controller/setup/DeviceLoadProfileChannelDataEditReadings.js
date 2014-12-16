@@ -137,7 +137,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
         if (changedData.length) {
             page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
             Ext.Ajax.request({
-                url: Ext.String.format('/api/ddr/devices/{0}/channels/{2}/data', router.arguments.mRID, router.arguments.channelId),
+                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', router.arguments.mRID, router.arguments.channelId),
                 method: 'PUT',
                 jsonData: Ext.encode(changedData),
                 timeout: 300000,
