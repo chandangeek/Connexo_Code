@@ -13,9 +13,10 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -27,13 +28,11 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
 import java.util.Random;
-import javax.ws.rs.core.Response;
 import org.junit.Ignore;
 import org.mockito.Matchers;
 
@@ -60,14 +59,6 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         return loadProfileSpecs;
     }
 
-    protected List<RegisterType> getRegisterTypes(int count) {
-        List<RegisterType> registerTypes = new ArrayList<>(count);
-        for (int i = 1; i <= count; i++) {
-            registerTypes.add(mockRegisterType(1000 + i, String.format("Register type %04d", i), new ObisCode(i, i, i, i, i, i)));
-        }
-        return registerTypes;
-    }
-
 
     protected List<ChannelType> getChannelTypes(int count, TimeDuration interval) {
         List<ChannelType> channelTypes = new ArrayList<>(count);
@@ -77,14 +68,6 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         return channelTypes;
     }
 
-
-
-    protected String getServerAnswer(Response response) {
-        ByteArrayInputStream entity = (ByteArrayInputStream) response.getEntity();
-        byte[] bytes = new byte[entity.available()];
-        entity.read(bytes,0, entity.available());
-        return new String(bytes);
-    }
 
     protected int getRandomInt(int end) {
         return getRandomInt(0, end);
@@ -114,6 +97,20 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        return deviceType;
+    }
+
+    protected DeviceType mockDeviceType(String name, long id, List<PropertySpec> specs) {
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getName()).thenReturn(name);
+        when(deviceType.getId()).thenReturn(id);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getPropertySpecs()).thenReturn(specs);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocolPluggableClass.getId()).thenReturn(7L);
+        when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol pluggeable class");
         return deviceType;
     }
 
