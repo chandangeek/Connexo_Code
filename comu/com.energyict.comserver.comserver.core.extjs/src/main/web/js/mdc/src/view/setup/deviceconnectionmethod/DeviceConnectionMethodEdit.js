@@ -19,6 +19,20 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
     },
 
     initComponent: function () {
+        this.side = [
+            {
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceMenu',
+                        itemId: 'stepsMenu',
+                        device: this.device,
+                        toggleId: 'connectionMethodsLink'
+                    }
+                ]
+            }
+        ];
         this.content = [
             {
                 xtype: 'panel',

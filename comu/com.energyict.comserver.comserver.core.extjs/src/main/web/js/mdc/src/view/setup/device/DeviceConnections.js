@@ -53,7 +53,6 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
     columns: {
         defaults: {
             sortable: false,
-            groupable: false,
             menuDisabled: true
         },
         items: [

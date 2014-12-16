@@ -28,6 +28,20 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
 
     initComponent: function () {
         var me = this;
+        this.side = [
+            {
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceMenu',
+                        itemId: 'stepsMenu',
+                        device: me.device,
+                        toggleId: 'protocolLink'
+                    }
+                ]
+            }
+        ];
         this.content = [
             {
                 xtype: 'panel',

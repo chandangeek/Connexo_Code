@@ -10,8 +10,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         'Mdc.view.setup.device.DeviceGeneralInformationPanel',
         'Mdc.view.setup.device.DeviceOpenIssuesPanel',
         'Mdc.view.setup.device.DeviceDataValidationPanel',
-        'Mdc.view.setup.device.DeviceConnections',
-        'Mdc.view.setup.device.DeviceCommunications'
+        'Mdc.view.setup.device.DeviceConnections'
     ],
 
     content: [
@@ -241,17 +240,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 layout: 'fit',
                 items: {
                     xtype: 'device-connections-list'
-                }
-            },
-            {
-                xtype: 'panel',
-                style: {
-                    marginRight: '20px',
-                    marginTop: '20px'
-                },
-                layout: 'fit',
-                items: {
-                    xtype: 'device-communications-list'
                 }
             }
         );

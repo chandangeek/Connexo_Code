@@ -18,7 +18,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskSetup'
         this.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {
