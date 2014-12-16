@@ -14,7 +14,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: Uni.I18n.translate('deviceconfigurationmenu.overview', 'MDC', 'Overview'),
                 pressed: false,
                 itemId: 'deviceConfigurationOverviewLink',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration']),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId,
                 hrefTarget: '_self'
             },
@@ -22,7 +21,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: Uni.I18n.translate('deviceconfigurationmenu.registerTypes', 'MDC', 'Register configurations'),
                 pressed: false,
                 itemId: 'registerConfigsLink',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration']),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/registerconfigurations',
                 hrefTarget: '_self'
             },
@@ -30,7 +28,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: Uni.I18n.translate('deviceconfigurationmenu.loadProfiles', 'MDC', 'Load profiles'),
                 pressed: false,
                 itemId: 'loadProfilesLink',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration']),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles',
                 hrefTarget: '_self'
             },
@@ -38,7 +35,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: 'Logbook configuration',
                 pressed: false,
                 itemId: 'logbooksLink',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration']),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/logbookconfigurations',
                 hrefTarget: '_self'
             },
@@ -53,7 +49,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: 'Security settings',
                 pressed: false,
                 itemId: 'securitySettingsLink',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceSecurity','privilege.view.deviceSecurity']),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings',
                 hrefTarget: '_self'
             },
@@ -61,7 +56,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: Uni.I18n.translate('deviceconfigurationmenu.protocols', 'MDC', 'Protocol dialects'),
                 pressed: false,
                 itemId: 'protocolLink',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.protocol','privilege.view.protocol']),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/protocols',
                 hrefTarget: '_self'
             },
@@ -69,7 +63,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: 'Communication tasks',
                 pressed: false,
                 itemId: 'communicationTasksLink',
-                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/comtaskenablements',
                 hrefTarget: '_self'
             },
             {
@@ -84,8 +77,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 text: 'Commands',
                 pressed: false,
                 itemId: 'messagesLink',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommand','privilege.view.deviceCommand']),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/messages',
+                hrefTarget: '_self'
+            },
+            {
+                text: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+                pressed: false,
+                itemId: 'generalAttributesLink',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/generalattributes',
                 hrefTarget: '_self'
             }
         );

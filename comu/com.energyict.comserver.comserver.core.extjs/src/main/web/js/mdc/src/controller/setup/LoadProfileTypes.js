@@ -251,6 +251,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         });
         me.getApplication().fireEvent('changecontentevent', widget);
         form = widget.down('#load-profile-type-edit-form');
+        form.down('combobox[name=timeDuration]').bindStore(intervalsStore);
+        intervalsStore.load();
 
         if (id) {
             widget.setLoading(true);

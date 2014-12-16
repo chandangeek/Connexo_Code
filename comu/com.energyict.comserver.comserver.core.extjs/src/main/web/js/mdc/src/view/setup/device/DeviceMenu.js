@@ -58,6 +58,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             });
         }
         this.add({
+            text: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+            itemId: 'deviceGeneralAttributesLink',
+            href: '#/devices/' + mRID + '/generalattributes',
+            hrefTarget: '_self'
+        });
+        this.add({
             text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),
             itemId: 'connectionMethodsLink',
             href: '#/devices/' + mRID + '/connectionmethods',
@@ -111,6 +117,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 hrefTarget: '_self'
             });
         }
+
 
         this.toggleByItemId(this.toggleId);
         this.setTitle(mRID);

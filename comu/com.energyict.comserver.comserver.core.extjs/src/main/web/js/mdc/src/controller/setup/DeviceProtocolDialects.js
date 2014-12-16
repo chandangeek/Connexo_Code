@@ -47,10 +47,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
                 click: this.restoreAllDefaults
             },
             '#deviceProtocolDialectEdit property-form': {
-                dirtychange: this.enableRestoreAllButton
-            },
-            '#deviceProtocolDialectEdit property-form component': {
-                enableRestoreAll: this.enableRestoreAllButton
+                showRestoreAllBtn: this.showRestoreAllBtn
             }
         });
     },
@@ -173,23 +170,17 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
         }
     },
 
-    enableRestoreAllButton: function (form, dirty) {
-        var me = this;
-        if (typeof(me.getRestoreAllButton()) !== 'undefined') {
-            me.getRestoreAllButton().disable();
-            /*if (dirty) {
-                me.getRestoreAllButton().enable();
-            }*/
-            var restoreAllButtons = Ext.ComponentQuery.query('defaultButton');
-            if (restoreAllButtons != null) {
-                restoreAllButtons.forEach(function (restoreButton) {
-                    if (!restoreButton.isHidden()) {
-                        me.getRestoreAllButton().enable();
-                    }
-                })
+    showRestoreAllBtn: function(value) {
+        var restoreBtn = this.getRestoreAllButton();
+        if (restoreBtn) {
+            if (value) {
+                restoreBtn.disable();
+            } else {
+                restoreBtn.enable();
             }
         }
     },
+
 
     restoreAllDefaults: function () {
         var me = this;

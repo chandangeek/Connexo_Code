@@ -49,12 +49,25 @@ Ext.define('Mdc.controller.setup.Devices', {
             },
             'deviceSetup #deactivate': {
                 click: this.onDeactivate
+            },
+            'deviceSetup device-connections-list uni-actioncolumn': {
+                run: this.connectionRun
             }
         });
     },
 
     back: function () {
         location.href = "#/devices";
+    },
+
+    connectionRun: function (record) {
+        var me = this;
+        record.run(function () {
+            me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.connection.run.success', 'MDC', 'Connection will run immediately')
+            );
+            record.set('nextExecution', new Date());
+        });
     },
 
     showDeviceDetailsView: function (mRID) {

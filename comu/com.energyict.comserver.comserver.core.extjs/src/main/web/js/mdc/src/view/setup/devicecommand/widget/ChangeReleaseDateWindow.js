@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.ChangeReleaseDateWindow', {
                     {
                         xtype: 'dateTimeField',
                         name: 'releaseDate',
-                        required: false,
+                        required: true,
                         fieldLabel: Uni.I18n.translate('deviceCommand.add.releaseDate', 'MDC', 'Release date'),
                         dateCfg: {
                             width: 155
