@@ -28,8 +28,8 @@ public class DeviceProtocolPropertyException extends LocalizedException {
      * @param propertyValue the value of the property
      * @return the newly created DeviceProtocolException
      */
-    public static DeviceProtocolPropertyException infoTypeDoesNotExist(Thesaurus thesaurus, String propertyValue) {
-        return new DeviceProtocolPropertyException(thesaurus, MessageSeeds.DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST, propertyValue);
+    public static DeviceProtocolPropertyException propertySpecTypeDoesNotExist(Thesaurus thesaurus, String propertyValue) {
+        return new DeviceProtocolPropertyException(thesaurus, MessageSeeds.DEVICE_PROPERTY_HAS_NO_SPEC, propertyValue);
     }
 
     /**

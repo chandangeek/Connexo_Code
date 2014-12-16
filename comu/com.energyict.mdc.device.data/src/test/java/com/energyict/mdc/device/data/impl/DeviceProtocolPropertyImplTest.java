@@ -10,13 +10,11 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Fail.fail;
@@ -142,26 +140,6 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
 
         Device updatedDevice = getReloadedDevice(reloadedDevice);
         assertThat(updatedDevice.getDeviceProtocolProperties().localSize()).isZero();
-    }
-
-    @Test(expected = DeviceProtocolPropertyException.class)
-    @Transactional
-    public void createWithNullInfoTypeTest() {
-        String name = "MyProperty";
-        String value = "MyValueOfTheProperty";
-        PropertySpec<String> stringPropertySpec = new PropertySpecServiceImpl().basicPropertySpec(name, false, new StringFactory());
-        when(deviceProtocol.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(stringPropertySpec));
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithProperties", MRID);
-        device.setProtocolProperty(name, value);
-        try {
-            device.save();
-        } catch (DeviceProtocolPropertyException e) {
-            if (!e.getMessageSeed().equals(MessageSeeds.DEVICE_PROPERTY_INFO_TYPE_DOENST_EXIST)) {
-                fail("Should have gotten exception indicating that you can not create a DeviceProtocolProperty without an infoType, but was " + e.getMessage());
-            } else {
-                throw e;
-            }
-        }
     }
 
     @Test

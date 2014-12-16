@@ -27,27 +27,25 @@ import java.io.Serializable;
 public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Serializable {
 
     private final DataModel dataModel;
-    private final ServerDeviceService deviceService;
     private final Thesaurus thesaurus;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String propertyValue;
-    private long infoTypeId = 0;
+    private String propertySpec;
     private Reference<Device> device = ValueReference.absent();
 
     @Inject
-    public DeviceProtocolPropertyImpl(DataModel dataModel, ServerDeviceService deviceService, Thesaurus thesaurus) {
+    public DeviceProtocolPropertyImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
-        this.deviceService = deviceService;
         this.thesaurus = thesaurus;
     }
 
-    DeviceProtocolPropertyImpl initialize(Device device, InfoType infoType, String stringValue) {
+    DeviceProtocolPropertyImpl initialize(Device device, String propertySpecName, String stringValue) {
         this.device.set(device);
-        if (infoType != null) {
-            this.infoTypeId = infoType.getId();
+        if (propertySpecName != null) {
+            this.propertySpec = propertySpecName;
         } else {
-            throw DeviceProtocolPropertyException.infoTypeDoesNotExist(thesaurus, stringValue);
+            throw DeviceProtocolPropertyException.propertySpecTypeDoesNotExist(thesaurus, stringValue);
         }
         this.propertyValue = stringValue;
         return this;
@@ -55,11 +53,7 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
 
     @Override
     public String getName() {
-        InfoType infoType = this.deviceService.findInfoTypeById(infoTypeId);
-        if (infoType != null) {
-            return infoType.getName();
-        }
-        return "";
+        return propertySpec;
     }
 
     @Override
