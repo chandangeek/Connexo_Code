@@ -582,9 +582,11 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     private G3NeighborImpl newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
         return this.dataModel.getInstance(G3NeighborImpl.class).createFor(device, neighbor, modulationScheme, modulation, phaseInfo);
     }
+
     private G3NeighborImpl newG3Neighbor(G3NeighborImpl existingNeighbor) {
         return newG3Neighbor(existingNeighbor.getDevice(), existingNeighbor.getNeighbor(), existingNeighbor.getModulationScheme(), existingNeighbor.getModulation(), existingNeighbor.getPhaseInfo());
     }
+
     private class G3NeighborhoodBuilderImpl implements G3NeighborhoodBuilder {
         private final Device device;
         private final Map<Long, G3NeighborBuilderImpl> deviceId2NeighborBuilderMap;
@@ -632,233 +634,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     }
 
-    private enum G3NeighborBuildState {
-        CREATE {
-            @Override
-            protected void startEditing(G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-                // Already editing
-            }
-
-            @Override
-            public void setTxGain(G3NeighborBuilderImpl builder, int txGain) {
-                builder.setTxGain(txGain);
-            }
-
-            @Override
-            public void setTxResolution(G3NeighborBuilderImpl builder, int txResolution) {
-                builder.setTxResolution(txResolution);
-            }
-
-            @Override
-            public void setTxCoefficient(G3NeighborBuilderImpl builder, int txCoefficient) {
-                builder.setTxCoefficient(txCoefficient);
-            }
-
-            @Override
-            public void setLinkQualityIndicator(G3NeighborBuilderImpl builder, int linkQualityIndicator) {
-                builder.setLinkQualityIndicator(linkQualityIndicator);
-            }
-
-            @Override
-            public void setTimeToLiveFromSeconds(G3NeighborBuilderImpl builder, int seconds) {
-                builder.setTimeToLiveFromSeconds(seconds);
-            }
-
-            @Override
-            public void setToneMap(G3NeighborBuilderImpl builder, long toneMap) {
-                builder.setToneMap(toneMap);
-            }
-
-            @Override
-            public void setToneMapTimeToLiveSeconds(G3NeighborBuilderImpl builder, int seconds) {
-                builder.setToneMapTimeToLiveFromSeconds(seconds);
-            }
-
-            @Override
-            Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry) {
-                oldNeighborTableEntry.ifPresent(PLCNeighborImpl::save); // The old entry was already terminated when edit mode was started
-                neighborTableEntry.save();
-                return Optional.of(neighborTableEntry);
-            }
-        },
-        UPDATE {
-            @Override
-            protected void startEditing(G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-                // Already editing
-            }
-
-            @Override
-            public void setTxGain(G3NeighborBuilderImpl builder, int txGain) {
-                builder.terminateOldAndStartNew();
-                builder.setTxGain(txGain);
-            }
-
-            @Override
-            public void setTxResolution(G3NeighborBuilderImpl builder, int txResolution) {
-                builder.terminateOldAndStartNew();
-                builder.setTxResolution(txResolution);
-            }
-
-            @Override
-            public void setTxCoefficient(G3NeighborBuilderImpl builder, int txCoefficient) {
-                builder.terminateOldAndStartNew();
-                builder.setTxCoefficient(txCoefficient);
-            }
-
-            @Override
-            public void setLinkQualityIndicator(G3NeighborBuilderImpl builder, int linkQualityIndicator) {
-                builder.terminateOldAndStartNew();
-                builder.setLinkQualityIndicator(linkQualityIndicator);
-            }
-
-            @Override
-            public void setTimeToLiveFromSeconds(G3NeighborBuilderImpl builder, int seconds) {
-                builder.terminateOldAndStartNew();
-                builder.setTimeToLiveFromSeconds(seconds);
-            }
-
-            @Override
-            public void setToneMap(G3NeighborBuilderImpl builder, long toneMap) {
-                builder.terminateOldAndStartNew();
-                builder.setToneMap(toneMap);
-            }
-
-            @Override
-            public void setToneMapTimeToLiveSeconds(G3NeighborBuilderImpl builder, int seconds) {
-                builder.terminateOldAndStartNew();
-                builder.setToneMapTimeToLiveFromSeconds(seconds);
-            }
-
-            @Override
-            Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry) {
-                oldNeighborTableEntry.ifPresent(PLCNeighborImpl::save); // The old entry was already terminated when edit mode was started
-                neighborTableEntry.save();
-                return Optional.of(neighborTableEntry);
-            }
-        },
-        TERMINATE {
-            @Override
-            protected void startEditing(G3NeighborBuilderImpl builder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-                builder.prepareForUpdateOrTerminateOldAndStartNew(modulationScheme, modulation, phaseInfo);
-            }
-
-            @Override
-            public void setTxGain(G3NeighborBuilderImpl builder, int txGain) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setTxResolution(G3NeighborBuilderImpl builder, int txResolution) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setTxCoefficient(G3NeighborBuilderImpl builder, int txCoefficient) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setLinkQualityIndicator(G3NeighborBuilderImpl builder, int linkQualityIndicator) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setTimeToLiveFromSeconds(G3NeighborBuilderImpl builder, int seconds) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setToneMap(G3NeighborBuilderImpl builder, long toneMap) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setToneMapTimeToLiveSeconds(G3NeighborBuilderImpl builder, int seconds) {
-                throw illegalStateException();
-            }
-
-            @Override
-            Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry) {
-                neighborTableEntry.terminate();
-                neighborTableEntry.save();
-                return Optional.empty();
-            }
-
-            private IllegalStateException illegalStateException() {
-                return new IllegalStateException("Neighbor entry building process was not switched to edit mode");
-            }
-        },
-        COMPLETE {
-            @Override
-            protected void startEditing(G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setTxGain(G3NeighborBuilderImpl builder, int txGain) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setTxResolution(G3NeighborBuilderImpl builder, int txResolution) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setTxCoefficient(G3NeighborBuilderImpl builder, int txCoefficient) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setLinkQualityIndicator(G3NeighborBuilderImpl builder, int linkQualityIndicator) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setTimeToLiveFromSeconds(G3NeighborBuilderImpl builder, int seconds) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setToneMap(G3NeighborBuilderImpl builder, long toneMap) {
-                throw illegalStateException();
-            }
-
-            @Override
-            public void setToneMapTimeToLiveSeconds(G3NeighborBuilderImpl builder, int seconds) {
-                throw illegalStateException();
-            }
-
-            @Override
-            Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry) {
-                throw illegalStateException();
-            }
-
-            private IllegalStateException illegalStateException() {
-                return new IllegalStateException("Neighbor entry building process is already complete");
-            }
-        };
-
-        abstract Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry);
-
-        protected abstract void startEditing(G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo);
-
-        public abstract void setTxGain(G3NeighborBuilderImpl builder, int txGain);
-
-        public abstract void setTxResolution(G3NeighborBuilderImpl builder, int txResolution);
-
-        public abstract void setTxCoefficient(G3NeighborBuilderImpl builder, int txCoefficient);
-
-        public abstract void setLinkQualityIndicator(G3NeighborBuilderImpl builder, int linkQualityIndicator);
-
-        public abstract void setTimeToLiveFromSeconds(G3NeighborBuilderImpl builder, int seconds);
-
-        public abstract void setToneMap(G3NeighborBuilderImpl builder, long toneMap);
-
-        public abstract void setToneMapTimeToLiveSeconds(G3NeighborBuilderImpl builder, int seconds);
-    }
-
-    private class G3NeighborBuilderImpl implements G3NeighborBuilder {
+    class G3NeighborBuilderImpl implements G3NeighborBuilder {
         private G3NeighborImpl neighborTableEntry;
         private Optional<G3NeighborImpl> oldNeighborTableEntry;
         private G3NeighborBuildState state;
@@ -880,7 +656,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
                 || !phaseInfo.equals(this.neighborTableEntry.getPhaseInfo());
         }
 
-        private void prepareForUpdateOrTerminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+        void prepareForUpdateOrTerminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
             if (this.different(modulationScheme, modulation, phaseInfo)) {
                 this.terminateOldAndStartNew(modulationScheme, modulation, phaseInfo);
             }
@@ -900,7 +676,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             this.phaseInfo(phaseInfo);
         }
 
-        private void terminateOldAndStartNew() {
+        void terminateOldAndStartNew() {
             G3NeighborImpl newG3Neighbor = newG3Neighbor(this.neighborTableEntry);
             this.neighborTableEntry.terminate(newG3Neighbor.getEffectiveStart());
             this.oldNeighborTableEntry = Optional.of(this.neighborTableEntry);
@@ -939,7 +715,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             return this;
         }
 
-        private void setTxGain(int txGain) {
+        void setTxGain(int txGain) {
             this.neighborTableEntry.setTxGain(txGain);
         }
 
@@ -949,7 +725,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             return this;
         }
 
-        private void setTxResolution(int txResolution) {
+        void setTxResolution(int txResolution) {
             this.neighborTableEntry.setTxResolution(txResolution);
         }
 
@@ -959,7 +735,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             return this;
         }
 
-        private void setTxCoefficient(int txCoefficient) {
+        void setTxCoefficient(int txCoefficient) {
             this.neighborTableEntry.setTxCoefficient(txCoefficient);
         }
 
@@ -969,7 +745,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             return this;
         }
 
-        private void setLinkQualityIndicator(int linkQualityIndicator) {
+        void setLinkQualityIndicator(int linkQualityIndicator) {
             this.neighborTableEntry.setLinkQualityIndicator(linkQualityIndicator);
         }
 
@@ -979,7 +755,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             return this;
         }
 
-        private void setTimeToLiveFromSeconds(int seconds) {
+        void setTimeToLiveFromSeconds(int seconds) {
             this.neighborTableEntry.setTimeToLiveFromSeconds(seconds);
         }
 
@@ -989,7 +765,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             return this;
         }
 
-        private void setToneMap(long toneMap) {
+        void setToneMap(long toneMap) {
             this.neighborTableEntry.setToneMap(toneMap);
         }
 
@@ -999,7 +775,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             return this;
         }
 
-        private void setToneMapTimeToLiveFromSeconds(int seconds) {
+        void setToneMapTimeToLiveFromSeconds(int seconds) {
             this.neighborTableEntry.setToneMapTimeToLiveFromSeconds(seconds);
         }
 
