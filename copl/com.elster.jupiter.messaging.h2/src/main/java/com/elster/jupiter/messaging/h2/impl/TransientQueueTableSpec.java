@@ -105,7 +105,11 @@ class TransientQueueTableSpec implements QueueTableSpec {
     public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay) {
         return createDestinationSpec(name, retryDelay, true);
     }
-    
+
+    List<TransientDestinationSpec> getDestinations() {
+        return destinations;
+    }
+
     private DestinationSpec createDestinationSpec(String name, int retryDelay, boolean buffered) {
     	 TransientDestinationSpec destinationSpec = new TransientDestinationSpec(this, thesaurus, name,buffered);
          destinations.add(destinationSpec);

@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.callback.InstallService;
-import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -16,6 +15,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.messaging.h2", service = {MessageService.class, InstallService.class}, property = {"name=MSG"})
 public class TransientMessageService implements MessageService, InstallService {
@@ -78,6 +79,14 @@ public class TransientMessageService implements MessageService, InstallService {
     public void install() {
         createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
         createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", true);
+    }
+
+    @Override
+    public List<SubscriberSpec> getSubscribers() {
+        return queueTableSpecs.values().stream()
+                .flatMap(q -> q.getDestinations().stream())
+                .flatMap(d -> d.getSubscribers().stream())
+                .collect(Collectors.toList());
     }
 
     @Override
