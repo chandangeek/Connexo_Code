@@ -90,9 +90,10 @@ Ext.define('Dsh.controller.Connections', {
         var widget = Ext.widget('connections-details'),
             store = this.getStore('Dsh.store.ConnectionTasks');
 
-        store.load();
         this.getApplication().fireEvent('changecontentevent', widget);
         this.initFilter();
+        store.removeAll();
+        store.load();
     },
 
     onCommunicationSelectionChange: function (grid, selected) {
