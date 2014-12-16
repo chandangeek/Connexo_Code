@@ -55,13 +55,12 @@ public class Installer {
         createTranslations();
         createPrivileges();
         createDTCPrivileges();
-        assignPrivilegesToDefaultRoles();
     }
 
     private void createPrivileges() {
         try {
-            this.userService.createResourceWithPrivileges("MDC", "deviceCommand.deviceCommands", "deviceCommand.deviceCommands.description", new String[] {Privileges.ADMINISTRATE_DEVICE_COMMAND, Privileges.VIEW_DEVICE_COMMAND});
-            this.userService.createResourceWithPrivileges("MDC", "deviceConfiguration.deviceConfigurations", "deviceConfiguration.deviceConfigurations.description", new String[] {Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION});
+            this.userService.createResourceWithPrivileges("MDC", "masterData.masterData", "masterData.masterData.description", new String[] {Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA});
+            this.userService.createResourceWithPrivileges("MDC", "deviceType.deviceTypes", "deviceType.deviceTypes.description", new String[] {Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE});
         } catch (Exception e) {
             this.logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -72,13 +71,7 @@ public class Installer {
         //collect.addAll(Arrays.asList(DeviceMessageUserAction.values()).stream().map(DeviceMessageUserAction::getPrivilege).collect(toList()));
         this.userService.createResourceWithPrivileges("MDC", "deviceSecurity.deviceSecurities", "deviceSecurity.deviceSecurities.description", collect.toArray(new String[collect.size()]));
         List<String> collectDeviceUserMessages = Arrays.asList(DeviceMessageUserAction.values()).stream().map(DeviceMessageUserAction::getPrivilege).collect(toList());
-        this.userService.createResourceWithPrivileges("MDC", "DTC", "deviceUserMessage.deviceUserMessages.description", collectDeviceUserMessages.toArray(new String[collectDeviceUserMessages.size()]));
-    }
-
-    private void assignPrivilegesToDefaultRoles() {
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_EXPERT_ROLE, new String[] {
-                Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION, Privileges.ADMINISTRATE_DEVICE_COMMAND, Privileges.VIEW_DEVICE_COMMAND});
-        this.userService.grantGroupWithPrivilege(UserService.DEFAULT_METER_OPERATOR_ROLE, new String[] {Privileges.VIEW_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_COMMAND});
+        this.userService.createResourceWithPrivileges("MDC", "deviceCommand.deviceCommands", "deviceCommand.deviceCommands.description", collectDeviceUserMessages.toArray(new String[collectDeviceUserMessages.size()]));
     }
 
     private void createTranslations() {
