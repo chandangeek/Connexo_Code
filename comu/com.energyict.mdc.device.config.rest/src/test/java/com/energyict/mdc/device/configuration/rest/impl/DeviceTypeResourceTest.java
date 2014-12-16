@@ -74,131 +74,31 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJerseyTest {
-    public static final ReadingType READING_TYPE = new ReadingType() {
-        @Override
-        public MacroPeriod getMacroPeriod() {
-            return MacroPeriod.DAILY;
-        }
+    public static final ReadingType READING_TYPE = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
 
-        @Override
-        public Aggregate getAggregate() {
-            return Aggregate.AVERAGE;
-        }
-
-        @Override
-        public TimeAttribute getMeasuringPeriod() {
-            return TimeAttribute.MINUTE15;
-        }
-
-        @Override
-        public Accumulation getAccumulation() {
-            return Accumulation.BULKQUANTITY;
-        }
-
-        @Override
-        public FlowDirection getFlowDirection() {
-            return FlowDirection.FORWARD;
-        }
-
-        @Override
-        public Commodity getCommodity() {
-            return Commodity.AIR;
-        }
-
-        @Override
-        public MeasurementKind getMeasurementKind() {
-            return MeasurementKind.ALARM;
-        }
-
-        @Override
-        public RationalNumber getInterharmonic() {
-            return RationalNumber.NOTAPPLICABLE;
-        }
-
-        @Override
-        public RationalNumber getArgument() {
-            return RationalNumber.NOTAPPLICABLE;
-        }
-
-        @Override
-        public int getTou() {
-            return 1;
-        }
-
-        @Override
-        public int getCpp() {
-            return 1;
-        }
-
-        @Override
-        public int getConsumptionTier() {
-            return 1;
-        }
-
-        @Override
-        public Phase getPhases() {
-            return Phase.PHASES1;
-        }
-
-        @Override
-        public MetricMultiplier getMultiplier() {
-            return MetricMultiplier.ATTO;
-        }
-
-        @Override
-        public ReadingTypeUnit getUnit() {
-            return ReadingTypeUnit.AMPERE;
-        }
-
-        @Override
-        public Currency getCurrency() {
-            return java.util.Currency.getAvailableCurrencies().iterator().next();
-        }
-
-        @Override
-        public boolean isBulkQuantityReadingType(ReadingType readingType) {
-            return false;
-        }
-
-        @Override
-        public Optional<ReadingType> getCalculatedReadingType() {
-            return null;
-        }
-
-        @Override
-        public boolean isRegular() {
-            return false;
-        }
-
-        @Override
-        public long getVersion() {
-            return 1;
-        }
-
-        @Override
-        public void setDescription(String description) {
-        }
-
-        @Override
-        public String getAliasName() {
-            return "Alias name";
-        }
-
-        @Override
-        public String getDescription() {
-            return "Description";
-        }
-
-        @Override
-        public String getMRID() {
-            return "0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8";
-        }
-
-        @Override
-        public String getName() {
-            return "Name";
-        }
-    };
+    private static ReadingType mockReadingType(String mrid){
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(mrid);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK1MIN);
+        when(readingType.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
+        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
+        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
+        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1,2));
+        when(readingType.getArgument()).thenReturn(new RationalNumber(1,2));
+        when(readingType.getTou()).thenReturn(3);
+        when(readingType.getCpp()).thenReturn(4);
+        when(readingType.getConsumptionTier()).thenReturn(5);
+        when(readingType.getPhases()).thenReturn(Phase.PHASEA);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
+        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
+        when(readingType.isCumulative()).thenReturn(true);
+        return readingType;
+    }
 
     @Test
     public void testGetEmptyDeviceTypeList() throws Exception {
