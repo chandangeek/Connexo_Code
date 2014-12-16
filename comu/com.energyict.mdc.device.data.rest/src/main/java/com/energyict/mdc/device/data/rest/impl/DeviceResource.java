@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 
+import com.elster.jupiter.datavault.impl.ExceptionFactory;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
@@ -28,6 +29,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -37,6 +39,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -166,6 +169,23 @@ public class DeviceResource {
 
         this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
         return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, deviceService, issueService);
+    }
+    
+    @PUT
+    @Path("/{mRID}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
+    public DeviceInfo updateDevice(@PathParam("mRID") String id, DeviceInfo info, @Context SecurityContext securityContext) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        if (info.masterDevicemRID == null) {
+            //delete master
+            //topologyService.clearPhysicalGateway(device);
+        } else {
+            Device gateway = resourceHelper.findDeviceByMrIdOrThrowException(info.masterDevicemRID);
+            //setPhysicalGateway.setPhisicalGateway(device, gateway);
+        }        
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService);
     }
 
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {

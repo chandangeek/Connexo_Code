@@ -1159,6 +1159,42 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         infos = DeviceTopologyInfo.from(topologyTimeline);
         assertThat(infos.size()).isEqualTo(1);
     }
+    
+    @Test
+    public void testUpdateMasterDevice() {
+        Device device = mockDeviceForTopologyTest("device");
+        Device gateway = mockDeviceForTopologyTest("gateway");
+        when(deviceService.findByUniqueMrid("device")).thenReturn(device);
+        when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
+        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        
+        DeviceInfo info = new DeviceInfo();
+        info.masterDeviceId = gateway.getId();
+        info.masterDevicemRID = gateway.getmRID();
+        
+        Response response = target("/devices/device").request().put(Entity.json(info));
+        
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        //verify(topologyService).setPhysicalGateWay(device, gateway);
+    }
+    
+    @Test
+    public void testDeleteMasterDevice() {
+        Device device = mockDeviceForTopologyTest("device");
+        when(deviceService.findByUniqueMrid("device")).thenReturn(device);
+        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        
+        DeviceInfo info = new DeviceInfo();
+        info.masterDeviceId = null;
+        info.masterDevicemRID = null;
+        
+        Response response = target("/devices/device").request().put(Entity.json(info));
+        
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        //verify(topologyService).clearPhysicalGateWay(device);
+    }
 
     private Device mockDeviceForTopologyTest(String name) {
         Device device = mock(Device.class);

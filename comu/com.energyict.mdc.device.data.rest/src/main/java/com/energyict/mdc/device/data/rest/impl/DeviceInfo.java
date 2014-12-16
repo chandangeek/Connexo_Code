@@ -39,6 +39,8 @@ public class DeviceInfo {
     public Boolean hasRegisters;
     public Boolean hasLogBooks;
     public Boolean hasLoadProfiles;
+    public Boolean isDirectlyAddressed;
+    public Boolean isGateway;
 
     public DeviceInfo() {
     }
@@ -71,6 +73,8 @@ public class DeviceInfo {
         deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
         deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
+        deviceInfo.isDirectlyAddressed = device.getDeviceConfiguration().canBeDirectlyAddressable();
+        deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway();
         return deviceInfo;
     }
 
