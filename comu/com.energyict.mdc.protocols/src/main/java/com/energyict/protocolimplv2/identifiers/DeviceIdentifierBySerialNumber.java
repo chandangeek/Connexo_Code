@@ -1,16 +1,14 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
-import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.FindMultipleDevices;
 
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 

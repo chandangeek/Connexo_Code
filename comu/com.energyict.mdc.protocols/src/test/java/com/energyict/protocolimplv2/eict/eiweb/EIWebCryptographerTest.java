@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.engine.model.InboundComPort;
 import com.energyict.mdc.io.CommunicationException;

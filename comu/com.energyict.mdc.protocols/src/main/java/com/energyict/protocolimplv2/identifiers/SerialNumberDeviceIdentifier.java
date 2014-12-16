@@ -9,9 +9,9 @@ import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
-import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.FindMultipleDevices;
 
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 

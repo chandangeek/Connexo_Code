@@ -5,9 +5,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-
-import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;

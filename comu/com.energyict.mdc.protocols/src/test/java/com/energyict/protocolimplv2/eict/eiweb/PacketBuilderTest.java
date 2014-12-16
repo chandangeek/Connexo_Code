@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;

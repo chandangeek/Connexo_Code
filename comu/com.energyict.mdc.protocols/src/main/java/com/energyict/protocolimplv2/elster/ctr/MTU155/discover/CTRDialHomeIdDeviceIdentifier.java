@@ -7,9 +7,9 @@ import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifierType;
-import com.energyict.mdc.protocol.api.inbound.FindMultipleDevices;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.FindMultipleDevices;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.bind.annotation.XmlAttribute;

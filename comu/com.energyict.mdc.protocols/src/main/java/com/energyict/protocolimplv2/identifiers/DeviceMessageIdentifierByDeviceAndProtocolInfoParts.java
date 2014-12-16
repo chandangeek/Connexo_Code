@@ -4,8 +4,8 @@ import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.inbound.MessageIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifierType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.bind.annotation.XmlAttribute;

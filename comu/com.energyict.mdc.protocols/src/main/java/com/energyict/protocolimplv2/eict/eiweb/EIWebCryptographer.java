@@ -4,7 +4,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;

@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface

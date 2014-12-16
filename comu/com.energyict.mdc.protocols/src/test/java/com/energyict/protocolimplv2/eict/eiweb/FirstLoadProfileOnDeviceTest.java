@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import org.junit.*;

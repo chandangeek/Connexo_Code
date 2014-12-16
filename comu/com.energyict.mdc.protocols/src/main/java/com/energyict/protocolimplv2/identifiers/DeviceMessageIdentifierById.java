@@ -6,7 +6,7 @@ import com.energyict.mdc.protocol.api.device.messages.BaseDeviceMessageFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.io.CommunicationException;
 
-import com.energyict.mdc.protocol.api.inbound.MessageIdentifierType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifierType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.Arrays;
