@@ -14,7 +14,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 public class Activator implements BundleActivator {
 
     public static final String APP_KEY = "YFN";
-    public static final String APP_NAME = "Reports";
+    public static final String APP_NAME = "Facts";
     public static final String APP_ICON = "connexo";
 
     public static final String HTTP_RESOURCE_ALIAS = "/reports";
