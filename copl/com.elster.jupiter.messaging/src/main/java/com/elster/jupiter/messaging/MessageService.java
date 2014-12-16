@@ -1,5 +1,6 @@
 package com.elster.jupiter.messaging;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -39,4 +40,9 @@ public interface MessageService {
      * @return the SubscriberSpec with the given name for the Destination with the given name, optional, as it may not exist
      */
     Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name);
+
+    /**
+     * @return a List containing all SubscriberSpecs
+     */
+    List<SubscriberSpec> getSubscribers();
 }
