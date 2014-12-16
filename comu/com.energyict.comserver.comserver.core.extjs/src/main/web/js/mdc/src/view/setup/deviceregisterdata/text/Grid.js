@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.device'),
+                hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceData'),
                 menu: {
                     xtype: 'deviceregisterdataactionmenu'
                 }

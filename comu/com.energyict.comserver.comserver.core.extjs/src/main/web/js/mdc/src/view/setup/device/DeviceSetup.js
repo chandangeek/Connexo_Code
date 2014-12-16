@@ -49,6 +49,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             ui: 'icon',
             pressed: !!flag,
             flag: flag,
+            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
             enableToggle: true,
             toggleHandler: function(button, state) {
                 button.setTooltip(state
@@ -195,6 +196,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     },
                     {
                         xtype: 'deviceCommunicationTopologyPanel',
+                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                         router: me.router
                     }
                 ]
@@ -225,7 +227,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         },
                         items: {
                             xtype: 'device-data-validation-panel',
-                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration']),
+                            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice']),
                             mRID: me.device.get('mRID')
                         }
 
@@ -234,6 +236,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             },
             {
                 xtype: 'panel',
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                 style: {
                     marginRight: '20px',
                     marginTop: '20px'
@@ -246,6 +249,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             },
             {
                 xtype: 'panel',
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                 style: {
                     marginRight: '20px',
                     marginTop: '20px'
