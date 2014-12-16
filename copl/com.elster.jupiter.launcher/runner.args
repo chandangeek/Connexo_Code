@@ -141,6 +141,7 @@ mvn:com.elster.jupiter/systemadmin.extjs/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/properties/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/login.app/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/system.app/1.0.0-SNAPSHOT
+mvn:com.elster.jupiter/system.app.help/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/theme.skyline/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/kpi/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/time/1.0.0-SNAPSHOT
