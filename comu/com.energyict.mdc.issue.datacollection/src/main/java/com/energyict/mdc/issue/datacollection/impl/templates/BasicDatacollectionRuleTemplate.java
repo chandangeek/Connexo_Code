@@ -44,6 +44,8 @@ public class BasicDatacollectionRuleTemplate extends AbstractTemplate {
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
         setIssueService(issueService);
+
+        activate();
     }
 
     @Activate

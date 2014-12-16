@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.EventAggregationRuleTemplate",
@@ -22,6 +23,17 @@ import java.util.Optional;
 public class EventAggregationRuleTemplate extends AbstractTemplate {
     public static final String TEMPLATE_UUID = "2f20a62e-3361-33c9-afc4-2f68618a6af7";
     private volatile MeteringService meteringService;
+
+    public EventAggregationRuleTemplate() {
+    }
+
+    @Inject
+    public EventAggregationRuleTemplate(MeteringService meteringService, NlsService nlsService){
+        setMeteringService(meteringService);
+        setNlsService(nlsService);
+
+        activate();
+    }
 
     @Activate
     public void activate(){
