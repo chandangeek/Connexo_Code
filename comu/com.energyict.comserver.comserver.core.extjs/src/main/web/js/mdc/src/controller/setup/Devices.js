@@ -52,6 +52,10 @@ Ext.define('Mdc.controller.setup.Devices', {
             },
             'deviceSetup device-connections-list uni-actioncolumn': {
                 run: this.connectionRun
+            },
+            'deviceSetup device-communications-list uni-actioncolumn': {
+                run: this.communicationRun,
+                runNow: this.communicationRunNow
             }
         });
     },
@@ -64,9 +68,29 @@ Ext.define('Mdc.controller.setup.Devices', {
         var me = this;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.connection.run.success', 'MDC', 'Connection will run immediately')
+                Uni.I18n.translate('device.connection.run.now', 'MDC', 'Connection will run immediately')
             );
             record.set('nextExecution', new Date());
+        });
+    },
+
+    communicationRun: function (record) {
+        var me = this;
+        record.run(function () {
+            me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.communication.run.wait', 'MDC', 'Communication task will wait')
+            );
+            record.set('plannedDate', new Date());
+        });
+    },
+
+    communicationRunNow: function (record) {
+        var me = this;
+        record.run(function () {
+            me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.communication.run.now', 'MDC', 'Communication task will run immediately')
+            );
+            record.set('plannedDate', new Date());
         });
     },
 

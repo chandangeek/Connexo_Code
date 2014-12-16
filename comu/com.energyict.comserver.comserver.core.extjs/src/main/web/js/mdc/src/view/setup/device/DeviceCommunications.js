@@ -53,13 +53,12 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
         me.columns = {
             defaults: {
                 sortable: false,
-                groupable: false,
                 menuDisabled: true,
                 flex: 1
             },
             items: [
                 {
-                    itemId: 'Communication task',
+                    itemId: 'comTask',
                     text: Uni.I18n.translate('device.communications.comTask', 'MDC', 'Communication task'),
                     dataIndex: 'comTask',
                     renderer: function (val, metaData, record) {
