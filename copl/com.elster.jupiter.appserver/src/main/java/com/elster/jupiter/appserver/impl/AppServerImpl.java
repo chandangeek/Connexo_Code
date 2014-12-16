@@ -26,7 +26,7 @@ public class AppServerImpl implements AppServer {
     private String name;
     private String cronString;
     private transient CronExpression scheduleFrequency;
-    private boolean recurrentTaskActive;
+    private boolean recurrentTaskActive = true;
     private boolean active;
     private final DataModel dataModel;
     private final CronExpressionParser cronExpressionParser;
