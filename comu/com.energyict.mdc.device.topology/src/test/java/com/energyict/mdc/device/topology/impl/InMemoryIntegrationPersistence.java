@@ -90,6 +90,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
+import javax.validation.MessageInterpolator;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.Principal;
@@ -152,6 +153,7 @@ public class InMemoryIntegrationPersistence {
     private ThreadPrincipalService threadPrincipalService;
     private ConnectionTypeService connectionTypeService;
     private DataVaultService dataVaultService;
+    private MessageInterpolator messageInterpolator;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -282,6 +284,7 @@ public class InMemoryIntegrationPersistence {
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.dataVaultService = mock(DataVaultService.class);
+        this.messageInterpolator = mock(MessageInterpolator.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -401,6 +404,7 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(MessageInterpolator.class).toInstance(messageInterpolator);
             bind(DataVaultService.class).toInstance(dataVaultService);
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());

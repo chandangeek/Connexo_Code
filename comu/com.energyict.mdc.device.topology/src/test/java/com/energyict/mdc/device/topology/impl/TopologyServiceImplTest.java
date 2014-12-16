@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.Modulation;
+import com.energyict.mdc.device.topology.ModulationScheme;
+import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
@@ -21,6 +25,7 @@ import java.util.stream.Collectors;
 
 import org.junit.*;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
@@ -374,6 +379,301 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
         // Asserts
         assertThat(communicationPath.getNumberOfHops()).isEqualTo(2);
+    }
+
+    @Test
+    @Transactional
+    public void buildNeigborhoodFromScratch() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        neighbor2.save();
+
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+
+        // Business method
+        List<G3Neighbor> g3Neighbors = neighborhoodBuilder.complete();
+
+        // Asserts
+        assertThat(g3Neighbors).hasSize(2);
+        G3Neighbor g3Neighbor1 = g3Neighbors.get(0);
+        G3Neighbor g3Neighbor2 = g3Neighbors.get(1);
+        assertThat(g3Neighbor1.getModulationScheme()).isEqualTo(ModulationScheme.DIFFERENTIAL);
+        assertThat(g3Neighbor1.getModulation()).isEqualTo(Modulation.D8PSK);
+        assertThat(g3Neighbor1.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
+        assertThat(g3Neighbor2.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
+        assertThat(g3Neighbor2.getModulation()).isEqualTo(Modulation.CBPSK);
+        assertThat(g3Neighbor2.getPhaseInfo()).isEqualTo(PhaseInfo.DEGREE180);
+    }
+
+    @Test
+    @Transactional
+    public void buildNeigborhoodFromScratchWithAllProperties() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        int expectedLinkQualityIndicator = 19;
+        int expectedTimeToLiveSeconds = 127;
+        int expectedToneMap = 31;
+        int expectedTxGain = 3;
+        int expectedTxResolution = 11;
+        int expectedTxCoefficient = 121;
+        neighborhoodBuilder
+                .addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE)
+                .linkQualityIndicator(expectedLinkQualityIndicator)
+                .timeToLiveSeconds(expectedTimeToLiveSeconds)
+                .toneMap(expectedToneMap)
+                .toneMapTimeToLiveSeconds(expectedTimeToLiveSeconds)
+                .txGain(expectedTxGain)
+                .txResolution(expectedTxResolution)
+                .txCoefficient(expectedTxCoefficient);
+
+        // Business method
+        List<G3Neighbor> g3Neighbors = neighborhoodBuilder.complete();
+
+        // Asserts
+        assertThat(g3Neighbors).hasSize(1);
+        G3Neighbor g3Neighbor1 = g3Neighbors.get(0);
+        assertThat(g3Neighbor1.getModulationScheme()).isEqualTo(ModulationScheme.DIFFERENTIAL);
+        assertThat(g3Neighbor1.getModulation()).isEqualTo(Modulation.D8PSK);
+        assertThat(g3Neighbor1.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
+        assertThat(g3Neighbor1.getLinkQualityIndicator()).isEqualTo(expectedLinkQualityIndicator);
+        assertThat(g3Neighbor1.getTimeToLive()).isEqualTo(Duration.ofSeconds(expectedTimeToLiveSeconds));
+        assertThat(g3Neighbor1.getToneMap()).isEqualTo(expectedToneMap);
+        assertThat(g3Neighbor1.getToneMapTimeToLive()).isEqualTo(Duration.ofSeconds(expectedTimeToLiveSeconds));
+        assertThat(g3Neighbor1.getTxGain()).isEqualTo(expectedTxGain);
+        assertThat(g3Neighbor1.getTxResolution()).isEqualTo(expectedTxResolution);
+        assertThat(g3Neighbor1.getTxCoefficient()).isEqualTo(expectedTxCoefficient);
+    }
+
+    @Test
+    @Transactional
+    public void findNeigborhoodDevices() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        neighbor2.save();
+
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.complete();
+
+        // Business method
+        List<Device> devicesInG3Neighborhood = topologyService.findDevicesInG3Neighborhood(device);
+
+        // Asserts
+        assertThat(devicesInG3Neighborhood).hasSize(2);
+        Set<Long> deviceIDs = devicesInG3Neighborhood.stream().map(Device::getId).collect(Collectors.toSet());
+        assertThat(deviceIDs).containsOnly(neighbor1.getId(), neighbor2.getId());
+    }
+
+    @Test
+    @Transactional
+    public void switchAllNeighboringDevicesFromDifferentialToCoherent() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        neighbor2.save();
+
+        TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
+        initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        initialNeighborhoodBuilder.complete();
+
+        // Business method
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.complete();
+
+        // Asserts: assert that the device in the neigherbood are all still there
+        List<Device> devicesInG3Neighborhood = topologyService.findDevicesInG3Neighborhood(device);
+        assertThat(devicesInG3Neighborhood).hasSize(2);
+        Set<Long> deviceIDs = devicesInG3Neighborhood.stream().map(Device::getId).collect(Collectors.toSet());
+        assertThat(deviceIDs).containsOnly(neighbor1.getId(), neighbor2.getId());
+
+        // Asserts: assert that the ModulationScheme has switched
+        com.elster.jupiter.util.conditions.Condition condition = where("device").isEqualTo(device).and(where("interval").isEffective());
+        List<G3NeighborImpl> updatedNeighbors = inMemoryPersistence.getDataModel().mapper(G3NeighborImpl.class).select(condition);
+        assertThat(updatedNeighbors).hasSize(2);
+        assertThat(updatedNeighbors.get(0).getModulationScheme()).isEqualTo(ModulationScheme.DIFFERENTIAL);
+        assertThat(updatedNeighbors.get(1).getModulationScheme()).isEqualTo(ModulationScheme.DIFFERENTIAL);
+    }
+
+    @Test
+    @Transactional
+    public void rebuildNeighboorhoodWithAllSamePropertiesDoesNotUpdate() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        neighbor2.save();
+
+        TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
+        initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        initialNeighborhoodBuilder.complete();
+
+        // Business method
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
+        initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.complete();
+
+        // Asserts: assert that the device in the neigherbood are all still there
+        List<Device> devicesInG3Neighborhood = topologyService.findDevicesInG3Neighborhood(device);
+        assertThat(devicesInG3Neighborhood).hasSize(2);
+        Set<Long> deviceIDs = devicesInG3Neighborhood.stream().map(Device::getId).collect(Collectors.toSet());
+        assertThat(deviceIDs).containsOnly(neighbor1.getId(), neighbor2.getId());
+
+        // Asserts: assert that none of the neighborhood attributes have changed
+        com.elster.jupiter.util.conditions.Condition condition = where("device").isEqualTo(device).and(where("interval").isEffective());
+        List<G3NeighborImpl> updatedNeighbors = inMemoryPersistence.getDataModel().mapper(G3NeighborImpl.class).select(condition);
+        assertThat(updatedNeighbors).hasSize(2);
+        assertThat(updatedNeighbors.get(0).getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
+        assertThat(updatedNeighbors.get(0).getModulation()).isEqualTo(Modulation.CBPSK);
+        assertThat(updatedNeighbors.get(0).getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
+        assertThat(updatedNeighbors.get(1).getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
+        assertThat(updatedNeighbors.get(1).getModulation()).isEqualTo(Modulation.CBPSK);
+        assertThat(updatedNeighbors.get(1).getPhaseInfo()).isEqualTo(PhaseInfo.DEGREE180);
+    }
+
+    @Test
+    @Transactional
+    public void rebuildNeighboorhoodWithAllProperties() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+
+        TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
+        initialNeighborhoodBuilder.complete();
+
+        // Business method
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        int expectedLinkQualityIndicator = 19;
+        int expectedTimeToLiveSeconds = 127;
+        int expectedToneMap = 31;
+        int expectedTxGain = 3;
+        int expectedTxResolution = 11;
+        int expectedTxCoefficient = 121;
+        neighborhoodBuilder
+                .addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE)
+                .linkQualityIndicator(expectedLinkQualityIndicator)
+                .timeToLiveSeconds(expectedTimeToLiveSeconds)
+                .toneMap(expectedToneMap)
+                .toneMapTimeToLiveSeconds(expectedTimeToLiveSeconds)
+                .txGain(expectedTxGain)
+                .txResolution(expectedTxResolution)
+                .txCoefficient(expectedTxCoefficient);
+        neighborhoodBuilder.complete();
+
+        // Asserts: assert that the device in the neigherbood are all still there
+        List<Device> devicesInG3Neighborhood = topologyService.findDevicesInG3Neighborhood(device);
+        assertThat(devicesInG3Neighborhood).hasSize(1);
+        Set<Long> deviceIDs = devicesInG3Neighborhood.stream().map(Device::getId).collect(Collectors.toSet());
+        assertThat(deviceIDs).containsOnly(neighbor1.getId());
+
+        // Asserts: assert that none of the neighborhood attributes have changed
+        com.elster.jupiter.util.conditions.Condition condition = where("device").isEqualTo(device).and(where("interval").isEffective());
+        List<G3NeighborImpl> updatedNeighbors = inMemoryPersistence.getDataModel().mapper(G3NeighborImpl.class).select(condition);
+        assertThat(updatedNeighbors).hasSize(1);
+        G3NeighborImpl updatedNeighbor = updatedNeighbors.get(0);
+        assertThat(updatedNeighbor.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
+        assertThat(updatedNeighbor.getModulation()).isEqualTo(Modulation.CBPSK);
+        assertThat(updatedNeighbor.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
+        assertThat(updatedNeighbor.getLinkQualityIndicator()).isEqualTo(expectedLinkQualityIndicator);
+        assertThat(updatedNeighbor.getTimeToLive()).isEqualTo(Duration.ofSeconds(expectedTimeToLiveSeconds));
+        assertThat(updatedNeighbor.getToneMap()).isEqualTo(expectedToneMap);
+        assertThat(updatedNeighbor.getToneMapTimeToLive()).isEqualTo(Duration.ofSeconds(expectedTimeToLiveSeconds));
+        assertThat(updatedNeighbor.getTxGain()).isEqualTo(expectedTxGain);
+        assertThat(updatedNeighbor.getTxResolution()).isEqualTo(expectedTxResolution);
+        assertThat(updatedNeighbor.getTxCoefficient()).isEqualTo(expectedTxCoefficient);
+    }
+
+    @Test
+    @Transactional
+    public void removeNeighbor() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        neighbor2.save();
+
+        TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
+        initialNeighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        initialNeighborhoodBuilder.complete();
+
+        // Business method
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        // Not adding neighbor2 should equal to removing it
+        neighborhoodBuilder.complete();
+
+        // Asserts
+        List<Device> devicesInG3Neighborhood = topologyService.findDevicesInG3Neighborhood(device);
+        assertThat(devicesInG3Neighborhood).hasSize(1);
+        Set<Long> deviceIDs = devicesInG3Neighborhood.stream().map(Device::getId).collect(Collectors.toSet());
+        assertThat(deviceIDs).containsOnly(neighbor1.getId());
+    }
+
+    @Test
+    @Transactional
+    public void addNeighbor() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        neighbor2.save();
+
+        TopologyService.G3NeighborhoodBuilder initialNeighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        initialNeighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.INPHASE);
+        initialNeighborhoodBuilder.complete();
+
+        // Business method
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.complete();
+
+        // Asserts
+        List<Device> devicesInG3Neighborhood = topologyService.findDevicesInG3Neighborhood(device);
+        assertThat(devicesInG3Neighborhood).hasSize(2);
+        Set<Long> deviceIDs = devicesInG3Neighborhood.stream().map(Device::getId).collect(Collectors.toSet());
+        assertThat(deviceIDs).containsOnly(neighbor1.getId(), neighbor2.getId());
     }
 
     private ServerDeviceService getDeviceService() {

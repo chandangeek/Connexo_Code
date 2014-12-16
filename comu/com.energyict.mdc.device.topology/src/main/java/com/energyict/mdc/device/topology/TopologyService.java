@@ -136,4 +136,63 @@ public interface TopologyService {
      */
     public Optional<ConnectionTask> findDefaultConnectionTaskForTopology(Device device);
 
+    /**
+     * Starts the building process of the specified {@link Device}'s neighborhood,
+     * i.e. all the Devices that appear as neighboring devices
+     * for the G3/PLC communication technology.
+     *
+     * @param device The Device whose neighborhood will be built
+     * @return The G3NeighborhoodBuilder
+     */
+    public G3NeighborhoodBuilder buildG3Neighborhood(Device device);
+
+    /**
+     * Find the neighboring {@link Device}'s ,
+     * for the G3/PLC communication technology.
+     *
+     * @param device The Device whose neighborhood will be returned
+     * @return The List of Device
+     */
+    public List<Device> findDevicesInG3Neighborhood(Device device);
+
+    /**
+     * Build all the neighbors of one {@link Device}.
+     * Device's whose neighborhood has been built before can be updated
+     * with the same builder. Devices that were not revisited, i.e.
+     * the {@link #addNeighbor(Device, ModulationScheme, Modulation, PhaseInfo)}
+     * was not called will be deleted upon completion.
+     */
+    public interface G3NeighborhoodBuilder {
+
+        /**
+         * Adds the specified {@link Device} to the neighborhood
+         * that is currently being built. When the neighborhood
+         * of the Device is actually being updated, Devices that
+         * were already part of the neighborhood before must be added
+         * again or they will be deleted upon completion.
+         *
+         * @param neighbor The new neighbor
+         * @param modulationScheme The ModulationScheme
+         * @param modulation The Modulation
+         * @param phaseInfo The PhaseInfo
+         * @return The G3NeighborBuilder that allows you to specify the optional neighboring information
+         */
+        public G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo);
+
+        /**
+         * Completes the building process
+         */
+        public List<G3Neighbor> complete();
+    }
+
+    public interface G3NeighborBuilder {
+        public G3NeighborBuilder txGain(int txGain);
+        public G3NeighborBuilder txResolution(int txResolution);
+        public G3NeighborBuilder txCoefficient(int txCoefficient);
+        public G3NeighborBuilder linkQualityIndicator(int linkQualityIndicator);
+        public G3NeighborBuilder timeToLiveSeconds(int seconds);
+        public G3NeighborBuilder toneMap(long toneMap);
+        public G3NeighborBuilder toneMapTimeToLiveSeconds(int seconds);
+    }
+
 }
