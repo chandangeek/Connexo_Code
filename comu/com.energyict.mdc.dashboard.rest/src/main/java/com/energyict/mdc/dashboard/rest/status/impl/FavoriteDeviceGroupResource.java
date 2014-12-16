@@ -46,7 +46,7 @@ public class FavoriteDeviceGroupResource {
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_GROUP_DETAIL)
+    @RolesAllowed({Privileges.VIEW_DEVICE_GROUP_DETAIL, Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP})
     public PagedInfoList getFavoriteDeviceGroups(@QueryParam("includeAllGroups") boolean includeAllGroups, @BeanParam QueryParameters queryParameters, @Context SecurityContext securityContext) {
         User user = (User) securityContext.getUserPrincipal();
         List<EndDeviceGroup> favoriteDeviceGroups = favoritesService.getFavoriteDeviceGroups(user).stream().map(FavoriteDeviceGroup::getEndDeviceGroup).collect(Collectors.toList());
@@ -62,7 +62,7 @@ public class FavoriteDeviceGroupResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_GROUP_DETAIL)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP})
     public Response updateFavoriteDeviceGroups(FavoriteDeviceGroupInfo.SelectionInfo selection, @Context SecurityContext securityContext) {
         User user = (User) securityContext.getUserPrincipal();
         Map<Long, FavoriteDeviceGroup> groups = favoritesService.getFavoriteDeviceGroups(user).stream().collect(Collectors.toMap(fdg -> fdg.getEndDeviceGroup().getId(), Function.identity()));

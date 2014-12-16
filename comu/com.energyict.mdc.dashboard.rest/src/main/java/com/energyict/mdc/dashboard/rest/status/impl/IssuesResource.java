@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -40,7 +41,7 @@ public class IssuesResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({com.elster.jupiter.issue.security.Privileges.VIEW_ISSUE, com.elster.jupiter.issue.security.Privileges.ASSIGN_ISSUE, com.elster.jupiter.issue.security.Privileges.CLOSE_ISSUE, com.elster.jupiter.issue.security.Privileges.COMMENT_ISSUE, com.elster.jupiter.issue.security.Privileges.ACTION_ISSUE})
+    @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
     public Response getIssues(@Context SecurityContext context) {
         User user = (User) context.getUserPrincipal();
         Query<OpenIssueDataCollection> query;
