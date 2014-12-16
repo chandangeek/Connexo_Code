@@ -18,7 +18,6 @@ public class ManufacturerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE_CONFIGURATION)
     public ManufacturerInfos getAllManufacturers() {
         ManufacturerInfos manufacturerInfos = new ManufacturerInfos();
         manufacturerInfos.manufacturerInfos = new ArrayList<>();

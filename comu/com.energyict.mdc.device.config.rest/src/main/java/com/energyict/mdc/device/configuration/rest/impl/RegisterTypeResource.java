@@ -57,7 +57,7 @@ public class RegisterTypeResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public PagedInfoList getRegisterTypes(@BeanParam QueryParameters queryParameters) {
         List<RegisterType> registerTypes = this.masterDataService.findAllRegisterTypes().from(queryParameters).find();
         List<RegisterTypeInfo> registerTypeInfos = new ArrayList<>();
@@ -70,7 +70,7 @@ public class RegisterTypeResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_CONFIGURATION, Privileges.VIEW_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public RegisterTypeInfo getRegisterType(@PathParam("id") long id) {
         RegisterType registerType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
         return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
@@ -78,7 +78,7 @@ public class RegisterTypeResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteRegisterType(@PathParam("id") long id) {
         MeasurementType measurementType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
@@ -89,7 +89,7 @@ public class RegisterTypeResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public RegisterTypeInfo createRegisterType(RegisterTypeInfo registerTypeInfo) {
         ReadingType readingType = findReadingType(registerTypeInfo);
         Optional<Phenomenon> phenomenon = findPhenomenonOrThrowException(registerTypeInfo);
@@ -117,7 +117,7 @@ public class RegisterTypeResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_CONFIGURATION)
+    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public RegisterTypeInfo updateRegisterType(@PathParam("id") long id, RegisterTypeInfo registerTypeInfo) {
         RegisterType registerType = this.resourceHelper.findRegisterTypeByIdOrThrowException(id);
         Optional<Phenomenon> phenomenon = findPhenomenonOrThrowException(registerTypeInfo);
