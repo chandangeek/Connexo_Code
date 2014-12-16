@@ -73,4 +73,13 @@ public interface DeviceService {
 
     public Finder<Device> findDevicesByDeviceConfiguration(DeviceConfiguration deviceConfiguration);
 
+    /**
+     * Finds all devices which have a property (general Attribute) with the given name and value.
+     *
+     * @param propertySpecName  the name of the property
+     * @param propertySpecValue the value of the property
+     * @return a list of all devices matching the given criteria
+     */
+    public Finder<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue);
+
 }

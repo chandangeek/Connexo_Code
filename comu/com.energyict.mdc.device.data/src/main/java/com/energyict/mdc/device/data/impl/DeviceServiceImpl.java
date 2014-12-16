@@ -9,6 +9,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
@@ -87,21 +88,6 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public InfoType newInfoType(String name) {
-        return this.deviceDataModelService.dataModel().getInstance(InfoTypeImpl.class).initialize(name);
-    }
-
-    @Override
-    public InfoType findInfoType(String name) {
-        return this.deviceDataModelService.dataModel().mapper(InfoType.class).getUnique("name", name).orElse(null);
-    }
-
-    @Override
-    public InfoType findInfoTypeById(long infoTypeId) {
-        return this.deviceDataModelService.dataModel().mapper(InfoType.class).getUnique("id", infoTypeId).orElse(null);
-    }
-
-    @Override
     public boolean isLinkedToDevices(ComSchedule comSchedule) {
         Condition condition = where(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).isEqualTo(comSchedule).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         List<ScheduledComTaskExecution> scheduledComTaskExecutions = this.deviceDataModelService.dataModel().query(ScheduledComTaskExecution.class).
@@ -114,4 +100,10 @@ public class DeviceServiceImpl implements ServerDeviceService {
         return DefaultFinder.of(Device.class, where("deviceConfiguration").isEqualTo(deviceConfiguration), this.deviceDataModelService.dataModel()).defaultSortColumn("lower(name)");
     }
 
+
+    @Override
+    public Finder<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue) {
+        Condition condition = where("propertySpec").isEqualTo(propertySpecName).and(where("propertyValue").isEqualTo(propertySpecValue));
+        return DefaultFinder.of(Device.class, condition, this.deviceDataModelService.dataModel(), DeviceProtocolProperty.class);
+    }
 }

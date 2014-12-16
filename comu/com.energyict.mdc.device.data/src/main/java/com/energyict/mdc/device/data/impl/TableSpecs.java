@@ -95,18 +95,6 @@ public enum TableSpecs {
         }
     },
 
-    DDC_INFOTYPE {
-        @Override
-        public void addTo(DataModel dataModel) {
-            Table<InfoType> table = dataModel.addTable(name(), InfoType.class);
-            table.map(InfoTypeImpl.class);
-            Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.primaryKey("PK_DDC_INFOTYPE").on(id).add();
-            table.unique("UK_DDC_INFOTYPE").on(name).add();
-        }
-    },
-
     DDC_DEVICEPROTOCOLPROPERTY {
         @Override
         public void addTo(DataModel dataModel) {

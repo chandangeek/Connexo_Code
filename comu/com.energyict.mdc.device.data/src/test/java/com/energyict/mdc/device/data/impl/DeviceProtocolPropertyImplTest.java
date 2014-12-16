@@ -42,8 +42,6 @@ public class DeviceProtocolPropertyImplTest extends PersistenceTestWithMockedDev
         }
         propertySpecs.add(stringPropertySpec);
         when(deviceProtocol.getPropertySpecs()).thenReturn(propertySpecs);
-        InfoType infoType = inMemoryPersistence.getDeviceService().newInfoType(name);
-        infoType.save();
     }
 
     private Device createSimpleDeviceWithProperty(String name, String value) {
