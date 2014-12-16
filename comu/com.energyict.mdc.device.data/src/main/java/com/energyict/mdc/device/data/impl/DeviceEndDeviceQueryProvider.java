@@ -54,7 +54,7 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
 
     @Override
     public List<EndDevice> findEndDevices(Instant date, Condition conditions) {
-        List<Device> devices = deviceService.findAllDevices(conditions).find();
+        List<Device> devices = deviceService.findAllDevices(conditions).sorted("mRID", true).find();
         List<EndDevice> meters = new ArrayList<EndDevice>();
         for (Device device : devices) {
             Optional<Meter> optionalMeter =
