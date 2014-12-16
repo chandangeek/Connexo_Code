@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.*;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Device;
@@ -40,11 +41,13 @@ public class DeviceInfo {
     public Boolean hasRegisters;
     public Boolean hasLogBooks;
     public Boolean hasLoadProfiles;
+    public String serviceCategory;
+    public String usagePoint;
 
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, DeviceService deviceService, IssueService issueService) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, DeviceService deviceService, IssueService issueService, MeteringService meteringService) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
@@ -73,6 +76,22 @@ public class DeviceInfo {
         deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
         deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
+
+        Optional<AmrSystem> amrSystem = getMdcAmrSystem(meteringService);
+        if (amrSystem.isPresent()) {
+            Optional<Meter> meter = findKoreMeter(amrSystem.get(), device);
+            if (meter.isPresent()) {
+                Optional<? extends MeterActivation> meterActivation = meter.get().getCurrentMeterActivation();
+                if (meterActivation.isPresent()) {
+                    Optional<UsagePoint> usagePoint = meterActivation.get().getUsagePoint();
+                    if (usagePoint.isPresent()) {
+                        deviceInfo.usagePoint = usagePoint.get().getMRID();
+                        deviceInfo.serviceCategory = usagePoint.get().getServiceCategory().getName();
+                    }
+                }
+            }
+        }
+
         return deviceInfo;
     }
 
@@ -94,5 +113,13 @@ public class DeviceInfo {
             deviceInfos.add(DeviceInfo.from(device));
         }
         return deviceInfos;
+    }
+
+    private static Optional<AmrSystem> getMdcAmrSystem(MeteringService meteringService) {
+        return meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
+    }
+
+    private static Optional<Meter> findKoreMeter(AmrSystem amrSystem, Device device) {
+        return amrSystem.findMeter(String.valueOf(device.getId()));
     }
 }
