@@ -39,9 +39,10 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupsGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup'),
-                items: 'Mdc.view.setup.devicegroup.DeviceGroupActionMenu'
+                menu: {
+                    xtype: 'device-group-action-menu'
+                }
             }
-
         ];
         this.dockedItems = [
             {

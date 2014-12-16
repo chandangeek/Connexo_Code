@@ -58,6 +58,9 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             },
             '#createDeviceGroupButtonFromEmptyGrid': {
                 click: this.showAddDeviceGroupWizard
+            },
+            'device-group-action-menu': {
+                click: this.chooseAction
             }
             /*,
              '#deviceGroupsGrid actioncolumn': {
@@ -111,6 +114,9 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
 
     showDeviceGroups: function () {
         var widget = Ext.widget('deviceGroupSetup');
+        if (this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').router) {
+            this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').router = null;
+        }
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -120,8 +126,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             var deviceGroup = deviceGroups[0];
             this.getDeviceGroupPreviewForm().loadRecord(deviceGroup);
             this.getDeviceGroupPreview().setTitle(deviceGroup.get('name'));
-
-
+            this.getDeviceGroupPreview().down('device-group-action-menu').record = deviceGroup;
             this.updateCriteria(deviceGroup);
         }
     },
@@ -188,7 +193,9 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
     showDevicegroupDetailsView: function (currentDeviceGroupId) {
         var me = this;
         var router = me.getController('Uni.controller.history.Router');
-
+        if (this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').router) {
+            this.getApplication().getController('Mdc.controller.setup.AddDeviceGroupAction').router = null;
+        }
         this.getDevicesOfDeviceGroupStore().getProxy().setExtraParam('id', currentDeviceGroupId);
         this.getDevicesOfDeviceGroupStore().load({
             callback: function () {
@@ -211,6 +218,24 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             }
         });
 
+    },
+
+    chooseAction: function (menu, item) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            additionalParams = {},
+            route;
+
+        router.arguments.deviceGroupId = menu.record.getId();
+
+        switch (item.action) {
+            case 'editDeviceGroup':
+                route = 'devices/devicegroups/view/edit';
+                break;
+        }
+        me.getDeviceGroupsGrid() ? additionalParams.fromDetails = false : additionalParams.fromDetails = true;
+        route && (route = router.getRoute(route));
+        route && route.forward(router.arguments, additionalParams);
     }
 });
 
