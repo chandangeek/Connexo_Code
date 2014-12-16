@@ -4,16 +4,8 @@ Ext.define('Mdc.view.setup.device.ConnectionActionMenu', {
     router: null,
     items: [
         {
-            text: 'Run',
-            action: 'run'
-        },
-        {
             text: 'Run now',
-            action: 'runNow',
-            visible: function() {
-                var r = this.record;
-                return r.get('connectionStrategy') && r.get('connectionStrategy').id == 'minimizeConnections'
-            }
+            action: 'run'
         },
         {
             text: 'Activate',
