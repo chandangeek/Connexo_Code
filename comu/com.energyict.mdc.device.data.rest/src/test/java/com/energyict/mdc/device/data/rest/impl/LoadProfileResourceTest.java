@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.time.Interval;
@@ -88,10 +89,14 @@ public class LoadProfileResourceTest extends DeviceDataRestApplicationJerseyTest
         when(clock.instant()).thenReturn(NOW);
         when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(250, 0));
+        ReadingType rt = mock(ReadingType.class);
+        when(rt.isCumulative()).thenReturn(false);
         when(channel1.getDevice()).thenReturn(device);
+        when(channel1.getReadingType()).thenReturn(rt);
         when(channel1.getId()).thenReturn(CHANNEL_ID1);
         when(channel1.getChannelSpec()).thenReturn(channelSpec);
         when(channel2.getDevice()).thenReturn(device);
+        when(channel2.getReadingType()).thenReturn(rt);
         when(channel2.getId()).thenReturn(CHANNEL_ID2);
         when(channel2.getChannelSpec()).thenReturn(channelSpec);
         when(device.forValidation()).thenReturn(deviceValidation);

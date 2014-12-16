@@ -6,11 +6,13 @@ import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -34,6 +36,7 @@ public class DeviceScheduleResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getAllComTaskExecutions(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
@@ -46,6 +49,7 @@ public class DeviceScheduleResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response createComTaskExecution(@PathParam("mRID") String mrid, SchedulingInfo schedulingInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
@@ -94,6 +98,7 @@ public class DeviceScheduleResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateComTaskExecution(@PathParam("mRID") String mrid, SchedulingInfo schedulingInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();

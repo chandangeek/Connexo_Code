@@ -1,27 +1,24 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
-
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -37,98 +34,84 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 
-/**
- * Created by bvn on 9/5/14.
- */
 public class ChannelResource {
-    private static final Comparator<Channel> CHANNEL_COMPARATOR_BY_NAME = new ChannelComparator();
-
+    private final Provider<ChannelResourceHelper> channelHelper;
     private final ResourceHelper resourceHelper;
-    private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
     private final Clock clock;
 
     @Inject
-    public ChannelResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Thesaurus thesaurus, Clock clock) {
+    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock) {
+        this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
-        this.exceptionFactory = exceptionFactory;
         this.thesaurus = thesaurus;
         this.clock = clock;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
-    public Response getChannels(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @BeanParam QueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
-        List<Channel> channelsPage = ListPager.of(loadProfile.getChannels(), CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
-
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        for (Channel channel : channelsPage) {
-            ChannelInfo channelInfo = ChannelInfo.from(channel);
-            addValidationInfo(channel, channelInfo);
-            channelInfos.add(channelInfo);
-        }
-        return Response.ok(PagedInfoList.asJson("channels", channelInfos, queryParameters)).build();
-    }
-
-    private void addValidationInfo(Channel channel, ChannelInfo channelInfo) {
-        List<DataValidationStatus> states =
-                channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), lastMonth());
-        channelInfo.validationInfo = new DetailedValidationInfo(isValidationActive(channel), states, lastChecked(channel));
-        if (states.isEmpty()) {
-            channelInfo.validationInfo.dataValidated = channel.getDevice().forValidation().allDataValidated(channel, clock.instant());
-        }
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
+    public Response getChannels(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        return channelHelper.get().getChannels(mrid, (d -> this.getFilteredChannels(d, filter)), queryParameters);
     }
 
     @GET
     @Path("/{channelid}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
-    public Response getChannel(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
-        Channel channel = doGetChannel(mrid, loadProfileId, channelId);
-        ChannelInfo channelInfo = ChannelInfo.from(channel);
-        addValidationInfo(channel, channelInfo);
-        return Response.ok(channelInfo).build();
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
+    public Response getChannel(@PathParam("mRID") String mrid, @PathParam("channelid") long channelId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mrid, channelId);
+        return channelHelper.get().getChannel(() -> channel);
     }
 
-    private boolean isValidationActive(Channel channel) {
-        return channel.getDevice().forValidation().isValidationActive(channel, clock.instant());
+    private List<Channel> getFilteredChannels(Device device, JsonQueryFilter filter){
+        Predicate<String> filterByLoadProfileName = getFilterIfAvailable("loadProfileName", filter);
+        Predicate<String> filterByChannelName = getFilterIfAvailable("channelName", filter);
+        return device.getLoadProfiles().stream()
+                .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
+                .flatMap(l -> l.getChannels().stream())
+                .filter(c -> filterByChannelName.test(c.getName()))
+                .sorted(Comparator.comparing(Channel::getName))
+                .collect(Collectors.toList());
     }
 
-    private Date lastChecked(Channel channel) {
-        Optional<Instant> optional = channel.getDevice().forValidation().getLastChecked(channel);
-        return optional.map(Date::from).orElse(null);
+    private Predicate<String> getFilterIfAvailable(String name, JsonQueryFilter filter){
+        if (filter.hasProperty(name)){
+            Pattern pattern = getFilterPattern(filter.getString(name));
+            if (pattern != null){
+                return s -> pattern.matcher(s).matches();
+            }
+        }
+        return s -> true;
     }
 
-    private Range<Instant> lastMonth() {
-        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
-        ZonedDateTime start = end.minusMonths(1);
-        return Range.openClosed(start.toInstant(), end.toInstant());
+    private Pattern getFilterPattern(String filter){
+        if (filter != null){
+            filter = Pattern.quote(filter.replace('%', '*'));
+            return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
+        }
+        return null;
     }
+
+
+
 
     @GET
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
-    public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
-        Channel channel = doGetChannel(mrid, loadProfileId, channelId);
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA})
+    public Response getChannelData(@PathParam("mRID") String mrid, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam QueryParameters queryParameters, @Context UriInfo uriInfo) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mrid, channelId);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
         if (intervalStart != null && intervalEnd != null) {
@@ -142,50 +125,9 @@ public class ChannelResource {
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    @PUT
-    @Path("/{channelid}/data")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
-    public Response editChannelData(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId, @BeanParam QueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        Meter meter = resourceHelper.getMeterFor(device);
-        Channel channel = doGetChannel(mrid, loadProfileId, channelId);
-        com.elster.jupiter.metering.Channel koreChannel =
-                resourceHelper
-                    .getLoadProfileChannel(channel, meter)
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfileId, channelId));
-        List<BaseReading> editedReadings = new LinkedList<>();
-        List<BaseReadingRecord> removedReadings = new LinkedList<>();
-        channelDataInfos.forEach((channelDataInfo) -> {
-            if (channelDataInfo.value == null) {
-                List<BaseReadingRecord> readings =
-                        koreChannel.getReadings(
-                                Range.openClosed(
-                                        Instant.ofEpochMilli(channelDataInfo.interval.start),
-                                        Instant.ofEpochMilli(channelDataInfo.interval.end)));
-                removedReadings.addAll(readings);
-            } else {
-                editedReadings.add(channelDataInfo.createNew());
-            }
-        });
-        koreChannel.editReadings(editedReadings);
-        koreChannel.removeReadings(removedReadings);
-
-        return Response.status(Response.Status.OK).build();
-    }
-
     private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, MultivaluedMap<String, String> queryParameters) {
         Predicate<ChannelDataInfo> fromParams = getFilter(queryParameters);
         return infos.stream().filter(fromParams).collect(Collectors.toList());
-    }
-
-    private boolean hasSuspects(ChannelDataInfo info) {
-        return ValidationStatus.SUSPECT.equals(info.validationResult);
-    }
-
-    private boolean hasMissingData(ChannelDataInfo info) {
-        return info.value == null;
     }
 
     private Predicate<ChannelDataInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
@@ -209,49 +151,69 @@ public class ChannelResource {
         return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
     }
 
-    private Channel doGetChannel(String mrid, long loadProfileId, long channelId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
-        return resourceHelper.findChannelOrThrowException(loadProfile, channelId);
+
+    private boolean hasSuspects(ChannelDataInfo info) {
+        return ValidationStatus.SUSPECT.equals(info.validationResult);
     }
 
-    @Path("{channelid}/validationstatus")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,Privileges.FINE_TUNE_VALIDATION_CONFIGURATION})
-    public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
-        Channel channel = doGetChannel(mrid, loadProfileId, channelId);
-        ValidationStatusInfo deviceValidationStatusInfo = determineStatus(channel);
-        return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
+    private boolean hasMissingData(ChannelDataInfo info) {
+        return info.value == null;
     }
 
-    private ValidationStatusInfo determineStatus(Channel channel) {
-        return new ValidationStatusInfo(isValidationActive(channel), lastChecked(channel), hasData(channel));
-    }
 
-    private boolean hasData(Channel channel) {
-        return channel.getDevice().forValidation().hasData(channel);
-    }
 
-    @Path("{channelid}/validate")
     @PUT
+    @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VALIDATE_MANUAL)
-    public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId, @PathParam("channelid") long channelId) {
-
-        Instant start = validationInfo.lastChecked == null ? null : Instant.ofEpochMilli(validationInfo.lastChecked);
-        validateChannel(doGetChannel(mrid, loadProfileId, channelId), start);
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_DATA)
+    public Response editChannelData(@PathParam("mRID") String mrid, @PathParam("channelid") long channelId, @BeanParam QueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
+        com.elster.jupiter.metering.Channel koreChannel = resourceHelper.findLoadProfileChannelOrThrowException(channel, resourceHelper.getMeterFor(device));
+        List<BaseReading> editedReadings = new LinkedList<>();
+        List<BaseReadingRecord> removedReadings = new LinkedList<>();
+        channelDataInfos.forEach((channelDataInfo) -> {
+            if (channelDataInfo.value == null) {
+                List<BaseReadingRecord> readings =
+                        koreChannel.getReadings(
+                                Range.openClosed(
+                                        Instant.ofEpochMilli(channelDataInfo.interval.start),
+                                        Instant.ofEpochMilli(channelDataInfo.interval.end)));
+                removedReadings.addAll(readings);
+            } else {
+                editedReadings.add(channelDataInfo.createNew());
+            }
+        });
+        koreChannel.editReadings(editedReadings);
+        koreChannel.removeReadings(removedReadings);
 
         return Response.status(Response.Status.OK).build();
     }
 
-    private void validateChannel(Channel channel, Instant start) {
-    	DeviceValidation deviceValidation = channel.getDevice().forValidation();
-    	if (start != null) {
-    		deviceValidation.setLastChecked(channel, start);
-    	}
-    	deviceValidation.validateChannel(channel);
+
+    @GET
+    @Path("{channelid}/validationstatus")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("channelid") long channelId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mrid, channelId);
+        ValidationStatusInfo deviceValidationStatusInfo = channelHelper.get().determineStatus(channel);
+        return Response.ok(deviceValidationStatusInfo).build();
     }
 
-
+    @PUT
+    @Path("{channelid}/validate")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL)
+    public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("channelid") long channelId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
+        DeviceValidation deviceValidation = device.forValidation();
+        if (validationInfo.lastChecked != null) {
+            deviceValidation.setLastChecked(channel, Instant.ofEpochMilli(validationInfo.lastChecked));
+        }
+        deviceValidation.validateChannel(channel);
+        return Response.ok().build();
+    }
 }

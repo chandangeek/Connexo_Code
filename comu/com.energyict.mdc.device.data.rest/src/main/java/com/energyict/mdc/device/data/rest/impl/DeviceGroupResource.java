@@ -51,9 +51,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -93,7 +93,7 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
     public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext));
+        return DeviceGroupInfo.from(fetchDeviceGroup(id, securityContext), deviceConfigurationService);
     }
 
     private EndDeviceGroup fetchDeviceGroup(long id, @Context SecurityContext securityContext) {
@@ -108,10 +108,10 @@ public class DeviceGroupResource {
         EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId, securityContext);
         List<? extends EndDevice> allEndDevices = endDeviceGroup.getMembers(Instant.now());
         List<? extends EndDevice> endDevices =
-            ListPager.of(allEndDevices).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
+                ListPager.of(allEndDevices).paged(queryParameters.getStart(), queryParameters.getLimit()).find();
 
         List<Device> devices = new ArrayList<Device>();
-        for (EndDevice endDevice: endDevices) {
+        for (EndDevice endDevice : endDevices) {
             devices.add(deviceService.findDeviceById(endDevice.getId()));
         }
         //List<Device> subList = devices.subList(0, Math.min(queryParameters.getLimit() + 1, endDevices.size() + 1));
@@ -134,7 +134,7 @@ public class DeviceGroupResource {
         }
         RestQuery<EndDeviceGroup> restQuery = restQueryService.wrap(query);
         List<EndDeviceGroup> allDeviceGroups = restQuery.select(koreQueryParameters, Order.ascending("upper(name)"));
-        List<DeviceGroupInfo> deviceGroupInfos = DeviceGroupInfo.from(allDeviceGroups);
+        List<DeviceGroupInfo> deviceGroupInfos = DeviceGroupInfo.from(allDeviceGroups, deviceConfigurationService);
         return PagedInfoList.asJson("devicegroups", deviceGroupInfos, queryParameters);
     }
 
@@ -148,8 +148,9 @@ public class DeviceGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
-    public Response editDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(deviceGroupInfo.id)
+    @Path("/{id}")
+    public Response editDeviceGroup(DeviceGroupInfo deviceGroupInfo, @PathParam("id") long id) {
+        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
         endDeviceGroup.setName(deviceGroupInfo.name);
@@ -160,7 +161,7 @@ public class DeviceGroupResource {
             syncListWithInfo((EnumeratedEndDeviceGroup) endDeviceGroup, deviceGroupInfo);
         }
         endDeviceGroup.save();
-        return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup)).build();
+        return Response.status(Response.Status.CREATED).entity(DeviceGroupInfo.from(endDeviceGroup, deviceConfigurationService)).build();
     }
 
     @DELETE
@@ -313,11 +314,11 @@ public class DeviceGroupResource {
 
     private String replaceRegularExpression(String value) {
         if (value.contains("*")) {
-            value = value.replaceAll("\\*","%");
+            value = value.replaceAll("\\*", "%");
             return value;
         }
         if (value.contains("?")) {
-            value = value.replaceAll("\\?","_");
+            value = value.replaceAll("\\?", "_");
             return value;
         }
         if (value.contains("%")) {
@@ -325,7 +326,6 @@ public class DeviceGroupResource {
         }
         return value;
     }
-
 
 
 }

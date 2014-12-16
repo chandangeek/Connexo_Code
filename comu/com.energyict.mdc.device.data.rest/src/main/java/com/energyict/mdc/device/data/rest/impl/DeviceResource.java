@@ -74,6 +74,7 @@ public class DeviceResource {
     private final Provider<DeviceLabelResource> deviceLabelResourceProvider;
     private final Provider<ConnectionResource> connectionResourceProvider;
     private final Provider<CommunicationResource> communicationResourceProvider;
+    private final Provider<ChannelResource> channelsOnDeviceResourceProvider;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
@@ -104,6 +105,7 @@ public class DeviceResource {
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
             Provider<DeviceLabelResource> deviceLabelResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
+            Provider<ChannelResource> channelsOnDeviceResourceProvider,
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider) {
 
         this.resourceHelper = resourceHelper;
@@ -129,15 +131,16 @@ public class DeviceResource {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
+        this.channelsOnDeviceResourceProvider = channelsOnDeviceResourceProvider;
         this.devicePropertyResourceProvider = devicePropertyResourceProvider;
     }
 
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
-        Condition condition = null;
+        Condition condition;
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
         if (uriParams.containsKey("filter")) {
             condition = resourceHelper.getQueryConditionForDevice(uriInfo.getQueryParameters());
@@ -153,7 +156,7 @@ public class DeviceResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed(Privileges.ADD_DEVICE)
     public DeviceInfo addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
         Optional<DeviceConfiguration> deviceConfiguration = Optional.empty();
         if (info.deviceConfigurationId != null) {
@@ -183,7 +186,7 @@ public class DeviceResource {
 
     @DELETE
     @Path("/{mRID}")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE)
+    @RolesAllowed(Privileges.REMOVE_DEVICE)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteDevice(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
@@ -194,7 +197,7 @@ public class DeviceResource {
     @GET
     @Path("/{mRID}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE,Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService);
@@ -212,6 +215,11 @@ public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{mRID}/messagecategories")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam QueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
 
@@ -251,6 +259,11 @@ public class DeviceResource {
     @Path("/{mRID}/registers")
     public RegisterResource getRegisterResource() {
         return registerResourceProvider.get();
+    }
+
+    @Path("/{mRID}/channels")
+    public ChannelResource getChannelResource() {
+        return channelsOnDeviceResourceProvider.get();
     }
 
     @Path("/{mRID}/validationrulesets")
@@ -303,12 +316,12 @@ public class DeviceResource {
     public DeviceLabelResource getDeviceLabelResource() {
         return deviceLabelResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/connections")
     public ConnectionResource getConnectionResource() {
         return connectionResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/communications")
     public CommunicationResource getCommunicationResource() {
         return communicationResourceProvider.get();
@@ -317,8 +330,11 @@ public class DeviceResource {
     @GET
     @Path("/{mRID}/topology/communication")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_DEVICE)
-    public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})    public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);

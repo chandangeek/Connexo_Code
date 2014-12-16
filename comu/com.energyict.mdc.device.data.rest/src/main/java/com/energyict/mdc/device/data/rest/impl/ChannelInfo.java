@@ -24,12 +24,14 @@ public class ChannelInfo {
     public PhenomenonInfo unitOfMeasure;
     public Instant lastReading;
     public ReadingTypeInfo readingType;
+    public ReadingTypeInfo calculatedReadingType;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
     public BigDecimal multiplier;
     public BigDecimal overflowValue;
     public String flowUnit;
     public Integer nbrOfFractionDigits;
+    public long loadProfileId;
 
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
@@ -42,11 +44,16 @@ public class ChannelInfo {
         info.unitOfMeasure = PhenomenonInfo.from(channel.getPhenomenon());
         info.lastReading = channel.getLastReading().orElse(null);
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
+        if (channel.getReadingType().isCumulative()) {
+            channel.getReadingType().getCalculatedReadingType().ifPresent(
+                    rt -> info.calculatedReadingType = new ReadingTypeInfo(rt));
+        }
         info.multiplier = channel.getMultiplier();
         info.overflowValue = channel.getOverflow();
         info.flowUnit = channel.getPhenomenon().getUnit().isFlowUnit() ? "flow" : "volume";
         info.obisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
+        info.loadProfileId = channel.getLoadProfile().getId();
         return info;
     }
 

@@ -188,10 +188,11 @@ public enum MessageSeeds implements MessageSeed {
     MDC_LABEL_CATEGORY_FAVORITES(218, "mdc.label.category.favorites", "Favorites"),
     NO_SUCH_LABEL_CATEGORY(219, "NoSuchLabelCategory", "No such label category"),
     NO_SUCH_DEVICE_LABEL(220, "NoSuchDeviceLabel", "No such device label of category ''{0}'' on a device {1}"),
-    NOT_APPLICABLE(221, "NotApplicable", "Not applicable"),
-    NO_RESTRICTIONS(222, "NoRestrictions", "No restrictions"),
+    NO_SUCH_CHANNEL_ON_DEVICE(221, "NoSuchChannelOnDevice", "Device {0} has no channel {1}"),
+    NOT_APPLICABLE(222, "NotApplicable", "Not applicable"),
+    NO_RESTRICTIONS(223, "NoRestrictions", "No restrictions"),
     RUN_CONNECTIONTASK_IMPOSSIBLE(224,"runConTaskImpossible", "Running of this connection task is impossible"),
-    NO_SUCH_COMMUNICATION(223, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),
+    NO_SUCH_COMMUNICATION(225, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),    
     ;
 
 

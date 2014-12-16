@@ -72,6 +72,19 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_LOAD_PROFILE, loadProfile.getId(), channelSpecId));
     }
 
+    public Channel findChannelOnDeviceOrThrowException(String mrid, long channelId){
+        Device device = this.findDeviceByMrIdOrThrowException(mrid);
+        return this.findChannelOnDeviceOrThrowException(device, channelId);
+    }
+
+    public Channel findChannelOnDeviceOrThrowException(Device device, long channelId){
+        return device.getLoadProfiles().stream()
+                .flatMap(lp -> lp.getChannels().stream())
+                .filter(c -> c.getId() == channelId)
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getmRID(), channelId));
+    }
+
     /*public Condition getQueryConditionForDevice(StandardParametersBean params) {
         ImmutableMap<String, BiFunction<String, StandardParametersBean, Condition>> keyToConditionFunction =
             ImmutableMap.of(
@@ -197,6 +210,16 @@ public class ResourceHelper {
                 .map(ma -> getChannel(ma, channel.getReadingType()))
                 .flatMap(asStream())
                 .findFirst();
+    }
+
+    public com.elster.jupiter.metering.Channel findLoadProfileChannelOrThrowException(Channel channel, Meter meter) {
+        return this.getMeterActivationsMostCurrentFirst(meter)
+                .stream()
+                .map(ma -> getChannel(ma, channel.getReadingType()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, meter.getAmrId(), channel.getId()));
     }
 
     public Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {

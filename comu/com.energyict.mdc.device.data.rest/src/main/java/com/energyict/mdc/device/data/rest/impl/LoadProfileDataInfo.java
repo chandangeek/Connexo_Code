@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonInstantAdapter;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.Channel;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class LoadProfileDataInfo {
     public IntervalInfo interval;
     public Map<Long, String> channelData = new HashMap<>();
+    public Map<Long, String> channelCollectedData = new HashMap<>();
     public Map<Long, ValidationInfo> channelValidationData = new HashMap<>();
     public Instant readingTime;
     public List<String> intervalFlags;
@@ -48,18 +50,20 @@ public class LoadProfileDataInfo {
             channelIntervalInfo.intervalFlags.add(thesaurus.getString(flag.name(), flag.name()));
         }
         if (loadProfileReading.getChannelValues().isEmpty()){
-          for(Channel channel: channels) {
-              channelIntervalInfo.channelData.put(channel.getId(), null);
-          }
+            for (Channel channel : channels) {
+                channelIntervalInfo.channelData.put(channel.getId(), null);
+            }
+            channelIntervalInfo.channelCollectedData = channelIntervalInfo.channelData;
         } else {
             for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
                 Channel channel = entry.getKey();
-                BigDecimal value = entry.getValue().getValue();
-                if (value != null) {
-                    int nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
-                    value = value.setScale(nbrOfFractionDigits, BigDecimal.ROUND_UP);
-                }
+                BigDecimal value = getRoundedBigDecimal(entry.getValue().getValue(), channel);
                 channelIntervalInfo.channelData.put(channel.getId(), value != null ? value.toString() : "");
+                if (channel.getReadingType().isCumulative()){
+                    Quantity quantity = entry.getValue().getQuantity(channel.getReadingType());
+                    value = getRoundedBigDecimal(quantity != null ?  quantity.getValue() : null, channel);
+                    channelIntervalInfo.channelCollectedData.put(channel.getId(), value != null ? value.toString() : "");
+                }
             }
         }
 
@@ -72,6 +76,10 @@ public class LoadProfileDataInfo {
         }
 
         return channelIntervalInfo;
+    }
+
+    private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
+        return value != null ? value.setScale(channel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
     }
 }
 
