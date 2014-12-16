@@ -77,8 +77,8 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
     private volatile UserService userService;
     private volatile Thesaurus thesaurus;
 
-    private AppServerImpl appServer;
-    private List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
+    private volatile AppServerImpl appServer;
+    private volatile List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
     private SubscriberSpec allServerSubscriberSpec;
     private final List<Runnable> deactivateTasks = new ArrayList<>();
     private List<CommandListener> commandListeners = new CopyOnWriteArrayList<>();
@@ -394,7 +394,8 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
                     fileImportService.schedule(importSchedule);
                     break;
                 case CONFIG_CHANGED:
-
+                    appServer = (AppServerImpl) findAppServers().stream().filter(app -> app.getName().equals(appServer.getName())).findFirst().orElse(null);
+                    subscriberExecutionSpecs = appServer == null ? Collections.emptyList() : appServer.getSubscriberExecutionSpecs();
                 default:
             }
             commandListeners.forEach(listener -> listener.notify(command));
