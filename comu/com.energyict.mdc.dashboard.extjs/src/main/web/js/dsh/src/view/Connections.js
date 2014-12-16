@@ -8,7 +8,8 @@ Ext.define('Dsh.view.Connections', {
         'Dsh.view.widget.PreviewConnection',
         'Dsh.view.widget.SideFilter',
         'Dsh.view.widget.CommunicationsList',
-        'Dsh.view.widget.PreviewCommunication'
+        'Dsh.view.widget.PreviewCommunication',
+        'Dsh.store.ConnectionTasks'
     ],
 
     content: [
