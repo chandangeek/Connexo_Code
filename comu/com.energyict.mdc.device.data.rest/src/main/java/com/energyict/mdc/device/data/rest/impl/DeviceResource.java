@@ -19,7 +19,18 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -37,18 +48,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Path("/devices")
 public class DeviceResource {
@@ -77,6 +76,7 @@ public class DeviceResource {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
+    private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
 
     @Inject
     public DeviceResource(
@@ -100,9 +100,11 @@ public class DeviceResource {
             DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
             DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory,
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
+            Provider<DeviceLabelResource> deviceLabelResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<DeviceLabelResource> deviceLabelResourceProvider,
-            Provider<ChannelResource> channelsOnDeviceResourceProvider) {
+            Provider<ChannelResource> channelsOnDeviceResourceProvider,
+            Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
@@ -127,6 +129,7 @@ public class DeviceResource {
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
         this.channelsOnDeviceResourceProvider = channelsOnDeviceResourceProvider;
+        this.devicePropertyResourceProvider = devicePropertyResourceProvider;
     }
 
 
@@ -299,17 +302,23 @@ public class DeviceResource {
     public SecurityPropertySetResource getSecurityPropertySetResource() {
         return securityPropertySetResourceProvider.get();
     }
-    
+
+    @Path("/{mRID}/protocols")
+    public DeviceProtocolPropertyResource getDevicePropertyResource(@PathParam("mRID") String mRID) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        return devicePropertyResourceProvider.get().with(device);
+    }
+
     @Path("/{mRID}/devicelabels")
     public DeviceLabelResource getDeviceLabelResource() {
         return deviceLabelResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/connections")
     public ConnectionResource getConnectionResource() {
         return connectionResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/communications")
     public CommunicationResource getCommunicationResource() {
         return communicationResourceProvider.get();

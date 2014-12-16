@@ -125,7 +125,8 @@ public class DeviceApplication extends Application implements InstallService {
                 DeviceMessageResource.class,
                 DeviceLabelResource.class,
                 ConnectionResource.class,
-                CommunicationResource.class
+                CommunicationResource.class,
+                DeviceProtocolPropertyResource.class
         );
     }
 
@@ -237,7 +238,7 @@ public class DeviceApplication extends Application implements InstallService {
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
-    
+
     @Reference
     public void setFavoritesService(FavoritesService favoritesService) {
         this.favoritesService = favoritesService;
@@ -288,7 +289,7 @@ public class DeviceApplication extends Application implements InstallService {
             logger.severe(e.getMessage());
         }
     }
-    
+
     private void createLabelCategories() {
         try {
             favoritesService.createLabelCategory(MessageSeeds.MDC_LABEL_CATEGORY_FAVORITES.getKey());

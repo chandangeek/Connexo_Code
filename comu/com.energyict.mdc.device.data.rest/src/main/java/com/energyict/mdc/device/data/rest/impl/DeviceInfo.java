@@ -28,6 +28,7 @@ public class DeviceInfo {
     public Long deviceTypeId;
     public String deviceConfigurationName;
     public Long deviceConfigurationId;
+    public Long deviceProtocolPluggeableClassId;
     public String yearOfCertification;
     public String batch;
     public String masterDevicemRID;
@@ -52,6 +53,7 @@ public class DeviceInfo {
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
         deviceInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
         deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
+        deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId();
         if (device.getYearOfCertification()!= null) {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy").withZone(ZoneId.of("UTC"));
             deviceInfo.yearOfCertification = dateTimeFormatter.format(device.getYearOfCertification());
