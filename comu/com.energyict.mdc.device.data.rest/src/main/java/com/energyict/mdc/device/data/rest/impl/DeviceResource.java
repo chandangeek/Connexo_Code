@@ -19,7 +19,18 @@ import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -37,18 +48,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Path("/devices")
 public class DeviceResource {
@@ -77,6 +76,7 @@ public class DeviceResource {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
+    private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
 
     @Inject
     public DeviceResource(
@@ -100,9 +100,10 @@ public class DeviceResource {
             DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
             DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory,
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
-            Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<DeviceLabelResource> deviceLabelResourceProvider,
-            Provider<ChannelResource> channelsOnDeviceResourceProvider) {
+            Provider<ConnectionMethodResource> connectionMethodResourceProvider,
+            Provider<ChannelResource> channelsOnDeviceResourceProvider,
+            Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
@@ -127,6 +128,7 @@ public class DeviceResource {
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
         this.channelsOnDeviceResourceProvider = channelsOnDeviceResourceProvider;
+        this.devicePropertyResourceProvider = devicePropertyResourceProvider;
     }
 
 
@@ -134,7 +136,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
-        Condition condition = null;
+        Condition condition;
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
         if (uriParams.containsKey("filter")) {
             condition = resourceHelper.getQueryConditionForDevice(uriInfo.getQueryParameters());
@@ -180,7 +182,7 @@ public class DeviceResource {
 
     @DELETE
     @Path("/{mRID}")
-    @RolesAllowed(Privileges.DELETE_DEVICE)
+    @RolesAllowed(Privileges.REMOVE_DEVICE)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteDevice(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
@@ -299,17 +301,23 @@ public class DeviceResource {
     public SecurityPropertySetResource getSecurityPropertySetResource() {
         return securityPropertySetResourceProvider.get();
     }
-    
+
+    @Path("/{mRID}/protocols")
+    public DeviceProtocolPropertyResource getDevicePropertyResource(@PathParam("mRID") String mRID) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        return devicePropertyResourceProvider.get().with(device);
+    }
+
     @Path("/{mRID}/devicelabels")
     public DeviceLabelResource getDeviceLabelResource() {
         return deviceLabelResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/connections")
     public ConnectionResource getConnectionResource() {
         return connectionResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/communications")
     public CommunicationResource getCommunicationResource() {
         return communicationResourceProvider.get();
@@ -348,7 +356,7 @@ public class DeviceResource {
     }
 
     private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, String> extractor) {
-        Pattern filterPattern = getFilterPattern(name, filter.getString(name));
+        Pattern filterPattern = getFilterPattern(filter.getString(name));
         if (filterPattern != null) {
             return predicate.and(d -> {
                 String stringToSearch = extractor.apply(d);
@@ -389,7 +397,7 @@ public class DeviceResource {
      * @param filter the filter expression
      * @return search pattern
      */
-    private Pattern getFilterPattern(String name, String filter) {
+    private Pattern getFilterPattern(String filter) {
         if (filter != null) {
             filter = Pattern.quote(filter.replace('%', '*'));
             return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
