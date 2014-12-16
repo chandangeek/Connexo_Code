@@ -84,7 +84,7 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
 
     @Override
     public void cacheDeviceGroup(String groupName) {
-        Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(groupName);
+        Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroupByName(groupName);
         if(found.isPresent() && found.get().isDynamic()){
             QueryEndDeviceGroup group = (QueryEndDeviceGroup)found.get();
 
