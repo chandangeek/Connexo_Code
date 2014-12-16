@@ -37,6 +37,8 @@ public abstract class ComTaskExecutionEventHandler implements TopicHandler {
         this.setTopologyService(topologyService);
     }
 
+    protected abstract void setTopologyService(ServerTopologyService topologyService);
+
     @Override
     public void handle(LocalEvent localEvent) {
         ComTaskExecution comTaskExecution = (ComTaskExecution) localEvent.getSource();
@@ -76,9 +78,8 @@ public abstract class ComTaskExecutionEventHandler implements TopicHandler {
         return this.topologyService.findDefaultConnectionTaskForTopology(comTaskExecution.getDevice());
     }
 
-    @Reference
     @SuppressWarnings("unused")
-    public void setTopologyService(ServerTopologyService topologyService) {
+    protected void setReferencedTopologyService(ServerTopologyService topologyService) {
         this.topologyService = topologyService;
     }
 

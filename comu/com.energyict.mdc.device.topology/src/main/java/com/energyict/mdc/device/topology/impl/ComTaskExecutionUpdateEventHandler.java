@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Listens for update events of {@link ComTaskExecution}s that are marked
@@ -33,6 +34,12 @@ public class ComTaskExecutionUpdateEventHandler extends ComTaskExecutionEventHan
     @Override
     public String getTopicMatcher() {
         return "com/energyict/mdc/device/data/comtaskexecution/UPDATED";
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setTopologyService(ServerTopologyService topologyService) {
+        this.setReferencedTopologyService(topologyService);
     }
 
 }
