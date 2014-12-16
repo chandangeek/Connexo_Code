@@ -161,6 +161,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         }
 
         @Override
+        public Optional<ReadingType> getCalculatedReadingType() {
+            return null;
+        }
+
+        @Override
         public boolean isRegular() {
             return false;
         }
