@@ -7,15 +7,14 @@ Ext.define('MdcApp.controller.Main', {
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
     defaultToken: '#/dashboard',
-    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device']),
-    privileges: ['privilege.view.issue','privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
-        'privilege.view.creationRule','privilege.administrate.creationRule','privilege.view.assignmentRule','privilege.administrate.validationConfiguration',
-        'privilege.view.validationConfiguration','privilege.administrate.schedule','privilege.view.schedule','privilege.administrate.communicationInfrastructure',
-        'privilege.view.communicationInfrastructure','privilege.administrate.protocol','privilege.view.protocol','privilege.administrate.deviceConfiguration',
-        'privilege.view.deviceConfiguration','privilege.administrate.device','privilege.view.device','privilege.view.validateManual','privilege.view.fineTuneValidationConfiguration','privilege.view.scheduleDevice',
-        'privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail','privilege.administrate.deviceCommand','privilege.view.deviceCommand',
-        'privilege.import.inventoryManagement','privilege.revoke.inventoryManagement','privilege.create.inventoryManagement','privilege.administrate.deviceSecurity',
-        'privilege.view.deviceSecurity'],
+    searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+    privileges: ['privilege.close.issue','privilege.comment.issue','privilege.view.issue','privilege.assign.issue','privilege.action.issue','privilege.view.creationRule','privilege.administrate.creationRule','privilege.view.assignmentRule'
+        ,'privilege.administrate.sharedCommunicationSchedule','privilege.view.sharedCommunicationSchedule','privilege.administrate.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration','privilege.view.validationConfiguration'
+        ,'privilege.view.validateManual','privilege.view.fineTuneValidationConfiguration.onDevice','privilege.administrate.masterData','privilege.view.masterData','privilege.administrate.deviceType','privilege.view.deviceType','view.device.security.properties.level1'
+        ,'view.device.security.properties.level2','view.device.security.properties.level3','view.device.security.properties.level4','edit.device.security.properties.level1','edit.device.security.properties.level2','edit.device.security.properties.level4'
+        ,'edit.device.security.properties.level3','execute.device.message.level1','execute.device.message.level3','execute.device.message.level2','execute.device.message.level4','privilege.add.device','privilege.view.device','privilege.remove.device','privilege.administrate.deviceData'
+        ,'privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.administrate.deviceGroup','privilege.view.deviceGroupDetail','privilege.administrate.deviceOfEnumeratedGroup','privilege.revoke.inventoryManagement'
+        ,'privilege.import.inventoryManagement','privilege.administrate.communicationAdministration','privilege.view.communicationAdministration'],
     controllers: [
         'Cfg.controller.Main',
         'Mdc.controller.Main',
