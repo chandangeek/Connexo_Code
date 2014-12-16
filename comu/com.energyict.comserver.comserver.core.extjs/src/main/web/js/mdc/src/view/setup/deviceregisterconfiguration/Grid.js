@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement', 'MDC', 'Latest measurement'),
+                header: Uni.I18n.translate('deviceregisterconfiguration.timestampLastValue', 'MDC', 'Timestamp last value'),
                 xtype: 'datecolumn',
                 format: 'M j, Y \\a\\t G:i',
                 dataIndex: 'timeStamp',
@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
+                header: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),
                 xtype: 'datecolumn',
                 format: 'M j, Y \\a\\t G:i',
                 dataIndex: 'reportedDateTime',
@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
+                header: Uni.I18n.translate('deviceregisterconfiguration.lastValue', 'MDC', 'Last value'),
                 dataIndex: 'value',
                 flex: 1
             },

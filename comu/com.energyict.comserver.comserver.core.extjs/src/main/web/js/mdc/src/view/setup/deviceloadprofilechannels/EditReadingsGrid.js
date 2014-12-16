@@ -34,12 +34,12 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
                 width: 200
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
+                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value') + ' (' + measurementType + ')',
                 dataIndex: 'value',
                 flex: 1,
                 align: 'right',
                 renderer: function (value) {
-                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                    return !Ext.isEmpty(value) ? value : '';
                 },
                 editor: {
                     xtype: 'textfield',
@@ -134,7 +134,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.EditReadingsGrid', {
                     {
                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                         ui: 'link',
-                        href: me.router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/tableData').buildUrl(me.router.arguments, me.router.queryParams)
+                        href: me.router.getRoute('devices/device/channels/channel/tableData').buildUrl(me.router.arguments, me.router.queryParams)
                     }
                 ]
             }

@@ -15,6 +15,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
         'Mdc.model.ChannelOfLoadProfilesOfDevice'
     ],
 
+    refs: [
+        {ref: 'calculatedReadingType', selector: '#calculatedReadingType'},
+        {ref: 'readingType', selector: '#readingType'}
+    ],
+
     showOverview: function (mRID, channelId, tabController) {
         var me = this,
             channelModel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice'),
@@ -63,9 +68,22 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', record);
                         tabWidget.down('#channelTabPanel').setTitle(record.get('name'));
                         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(record);
-                        widget.setLoading(false);
                         widget.down('deviceLoadProfileChannelsActionMenu').record = record;
+
+                        var calculatedReadingType = widget.down('#calculatedReadingType'),
+                            readingTypeLabel = widget.down('#readingType').labelEl;
+
+                        if (record.data.calculatedReadingType) {
+                            readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingTypeForBulk', 'MDC', 'Collected reading type'));
+                            calculatedReadingType.show();
+                        } else {
+                            readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'));
+                            calculatedReadingType.hide();
+                        }
                     }
+                },
+                callback: function () {
+                    widget.setLoading(false);
                 }
             });
         });

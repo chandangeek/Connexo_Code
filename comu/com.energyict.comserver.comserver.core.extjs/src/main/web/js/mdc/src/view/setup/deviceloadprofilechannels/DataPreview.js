@@ -95,6 +95,15 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
                     ]
                 },
                 {
+                    xtype: 'displayfield',
+                    name: 'collectedValue',
+                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
+                    hidden: true,
+                    renderer: function (value) {
+                        return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                    }
+                },
+                {
 
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.cumulativeValue', 'MDC', 'Cumulative value'),
                     name: 'delta',
@@ -104,25 +113,36 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
                 }
             );
         } else {
-            me.items.items[0].items.push({
-                xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
-                layout: 'hbox',
-                items: [
-                    {
-                        xtype: 'displayfield',
-                        name: 'value',
-                        renderer: function (value) {
-                            return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+            me.items.items[0].items.push(
+                {
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
+                    layout: 'hbox',
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            name: 'value',
+                            renderer: function (value) {
+                                return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                            }
+                        },
+                        {
+                            xtype: 'edited-displayfield',
+                            name: 'modificationState',
+                            margin: '0 0 0 10'
                         }
-                    },
-                    {
-                        xtype: 'edited-displayfield',
-                        name: 'modificationState',
-                        margin: '0 0 0 10'
+                    ]
+                },
+                {
+                    xtype: 'displayfield',
+                    name: 'collectedValue',
+                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
+                    hidden: true,
+                    renderer: function (value) {
+                        return !Ext.isEmpty(value) ? value + ' ' + measurementType : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
                     }
-                ]
-            });
+                }
+            );
         }
 
         me.items.items[0].items.push(

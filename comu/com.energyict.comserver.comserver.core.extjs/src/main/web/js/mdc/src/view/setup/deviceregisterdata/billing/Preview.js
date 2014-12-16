@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                         name: 'timeStamp',
                         format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
+                            if (!Ext.isEmpty(value)) {
                                 return Ext.util.Format.date(new Date(value), this.format);
                             }
                         }
@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                         name: 'reportedDateTime',
                         format: 'M j, Y \\a\\t G:i',
                         renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
+                            if (!Ext.isEmpty(value)) {
                                 return Ext.util.Format.date(value, this.format);
                             }
                         }
@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                         labelWidth: 200,
                         name: 'interval',
                         renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
+                            if (!Ext.isEmpty(value)) {
                                 var startDate = new Date(value.start),
                                     endDate = new Date(value.end),
                                     format = 'M j, Y \\a\\t G:i';
@@ -85,6 +85,19 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
                                 name: 'modificationState'
                             }
                         ]
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value'),
+                        name: 'deltaValue',
+                        renderer: function (value) {
+                            var form = this.up('form'),
+                                record = form.getRecord();
+                            if (record && value) {
+                                return value + ' ' + record.get('unitOfMeasure');
+                            } else {
+                                return null
+                            }
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('device.registerData.multiplier', 'MDC', 'Multiplier'),

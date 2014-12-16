@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                                 name: 'readingType'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestMeasurement', 'MDC', 'Latest measurement'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.timestampLastValue', 'MDC', 'Timestamp last value'),
                                 name: 'timeStamp',
                                 format: 'M j, Y \\a\\t G:i',
                                 renderer: function (value) {
@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),
                                 layout: 'hbox',
                                 items: [
                                     {
@@ -83,7 +83,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                                 ]
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastValue', 'MDC', 'Last value'),
                                 name: 'value'
                             },
                             {

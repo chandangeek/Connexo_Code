@@ -287,9 +287,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
          preview.rendered && Ext.resumeLayouts(true);     */
         var me = this,
             previewPanel = me.getDeviceLoadProfileChannelDataPreview(),
+            bulkValueField = previewPanel.down('displayfield[name=collectedValue]'),
             form = previewPanel.down('form');
 
         previewPanel.setTitle(record.get('interval_end'));
+        bulkValueField.setVisible(record.get('isBulk'));
         form.loadRecord(record);
 
     },

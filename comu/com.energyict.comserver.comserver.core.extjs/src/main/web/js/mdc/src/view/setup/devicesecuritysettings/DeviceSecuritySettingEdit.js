@@ -28,6 +28,20 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
 
     initComponent: function () {
         var me = this;
+        this.side = [
+            {
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceMenu',
+                        itemId: 'stepsMenu',
+                        device: me.device,
+                        toggleId: 'securitySettingLink'
+                    }
+                ]
+            }
+        ];
         this.content = [
             {
                 xtype: 'container',
@@ -38,7 +52,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
 
                 items: [
                     {
-                        xtype: 'container',
+                        xtype: 'panel',
                         layout: {
                             type: 'hbox',
                             align: 'stretch'
@@ -46,12 +60,9 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                         defaults: {
                             xtype: 'container'
                         },
+                        ui: 'large',
+                        itemId: 'deviceSecuritySettingEditAddTitle',
                         items: [
-                            {
-                                xtype: 'component',
-                                html: '',
-                                itemId: 'deviceSecuritySettingEditAddTitle'
-                            },
                             {
                                 flex: 1
                             },

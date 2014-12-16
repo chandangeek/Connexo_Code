@@ -220,13 +220,14 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         me.getApplication().fireEvent('loadDeviceSecuritySetting', deviceSecuritySetting);
                         var widget = Ext.widget('deviceSecuritySettingEdit', {
                             edit: true,
-                            returnLink: '#/devices/' + me.mrid + '/securitysettings'
+                            returnLink: '#/devices/' + me.mrid + '/securitysettings',
+                            device: device
                         });
                         me.getApplication().fireEvent('changecontentevent', widget);
                         widget.setLoading(true);
 
                         var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + deviceSecuritySetting.get('name') + '\'';
-                        widget.down('#deviceSecuritySettingEditAddTitle').update('<h1>' + title + '</h1>');
+                        widget.down('#deviceSecuritySettingEditAddTitle').setTitle(title);
                         var generalForm = widget.down('#deviceSecuritySettingEditForm');
                         generalForm.loadRecord(deviceSecuritySetting);
                         var form = widget.down('property-form');

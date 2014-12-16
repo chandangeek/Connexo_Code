@@ -21,7 +21,6 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {

@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),
                                 layout: 'hbox',
                                 items: [
                                     {
@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
 
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastValue', 'MDC', 'Last value'),
                                 name: 'value'
                             },
                             {
