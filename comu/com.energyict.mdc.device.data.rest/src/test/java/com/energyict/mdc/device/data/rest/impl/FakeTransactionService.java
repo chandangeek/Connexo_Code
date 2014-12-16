@@ -32,19 +32,8 @@ public class FakeTransactionService implements TransactionService {
     }
 
     @Override
-    public TransactionEvent run(Runnable transaction) {
-        transaction.run();
-        return new TransactionEvent(true, new StopWatch(false), 0, 0);
-    }
-
-    @Override
     public TransactionContext getContext() {
         return new FakeTransactionContext();
-    }
-
-    @Override
-    public TransactionBuilder builder() {
-        return null;
     }
 
     private class FakeTransactionContext implements TransactionContext {
