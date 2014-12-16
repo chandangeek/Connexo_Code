@@ -259,6 +259,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         var me = this,
             form = this.getCommunicationScheduleEditForm(),
             editView = this.getCommunicationScheduleEdit(),
+            grid = this.getCommunicationTaskGrid(),
             recordsAlreadyPresented = [],
             hasComTasks;
 
@@ -275,6 +276,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 }
                 me.comTaskStore.remove(recordsAlreadyPresented);
                 editView.setLoading(false);
+                grid.down('gridview').setSize(0, 0);
+                grid.gridHeight = undefined;
             }
         });
         hasComTasks = me.record.comTaskUsages().getCount() ? true : false;
@@ -343,6 +346,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         form.down('#noComTasksSelectedMsg').setVisible(!hasComTasks);
         form.down('#comTasksOnForm').setVisible(hasComTasks);
         this.getCommunicationScheduleEdit().down('#card').getLayout().setActiveItem(0);
+        grid.down('gridview').setSize(0, 0);
+        grid.gridHeight = undefined;
     },
 
     cancelAddCommunicationTasksToSchedule: function () {
