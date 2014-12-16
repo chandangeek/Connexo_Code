@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.PreviewForm', {
             name: 'lastEventType'
         },
         {
-            fieldLabel: Uni.I18n.translate('devicelogbooks.lastEventDate', 'MDC', 'Last event date'),
+            fieldLabel: Uni.I18n.translate('devicelogbooks.timestampLastEvent', 'MDC', 'Timestamp last event'),
             name: 'lastEventDate',
             renderer: function (value) {
                 return value ? Uni.I18n.formatDate('devicelogbooks.preview.lastEventDate.dateFormat', value, 'MDC', 'F d Y, H:i:s') : '';

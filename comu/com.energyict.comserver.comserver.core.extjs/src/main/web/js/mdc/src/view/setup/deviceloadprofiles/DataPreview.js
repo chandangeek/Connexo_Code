@@ -49,6 +49,11 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                         itemId: 'channelValue' + channel.id
                     },
                     {
+                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value'),
+                        itemId: 'channelBulkValue' + channel.id,
+                        hidden: true
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'MDC', 'Data validated'),
                         itemId: 'channelDataValidated' + channel.id
                     },
@@ -134,7 +139,21 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                     value && field.setValue(value);
                 });
                 Ext.Array.each(me.channels, function (channel) {
-                    !Ext.isEmpty(record.data.channelData[channel.id]) ? form.down('#channelValue' + channel.id).setValue(record.data.channelData[channel.id] + ' ' + channel.unitOfMeasure.unit) : form.down('#channelValue' + channel.id).setValue(Uni.I18n.translate('general.missing', 'MDC', 'Missing'));
+                    if (!Ext.isEmpty(record.data.channelData[channel.id])) {
+                        form.down('#channelValue' + channel.id).setValue(record.data.channelData[channel.id] + ' ' + channel.unitOfMeasure.unit);
+                        if (!Ext.isEmpty(record.get('channelCollectedData'))) {
+                            var channelBulkValueField = form.down('#channelBulkValue' + channel.id);
+                            channelBulkValueField.setValue(
+                                !Ext.isEmpty(record.data.channelCollectedData[channel.id]) ?
+                                    record.data.channelCollectedData[channel.id] + ' ' + channel.unitOfMeasure.unit :
+                                    Uni.I18n.translate('general.missing', 'MDC', 'Missing')
+                            );
+                            channelBulkValueField.show();
+                        }
+                    } else {
+                        form.down('#channelValue' + channel.id).setValue(Uni.I18n.translate('general.missing', 'MDC', 'Missing'));
+                    }
+
                     if (record.data.channelValidationData[channel.id]) {
 
                         record.data.channelValidationData[channel.id].dataValidated ? form.down('#channelDataValidated' + channel.id).setValue(Uni.I18n.translate('general.yes', 'MDC', 'Yes')) : form.down('#channelDataValidated' + channel.id).setValue(Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>');
@@ -196,12 +215,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                                     str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '<br>';
                                 } else {
                                     str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
-                                    if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration'])) {
-                                         str += '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
+                                    if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'])) {
+                                        str += '<a href="#/administration/validation/rulesets/' + rule.ruleSet.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
                                     } else {
-                                         str += rule.name;
+                                        str += rule.name;
                                     }
-                                    str +=  prop + '</span>' + '<br>';
+                                    str += prop + '</span>' + '<br>';
                                 }
                             });
                             form.down('#channelSuspectReason' + channel.id).setValue(str);

@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Preview', {
                                 name: 'readingType'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestReading', 'MDC', 'Latest reading'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastReading', 'MDC', 'Last reading'),
                                 name: 'reportedDateTime',
                                 format: 'M j, Y \\a\\t G:i',
                                 renderer: function (value) {
@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Preview', {
                                 }
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
+                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.lastValue', 'MDC', 'Last value'),
                                 name: 'value'
                             },
                             {

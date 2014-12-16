@@ -19,16 +19,13 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
         loadMask: false
     },
 
-    //test
-
     channelRecord: null,
     router: null,
 
     initComponent: function () {
         var me = this,
-            readingType = me.channelRecord.get('cimReadingType'),
-            measurementType = me.channelRecord.get('unitOfMeasure_formatted'),
-            accumulationBehavior;
+            calculatedReadingType = me.channelRecord.get('calculatedReadingType'),
+            measurementType = me.channelRecord.get('unitOfMeasure_formatted');
 
         me.columns = [
             {
@@ -37,12 +34,12 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                 width: 200
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
+                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value') + ' (' + measurementType + ')',
                 dataIndex: 'value',
                 flex: 1,
                 align: 'right',
                 renderer: function (value) {
-                    return !Ext.isEmpty(value) ? value + ' ' + measurementType : '';
+                    return !Ext.isEmpty(value) ? value : '';
                 },
                 editor: {
                     xtype: 'textfield',
@@ -87,8 +84,19 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                 width: 30
             },
             {
+                header: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value') + ' (' + measurementType + ')',
+                dataIndex: 'collectedValue',
+                flex: 1,
+                align: 'right',
+                hidden: Ext.isEmpty(calculatedReadingType),
+                renderer: function (value) {
+                    return !Ext.isEmpty(value) ? value : '';
+                }
+            },
+            {
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
+                align: 'right',
                 width: 150
             }
         ];

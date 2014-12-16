@@ -12,7 +12,6 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
     device: null,
     initComponent: function () {
         var me = this;
-
         me.content = [
             {
                 xtype: 'container',
@@ -21,7 +20,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
                     {
                         ui: 'large',
                         flex: 1,
-                        items:  {
+                        items: {
                             xtype: 'form',
                             margin: '0 0 0 100',
                             itemId: 'deviceLoadProfileChannelsOverviewForm',
@@ -39,8 +38,16 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
                                         {
                                             xtype: 'reading-type-displayfield',
                                             name: 'readingType',
-                                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'),
+                                            itemId: 'readingType',
                                             showTimeAttribute: false
+                                        },
+                                        {
+                                            xtype: 'reading-type-displayfield',
+                                            name: 'calculatedReadingType',
+                                            itemId: 'calculatedReadingType',
+                                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels.calculatedReadingType', 'MDC', 'Calculated reading type'),
+                                            showTimeAttribute: false,
+                                            hidden: true
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),

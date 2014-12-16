@@ -21,7 +21,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.value', 'MDC', 'Value'),
                 dataIndex: 'value',
                 align: 'right',
                 minWidth: 150,
@@ -43,7 +42,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                             break;
                     }
                     return !Ext.isEmpty(data)
-                        ? '<span class="validation-column-align">' + data + ' ' + record.get('unitOfMeasure') + ' ' + validationFlag + '</span>'
+                        ? '<span class="validation-column-align">' + data + ' ' + validationFlag + '</span>'
                         : '<span class="icon-validation icon-validation-black"></span>';
                 }
             },
@@ -52,6 +51,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 header: '',
                 dataIndex: 'modificationState',
                 width: 30
+            },
+            {
+                dataIndex: 'deltaValue',
+                align: 'right',
+                minWidth: 150,
+                hidden: true,
+                flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',

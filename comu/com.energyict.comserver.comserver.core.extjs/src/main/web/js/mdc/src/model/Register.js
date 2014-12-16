@@ -25,6 +25,7 @@ Ext.define('Mdc.model.Register', {
                 return '-';
             }
         },
+        {name: 'isCumulative', type: 'boolean'},
         {name: 'timeStamp', mapping: 'lastReading.timeStamp', useNull: true},
         {name: 'reportedDateTime', mapping: 'lastReading.reportedDateTime', useNull: true},
         {name: 'interval', mapping: 'lastReading.interval', useNull: true},
