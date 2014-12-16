@@ -26,7 +26,7 @@ Ext.define('Uni.grid.column.ReadingType', {
     },
 
     // If need to make a link from reading type display field override this method and provide url inside
-    // See example in Mdc.view.setup.deviceloadprofilechannels.Grid 26:17
+    // See example in Mdc.view.setup.devicechannels.Grid 26:17
     makeLink: function (record) {
         return null; // Link url
     }
