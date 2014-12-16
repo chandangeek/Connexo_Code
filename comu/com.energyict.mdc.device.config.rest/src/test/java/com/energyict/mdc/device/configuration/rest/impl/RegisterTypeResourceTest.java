@@ -73,6 +73,8 @@ public class RegisterTypeResourceTest extends DeviceConfigurationApplicationJers
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
+        when(readingType.isCumulative()).thenReturn(true);
 
         List<RegisterSpec> registerSpecs = mock(List.class);
         when(registerSpecs.size()).thenReturn(1);
@@ -80,7 +82,7 @@ public class RegisterTypeResourceTest extends DeviceConfigurationApplicationJers
         when(deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterType(any(DeviceType.class), any(RegisterType.class))).thenReturn(registerSpecs);
 
         Map<String, Object> map = target("/registertypes/13").request().get(Map.class);
-        assertThat(map).hasSize(9)
+        assertThat(map).hasSize(10)
         .containsKey("id")
         .containsKey("name")
         .containsKey("obisCode")
