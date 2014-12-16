@@ -657,7 +657,13 @@ Ext.define('Dxp.controller.Tasks', {
             form = page.down('#add-data-export-task-form'),
             arrReadingTypes = [],
             formErrorsPanel = form.down('#form-errors'),
-            propertyForm = form.down('tasks-property-form');
+            propertyForm = form.down('tasks-property-form'),
+            lastDayOfMonth = false,
+            startOnDate,
+            timeUnitValue,
+            dayOfMonth,
+            hours,
+            minutes;
 
         propertyForm.updateRecord();
         if (form.isValid()) {
@@ -687,13 +693,69 @@ Ext.define('Dxp.controller.Tasks', {
                 name: form.down('#device-group-combo').getRawValue()
             });
             if (form.down('#recurrence-trigger').getValue().recurrence) {
-                record.set('schedule', {
-                    every: {
-                        count: form.down('#recurrence-number').getValue(),
-                        timeUnit: form.down('#recurrence-type').getValue()
-                    }
-                });
-                record.set('nextRun', moment(form.down('#start-on').getValue()).valueOf());
+                startOnDate = moment(form.down('#start-on').getValue()).valueOf();
+                timeUnitValue = form.down('#recurrence-type').getValue();
+                dayOfMonth = moment(startOnDate).date();
+                if (dayOfMonth >= 29) {
+                    lastDayOfMonth = true;
+                }
+                hours = form.down('#date-time-field-hours').getValue();
+                minutes = form.down('#date-time-field-minutes').getValue();
+                switch (timeUnitValue) {
+                    case 'years':
+                        record.set('schedule', {
+                            count: form.down('#recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: moment(startOnDate).month() + 1,
+                            offsetDays: dayOfMonth,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                    case 'months':
+                        record.set('schedule', {
+                            count: form.down('#recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: dayOfMonth,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                    case 'weeks':
+                        record.set('schedule', {
+                            count: form.down('#recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: moment(startOnDate).format('dddd').toUpperCase(),
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                    case 'days':
+                        record.set('schedule', {
+                            count: form.down('#recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                }
+                record.set('nextRun', startOnDate);
             } else {
                 record.set('schedule', null);
             }
