@@ -29,45 +29,36 @@ Ext.define('Dsh.view.OperatorDashboard', {
 
         me.items = [
             {
-                xtype: 'toolbar',
-                style: 'top: 40px !important', // Andrea: Should be fixed with CSS
-                items: [
-                    '->',
-                    {
-                        xtype: 'component',
-                        itemId: 'last-updated-field',
-                        width: 150,
-                        style: {
-                            'font': 'normal 13px/17px Lato',
-                            'color': '#686868',
-                            'margin-right': '10px'
-                        }
-                    },
-                    {
-                        xtype: 'button',
-                        itemId: 'refresh-btn',
-                        style: {
-                            'background-color': '#71adc7'
-                        },
-                        text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
-                        icon: '/apps/sky/resources/images/form/restore.png'
-                    }
-                ]
-            },
-            {
-                xtype: 'component',
-                html: me.router.getRoute().title,
-                // Andrea: Should be created a Component "large" ui
-                style: {
-                    'color': 'rgb(0, 125, 195)',
-                    'font-size': '60px',
-                    'font-family': 'Open Sans Condensed',
-                    'width': '250px !important',
-                    'top': '20px !important'
-                }
-            },
-            {
                 xtype: 'panel',
+                ui: 'large',
+                title:  me.router.getRoute().title,
+                tools: [
+                    {
+                        xtype: 'toolbar',
+                        items: [
+                            '->',
+                            {
+                                xtype: 'component',
+                                itemId: 'last-updated-field',
+                                width: 150,
+                                style: {
+                                    'font': 'normal 13px/17px Lato',
+                                    'color': '#686868',
+                                    'margin-right': '10px'
+                                }
+                            },
+                            {
+                                xtype: 'button',
+                                itemId: 'refresh-btn',
+                                style: {
+                                    'background-color': '#71adc7'
+                                },
+                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
+                                icon: '/apps/sky/resources/images/form/restore.png'
+                            }
+                        ]
+                    }
+                ],
                 layout: {
                     type: 'hbox',
                     align: 'stretch'
