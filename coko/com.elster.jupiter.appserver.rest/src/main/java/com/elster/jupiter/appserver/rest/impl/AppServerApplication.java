@@ -11,6 +11,8 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
@@ -32,6 +34,8 @@ public class AppServerApplication extends Application implements InstallService 
     private volatile RestQueryService restQueryService;
     private volatile AppService appService;
     private volatile MessageService messageService;
+    private volatile TransactionService transactionService;
+    private volatile CronExpressionParser cronExpressionParser;
 
     private NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -56,6 +60,16 @@ public class AppServerApplication extends Application implements InstallService 
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
+        this.cronExpressionParser = cronExpressionParser;
     }
 
     @Reference
@@ -97,7 +111,8 @@ public class AppServerApplication extends Application implements InstallService 
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(appService).to(AppService.class);
                 bind(messageService).to(MessageService.class);
-
+                bind(transactionService).to(TransactionService.class);
+                bind(cronExpressionParser).to(CronExpressionParser.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
