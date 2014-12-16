@@ -19,6 +19,8 @@ public interface AppService {
 
     List<AppServer> findAppServers();
 
+    Optional<AppServer> findAppServer(String name);
+
     Query<AppServer> getAppServerQuery();
 
     void stop();

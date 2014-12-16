@@ -87,9 +87,7 @@ public class AppServiceConsoleService {
         if (current.isPresent() && current.get().getName().equals(appServerName)) {
             return current;
         }
-        return appService.findAppServers().stream()
-                    .filter(aps -> aps.getName().equals(appServerName))
-                    .findFirst();
+        return appService.findAppServer(appServerName);
     }
 
     public void stopServing(final String appServerName, final String subscriberName, final String destinationName) {

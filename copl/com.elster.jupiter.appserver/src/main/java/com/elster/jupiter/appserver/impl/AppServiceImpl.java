@@ -324,6 +324,11 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
         return dataModel.mapper(AppServer.class).find();
     }
 
+    @Override
+    public Optional<AppServer> findAppServer(String name) {
+        return dataModel.mapper(AppServer.class).getOptional(name);
+    }
+
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
@@ -394,7 +399,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
                     fileImportService.schedule(importSchedule);
                     break;
                 case CONFIG_CHANGED:
-                    appServer = (AppServerImpl) findAppServers().stream().filter(app -> app.getName().equals(appServer.getName())).findFirst().orElse(null);
+                    appServer = (AppServerImpl) findAppServer(appServer.getName()).orElse(null);
                     subscriberExecutionSpecs = appServer == null ? Collections.emptyList() : appServer.getSubscriberExecutionSpecs();
                 default:
             }
