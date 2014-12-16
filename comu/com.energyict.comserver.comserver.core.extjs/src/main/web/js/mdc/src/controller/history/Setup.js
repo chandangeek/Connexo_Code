@@ -890,6 +890,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }, {single: true});
 
                                 return this;
+                            },
+                            items: {
+                                edit: {
+                                    title: Uni.I18n.translate('general.editDeviceGroup', 'MDC', 'Edit device group'),
+                                    route: 'edit',
+                                    controller: 'Mdc.controller.setup.AddDeviceGroupAction',
+                                    action: 'showEditDeviceGroup',
+                                    filter: 'Mdc.model.DeviceFilter'
+                                }
                             }
                         }
                     }

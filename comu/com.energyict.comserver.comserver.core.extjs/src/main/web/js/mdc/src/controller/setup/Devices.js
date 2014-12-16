@@ -51,11 +51,13 @@ Ext.define('Mdc.controller.setup.Devices', {
                 click: this.onDeactivate
             },
             'deviceSetup device-connections-list uni-actioncolumn': {
-                run: this.connectionRun
+                run: this.connectionRun,
+                toggleActivation: this.connectionToggle
             },
             'deviceSetup device-communications-list uni-actioncolumn': {
                 run: this.communicationRun,
-                runNow: this.communicationRunNow
+                runNow: this.communicationRunNow,
+                toggleActivation: this.communicationToggle
             }
         });
     },
@@ -71,6 +73,33 @@ Ext.define('Mdc.controller.setup.Devices', {
                 Uni.I18n.translate('device.connection.run.now', 'MDC', 'Connection will run immediately')
             );
             record.set('nextExecution', new Date());
+        });
+    },
+
+    connectionToggle: function (record) {
+        var me = this;
+        var connectionMethod = record.get('connectionMethod');
+        connectionMethod.status = connectionMethod.status == 'active' ? 'inactive' : 'active';
+        record.set('connectionMethod', connectionMethod);
+        record.save({
+            callback: function () {
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('device.connection.toggle.' + connectionMethod.status, 'MDC', 'Connection status changed to: ' + connectionMethod.status)
+                );
+            }
+        });
+    },
+
+    communicationToggle: function (record) {
+        var me = this;
+        var status = !record.get('isOnHold');
+        record.set('status', status);
+        record.save({
+            callback: function () {
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('device.communication.toggle.' + status, 'MDC', 'Communication status changed to: ' + status)
+                );
+            }
         });
     },
 
