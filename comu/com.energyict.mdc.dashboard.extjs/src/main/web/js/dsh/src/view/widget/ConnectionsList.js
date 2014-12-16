@@ -110,6 +110,14 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             displayMsg: Uni.I18n.translate('connection.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} connections'),
             displayMoreMsg: Uni.I18n.translate('connection.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} connections'),
             emptyMsg: Uni.I18n.translate('connection.widget.details.emptyMsg', 'DSH', 'There are no connections to display')
+        },
+        {
+            itemId: 'pagingtoolbarbottom',
+            xtype: 'pagingtoolbarbottom',
+            store: 'Dsh.store.ConnectionTasks',
+            dock: 'bottom',
+            deferLoading: true,
+            itemsPerPageMsg: Uni.I18n.translate('connection.widget.details.itemsPerPage', 'DSH', 'Connections per page')
         }
     ],
 
