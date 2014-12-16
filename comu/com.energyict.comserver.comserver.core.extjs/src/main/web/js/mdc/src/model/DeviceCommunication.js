@@ -28,6 +28,22 @@ Ext.define('Mdc.model.DeviceCommunication', {
         }, persist: false}
     ],
 
+    run: function(callback) {
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: this.proxy.url + '/{id}/run'.replace('{id}', this.getId()),
+            success: callback
+        });
+    },
+
+    runNow: function(callback) {
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: this.proxy.url + '/{id}/runnow'.replace('{id}', this.getId()),
+            success: callback
+        });
+    },
+
     proxy: {
         type: 'rest',
         urlTpl: '/api/ddr/devices/{mRID}/communications',

@@ -5,7 +5,11 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
     items: [
         {
             text: 'Run',
-            action: 'run'
+            action: 'run',
+            visible: function() {
+                var r = this.record;
+                return r.get('connectionStrategy') && r.get('connectionStrategy').id
+            }
         },
         {
             text: 'Run now',
