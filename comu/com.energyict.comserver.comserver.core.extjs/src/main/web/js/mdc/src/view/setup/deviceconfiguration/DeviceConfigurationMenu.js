@@ -79,6 +79,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 itemId: 'messagesLink',
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/messages',
                 hrefTarget: '_self'
+            },
+            {
+                text: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+                pressed: false,
+                itemId: 'generalAttributesLink',
+                href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/generalattributes',
+                hrefTarget: '_self'
             }
         );
 

@@ -146,6 +146,23 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
                                                     action: 'showDeviceConfigurationEditView'
                                                 },
+                                                generalattributes: {
+                                                    title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+                                                    route: 'generalattributes',
+                                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                                    controller: 'Mdc.controller.setup.GeneralAttributes',
+                                                    action: 'showGeneralAttributesView',
+                                                    items: {
+                                                        edit: {
+                                                            title: Uni.I18n.translate('deviceconfiguration.generalAttributes.edit', 'MDC', 'Edit general attributes'),
+                                                            route: 'edit',
+                                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                                            controller: 'Mdc.controller.setup.GeneralAttributes',
+                                                            action: 'showEditGeneralAttributesView'
+                                                        }
+                                                    }
+                                                },
+
                                                 loadprofiles: {
                                                     title: 'Load profiles',
                                                     route: 'loadprofiles',
@@ -948,6 +965,23 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: ['privilege.view.device', 'privilege.administrate.device'],
                             channels: 'Mdc.model.TopologyFilter',
                             action: 'showTopologyView'
+                        },
+
+                        generalattributes: {
+                            title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+                            route: 'generalattributes',
+                            controller: 'Mdc.controller.setup.DeviceGeneralAttributes',
+                            privileges: ['privilege.view.device', 'privilege.administrate.device'],
+                            action: 'showGeneralAttributesView',
+                            items: {
+                                edit: {
+                                    title: Uni.I18n.translate('deviceconfiguration.generalAttributes.edit', 'MDC', 'Edit general attributes'),
+                                    route: 'edit',
+                                    privileges: ['privilege.administrate.deviceConfiguration'],
+                                    controller: 'Mdc.controller.setup.DeviceGeneralAttributes',
+                                    action: 'showEditGeneralAttributesView'
+                                }
+                            }
                         },
 
                         connectionmethods: {

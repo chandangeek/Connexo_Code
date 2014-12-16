@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
 
     requires: [
         'Mdc.view.setup.devicetopology.Grid',
-        'Mdc.view.setup.devicetopology.SideFilter'
+        'Mdc.view.setup.devicetopology.SideFilter',
+        'Mdc.view.setup.device.DeviceMenu'
     ],
 
     stores: [
