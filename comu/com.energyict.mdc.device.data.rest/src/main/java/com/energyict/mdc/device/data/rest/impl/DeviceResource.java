@@ -102,7 +102,6 @@ public class DeviceResource {
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
             Provider<DeviceLabelResource> deviceLabelResourceProvider,
             Provider<ConnectionMethodResource> connectionMethodResourceProvider,
-            Provider<DeviceLabelResource> deviceLabelResourceProvider,
             Provider<ChannelResource> channelsOnDeviceResourceProvider,
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider) {
 
@@ -137,7 +136,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
-        Condition condition = null;
+        Condition condition;
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
         if (uriParams.containsKey("filter")) {
             condition = resourceHelper.getQueryConditionForDevice(uriInfo.getQueryParameters());
@@ -357,7 +356,7 @@ public class DeviceResource {
     }
 
     private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, String> extractor) {
-        Pattern filterPattern = getFilterPattern(name, filter.getString(name));
+        Pattern filterPattern = getFilterPattern(filter.getString(name));
         if (filterPattern != null) {
             return predicate.and(d -> {
                 String stringToSearch = extractor.apply(d);
@@ -398,7 +397,7 @@ public class DeviceResource {
      * @param filter the filter expression
      * @return search pattern
      */
-    private Pattern getFilterPattern(String name, String filter) {
+    private Pattern getFilterPattern(String filter) {
         if (filter != null) {
             filter = Pattern.quote(filter.replace('%', '*'));
             return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
