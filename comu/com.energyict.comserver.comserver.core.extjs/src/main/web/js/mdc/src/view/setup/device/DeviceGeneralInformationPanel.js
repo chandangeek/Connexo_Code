@@ -78,6 +78,14 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.yearOfCertification', 'MDC', 'Year of certification')
                 },
                 {
+                    name: 'usagePoint',
+                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.usagePoint', 'MDC', 'Usage point')
+                },
+                {
+                    name: 'serviceCategory',
+                    fieldLabel: Uni.I18n.translate('deviceGeneralInformation.serviceCategory', 'MDC', 'Service category')
+                },
+                {
                     name: 'batch',
                     fieldLabel: Uni.I18n.translate('deviceGeneralInformation.batch', 'MDC', 'Batch')
                 }
