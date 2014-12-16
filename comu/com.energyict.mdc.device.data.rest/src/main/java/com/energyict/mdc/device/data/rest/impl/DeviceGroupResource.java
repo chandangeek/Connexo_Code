@@ -105,7 +105,10 @@ public class DeviceGroupResource {
 
         List<Device> devices = new ArrayList<Device>();
         for (EndDevice endDevice : endDevices) {
-            devices.add(deviceService.findDeviceById(endDevice.getId()));
+            Device device = deviceService.findDeviceById(Long.parseLong(endDevice.getAmrId()));
+            if (device != null) {
+                devices.add(device);
+            }
         }
         //List<Device> subList = devices.subList(0, Math.min(queryParameters.getLimit() + 1, endDevices.size() + 1));
         List<DeviceInfo> deviceInfos = DeviceInfo.from(devices);
