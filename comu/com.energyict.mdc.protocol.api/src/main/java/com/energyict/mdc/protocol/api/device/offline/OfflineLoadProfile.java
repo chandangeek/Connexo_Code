@@ -4,7 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.Date;
 import java.util.List;

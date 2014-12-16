@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.api.inbound;
+package com.energyict.mdc.protocol.api.device.data.identifiers;
 
 /**
  * Enumerates the known types of LoadProfileIdentifiers.<BR>

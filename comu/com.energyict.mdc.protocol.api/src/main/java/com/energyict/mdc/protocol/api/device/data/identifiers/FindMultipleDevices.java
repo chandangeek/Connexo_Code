@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.api.inbound;
+package com.energyict.mdc.protocol.api.device.data.identifiers;
 
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;

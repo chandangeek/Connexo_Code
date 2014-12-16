@@ -5,7 +5,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.List;
 import java.util.TimeZone;

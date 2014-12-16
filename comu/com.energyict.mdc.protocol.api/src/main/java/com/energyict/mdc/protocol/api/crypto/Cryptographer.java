@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.crypto;
 
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 /**
  * Models the behavior of a component that will encrypt/decrypt

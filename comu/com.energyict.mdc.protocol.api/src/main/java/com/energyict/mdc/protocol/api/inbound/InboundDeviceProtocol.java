@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.api.inbound;
 
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.List;
 
@@ -76,7 +77,7 @@ public interface InboundDeviceProtocol extends Pluggable {
          */
         FAILURE,
         /**
-         * Indicates that the provided {@link DeviceIdentifier} did not refer to a proper Device in our database.
+         * Indicates that the provided {@link com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier} did not refer to a proper Device in our database.
          * The provided data (if any) will <b>NOT</b> be processed or stored.
          */
         DEVICE_NOT_FOUND,

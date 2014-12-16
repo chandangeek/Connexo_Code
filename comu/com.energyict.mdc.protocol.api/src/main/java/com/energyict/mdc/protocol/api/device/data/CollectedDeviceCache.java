@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 /**
  * A CollectedDeviceCache identifies the {@link DeviceProtocolCache}

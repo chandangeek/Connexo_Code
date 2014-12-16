@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 

@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.api.device.data.identifiers;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.inbound.MessageIdentifierType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlElement;

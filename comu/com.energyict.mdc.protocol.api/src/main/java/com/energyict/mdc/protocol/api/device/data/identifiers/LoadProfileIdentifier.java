@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.api.device.data.identifiers;
 
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.inbound.LoadProfileIdentifierType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -26,7 +25,7 @@ public interface LoadProfileIdentifier extends Serializable {
      * Direct calls to MeteringWarehouse.getCurrent() are not allowed here!
      *
      * @return the referenced LoadProfile
-     * @throws NotFoundException when the LoadProfile could not be found
+     * @throws com.energyict.mdc.common.NotFoundException when the LoadProfile could not be found
      */
     public BaseLoadProfile findLoadProfile();
 

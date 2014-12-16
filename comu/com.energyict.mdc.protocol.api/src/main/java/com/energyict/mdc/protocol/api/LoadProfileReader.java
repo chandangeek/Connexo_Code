@@ -3,7 +3,7 @@ package com.energyict.mdc.protocol.api;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.Date;
 import java.util.List;

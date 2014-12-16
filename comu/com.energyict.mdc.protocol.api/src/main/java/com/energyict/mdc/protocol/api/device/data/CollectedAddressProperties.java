@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 /**
  * Models the information provided by and collected from a device

@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 /**
  * Models the situation in which events are collected, for a device uniquely identified by its {@link DeviceIdentifier},

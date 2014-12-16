@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.api.device.offline;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
-import com.energyict.mdc.protocol.api.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.Date;
 
