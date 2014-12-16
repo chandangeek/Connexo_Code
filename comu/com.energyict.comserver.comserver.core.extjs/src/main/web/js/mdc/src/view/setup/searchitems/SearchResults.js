@@ -57,6 +57,7 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
                 emptyMsg: Uni.I18n.translate('devices.pagingtoolbartop.emptyMsg', 'MDC', 'There are no devices to display'),
                 items: {
                     xtype: 'button',
+                    hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceCommunication'),
                     action: 'bulk',
                     itemId: 'searchResultsBulkActionButton',
                     text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action')

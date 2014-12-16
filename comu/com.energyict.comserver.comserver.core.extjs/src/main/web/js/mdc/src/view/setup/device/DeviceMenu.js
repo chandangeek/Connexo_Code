@@ -34,7 +34,6 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         if (this.device.get('hasLoadProfiles')) {
             this.add({
                 text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device']),
                 itemId: 'channelsLink',
                 href: '#/devices/' + mRID + '/channels',
                 hrefTarget: '_self'
@@ -51,7 +50,6 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         if (this.device.get('hasLogBooks')) {
             this.add({
                 text: Uni.I18n.translate('devicemenu.events', 'MDC', 'Events'),
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration']),
                 itemId: 'events',
                 href: '#/devices/' + mRID + '/events',
                 hrefTarget: '_self'
@@ -60,37 +58,42 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         this.add({
             text: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
             itemId: 'deviceGeneralAttributesLink',
+            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
             href: '#/devices/' + mRID + '/generalattributes',
             hrefTarget: '_self'
         });
         this.add({
             text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),
             itemId: 'connectionMethodsLink',
+            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
             href: '#/devices/' + mRID + '/connectionmethods',
             hrefTarget: '_self'
         });
         this.add({
             text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
             itemId: 'protocolLink',
-            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.protocol', 'privilege.view.protocol']),
+            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
             href: '#/devices/' + mRID + '/protocols',
             hrefTarget: '_self'
         });
         this.add({
             text: Uni.I18n.translate('devicemenu.communicationTasks', 'MDC', 'Communication tasks'),
             itemId: 'communicationTasksLink',
+            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
             href: '#/devices/' + mRID + '/communicationtasks',
             hrefTarget: '_self'
         });
         this.add({
             text: Uni.I18n.translate('devicemenu.communicationPlanning', 'MDC', 'Communication planning'),
             itemId: 'communicationSchedulesLink',
+            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
             href: '#/devices/' + mRID + '/communicationplanning',
             hrefTarget: '_self'
         });
         this.add({
             text: Uni.I18n.translate('devicemenu.commands', 'MDC', 'Commands'),
             itemId: 'deviceCommands',
+            hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
             href: '#/devices/' + mRID + '/commands',
             hrefTarget: '_self'
         });
@@ -98,7 +101,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             this.add({
                 text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Data validation'),
                 itemId: 'dataValidationLink',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration']),
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDevice']),
                 href: '#/devices/' + mRID + '/datavalidation',
                 hrefTarget: '_self'
             });
@@ -113,6 +116,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             this.add({
                 text: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'),
                 itemId: 'topologyLink',
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                 href: '#/devices/' + mRID + '/topology',
                 hrefTarget: '_self'
             });
