@@ -56,7 +56,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.pluggable</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -65,14 +64,10 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
-        <!-- Drools dependencies -->
         <dependency>
-            <groupId>com.elster.jupiter.subsystem</groupId>
-            <artifactId>drools-integration</artifactId>
-            <type>pom</type>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.topology</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
