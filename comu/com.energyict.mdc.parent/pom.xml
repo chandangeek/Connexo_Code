@@ -70,8 +70,13 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Project modules -->
 
+            <!-- Project modules -->
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc</artifactId>
+                <version>${comserver.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.common</artifactId>
@@ -79,7 +84,22 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc</artifactId>
+                <artifactId>mdc.dynamic</artifactId>
+                <version>${comserver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.pluggable</artifactId>
+                <version>${comserver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.topology</artifactId>
+                <version>${comserver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.data</artifactId>
                 <version>${comserver.version}</version>
             </dependency>
             <dependency>
@@ -110,6 +130,11 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.tasks</artifactId>
+                <version>${comserver.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.issue.datacollection</artifactId>
                 <version>${comserver.version}</version>
             </dependency>
 
