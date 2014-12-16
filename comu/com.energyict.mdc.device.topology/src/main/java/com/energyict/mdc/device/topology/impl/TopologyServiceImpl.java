@@ -913,7 +913,9 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         }
 
         private Optional<G3Neighbor> complete() {
-            return this.state.complete(this.neighborTableEntry, this.oldNeighborTableEntry);
+            Optional<G3Neighbor> neighbor = this.state.complete(this.neighborTableEntry, this.oldNeighborTableEntry);
+            this.state = G3NeighborBuildState.COMPLETE;
+            return neighbor;
         }
 
         private G3NeighborBuilderImpl modulationScheme(ModulationScheme modulationScheme) {
