@@ -52,11 +52,10 @@ public class ChannelBuilderImpl implements ChannelBuilder {
     		return readingTypes;
     	}
     	ReadingTypeImpl readingType = readingTypes.get(0);
-    	if  (!readingType.isRegular() || (
-    			readingType.getAccumulation() != Accumulation.BULKQUANTITY && readingType.getAccumulation() != Accumulation.SUMMATION)) {
+    	if  (!readingType.isRegular() || !readingType.isCumulative()) {
     		return readingTypes;
     	}
-    	// special case of bulkQuantity | Summation meter reading in load profile, store delta's in first slot
+    	// special case of cumulative reading type in load profile, store delta's in first slot
     	ReadingTypeCodeBuilder builder = ((ReadingTypeImpl) readingType).builder();
     	builder.accumulate(Accumulation.DELTADELTA);
     	Optional<ReadingTypeImpl> delta = dataModel.mapper(ReadingTypeImpl.class).getOptional(builder.code());

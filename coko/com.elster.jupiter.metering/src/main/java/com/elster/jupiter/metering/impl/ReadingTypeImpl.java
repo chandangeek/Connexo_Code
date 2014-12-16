@@ -326,7 +326,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 			this.aggregate.equals(other.aggregate) &&
 			this.measuringPeriod.equals(other.measuringPeriod) &&
 			this.accumulation.equals(Accumulation.DELTADELTA) &&
-			(other.accumulation.equals(Accumulation.BULKQUANTITY) || other.accumulation.equals(Accumulation.SUMMATION)) &&
+			(other.accumulation.isCumulative()) &
 			this.flowDirection.equals(other.flowDirection) &&
 			this.commodity.equals(other.commodity) &&
 			this.measurementKind.equals(other.measurementKind) &&
