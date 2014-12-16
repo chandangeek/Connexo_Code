@@ -31,6 +31,8 @@ import java.util.TimeZone;
                 "osgi.command.function=create",
                 "osgi.command.function=serve",
                 "osgi.command.function=stopServing",
+                "osgi.command.function=activate",
+                "osgi.command.function=deactivate",
                 "osgi.command.function=activateFileImport",
                 "osgi.command.function=appServers",
                 "osgi.command.function=identify",
@@ -157,7 +159,7 @@ public class AppServiceConsoleService {
     }
 
     public void create(String name, String cronString) {
-        create(name, cronString, false);
+        create(name, cronString, true);
     }
 
     public void create(String name, String cronString, boolean active) {
@@ -178,7 +180,7 @@ public class AppServiceConsoleService {
 
     public void appServers() {
         appService.findAppServers().stream()
-                .peek(server -> System.out.println(server.getName() + " " + server.isRecurrentTaskActive()))
+                .peek(server -> System.out.println(server.getName() + " active:" + server.isActive() + " tasks:" + server.isRecurrentTaskActive()))
                 .flatMap(server -> server.getSubscriberExecutionSpecs().stream())
                 .map(se -> "\t" + se.getSubscriberSpec().getDestination().getName() + " " + se.getSubscriberSpec().getName() + " " + se.getThreadCount())
                 .forEach(System.out::println);
@@ -187,7 +189,7 @@ public class AppServiceConsoleService {
     public void identify() {
         appService.getAppServer()
                 .map(Arrays::asList).orElse(Collections.<AppServer>emptyList()).stream()
-                .peek(server -> System.out.println(server.getName() + " " + server.isRecurrentTaskActive()))
+                .peek(server -> System.out.println(server.getName() + " active:" + server.isActive() + " tasks:" + server.isRecurrentTaskActive()))
                 .flatMap(server -> server.getSubscriberExecutionSpecs().stream())
                 .map(se -> "\t" + se.getSubscriberSpec().getDestination().getName() + " " + se.getSubscriberSpec().getName() + " " + se.getThreadCount())
                 .forEach(System.out::println);
@@ -202,6 +204,22 @@ public class AppServiceConsoleService {
         appService.stopAppServer();
         appService.startAsAppServer(appServerName);
         messageHandlerLauncherService.appServerStarted();
+    }
+
+    public void activate(String appServerName) {
+        AppServer appServer = findAppServer(appServerName).orElseThrow(IllegalArgumentException::new);
+        try(TransactionContext context = transactionService.getContext()) {
+            appServer.activate();
+            context.commit();
+        }
+    }
+
+    public void deactivate(String appServerName) {
+        AppServer appServer = findAppServer(appServerName).orElseThrow(IllegalArgumentException::new);
+        try(TransactionContext context = transactionService.getContext()) {
+            appServer.deactivate();
+            context.commit();
+        }
     }
 
     public void setLocale(String language) {

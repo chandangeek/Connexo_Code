@@ -111,25 +111,29 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber {
 
     @Activate
     public void activate(BundleContext context) {
-        this.context = context;
+        try {
+            this.context = context;
 
-        dataModel.register(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(DataModel.class).toInstance(dataModel);
-                bind(AppServerCreator.class).to(DefaultAppServerCreator.class);
-                bind(MessageService.class).toInstance(messageService);
-                bind(TransactionService.class).toInstance(transactionService);
-                bind(CronExpressionParser.class).toInstance(cronExpressionParser);
-                bind(JsonService.class).toInstance(jsonService);
-                bind(FileImportService.class).toInstance(fileImportService);
-                bind(Thesaurus.class).toInstance(thesaurus);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
+            dataModel.register(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(DataModel.class).toInstance(dataModel);
+                    bind(AppServerCreator.class).to(DefaultAppServerCreator.class);
+                    bind(MessageService.class).toInstance(messageService);
+                    bind(TransactionService.class).toInstance(transactionService);
+                    bind(CronExpressionParser.class).toInstance(cronExpressionParser);
+                    bind(JsonService.class).toInstance(jsonService);
+                    bind(FileImportService.class).toInstance(fileImportService);
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
+
+            if (dataModel.isInstalled()) {
+                tryActivate(context);
             }
-        });
-
-        if (dataModel.isInstalled()) {
-            tryActivate(context);
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

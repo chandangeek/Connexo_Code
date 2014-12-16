@@ -25,5 +25,7 @@ public interface AppServer {
 
     boolean isActive();
 
-    void setActive(boolean active);
+    void activate();
+
+    void deactivate();
 }

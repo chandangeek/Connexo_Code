@@ -113,11 +113,22 @@ public class AppServerImpl implements AppServer {
     }
 
     @Override
-    public void setActive(boolean active) {
-        this.active = active;
+    public void activate() {
+        if (!active) {
+            active = true;
+            dataModel.mapper(AppServer.class).update(this);
+            sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
+        }
     }
 
-
+    @Override
+    public void deactivate() {
+        if (active) {
+            active = false;
+            dataModel.mapper(AppServer.class).update(this);
+            sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
+        }
+    }
 
     @Override
     public void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {

@@ -42,6 +42,8 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
     private volatile TransactionService transactionService;
+    private volatile boolean active = false;
+    private volatile boolean reconfigureNeeded = false;
 
     private ThreadGroup threadGroup;
 
@@ -85,6 +87,11 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     public void activate() {
         threadGroup = new ThreadGroup(MessageHandlerLauncherService.class.getSimpleName());
         toBeLaunched.forEach(launch());
+        while (reconfigureNeeded) {
+            reconfigureNeeded = false;
+            reconfigure();
+        }
+        active = true;
     }
 
     private Consumer<SubscriberKey> launch() {
@@ -115,6 +122,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
         Thread groupCleaner = new Thread(() -> destroyThreadGroup(toClean));
         groupCleaner.setDaemon(true);
         groupCleaner.start();
+        active = false;
     }
 
     private void stopLaunched() {
@@ -187,8 +195,10 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     private void addMessageHandlerFactory(SubscriberKey key, MessageHandlerFactory factory) {
-        Optional<SubscriberExecutionSpec> subscriberExecutionSpec = findSubscriberExecutionSpec(key);
-        subscriberExecutionSpec.ifPresent(executionSpec -> launch(factory, executionSpec.getThreadCount(), executionSpec.getSubscriberSpec()));
+        if (appService.getAppServer().map(AppServer::isActive).orElse(false)) {
+            Optional<SubscriberExecutionSpec> subscriberExecutionSpec = findSubscriberExecutionSpec(key);
+            subscriberExecutionSpec.ifPresent(executionSpec -> launch(factory, executionSpec.getThreadCount(), executionSpec.getSubscriberSpec()));
+        }
     }
 
     private void launch(MessageHandlerFactory factory, int threadCount, SubscriberSpec subscriberSpec) {
@@ -251,19 +261,26 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
 
     @Override
     public void notify(AppServerCommand command) {
-        switch (command.getCommand()) {
-            case CONFIG_CHANGED:
-                reconfigure();
-                return;
-            default:
-        }
-
+            switch (command.getCommand()) {
+                case CONFIG_CHANGED:
+                    if (active) {
+                        reconfigure();
+                    } else {
+                        reconfigureNeeded = true;
+                    }
+                    return;
+                default:
+            }
     }
 
     private void reconfigure() {
-        appService.getAppServer()
-                .map(AppServer::getSubscriberExecutionSpecs)
-                .ifPresent(this::doReconfigure);
+        appService.getAppServer().ifPresent(appServer -> {
+            if (!appServer.isActive()) {
+                stopLaunched();
+                return;
+            }
+            doReconfigure(appServer.getSubscriberExecutionSpecs());
+        });
     }
 
     private void doReconfigure(List<SubscriberExecutionSpec> subscriberExecutionSpec) {

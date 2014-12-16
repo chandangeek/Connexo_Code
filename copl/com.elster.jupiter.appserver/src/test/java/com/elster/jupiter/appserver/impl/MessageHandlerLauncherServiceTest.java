@@ -98,6 +98,9 @@ public class MessageHandlerLauncherServiceTest {
     @Test
     public void testAddResourceDoNotLaunchIfNotDefinedOnThisAppServer() {
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Collections.<SubscriberExecutionSpec>emptyList());
+        when(appServer.getSubscriberExecutionSpecs()).thenReturn(Collections.emptyList());
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(appServer.isActive()).thenReturn(true);
 
         Map<String, Object> map = new HashMap<>();
         map.put("subscriber", SUBSCRIBER);
@@ -108,11 +111,12 @@ public class MessageHandlerLauncherServiceTest {
         verify(subscriberSpec, never()).receive();
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void testAddResourceStartReceivingMessages() throws InterruptedException {
         final CountDownLatch arrivalLatch = new CountDownLatch(2);
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(appServer.isActive()).thenReturn(true);
         Answer<Void> methodReached = new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -141,11 +145,12 @@ public class MessageHandlerLauncherServiceTest {
         }
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void testExceptionInHandlerProcess() throws InterruptedException {
         final CountDownLatch arrivalLatch = new CountDownLatch(1);
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(appServer.isActive()).thenReturn(true);
         Answer<Void> methodReached = new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -181,12 +186,13 @@ public class MessageHandlerLauncherServiceTest {
         }
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void testRemoveResource() throws InterruptedException {
         final CountDownLatch arrivalLatch = new CountDownLatch(1);
         final CountDownLatch waitForCancel = new CountDownLatch(1);
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(appServer.isActive()).thenReturn(true);
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
