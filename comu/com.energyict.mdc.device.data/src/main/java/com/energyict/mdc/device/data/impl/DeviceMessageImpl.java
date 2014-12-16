@@ -78,6 +78,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private RevokeChecker revokeChecker;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CREATE_DATE_IS_REQUIRED + "}")
     private Instant creationDate;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED + "}")
     private Instant releaseDate;
     @ValidReleaseDateUpdate(groups = {Save.Create.class, Save.Update.class})
     private ReleaseDateUpdater releaseDateUpdater;
@@ -220,7 +221,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     @Override
     public void revoke() {
         this.revokeChecker = new RevokeChecker(deviceMessageStatus);
-        this.deviceMessageStatus = DeviceMessageStatus.CANCELED;
+        this.deviceMessageStatus = DeviceMessageStatus.REVOKED;
     }
 
     public <T> void addProperty(String key, T value) {
@@ -288,7 +289,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         }
 
         public boolean isRevokeAllowed(){
-            return initialStatus.isPredecessorOf(DeviceMessageStatus.CANCELED);
+            return initialStatus.isPredecessorOf(DeviceMessageStatus.REVOKED);
         }
     }
 }

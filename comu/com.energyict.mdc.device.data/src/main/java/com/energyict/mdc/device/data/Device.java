@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TypedProperties;
@@ -217,6 +219,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile);
 
     TypedProperties getDeviceProtocolProperties();
+
+    List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
 
     void setProtocolProperty(String name, Object value);
 

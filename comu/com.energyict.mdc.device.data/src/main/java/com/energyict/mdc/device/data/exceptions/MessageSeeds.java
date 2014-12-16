@@ -28,6 +28,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_IS_REQUIRED(1010, Keys.DEVICE_CONFIGURATION_REQUIRED_KEY, "The device configuration is required", Level.SEVERE),
     FIELD_TOO_LONG(1011, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
     VETO_COMPORTPOOL_DELETION(1012, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by at least one device", SEVERE),
+    VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUse", "Device group {0} is still in use by at data collection KPI", SEVERE),
     CONNECTION_TASK_DEVICE_REQUIRED(2000, Keys.CONNECTION_TASK_DEVICE_REQUIRED_KEY, "A connection type should be linked to a device", Level.SEVERE),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED(2001, Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED_KEY, "A connection type should be linked to a partial connection task from the device configuration", Level.SEVERE),
     DUPLICATE_CONNECTION_TASK(2002, Keys.DUPLICATE_CONNECTION_TASK_KEY, "The partial connection task {0} is already used by connection task {1} on device {2} and therefore no other connection task with the same partial connection task can be added", Level.SEVERE),
@@ -91,6 +92,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT(2061, Keys.DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT, "You can not update the release date after the command has been sent", Level.SEVERE),
     DEVICE_MESSAGE_STATUS_INVALID_MOVE(2062, Keys.DEVICE_MESSAGE_STATUS_INVALID_MOVE, "You can not move a device message from status {0} to {1}", Level.SEVERE),
     DEVICE_MESSAGE_INVALID_REVOKE(2063, Keys.DEVICE_MESSAGE_INVALID_REVOKE, "You can not revoke this command anymore", Level.SEVERE),
+    RELEASE_DATE_IS_REQUIRED(2064, Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED, "The release date is required for a device message", Level.SEVERE),
     ;
 
     private final int number;
@@ -213,6 +215,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT = "deviceMessage.releaseDate.update.sent";
         public static final String DEVICE_MESSAGE_STATUS_INVALID_MOVE = "deviceMessage.status.invalid.move";
         public static final String DEVICE_MESSAGE_INVALID_REVOKE = "deviceMessage.revoke.invalid.status";
+        public static final String DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED = "releaseDateIsRequired.deviceMessage";
     }
 
 }
