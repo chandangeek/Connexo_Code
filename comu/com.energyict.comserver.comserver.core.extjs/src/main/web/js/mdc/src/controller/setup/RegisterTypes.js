@@ -363,6 +363,5 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     editRegisterTypeFromDetails: function () {
         var record = this.getRegisterTypeDetailForm().getRecord();
         location.href = '#/administration/registertypes/' + record.get('id') + '/edit';
-    },
-})
-;
+    }
+});
