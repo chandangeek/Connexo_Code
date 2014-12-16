@@ -153,7 +153,6 @@ public class InMemoryIntegrationPersistence {
     private ThreadPrincipalService threadPrincipalService;
     private ConnectionTypeService connectionTypeService;
     private DataVaultService dataVaultService;
-    private MessageInterpolator messageInterpolator;
 
     public InMemoryIntegrationPersistence(Clock clock) {
         super();
@@ -284,7 +283,6 @@ public class InMemoryIntegrationPersistence {
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.dataVaultService = mock(DataVaultService.class);
-        this.messageInterpolator = mock(MessageInterpolator.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -351,8 +349,12 @@ public class InMemoryIntegrationPersistence {
         return schedulingService;
     }
 
-    public DataModel getDataModel() {
+    public DataModel getDeviceDataModel() {
         return this.deviceDataModelService.dataModel();
+    }
+
+    public DataModel getTopologyDataModel() {
+        return this.topologyService.dataModel();
     }
 
     public Thesaurus getThesaurus() {
@@ -404,7 +406,6 @@ public class InMemoryIntegrationPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(MessageInterpolator.class).toInstance(messageInterpolator);
             bind(DataVaultService.class).toInstance(dataVaultService);
             bind(JsonService.class).toInstance(new JsonServiceImpl());
             bind(BeanService.class).toInstance(new BeanServiceImpl());

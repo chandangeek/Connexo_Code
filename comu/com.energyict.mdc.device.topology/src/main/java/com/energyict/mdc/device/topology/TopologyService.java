@@ -147,13 +147,23 @@ public interface TopologyService {
     public G3NeighborhoodBuilder buildG3Neighborhood(Device device);
 
     /**
-     * Find the neighboring {@link Device}'s ,
+     * Find the neighboring {@link Device}'s,
      * for the G3/PLC communication technology.
      *
      * @param device The Device whose neighborhood will be returned
      * @return The List of Device
      */
     public List<Device> findDevicesInG3Neighborhood(Device device);
+
+    /**
+     * Find the neighboring {@link Device}'s,
+     * for the G3/PLC communication technology.
+     *
+     * @param device The Device whose neighborhood will be returned
+     * @param when The timestamp on which the Devices were effectively in the Device's neighborhood
+     * @return The List of Device
+     */
+    public List<Device> findDevicesInG3Neighborhood(Device device, Instant when);
 
     /**
      * Build all the neighbors of one {@link Device}.
@@ -180,7 +190,11 @@ public interface TopologyService {
         public G3NeighborBuilder addNeighbor(Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo);
 
         /**
-         * Completes the building process
+         * Completes the building process and returns
+         * the {@link G3Neighbor}s that were added.
+         * Note that this builder is now completely useless
+         * and will throw IllegalStateExceptions when
+         * attempting to complete again.
          */
         public List<G3Neighbor> complete();
     }

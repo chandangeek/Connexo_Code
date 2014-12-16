@@ -6,12 +6,6 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.topology.G3Neighbor;
-import com.energyict.mdc.device.topology.Modulation;
-import com.energyict.mdc.device.topology.ModulationScheme;
-import com.energyict.mdc.device.topology.PhaseInfo;
-import com.energyict.mdc.device.topology.TopologyTimeline;
-import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -20,7 +14,13 @@ import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
+import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.Modulation;
+import com.energyict.mdc.device.topology.ModulationScheme;
+import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeslice;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Layer;
@@ -35,6 +35,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -44,6 +45,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -121,9 +123,9 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             @Override
             protected void configure() {
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
-                bind(Thesaurus.class).toInstance(thesaurus);
                 bind(TopologyService.class).toInstance(TopologyServiceImpl.this);
                 bind(ServerTopologyService.class).toInstance(TopologyServiceImpl.this);
             }
@@ -133,6 +135,11 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     @Override
     public void install() {
         new Installer(this.dataModel).install(true);
+    }
+
+    @Override
+    public DataModel dataModel() {
+        return this.dataModel;
     }
 
     @Override
@@ -513,9 +520,27 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         return where("device").isEqualTo(device).and(where("interval").isEffective());
     }
 
+    private List<G3NeighborImpl> findG3NeighborTableEntries(Device device, Instant instant) {
+        Condition condition = this.getEffectiveG3NeighborTableEntriesCondition(device, instant);
+        return this.dataModel.mapper(G3NeighborImpl.class).select(condition);
+    }
+
+    private Condition getEffectiveG3NeighborTableEntriesCondition(Device device, Instant instant) {
+        return where("device").isEqualTo(device).and(where("interval").isEffective(instant));
+    }
+
     @Override
     public List<Device> findDevicesInG3Neighborhood(Device device) {
-        return this.findG3NeighborTableEntries(device)
+        return this.collectDevicesFrom(this.findG3NeighborTableEntries(device));
+    }
+
+    @Override
+    public List<Device> findDevicesInG3Neighborhood(Device device, Instant instant) {
+        return this.collectDevicesFrom(this.findG3NeighborTableEntries(device, instant));
+    }
+
+    private List<Device> collectDevicesFrom(List<G3NeighborImpl> g3Neighbors) {
+        return g3Neighbors
                 .stream()
                 .map(G3Neighbor::getNeighbor)
                 .collect(Collectors.toList());
@@ -554,6 +579,12 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         List<ServerTopologyTimeslice> firstLevelTopologyTimeslices(Device device, Range<Instant> period);
     }
 
+    private G3NeighborImpl newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+        return this.dataModel.getInstance(G3NeighborImpl.class).createFor(device, neighbor, modulationScheme, modulation, phaseInfo);
+    }
+    private G3NeighborImpl newG3Neighbor(G3NeighborImpl existingNeighbor) {
+        return newG3Neighbor(existingNeighbor.getDevice(), existingNeighbor.getNeighbor(), existingNeighbor.getModulationScheme(), existingNeighbor.getModulation(), existingNeighbor.getPhaseInfo());
+    }
     private class G3NeighborhoodBuilderImpl implements G3NeighborhoodBuilder {
         private final Device device;
         private final Map<Long, G3NeighborBuilderImpl> deviceId2NeighborBuilderMap;
@@ -561,12 +592,22 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         private G3NeighborhoodBuilderImpl(Device device, List<G3NeighborImpl> neighbors) {
             super();
             this.device = device;
+            /* All existing neighbors are terminated by default unless
+             * client code explicitly adds them again. */
             this.deviceId2NeighborBuilderMap =
                     neighbors
                         .stream()
                         .collect(Collectors.toMap(
                                 n -> n.getNeighbor().getId(),
-                                G3NeighborBuilderImpl::forDeletion));
+                                this::terminator));
+        }
+
+        private G3NeighborBuilderImpl creator(G3NeighborImpl neighborTableEntry) {
+            return new G3NeighborBuilderImpl(neighborTableEntry, G3NeighborBuildState.CREATE);
+        }
+
+        private G3NeighborBuilderImpl terminator(G3NeighborImpl neighborTableEntry) {
+            return new G3NeighborBuilderImpl(neighborTableEntry, G3NeighborBuildState.TERMINATE);
         }
 
         @Override
@@ -574,13 +615,8 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             G3NeighborBuilderImpl builder = this.deviceId2NeighborBuilderMap
                     .computeIfAbsent(
                             neighbor.getId(),
-                            id -> G3NeighborBuilderImpl.forCreation(
-                                    dataModel.getInstance(G3NeighborImpl.class)
-                                            .createFor(this.device, neighbor, modulationScheme, modulation, phaseInfo)));
-            builder.startEditing();
-            builder.modulationScheme(modulationScheme);
-            builder.modulation(modulation);
-            builder.phaseInfo(phaseInfo);
+                            id -> this.creator(newG3Neighbor(this.device, neighbor, modulationScheme, modulation, phaseInfo)));
+            builder.startEditing(modulationScheme, modulation, phaseInfo);
             return builder;
         }
 
@@ -590,6 +626,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
                     .values()
                     .stream()
                     .map(G3NeighborBuilderImpl::complete)
+                    .flatMap(Functions.asStream())
                     .collect(Collectors.toList());
         }
 
@@ -598,51 +635,153 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     private enum G3NeighborBuildState {
         CREATE {
             @Override
-            protected G3NeighborBuildState toEdit() {
-                return this;    // Creation mode can edit
+            protected void startEditing(G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+                // Already editing
             }
 
             @Override
-            void verifyEdit() {
-                // Edit is allowed
+            public void setTxGain(G3NeighborBuilderImpl builder, int txGain) {
+                builder.setTxGain(txGain);
             }
 
             @Override
-            void complete(G3NeighborImpl neighborTableEntry) {
+            public void setTxResolution(G3NeighborBuilderImpl builder, int txResolution) {
+                builder.setTxResolution(txResolution);
+            }
+
+            @Override
+            public void setTxCoefficient(G3NeighborBuilderImpl builder, int txCoefficient) {
+                builder.setTxCoefficient(txCoefficient);
+            }
+
+            @Override
+            public void setLinkQualityIndicator(G3NeighborBuilderImpl builder, int linkQualityIndicator) {
+                builder.setLinkQualityIndicator(linkQualityIndicator);
+            }
+
+            @Override
+            public void setTimeToLiveFromSeconds(G3NeighborBuilderImpl builder, int seconds) {
+                builder.setTimeToLiveFromSeconds(seconds);
+            }
+
+            @Override
+            public void setToneMap(G3NeighborBuilderImpl builder, long toneMap) {
+                builder.setToneMap(toneMap);
+            }
+
+            @Override
+            public void setToneMapTimeToLiveSeconds(G3NeighborBuilderImpl builder, int seconds) {
+                builder.setToneMapTimeToLiveFromSeconds(seconds);
+            }
+
+            @Override
+            Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry) {
+                oldNeighborTableEntry.ifPresent(PLCNeighborImpl::save); // The old entry was already terminated when edit mode was started
                 neighborTableEntry.save();
+                return Optional.of(neighborTableEntry);
             }
         },
         UPDATE {
             @Override
-            protected G3NeighborBuildState toEdit() {
-                return this;    // Update mode can edit
+            protected void startEditing(G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+                // Already editing
             }
 
             @Override
-            void verifyEdit() {
-                // Edit is allowed
+            public void setTxGain(G3NeighborBuilderImpl builder, int txGain) {
+                builder.terminateOldAndStartNew();
+                builder.setTxGain(txGain);
             }
 
             @Override
-            void complete(G3NeighborImpl neighborTableEntry) {
+            public void setTxResolution(G3NeighborBuilderImpl builder, int txResolution) {
+                builder.terminateOldAndStartNew();
+                builder.setTxResolution(txResolution);
+            }
+
+            @Override
+            public void setTxCoefficient(G3NeighborBuilderImpl builder, int txCoefficient) {
+                builder.terminateOldAndStartNew();
+                builder.setTxCoefficient(txCoefficient);
+            }
+
+            @Override
+            public void setLinkQualityIndicator(G3NeighborBuilderImpl builder, int linkQualityIndicator) {
+                builder.terminateOldAndStartNew();
+                builder.setLinkQualityIndicator(linkQualityIndicator);
+            }
+
+            @Override
+            public void setTimeToLiveFromSeconds(G3NeighborBuilderImpl builder, int seconds) {
+                builder.terminateOldAndStartNew();
+                builder.setTimeToLiveFromSeconds(seconds);
+            }
+
+            @Override
+            public void setToneMap(G3NeighborBuilderImpl builder, long toneMap) {
+                builder.terminateOldAndStartNew();
+                builder.setToneMap(toneMap);
+            }
+
+            @Override
+            public void setToneMapTimeToLiveSeconds(G3NeighborBuilderImpl builder, int seconds) {
+                builder.terminateOldAndStartNew();
+                builder.setToneMapTimeToLiveFromSeconds(seconds);
+            }
+
+            @Override
+            Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry) {
+                oldNeighborTableEntry.ifPresent(PLCNeighborImpl::save); // The old entry was already terminated when edit mode was started
                 neighborTableEntry.save();
+                return Optional.of(neighborTableEntry);
             }
         },
-        DELETE {
+        TERMINATE {
             @Override
-            protected G3NeighborBuildState toEdit() {
-                return UPDATE;
+            protected void startEditing(G3NeighborBuilderImpl builder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+                builder.prepareForUpdateOrTerminateOldAndStartNew(modulationScheme, modulation, phaseInfo);
             }
 
             @Override
-            void verifyEdit() {
+            public void setTxGain(G3NeighborBuilderImpl builder, int txGain) {
                 throw illegalStateException();
             }
 
             @Override
-            void complete(G3NeighborImpl neighborTableEntry) {
+            public void setTxResolution(G3NeighborBuilderImpl builder, int txResolution) {
+                throw illegalStateException();
+            }
+
+            @Override
+            public void setTxCoefficient(G3NeighborBuilderImpl builder, int txCoefficient) {
+                throw illegalStateException();
+            }
+
+            @Override
+            public void setLinkQualityIndicator(G3NeighborBuilderImpl builder, int linkQualityIndicator) {
+                throw illegalStateException();
+            }
+
+            @Override
+            public void setTimeToLiveFromSeconds(G3NeighborBuilderImpl builder, int seconds) {
+                throw illegalStateException();
+            }
+
+            @Override
+            public void setToneMap(G3NeighborBuilderImpl builder, long toneMap) {
+                throw illegalStateException();
+            }
+
+            @Override
+            public void setToneMapTimeToLiveSeconds(G3NeighborBuilderImpl builder, int seconds) {
+                throw illegalStateException();
+            }
+
+            @Override
+            Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry) {
                 neighborTableEntry.terminate();
                 neighborTableEntry.save();
+                return Optional.empty();
             }
 
             private IllegalStateException illegalStateException() {
@@ -651,17 +790,47 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         },
         COMPLETE {
             @Override
-            protected G3NeighborBuildState toEdit() {
+            protected void startEditing(G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
                 throw illegalStateException();
             }
 
             @Override
-            void verifyEdit() {
+            public void setTxGain(G3NeighborBuilderImpl builder, int txGain) {
                 throw illegalStateException();
             }
 
             @Override
-            void complete(G3NeighborImpl neighborTableEntry) {
+            public void setTxResolution(G3NeighborBuilderImpl builder, int txResolution) {
+                throw illegalStateException();
+            }
+
+            @Override
+            public void setTxCoefficient(G3NeighborBuilderImpl builder, int txCoefficient) {
+                throw illegalStateException();
+            }
+
+            @Override
+            public void setLinkQualityIndicator(G3NeighborBuilderImpl builder, int linkQualityIndicator) {
+                throw illegalStateException();
+            }
+
+            @Override
+            public void setTimeToLiveFromSeconds(G3NeighborBuilderImpl builder, int seconds) {
+                throw illegalStateException();
+            }
+
+            @Override
+            public void setToneMap(G3NeighborBuilderImpl builder, long toneMap) {
+                throw illegalStateException();
+            }
+
+            @Override
+            public void setToneMapTimeToLiveSeconds(G3NeighborBuilderImpl builder, int seconds) {
+                throw illegalStateException();
+            }
+
+            @Override
+            Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry) {
                 throw illegalStateException();
             }
 
@@ -670,107 +839,166 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
             }
         };
 
-        abstract void complete(G3NeighborImpl neighborTableEntry);
+        abstract Optional<G3Neighbor> complete(G3NeighborImpl neighborTableEntry, Optional<G3NeighborImpl> oldNeighborTableEntry);
 
-        abstract void verifyEdit();
+        protected abstract void startEditing(G3NeighborBuilderImpl g3NeighborBuilder, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo);
 
-        protected abstract G3NeighborBuildState toEdit();
+        public abstract void setTxGain(G3NeighborBuilderImpl builder, int txGain);
 
+        public abstract void setTxResolution(G3NeighborBuilderImpl builder, int txResolution);
+
+        public abstract void setTxCoefficient(G3NeighborBuilderImpl builder, int txCoefficient);
+
+        public abstract void setLinkQualityIndicator(G3NeighborBuilderImpl builder, int linkQualityIndicator);
+
+        public abstract void setTimeToLiveFromSeconds(G3NeighborBuilderImpl builder, int seconds);
+
+        public abstract void setToneMap(G3NeighborBuilderImpl builder, long toneMap);
+
+        public abstract void setToneMapTimeToLiveSeconds(G3NeighborBuilderImpl builder, int seconds);
     }
 
-    private static class G3NeighborBuilderImpl implements G3NeighborBuilder {
-        private final G3NeighborImpl neighborTableEntry;
+    private class G3NeighborBuilderImpl implements G3NeighborBuilder {
+        private G3NeighborImpl neighborTableEntry;
+        private Optional<G3NeighborImpl> oldNeighborTableEntry;
         private G3NeighborBuildState state;
 
         private G3NeighborBuilderImpl(G3NeighborImpl neighborTableEntry, G3NeighborBuildState state) {
             super();
             this.neighborTableEntry = neighborTableEntry;
+            this.oldNeighborTableEntry = Optional.empty();
             this.state = state;
         }
 
-        private static G3NeighborBuilderImpl forCreation(G3NeighborImpl neighborTableEntry) {
-            return new G3NeighborBuilderImpl(neighborTableEntry, G3NeighborBuildState.CREATE);
+        private void startEditing(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+            this.state.startEditing(this, modulationScheme, modulation, phaseInfo);
         }
 
-        private static G3NeighborBuilderImpl forDeletion(G3NeighborImpl neighborTableEntry) {
-            return new G3NeighborBuilderImpl(neighborTableEntry, G3NeighborBuildState.DELETE);
+        private boolean different(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+            return !modulationScheme.equals(this.neighborTableEntry.getModulationScheme())
+                || !modulation.equals(this.neighborTableEntry.getModulation())
+                || !phaseInfo.equals(this.neighborTableEntry.getPhaseInfo());
         }
 
-        private void startEditing() {
-            this.state = this.state.toEdit();
+        private void prepareForUpdateOrTerminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+            if (this.different(modulationScheme, modulation, phaseInfo)) {
+                this.terminateOldAndStartNew(modulationScheme, modulation, phaseInfo);
+            }
+            else {
+                this.prepareForUdate();
+            }
         }
 
-        private G3Neighbor complete() {
-            this.state.complete(this.neighborTableEntry);
-            this.state = G3NeighborBuildState.COMPLETE;
-            return this.neighborTableEntry;
+        private void terminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+            G3NeighborImpl newG3Neighbor = newG3Neighbor(this.neighborTableEntry.getDevice(), this.neighborTableEntry.getNeighbor(), modulationScheme, modulation, phaseInfo);
+            this.neighborTableEntry.terminate(newG3Neighbor.getEffectiveStart());
+            this.oldNeighborTableEntry = Optional.of(this.neighborTableEntry);
+            this.neighborTableEntry = newG3Neighbor;
+            this.state = G3NeighborBuildState.CREATE;
+            this.modulationScheme(modulationScheme);
+            this.modulation(modulation);
+            this.phaseInfo(phaseInfo);
+        }
+
+        private void terminateOldAndStartNew() {
+            G3NeighborImpl newG3Neighbor = newG3Neighbor(this.neighborTableEntry);
+            this.neighborTableEntry.terminate(newG3Neighbor.getEffectiveStart());
+            this.oldNeighborTableEntry = Optional.of(this.neighborTableEntry);
+            this.neighborTableEntry = newG3Neighbor;
+            this.state = G3NeighborBuildState.CREATE;
+        }
+
+        private void prepareForUdate() {
+            this.state = G3NeighborBuildState.UPDATE;
+        }
+
+        private Optional<G3Neighbor> complete() {
+            return this.state.complete(this.neighborTableEntry, this.oldNeighborTableEntry);
         }
 
         private G3NeighborBuilderImpl modulationScheme(ModulationScheme modulationScheme) {
-            this.state.verifyEdit();
             this.neighborTableEntry.setModulationScheme(modulationScheme);
             return this;
         }
 
         private G3NeighborBuilderImpl modulation(Modulation modulation) {
-            this.state.verifyEdit();
             this.neighborTableEntry.setModulation(modulation);
             return this;
         }
 
         private G3NeighborBuilderImpl phaseInfo(PhaseInfo phaseInfo) {
-            this.state.verifyEdit();
             this.neighborTableEntry.setPhaseInfo(phaseInfo);
             return this;
         }
 
         @Override
         public G3NeighborBuilder txGain(int txGain) {
-            this.state.verifyEdit();
-            this.neighborTableEntry.setTxGain(txGain);
+            this.state.setTxGain(this, txGain);
             return this;
+        }
+
+        private void setTxGain(int txGain) {
+            this.neighborTableEntry.setTxGain(txGain);
         }
 
         @Override
         public G3NeighborBuilder txResolution(int txResolution) {
-            this.state.verifyEdit();
-            this.neighborTableEntry.setTxResolution(txResolution);
+            this.state.setTxResolution(this, txResolution);
             return this;
+        }
+
+        private void setTxResolution(int txResolution) {
+            this.neighborTableEntry.setTxResolution(txResolution);
         }
 
         @Override
         public G3NeighborBuilder txCoefficient(int txCoefficient) {
-            this.state.verifyEdit();
-            this.neighborTableEntry.setTxCoefficient(txCoefficient);
+            this.state.setTxCoefficient(this, txCoefficient);
             return this;
+        }
+
+        private void setTxCoefficient(int txCoefficient) {
+            this.neighborTableEntry.setTxCoefficient(txCoefficient);
         }
 
         @Override
         public G3NeighborBuilder linkQualityIndicator(int linkQualityIndicator) {
-            this.state.verifyEdit();
-            this.neighborTableEntry.setLinkQualityIndicator(linkQualityIndicator);
+            this.state.setLinkQualityIndicator(this, linkQualityIndicator);
             return this;
+        }
+
+        private void setLinkQualityIndicator(int linkQualityIndicator) {
+            this.neighborTableEntry.setLinkQualityIndicator(linkQualityIndicator);
         }
 
         @Override
         public G3NeighborBuilder timeToLiveSeconds(int seconds) {
-            this.state.verifyEdit();
-            this.neighborTableEntry.setTimeToLiveFromSeconds(seconds);
+            this.state.setTimeToLiveFromSeconds(this, seconds);
             return this;
+        }
+
+        private void setTimeToLiveFromSeconds(int seconds) {
+            this.neighborTableEntry.setTimeToLiveFromSeconds(seconds);
         }
 
         @Override
         public G3NeighborBuilder toneMap(long toneMap) {
-            this.state.verifyEdit();
-            this.neighborTableEntry.setToneMap(toneMap);
+            this.state.setToneMap(this, toneMap);
             return this;
+        }
+
+        private void setToneMap(long toneMap) {
+            this.neighborTableEntry.setToneMap(toneMap);
         }
 
         @Override
         public G3NeighborBuilder toneMapTimeToLiveSeconds(int seconds) {
-            this.state.verifyEdit();
-            this.neighborTableEntry.setToneMapTimeToLiveFromSeconds(seconds);
+            this.state.setToneMapTimeToLiveSeconds(this, seconds);
             return this;
+        }
+
+        private void setToneMapTimeToLiveFromSeconds(int seconds) {
+            this.neighborTableEntry.setToneMapTimeToLiveFromSeconds(seconds);
         }
 
     }

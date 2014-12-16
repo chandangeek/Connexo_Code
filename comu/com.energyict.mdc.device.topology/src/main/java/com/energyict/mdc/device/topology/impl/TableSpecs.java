@@ -90,6 +90,7 @@ public enum TableSpecs {
             Column device = table.column("DEVICE").notNull().number().conversion(NUMBER2LONG).add();
             Column neighbor = table.column("NEIGHBOR").notNull().number().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             table.column("MODULATION_SCHEME").number().conversion(NUMBER2ENUM).notNull().map(PLCNeighborImpl.Field.MODULATION_SCHEME.fieldName()).add();
             table.column("MODULATION").number().conversion(NUMBER2ENUM).notNull().map(PLCNeighborImpl.Field.MODULATION.fieldName()).add();

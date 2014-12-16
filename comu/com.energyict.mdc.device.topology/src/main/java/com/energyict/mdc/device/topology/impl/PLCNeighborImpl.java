@@ -63,6 +63,10 @@ public abstract class PLCNeighborImpl implements PLCNeighbor {
     private final Clock clock;
     private final DataModel dataModel;
 
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private ModulationScheme modulationScheme;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
@@ -120,16 +124,23 @@ public abstract class PLCNeighborImpl implements PLCNeighbor {
         return this.interval;
     }
 
+    Instant getEffectiveStart() {
+        return this.interval.getStart();
+    }
+
     void save () {
-        Save.CREATE.save(this.dataModel, this, Save.Create.class);
+        Save.action(this.version).save(this.dataModel, this);
     }
 
     void terminate() {
-        Instant closingDate = this.clock.instant();
-        if (!isEffectiveAt(closingDate)) {
+        this.terminate(this.clock.instant());
+    }
+
+    void terminate(Instant when) {
+        if (!isEffectiveAt(when)) {
             throw new IllegalArgumentException();
         }
-        this.interval = this.interval.withEnd(closingDate);
+        this.interval = this.interval.withEnd(when);
     }
 
 }
