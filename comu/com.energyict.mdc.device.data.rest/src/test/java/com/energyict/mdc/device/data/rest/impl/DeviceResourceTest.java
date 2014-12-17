@@ -49,9 +49,11 @@ import com.energyict.mdc.engine.model.InboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.jayway.jsonpath.JsonModel;
+
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -59,6 +61,7 @@ import org.mockito.Matchers;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
@@ -1167,6 +1170,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("device")).thenReturn(device);
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(gateway);
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(gateway));
         
         DeviceInfo info = new DeviceInfo();
         info.masterDeviceId = gateway.getId();
@@ -1175,8 +1179,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/device").request().put(Entity.json(info));
         
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        //verify(topologyService).setPhysicalGateWay(device, gateway);
+        verify(topologyService).setPhysicalGateway(device, gateway);
     }
     
     @Test
@@ -1184,16 +1187,15 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mockDeviceForTopologyTest("device");
         when(deviceService.findByUniqueMrid("device")).thenReturn(device);
         when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         
         DeviceInfo info = new DeviceInfo();
-        info.masterDeviceId = null;
         info.masterDevicemRID = null;
         
         Response response = target("/devices/device").request().put(Entity.json(info));
         
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        //verify(topologyService).clearPhysicalGateWay(device);
+        verify(topologyService).clearPhysicalGateway(device);
     }
 
     private Device mockDeviceForTopologyTest(String name) {
@@ -1207,6 +1209,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getSerialNumber()).thenReturn("123456789");
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(pluggableClass.getId()).thenReturn(10L);
         return device;
     }
 
