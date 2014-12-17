@@ -6,6 +6,8 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
         'Yfn.store.ReportFilterInfos',
         'Yfn.store.ReportFilterListItems'
     ],
+    searchEnabled:false,
+
     stores:[
         'ReportInfos'
     ],
@@ -37,6 +39,15 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
             }
 
         });
+
+        var navigationController = this.getController('Uni.controller.Navigation');
+        var breadcrumbs = navigationController.getBreadcrumbs();
+        breadcrumbs.setVisible(false);
+        var navigationMenu = navigationController.getNavigationMenu();
+        navigationMenu.setVisible(false);
+        var navigationHeader = navigationMenu.up('viewport').down('navigationHeader');
+        navigationHeader.setVisible(false);
+
     },
     reportUUID : null,
     reportFilters:null,
@@ -57,8 +68,6 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
     resizeReportPanel: function(component) {
         if(!component)
             return;
-        //console.log(component.getHeight());
-        //console.log(component.getWidth());
         // resize yellowfin report
         var options =  {};
         options.element =  component.getEl().dom;
@@ -203,25 +212,32 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
         }
 
     },
-    generateReport : function(){
+    generateReport : function(data){
         var me = this;
         var reportContent = me.getReportContentView();
-        var data;
+        if(typeof data == "undefined") {
+            Ext.Ajax.request({
+                url: '/api/yfn/user/token',
+                method: 'POST',
+                async: false,
+                success: function (response) {
+                    data = Ext.JSON.decode(response.responseText);
+                    if (typeof yellowfin == "undefined") {
+                        Ext.Loader.injectScriptElement(data.url + '/JsAPI', function () {
+                            Ext.Loader.injectScriptElement(data.url + '/JsAPI?api=reports', function () {
+                                me.generateReport(data);
+                            }, function () {
+                            });
+                        }, function () {
+
+                        });
+                        return;
+                    }
+                }
+            });
+        }
 
         me.getFilterValues();
-        console.log(me.filterValues);
-
-        Ext.Ajax.request({
-            url: '/api/yfn/user/token',
-            method: 'POST',
-            async: false,
-            success: function(response){
-                data = Ext.JSON.decode(response.responseText);
-            }
-        });
-
-       // var filters = me.convertToYellowfinJSAPIFilters();
-
 
         var display;
         try{
