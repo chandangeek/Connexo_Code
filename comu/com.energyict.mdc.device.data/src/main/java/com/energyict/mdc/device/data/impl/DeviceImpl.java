@@ -134,7 +134,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -1386,26 +1385,39 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
-        return new ArrayList<ComTaskExecution>(this.getComTaskExecutionImpls());
+        return new ArrayList<>(this.getComTaskExecutionImpls());
     }
 
     private List<ComTaskExecutionImpl> getComTaskExecutionImpls() {
-        if (this.comTaskExecutions == null) {
-            this.loadComTaskExecutions();
-        }
+        return this.getAllComTaskExecutionImpls()
+                .stream()
+                .filter(cte -> !cte.isObsolete())
+                .collect(Collectors.toList());
+    }
+
+    private List<ComTaskExecutionImpl> getAllComTaskExecutionImpls() {
+        this.ensureComTaskExecutionsLoaded();
         return this.comTaskExecutions;
     }
 
-    private void loadComTaskExecutions() {
-        List<ComTaskExecutionImpl> comTaskExecutionImpls = new ArrayList<>();
-        for (ComTaskExecution comTaskExecution : this.communicationTaskService.findComTaskExecutionsByDevice(this)) {
-            comTaskExecutionImpls.add((ComTaskExecutionImpl) comTaskExecution);
+    private void ensureComTaskExecutionsLoaded() {
+        if (this.comTaskExecutions == null) {
+            this.loadComTaskExecutions();
         }
-        this.comTaskExecutions = comTaskExecutionImpls;
+    }
+
+    private void loadComTaskExecutions() {
+        this.comTaskExecutions =
+            this.communicationTaskService
+                .findComTaskExecutionsByDevice(this)
+                .stream()
+                .map(comTaskExecution -> (ComTaskExecutionImpl) comTaskExecution)
+                .collect(Collectors.toList());
     }
 
     private void add(ComTaskExecutionImpl comTaskExecution) {
-        this.getComTaskExecutionImpls().add(comTaskExecution);
+        this.ensureComTaskExecutionsLoaded();
+        this.comTaskExecutions.add(comTaskExecution);
         if (this.id != 0) {
             Save.CREATE.validate(this.dataModel, this);  // To validate that all scheduled ComTasks are unique
         }
@@ -1443,7 +1455,8 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
-        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.getComTaskExecutionImpls().iterator();
+        this.ensureComTaskExecutionsLoaded();
+        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.comTaskExecutions.iterator();
         while (comTaskExecutionIterator.hasNext()) {
             ComTaskExecution comTaskExecutionToRemove = comTaskExecutionIterator.next();
             if (comTaskExecutionToRemove.getId() == comTaskExecution.getId()) {
@@ -1457,7 +1470,8 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.getComTaskExecutionImpls().iterator();
+        this.ensureComTaskExecutionsLoaded();
+        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.comTaskExecutions.iterator();
         while (comTaskExecutionIterator.hasNext()) {
             ComTaskExecutionImpl comTaskExecution = comTaskExecutionIterator.next();
             if (comTaskExecution.executesComSchedule(comSchedule)) {
@@ -1729,7 +1743,7 @@ public class DeviceImpl implements Device, CanLock {
         @Override
         public ManuallyScheduledComTaskExecution add() {
             ManuallyScheduledComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
+            DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
         }
     }
@@ -1745,7 +1759,7 @@ public class DeviceImpl implements Device, CanLock {
         @Override
         public ManuallyScheduledComTaskExecution add() {
             ManuallyScheduledComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.getComTaskExecutionImpls().add((ComTaskExecutionImpl) comTaskExecution);
+            DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
             return comTaskExecution;
         }
     }
