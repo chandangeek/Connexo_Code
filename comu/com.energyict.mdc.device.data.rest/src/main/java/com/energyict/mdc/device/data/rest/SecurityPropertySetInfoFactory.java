@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
@@ -13,7 +12,6 @@ import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
 import com.energyict.mdc.device.data.rest.impl.SecurityPropertySetInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -54,7 +52,8 @@ public class SecurityPropertySetInfoFactory {
         TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
 
         securityPropertySetInfo.properties = new ArrayList<>();
-        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties, securityPropertySetInfo.userHasViewPrivilege && securityPropertySetInfo.userHasEditPrivilege, true);
+        MdcPropertyUtils.ValueVisibility valueVisibility = securityPropertySetInfo.userHasViewPrivilege && securityPropertySetInfo.userHasEditPrivilege ? MdcPropertyUtils.ValueVisibility.SHOW_VALUES : MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties, valueVisibility, MdcPropertyUtils.PrivilegePresence.WITH_PRIVILEGES);
 
         securityPropertySetInfo.status = new IdWithNameInfo();
         if (!getStatus(device, securityPropertySet, typedProperties)) {

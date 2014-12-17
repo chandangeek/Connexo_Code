@@ -33,6 +33,9 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
+import com.energyict.mdc.device.data.kpi.rest.KpiResource;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.engine.model.EngineModelService;
@@ -44,7 +47,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
-
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,9 +58,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.ws.rs.core.Application;
-
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -94,7 +94,7 @@ public class DeviceApplication extends Application implements InstallService {
     private volatile Clock clock;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile FavoritesService favoritesService;
-    private volatile License license;
+    private volatile DataCollectionKpiService dataCollectionKpiService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -124,7 +124,8 @@ public class DeviceApplication extends Application implements InstallService {
                 DeviceMessageResource.class,
                 DeviceLabelResource.class,
                 ConnectionResource.class,
-                CommunicationResource.class
+                CommunicationResource.class,
+                KpiResource.class
         );
     }
 
@@ -244,7 +245,11 @@ public class DeviceApplication extends Application implements InstallService {
 
     @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
     public void setLicense(License license) {
-        this.license = license;
+    }
+
+    @Reference
+    public void setDataCollectionKpiService(DataCollectionKpiService dataCollectionKpiService) {
+        this.dataCollectionKpiService = dataCollectionKpiService;
     }
 
     @Override
@@ -339,6 +344,8 @@ public class DeviceApplication extends Application implements InstallService {
             bind(favoritesService).to(FavoritesService.class);
             bind(DeviceConnectionTaskInfoFactory.class).to(DeviceConnectionTaskInfoFactory.class);
             bind(DeviceComTaskExecutionInfoFactory.class).to(DeviceComTaskExecutionInfoFactory.class);
+            bind(DataCollectionKpiInfoFactory.class).to(DataCollectionKpiInfoFactory.class);
+            bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
         }
     }
 
