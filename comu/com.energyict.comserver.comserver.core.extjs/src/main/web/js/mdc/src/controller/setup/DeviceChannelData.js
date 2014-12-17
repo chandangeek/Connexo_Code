@@ -1,8 +1,8 @@
-Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelData', {
+Ext.define('Mdc.controller.setup.DeviceChannelData', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'Mdc.view.setup.deviceloadprofilechannels.Data'
+        'Mdc.view.setup.devicechannels.Data'
     ],
 
     models: [

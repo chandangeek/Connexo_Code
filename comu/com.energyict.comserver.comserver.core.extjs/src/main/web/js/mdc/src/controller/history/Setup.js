@@ -1216,8 +1216,8 @@ Ext.define('Mdc.controller.history.Setup', {
                         channels: {
                             title: Uni.I18n.translate('routing.channels', 'MDC', 'Channels'),
                             route: 'channels',
-                            controller: 'Mdc.controller.setup.DeviceLoadProfileChannels',
-                            privileges: ['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
+                            controller: 'Mdc.controller.setup.DeviceChannels',
+                            privileges: ['privilege.administrate.device','privilege.view.device'],
                             action: 'showOverview',
                             filter: 'Mdc.model.filter.DeviceChannelsFilter',
                             items: {
@@ -1254,8 +1254,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 editreadings: {
                                                     title: Uni.I18n.translate('routing.editReadings', 'MDC', 'Edit readings'),
                                                     route: 'editreadings',
-                                                    controller: 'Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings',
-                                                    privileges: ['privilege.administrate.deviceData'],
+                                                    controller: 'Mdc.controller.setup.DeviceChannelDataEditReadings',
+                                                    privileges: ['privilege.administrate.device'],
                                                     action: 'showOverview',
                                                     filter: 'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter'
                                                 }

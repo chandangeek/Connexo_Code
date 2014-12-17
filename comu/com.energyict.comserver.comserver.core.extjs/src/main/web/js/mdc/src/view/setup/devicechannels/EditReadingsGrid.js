@@ -1,11 +1,9 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
+Ext.define('Mdc.view.setup.devicechannels.EditReadingsGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.deviceLoadProfileChannelDataGrid',
-    itemId: 'deviceLoadProfileChannelDataGrid',
+    alias: 'widget.device-loadprofile-channel-edit-readings-grid',
     store: 'Mdc.store.ChannelOfLoadProfileOfDeviceData',
     requires: [
         'Uni.grid.column.Action',
-        'Mdc.view.setup.deviceloadprofilechannels.DataActionMenu',
         'Uni.grid.column.IntervalFlags',
         'Uni.grid.column.Edited',
         'Uni.view.toolbar.PagingTop'
@@ -13,19 +11,21 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
     height: 395,
     plugins: [
         'bufferedrenderer',
-        'showConditionalToolTip'
+        'showConditionalToolTip',
+        {
+            ptype: 'cellediting',
+            clicksToEdit: 1,
+            pluginId: 'cellplugin'
+        }
     ],
-    viewConfig: {
-        loadMask: false
-    },
 
-    channelRecord: null,
-    router: null,
+    channel: null,
 
     initComponent: function () {
         var me = this,
-            calculatedReadingType = me.channelRecord.get('calculatedReadingType'),
-            measurementType = me.channelRecord.get('unitOfMeasure_formatted');
+            readingType = me.channel.get('cimReadingType'),
+            measurementType = me.channel.get('unitOfMeasure_formatted'),
+            accumulationBehavior;
 
         me.columns = [
             {
@@ -84,40 +84,57 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
                 width: 30
             },
             {
-                header: Uni.I18n.translate('deviceloadprofiles.channels.bulkValue', 'MDC', 'Bulk value') + ' (' + measurementType + ')',
-                dataIndex: 'collectedValue',
-                flex: 1,
-                align: 'right',
-                hidden: Ext.isEmpty(calculatedReadingType),
-                renderer: function (value) {
-                    return !Ext.isEmpty(value) ? value : '';
-                }
-            },
-            {
                 xtype: 'interval-flags-column',
                 dataIndex: 'intervalFlags',
-                align: 'right',
                 width: 150
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                menu: {
+                    xtype: 'menu',
+                    itemId: 'device-loadprofile-channel-edit-readings-action-menu',
+                    plain: true,
+                    border: false,
+                    shadow: false,
+                    defaultAlign: 'tr-br?',
+                    items: [
+                        {
+                            itemId: 'edit-value',
+                            text: Uni.I18n.translate('devicechannels.editReadings.editValue', 'MDC', 'Edit value'),
+                            action: 'editValue'
+                        },
+                        {
+                            itemId: 'remove-reading',
+                            text: Uni.I18n.translate('devicechannels.editReadings.removeReading', 'MDC', 'Remove reading'),
+                            action: 'removeReading'
+                        }
+                    ]
+                }
             }
         ];
 
         me.dockedItems = [
             {
-                itemId: 'pagingtoolbartop',
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
                 store: me.store,
                 isFullTotalCount: true,
-                displayMsg: '{2} reading(s)',
+                displayMsg: Uni.I18n.translate('devicechannels.editReadingsGrid.pagingtoolbartop.displayMsg', 'MDC', '{2} readings'),
+                emptyMsg: Uni.I18n.translate('devicechannels.editReadingsGrid.pagingtoolbartop.emptyMsg', 'MDC', 'There are no readings to display')
+            },
+            {
+                xtype: 'toolbar',
+                dock: 'bottom',
                 items: [
-                    '->',
                     {
-                        xtype: 'button',
-                        itemId: 'device-load-profile-channel-data-edit-readings-button',
-                        text: Uni.I18n.translate('deviceloadprofilechannels.data.editReadings', 'MDC', 'Edit readings'),
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceData'),
-                        href: typeof me.router.getRoute('devices/device/channels/channel/tableData/editreadings') !== 'undefined'
-                            ? me.router.getRoute('devices/device/channels/channel/tableData/editreadings').buildUrl(me.router.arguments, me.router.queryParams) : null
+                        itemId: 'device-loadprofile-channel-edit-readings-save',
+                        text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                        ui: 'action'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                        ui: 'link',
+                        href: me.router.getRoute('devices/device/channels/channel/tableData').buildUrl(me.router.arguments, me.router.queryParams)
                     }
                 ]
             }
@@ -125,5 +142,4 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataGrid', {
 
         me.callParent(arguments);
     }
-
 });

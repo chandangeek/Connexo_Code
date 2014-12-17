@@ -1,12 +1,12 @@
-Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
+Ext.define('Mdc.controller.setup.DeviceChannelOverview', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Mdc.controller.setup.DeviceLoadProfileChannelData'
+        'Mdc.controller.setup.DeviceChannelData'
     ],
 
     views: [
-        'Mdc.view.setup.deviceloadprofilechannels.Overview',
-        'Mdc.view.setup.deviceloadprofilechannels.TabbedDeviceChannelsView'
+        'Mdc.view.setup.devicechannels.Overview',
+        'Mdc.view.setup.devicechannels.TabbedDeviceChannelsView'
     ],
 
     models: [
@@ -47,7 +47,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelOverview', {
             tabWidget = Ext.widget('tabbedDeviceChannelsView', {
                 router: router,
                 device: device,
-                channelsListLink: me.getController('Mdc.controller.setup.DeviceLoadProfileChannelData').makeLinkToList(router)
+                channelsListLink: me.getController('Mdc.controller.setup.DeviceChannelData').makeLinkToList(router)
             });
 
             widget = Ext.widget('deviceLoadProfileChannelOverview', {

@@ -1,11 +1,11 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.PreviewForm', {
+Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.deviceLoadProfileChannelsPreviewForm',
     itemId: 'deviceLoadProfileChannelsPreviewForm',
     requires: [
         'Uni.form.field.ObisDisplay',
         'Uni.form.field.ReadingTypeDisplay',
-        'Mdc.view.setup.deviceloadprofilechannels.ValidationOverview'
+        'Mdc.view.setup.devicechannels.ValidationOverview'
     ],
     device: null,
     router: null,
