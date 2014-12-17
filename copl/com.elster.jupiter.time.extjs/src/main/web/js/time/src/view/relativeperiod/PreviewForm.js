@@ -39,7 +39,7 @@ Ext.define('Tme.view.relativeperiod.PreviewForm', {
             hoursMinutes = (value.atHour ? value.atHour : '00') + ' ' + Uni.I18n.translate('period.hours', 'UNI', 'hour(s)') + ' ' + (value.atMinute ? value.atMinute : '00') + ' ' + Uni.I18n.translate('period.minutes', 'UNI', 'minute(s)');
 
         if (value.startNow) {
-            str += Uni.I18n.translate('general.now', 'TME', 'now') + ' ' + Uni.I18n.translate('general.at', 'TME', 'at') + ' ' + hoursMinutes;
+            str += Uni.I18n.translate('general.Now', 'TME', 'Now') + ' ' + Uni.I18n.translate('general.at', 'TME', 'at') + ' ' + hoursMinutes;
             return str;
         }
         if (value.startFixedDay && value.startFixedMonth && value.startFixedYear) {
@@ -80,7 +80,7 @@ Ext.define('Tme.view.relativeperiod.PreviewForm', {
             switch(value.startPeriodAgo) {
                 case 'months':
                     if (value.onDayOfMonth) {
-                        str += ' ' + Uni.I18n.translate('general.on', 'TME', 'on') + ' ' + value.onDayOfMonth + ' ' + Uni.I18n.translate('general.dayOfMonth', 'TME', 'day of month');
+                        str += ' ' + Uni.I18n.translate('general.on', 'TME', 'on') + ' ' + Uni.I18n.translate('general.day', 'TME', 'day') +  ' ' + value.onDayOfMonth + ' ' + Uni.I18n.translate('general.ofMonth', 'TME', 'of month');
                     } else {
                         str += ' ' + Uni.I18n.translate('general.onCurrentDayOfMonth', 'TME', 'on current day of month');
                     }
