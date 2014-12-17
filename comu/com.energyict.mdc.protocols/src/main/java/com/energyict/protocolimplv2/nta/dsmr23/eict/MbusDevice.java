@@ -6,6 +6,7 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
@@ -22,8 +23,8 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     private Dsmr23MbusMessaging dsmr23MbusMessaging;
 
     @Inject
-    public MbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService);
+    public MbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService);
     }
 
     @Override

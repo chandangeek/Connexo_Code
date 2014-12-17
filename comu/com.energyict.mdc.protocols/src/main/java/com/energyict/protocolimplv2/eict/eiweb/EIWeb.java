@@ -30,6 +30,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
@@ -55,15 +56,17 @@ public class EIWeb implements DeviceProtocol {
 
     private final Clock clock;
     private final PropertySpecService propertySpecService;
-    private final SimplePasswordSecuritySupport securitySupport;
+    private final IdentificationService identificationService;
+    private SimplePasswordSecuritySupport securitySupport;
     private OfflineDevice offlineDevice;
     private LegacyMessageConverter messageConverter;
 
     @Inject
-    public EIWeb(Clock clock, PropertySpecService propertySpecService) {
+    public EIWeb(Clock clock, PropertySpecService propertySpecService, IdentificationService identificationService) {
         super();
         this.clock = clock;
         this.propertySpecService = propertySpecService;
+        this.identificationService = identificationService;
         this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
     }
 

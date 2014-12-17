@@ -1,20 +1,19 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
-
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
@@ -39,18 +38,20 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     private static final int TIMEOUT_DEFAULT = 10000;
     private static final int RETRIES_DEFAULT = 2;
 
-    private DeviceIdentifierBySerialNumber deviceIdentifier;
+    private DeviceIdentifier deviceIdentifier;
     private InboundDiscoveryContext context;
     private ComChannel comChannel;
     private TypedProperties typedProperties;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
+    private final IdentificationService identificationService;
 
     @Inject
-    public MK10InboundDeviceProtocol(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public MK10InboundDeviceProtocol(PropertySpecService propertySpecService, Thesaurus thesaurus, IdentificationService identificationService) {
         super();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+        this.identificationService = identificationService;
     }
 
     @Override
@@ -142,7 +143,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     public void setDeviceIdentifier(String serialNumber) {
-        this.deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
+        this.deviceIdentifier = this.identificationService.createDeviceIdentifierBySerialNumber(serialNumber);
     }
 
     @Override

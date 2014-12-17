@@ -24,6 +24,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 
 import javax.inject.Inject;
@@ -40,8 +41,8 @@ import java.util.Set;
 public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Inject
-    public GateWayZ3(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService);
+    public GateWayZ3(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService);
     }
 
     @Override

@@ -66,12 +66,12 @@ public class ProfileBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testGetProfileDataForDefaultNumberOfChannels () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)), identificationService);
         String deviceId = "221";
         packetBuilder.parse(deviceId, "FFFF", "0", "0", null, null, "123,132,213,231,312,321", "192.168.2.100", null, "0");
 
         // Business method
-        ProfileBuilder profileBuilder = new ProfileBuilder(packetBuilder);
+        ProfileBuilder profileBuilder = new ProfileBuilder(packetBuilder, identificationService);
 
         // Asserts
         assertThat(profileBuilder.getConfigFile()).isEqualTo(new byte[0]);
@@ -91,12 +91,12 @@ public class ProfileBuilderTest extends AbstractEIWebTests{
 
     @Test
     public void testGetProfileDataForOneChannel () throws IOException {
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)), identificationService);
         String deviceId = "221";
         packetBuilder.parse(deviceId, "FFFF", "0", "0", null, "1", "696", "192.168.2.100", null, "0");
 
         // Business method
-        ProfileBuilder profileBuilder = new ProfileBuilder(packetBuilder);
+        ProfileBuilder profileBuilder = new ProfileBuilder(packetBuilder, identificationService);
 
         // Asserts
         assertThat(profileBuilder.getConfigFile()).isEqualTo(new byte[0]);
@@ -129,11 +129,11 @@ public class ProfileBuilderTest extends AbstractEIWebTests{
         this.writeData(leos, 654);  // Interval data
         leos.writeString("19 bytes of header data", 19);
         InputStream is = new ByteArrayInputStream(os.toByteArray());
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)), identificationService);
         packetBuilder.parse(is, null);
 
         // Business method
-        ProfileBuilder profileBuilder = new ProfileBuilder(packetBuilder);
+        ProfileBuilder profileBuilder = new ProfileBuilder(packetBuilder, identificationService);
 
         // Asserts
         assertThat(profileBuilder.getConfigFile()).isEqualTo(new byte[0]);
@@ -174,11 +174,11 @@ public class ProfileBuilderTest extends AbstractEIWebTests{
         this.writeData(leos, 654);  // Interval data
         leos.writeString("19 bytes of header data", 19);
         InputStream is = new ByteArrayInputStream(os.toByteArray());
-        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)));
+        PacketBuilder packetBuilder = new PacketBuilder(new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class)), identificationService);
         packetBuilder.parse(is, null);
 
         // Business method
-        ProfileBuilder profileBuilder = new ProfileBuilder(packetBuilder);
+        ProfileBuilder profileBuilder = new ProfileBuilder(packetBuilder, identificationService);
 
         // Asserts
         assertThat(profileBuilder.getConfigFile()).isEqualTo(new byte[0]);
@@ -207,7 +207,7 @@ public class ProfileBuilderTest extends AbstractEIWebTests{
         when(packetBuilder.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
 
         // Business method
-        new ProfileBuilder(packetBuilder);
+        new ProfileBuilder(packetBuilder, identificationService);
 
         // Expected CommunicationException because the inbound data was missing
     }

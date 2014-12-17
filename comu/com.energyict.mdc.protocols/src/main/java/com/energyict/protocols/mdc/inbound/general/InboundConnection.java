@@ -7,7 +7,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.DeployFrame;
 import com.energyict.protocols.mdc.inbound.general.frames.EventFrame;
@@ -38,7 +38,7 @@ public class InboundConnection {
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IssueService issueService;
     private final Thesaurus thesaurus;
-    private final SerialNumberPlaceHolder serialNumberPlaceHolder = new SerialNumberPlaceHolder();
+    private IdentificationService identificationService;
     private ComChannel comChannel;
     private int timeout;
     private int retries;
@@ -48,13 +48,14 @@ public class InboundConnection {
      */
     private List<AbstractInboundFrame> framesToAck;
 
-    public InboundConnection(ComChannel comChannel, int timeout, int retries, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus) {
+    public InboundConnection(ComChannel comChannel, int timeout, int retries, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService) {
         this.comChannel = comChannel;
         this.timeout = timeout;
         this.retries = retries;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.thesaurus = thesaurus;
+        this.identificationService = identificationService;
     }
 
     /**
@@ -149,19 +150,19 @@ public class InboundConnection {
      */
     private AbstractInboundFrame parseInboundFrame(String frame) {
         if (frame.contains(REQUEST_TAG)) {
-            return new RequestFrame(frame, serialNumberPlaceHolder, issueService);
+            return new RequestFrame(frame, issueService, identificationService);
         }
         if (frame.contains(EVENT_TAG)) {
-            return new EventFrame(frame, serialNumberPlaceHolder, issueService, thesaurus);
+            return new EventFrame(frame, issueService, thesaurus, identificationService);
         }
         if (frame.contains(EVENTPO_TAG)) {
-            return new EventPOFrame(frame, serialNumberPlaceHolder, issueService);
+            return new EventPOFrame(frame, issueService, identificationService);
         }
         if (frame.contains(DEPLOY_TAG)) {
-            return new DeployFrame(frame, serialNumberPlaceHolder, issueService);
+            return new DeployFrame(frame, issueService, identificationService);
         }
         if (frame.contains(REGISTER_TAG)) {
-            return new RegisterFrame(frame, serialNumberPlaceHolder, issueService, readingTypeUtilService);
+            return new RegisterFrame(frame, issueService, readingTypeUtilService, identificationService);
         }
         throw new InboundFrameException(MessageSeeds.INBOUND_UNEXPECTED_FRAME, frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }
@@ -272,7 +273,4 @@ public class InboundConnection {
         return ("<" + frameTag + ">" + "OK" + "</" + frameTag + ">").getBytes();
     }
 
-    public void updateSerialNumberPlaceHolder(String serialNumber) {
-        this.serialNumberPlaceHolder.setSerialNumber(serialNumber);
-    }
 }

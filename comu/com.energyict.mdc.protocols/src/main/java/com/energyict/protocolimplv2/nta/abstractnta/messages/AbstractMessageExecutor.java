@@ -22,7 +22,6 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -138,7 +137,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> collectedRegisters) {
-        return getCollectedDataFactory().createCollectedMessageWithRegisterData(new DeviceIdentifierById(message.getDeviceId()), message.getIdentifier(), collectedRegisters);
+        return getCollectedDataFactory().createCollectedMessageWithRegisterData(message.getDeviceIdentifier(), message.getIdentifier(), collectedRegisters);
     }
 
     protected CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineDeviceMessage pendingMessage) {
@@ -148,8 +147,7 @@ public abstract class AbstractMessageExecutor {
                                 new RegisterDataIdentifierByObisCodeAndDevice(
                                         registerValue.getObisCode(),
                                         registerValue.getObisCode(),
-                                        new DeviceIdentifierById(
-                                                pendingMessage.getDeviceId())),
+                                        pendingMessage.getDeviceIdentifier()),
                                 this.readingTypeUtilService.getReadingTypeFrom(
                                         registerValue.getObisCode(),
                                         registerValue.getQuantity().getUnit()));

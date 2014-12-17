@@ -6,8 +6,8 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
 import java.util.ArrayList;
@@ -26,6 +26,7 @@ import java.util.logging.Logger;
  */
 public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
 
+    private final IdentificationService identificationService;
     private ACE4000Connection ace4000Connection;
     private ACE4000Properties properties;
     protected String serialNumber = null;
@@ -45,8 +46,9 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
     //Used by both inbound and outbound protocols
     protected ObjectFactory objectFactory;
 
-    public ACE4000(PropertySpecService propertySpecService) {
+    public ACE4000(PropertySpecService propertySpecService, IdentificationService identificationService) {
         super(propertySpecService);
+        this.identificationService = identificationService;
     }
 
     public ACE4000Connection getAce4000Connection() {
@@ -54,7 +56,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
     }
 
     public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierBySerialNumber(serialNumber);
+        return this.identificationService.createDeviceIdentifierBySerialNumber(this.serialNumber);
     }
 
     public String getSerialNumber() {

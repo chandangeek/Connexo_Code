@@ -10,7 +10,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
@@ -31,12 +31,15 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
 
     private static final String KEY = "Key";
     private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
+    private final IdentificationService identificationService;
 
     /**
      * Default constructor for at-runtime instantiation
+     * @param identificationService
      */
-    public AS300DPETMessageConverter() {
+    public AS300DPETMessageConverter(IdentificationService identificationService) {
         super();
+        this.identificationService = identificationService;
     }
 
     @Override
@@ -55,7 +58,7 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {
             String[] stringIds = deviceIds.split(",");
             List<DeviceIdentifier> ids = new ArrayList<>(stringIds.length);
             for (String stringId : stringIds) {
-                ids.add(new DeviceIdentifierById(stringId));
+                ids.add(this.identificationService.createDeviceIdentifierByDatabaseId(Long.valueOf(stringId)));
             }
             return ids;
         }

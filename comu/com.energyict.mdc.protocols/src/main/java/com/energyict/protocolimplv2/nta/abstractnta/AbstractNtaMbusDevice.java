@@ -30,6 +30,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -65,10 +66,11 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     private final int physicalAddress;
     private final TopologyService topologyService;
 
-    public AbstractNtaMbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
+    public AbstractNtaMbusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
         this.propertySpecService = propertySpecService;
         this.topologyService = topologyService;
-        this.meterProtocol = new WebRTUKP(this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService);
+        //TODO, what? wait! Is this even correct?
+        this.meterProtocol = new WebRTUKP(this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }

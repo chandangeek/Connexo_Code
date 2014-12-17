@@ -23,6 +23,7 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
     public static final String RETRIES = "Retries";
     public static final String FORCED_DELAY = "ForcedDelay";
     public static final String DELAY_AFTER_ERROR = "DelayAfterError";
+    public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
 
     public static final TimeDuration DEFAULT_TIMEOUT = TimeDuration.seconds(10);
     public static final String DEFAULT_TIMEZONE = "GMT";

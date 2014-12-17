@@ -15,9 +15,8 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
@@ -42,6 +41,7 @@ public class MeterTopology {
 
     private final AbstractDlmsProtocol protocol;
     private final IssueService issueService;
+    private final IdentificationService identificationService;
     /**
      * The <CODE>ComposedCosemObject</CODE> for requesting all serialNumbers in 1 request
      */
@@ -62,9 +62,10 @@ public class MeterTopology {
      */
     private CollectedTopology deviceTopology;
 
-    public MeterTopology(final AbstractDlmsProtocol protocol, IssueService issueService) {
+    public MeterTopology(final AbstractDlmsProtocol protocol, IssueService issueService, IdentificationService identificationService) {
         this.protocol = protocol;
         this.issueService = issueService;
+        this.identificationService = identificationService;
     }
 
     /**
@@ -123,7 +124,7 @@ public class MeterTopology {
     protected List<DeviceMapping> constructMbusMap() {
         String mbusSerial;
         mbusMap = new ArrayList<>();
-        deviceTopology = this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(protocol.getOfflineDevice().getSerialNumber()));
+        deviceTopology = this.getCollectedDataFactory().createCollectedTopology(protocol.getOfflineDevice().getDeviceIdentifier());
         for (int i = 1; i <= MAX_MBUS_DEVICES; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBIS_CODE, OBIS_CODE_B_FIELD_INDEX, (byte) i);
             if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
@@ -135,7 +136,7 @@ public class MeterTopology {
                     mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
                     if ((mbusSerial != null) && (!"".equalsIgnoreCase(mbusSerial)) && !mbusSerial.equalsIgnoreCase(IGNORE_ZOMBIE_MBUS_DEVICE)) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
-                        deviceTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(mbusSerial));
+                        deviceTopology.addSlaveDevice(this.identificationService.createDeviceIdentifierBySerialNumber(mbusSerial));
                     }
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
@@ -216,7 +217,7 @@ public class MeterTopology {
 
     public CollectedTopology getDeviceTopology() {
         if (deviceTopology == null) {
-            deviceTopology = getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
+            deviceTopology = getCollectedDataFactory().createCollectedTopology(protocol.getOfflineDevice().getDeviceIdentifier());
             deviceTopology.setFailureInformation(ResultType.NotSupported, this.issueService.newWarning(deviceTopology, "devicetopologynotsupported"));
         }
         return deviceTopology;

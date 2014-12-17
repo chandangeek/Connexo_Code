@@ -8,15 +8,19 @@ import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
+import com.energyict.protocols.impl.channels.ip.CTRInboundDialHomeIdConnectionType;
 import com.energyict.protocols.mdc.inbound.general.AbstractDiscover;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -40,8 +44,9 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     DeviceIdentifier deviceIdentifier;
     private RequestFactory requestFactory;
 
-    protected CtrInboundDeviceProtocol(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus) {
-        super(propertySpecService, issueService, readingTypeUtilService, thesaurus);
+    @Inject
+    public CtrInboundDeviceProtocol(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService) {
+        super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService);
     }
 
     @Override
@@ -78,7 +83,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     }
 
     protected void setCallHomeID(String callHomeID) {
-        this.deviceIdentifier = new CTRDialHomeIdDeviceIdentifier(callHomeID);
+        this.deviceIdentifier = getIdentificationService().createDeviceIdentifierByConnectionTaskProperty(CTRInboundDialHomeIdConnectionType.class, BasicDynamicPropertySupport.CALL_HOME_ID_PROPERTY_NAME, callHomeID);
     }
 
     private RequestFactory getRequestFactory() {

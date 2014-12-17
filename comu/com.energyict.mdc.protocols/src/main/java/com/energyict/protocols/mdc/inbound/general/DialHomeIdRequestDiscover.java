@@ -1,12 +1,12 @@
 package com.energyict.protocols.mdc.inbound.general;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
@@ -23,8 +23,8 @@ import java.util.List;
 public class DialHomeIdRequestDiscover extends RequestDiscover {
 
     @Inject
-    public DialHomeIdRequestDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus) {
-        super(propertySpecService, issueService, readingTypeUtilService, thesaurus);
+    public DialHomeIdRequestDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService) {
+        super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class DialHomeIdRequestDiscover extends RequestDiscover {
     @Override
     protected void setSerialNumber(String callHomeId) {
         // The 'SerialId' field contains the unique devices Call Home Id.
-        setDeviceIdentifier(new DialHomeIdDeviceIdentifier(callHomeId));
+        setDeviceIdentifier(getIdentificationService().createDeviceIdentifierByProperty(BasicDynamicPropertySupport.CALL_HOME_ID_PROPERTY_NAME, callHomeId));
     }
 
     @Override

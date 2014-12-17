@@ -2,9 +2,9 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -89,7 +89,7 @@ public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        AS300DPETMessageConverter messageConverter = spy(new AS300DPETMessageConverter());
+        AS300DPETMessageConverter messageConverter = spy(new AS300DPETMessageConverter(identificationService));
         // We stub the encode method, cause CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable() is not subject of this test
         doReturn(XMLEncodedActivityCalendar).when(messageConverter).encode(any(Code.class));
         return messageConverter;

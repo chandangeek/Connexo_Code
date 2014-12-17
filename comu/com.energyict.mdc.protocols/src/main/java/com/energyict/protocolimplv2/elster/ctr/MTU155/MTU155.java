@@ -41,7 +41,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 import com.energyict.protocols.impl.channels.ip.CTRInboundDialHomeIdConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
@@ -284,10 +283,7 @@ public class MTU155 implements DeviceProtocol {
     }
 
     public DeviceIdentifier getDeviceIdentifier() {
-        if (deviceIdentifier == null) {
-            this.deviceIdentifier = new DeviceIdentifierById(offlineDevice.getId());
-        }
-        return deviceIdentifier;
+        return getOfflineDevice().getDeviceIdentifier();
     }
 
     @Override

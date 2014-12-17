@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -26,24 +27,22 @@ import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
 import com.energyict.protocolimplv2.ace4000.requests.ReadMBusRegisters;
 import com.energyict.protocolimplv2.ace4000.requests.ReadMeterEvents;
 import com.energyict.protocolimplv2.ace4000.requests.ReadRegisters;
 import com.energyict.protocolimplv2.ace4000.requests.SetTime;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocols.mdc.protocoltasks.ACE4000DeviceProtocolDialect;
 
 import javax.inject.Inject;
@@ -66,6 +65,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     private final IssueService issueService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final IdentificationService identificationService;
     private OfflineDevice offlineDevice;
     private DeviceProtocolCache deviceCache;
     private Logger logger;
@@ -74,10 +74,11 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private DeviceProtocolSecurityPropertySet securityProperties;
 
     @Inject
-    public ACE4000Outbound(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(propertySpecService);
+    public ACE4000Outbound(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+        super(propertySpecService, identificationService);
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.identificationService = identificationService;
     }
 
     @Override
@@ -264,21 +265,20 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
             readMBusRegistersRequest.request(new ArrayList<>());
         }
 
-        DeviceIdentifierBySerialNumber deviceIdentifier = new DeviceIdentifierBySerialNumber(offlineDevice.getSerialNumber());
-        final CollectedTopology deviceTopology = this.createCollectedTopology(deviceIdentifier);
+        final CollectedTopology deviceTopology = this.createCollectedTopology(offlineDevice.getDeviceIdentifier());
         for (String slaveSerialNumber : objectFactory.getAllSlaveSerialNumbers()) {
-            deviceTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(slaveSerialNumber));
+            deviceTopology.addSlaveDevice(this.identificationService.createDeviceIdentifierBySerialNumber(slaveSerialNumber));
         }
         return deviceTopology;
     }
 
-    private CollectedTopology createCollectedTopology(DeviceIdentifierBySerialNumber deviceIdentifier) {
+    private CollectedTopology createCollectedTopology(DeviceIdentifier deviceIdentifier) {
         return this.getCollectedDataFactory().createCollectedTopology(deviceIdentifier);
     }
 
     public ObjectFactory getObjectFactory() {
         if (objectFactory == null) {
-            objectFactory = new ObjectFactory(this, this.readingTypeUtilService);
+            objectFactory = new ObjectFactory(this, this.readingTypeUtilService, identificationService);
             objectFactory.setInbound(false);
         }
         return objectFactory;

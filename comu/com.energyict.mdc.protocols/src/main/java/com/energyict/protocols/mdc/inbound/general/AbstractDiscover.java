@@ -1,24 +1,23 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
-import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
-import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
-import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
-import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
+import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
+import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
+import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
+import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolImplFactory;
@@ -51,13 +50,15 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     private final IssueService issueService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final Thesaurus thesaurus;
+    private final IdentificationService identificationService;
 
-    protected AbstractDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus) {
+    protected AbstractDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService) {
         super();
         this.propertySpecService = propertySpecService;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.thesaurus = thesaurus;
+        this.identificationService = identificationService;
     }
 
     protected PropertySpecService getPropertySpecService() {
@@ -101,8 +102,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     }
 
     protected void setSerialNumber (String serialNumber) {
-        setDeviceIdentifier(new DeviceIdentifierBySerialNumber(serialNumber));
-        getInboundConnection().updateSerialNumberPlaceHolder(serialNumber);
+        setDeviceIdentifier(this.identificationService.createDeviceIdentifierBySerialNumber(serialNumber));
     }
 
     protected void setDeviceIdentifier(DeviceIdentifier deviceIdentifier) {
@@ -211,4 +211,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
         //No responses for the I and DoubleI Discover
     }
 
+    public IdentificationService getIdentificationService() {
+        return identificationService;
+    }
 }

@@ -8,8 +8,8 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -26,12 +26,14 @@ import java.util.logging.Logger;
 public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtocol {
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final IdentificationService identificationService;
     private InboundDiscoveryContext context;
 
     @Inject
-    public ACE4000Inbound(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public ACE4000Inbound(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, IdentificationService identificationService) {
+        super(propertySpecService, identificationService);
         this.readingTypeUtilService = readingTypeUtilService;
+        this.identificationService = identificationService;
     }
 
     @Override
@@ -73,7 +75,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
         collectedDatas.addAll(getCollectedRegisters());
         collectedDatas.addAll(getObjectFactory().createCollectedLoadProfiles());
 
-        CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+        CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(this.identificationService.createLogbookIdentifierByObisCodeAndDeviceIdentifier(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE, getDeviceIdentifier()));
         collectedDatas.add(deviceLogBook);
 
         return collectedDatas;
@@ -97,7 +99,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
 
     public ObjectFactory getObjectFactory() {
         if (objectFactory == null) {
-            objectFactory = new ObjectFactory(this, this.readingTypeUtilService);
+            objectFactory = new ObjectFactory(this, this.readingTypeUtilService, identificationService);
             objectFactory.setInbound(true);  //Important to store the parsed data in the list of collecteddatas
         }
         return objectFactory;

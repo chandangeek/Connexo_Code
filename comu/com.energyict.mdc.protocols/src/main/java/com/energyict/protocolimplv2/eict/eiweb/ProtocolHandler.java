@@ -13,15 +13,14 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
-
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByDeviceAndObisCode;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -54,13 +53,15 @@ public class ProtocolHandler {
     private CollectedLogBook deviceLogBook;
     private LegacyMessageConverter messageConverter = null;
     private final Clock clock;
+    private final IdentificationService identificationService;
 
-    public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext inboundDiscoveryContext, Cryptographer cryptographer, Clock clock) {
+    public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext inboundDiscoveryContext, Cryptographer cryptographer, Clock clock, IdentificationService identificationService) {
         super();
         this.responseWriter = responseWriter;
         this.inboundDiscoveryContext = inboundDiscoveryContext;
         this.cryptographer = cryptographer;
         this.clock = clock;
+        this.identificationService = identificationService;
     }
 
     private enum ContentType {
@@ -164,13 +165,13 @@ public class ProtocolHandler {
     public void handle(HttpServletRequest request, Logger logger) {
         try {
             setContentType(request);
-            this.packetBuilder = new PacketBuilder(this.cryptographer, logger);
+            this.packetBuilder = new PacketBuilder(this.cryptographer, logger, identificationService);
             this.contentType.dispatch(request, this);
             if (this.packetBuilder.isConfigFileMode()) {
-                this.profileBuilder = new ProfileBuilder(this.packetBuilder);
+                this.profileBuilder = new ProfileBuilder(this.packetBuilder, identificationService);
                 this.processConfigurationInformation(this.profileBuilder);
             } else if ((this.packetBuilder.getVersion() & 0x0080) == 0) {            // bit 8 indicates that the message is an alert
-                this.profileBuilder = new ProfileBuilder(this.packetBuilder);
+                this.profileBuilder = new ProfileBuilder(this.packetBuilder, identificationService);
                 this.processMeterReadings(this.profileBuilder);
                 this.profileBuilder.removeFutureData(logger, this.sevenDaysFromNow());
             } else {
@@ -290,7 +291,7 @@ public class ProtocolHandler {
 
     private CollectedLogBook getDeviceLogBook() {
         if (this.deviceLogBook == null) {
-            this.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByDeviceAndObisCode(getDeviceIdentifier(), LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+            this.getCollectedDataFactory().createCollectedLogBook(this.identificationService.createLogbookIdentifierByObisCodeAndDeviceIdentifier(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE, getDeviceIdentifier()));
         }
         return this.deviceLogBook;
     }

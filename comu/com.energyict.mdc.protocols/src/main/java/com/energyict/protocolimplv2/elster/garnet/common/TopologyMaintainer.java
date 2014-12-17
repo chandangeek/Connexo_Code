@@ -4,10 +4,10 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
-
 import com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
 import com.energyict.protocolimplv2.elster.garnet.RequestFactory;
@@ -15,8 +15,6 @@ import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNumber;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -31,15 +29,17 @@ public class TopologyMaintainer implements DeviceTopologySupport {
 
     private final GarnetConcentrator deviceProtocol;
     private final IssueService issueService;
+    private final IdentificationService identificationService;
 
-    public TopologyMaintainer(GarnetConcentrator deviceProtocol, IssueService issueService) {
+    public TopologyMaintainer(GarnetConcentrator deviceProtocol, IssueService issueService, IdentificationService identificationService) {
         this.deviceProtocol = deviceProtocol;
         this.issueService = issueService;
+        this.identificationService = identificationService;
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        DeviceIdentifier deviceIdentifierOfMaster = new DeviceIdentifierById(getMasterDevice().getId());
+        DeviceIdentifier deviceIdentifierOfMaster = getMasterDevice().getDeviceIdentifier();
         CollectedTopology collectedTopology = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(deviceIdentifierOfMaster);
         try {
             List<DeviceIdentifier> slaveMeters = readListOfSlaveDevices();
@@ -66,7 +66,7 @@ public class TopologyMaintainer implements DeviceTopologySupport {
             List<MeterSerialNumber> serialsOfEMeterSlaves = getRequestFactory().discoverMeters().getMeterSerialNumberCollection();
             for (MeterSerialNumber serialOfSlave : serialsOfEMeterSlaves) {
                 if (!serialOfSlave.getSerialNumber().toLowerCase().equals(INVALID_METER_SERIAL)) {
-                    slaveMeters.add(new SerialNumberDeviceIdentifier(serialOfSlave.getSerialNumber()));
+                    slaveMeters.add(this.identificationService.createDeviceIdentifierBySerialNumber(serialOfSlave.getSerialNumber()));
                 }
             }
         } catch(NotExecutedException e) {

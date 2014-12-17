@@ -9,19 +9,17 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
-
 import com.energyict.protocolimplv2.ace4000.ACE4000;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.Tracker;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import org.w3c.dom.Document;
@@ -51,6 +49,7 @@ public class ObjectFactory {
 
     private final ACE4000 ace4000;
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final IdentificationService identificationService;
     private Acknowledge acknowledge = null;
     private boolean sendAck = false;      //Indicates whether or not the parsed message must be ACK'ed.
     private int requestAttemptNumber = 0;
@@ -96,9 +95,10 @@ public class ObjectFactory {
     private Map<Tracker, RequestState> requestStates = new HashMap<>();
     private Map<Tracker, String> reasonDescriptions = new HashMap<>();
 
-    public ObjectFactory(ACE4000 ace4000, MdcReadingTypeUtilService readingTypeUtilService) {
+    public ObjectFactory(ACE4000 ace4000, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
         this.ace4000 = ace4000;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.identificationService = identificationService;
     }
 
     /**
@@ -868,7 +868,7 @@ public class ObjectFactory {
                         setCurrentSlaveSerialNumber(currentSerialNumber);
                         getMBusBillingData().parse(mdElement);
                         for (RegisterValue registerValue : getMBusBillingData().getMrd().getRegisterValues()) {
-                            getAce4000().getCollectedMBusBillingRegisters().add(createCommonRegister(registerValue, new DeviceIdentifierBySerialNumber(currentSerialNumber)));
+                            getAce4000().getCollectedMBusBillingRegisters().add(createCommonRegister(registerValue, this.identificationService.createDeviceIdentifierBySerialNumber(currentSerialNumber)));
                             getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
                         updateRequestSuccess(new Tracker(RequestType.MBusBillingRegister));
@@ -877,7 +877,7 @@ public class ObjectFactory {
                         setCurrentSlaveSerialNumber(currentSerialNumber);
                         getMBusCurrentReadings().parse(mdElement);
                         for (RegisterValue registerValue : getMBusCurrentReadings().getMrd().getRegisterValues()) {
-                            getAce4000().getCollectedMBusCurrentRegisters().add(createCommonRegister(registerValue, new DeviceIdentifierBySerialNumber(currentSerialNumber)));
+                            getAce4000().getCollectedMBusCurrentRegisters().add(createCommonRegister(registerValue, this.identificationService.createDeviceIdentifierBySerialNumber(currentSerialNumber)));
                             getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
                         updateRequestSuccess(new Tracker(RequestType.MBusCurrentRegister));
@@ -964,7 +964,7 @@ public class ObjectFactory {
         CollectedLoadProfile collectedLoadProfile =
                 this.getCollectedDataFactory().
                         createCollectedLoadProfile(
-                                new LoadProfileIdentifierByObisCodeAndDevice(
+                                this.identificationService.createLoadProfileIdentifierByObisCodeAndDeviceIdentifier(
                                         obisCode,
                                         getAce4000().getDeviceIdentifier()));
         collectedLoadProfile.setCollectedData(getLoadProfile().getProfileData().getIntervalDatas(), getLoadProfile().getProfileData().getChannelInfos());

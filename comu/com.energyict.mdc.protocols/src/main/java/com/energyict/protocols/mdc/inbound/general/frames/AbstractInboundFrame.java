@@ -1,10 +1,10 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocols.mdc.inbound.general.frames.parsing.InboundParameters;
 
 import java.util.ArrayList;
@@ -21,8 +21,8 @@ import java.util.List;
  */
 public abstract class AbstractInboundFrame {
 
-    private final SerialNumberPlaceHolder serialNumberPlaceHolder;
     private final IssueService issueService;
+    private final IdentificationService identificationService;
 
     public enum FrameType {
         REQUEST,
@@ -37,19 +37,15 @@ public abstract class AbstractInboundFrame {
     private InboundParameters inboundParameters = null;
     private List<CollectedData> collectedDatas;
     private String[] parameters = new String[0];
-    private DeviceIdentifierBySerialNumberPlaceHolder deviceIdentifierBySerialNumberPlaceHolder;
+    private DeviceIdentifier deviceIdentifier = null;
 
     protected abstract FrameType getType();
 
-    public AbstractInboundFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService) {
-        this.serialNumberPlaceHolder = serialNumberPlaceHolder;
+    public AbstractInboundFrame(String frame, IssueService issueService, IdentificationService identificationService) {
         this.frame = frame;
         this.issueService = issueService;
+        this.identificationService = identificationService;
         parse();
-    }
-
-    protected SerialNumberPlaceHolder getSerialNumberPlaceHolder() {
-        return serialNumberPlaceHolder;
     }
 
     protected IssueService getIssueService() {
@@ -90,7 +86,7 @@ public abstract class AbstractInboundFrame {
         buildParameterList();
         inboundParameters = new InboundParameters(parameters);  //All frames contain some parameters, parse them here
         inboundParameters.parse();
-
+        this.deviceIdentifier = this.identificationService.createDeviceIdentifierBySerialNumber(inboundParameters.getSerialNumber());
         if (findDevice()) {
             doParse();
         }
@@ -103,8 +99,7 @@ public abstract class AbstractInboundFrame {
      *         false if no unique device could be found
      */
     private boolean findDevice() {
-        this.serialNumberPlaceHolder.setSerialNumber(getInboundParameters().getSerialNumber());
-        device = getDeviceIdentifierBySerialNumberPlaceHolder().findDevice();
+        device = getDeviceIdentifier().findDevice();
         return device != null;
     }
 
@@ -146,10 +141,11 @@ public abstract class AbstractInboundFrame {
         }
     }
 
-    DeviceIdentifierBySerialNumberPlaceHolder getDeviceIdentifierBySerialNumberPlaceHolder(){
-        if(this.deviceIdentifierBySerialNumberPlaceHolder == null){
-            this.deviceIdentifierBySerialNumberPlaceHolder = new DeviceIdentifierBySerialNumberPlaceHolder(serialNumberPlaceHolder);
-        }
-        return this.deviceIdentifierBySerialNumberPlaceHolder;
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
+    }
+
+    public IdentificationService getIdentificationService() {
+        return identificationService;
     }
 }

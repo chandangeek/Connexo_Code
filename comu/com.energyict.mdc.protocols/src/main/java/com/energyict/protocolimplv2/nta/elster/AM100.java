@@ -7,6 +7,7 @@ import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 
 import javax.inject.Inject;
@@ -20,8 +21,8 @@ import javax.inject.Inject;
 public class AM100 extends WebRTUKP {
 
     @Inject
-    public AM100(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService);
+    public AM100(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+        super(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService);
     }
 
     @Override

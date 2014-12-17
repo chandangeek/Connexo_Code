@@ -1,16 +1,14 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.SerialNumberDeviceIdentifier;
+import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
@@ -75,6 +73,7 @@ public class PacketBuilder {
      */
     private static final long SIX_CHANNELS_MASK = 0x0000003FL;
     private static final int BITS_IN_NIBBLE = 4;
+    private final IdentificationService identificationService;
 
     private int version;
     private long mask;
@@ -91,14 +90,15 @@ public class PacketBuilder {
     private List<CollectedData> collectedData = new ArrayList<>();
     private Logger logger;
 
-    public PacketBuilder (Cryptographer cryptographer) {
-        this(cryptographer, Logger.getAnonymousLogger());
+    public PacketBuilder(Cryptographer cryptographer, IdentificationService identificationService) {
+        this(cryptographer, Logger.getAnonymousLogger(), identificationService);
     }
 
-    public PacketBuilder (Cryptographer cryptographer, Logger logger) {
+    public PacketBuilder(Cryptographer cryptographer, Logger logger, IdentificationService identificationService) {
         super();
         this.cryptographer = cryptographer;
         this.logger = logger;
+        this.identificationService = identificationService;
     }
 
     public String getSeq() {
@@ -219,10 +219,10 @@ public class PacketBuilder {
 
     private void parseDeviceIdentifier (int id, String serialNumber) {
         if (id == 0 && serialNumber != null) {
-            this.deviceIdentifier = new SerialNumberDeviceIdentifier(serialNumber);
+            this.deviceIdentifier = this.identificationService.createDeviceIdentifierBySerialNumber(serialNumber);
         }
         else {
-            this.deviceIdentifier = new DeviceIdentifierById(id);
+            this.deviceIdentifier = this.identificationService.createDeviceIdentifierByDatabaseId(id);
         }
     }
 

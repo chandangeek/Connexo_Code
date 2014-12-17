@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.IdentificationFactory;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolInstantiator;
 
@@ -25,15 +26,15 @@ import javax.inject.Inject;
 public class DoubleIframeDiscover extends AbstractDiscover {
 
     @Inject
-    public DoubleIframeDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus) {
-        super(propertySpecService, issueService, readingTypeUtilService, thesaurus);
+    public DoubleIframeDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService) {
+        super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService);
     }
 
     @Override
     public DiscoverResultType doDiscovery() {
         try {
             ComChannel comChannel = this.getComChannel();
-            this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.getIssueService(), this.getReadingTypeUtilService(), this.getThesaurus()));
+            this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), this.getIssueService(), this.getReadingTypeUtilService(), this.getThesaurus(), getIdentificationService()));
             String identificationFrame = getInboundConnection().sendDoubleIRequestAndReadResponse();
             IdentificationFactory identificationFactory = processIdentificationFactory();
             String meterProtocolClass = processMeterProtocolClass(identificationFrame, identificationFactory);

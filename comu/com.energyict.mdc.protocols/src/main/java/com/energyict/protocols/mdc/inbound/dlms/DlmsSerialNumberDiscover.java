@@ -20,6 +20,7 @@ import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
@@ -62,8 +63,8 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private SimpleApplicationServiceObject aso;
 
     @Inject
-    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus) {
-        super(propertySpecService, issueService, readingTypeUtilService, thesaurus);
+    public DlmsSerialNumberDiscover(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, Thesaurus thesaurus, IdentificationService identificationService) {
+        super(propertySpecService, issueService, readingTypeUtilService, thesaurus, identificationService);
         this.issueService = issueService;
     }
 
@@ -87,7 +88,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     private void setInboundConnection() {
         ComChannel comChannel = this.getComChannel();
-        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), issueService, this.getReadingTypeUtilService(), this.getThesaurus()));
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty(), issueService, this.getReadingTypeUtilService(), this.getThesaurus(), getIdentificationService()));
     }
 
     public void init() throws IOException {

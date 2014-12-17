@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
 import org.joda.time.DateTimeConstants;
@@ -58,9 +59,11 @@ public class ProfileBuilder {
     private PacketBuilder packetBuilder;
     private ProfileData profileData = null;
     private List<BigDecimal> meterReadings;
+    private IdentificationService identificationService;
 
-    public ProfileBuilder(PacketBuilder packetBuilder) throws IOException {
+    public ProfileBuilder(PacketBuilder packetBuilder, IdentificationService identificationService) throws IOException {
         this(packetBuilder, Logger.getAnonymousLogger());
+        this.identificationService = identificationService;
     }
 
     public ProfileBuilder(PacketBuilder packetBuilder, Logger logger) throws IOException {
@@ -303,7 +306,7 @@ public class ProfileBuilder {
     }
 
     public void addCollectedData (List<CollectedData> collectedData) {
-        CollectedLoadProfile loadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(new FirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier()));
+        CollectedLoadProfile loadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(this.identificationService.createLoadProfileIdentifierForFirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier()));
         loadProfile.setCollectedData(this.profileData.getIntervalDatas(), this.profileData.getChannelInfos());
         loadProfile.setDoStoreOlderValues(this.profileData.shouldStoreOlderValues());
         collectedData.add(loadProfile);

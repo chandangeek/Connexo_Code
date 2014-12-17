@@ -2,7 +2,7 @@ package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.issues.IssueService;
 
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 /**
  * Copyrights EnergyICT
@@ -17,8 +17,8 @@ public class RequestFrame extends AbstractInboundFrame {
         return FrameType.REQUEST;
     }
 
-    public RequestFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService) {
-        super(frame, serialNumberPlaceHolder, issueService);
+    public RequestFrame(String frame, IssueService issueService, IdentificationService identificationService) {
+        super(frame, issueService, identificationService);
     }
 
     @Override

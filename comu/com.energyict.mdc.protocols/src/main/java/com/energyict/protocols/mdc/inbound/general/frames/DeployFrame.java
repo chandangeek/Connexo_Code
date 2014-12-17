@@ -5,9 +5,7 @@ import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
-
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 /**
  * Copyrights EnergyICT
@@ -22,13 +20,13 @@ public class DeployFrame extends AbstractInboundFrame {
         return FrameType.DEPLOY;
     }
 
-    public DeployFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService) {
-        super(frame, serialNumberPlaceHolder, issueService);
+    public DeployFrame(String frame, IssueService issueService, IdentificationService identificationService) {
+        super(frame, issueService, identificationService);
     }
 
     @Override
     public void doParse() {
-        CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber("CORRECT_MY_SERIALNUMBER"));
+        CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
         String meterType = getInboundParameters().getMeterType();
         //TODO use info for topology
 

@@ -23,6 +23,7 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -72,14 +73,16 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private final IssueService issueService;
     private final TopologyService topologyService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final IdentificationService identificationService;
 
-    protected AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService) {
+    protected AbstractDlmsProtocol(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;
         this.issueService = issueService;
         this.topologyService = topologyService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.identificationService = identificationService;
     }
 
     protected IssueService getIssueService() {
@@ -194,7 +197,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public MeterTopology getMeterTopology() {
         if (this.meterTopology == null) {
-            this.meterTopology = new MeterTopology(this, issueService);
+            this.meterTopology = new MeterTopology(this, issueService, identificationService);
         }
         return meterTopology;
     }

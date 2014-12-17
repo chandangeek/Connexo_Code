@@ -32,7 +32,6 @@ import com.energyict.protocolimplv2.ace4000.requests.FirmwareUpgrade;
 import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
 import com.energyict.protocolimplv2.ace4000.requests.ReadMeterEvents;
 import com.energyict.protocolimplv2.ace4000.requests.WriteConfiguration;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -79,7 +78,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             if (messageContent.contains(READ_EVENTS)) {
                 //TODO what if the offline device has no logbooks configured??
                 ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(ace4000, issueService);
-                List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(new LogBookIdentifierById((int) ace4000.getOfflineDevice().getAllOfflineLogBooks().get(0).getLogBookId()));
+                List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(ace4000.getOfflineDevice().getAllOfflineLogBooks().get(0).getLogBookIdentifier());
                 MeterData meterData = new MeterData();
                 for (MeterProtocolEvent collectedMeterEvent : collectedLogBooks.get(0).getCollectedMeterEvents()) {
                     meterData.addMeterEvent(collectedMeterEvent);

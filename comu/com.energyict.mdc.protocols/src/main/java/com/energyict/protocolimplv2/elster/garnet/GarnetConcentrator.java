@@ -34,6 +34,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.common.TopologyMaintainer;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
@@ -72,14 +73,16 @@ public class GarnetConcentrator implements DeviceProtocol {
     private final SerialComponentService serialComponentService;
     private final IssueService issueService;
     private final Clock clock;
+    private final IdentificationService identificationService;
 
     @Inject
-    public GarnetConcentrator(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, Clock clock) {
+    public GarnetConcentrator(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, Clock clock, IdentificationService identificationService) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;
         this.issueService = issueService;
         this.clock = clock;
+        this.identificationService = identificationService;
     }
 
     @Override
@@ -341,7 +344,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     public TopologyMaintainer getTopologyMaintainer() {
         if (topologyMaintainer == null) {
-            this.topologyMaintainer = new TopologyMaintainer(this, issueService);
+            this.topologyMaintainer = new TopologyMaintainer(this, issueService, identificationService);
         }
         return topologyMaintainer;
     }

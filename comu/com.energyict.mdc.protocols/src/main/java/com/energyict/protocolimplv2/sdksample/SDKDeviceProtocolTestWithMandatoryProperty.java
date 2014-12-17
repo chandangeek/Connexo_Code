@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -30,11 +33,7 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -84,11 +83,13 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
      */
     private TypedProperties typedProperties = TypedProperties.empty();
     private final PropertySpecService propertySpecService;
+    private final IdentificationService identificationService;
 
     @Inject
-    public SDKDeviceProtocolTestWithMandatoryProperty(PropertySpecService propertySpecService) {
+    public SDKDeviceProtocolTestWithMandatoryProperty(PropertySpecService propertySpecService, IdentificationService identificationService) {
         super();
         this.propertySpecService = propertySpecService;
+        this.identificationService = identificationService;
         this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
     }
 
@@ -326,12 +327,12 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final CollectedTopology collectedTopology = this.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(this.offlineDevice.getSerialNumber()));
+        final CollectedTopology collectedTopology = this.getCollectedDataFactory().createCollectedTopology(this.offlineDevice.getDeviceIdentifier());
         if (!is(getSlaveOneSerialNumber()).empty()) {
-            collectedTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(getSlaveOneSerialNumber()));
+            collectedTopology.addSlaveDevice(this.identificationService.createDeviceIdentifierBySerialNumber(getSlaveOneSerialNumber()));
         }
         if (!is(getSlaveTwoSerialNumber()).empty()) {
-            collectedTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(getSlaveTwoSerialNumber()));
+            collectedTopology.addSlaveDevice(this.identificationService.createDeviceIdentifierBySerialNumber(getSlaveTwoSerialNumber()));
         }
         return collectedTopology;
     }

@@ -1,20 +1,16 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
-import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,8 +35,8 @@ public class EventPOFrame extends AbstractInboundFrame {
         return FrameType.EVENTP0;
     }
 
-    public EventPOFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder, IssueService issueService) {
-        super(frame, serialNumberPlaceHolder, issueService);
+    public EventPOFrame(String frame, IssueService issueService, IdentificationService identificationService) {
+        super(frame, issueService, identificationService);
     }
 
     @Override
@@ -48,11 +44,10 @@ public class EventPOFrame extends AbstractInboundFrame {
         List<MeterProtocolEvent> meterEvents = new ArrayList<>();
         LogBookIdentifier logBookIdentifier;
         BaseDevice device = this.getDevice();
-        BaseLogBook genericLogBook = this.findGenericLogBook(device);
         if (!device.getLogBooks().isEmpty()) {
-            logBookIdentifier = new LogBookIdentifierById((int) genericLogBook.getId());
+            logBookIdentifier = getIdentificationService().createLogbookIdentifierByObisCodeAndDeviceIdentifier(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE, getDeviceIdentifier());
         } else {
-            getCollectedDatas().add(this.getCollectedDataFactory().createNoLogBookCollectedData(new DeviceIdentifierBySerialNumber(getInboundParameters().getSerialNumber())));
+            getCollectedDatas().add(this.getCollectedDataFactory().createNoLogBookCollectedData(getDeviceIdentifier()));
             return;
         }
 
@@ -78,17 +73,6 @@ public class EventPOFrame extends AbstractInboundFrame {
             deviceLogBook.setMeterEvents(meterEvents);
             getCollectedDatas().add(deviceLogBook);
         }
-    }
-
-    protected BaseLogBook findGenericLogBook(BaseDevice device) {
-        List<LogBookFactory> factories = Environment.DEFAULT.get().getApplicationContext().getModulesImplementing(LogBookFactory.class);
-        for (LogBookFactory factory : factories) {
-            BaseLogBook genericLogBook = factory.findGenericLogBook(device);
-            if (genericLogBook != null) {
-                return genericLogBook;
-            }
-        }
-        return null;
     }
 
     private Date parseTimeStampString(String timeStampString) {

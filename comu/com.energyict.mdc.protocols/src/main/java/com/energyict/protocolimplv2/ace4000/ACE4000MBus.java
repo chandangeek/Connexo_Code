@@ -3,14 +3,12 @@ package com.energyict.protocolimplv2.ace4000;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
-
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -27,8 +25,8 @@ import java.util.List;
 public class ACE4000MBus extends ACE4000Outbound {
 
     @Inject
-    public ACE4000MBus(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(propertySpecService, issueService, readingTypeUtilService);
+    public ACE4000MBus(PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
+        super(propertySpecService, issueService, readingTypeUtilService, identificationService);
     }
 
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {

@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -53,6 +54,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialComponentService;
+    private volatile IdentificationService identificationService;
 
     private Injector injector;
 
@@ -63,7 +65,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, Clock clock, OrmService ormService, NlsService nlsService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
@@ -74,6 +76,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         this.setSocketService(socketService);
         this.setSerialComponentService(serialComponentService);
         this.setReadingTypeUtilService(readingTypeUtilService);
+        this.setIdentificationService(identificationService);
         this.activate();
         this.install();
     }
@@ -99,6 +102,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 bind(SerialComponentService.class).toInstance(serialComponentService);
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
+                bind(IdentificationService.class).toInstance(identificationService);
                 bind(DeviceProtocolService.class).toInstance(DeviceProtocolServiceImpl.this);
             }
         };
@@ -184,6 +188,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Reference
     public void setSerialComponentService(SerialComponentService serialComponentService) {
         this.serialComponentService = serialComponentService;
+    }
+
+    @Reference
+    public void setIdentificationService(IdentificationService identificationService) {
+        this.identificationService = identificationService;
     }
 
     @Override

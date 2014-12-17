@@ -32,6 +32,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
 import com.energyict.protocolimplv2.abnt.common.LoadProfileBuilder;
@@ -45,7 +46,6 @@ import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.NoSecuritySupport;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
@@ -77,13 +77,15 @@ public class A1055 extends AbstractAbntProtocol {
     private final SerialComponentService serialComponentService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final IssueService issueService;
+    private final IdentificationService identificationService;
 
     @Inject
-    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService) {
+    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IssueService issueService, IdentificationService identificationService) {
         this.propertySpecService = propertySpecService;
         this.serialComponentService = serialComponentService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.issueService = issueService;
+        this.identificationService = identificationService;
     }
 
     @Override
@@ -282,7 +284,7 @@ public class A1055 extends AbstractAbntProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(getOfflineDevice().getId()));
+        return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedTopology(getOfflineDevice().getDeviceIdentifier());
     }
 
     public AbntProperties getProperties() {
