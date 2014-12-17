@@ -129,6 +129,7 @@ public class DynamicDeviceGroupImplIT {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(Operator.EQUAL.compare("id", 15).or(Operator.EQUAL.compare("mRID", ED_MRID)));
             queryEndDeviceGroup.setMRID("mine");
+            queryEndDeviceGroup.setName("mine");
             queryEndDeviceGroup.setQueryProviderName(SimpleEndDeviceQueryProvider.SIMPLE_ENDDEVICE_QUERYPRVIDER);
             queryEndDeviceGroup.save();
             ctx.commit();
