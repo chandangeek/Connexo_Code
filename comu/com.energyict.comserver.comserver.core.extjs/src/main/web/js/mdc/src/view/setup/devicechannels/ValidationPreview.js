@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.ValidationPreview', {
+Ext.define('Mdc.view.setup.devicechannels.ValidationPreview', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.deviceloadprofilechannelspreview-validation',
     itemId: 'deviceloadprofilechannelspreviewvalidation',

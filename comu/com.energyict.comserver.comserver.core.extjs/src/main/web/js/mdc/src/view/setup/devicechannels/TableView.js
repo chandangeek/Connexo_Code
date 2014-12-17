@@ -1,11 +1,11 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.TableView', {
+Ext.define('Mdc.view.setup.devicechannels.TableView', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.deviceLoadProfileChannelTableView',
     itemId: 'deviceLoadProfileChannelTableView',
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.view.setup.deviceloadprofilechannels.DataGrid',
-        'Mdc.view.setup.deviceloadprofilechannels.DataPreview'
+        'Mdc.view.setup.devicechannels.DataGrid',
+        'Mdc.view.setup.devicechannels.DataPreview'
     ],
 
     channel: null,

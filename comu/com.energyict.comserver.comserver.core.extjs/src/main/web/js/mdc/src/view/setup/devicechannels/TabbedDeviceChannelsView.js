@@ -1,10 +1,10 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.TabbedDeviceChannelsView', {
+Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.tabbedDeviceChannelsView',
     itemId: 'tabbedDeviceChannelsView',
     requires: [
         'Uni.view.toolbar.PreviousNextNavigation',
-        'Mdc.view.setup.deviceloadprofilechannels.SideFilter'
+        'Mdc.view.setup.devicechannels.SideFilter'
     ],
     router: null,
     channelsListLink: null,
