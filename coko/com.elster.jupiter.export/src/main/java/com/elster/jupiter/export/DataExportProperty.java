@@ -10,6 +10,8 @@ public interface DataExportProperty extends HasName {
 
     Object getValue();
 
+    boolean useDefault();
+
     void setValue(Object value);
 
     void save();

@@ -136,11 +136,14 @@ class DataExportTaskExecutor implements TaskExecutor {
         List<DataExportProperty> dataExportProperties = task.getDataExportProperties();
         DataProcessorFactory dataProcessorFactory = getDataProcessorFactory(task.getDataFormatter());
         for (DataExportProperty property : dataExportProperties) {
-            propertyMap.put(property.getName(), property.getValue() != null ? property.getValue() :
-                    dataProcessorFactory.getProperties().stream().filter(dep -> dep.getName().equals(property.getName()))
-                            .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault());
+            propertyMap.put(property.getName(), property.useDefault() ? getDefaultValue(dataProcessorFactory, property) : property.getValue());
         }
         return dataProcessorFactory.createDataFormatter(propertyMap);
+    }
+
+    private Object getDefaultValue(DataProcessorFactory dataProcessorFactory, DataExportProperty property) {
+        return dataProcessorFactory.getProperties().stream().filter(dep -> dep.getName().equals(property.getName()))
+                .findFirst().orElseThrow(IllegalArgumentException::new).getPossibleValues().getDefault();
     }
 
     private DataProcessorFactory getDataProcessorFactory(String dataFormatter) {

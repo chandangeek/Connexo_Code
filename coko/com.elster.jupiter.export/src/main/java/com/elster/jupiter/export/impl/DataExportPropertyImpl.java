@@ -72,6 +72,11 @@ final class DataExportPropertyImpl implements DataExportProperty, PersistenceAwa
         this.stringValue = toStringValue(value);
     }
 
+    @Override
+    public boolean useDefault() {
+        return stringValue == null;
+    }
+
     @SuppressWarnings("unchecked")
     private String toStringValue(Object object) {
         return propertySpec.getValueFactory().toStringValue(object);
