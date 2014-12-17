@@ -63,8 +63,11 @@ public class AppServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{appserverName}")
     public AppServerInfo getAppServer(@PathParam("appserverName") String appServerName) {
-        AppServer appServer = appService.findAppServer(appServerName).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return AppServerInfo.of(appServer);
+        return AppServerInfo.of(fetchAppServer(appServerName));
+    }
+
+    private AppServer fetchAppServer(String appServerName) {
+        return appService.findAppServer(appServerName).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @POST
@@ -87,6 +90,19 @@ public class AppServerResource {
                 underConstruction.deactivate();
             }
             appServer = underConstruction;
+            context.commit();
+        }
+        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer)).build();
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{appserverName}")
+    public Response updateAppServer(AppServerInfo info) {
+        AppServer appServer = fetchAppServer(info.name);
+        try(TransactionContext context = transactionService.getContext()) {
+            AppServer.BatchUpdate batchUpdate = appServer.forBatchUpdate();
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer)).build();
