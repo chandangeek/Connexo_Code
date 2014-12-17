@@ -53,7 +53,7 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
     }
 
     private void validateNotUsed() {
-        this.eventService.postEvent(EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic(), this);
+        this.eventService.postEvent(EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic(), new EndDeviceGroupEvent(this));
     }
 
     // ORM inheritance map

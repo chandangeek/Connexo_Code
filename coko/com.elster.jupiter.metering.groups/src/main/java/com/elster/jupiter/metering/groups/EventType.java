@@ -33,9 +33,7 @@ public enum EventType {
                 .category("Crud")
                 .scope("System")
                 .shouldPublish()
-                .withProperty("id", ValueType.LONG, "id")
-                .withProperty("version", ValueType.LONG, "version")
-                .withProperty("MRID", ValueType.STRING, "MRID");
+                .withProperty("id", ValueType.LONG, "id");
         addCustomProperties(builder).create().save();
     }
 
