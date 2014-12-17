@@ -17,7 +17,7 @@ public class Activator implements BundleActivator {
     public static final String APP_NAME = "Facts";
     public static final String APP_ICON = "connexo";
 
-    public static final String HTTP_RESOURCE_ALIAS = "/reports";
+    public static final String HTTP_RESOURCE_ALIAS = "/facts";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/yellowfin";
 
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
