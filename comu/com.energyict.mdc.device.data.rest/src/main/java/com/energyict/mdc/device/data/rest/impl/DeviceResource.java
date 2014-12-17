@@ -14,13 +14,24 @@ import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.TopologyTimeline;
+import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -40,29 +51,16 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 @Path("/devices")
 public class DeviceResource {
     private static final int RECENTLY_ADDED_COUNT = 5;
 
     private final DeviceImportService deviceImportService;
     private final DeviceService deviceService;
+    private final TopologyService topologyService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final IssueService issueService;
-    private final TopologyService topologyService;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
     private final Provider<LogBookResource> logBookResourceProvider;
@@ -81,15 +79,16 @@ public class DeviceResource {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
+    private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
 
     @Inject
     public DeviceResource(
             ResourceHelper resourceHelper,
             DeviceImportService deviceImportService,
             DeviceService deviceService,
+            TopologyService topologyService,
             DeviceConfigurationService deviceConfigurationService,
             IssueService issueService,
-            TopologyService topologyService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileResource> loadProfileResourceProvider,
             Provider<LogBookResource> logBookResourceProvider,
@@ -105,16 +104,17 @@ public class DeviceResource {
             DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory,
             DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory,
             Provider<SecurityPropertySetResource> securityPropertySetResourceProvider,
-            Provider<ConnectionMethodResource> connectionMethodResourceProvider,
             Provider<DeviceLabelResource> deviceLabelResourceProvider,
-            Provider<ChannelResource> channelsOnDeviceResourceProvider) {
+            Provider<ConnectionMethodResource> connectionMethodResourceProvider,
+            Provider<ChannelResource> channelsOnDeviceResourceProvider,
+            Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider) {
 
         this.resourceHelper = resourceHelper;
         this.deviceImportService = deviceImportService;
         this.deviceService = deviceService;
+        this.topologyService = topologyService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.issueService = issueService;
-        this.topologyService = topologyService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileResourceProvider = loadProfileResourceProvider;
         this.logBookResourceProvider = logBookResourceProvider;
@@ -133,6 +133,7 @@ public class DeviceResource {
         this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
         this.deviceMessageCategoryInfoFactory = deviceMessageCategoryInfoFactory;
         this.channelsOnDeviceResourceProvider = channelsOnDeviceResourceProvider;
+        this.devicePropertyResourceProvider = devicePropertyResourceProvider;
     }
 
 
@@ -140,7 +141,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getAllDevices(@BeanParam QueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
-        Condition condition = null;
+        Condition condition;
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
         if (uriParams.containsKey("filter")) {
             condition = resourceHelper.getQueryConditionForDevice(uriInfo.getQueryParameters());
@@ -171,7 +172,7 @@ public class DeviceResource {
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
 
         this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
-        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, deviceService, issueService);
+        return DeviceInfo.from(newDevice, getSlaveDevicesForDevice(newDevice), deviceImportService, topologyService, issueService);
     }
     
     @PUT
@@ -187,22 +188,22 @@ public class DeviceResource {
             Device gateway = resourceHelper.findDeviceByMrIdOrThrowException(info.masterDevicemRID);
             topologyService.setPhysicalGateway(device, gateway);
         }
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService);
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService);
     }
 
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
         List<DeviceTopologyInfo> slaves;
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
-            slaves = DeviceTopologyInfo.from(deviceService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
         } else {
-            slaves = DeviceTopologyInfo.from(device.getPhysicalConnectedDevices());
+            slaves = DeviceTopologyInfo.from(topologyService.findPhysicalConnectedDevices(device));
         }
         return slaves;
     }
 
     @DELETE
     @Path("/{mRID}")
-    @RolesAllowed(Privileges.DELETE_DEVICE)
+    @RolesAllowed(Privileges.REMOVE_DEVICE)
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteDevice(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
@@ -216,7 +217,7 @@ public class DeviceResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public DeviceInfo findDeviceTypeBymRID(@PathParam("mRID") String id, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService);
+        return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, topologyService, issueService);
     }
 
     /**
@@ -321,17 +322,23 @@ public class DeviceResource {
     public SecurityPropertySetResource getSecurityPropertySetResource() {
         return securityPropertySetResourceProvider.get();
     }
-    
+
+    @Path("/{mRID}/protocols")
+    public DeviceProtocolPropertyResource getDevicePropertyResource(@PathParam("mRID") String mRID) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        return devicePropertyResourceProvider.get().with(device);
+    }
+
     @Path("/{mRID}/devicelabels")
     public DeviceLabelResource getDeviceLabelResource() {
         return deviceLabelResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/connections")
     public ConnectionResource getConnectionResource() {
         return connectionResourceProvider.get();
     }
-    
+
     @Path("/{mRID}/communications")
     public CommunicationResource getCommunicationResource() {
         return communicationResourceProvider.get();
@@ -346,7 +353,7 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})    public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam QueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        TopologyTimeline timeline = deviceService.getPysicalTopologyTimeline(device);
+        TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
         Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate)
                 .sorted(Comparator.comparing(Device::getmRID));
@@ -370,7 +377,7 @@ public class DeviceResource {
     }
 
     private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, String> extractor) {
-        Pattern filterPattern = getFilterPattern(name, filter.getString(name));
+        Pattern filterPattern = getFilterPattern(filter.getString(name));
         if (filterPattern != null) {
             return predicate.and(d -> {
                 String stringToSearch = extractor.apply(d);
@@ -411,11 +418,12 @@ public class DeviceResource {
      * @param filter the filter expression
      * @return search pattern
      */
-    private Pattern getFilterPattern(String name, String filter) {
+    private Pattern getFilterPattern(String filter) {
         if (filter != null) {
             filter = Pattern.quote(filter.replace('%', '*'));
             return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
         }
         return null;
     }
+
 }
