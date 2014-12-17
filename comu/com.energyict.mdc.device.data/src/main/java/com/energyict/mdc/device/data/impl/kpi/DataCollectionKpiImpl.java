@@ -14,9 +14,11 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
@@ -28,6 +30,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -227,6 +230,17 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         this.deleteKPIs();
         this.dataModel.remove(this);
         this.deleteRecurrentTasks();
+    }
+
+    @Override
+    public Optional<Instant> getLatestCalculation() {
+        return Stream.of(connectionKpiTask, communicationKpiTask).
+            map(Reference::getOptional).
+            flatMap(Functions.asStream()).
+            map(RecurrentTask::getLastOccurrence).
+            flatMap(Functions.asStream()).
+            map(TaskOccurrence::getTriggerTime).
+            max(Comparator.nullsLast(Comparator.<Instant>naturalOrder()));
     }
 
     private void deleteKPIs () {

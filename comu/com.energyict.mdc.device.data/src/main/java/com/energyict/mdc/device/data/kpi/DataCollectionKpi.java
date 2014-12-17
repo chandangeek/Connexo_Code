@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
@@ -96,4 +97,9 @@ public interface DataCollectionKpi extends HasId {
 
     public void delete();
 
+    /**
+     *
+     * @return the most recent Instant either a connection task or communication task KPI was calculated by a recurrent task
+     */
+    public Optional<Instant> getLatestCalculation();
 }
