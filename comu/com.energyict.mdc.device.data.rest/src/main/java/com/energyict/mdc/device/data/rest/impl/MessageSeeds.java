@@ -194,7 +194,7 @@ public enum MessageSeeds implements MessageSeed {
     RUN_CONNECTIONTASK_IMPOSSIBLE(224,"runConTaskImpossible", "Running of this connection task is impossible"),
     NO_SUCH_COMMUNICATION(225, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),
     NO_SUCH_KPI(226, "NoSuchKpi", "No data collection with id ''{0}'' could be found"),
-    ;
+    NO_SUCH_DEVICE_GROUP(227, "NoSuchDeviceGroup", "No end device group with id ''{0}''");
 
 
     private final int number;

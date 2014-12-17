@@ -12,6 +12,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,6 +20,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -53,6 +55,16 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(model.<Double>get("communicationTarget")).isEqualTo(15.8);
         assertThat(model.<Double>get("connectionTarget")).isNull();
         assertThat(model.<Instant>get("latestCalculationDate")).isEqualTo(10000000);
+    }
+
+    @Test
+    public void testDeleteKpi() throws Exception {
+        long kpiId = 71L;
+        DataCollectionKpi kpiMock = mockKpi(kpiId, mockDeviceGroup("end device group bis", 2));
+        when(dataCollectionKpiService.findDataCollectionKpi(71L)).thenReturn(Optional.of(kpiMock));
+        Response response = target("/kpis/71").request().delete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(kpiMock).delete();
     }
 
     private DataCollectionKpi mockKpi(long kpiId, QueryEndDeviceGroup endDeviceGroup) {
