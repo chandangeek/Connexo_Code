@@ -70,8 +70,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             store = Ext.getStore(me.store);
 
         me.callParent(arguments);
-
-        if (me.router && me.routerIdArgument && store && store.getCount() > 1) {
+        if (me.router && me.routerIdArgument && store) {
             me.initToolbar(store);
         } else {
             me.hide();
