@@ -29,6 +29,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
     ],
 
     refs: [
+        {ref: 'page', selector: 'deviceGroupSetup'},
         {ref: 'deviceGroupsGrid', selector: '#deviceGroupsGrid'},
         {ref: 'deviceGroupPreviewForm', selector: '#deviceGroupPreviewForm'},
         {ref: 'deviceGroupPreview', selector: '#deviceGroupPreview'},
@@ -232,10 +233,42 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             case 'editDeviceGroup':
                 route = 'devices/devicegroups/view/edit';
                 break;
+            case 'deleteDeviceGroup':
+                me.removeDeviceGroup(menu.record);
+                break;
         }
         me.getDeviceGroupsGrid() ? additionalParams.fromDetails = false : additionalParams.fromDetails = true;
         route && (route = router.getRoute(route));
         route && route.forward(router.arguments, additionalParams);
+    },
+
+    removeDeviceGroup: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+
+        confirmationWindow.show({
+            msg: Uni.I18n.translate('deviceGroup.remove.msg', 'MDC', 'This device group will no longer be available.'),
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + record.data.name + '?',
+            fn: function (state) {
+                if (state === 'confirm') {
+                    record.destroy({
+                        success: function () {
+                            if (me.getPage()) {
+                                var grid = me.getPage().down('deviceGroupsGrid');
+                                grid.down('pagingtoolbartop').totalCount = 0;
+                                grid.down('pagingtoolbarbottom').resetPaging();
+                                grid.getStore().load();
+                            } else {
+                                me.getController('Uni.controller.history.Router').getRoute('devices/devicegroups').forward();
+                            }
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.remove.success.msg', 'MDC', 'Device group removed'));
+                        }
+                    });
+                } else if (state === 'cancel') {
+                    this.close();
+                }
+            }
+        });
     }
 });
 
