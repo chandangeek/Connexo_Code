@@ -24,7 +24,7 @@ Ext.define('Uni.view.menu.SideMenu', {
     extend: 'Ext.menu.Menu',
     xtype: 'uni-view-menu-side',
     floating: false,
-    ui: 'side-menu', // TODO Rename to 'menu-side'.
+    ui: 'menu-side',
     plain: true,
     width: 256,
 
@@ -42,7 +42,7 @@ Ext.define('Uni.view.menu.SideMenu', {
         align: 'stretch'
     },
 
-    activeItemCls: 'current', // TODO Rename to 'active-item'.
+    activeItemCls: 'item-active',
 
     /**
      * @cfg menuItems
@@ -110,6 +110,22 @@ Ext.define('Uni.view.menu.SideMenu', {
         }
     },
 
+    applyMenuDefaults: function (config) {
+        Ext.applyIf(config, {
+            xtype: 'menu',
+            floating: false,
+            plain: true,
+            ui: 'menu-side-sub',
+
+            // TODO Make the menus collapsible.
+
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            }
+        });
+    },
+
     addSubMenuItems: function (menu) {
         var me = this,
             subItems = menu.items;
@@ -132,19 +148,6 @@ Ext.define('Uni.view.menu.SideMenu', {
 
             menu.items.push(item);
         }
-    },
-
-    applyMenuDefaults: function (config) {
-        Ext.applyIf(config, {
-            xtype: 'menu',
-            floating: false,
-            plain: true,
-
-            layout: {
-                type: 'vbox',
-                align: 'stretch'
-            }
-        });
     },
 
     clearSelection: function (items) {
@@ -179,23 +182,65 @@ Ext.define('Uni.view.menu.SideMenu', {
 
     checkSelectedItems: function (items, token) {
         var me = this,
+            selection = me.getMostQualifiedItems(items, token);
+
+        if (typeof selection !== 'undefined') {
+            selection.item.addCls(me.activeItemCls);
+        }
+    },
+
+    /**
+     * Checks which item is best to be selected based on the currently selected URL.
+     * @param items
+     * @param token
+     * @param selectionFitness
+     */
+    getMostQualifiedItems: function (items, token, selection) {
+        var me = this,
+            fullToken = '#' + token,
             href,
-            subItems;
+            subItems,
+            item,
+            currentFitness;
 
         for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-
+            item = items[i];
             href = item.href;
             subItems = item.items ? item.items.items : undefined;
 
-            if (Ext.isDefined(href) && href !== null && Ext.String.endsWith(href, '#' + token)) {
-                item.addCls(me.activeItemCls);
+            if (Ext.isDefined(href) && href !== null && Ext.String.startsWith(fullToken, href)) {
+                // How many characters are different from the full token length.
+                currentFitness = fullToken.length - href.length;
+
+                selection = me.pickBestSelection(selection, {
+                    item: item,
+                    fitness: currentFitness
+                });
             }
 
             // Recursively check the items.
             if (Ext.isDefined(subItems) && Ext.isArray(subItems)) {
-                me.checkSelectedItems(subItems, token);
+                selection = me.pickBestSelection(
+                    selection,
+                    me.getMostQualifiedItems(subItems, token, selection)
+                );
             }
+        }
+
+        return selection;
+    },
+
+    pickBestSelection: function (a, b) {
+        if (a && !b) {
+            return a;
+        } else if (!a && b) {
+            return b
+        }
+
+        if (a.fitness <= b.fitness) {
+            return a
+        } else if (a.fitness > b.fitness) {
+            return b
         }
     }
 });
