@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.energyict.mdc.common.rest.IntervalInfo;
@@ -38,6 +39,9 @@ public class ChannelDataInfo {
     @JsonProperty("value")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal value;
+    @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
+    public BigDecimal collectedValue;
+    public boolean isBulk;
 
     @JsonProperty("validationStatus")
     public Boolean validationStatus;
@@ -66,7 +70,12 @@ public class ChannelDataInfo {
             Channel valueOwnerChannel = null;
             for (Map.Entry<Channel, IntervalReadingRecord> entry : loadProfileReading.getChannelValues().entrySet()) {
                 valueOwnerChannel = entry.getKey();
+                channelIntervalInfo.isBulk = valueOwnerChannel.getReadingType().isCumulative();
                 channelIntervalInfo.value = entry.getValue().getValue(); // There can be only one channel (or no channel at all if the channel has no dta for this interval)
+                if (channelIntervalInfo.isBulk) {
+                    Quantity quantity = entry.getValue().getQuantity(valueOwnerChannel.getReadingType());
+                    channelIntervalInfo.collectedValue = quantity != null ?  quantity.getValue() : null;
+                }
                 channelIntervalInfo.modificationFlag = ReadingModificationFlag.getFlag(entry.getValue());
                 channelIntervalInfo.reportedDateTime = entry.getValue().getReportedDateTime();
             }
@@ -75,8 +84,9 @@ public class ChannelDataInfo {
                 channelIntervalInfo.reportedDateTime = loadProfileReading.getReadingTime();
             }
  
-            if (channelIntervalInfo.value != null && valueOwnerChannel != null){
-                channelIntervalInfo.value= channelIntervalInfo.value.setScale(valueOwnerChannel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP);
+            if (valueOwnerChannel != null){
+                channelIntervalInfo.value = getRoundedBigDecimal(channelIntervalInfo.value, valueOwnerChannel);
+                channelIntervalInfo.collectedValue = getRoundedBigDecimal(channelIntervalInfo.collectedValue, valueOwnerChannel);
             }
             Set<Map.Entry<Channel, DataValidationStatus>> states = loadProfileReading.getChannelValidationStates().entrySet();    //  only one channel
             for (Map.Entry<Channel, DataValidationStatus> entry : states) {
@@ -94,4 +104,7 @@ public class ChannelDataInfo {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value);
     }
 
+    private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
+        return value != null ? value.setScale(channel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
+    }
 }

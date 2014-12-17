@@ -173,6 +173,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         }
 
         @Override
+        public Optional<ReadingType> getCalculatedReadingType() {
+            return Optional.empty();
+        }
+
+        @Override
         public boolean isRegular() {
             return false;
         }
@@ -551,6 +556,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(clock.instant()).thenReturn(NOW);
         when(channel1.getDevice()).thenReturn(device1);
         when(channel2.getDevice()).thenReturn(device1);
+        when(channel1.getLoadProfile()).thenReturn(loadProfile1);
+        when(channel2.getLoadProfile()).thenReturn(loadProfile1);
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(device1.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.getValidationStatus(any(Channel.class), any())).thenReturn(Collections.emptyList());
@@ -662,7 +669,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel1.getChannelData(any(Interval.class))).thenReturn(loadProfileReadings);
 
 
-        Map response = target("/devices/mrid2/loadprofiles/3/channels/7/data")
+        Map response = target("/devices/mrid2/channels/7/data")
                 .queryParam("intervalStart", startTime)
                 .queryParam("intervalEnd", 1391212800000L)
                 .queryParam("start", 0)

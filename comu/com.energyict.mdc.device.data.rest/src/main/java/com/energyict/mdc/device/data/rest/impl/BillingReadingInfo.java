@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
+import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Range;
 
@@ -23,6 +24,7 @@ import java.util.Set;
 public class BillingReadingInfo extends ReadingInfo {
     @JsonProperty("value")
     public BigDecimal value;
+    public BigDecimal deltaValue;
     @JsonProperty("unitOfMeasure")
     @XmlJavaTypeAdapter(UnitAdapter.class)
     public Unit unitOfMeasure;

@@ -12,6 +12,7 @@ import com.energyict.mdc.common.rest.PagedInfoList;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -23,10 +24,13 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -70,11 +74,40 @@ public class RegisterDataResource {
                 validationStatusForRegister, dataValidationStatuses);
         readingInfos = filter(readingInfos, uriInfo.getQueryParameters());
 
-        List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos, ((ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp))).from(queryParameters).find();
+        // sort the list of readings
+        Collections.sort(readingInfos, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
+        /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.
+           The Delta value won't be stored in the database yet, as it has a performance impact */
+        if (register.getReadingType().isCumulative()){
+            for (int i = queryParameters.getStart() + 1; i < queryParameters.getStart() + queryParameters.getLimit() && i < readingInfos.size(); i++){
+                calculateDeltaForNumericalReading(readingInfos.get(i - 1), readingInfos.get(i));
+                calculateDeltaForBillingReading(readingInfos.get(i - 1), readingInfos.get(i));
+            }
+        }
+        List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
         return PagedInfoList.asJson("data", paginatedReadingInfo, queryParameters);
     }
 
+    private void calculateDeltaForNumericalReading(ReadingInfo previous, ReadingInfo current){
+        if (previous != null && current != null && current instanceof NumericalReadingInfo){
+            NumericalReadingInfo prevCasted = (NumericalReadingInfo) previous;
+            NumericalReadingInfo curCasted = (NumericalReadingInfo) current;
+            if (prevCasted.value != null && curCasted.value != null) {
+                curCasted.deltaValue = curCasted.value.subtract(prevCasted.value);
+                curCasted.deltaValue = curCasted.deltaValue.setScale(curCasted.value.scale(), BigDecimal.ROUND_UP);
+            }
+        }
+    }
 
+    private void calculateDeltaForBillingReading(ReadingInfo previous, ReadingInfo current){
+        if (previous != null && current != null && current instanceof BillingReadingInfo){
+            BillingReadingInfo prevCasted = (BillingReadingInfo) previous;
+            BillingReadingInfo curCasted = (BillingReadingInfo) current;
+            if (prevCasted.value != null && curCasted.value != null) {
+                curCasted.deltaValue = curCasted.value.subtract(prevCasted.value);
+            }
+        }
+    }
     @GET
     @Path("/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON)

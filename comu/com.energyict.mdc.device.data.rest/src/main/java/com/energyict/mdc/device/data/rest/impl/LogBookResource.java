@@ -4,6 +4,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -62,8 +64,8 @@ public class LogBookResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("{lbid}")
+    @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     public Response getLogBook(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -72,16 +74,29 @@ public class LogBookResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     @Path("{lbid}/data")
+    @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getLogBookData(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters)
-    {
+    public Response getLogBookDataForSpecificLogbook(@PathParam("mRID") String mrid, @PathParam("lbid") long logBookId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters){
+        return this.getLogBookData(mrid, (d, f) -> {
+            LogBook logBook = findLogBookOrThrowException(d, logBookId);
+            return logBook.getEndDeviceEventsByFilter(f);
+        }, jsonQueryFilter, queryParameters);
+    }
+
+    @GET
+    @Path("/data")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    public Response getLogBookDataForDevice(@PathParam("mRID") String mrid, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam QueryParameters queryParameters){
+        return this.getLogBookData(mrid, (d, f) -> d.getDeviceEventsByFilter(f), jsonQueryFilter, queryParameters);
+    }
+
+    private Response getLogBookData(String mrid, BiFunction<Device, EndDeviceEventRecordFilterSpecification, List<EndDeviceEventRecord>> eventProvider, JsonQueryFilter jsonQueryFilter, QueryParameters queryParameters){
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        LogBook logBook = findLogBookOrThrowException(device, logBookId);
         try {
             EndDeviceEventRecordFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
-            List<EndDeviceEventRecord> endDeviceEvents = logBook.getEndDeviceEventsByFilter(filter);
+            List<EndDeviceEventRecord> endDeviceEvents = eventProvider.apply(device, filter);
             List<EndDeviceEventRecord> pagedEndDeviceEvents = ListPager.of(endDeviceEvents).from(queryParameters).find();
             return Response.ok(PagedInfoList.asJson("data", LogBookDataInfo.from(pagedEndDeviceEvents, thesaurus), queryParameters)).build();
         } catch (IllegalArgumentException | IllegalEnumValueException e) {

@@ -23,6 +23,8 @@ public class NumericalReadingInfo extends ReadingInfo {
     @JsonProperty("value")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal value;
+    @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
+    public BigDecimal deltaValue;
     @JsonProperty("rawValue")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal rawValue;

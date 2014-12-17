@@ -17,6 +17,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITH_PRIVILEGES;
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.SHOW_VALUES;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -52,8 +55,8 @@ public class SecurityPropertySetInfoFactory {
         TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
 
         securityPropertySetInfo.properties = new ArrayList<>();
-        MdcPropertyUtils.ValueVisibility valueVisibility = securityPropertySetInfo.userHasViewPrivilege && securityPropertySetInfo.userHasEditPrivilege ? MdcPropertyUtils.ValueVisibility.SHOW_VALUES : MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
-        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties, valueVisibility, MdcPropertyUtils.PrivilegePresence.WITH_PRIVILEGES);
+        MdcPropertyUtils.ValueVisibility valueVisibility = securityPropertySetInfo.userHasViewPrivilege && securityPropertySetInfo.userHasEditPrivilege? SHOW_VALUES: HIDE_VALUES;
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties, valueVisibility, WITH_PRIVILEGES);
 
         securityPropertySetInfo.status = new IdWithNameInfo();
         if (!getStatus(device, securityPropertySet, typedProperties)) {
