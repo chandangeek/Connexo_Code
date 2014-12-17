@@ -43,7 +43,6 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.events', 'MDC', 'Events'),
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceConfiguration', 'privilege.view.deviceConfiguration']),
                         itemId: 'events',
                         href: '#/devices/' + mRID + '/events',
                         showCondition: me.device.get('hasLogBooks')
@@ -60,6 +59,11 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 title: 'Communication',
                 items: [
                     {
+                        text: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+                        itemId: 'deviceGeneralAttributesLink',
+                        href: '#/devices/' + mRID + '/generalattributes'
+                    },
+                    {
                         text: Uni.I18n.translate('devicemenu.communicationPlanning', 'MDC', 'Communication planning'),
                         itemId: 'communicationSchedulesLink',
                         href: '#/devices/' + mRID + '/communicationplanning'
@@ -75,20 +79,19 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         href: '#/devices/' + mRID + '/connectionmethods'
                     },
                     {
-                        text: Uni.I18n.translate('devicemenu.commands', 'MDC', 'Commands'),
-                        itemId: 'deviceCommands',
-                        href: '#/devices/' + mRID + '/commands'
+                        text: Uni.I18n.translate('devicemenu.security', 'MDC', 'Security settings'),
+                        itemId: 'securitySettingLink',
+                        href: '#/devices/' + mRID + '/securitysettings'
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.protocols', 'MDC', 'Protocol dialects'),
                         itemId: 'protocolLink',
-                        hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.protocol', 'privilege.view.protocol']),
                         href: '#/devices/' + mRID + '/protocols'
                     },
                     {
-                        text: Uni.I18n.translate('devicemenu.security', 'MDC', 'Security settings'),
-                        itemId: 'securitySettingLink',
-                        href: '#/devices/' + mRID + '/securitysettings'
+                        text: Uni.I18n.translate('devicemenu.commands', 'MDC', 'Commands'),
+                        itemId: 'deviceCommands',
+                        href: '#/devices/' + mRID + '/commands'
                     },
                     {
                         text: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Topology'),
@@ -101,11 +104,6 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             {
                 title: 'Validation',
                 items: [
-                    {
-                        text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),
-                        itemId: 'connectionMethodsLink',
-                        href: '#/devices/' + mRID + '/connectionmethods'
-                    },
                     {
                         text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Data validation'),
                         itemId: 'dataValidationLink',
