@@ -52,7 +52,7 @@ Ext.define('Isu.view.issues.Grid', {
                 itemId: 'action',
                 xtype: 'uni-actioncolumn',
                 hidden: !Uni.Auth.hasAnyPrivilege(['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue',
-                    'privilege.administrate.device','privilege.view.device','privilege.view.scheduleDevice']),
+                    'privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
                 menu: {
                     xtype: 'issues-action-menu',
                     itemId: 'issues-overview-action-menu',
