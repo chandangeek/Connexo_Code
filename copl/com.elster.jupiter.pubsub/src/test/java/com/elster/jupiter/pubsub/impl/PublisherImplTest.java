@@ -88,5 +88,16 @@ public class PublisherImplTest {
         verify(subscriber, never()).handle(1, "B");
     }
 
+    @Test
+    public void testThreadSubscriberDoesNotReceiveEventsOfOtherThread() throws InterruptedException {
+        PublisherImpl publisher = new PublisherImpl();
+        publisher.addThreadSubscriber(subscriber);
+        publisher.publish("A", "B");
+        Thread thread = new Thread(() -> publisher.publish("C", "D"));
+        thread.start();
+        thread.join();
+        verify(subscriber).handle("A", "B");
+        verify(subscriber, never()).handle("C", "D");
+    }
 
 }
