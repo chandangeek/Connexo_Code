@@ -1,7 +1,7 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.time.TimeDuration;
-
+import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
 public class TimeDurationInfo {
@@ -45,6 +45,11 @@ public class TimeDurationInfo {
 
     public TimeDuration asTimeDuration() {
         return new TimeDuration(this.count+" "+this.timeUnit);
+    }
+
+    public TemporalAmount asTemporalAmount() {
+        return asTimeDuration().getTimeUnit().getTemporalUnit().getDuration();
+
     }
 
 }
