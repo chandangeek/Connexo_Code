@@ -64,11 +64,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
         {
             ref: 'step3',
             selector: 'generatereport-wizard-step3'
-        },/*,
-        {
-            ref: 'step4',
-            selector: 'generatereport-wizard-step4'
-        },*/
+        },
         {
             ref: 'generateReportLink',
             selector: 'generatereport-wizard-step3 #wizard-generatereport-link'
@@ -149,7 +145,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     finishClick: function () {
         var me = this;
         var link = me.getGenerateReportLink();
-        var href = '../reports/index.html#/reports/view?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues));
+        var href = '#/reports/view?reportUUID='+me.selectedReportUUID+'&filter='+encodeURIComponent(Ext.JSON.encode(me.selectedFilterValues));
         link.getEl().dom.href = href;
         link.getEl().dom.target = '_blank';
         link.getEl().dom.click();
