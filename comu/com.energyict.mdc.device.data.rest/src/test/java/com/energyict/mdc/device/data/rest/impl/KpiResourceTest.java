@@ -52,7 +52,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(model.<String>get("frequency.every.timeUnit")).isEqualTo("seconds");
         assertThat(model.<Double>get("communicationTarget")).isEqualTo(15.8);
         assertThat(model.<Double>get("connectionTarget")).isNull();
-        assertThat(model.<Instant>get("latestCalculationDate")).isNull();
+        assertThat(model.<Instant>get("latestCalculationDate")).isEqualTo(10000000);
     }
 
     private DataCollectionKpi mockKpi(long kpiId, QueryEndDeviceGroup endDeviceGroup) {
@@ -63,6 +63,7 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(kpiMock.connectionSetupKpiCalculationIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         when(kpiMock.getStaticCommunicationKpiTarget()).thenReturn(Optional.of(BigDecimal.valueOf(15.8)));
         when(kpiMock.getStaticConnectionKpiTarget()).thenReturn(Optional.empty());
+        when(kpiMock.getLatestCalculation()).thenReturn(Optional.of(Instant.ofEpochMilli(10000000L)));
         return kpiMock;
     }
 

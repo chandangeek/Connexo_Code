@@ -21,7 +21,7 @@ public class DataCollectionKpiInfoFactory {
                 ifPresent(temporalAmount -> kpiInfo.frequency = TemporalExpressionInfo.from(temporalAmount));
         kpi.getStaticCommunicationKpiTarget().ifPresent(target -> kpiInfo.communicationTarget = target);
         kpi.getStaticConnectionKpiTarget().ifPresent(target -> kpiInfo.connectionTarget = target);
-//        kpiInfo.latestCalculationDate = Instant.now();
+        kpi.getLatestCalculation().ifPresent(target -> kpiInfo.latestCalculationDate = target);
         return kpiInfo;
     }
 
