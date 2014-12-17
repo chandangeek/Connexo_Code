@@ -1,11 +1,12 @@
 Ext.define('Isu.controller.IssueDetail', {
     extend: 'Ext.app.Controller',
 
-    showOverview: function (id, issueModel, issuesStore, widgetXtype) {
+    showOverview: function (id, issueModel, issuesStore, widgetXtype, routeToList, issueType) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget(widgetXtype, {
-                router: router
+                router: router,
+                issuesListLink: me.makeLinkToList(router, routeToList, issueType)
             });
 
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -21,13 +22,20 @@ Ext.define('Isu.controller.IssueDetail', {
                     me.getDetailForm().loadRecord(record);
                     widget.down('issues-action-menu').record = record;
                     me.loadComments(record);
-                    me.setNavigationButtons(record, me.getStore(issuesStore));
                 }
             },
             failure: function () {
                 router.getRoute(router.currentRoute.replace('/view', '')).forward();
             }
         });
+    },
+
+    makeLinkToList: function (router, routeToList, issueType) {
+        var link = '<a href="{0}">' + Uni.I18n.translate('workspace.issues.title', 'ISU', 'Issues').toLowerCase() + '</a>',
+            filter = this.getStore('Isu.store.Clipboard').get(issueType + '-latest-issues-filter'),
+            queryParams = filter ? {filter: filter} : null;
+
+        return Ext.String.format(link, router.getRoute(routeToList).buildUrl(null, queryParams));
     },
 
     loadComments: function (record) {
@@ -78,44 +86,6 @@ Ext.define('Isu.controller.IssueDetail', {
         commentsStore.sync();
         commentsPanel.down('#no-issue-comments').hide();
         me.hideCommentForm();
-    },
-
-    setNavigationButtons: function (record, issuesStore) {
-        var me = this,
-            navigationPanel = this.getNavigation(),
-            prevBtn = navigationPanel.down('[action=prev]'),
-            nextBtn = navigationPanel.down('[action=next]'),
-            currentIndex = issuesStore.indexOf(record),
-            router = this.getController('Uni.controller.history.Router'),
-            prevIndex,
-            nextIndex;
-
-        if (currentIndex !== -1) {
-            currentIndex && (prevIndex = currentIndex - 1);
-            (issuesStore.getCount() > (currentIndex + 1)) && (nextIndex = currentIndex + 1);
-
-            if (prevIndex || prevIndex == 0) {
-                prevBtn.setHref(router.getRoute(router.currentRoute).buildUrl({issueId: issuesStore.getAt(prevIndex).getId()}));
-                prevBtn.on('click', function () {
-                    router.getRoute(router.currentRoute).forward({issueId: issuesStore.getAt(prevIndex).getId()});
-                }, me, {single: true});
-            } else {
-                prevBtn.setDisabled(true);
-            }
-
-            if (nextIndex) {
-                nextBtn.setHref(router.getRoute(router.currentRoute).buildUrl({issueId: issuesStore.getAt(nextIndex).getId()}));
-                nextBtn.on('click', function () {
-                    router.getRoute(router.currentRoute).forward({issueId: issuesStore.getAt(nextIndex).getId()});
-                }, me, {single: true});
-            } else {
-                nextBtn.setDisabled(true);
-            }
-
-            navigationPanel.show();
-        } else {
-            navigationPanel.hide();
-        }
     },
 
     chooseAction: function (menu, menuItem) {

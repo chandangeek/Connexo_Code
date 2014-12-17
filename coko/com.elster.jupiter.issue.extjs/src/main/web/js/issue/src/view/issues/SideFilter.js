@@ -3,7 +3,6 @@ Ext.define('Isu.view.issues.SideFilter', {
     alias: 'widget.issues-side-filter',
     cls: 'filter-form',
     width: 200,
-    title: Uni.I18n.translate('general.title.filter', 'ISU', 'Filter'),
     ui: 'filter',
     requires: [
         'Isu.view.component.AssigneeCombo',
