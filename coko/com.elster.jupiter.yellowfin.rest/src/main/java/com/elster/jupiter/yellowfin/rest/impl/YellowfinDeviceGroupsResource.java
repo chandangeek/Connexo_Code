@@ -25,7 +25,7 @@ public class YellowfinDeviceGroupsResource {
     @Path("/dynamic/{groupname}")
     public void cacheDynamicGroup(@PathParam("groupname") String groupname) {
         try(TransactionContext context = transactionService.getContext()){
-            yellowfinGroupsService.cacheDeviceGroup(groupname);
+            yellowfinGroupsService.cacheDynamicDeviceGroup(groupname);
             context.commit();
         }
     }
