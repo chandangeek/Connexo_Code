@@ -26,6 +26,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         {ref: 'deviceGeneralInformationForm', selector: '#deviceGeneralInformationForm'},
         {ref: 'deviceCommunicationTopologyPanel', selector: '#devicecommicationtopologypanel'},
         {ref: 'deviceOpenIssuesPanel', selector: '#deviceopenissuespanel'},
+        {ref: 'deviceSetup', selector: '#deviceSetup'},
         {ref: 'deviceSetupPanel', selector: '#deviceSetupPanel'},
         {ref: 'deviceGeneralInformationDeviceTypeLink', selector: '#deviceGeneralInformationDeviceTypeLink'},
         {ref: 'deviceGeneralInformationDeviceConfigurationLink', selector: '#deviceGeneralInformationDeviceConfigurationLink'},
@@ -64,6 +65,9 @@ Ext.define('Mdc.controller.setup.Devices', {
             },
             'deviceSetup #device-communications-panel #deactivate-all': {
                 click: this.communicationDeactivateAll
+            },
+            'deviceSetup #deviceSetupPanel #refresh-btn': {
+                click: this.doRefresh
             }
         });
     },
@@ -181,19 +185,9 @@ Ext.define('Mdc.controller.setup.Devices', {
                     widget.renderFlag(deviceLabelsStore);
                 });
 
-                var deviceConnectionsStore = device.connections();
-                deviceConnectionsStore.getProxy().setUrl(mRID);
-                deviceConnectionsStore.load(function() {
-                    widget.down('#device-connections-panel').bindStore(deviceConnectionsStore);
-                });
-
-                var deviceCommunicationsStore = device.communications();
-                deviceCommunicationsStore.getProxy().setUrl(mRID);
-                deviceCommunicationsStore.load(function() {
-                    widget.down('#device-communications-panel').bindStore(deviceCommunicationsStore);
-                });
-
                 me.getApplication().fireEvent('changecontentevent', widget);
+                me.refresh(widget);
+
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId')});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});
@@ -211,6 +205,35 @@ Ext.define('Mdc.controller.setup.Devices', {
                 viewport.setLoading(false);
 
             }
+        });
+    },
+
+    doRefresh: function () {
+        this.refresh(this.getDeviceSetup());
+    },
+
+    refresh: function(widget) {
+        var device = widget.device;
+        var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
+        var connectionsPanel= widget.down('#device-connections-panel');
+        var communicationsPanel= widget.down('#device-communications-panel');
+
+        lastUpdateField.update('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
+
+        var deviceConnectionsStore = device.connections();
+        deviceConnectionsStore.getProxy().setUrl(device.get('mRID'));
+        connectionsPanel.setLoading(true);
+        deviceConnectionsStore.load(function() {
+            connectionsPanel.bindStore(deviceConnectionsStore);
+            connectionsPanel.setLoading(false);
+        });
+
+        var deviceCommunicationsStore = device.communications();
+        deviceCommunicationsStore.getProxy().setUrl(device.get('mRID'));
+        communicationsPanel.setLoading(true);
+        deviceCommunicationsStore.load(function() {
+            communicationsPanel.bindStore(deviceCommunicationsStore);
+            communicationsPanel.setLoading(false);
         });
     },
 

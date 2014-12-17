@@ -84,6 +84,10 @@ Ext.define('Mdc.view.setup.devicechannels.Overview', {
                                             ]
                                         },
                                         {
+                                            fieldLabel: Uni.I18n.translate('device.channels.timestampLastValue', 'MDC', 'Timestamp last value'),
+                                            name: 'lastValueTimestamp_formatted'
+                                        },
+                                        {
                                             xtype: 'obis-displayfield',
                                             name: 'obisCode'
                                         },
