@@ -9,7 +9,6 @@ import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
-import java.net.Inet6Address;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
