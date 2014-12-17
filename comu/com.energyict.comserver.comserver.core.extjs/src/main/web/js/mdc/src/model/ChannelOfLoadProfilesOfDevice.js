@@ -16,6 +16,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         {name: 'nbrOfFractionDigits', type: 'int'},
         {name: 'flowUnit', type: 'string'},
         {name: 'lastReading', dateFormat: 'time', type: 'date'},
+        {name: 'lastValueTimestamp', dateFormat: 'time', type: 'date'},
         {name: 'lastChecked', dateFormat: 'time', type: 'date'},
         {name: 'validationInfo', type: 'auto'},
         {name: 'loadProfileId', type: 'auto'},
@@ -73,6 +74,13 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
             persist: false,
             mapping: function (data) {
                 return data.lastReading ? Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.lastReading), 'MDC', 'M d, Y H:i') : '';
+            }
+        },
+        {
+            name: 'lastValueTimestamp_formatted',
+            persist: false,
+            mapping: function (data) {
+                return data.lastReading ? Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.lastValueTimestamp), 'MDC', 'M d, Y H:i') : '';
             }
         }
     ],
