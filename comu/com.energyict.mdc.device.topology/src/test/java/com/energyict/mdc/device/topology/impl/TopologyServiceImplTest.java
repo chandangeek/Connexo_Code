@@ -409,16 +409,20 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         // Asserts
         int expectedNumberOfNeighbors = 2;
         assertThat(neighbors).hasSize(expectedNumberOfNeighbors);
-        G3Neighbor g3Neighbor1 = neighbors.get(0);
-        G3Neighbor g3Neighbor2 = neighbors.get(1);
-        assertThat(g3Neighbor1.getModulationScheme()).isEqualTo(ModulationScheme.DIFFERENTIAL);
-        assertThat(g3Neighbor1.getModulation()).isEqualTo(Modulation.D8PSK);
-        assertThat(g3Neighbor1.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
-        assertThat(g3Neighbor1.isEffectiveAt(initialTimestamp)).isTrue();
-        assertThat(g3Neighbor2.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
-        assertThat(g3Neighbor2.getModulation()).isEqualTo(Modulation.CBPSK);
-        assertThat(g3Neighbor2.getPhaseInfo()).isEqualTo(PhaseInfo.DEGREE180);
-        assertThat(g3Neighbor2.isEffectiveAt(initialTimestamp)).isTrue();
+        for (G3Neighbor neighbor : neighbors) {
+            if (neighbor.getNeighbor().getId() == neighbor1.getId()) {
+                assertThat(neighbor.getModulationScheme()).isEqualTo(ModulationScheme.DIFFERENTIAL);
+                assertThat(neighbor.getModulation()).isEqualTo(Modulation.D8PSK);
+                assertThat(neighbor.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
+                assertThat(neighbor.isEffectiveAt(initialTimestamp)).isTrue();
+            }
+            else {
+                assertThat(neighbor.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
+                assertThat(neighbor.getModulation()).isEqualTo(Modulation.CBPSK);
+                assertThat(neighbor.getPhaseInfo()).isEqualTo(PhaseInfo.DEGREE180);
+                assertThat(neighbor.isEffectiveAt(initialTimestamp)).isTrue();
+            }
+        }
     }
 
     @Test
@@ -499,6 +503,37 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    public void findNeigbors() {
+        Instant initialTimestamp = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(initialTimestamp);
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        neighbor2.save();
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.complete();
+
+        // Business method
+        List<G3Neighbor> neighbors = topologyService.findG3Neighbors(device);
+
+        // Asserts
+        int expectedNumberOfNeighbors = 2;
+        assertThat(neighbors).hasSize(expectedNumberOfNeighbors);
+        Set<Long> deviceIDs = neighbors.stream().map(G3Neighbor::getNeighbor).map(Device::getId).collect(Collectors.toSet());
+        assertThat(deviceIDs).containsOnly(neighbor1.getId(), neighbor2.getId());
+        assertThat(neighbors).hasSize(expectedNumberOfNeighbors);
+        assertThat(neighbors.get(0).isEffectiveAt(initialTimestamp)).isTrue();
+        assertThat(neighbors.get(1).isEffectiveAt(initialTimestamp)).isTrue();
+    }
+
+    @Test
+    @Transactional
     public void findNoNeigborhoodDevicesInPast() {
         Instant past = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
         Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
@@ -525,7 +560,33 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void findSameNeigborhoodDevicesInFuture() {
+    public void findNoNeigborsInPast() {
+        Instant past = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
+        Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(now);
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        neighbor2.save();
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.complete();
+
+        // Business method
+        List<G3Neighbor> neighbors = topologyService.findG3Neighbors(device, past);
+
+        // Asserts
+        assertThat(neighbors).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void findNeigborhoodDevicesInFuture() {
         Instant now = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
         Instant future = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(now);
@@ -549,6 +610,38 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         int expectedNumberOfNeighbors = 2;
         assertThat(devicesInG3Neighborhood).hasSize(expectedNumberOfNeighbors);
         Set<Long> deviceIDs = devicesInG3Neighborhood.stream().map(Device::getId).collect(Collectors.toSet());
+        assertThat(deviceIDs).containsOnly(neighbor1.getId(), neighbor2.getId());
+        assertThat(neighbors).hasSize(expectedNumberOfNeighbors);
+        assertThat(neighbors.get(0).isEffectiveAt(future)).isTrue();
+        assertThat(neighbors.get(1).isEffectiveAt(future)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void findNeigborsInFuture() {
+        Instant now = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
+        Instant future = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(now);
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        neighbor2.save();
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        neighborhoodBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        neighborhoodBuilder.complete();
+
+        // Business method
+        List<G3Neighbor> neighbors = topologyService.findG3Neighbors(device, future);
+
+        // Asserts
+        int expectedNumberOfNeighbors = 2;
+        assertThat(neighbors).hasSize(expectedNumberOfNeighbors);
+        Set<Long> deviceIDs = neighbors.stream().map(G3Neighbor::getNeighbor).map(Device::getId).collect(Collectors.toSet());
         assertThat(deviceIDs).containsOnly(neighbor1.getId(), neighbor2.getId());
         assertThat(neighbors).hasSize(expectedNumberOfNeighbors);
         assertThat(neighbors.get(0).isEffectiveAt(future)).isTrue();
@@ -588,6 +681,37 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    public void findNeigborsInPast() {
+        Instant past = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(past);
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        Device neighbor1 = deviceService.newDevice(deviceConfiguration, "neighbor1", "neighbor1");
+        neighbor1.save();
+        Device neighbor2 = deviceService.newDevice(deviceConfiguration, "neighbor2", "neighbor2");
+        neighbor2.save();
+        TopologyService.G3NeighborhoodBuilder initialBuilder = topologyService.buildG3Neighborhood(device);
+        initialBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        initialBuilder.addNeighbor(neighbor2, ModulationScheme.COHERENT, Modulation.CBPSK, PhaseInfo.DEGREE180);
+        initialBuilder.complete();
+        Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(now);
+        TopologyService.G3NeighborhoodBuilder neighborhoodBuilder = topologyService.buildG3Neighborhood(device);
+        neighborhoodBuilder.addNeighbor(neighbor1, ModulationScheme.DIFFERENTIAL, Modulation.D8PSK, PhaseInfo.INPHASE);
+        // Do not add neighbor2, effectively removing it from the neighborhood
+        neighborhoodBuilder.complete();
+
+        // Business method
+        List<G3Neighbor> neighbors = topologyService.findG3Neighbors(device, past);
+
+        // Asserts
+        assertThat(neighbors).hasSize(2);
+    }
+
+    @Test
+    @Transactional
     public void switchAllNeighboringDevicesFromDifferentialToCoherent() {
         Instant initialTimestamp = LocalDateTime.of(2014, 12, 1, 12, 00).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(initialTimestamp);
@@ -620,7 +744,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
         // Asserts: assert that the ModulationScheme has switched
         com.elster.jupiter.util.conditions.Condition condition = where("device").isEqualTo(device).and(where("interval").isEffective());
-        List<G3NeighborImpl> updatedNeighbors = inMemoryPersistence.getTopologyDataModel().mapper(G3NeighborImpl.class).select(condition);
+        List<G3Neighbor> updatedNeighbors = topologyService.findG3Neighbors(device);
         assertThat(updatedNeighbors).hasSize(2);
         assertThat(updatedNeighbors.get(0).getModulationScheme()).isEqualTo(ModulationScheme.DIFFERENTIAL);
         assertThat(updatedNeighbors.get(0).isEffectiveAt(initialTimestamp)).isFalse();
@@ -663,8 +787,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(deviceIDs).containsOnly(neighbor1.getId(), neighbor2.getId());
 
         // Asserts that none of the neighborhood attributes have changed, including the timestamp
-        com.elster.jupiter.util.conditions.Condition isEffectiveNow = where("device").isEqualTo(device).and(where("interval").isEffective());
-        List<G3NeighborImpl> updatedNeighbors = inMemoryPersistence.getTopologyDataModel().mapper(G3NeighborImpl.class).select(isEffectiveNow);
+        List<G3Neighbor> updatedNeighbors = topologyService.findG3Neighbors(device);
         assertThat(updatedNeighbors).hasSize(2);
         assertThat(updatedNeighbors.get(0).getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
         assertThat(updatedNeighbors.get(0).getModulation()).isEqualTo(Modulation.CBPSK);
@@ -721,10 +844,9 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(deviceIDs).containsOnly(neighbor1.getId());
 
         // Assert the values of the attributes and the effective date of the attributes
-        com.elster.jupiter.util.conditions.Condition isEffectiveNow = where("device").isEqualTo(device).and(where("interval").isEffective());
-        List<G3NeighborImpl> neighborsEffectiveNow = inMemoryPersistence.getTopologyDataModel().mapper(G3NeighborImpl.class).select(isEffectiveNow);
+        List<G3Neighbor> neighborsEffectiveNow = topologyService.findG3Neighbors(device);
         assertThat(neighborsEffectiveNow).hasSize(1);
-        G3NeighborImpl updatedNeighbor = neighborsEffectiveNow.get(0);
+        G3Neighbor updatedNeighbor = neighborsEffectiveNow.get(0);
         assertThat(updatedNeighbor.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
         assertThat(updatedNeighbor.getModulation()).isEqualTo(Modulation.CBPSK);
         assertThat(updatedNeighbor.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);
@@ -739,9 +861,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(updatedNeighbor.isEffectiveAt(updateTimestamp)).isTrue();
 
         // Assert that the old values of the attributes are still there but on older effective entities
-        com.elster.jupiter.util.conditions.Condition isEffectiveAtInitialTimestamp = where("device").isEqualTo(device).and(where("interval").isEffective(initialTimestamp));
-        List<G3NeighborImpl> neighborsEffectiveAtInitialTimestamp = inMemoryPersistence.getTopologyDataModel().mapper(G3NeighborImpl.class).select(isEffectiveAtInitialTimestamp);
-        G3NeighborImpl initialNeighbor = neighborsEffectiveAtInitialTimestamp.get(0);
+        List<G3Neighbor> neighborsEffectiveAtInitialTimestamp = topologyService.findG3Neighbors(device, initialTimestamp);
+        G3Neighbor initialNeighbor = neighborsEffectiveAtInitialTimestamp.get(0);
         assertThat(initialNeighbor.getModulationScheme()).isEqualTo(ModulationScheme.COHERENT);
         assertThat(initialNeighbor.getModulation()).isEqualTo(Modulation.CBPSK);
         assertThat(initialNeighbor.getPhaseInfo()).isEqualTo(PhaseInfo.INPHASE);

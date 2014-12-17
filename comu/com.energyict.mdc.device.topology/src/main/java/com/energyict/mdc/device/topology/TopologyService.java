@@ -156,6 +156,15 @@ public interface TopologyService {
     public List<Device> findDevicesInG3Neighborhood(Device device);
 
     /**
+     * Find the {@link G3Neighbor}s of the specified {@link Device},
+     * for the G3/PLC communication technology.
+     *
+     * @param device The Device whose neighbors will be returned
+     * @return The List of G3Neighbor
+     */
+    public List<G3Neighbor> findG3Neighbors(Device device);
+
+    /**
      * Find the neighboring {@link Device}s,
      * for the G3/PLC communication technology.
      *
@@ -164,6 +173,16 @@ public interface TopologyService {
      * @return The List of Device
      */
     public List<Device> findDevicesInG3Neighborhood(Device device, Instant when);
+
+    /**
+     * Find the {@link G3Neighbor}s of the specified {@link Device},
+     * for the G3/PLC communication technology.
+     *
+     * @param device The Device whose neighbors will be returned
+     * @param when The timestamp on which the G3Neighbor were effectively part of the Device's neighborhood
+     * @return The List of G3Neighbor
+     */
+    public List<G3Neighbor> findG3Neighbors(Device device, Instant when);
 
     /**
      * Gets the current {@link G3DeviceAddressInformation} for the specified {@link Device}.

@@ -547,6 +547,22 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<G3Neighbor> findG3Neighbors(Device device) {
+        return this.safeCast(this.findG3NeighborTableEntries(device));
+    }
+
+    @Override
+    public List<G3Neighbor> findG3Neighbors(Device device, Instant when) {
+        return this.safeCast(this.findG3NeighborTableEntries(device, when));
+    }
+
+    private List<G3Neighbor> safeCast(List<G3NeighborImpl> tableEntries) {
+        List<G3Neighbor> neighbors = new ArrayList<>(tableEntries.size());
+        tableEntries.stream().forEach(neighbors::add);
+        return neighbors;
+    }
+
     private G3NeighborImpl newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
         return this.dataModel.getInstance(G3NeighborImpl.class).createFor(device, neighbor, modulationScheme, modulation, phaseInfo);
     }
