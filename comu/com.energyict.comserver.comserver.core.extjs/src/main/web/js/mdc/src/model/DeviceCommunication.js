@@ -4,17 +4,17 @@ Ext.define('Mdc.model.DeviceCommunication', {
     fields: [
         {name: 'id', type: 'number'},
         {name: 'name', type: 'string'},
-        {name: 'comTask', type: 'auto'},
+        {name: 'comTask', type: 'auto', defaultValue: undefined},
         {name: 'comScheduleName', type: 'string'},
-        {name: 'comScheduleFrequency', type: 'auto'},
+        {name: 'comScheduleFrequency', type: 'auto', defaultValue: undefined},
         {name: 'urgency', type: 'number'},
-        {name: 'currentState', type: 'auto'},
-        {name: 'latestResult', type: 'auto'},
+        {name: 'currentState', type: 'auto', defaultValue: undefined},
+        {name: 'latestResult', type: 'auto', defaultValue: undefined},
         {name: 'startTime', type: 'date', dateFormat: 'time'},
         {name: 'successfulFinishTime', type: 'date', dateFormat: 'time'},
         {name: 'plannedDate', type: 'date', dateFormat: 'time'},
         {name: 'connectionMethod', type: 'string'},
-        {name: 'connectionStrategy', type: 'auto'},
+        {name: 'connectionStrategy', type: 'auto', defaultValue: undefined},
         {name: 'isOnHold', type: 'string'},
 
         // mapped fields

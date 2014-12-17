@@ -237,6 +237,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             {
                 xtype: 'panel',
                 hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                itemId: 'device-connections-panel',
                 style: {
                     marginRight: '20px',
                     marginTop: '20px'
@@ -245,11 +246,17 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 items: {
                     xtype: 'device-connections-list',
                     router: me.router
+                },
+                bindStore: function(store) {
+                    var me = this;
+                    me.down('device-connections-list').reconfigure(store);
+                    me.setTitle(Uni.I18n.translatePlural('device.connections.title', store.count(), 'DSH', 'Connections ({0})'));
                 }
             },
             {
                 xtype: 'panel',
                 hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication']),
+                itemId: 'device-communications-panel',
                 style: {
                     marginRight: '20px',
                     marginTop: '20px'
@@ -258,6 +265,30 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 items: {
                     xtype: 'device-communications-list',
                     router: me.router
+                },
+                tools: [
+                    {
+                        xtype: 'toolbar',
+                        items: [
+                            '->',
+                            {
+                                xtype: 'button',
+                                itemId: 'activate-all',
+                                text: Uni.I18n.translate('device.communications.activate', 'DSH', 'Activate all')
+                            },
+                            {
+                                xtype: 'button',
+                                itemId: 'deactivate-all',
+                                text: Uni.I18n.translate('device.communications.deactivate', 'DSH', 'Deactivate all')
+                            }
+                        ]
+                    }
+                ],
+
+                bindStore: function(store) {
+                    var me = this;
+                    me.down('device-communications-list').reconfigure(store);
+                    me.setTitle(Uni.I18n.translatePlural('device.communications.title', store.count(), 'DSH', 'Communication tasks ({0})'));
                 }
             }
         );
