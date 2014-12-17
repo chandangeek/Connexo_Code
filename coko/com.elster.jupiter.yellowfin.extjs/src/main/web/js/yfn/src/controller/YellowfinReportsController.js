@@ -57,8 +57,6 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
     resizeReportPanel: function(component) {
         if(!component)
             return;
-        //console.log(component.getHeight());
-        //console.log(component.getWidth());
         // resize yellowfin report
         var options =  {};
         options.element =  component.getEl().dom;
@@ -209,7 +207,6 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
         var data;
 
         me.getFilterValues();
-        console.log(me.filterValues);
 
         Ext.Ajax.request({
             url: '/api/yfn/user/token',
