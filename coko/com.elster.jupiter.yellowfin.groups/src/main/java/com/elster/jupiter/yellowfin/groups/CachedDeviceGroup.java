@@ -1,4 +1,4 @@
-package com.elster.jupiter.yellowfin.groups.impl;
+package com.elster.jupiter.yellowfin.groups;
 
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -8,13 +8,13 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.List;
 
-public interface EndDevicesInDeviceGroup {
+public interface CachedDeviceGroup {
     void save();
+    List<Entry> getEntries();
 
     interface Entry {
-        //EndDevice getEndDevice();
-        //EndDeviceGroup getEndDeviceGroup();
-        long getEndDeviceId();
-        long getEndDeviceGroupId();
+        long getDeviceId();
+        long getGroupId();
+        void setGroupId(long id);
     }
 }
