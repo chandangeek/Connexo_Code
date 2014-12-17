@@ -5,7 +5,8 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         'Mdc.view.setup.devicegroup.Step2',
         'Mdc.view.setup.devicegroup.Browse',
         'Mdc.view.setup.devicegroup.Navigation',
-        'Mdc.view.setup.devicegroup.Wizard'
+        'Mdc.view.setup.devicegroup.Wizard',
+        'Mdc.view.setup.devicegroup.Edit'
     ],
     requires: [
         'Uni.view.window.Wizard',
@@ -14,7 +15,8 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     stores: [
         'Mdc.store.DevicesBuffered',
-        'DeviceGroups'
+        'DeviceGroups',
+        'Mdc.model.DeviceType'
     ],
 
     refs: [
@@ -52,7 +54,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         },
         {
             ref: 'nameTextField',
-            selector: 'devicegroup-wizard-step1 #deviceGroupNameTextField'
+            selector: '#deviceGroupNameTextField'
         },
         {
             ref: 'dynamicRadioButton',
@@ -68,15 +70,15 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         },
         {
             ref: 'step1FormErrorMessage',
-            selector: 'devicegroup-wizard-step1 #step1-adddevicegroup-errors'
+            selector: '#step1-adddevicegroup-errors'
         },
         {
             ref: 'step1FormNameErrorMessage',
-            selector: 'devicegroup-wizard-step1 #step1-adddevicegroup-name-errors'
+            selector: '#step1-adddevicegroup-name-errors'
         },
         {
             ref: 'step2FormErrorMessage',
-            selector: 'devicegroup-wizard-step2 uni-form-error-message'
+            selector: '#step2-adddevicegroup-errors'
         },
         {
             ref: 'staticGrid',
@@ -93,12 +95,17 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         {
             ref: 'dynamicGridContainer',
             selector: 'mdc-search-results #dynamic-grid-container'
+        },
+        {
+            ref: 'editPage',
+            selector: 'device-group-edit'
         }
     ],
 
     addDeviceGroupWidget: null,
-
+    dynamic: false,
     createWidget: true,
+    router: null,
 
     init: function () {
         this.createWidget = true;
@@ -117,6 +124,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             },
             'adddevicegroup-wizard #wizardCancelButton': {
                 click: this.cancelClick
+            },
+            'device-group-edit #edit-device-group-action': {
+                click: this.editDeviceGroup
             }
         });
     },
@@ -272,7 +282,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     showAddDeviceGroupAction: function () {
         if (this.createWidget) {
             this.addDeviceGroupWidget = Ext.widget('add-devicegroup-browse');
-
+            if (this.router) {
+                this.router = undefined;
+            }
             this.getApplication().fireEvent('changecontentevent', this.addDeviceGroupWidget);
             this.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').initFilterModel();
             this.getAddDeviceGroupSideFilter().setVisible(false);
@@ -313,6 +325,132 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 cancelBtn.show();
                 this.getAddDeviceGroupSideFilter().setVisible(true);
                 break;
+        }
+    },
+
+    showEditDeviceGroup: function (deviceGroupId) {
+        var me = this,
+            deviceGroupModel = me.getModel('Mdc.model.DeviceGroup'),
+            router = me.getController('Uni.controller.history.Router'),
+            cancelLink,
+            view,
+            isDynamic,
+            store;
+
+        if (Ext.isEmpty(Ext.ComponentQuery.query('device-group-edit')[0])) {
+            me.fromDeviceGroupDetails = router.queryParams.fromDetails === 'true';
+            if (me.fromDeviceGroupDetails) {
+                cancelLink = '#/devices/devicegroups/' + deviceGroupId;
+            } else {
+                cancelLink = '#/devices/devicegroups';
+            }
+            view = Ext.widget('device-group-edit', {
+                returnLink: cancelLink
+            });
+        } else {
+            view = Ext.ComponentQuery.query('device-group-edit')[0];
+        }
+        deviceGroupModel.load(deviceGroupId, {
+            success: function (record) {
+                me.deviceGroup = record;
+                me.dynamic = record.get('dynamic');
+                me.deviceGroupName = record.get('name');
+                if (!me.router) {
+                    Ext.Array.each(record.raw.criteria, function (criteria) {
+                        switch (criteria.criteriaName) {
+                            case 'serialNumber':
+                                router.filter.set('serialNumber', criteria.criteriaValues[0]);
+                                break;
+                            case 'deviceType.id':
+                                router.filter.set('mRID', criteria.criteriaValues[0]);
+                                break;
+                            case 'deviceConfiguration.deviceType.name':
+                                router.filter.set('deviceTypes', record.get('deviceTypeIds'));
+                                if (record.get('deviceTypeIds').length === 1 && !Ext.isEmpty(record.get('deviceConfigurationIds'))) {
+                                    router.filter.set('deviceConfigurations', record.get('deviceConfigurationIds'));
+                                }
+                                break;
+                        }
+                    });
+                    me.router = router;
+                    if (me.dynamic) {
+                        store = me.getDynamicGrid().getStore();
+                    } else {
+                        store = me.getStaticGrid().getStore();
+                    }
+                    store.setFilterModel(router.filter);
+                    store.load();
+                    me.getApplication().fireEvent('changecontentevent', view);
+                    if (me.dynamic) {
+                        me.getStaticGridContainer().setVisible(false);
+                        me.getDynamicGridContainer().setVisible(true);
+                    } else {
+                        me.getDynamicGridContainer().setVisible(false);
+                        me.getStaticGridContainer().setVisible(true);
+                    }
+                    view.down('#device-group-edit-panel').setTitle(Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit') + " '" + me.deviceGroupName + "'");
+                    me.getNameTextField().setValue(record.get('name'));
+                    isDynamic = record.get('dynamic') ? Uni.I18n.translate('general.dynamic', 'MDC', 'Dynamic') : Uni.I18n.translate('general.static', 'MDC', 'Static');
+                    view.down('#device-group-type').setValue(isDynamic);
+                    me.getApplication().fireEvent('loadDeviceGroup', record);
+                }
+            }
+        });
+    },
+
+    editDeviceGroup: function () {
+        var me = this,
+            page = me.getEditPage(),
+            router = me.getController('Uni.controller.history.Router'),
+            nameValue = me.getNameTextField().getValue(),
+            record = me.deviceGroup,
+            numberOfDevices,
+            selection;
+
+        if (!me.dynamic) {
+            selection = me.getStaticGrid().getSelectionModel().getSelection();
+        }
+
+        if (nameValue == '') {
+            me.getStep1FormErrorMessage().setVisible(true);
+            me.getStep1FormNameErrorMessage().setVisible(false);
+        } else if ((nameValue !== me.deviceGroupName) && me.nameExists()) {
+            me.getStep1FormNameErrorMessage().setVisible(true);
+            me.getStep1FormErrorMessage().setVisible(false);
+        } else if (!me.dynamic && (selection.length == 0) && !me.getStaticGrid().allChosenByDefault) {
+            me.getStep2FormErrorMessage().setVisible(true);
+        } else {
+            page.setLoading(true);
+            record.criteriaStore.removeAll();
+            record.set('name', nameValue);
+            record.set('dynamic', me.dynamic);
+            record.set('filter', router.filter.data);
+            if (!me.dynamic) {
+                var devicesList = [];
+                if (me.getStaticGrid().isAllSelected()) {
+                    devicesList = null;
+                } else {
+                    numberOfDevices = selection.length;
+                    for (var i = 0; i < numberOfDevices; i++) {
+                        devicesList.push(selection[i].data.id);
+                    }
+                }
+                record.set('devices', devicesList);
+            }
+            record.save({
+                success: function () {
+                    console.info(me.fromDeviceGroupDetails);
+                    if (me.fromDeviceGroupDetails) {
+                        router.getRoute('devices/devicegroups/view').forward();
+                    } else {
+                        router.getRoute('devices/devicegroups').forward();
+                    }
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.edit.success.msg', 'MDC', 'Device group edited'));
+                },
+                callback: function () {
+                    page.setLoading(false);
+                }
+            });
         }
     }
 });

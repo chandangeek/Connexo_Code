@@ -22,7 +22,9 @@ Ext.define('Mdc.model.Device', {
         {name: 'creationTime', dateFormat: 'time', type: 'date', useNull: true},
         {name: 'hasLoadProfiles', type: 'boolean'},
         {name: 'hasLogBooks', type: 'boolean'},
-        {name: 'hasRegisters', type: 'boolean'}
+        {name: 'hasRegisters', type: 'boolean'},
+        {name: 'usagePoint', type: 'string', useNull: true},
+        {name: 'serviceCategory', type: 'string', useNull: true}
     ],
 
     associations: [
