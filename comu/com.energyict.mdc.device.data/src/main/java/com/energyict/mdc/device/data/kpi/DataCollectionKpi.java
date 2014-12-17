@@ -93,7 +93,7 @@ public interface DataCollectionKpi extends HasId {
      *
      * @return The EndDeviceGroup
      */
-    public QueryEndDeviceGroup getDeviceGroup();
+    public EndDeviceGroup getDeviceGroup();
 
     public void delete();
 

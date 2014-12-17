@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.kpi;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.energyict.mdc.common.services.Finder;
 import java.math.BigDecimal;
@@ -20,7 +21,7 @@ import java.util.Optional;
  */
 public interface DataCollectionKpiService {
 
-    public DataCollectionKpiBuilder newDataCollectionKpi(QueryEndDeviceGroup group);
+    public DataCollectionKpiBuilder newDataCollectionKpi(EndDeviceGroup group);
 
     /**
      * Finds all {@link DataCollectionKpi} that are defined in the system.
