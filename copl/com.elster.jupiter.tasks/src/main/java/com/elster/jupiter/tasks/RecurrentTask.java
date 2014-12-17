@@ -47,5 +47,5 @@ public interface RecurrentTask extends HasName {
      */
     TaskOccurrence runNow(TaskExecutor executor);
 
-    Optional<? extends TaskOccurrence> getLastOccurrence();
+    Optional<TaskOccurrence> getLastOccurrence();
 }

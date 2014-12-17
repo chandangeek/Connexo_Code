@@ -214,7 +214,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     @Override
-    public Optional<? extends TaskOccurrence> getLastOccurrence() {
+    public Optional<TaskOccurrence> getLastOccurrence() {
         return dataModel.query(TaskOccurrence.class).select(Operator.EQUAL.compare("recurrentTaskId", this.getId()), new Order[]{Order.descending("triggerTime")},
                 false, new String[]{}, 1, 1).stream().findAny();
     }
