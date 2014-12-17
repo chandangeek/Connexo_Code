@@ -156,7 +156,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
+        dataModel = ormService.newDataModel(COMPONENTNAME, "Data Export");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
