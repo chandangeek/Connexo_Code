@@ -139,7 +139,12 @@ Ext.define('Uni.form.field.DateTime', {
         container.items = [dateTimeSeparator, hoursField, separator, minutesField];
         me.items = [dateField, container];
 
+
         me.callParent(arguments);
+
+        if(me.value){
+            me.setValue(me.value);
+        }
     },
 
     formatDisplayOfTime: function (value) {
@@ -199,8 +204,11 @@ Ext.define('Uni.form.field.DateTime', {
             if (minutes) date += minutes * 60000;
         }
         if (me.getRawValue) return date;
-        date = new Date(date);
-        return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
+        if(date){
+            date = new Date(date);
+            return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
+        }
+        return null;
     },
 
     markInvalid: function (fields) {
