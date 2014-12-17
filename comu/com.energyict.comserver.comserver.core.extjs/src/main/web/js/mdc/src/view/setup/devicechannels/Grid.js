@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.Grid', {
+Ext.define('Mdc.view.setup.devicechannels.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceLoadProfileChannelsGrid',
     itemId: 'deviceLoadProfileChannelsGrid',
@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Grid', {
         'Uni.grid.column.Obis',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.deviceloadprofilechannels.ActionMenu'
+        'Mdc.view.setup.devicechannels.ActionMenu'
     ],
 
     mRID: null,
@@ -50,14 +50,14 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('deviceloadprofilechannels.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} channels'),
-                displayMoreMsg: Uni.I18n.translate('deviceloadprofilechannels.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} channels'),
-                emptyMsg: Uni.I18n.translate('deviceloadprofilechannels.pagingtoolbartop.emptyMsg', 'MDC', 'There are no channels to display')
+                displayMsg: Uni.I18n.translate('devicechannels.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} channels'),
+                displayMoreMsg: Uni.I18n.translate('devicechannels.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} channels'),
+                emptyMsg: Uni.I18n.translate('devicechannels.pagingtoolbartop.emptyMsg', 'MDC', 'There are no channels to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('deviceloadprofilechannels.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Channels per page'),
+                itemsPerPageMsg: Uni.I18n.translate('devicechannels.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Channels per page'),
                 dock: 'bottom'
             }
         ];

@@ -1,11 +1,11 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataPreview', {
+Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.deviceLoadProfileChannelDataPreview',
     itemId: 'deviceLoadProfileChannelDataPreview',
     requires: [
-        'Mdc.view.setup.deviceloadprofilechannels.DataActionMenu',
+        'Mdc.view.setup.devicechannels.DataActionMenu',
         'Uni.form.field.IntervalFlagsDisplay',
-        'Mdc.view.setup.deviceloadprofilechannels.ValidationPreview',
+        'Mdc.view.setup.devicechannels.ValidationPreview',
         'Uni.form.field.EditedDisplay'
     ],
     title: '&nbsp',

@@ -1,10 +1,10 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.Preview', {
+Ext.define('Mdc.view.setup.devicechannels.Preview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.deviceLoadProfileChannelsPreview',
     itemId: 'deviceLoadProfileChannelsPreview',
     requires: [
-        'Mdc.view.setup.deviceloadprofilechannels.PreviewForm',
-        'Mdc.view.setup.deviceloadprofilechannels.ActionMenu'
+        'Mdc.view.setup.devicechannels.PreviewForm',
+        'Mdc.view.setup.devicechannels.ActionMenu'
     ],
     layout: 'fit',
     frame: true,

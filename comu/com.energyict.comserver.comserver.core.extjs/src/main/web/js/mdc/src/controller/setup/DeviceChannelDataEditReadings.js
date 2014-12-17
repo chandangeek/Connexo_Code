@@ -1,8 +1,8 @@
-Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
+Ext.define('Mdc.controller.setup.DeviceChannelDataEditReadings', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'Mdc.view.setup.deviceloadprofilechannels.EditReadings'
+        'Mdc.view.setup.devicechannels.EditReadings'
     ],
 
     models: [
@@ -146,7 +146,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
                 },
                 success: function () {
                     router.getRoute('devices/device/channels/channel/tableData').forward(router.arguments, router.queryParams);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceloadprofilechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
                 },
                 failure: function (response) {
                     var failureResponseText;

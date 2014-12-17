@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.DataActionMenu', {
+Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.deviceLoadProfileChannelDataActionMenu',
     itemId: 'deviceLoadProfileChannelDataActionMenu',

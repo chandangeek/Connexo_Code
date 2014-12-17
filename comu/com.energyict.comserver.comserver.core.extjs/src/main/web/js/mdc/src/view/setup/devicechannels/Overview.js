@@ -1,11 +1,11 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
+Ext.define('Mdc.view.setup.devicechannels.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceLoadProfileChannelOverview',
     itemId: 'deviceLoadProfileChannelOverview',
 
     requires: [
-        'Mdc.view.setup.deviceloadprofilechannels.ValidationOverview',
-        'Mdc.view.setup.deviceloadprofilechannels.ActionMenu'
+        'Mdc.view.setup.devicechannels.ValidationOverview',
+        'Mdc.view.setup.devicechannels.ActionMenu'
     ],
 
     router: null,
@@ -102,6 +102,27 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Overview', {
                                         {
                                             fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.nbrOfFractionDigits', 'MDC', 'Number of fraction digits'),
                                             name: 'nbrOfFractionDigits'
+                                        },
+                                        {
+                                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.loadProfile', 'MDC', 'Load profile'),
+                                            name: 'loadProfileId',
+                                            renderer: function (value) {
+                                                var res = '',
+                                                    device;
+                                                if (value instanceof Mdc.model.LoadProfileOfDevice) {
+                                                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofile/data').buildUrl({mRID: me.mRID, loadProfileId: value.get('id')});
+                                                    res = '<a href="' + url + '">' + value.get('name') + '</a>';
+                                                } else if (Ext.isNumber(value)) {
+                                                    var loadProfile = Mdc.model.LoadProfileOfDevice;
+                                                    loadProfile.getProxy().setUrl(me.device.get('mRID'));
+                                                    loadProfile.load(value, {
+                                                        success: function (record) {
+                                                            me.down('[name=loadProfileId]').setValue(record)
+                                                        }
+                                                    })
+                                                }
+                                                return res
+                                            }
                                         }
                                     ]
                                 },

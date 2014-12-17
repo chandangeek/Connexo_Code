@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                                 {
                                     xtype: 'button',
                                     text: Uni.I18n.translate('validation.addValidationRuleSets', 'MDC', 'Add validation rule sets'),
-                                    privileges: ['privilege.administrate.validationConfiguration'],
+                                    privileges: ['privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                                     ui: 'action',
                                     href: '#/administration/validation/rulesets/add'
                                 }
