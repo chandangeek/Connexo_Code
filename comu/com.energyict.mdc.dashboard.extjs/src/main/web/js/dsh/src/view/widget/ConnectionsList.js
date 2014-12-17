@@ -109,7 +109,14 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             store: 'Dsh.store.ConnectionTasks',
             displayMsg: Uni.I18n.translate('connection.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} connections'),
             displayMoreMsg: Uni.I18n.translate('connection.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} connections'),
-            emptyMsg: Uni.I18n.translate('connection.widget.details.emptyMsg', 'DSH', 'There are no connections to display')
+            emptyMsg: Uni.I18n.translate('connection.widget.details.emptyMsg', 'DSH', 'There are no connections to display'),
+            items:[
+                {
+                    xtype:'button',
+                    itemId:'generate-report',
+                    text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                }
+            ]
         },
         {
             itemId: 'pagingtoolbarbottom',

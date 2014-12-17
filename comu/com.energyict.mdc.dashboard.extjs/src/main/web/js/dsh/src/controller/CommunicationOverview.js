@@ -16,18 +16,23 @@ Ext.define('Dsh.controller.CommunicationOverview', {
         { ref: 'communicationServers', selector: '#communication-servers' },
         { ref: 'overview', selector: '#overview' },
         { ref: 'breakdown', selector: '#breakdown' },
-        { ref: 'kpi', selector: '#communication-overview read-outs-over-time' }
+        { ref: 'kpi', selector: '#communication-overview read-outs-over-time' },
+        { ref: 'quickLinks', selector: '#communication-overview #quick-links' }
     ],
 
     init: function () {
         this.control({
             '#communication-overview #refresh-btn': {
                 click: this.loadData
+            },
+            '#communication-overview #device-group': {
+                change: this.updateQuickLinks
             }
         });
     },
 
     showOverview: function () {
+        var me = this;
         var router = this.getController('Uni.controller.history.Router');
         this.getApplication().fireEvent('changecontentevent', Ext.widget('communication-overview', {router: router}));
         this.loadData();
@@ -41,6 +46,7 @@ Ext.define('Dsh.controller.CommunicationOverview', {
         model.setFilter(router.filter);
         me.getCommunicationOverview().setLoading();
         me.getCommunicationServers().reload();
+
         model.load(null, {
                 success: function (record) {
                     me.getSummary().setRecord(record.getSummary());
@@ -50,11 +56,47 @@ Ext.define('Dsh.controller.CommunicationOverview', {
                         me.getKpi().setRecord(record.getKpi());
                     }
                     me.getHeader().down('#last-updated-field').setValue('Last updated at ' + Ext.util.Format.date(new Date(), 'H:i'));
+
+
                 },
                 callback: function () {
                     me.getCommunicationOverview().setLoading(false);
                 }
             }
         );
+        },
+
+    updateQuickLinks: function(){
+        var me = this;
+        var deviceGroupField = me.getHeader().down('#device-group');
+        var deviceGroupName = deviceGroupField.groupName;
+        var filter = false ;
+        if(deviceGroupName && deviceGroupName.length){
+            filter = encodeURIComponent(Ext.JSON.encode({
+                'GROUPNAME':deviceGroupName
+            }))
+        }
+        var reportsStore = Ext.getStore('ReportInfos');
+        if(reportsStore) {
+            var proxy = reportsStore.getProxy();
+            proxy.setExtraParam('category', 'MDC');
+            proxy.setExtraParam('subCategory', 'Device Communication');
+
+            reportsStore.load(function (records) {
+                var quickLinks = Ext.isArray(me.getQuickLinks().data) ? me.getQuickLinks().data : [];
+                Ext.each(records, function (record) {
+                    var reportName = record.get('name');
+                    var reportUUID = record.get('reportUUID');
+                    quickLinks.push({
+                        link: reportName,
+                        href: '../reports/index.html#/reports/view?reportUUID=' + reportUUID + (filter ? '&filter=' + filter : ''),
+                        target: '_blank'
+                    });
+                });
+
+                var quicklinksTplPanel = me.getQuickLinks().down('#quicklinksTplPanel');
+                quicklinksTplPanel.update(quickLinks);
+            });
+        }
     }
 });

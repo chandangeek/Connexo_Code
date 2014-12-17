@@ -65,6 +65,9 @@ Ext.define('Dsh.controller.Communications', {
         this.control({
             '#communicationsdetails #communicationslist': {
                 selectionchange: this.onSelectionChange
+            },
+            'communications-list #generate-report':{
+                click: this.onGenerateReport
             }
         });
 
@@ -165,5 +168,43 @@ Ext.define('Dsh.controller.Communications', {
     viewConnectionLog: function (item) {
         location.href = '#/devices/' + item.action.connection.mRID + '/connectionmethods/' + item.action.connection.connectionMethodId + '/history/' + item.action.connection.sessionId + '/viewlog' +
             '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22logTypes%22%3A%5B%22Connections%22%2C%22Communications%22%5D%7D'
+    },
+
+    onGenerateReport: function(){
+        var me = this;
+        var router = this.getController('Uni.controller.history.Router');
+        var fieldsToFilterNameMap = {};
+        fieldsToFilterNameMap['deviceGroup'] = 'GROUPNAME';
+        fieldsToFilterNameMap['currentStates'] = 'STATUS';
+        fieldsToFilterNameMap['latestResults'] = null;
+        fieldsToFilterNameMap['comSchedules'] = 'SCHEDULENAME';
+        fieldsToFilterNameMap['deviceTypes'] = null;
+        fieldsToFilterNameMap['comTasks'] = 'COMTASKNAME';
+
+        var reportFilter = false;
+
+        var fields = me.getSideFilterForm().getForm().getFields();
+        fields.each(function(field){
+            reportFilter = reportFilter || {};
+            var filterName = fieldsToFilterNameMap[field.getName()];
+            if(filterName){
+                var fieldValue = field.getRawValue();
+                if(field.getXType() == 'side-filter-combo'){
+                    fieldValue = Ext.isString(fieldValue) && fieldValue.split(', ') || fieldValue ;
+                    fieldValue = _.isArray(fieldValue) && _.compact(fieldValue) || fieldValue;
+                }
+            }
+            reportFilter[filterName] = fieldValue;
+        });
+
+        //handle special startBetween and finishBetween;
+        //router.filter.startedBetween
+        //router.filter.finishBetween
+
+        router.getRoute('generatereport').forward(null, {
+            category:'MDC',
+            subCategory:'Device Communication',
+            filter : reportFilter
+        });
     }
 });

@@ -24,12 +24,14 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
                 itemId: 'device-group',
                 label: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'Device group') + ': ',
                 arrowAlign: 'right',
+                groupName:null, // yellowfin reports use names instead of id
                 menu: {
                     router: me.router,
                     listeners: {
                         click: function (cmp, item) {
                             this.router.filter.set('deviceGroup', item.value);
                             this.router.filter.save();
+                            this.groupName = Ext.isNumber(item.value) ? item.text: null;
                         }
                     }
                 },
@@ -38,7 +40,10 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
                     if (item) {
                         item.setActive();
                         this.setText(this.label + item.text);
+                        this.groupName = Ext.isNumber(item.value) ? item.text: null;
+                        this.fireEvent('change', this); // the event is handled by CommOverview and ConnOverview controllers to update quick links.
                     }
+
                 }
             }
         ];

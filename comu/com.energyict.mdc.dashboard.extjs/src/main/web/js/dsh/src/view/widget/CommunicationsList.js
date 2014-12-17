@@ -92,7 +92,14 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 store: me.store,
                 displayMsg: Uni.I18n.translate('communication.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} communications'),
                 displayMoreMsg: Uni.I18n.translate('communication.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} communications'),
-                emptyMsg: Uni.I18n.translate('communication.widget.details.emptyMsg', 'DSH', 'There are no communications to display')
+                emptyMsg: Uni.I18n.translate('communication.widget.details.emptyMsg', 'DSH', 'There are no communications to display'),
+                items:[
+                    {
+                        xtype:'button',
+                        itemId:'generate-report',
+                        text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                    }
+                ]
             },
             {
                 itemId: 'pagingtoolbarbottom',
