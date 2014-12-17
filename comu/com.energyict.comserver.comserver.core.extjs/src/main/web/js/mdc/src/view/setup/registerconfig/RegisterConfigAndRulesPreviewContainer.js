@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
             xtype: 'preview-container',
             grid: {
                 xtype: 'validation-rules-for-registerconfig-grid',
-                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration']),
+                hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration','privilege.view.validationConfiguration','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration']),
                 deviceTypeId: this.deviceTypeId,
                 deviceConfigId: this.deviceConfigId,
                 registerId: this.registerId
@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
                 xtype: 'no-items-found-panel',
                 title: Uni.I18n.translate('validation.empty.rules.title', 'CFG', 'No validation rules found'),
                 reasons: [
-                    Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the register configuration.'),
+                    Uni.I18n.translate('registerConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the register configuration.')
                 ]
             },
             previewComponent: {

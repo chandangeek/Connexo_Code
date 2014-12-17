@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.Setup', {
+Ext.define('Mdc.view.setup.devicechannels.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.deviceLoadProfileChannelsSetup',
     itemId: 'deviceLoadProfileChannelsSetup',
@@ -7,9 +7,9 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Setup', {
     device: null,
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.view.setup.deviceloadprofilechannels.Grid',
-        'Mdc.view.setup.deviceloadprofilechannels.Preview',
-        'Mdc.view.setup.deviceloadprofilechannels.ChannelsFilter'
+        'Mdc.view.setup.devicechannels.Grid',
+        'Mdc.view.setup.devicechannels.Preview',
+        'Mdc.view.setup.devicechannels.ChannelsFilter'
 
     ],
 
@@ -49,10 +49,10 @@ Ext.define('Mdc.view.setup.deviceloadprofilechannels.Setup', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('deviceloadprofilechannels.empty.title', 'MDC', 'No channels found'),
+                        title: Uni.I18n.translate('devicechannels.empty.title', 'MDC', 'No channels found'),
                         reasons: [
-                            Uni.I18n.translate('deviceloadprofilechannels.empty.list.item1', 'MDC', 'No channels have been defined yet.'),
-                            Uni.I18n.translate('deviceloadprofilechannels.empty.list.item2', 'MDC', 'No channels comply to the filter.')
+                            Uni.I18n.translate('devicechannels.empty.list.item1', 'MDC', 'No channels have been defined yet.'),
+                            Uni.I18n.translate('devicechannels.empty.list.item2', 'MDC', 'No channels comply to the filter.')
                         ]
                     },
                     previewComponent: {

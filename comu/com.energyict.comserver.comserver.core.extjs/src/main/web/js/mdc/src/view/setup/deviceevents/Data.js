@@ -46,25 +46,34 @@ Ext.define('Mdc.view.setup.deviceevents.Data', {
                 }
             ]
         };
-        me.side && (me.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'deviceMenu',
-                        itemId: 'stepsMenu',
-                        device: me.device,
-                        toggleId: me.toggleId
+        if (me.side) {
+            me.side = [
+                {
+                    xtype: 'panel',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
                     },
-                    {
-                        xtype: 'deviceLogbookDataSideFilter',
-                        itemId: 'deviceLogbookDataSideFilter'
-                    }
-                ]
-            }
-        ]);
-
+                    items: [
+                        {
+                            ui: 'medium',
+                            items: [
+                                {
+                                    xtype: 'deviceMenu',
+                                    itemId: 'stepsMenu',
+                                    device: me.device,
+                                    toggleId: me.toggleId
+                                }
+                            ]
+                        },
+                        {
+                            xtype: 'deviceLogbookDataSideFilter',
+                            itemId: 'deviceLogbookDataSideFilter'
+                        }
+                    ]
+                }
+            ]
+        }
         me.callParent(arguments);
     }
 });

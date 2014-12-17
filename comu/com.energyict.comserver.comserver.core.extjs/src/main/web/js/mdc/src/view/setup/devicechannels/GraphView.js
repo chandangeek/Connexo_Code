@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.GraphView', {
+Ext.define('Mdc.view.setup.devicechannels.GraphView', {
     extend: 'Ext.container.Container',
     alias: 'widget.deviceLoadProfileChannelGraphView',
     itemId: 'deviceLoadProfileChannelGraphView',

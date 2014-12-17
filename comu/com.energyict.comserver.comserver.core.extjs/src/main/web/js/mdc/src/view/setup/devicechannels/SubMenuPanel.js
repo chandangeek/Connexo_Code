@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.deviceloadprofilechannels.SubMenuPanel', {
+Ext.define('Mdc.view.setup.devicechannels.SubMenuPanel', {
     extend: 'Ext.panel.Panel',
     requires: [
         'Uni.view.navigation.SubMenu'
