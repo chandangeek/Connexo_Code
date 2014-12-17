@@ -17,7 +17,7 @@ import java.util.List;
         use = JsonTypeInfo.Id.CLASS,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
-public interface LoadProfileIdentifier extends Serializable {
+public interface LoadProfileIdentifier<T extends BaseLoadProfile> extends Serializable {
 
     /**
      * Returns the LoadProfile BusinessObject referenced by this identifier.
@@ -27,7 +27,7 @@ public interface LoadProfileIdentifier extends Serializable {
      * @return the referenced LoadProfile
      * @throws com.energyict.mdc.common.NotFoundException when the LoadProfile could not be found
      */
-    public BaseLoadProfile findLoadProfile();
+    public T findLoadProfile();
 
     /**
      * The type of this identifier.
