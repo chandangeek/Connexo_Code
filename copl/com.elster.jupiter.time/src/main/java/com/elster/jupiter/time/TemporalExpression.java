@@ -1,10 +1,10 @@
 package com.elster.jupiter.time;
 
 import com.elster.jupiter.util.time.ScheduleExpression;
-import org.joda.time.DateTimeConstants;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
@@ -22,8 +22,9 @@ import java.util.Optional;
  */
 public final class TemporalExpression implements ScheduleExpression {
 
+	private static final int SECONDS_PER_DAY = (int) ChronoUnit.DAYS.getDuration().getSeconds();
     private static final int MAXIMUM_NUMBER_OF_DAYS_IN_ALL_MONTHS = 28;
-    private static final int NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS = DateTimeConstants.SECONDS_PER_DAY * MAXIMUM_NUMBER_OF_DAYS_IN_ALL_MONTHS;
+    private static final int NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS = SECONDS_PER_DAY * MAXIMUM_NUMBER_OF_DAYS_IN_ALL_MONTHS;
 
     private TimeDuration offset;
     private TimeDuration every;
@@ -124,9 +125,9 @@ public final class TemporalExpression implements ScheduleExpression {
          * we need to add max - 1 days to the first day of the month.
          **/
         int lastDayOfMonth = base.getActualMaximum(Calendar.DAY_OF_MONTH) - 1;
-        int remainingSecondsInDay = offset.getSeconds() % DateTimeConstants.SECONDS_PER_DAY;
+        int remainingSecondsInDay = offset.getSeconds() % SECONDS_PER_DAY;
         if (remainingSecondsInDay > 0) {
-            return new TimeDuration(lastDayOfMonth * DateTimeConstants.SECONDS_PER_DAY + remainingSecondsInDay, TimeDuration.TimeUnit.SECONDS);
+            return new TimeDuration(lastDayOfMonth * SECONDS_PER_DAY + remainingSecondsInDay, TimeDuration.TimeUnit.SECONDS);
         } else {
             return new TimeDuration(lastDayOfMonth, TimeDuration.TimeUnit.DAYS);
         }

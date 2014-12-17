@@ -1,7 +1,6 @@
 package com.elster.jupiter.time;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import org.joda.time.DateTimeConstants;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -466,7 +465,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
     @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset31And6PM () {
-        int offsetInSeconds = DateTimeConstants.SECONDS_PER_DAY * 31 + DateTimeConstants.SECONDS_PER_HOUR * 18;
+        int offsetInSeconds = 86400 * 31 + 3600 * 18;
         TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(offsetInSeconds));
         Calendar february1st2013 = Calendar.getInstance();
         february1st2013.set(2013, Calendar.FEBRUARY, 1, 0, 0, 0);
@@ -482,7 +481,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
     @Test
     public void testOnLastDayOfMonthSpecifiedWithOffset31And6PMWithSetLastDay() {
-        int offsetInSeconds = DateTimeConstants.SECONDS_PER_HOUR * 18;
+        int offsetInSeconds = 3600 * 18;
         TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(offsetInSeconds));
         expression.setLastDay();
         Calendar february1st2013 = Calendar.getInstance();
@@ -499,14 +498,14 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
     @Test
     public void testGetLastDayNotSet() throws Exception {
-        int offsetInSeconds = DateTimeConstants.SECONDS_PER_HOUR * 18;
+        int offsetInSeconds = 3600 * 18;
         TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(offsetInSeconds));
         assertThat(expression.isLastDay()).isFalse();
     }
 
     @Test
     public void testGetLastDaySet() throws Exception {
-        int offsetInSeconds = DateTimeConstants.SECONDS_PER_HOUR * 18;
+        int offsetInSeconds = 3600 * 18;
         TemporalExpression expression = new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), new TimeDuration(offsetInSeconds));
         expression.setLastDay();
         assertThat(expression.isLastDay()).isTrue();

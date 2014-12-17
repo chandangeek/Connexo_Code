@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import static com.elster.jupiter.time.TimeDuration.TimeUnit.*;
-import static org.joda.time.DateTimeConstants.*;
 
 /**
  * represents a relative period in time
@@ -37,10 +36,17 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     private static final String MONTHS_STRING = "months";
     private static final String YEARS_STRING = "years";
 
+    private static final int SECONDS_PER_MINUTE = 60;
+    private static final int SECONDS_PER_HOUR = 3600;
+    private static final int HOURS_PER_DAY = 24;
+    private static final int SECONDS_PER_DAY = 86400;
+    private static final int SECONDS_PER_WEEK = SECONDS_PER_DAY * 7;
     private static final int DAYS_IN_MONTH = 31;
     private static final int SECONDS_IN_MONTH = SECONDS_PER_DAY * DAYS_IN_MONTH;
     private static final int DAYS_IN_YEAR = 365;
     private static final int SECONDS_IN_YEAR = SECONDS_PER_HOUR * HOURS_PER_DAY * DAYS_IN_YEAR;
+    private static final int MILLIS_PER_SECOND = 1000;
+    
 
     private int count;
     private TimeUnit timeUnit;
