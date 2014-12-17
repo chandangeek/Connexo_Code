@@ -4,6 +4,7 @@ import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -44,8 +45,12 @@ class Installer {
 	}
 
 	private DestinationSpec getDestination() {
-		return messageService.getDestinationSpec(DATA_LIFE_CYCLE_DESTINATION_NAME).orElse(
+		return messageService.getDestinationSpec(DATA_LIFE_CYCLE_DESTINATION_NAME).orElseGet(() ->
 				messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get().createDestinationSpec(DATA_LIFE_CYCLE_DESTINATION_NAME, 10));
+	}
+	
+	private SubscriberSpec getSubscriberSpec() {
+		return getDestination().getSubscribers().stream().findFirst().orElseGet(() -> getDestination().subscribe(DATA_LIFE_CYCLE_DESTINATION_NAME));
 	}
 	
 	private void createTask() {
@@ -58,6 +63,11 @@ class Installer {
 					.scheduleImmediately()
 					.build().save();
 		}
+		DestinationSpec destination = getDestination();
+		if (!destination.isActive()) {
+			destination.activate();
+		}
+		getSubscriberSpec();		
 	}
 }
 
