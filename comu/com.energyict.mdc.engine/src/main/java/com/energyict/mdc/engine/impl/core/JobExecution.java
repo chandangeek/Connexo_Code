@@ -49,6 +49,7 @@ import com.energyict.mdc.protocol.api.exceptions.SerialNumberMismatchException;
 import com.energyict.mdc.protocol.api.exceptions.TimeDifferenceExceededException;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -104,6 +105,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         public EventService eventService();
 
+        public IdentificationService identificationService();
     }
 
     private final ComPort comPort;
@@ -589,6 +591,11 @@ public abstract class JobExecution implements ScheduledJob {
         public TransactionService transactionService() {
             return JobExecution.this.serviceProvider.transactionService();
         }
+
+        @Override
+        public IdentificationService identificationService() {
+            return JobExecution.this.serviceProvider.identificationService();
+        }
     }
 
     /**
@@ -652,6 +659,11 @@ public abstract class JobExecution implements ScheduledJob {
         @Override
         public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
             return serviceProvider.engineService().findDeviceCacheByDevice(device);
+        }
+
+        @Override
+        public IdentificationService identificationService() {
+            return serviceProvider.identificationService();
         }
 
     }

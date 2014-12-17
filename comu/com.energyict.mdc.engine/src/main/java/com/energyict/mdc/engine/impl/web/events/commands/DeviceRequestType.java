@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.Set;
 
@@ -13,10 +13,10 @@ import java.util.Set;
  */
 public class DeviceRequestType extends IdBusinessObjectRequestType {
 
-    private final DeviceService deviceService;
+    private final IdentificationService identificationService;
 
-    public DeviceRequestType(DeviceService deviceService) {
-        this.deviceService = deviceService;
+    public DeviceRequestType(IdentificationService identificationService) {
+        this.identificationService = identificationService;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class DeviceRequestType extends IdBusinessObjectRequestType {
 
     @Override
     protected Request newRequestFor(Set<Long> ids) {
-        return new DeviceRequest(deviceService, ids);
+        return new DeviceRequest(identificationService, ids);
     }
 
 }

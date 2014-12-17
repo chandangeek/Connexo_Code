@@ -1,15 +1,12 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import static java.util.Collections.singleton;
 
 /**
  * Provides an implementation for the {@link Request} interface
@@ -21,23 +18,19 @@ import static java.util.Collections.singleton;
  */
 public class DeviceRequest extends IdBusinessObjectRequest {
 
-    private final DeviceService deviceService;
+    private final IdentificationService identificationService;
     private List<BaseDevice> devices;
 
-    public DeviceRequest(DeviceService deviceService, long deviceId) {
-        this(deviceService, singleton(deviceId));
-    }
-
-    public DeviceRequest(DeviceService deviceService, Set<Long> deviceIds) {
+    public DeviceRequest(IdentificationService identificationService, Set<Long> deviceIds) {
         super(deviceIds);
-        this.deviceService = deviceService;
+        this.identificationService = identificationService;
         this.validateDeviceIds();
     }
 
     private void validateDeviceIds() {
         this.devices = new ArrayList<>(this.getBusinessObjectIds().size());
         for (Long deviceId : this.getBusinessObjectIds()) {
-            this.devices.add(new DeviceIdentifierById(deviceId, deviceService).findDevice());
+            this.devices.add(identificationService.createDeviceIdentifierByDatabaseId(deviceId).findDevice());
         }
     }
 

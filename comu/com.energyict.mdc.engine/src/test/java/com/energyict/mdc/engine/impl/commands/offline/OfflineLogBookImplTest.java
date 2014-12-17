@@ -46,7 +46,7 @@ public class OfflineLogBookImplTest {
         when(logBook.getLastLogBook()).thenReturn(LAST_LOGBOOK);
 
         //Business Methods
-        OfflineLogBook offlineLogBook = new OfflineLogBookImpl(logBook);
+        OfflineLogBook offlineLogBook = new OfflineLogBookImpl(logBook, identificationService);
 
         // asserts
         assertNotNull(offlineLogBook);

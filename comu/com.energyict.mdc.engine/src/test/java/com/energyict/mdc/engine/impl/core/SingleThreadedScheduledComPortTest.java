@@ -48,6 +48,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.events.EventService;
@@ -192,6 +193,8 @@ public class SingleThreadedScheduledComPortTest {
     private ScheduledComPortMonitorImplMBean scheduledComPortMonitor;
     @Mock
     private ScheduledComPortOperationalStatistics operationalStatistics;
+    @Mock
+    private IdentificationService identificationService;
 
     private Clock clock = Clock.systemUTC();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
@@ -222,6 +225,7 @@ public class SingleThreadedScheduledComPortTest {
         this.serviceProvider.setThreadPrincipalService(threadPrincipalService);
         this.serviceProvider.setManagementBeanFactory(this.managementBeanFactory);
         this.serviceProvider.setEventService(this.eventService);
+        this.serviceProvider.setIdentificationService(this.identificationService);
         when(this.managementBeanFactory.findOrCreateFor(any(ScheduledComPort.class))).thenReturn(this.scheduledComPortMonitor);
         ScheduledComPortMonitor comPortMonitor = (ScheduledComPortMonitor) this.scheduledComPortMonitor;
         when(comPortMonitor.getOperationalStatistics()).thenReturn(this.operationalStatistics);

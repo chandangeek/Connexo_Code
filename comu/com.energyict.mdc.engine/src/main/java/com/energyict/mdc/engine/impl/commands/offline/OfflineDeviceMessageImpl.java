@@ -1,7 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.engine.impl.meterdata.identifiers.DeviceMessageIdentifier;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -10,6 +12,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
 
     private final DeviceMessage deviceMessage;
     private final DeviceProtocol deviceProtocol;
+    private IdentificationService identificationService;
 
     private DeviceMessageSpec specification;
     private DeviceMessageStatus deviceMessageStatus;
@@ -37,6 +41,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     private String protocolInfo;
     private Instant releaseDate;
     private Instant creationDate;
+    private BaseDevice device;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -46,9 +51,10 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
         this.deviceProtocol = null;
     }
 
-    public OfflineDeviceMessageImpl(DeviceMessage deviceMessage, DeviceProtocol deviceProtocol) {
+    public OfflineDeviceMessageImpl(DeviceMessage deviceMessage, DeviceProtocol deviceProtocol, IdentificationService identificationService) {
         this.deviceMessage = deviceMessage;
         this.deviceProtocol = deviceProtocol;
+        this.identificationService = identificationService;
         goOffline();
     }
 
@@ -62,6 +68,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
         this.protocolInfo = this.deviceMessage.getProtocolInfo();
         this.deviceMessageStatus = this.deviceMessage.getStatus();
         this.creationDate = this.deviceMessage.getCreationDate();
+        this.device = this.deviceMessage.getDevice();
         getOfflineDeviceMessageAttributes(this.deviceMessage.getAttributes());
     }
 
@@ -84,7 +91,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
 
     @Override
     public MessageIdentifier getIdentifier() {
-        return new DeviceMessageIdentifier(deviceMessage);
+        return this.identificationService.createMessageIdentifierForAlreadyKnownMessage(deviceMessage);
     }
 
     @Override
@@ -125,5 +132,10 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     @Override
     public String getDeviceSerialNumber() {
         return this.deviceSerialNumber;
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
     }
 }

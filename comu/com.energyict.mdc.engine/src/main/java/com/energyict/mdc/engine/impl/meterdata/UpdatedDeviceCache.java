@@ -22,7 +22,7 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
     /**
      * Unique identification object of who needs to update his cache
      */
-    private final DeviceIdentifier<Device> deviceIdentifier;
+    private final DeviceIdentifier<?> deviceIdentifier;
 
     /**
      * The DeviceProtocolCache that the protocol used/updated during communication
@@ -34,7 +34,7 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
      *
      * @param deviceIdentifier unique identification of the device which need s to update his cache
      */
-    public UpdatedDeviceCache(DeviceIdentifier<Device> deviceIdentifier) {
+    public UpdatedDeviceCache(DeviceIdentifier<?> deviceIdentifier) {
         super();
         this.deviceIdentifier = deviceIdentifier;
     }
@@ -50,7 +50,7 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
     }
 
     @Override
-    public DeviceIdentifier<Device> getDeviceIdentifier() {
+    public DeviceIdentifier<?> getDeviceIdentifier() {
         return this.deviceIdentifier;
     }
 

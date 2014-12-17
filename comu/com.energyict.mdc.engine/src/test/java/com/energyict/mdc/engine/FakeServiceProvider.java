@@ -28,6 +28,7 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.io.SocketService;
 
@@ -70,6 +71,7 @@ public class FakeServiceProvider
     private WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory;
     private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
     private EmbeddedWebServerFactory embeddedWebServerFactory;
+    private IdentificationService identificationService;
 
     @Override
     public EventService eventService() {
@@ -155,6 +157,11 @@ public class FakeServiceProvider
     }
 
     @Override
+    public IdentificationService identificationService() {
+        return identificationService;
+    }
+
+    @Override
     public DeviceConfigurationService deviceConfigurationService() {
         return deviceConfigurationService;
     }
@@ -162,6 +169,10 @@ public class FakeServiceProvider
     @Override
     public ProtocolPluggableService protocolPluggableService() {
         return protocolPluggableService;
+    }
+
+    public void setIdentificationService(IdentificationService identificationService) {
+        this.identificationService = identificationService;
     }
 
     public void setEventService(EventService eventService) {

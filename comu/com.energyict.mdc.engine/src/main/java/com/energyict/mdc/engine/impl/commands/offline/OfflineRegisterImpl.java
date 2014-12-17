@@ -6,10 +6,10 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
      * The Register which will go Offline
      */
     private final Register<?> register;
+    private IdentificationService identificationService;
 
     private final Device device;
 
@@ -82,8 +83,9 @@ public class OfflineRegisterImpl implements OfflineRegister {
      */
     private boolean isText;
 
-    public OfflineRegisterImpl(final Register<?> register) {
+    public OfflineRegisterImpl(final Register<?> register, IdentificationService identificationService) {
         this.register = register;
+        this.identificationService = identificationService;
         this.device = register.getDevice();
         this.deviceId = register.getDevice().getId();
         this.goOffline();
@@ -158,7 +160,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
 
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDevice(this.device);
+        return identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
     }
 
     @Override

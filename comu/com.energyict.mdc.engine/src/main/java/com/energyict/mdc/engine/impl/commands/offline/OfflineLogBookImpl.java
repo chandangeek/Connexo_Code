@@ -3,9 +3,10 @@ package com.energyict.mdc.engine.impl.commands.offline;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.Date;
 
@@ -21,6 +22,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
      * The {@link com.energyict.mdc.protocol.api.device.BaseLogBook} which is going offline
      */
     private final LogBook logBook;
+    private IdentificationService identificationService;
 
     private final Device device;
 
@@ -51,8 +53,9 @@ public class OfflineLogBookImpl implements OfflineLogBook {
      */
     private long logBookTypeId;
 
-    public OfflineLogBookImpl(LogBook logBook) {
+    public OfflineLogBookImpl(LogBook logBook, IdentificationService identificationService) {
         this.logBook = logBook;
+        this.identificationService = identificationService;
         this.device = logBook.getDevice();
         goOffline();
     }
@@ -103,11 +106,16 @@ public class OfflineLogBookImpl implements OfflineLogBook {
 
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDevice(this.device);
+        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
     }
 
-    public void setLogBookId(long logBookId) {
-        this.logBookId = logBookId;
+    @Override
+    public LogBookIdentifier getLogBookIdentifier() {
+        return this.identificationService.createLogbookIdentifierForAlreadyKnownLogbook(logBook);
+    }
+
+    public void setLogBookId(long logBookSpecId) {
+        this.logBookId = logBookSpecId;
     }
 
     public void setDeviceId(int deviceId) {

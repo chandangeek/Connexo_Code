@@ -14,7 +14,13 @@ import com.energyict.mdc.engine.model.ComPort;
 import com.energyict.mdc.engine.model.ComPortPool;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
+
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -23,6 +29,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -53,6 +61,8 @@ public class RequestApplyToTest {
     private DeviceService deviceService;
     @Mock
     private EngineModelService engineModelService;
+    @Mock
+    private IdentificationService identificationService;
 
     @Test
     public void testCategoryRequest() {
@@ -70,7 +80,7 @@ public class RequestApplyToTest {
     @Test
     public void testDeviceRequest() {
         BaseDevice device = this.mockDevice();
-        DeviceRequest request = new DeviceRequest(deviceService, DEVICE1_ID);
+        DeviceRequest request = new DeviceRequest(identificationService, Collections.singleton(DEVICE1_ID));
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method

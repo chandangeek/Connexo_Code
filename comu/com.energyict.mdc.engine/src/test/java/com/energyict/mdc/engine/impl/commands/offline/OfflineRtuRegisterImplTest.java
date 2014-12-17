@@ -70,7 +70,7 @@ public class OfflineRtuRegisterImplTest {
         when(rtuRegister.getDevice()).thenReturn(rtu);
 
         //Business Methods
-        OfflineRegister offlineRegister = new OfflineRegisterImpl(rtuRegister);
+        OfflineRegister offlineRegister = new OfflineRegisterImpl(rtuRegister, identificationService);
 
         // asserts
         assertThat(offlineRegister).isNotNull();
@@ -91,7 +91,7 @@ public class OfflineRtuRegisterImplTest {
         when(rtuRegister.getDevice()).thenReturn(device);
 
         //Business Methods
-        OfflineRegister offlineRegister = new OfflineRegisterImpl(rtuRegister);
+        OfflineRegister offlineRegister = new OfflineRegisterImpl(rtuRegister, identificationService);
 
         // asserts
         assertThat(offlineRegister).isNotNull();

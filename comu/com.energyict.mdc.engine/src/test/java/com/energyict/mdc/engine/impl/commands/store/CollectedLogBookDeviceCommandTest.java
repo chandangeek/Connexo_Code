@@ -4,7 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
-import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
+import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeFactory;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
@@ -40,7 +40,7 @@ public class CollectedLogBookDeviceCommandTest {
 
     @Test
     public void testToJournalMessageDescriptionWhenLogBookHasNoMeterEvents() throws Exception {
-        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierByIdImpl(LOGBOOK_ID, logBookService);
+        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierById(LOGBOOK_ID, logBookService);
         final DeviceLogBook deviceLogBook = new DeviceLogBook(logBookIdentifier);
         CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, new MeterDataStoreCommand());
 
@@ -54,7 +54,7 @@ public class CollectedLogBookDeviceCommandTest {
     @Test
     public void testToJournalMessageDescriptionWhenLogBookHasMeterEvents() throws Exception {
         initializeEndDeviceEventTypeFactory();
-        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierByIdImpl(LOGBOOK_ID, logBookService);
+        final LogBookIdentifier logBookIdentifier = new LogBookIdentifierById(LOGBOOK_ID, logBookService);
         final DeviceLogBook deviceLogBook = new DeviceLogBook(logBookIdentifier);
         List<MeterProtocolEvent> meterEvents = new ArrayList<>(2);
         meterEvents.add(

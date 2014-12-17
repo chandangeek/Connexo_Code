@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.protocol.inbound;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link com.energyict.mdc.engine.impl.DeviceIdentifierById} component.
+ * Tests the {@link com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-12 (11:19)

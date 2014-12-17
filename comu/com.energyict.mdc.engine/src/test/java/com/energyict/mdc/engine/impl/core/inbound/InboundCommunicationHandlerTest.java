@@ -50,6 +50,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
@@ -141,6 +142,8 @@ public class InboundCommunicationHandlerTest {
     private EventService eventService;
     @Mock
     private HexService hexService;
+    @Mock
+    private IdentificationService identificationService;
 
     private FakeTransactionService transactionService = new FakeTransactionService();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
@@ -152,6 +155,7 @@ public class InboundCommunicationHandlerTest {
         ServiceProvider.instance.set(serviceProvider);
         serviceProvider.setClock(clock);
         serviceProvider.setEventService(eventService);
+        serviceProvider.setIdentificationService(identificationService);
         serviceProvider.setConnectionTaskService(connectionTaskService);
         serviceProvider.setHexService(this.hexService);
         EventPublisherImpl eventPublisher = mock(EventPublisherImpl.class);

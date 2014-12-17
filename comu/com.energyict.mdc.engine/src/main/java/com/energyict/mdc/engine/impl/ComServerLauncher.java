@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.CollectedDataFactoryProvider;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -196,6 +197,11 @@ public final class ComServerLauncher {
         @Override
         public EventService eventService() {
             return serviceProvider.eventService();
+        }
+
+        @Override
+        public IdentificationService identificationService() {
+            return serviceProvider.identificationService();
         }
 
     }

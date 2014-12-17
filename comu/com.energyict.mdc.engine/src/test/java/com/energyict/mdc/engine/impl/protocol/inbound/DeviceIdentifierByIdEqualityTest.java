@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.protocol.inbound;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import org.junit.BeforeClass;
 
 import java.util.Arrays;
@@ -10,7 +10,7 @@ import java.util.Arrays;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests the equals contract of the {@link com.energyict.mdc.engine.impl.DeviceIdentifierById} component.
+ * Tests the equals contract of the {@link com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-05-06 (11:53)

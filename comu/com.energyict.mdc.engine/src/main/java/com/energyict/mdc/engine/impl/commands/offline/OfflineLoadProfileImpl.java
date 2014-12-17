@@ -6,13 +6,12 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.engine.impl.LoadProfileIdentifierForAlreadyKnownLoadProfile;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,6 +31,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     private final LoadProfile loadProfile;
     private final Device device;
     private final TopologyService topologyService;
+    private IdentificationService identificationService;
 
     /**
      * The ID of the {@link LoadProfile} that will go offline
@@ -77,10 +77,11 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      */
     private List<OfflineLoadProfileChannel> allLoadProfileChannels;
 
-    public OfflineLoadProfileImpl(final LoadProfile loadProfile, TopologyService topologyService) {
+    public OfflineLoadProfileImpl(final LoadProfile loadProfile, TopologyService topologyService, IdentificationService identificationService) {
         super();
         this.loadProfile = loadProfile;
         this.topologyService = topologyService;
+        this.identificationService = identificationService;
         this.device = loadProfile.getDevice();
         goOffline();
     }
@@ -212,12 +213,12 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
 
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDevice(this.device);
+        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
     }
 
     @Override
     public LoadProfileIdentifier getLoadProfileIdentifier() {
-        return new LoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile);
+        return this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile);
     }
 
     private void setAllLoadProfileChannels(final List<OfflineLoadProfileChannel> allLoadProfileChannels) {

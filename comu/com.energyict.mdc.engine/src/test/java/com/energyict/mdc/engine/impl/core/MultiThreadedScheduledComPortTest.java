@@ -49,6 +49,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.events.EventService;
@@ -217,6 +218,8 @@ public class MultiThreadedScheduledComPortTest {
     private ScheduledComPortMonitorImplMBean scheduledComPortMonitor;
     @Mock
     private ScheduledComPortOperationalStatistics operationalStatistics;
+    @Mock
+    private IdentificationService identificationService;
 
     private Clock clock = Clock.systemUTC();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
@@ -237,6 +240,7 @@ public class MultiThreadedScheduledComPortTest {
     public void setupServiceProvider() {
         ServiceProvider.instance.set(this.serviceProvider);
         this.serviceProvider.setEventService(this.eventService);
+        this.serviceProvider.setIdentificationService(this.identificationService);
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setUserService(this.userService);
         this.serviceProvider.setClock(this.clock);

@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -192,6 +193,11 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         @Override
         public TransactionService transactionService() {
             return serviceProvider.transactionService();
+        }
+
+        @Override
+        public IdentificationService identificationService() {
+            return serviceProvider.identificationService();
         }
 
     }

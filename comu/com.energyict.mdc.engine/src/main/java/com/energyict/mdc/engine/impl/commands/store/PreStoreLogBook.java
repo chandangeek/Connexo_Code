@@ -6,7 +6,6 @@ import java.time.Clock;
 import java.time.Instant;
 
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 

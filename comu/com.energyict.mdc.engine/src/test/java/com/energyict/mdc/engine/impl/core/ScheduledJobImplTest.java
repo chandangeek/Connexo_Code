@@ -49,6 +49,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -150,10 +151,12 @@ public class ScheduledJobImplTest {
     private IssueService issueService;
     @Mock
     private EventService eventService;
-    private Clock clock = Clock.systemDefaultZone();
+    @Mock
+    private IdentificationService identificationService;
     @Mock
     private ThreadPrincipalService threadprincipalService;
 
+    private Clock clock = Clock.systemDefaultZone();
     private TransactionService transactionService = new FakeTransactionService();
     private FakeServiceProvider serviceProvider = new FakeServiceProvider();
 
@@ -161,6 +164,7 @@ public class ScheduledJobImplTest {
     public void setupServiceProvider() {
         ServiceProvider.instance.set(this.serviceProvider);
         this.serviceProvider.setEventService(this.eventService);
+        this.serviceProvider.setIdentificationService(this.identificationService);
         this.serviceProvider.setIssueService(this.issueService);
         this.serviceProvider.setUserService(this.userService);
         this.serviceProvider.setClock(this.clock);

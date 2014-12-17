@@ -102,12 +102,12 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
 
         CommandRoot commandRoot = new CommandRootImpl(device, AbstractComCommandExecuteTest.newTestExecutionContext(), commandRootServiceProvider);
         ReadRegistersCommandImpl readRegistersCommand = (ReadRegistersCommandImpl) commandRoot.getReadRegistersCommand(commandRoot, comTaskExecution);
-        OfflineRegister register1 = new OfflineRegisterImpl(reg1);
-        OfflineRegister register2 = new OfflineRegisterImpl(reg2);
-        OfflineRegister register3 = new OfflineRegisterImpl(reg3);
-        OfflineRegister register4 = new OfflineRegisterImpl(reg4);
-        OfflineRegister register5 = new OfflineRegisterImpl(reg1);
-        OfflineRegister register6 = new OfflineRegisterImpl(reg3);
+        OfflineRegister register1 = new OfflineRegisterImpl(reg1, identificationService);
+        OfflineRegister register2 = new OfflineRegisterImpl(reg2, identificationService);
+        OfflineRegister register3 = new OfflineRegisterImpl(reg3, identificationService);
+        OfflineRegister register4 = new OfflineRegisterImpl(reg4, identificationService);
+        OfflineRegister register5 = new OfflineRegisterImpl(reg1, identificationService);
+        OfflineRegister register6 = new OfflineRegisterImpl(reg3, identificationService);
 
         readRegistersCommand.addRegisters(Arrays.asList(register1, register2, register3, register4, register2, register4, register5, register6));
 
@@ -150,7 +150,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
 
         final ObisCode regObisCode1 = ObisCode.fromString("1.0.1.8.1.255");
         Register reg1 = createMockTextRegister(regObisCode1, readingType);
-        OfflineRegister register1 = new OfflineRegisterImpl(reg1);
+        OfflineRegister register1 = new OfflineRegisterImpl(reg1, identificationService);
 
         readRegistersCommand.addRegisters(Arrays.asList(register1));
         commandRoot.execute(deviceProtocol, executionContext);
@@ -180,7 +180,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
 
         final ObisCode regObisCode1 = ObisCode.fromString("1.0.1.8.1.255");
         Register reg1 = createMockTextRegister(regObisCode1, readingType);
-        OfflineRegister register1 = new OfflineRegisterImpl(reg1);
+        OfflineRegister register1 = new OfflineRegisterImpl(reg1, identificationService);
 
         readRegistersCommand.addRegisters(Arrays.asList(register1));
         commandRoot.execute(deviceProtocol, executionContext);

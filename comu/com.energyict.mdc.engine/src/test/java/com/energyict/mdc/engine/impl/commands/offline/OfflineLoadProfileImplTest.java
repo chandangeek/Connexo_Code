@@ -65,7 +65,7 @@ public class OfflineLoadProfileImplTest {
     public void goOfflineTest() {
         final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
         LoadProfile loadProfile = getNewMockedLoadProfile(LOAD_PROFILE_ID, loadProfileObisCode);
-        OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, mock(TopologyService.class));
+        OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, mock(TopologyService.class), identificationService);
 
         // Asserts
         assertThat(offlineLoadProfile).isNotNull();
@@ -84,7 +84,7 @@ public class OfflineLoadProfileImplTest {
         final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
         TopologyService topologyService = mock(TopologyService.class);
         LoadProfile loadProfile = getMockedLoadProfileWithTwoChannels(LOAD_PROFILE_ID, loadProfileObisCode, topologyService);
-        OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, topologyService);
+        OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, topologyService, identificationService);
 
         // asserts
         assertThat(offlineLoadProfile.getChannels()).isNotNull();

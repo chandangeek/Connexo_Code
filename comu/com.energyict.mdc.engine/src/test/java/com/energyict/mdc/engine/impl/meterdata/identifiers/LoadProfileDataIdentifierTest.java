@@ -5,7 +5,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.engine.impl.LoadProfileDataIdentifier;
+import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link com.energyict.mdc.engine.impl.LoadProfileDataIdentifier}.
+ * Tests the {@link com.energyict.mdc.engine.impl.LoadProfileIdentifierByObisCodeAndDevice}.
  * <p/>
  * Copyrights EnergyICT
  * Date: 16/10/12
@@ -46,7 +46,7 @@ public class LoadProfileDataIdentifierTest {
         when(this.device.getLoadProfiles()).thenReturn(new ArrayList<LoadProfile>(0));
 
         // business method
-        new LoadProfileDataIdentifier(loadProfileObisCode, getMockedDeviceIdentifier()).findLoadProfile();
+        new LoadProfileIdentifierByObisCodeAndDevice(loadProfileObisCode, getMockedDeviceIdentifier()).findLoadProfile();
     }
 
     @Test(expected = NotFoundException.class)
@@ -55,7 +55,7 @@ public class LoadProfileDataIdentifierTest {
         when(deviceIdentifier.findDevice()).thenReturn(null);
 
         // Business method
-        new LoadProfileDataIdentifier(loadProfileObisCode, deviceIdentifier).findLoadProfile();
+        new LoadProfileIdentifierByObisCodeAndDevice(loadProfileObisCode, deviceIdentifier).findLoadProfile();
     }
 
     @Test
@@ -68,7 +68,7 @@ public class LoadProfileDataIdentifierTest {
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(singleLoadProfile));
 
         // business method
-        LoadProfile loadProfile = new LoadProfileDataIdentifier(loadProfileObisCode, getMockedDeviceIdentifier()).findLoadProfile();
+        LoadProfile loadProfile = new LoadProfileIdentifierByObisCodeAndDevice(loadProfileObisCode, getMockedDeviceIdentifier()).findLoadProfile();
 
         // Asserts
         assertThat(loadProfile).isNotNull();
@@ -91,7 +91,7 @@ public class LoadProfileDataIdentifierTest {
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(mLoadProfile1, mLoadProfile2));
 
         // business method
-        LoadProfile loadProfile = new LoadProfileDataIdentifier(loadProfileObisCode, getMockedDeviceIdentifier()).findLoadProfile();
+        LoadProfile loadProfile = new LoadProfileIdentifierByObisCodeAndDevice(loadProfileObisCode, getMockedDeviceIdentifier()).findLoadProfile();
 
         // Asserts
         assertThat(loadProfile).isNotNull();

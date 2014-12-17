@@ -72,7 +72,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("simplePreStoreWithoutIssuesTest").logBookTypes(this.logBookType).create();
         LogBook logBook = device.getLogBooks().get(0);
         CollectedLogBook collectedLogBook = enhanceCollectedLogBook(logBook, createMockedCollectedLogBook());
-        OfflineLogBookImpl offlineLogBook = new OfflineLogBookImpl(logBook);
+        OfflineLogBookImpl offlineLogBook = new OfflineLogBookImpl(logBook, identificationService);
 
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLogBook);
 
@@ -92,7 +92,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("simplePreStoreWithDataInFutureTest").logBookTypes(this.logBookType).create();
         LogBook logBook = device.getLogBooks().get(0);
         CollectedLogBook collectedLogBook = enhanceCollectedLogBook(logBook, createMockedCollectedLogBookWithEventInFuture());
-        OfflineLogBookImpl offlineLogBook = new OfflineLogBookImpl(logBook);
+        OfflineLogBookImpl offlineLogBook = new OfflineLogBookImpl(logBook, identificationService);
 
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLogBook);
 
@@ -112,7 +112,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("preStoreWithDuplicatesTest").logBookTypes(this.logBookType).create();
         LogBook logBook = device.getLogBooks().get(0);
         CollectedLogBook collectedLogBook = enhanceCollectedLogBook(logBook, createMockedCollectedLogBookWithDuplicates());
-        OfflineLogBookImpl offlineLogBook = new OfflineLogBookImpl(logBook);
+        OfflineLogBookImpl offlineLogBook = new OfflineLogBookImpl(logBook, identificationService);
 
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLogBook);
 

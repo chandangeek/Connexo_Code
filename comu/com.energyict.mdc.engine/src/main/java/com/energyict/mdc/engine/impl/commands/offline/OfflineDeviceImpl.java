@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -22,6 +21,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -46,6 +46,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * The Device which is going offline
      */
     private final Device device;
+    private ServiceProvider serviceProvider;
 
     /**
      * The ID of the Persistent Device object
@@ -112,11 +113,14 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
         public Optional<DeviceCache> findProtocolCacheByDevice(Device device);
 
+        public IdentificationService identificationService();
+
     }
 
     public OfflineDeviceImpl(Device device, OfflineDeviceContext offlineDeviceContext, ServiceProvider serviceProvider) {
         this.device = device;
-        goOffline(offlineDeviceContext, serviceProvider);
+        this.serviceProvider = serviceProvider;
+        goOffline(offlineDeviceContext);
     }
 
     /**
@@ -124,7 +128,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * from the database into memory so that normal business operations can continue.<br>
      * Note that this may cause recursive calls to other objects that can go offline.
      */
-    private void goOffline(OfflineDeviceContext context, ServiceProvider serviceProvider) {
+    private void goOffline(OfflineDeviceContext context) {
         setId(this.device.getId());
         setSerialNumber(this.device.getSerialNumber());
         this.allProperties = TypedProperties.empty();
@@ -142,7 +146,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
             for (Device downstreamDevice : downstreamDevices) {
                 downStreamEndDevices.add(downstreamDevice);
             }
-            setSlaveDevices(convertToOfflineRtus(downStreamEndDevices, serviceProvider));
+            setSlaveDevices(convertToOfflineRtus(downStreamEndDevices));
         }
         if (context.needsMasterLoadProfiles()) {
             setMasterLoadProfiles(convertToOfflineLoadProfiles(this.device.getLoadProfiles(), serviceProvider.topologyService()));
@@ -237,10 +241,9 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * {@link com.energyict.mdc.device.config.DeviceType#isLogicalSlave()} checked.
      *
      * @param downstreamRtus The rtus to go offline
-     * @param serviceProvider The ServiceProvider
      * @return a list of OfflineDevice
      */
-    private List<OfflineDevice> convertToOfflineRtus(List<Device> downstreamRtus, ServiceProvider serviceProvider) {
+    private List<OfflineDevice> convertToOfflineRtus(List<Device> downstreamRtus) {
         List<OfflineDevice> offlineSlaves = new ArrayList<>(downstreamRtus.size());
         for (Device downstreamRtu : downstreamRtus) {
             OfflineDevice offlineDevice = new OfflineDeviceImpl(downstreamRtu, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG), serviceProvider);
@@ -257,14 +260,14 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private List<OfflineLoadProfile> convertToOfflineLoadProfiles(final List<LoadProfile> loadProfiles, TopologyService topologyService) {
         return loadProfiles
                 .stream()
-                .map(lp -> new OfflineLoadProfileImpl(lp, topologyService))
+                .map(lp -> new OfflineLoadProfileImpl(lp, topologyService, serviceProvider.identificationService()))
                 .collect(Collectors.toList());
     }
 
     private List<OfflineLogBook> convertToOfflineLogBooks(final List<LogBook> logBooks){
         List<OfflineLogBook> offlineLogBooks = new ArrayList<>(logBooks.size());
         for (LogBook logBook : logBooks) {
-            offlineLogBooks.add(new OfflineLogBookImpl(logBook));
+            offlineLogBooks.add(new OfflineLogBookImpl(logBook, serviceProvider.identificationService()));
         }
         return offlineLogBooks;
     }
@@ -272,7 +275,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private List<OfflineRegister> convertToOfflineRegister(final List<Register> registers){
         List<OfflineRegister> offlineRegisters = new ArrayList<>(registers.size());
         for (Register register : registers) {
-            offlineRegisters.add(new OfflineRegisterImpl(register));
+            offlineRegisters.add(new OfflineRegisterImpl(register, serviceProvider.identificationService()));
         }
         return offlineRegisters;
     }
@@ -369,7 +372,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage<Device>> deviceMessages) {
         List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>(deviceMessages.size());
-        offlineDeviceMessages.addAll(deviceMessages.stream().map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceProtocolPluggableClass.getDeviceProtocol())).collect(Collectors.toList()));
+        offlineDeviceMessages.addAll(deviceMessages.stream().map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceProtocolPluggableClass.getDeviceProtocol(), serviceProvider.identificationService())).collect(Collectors.toList()));
         return offlineDeviceMessages;
     }
 
@@ -420,7 +423,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDevice(device);
+        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(device);
     }
 
     private void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {

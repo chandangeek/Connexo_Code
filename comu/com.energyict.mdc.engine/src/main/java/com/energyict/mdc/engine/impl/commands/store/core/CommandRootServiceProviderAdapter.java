@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 /**
  * Copyrights EnergyICT
@@ -48,5 +49,10 @@ public class CommandRootServiceProviderAdapter implements CommandRoot.ServicePro
     @Override
     public TransactionService transactionService() {
         return delegate.transactionService();
+    }
+
+    @Override
+    public IdentificationService identificationService() {
+        return delegate.identificationService();
     }
 }

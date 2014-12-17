@@ -15,7 +15,6 @@ import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.impl.meterdata.identifiers.LogBookIdentifierByIdImpl;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
@@ -265,9 +264,8 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      * @param logBook the logBook to add
      */
     protected void addLogBookToReaderList(final OfflineLogBook logBook) {
-        LogBookIdentifierByIdImpl logBookIdentifier = new LogBookIdentifierByIdImpl(logBook.getLogBookId(), getCommandRoot().getServiceProvider().logBookService());
         LogBookReader logBookReader = new LogBookReader(logBook.getObisCode(),
-                logBook.getLastLogBook(), logBookIdentifier, logBook.getDeviceIdentifier());
+                logBook.getLastLogBook(), logBook.getLogBookIdentifier(), logBook.getDeviceIdentifier());
         this.logBookReaders.add(logBookReader);
     }
 

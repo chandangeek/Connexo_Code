@@ -5,7 +5,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServiceProvider;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessage;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
-import com.energyict.mdc.engine.impl.meterdata.identifiers.DeviceMessageIdentifier;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
 import com.energyict.mdc.engine.model.ComServer;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -59,7 +59,7 @@ public class CollectedMessageListDeviceCommandTest {
 
     @Test
     public void testExecute() {
-        final DeviceMessageIdentifier deviceMessageIdentifier = new DeviceMessageIdentifier(deviceMessage1);
+        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
         when(offlineDeviceMessage.getIdentifier()).thenReturn(deviceMessageIdentifier);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier);
@@ -75,16 +75,16 @@ public class CollectedMessageListDeviceCommandTest {
         command.execute(comServerDAO);
 
         // Asserts
-        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifier(deviceMessage1), DeviceMessageStatus.CONFIRMED, null);
+        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1), DeviceMessageStatus.CONFIRMED, null);
     }
 
     @Test
     public void testToJournalMessageDescriptionOnDebugLevel() {
-        final DeviceMessageIdentifier deviceMessageIdentifier1 = new DeviceMessageIdentifier(deviceMessage1);
+        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier1 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier1);
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
-        final DeviceMessageIdentifier deviceMessageIdentifier2 = new DeviceMessageIdentifier(deviceMessage2);
+        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier2 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2);
         DeviceProtocolMessage collectedMessage2 = new DeviceProtocolMessage(deviceMessageIdentifier2);
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
@@ -107,11 +107,11 @@ public class CollectedMessageListDeviceCommandTest {
 
     @Test
     public void testToJournalMessageDescriptionOnInfoLevel() {
-        final DeviceMessageIdentifier deviceMessageIdentifier1 = new DeviceMessageIdentifier(deviceMessage1);
+        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier1 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier1);
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
-        final DeviceMessageIdentifier deviceMessageIdentifier2 = new DeviceMessageIdentifier(deviceMessage2);
+        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier2 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2);
         DeviceProtocolMessage collectedMessage2 = new DeviceProtocolMessage(deviceMessageIdentifier2);
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
@@ -134,11 +134,11 @@ public class CollectedMessageListDeviceCommandTest {
 
     @Test
     public void testUnProcessedDeviceMessage(){
-        final DeviceMessageIdentifier deviceMessageIdentifier1 = new DeviceMessageIdentifier(deviceMessage1);
+        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier1 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier1);
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
-        final DeviceMessageIdentifier deviceMessageIdentifier2 = new DeviceMessageIdentifier(deviceMessage2);
+        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier2 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2);
         DeviceProtocolMessage collectedMessage2 = new DeviceProtocolMessage(deviceMessageIdentifier2);
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
@@ -158,7 +158,7 @@ public class CollectedMessageListDeviceCommandTest {
 
         // Business method
         command.execute(comServerDAO);
-        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifier(deviceMessage1), DeviceMessageStatus.CONFIRMED, null);
-        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifier(deviceMessage2), DeviceMessageStatus.SENT, CollectedMessageList.REASON_FOR_PENDING_STATE);
+        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1), DeviceMessageStatus.CONFIRMED, null);
+        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2), DeviceMessageStatus.SENT, CollectedMessageList.REASON_FOR_PENDING_STATE);
     }
 }

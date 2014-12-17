@@ -2,7 +2,6 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
@@ -126,7 +125,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
      */
     private void handleRemovalOfSlave(ComServerDAO comServerDAO, OfflineDevice removedSlave) {
         if (deviceTopology.getTopologyAction() == TopologyAction.UPDATE) {
-            comServerDAO.updateGateway(new DeviceIdentifierById(removedSlave.getId(), getDeviceDataService()), null);
+            comServerDAO.updateGateway(removedSlave.getDeviceIdentifier(), null);
         }
     }
 

@@ -35,6 +35,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.io.SocketService;
 import java.util.Optional;
@@ -85,6 +86,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
     private volatile SocketService socketService;
     private volatile SerialComponentService serialComponentService;
     private volatile NlsService nlsService;
+    private volatile IdentificationService identificationService;
 
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
 
@@ -100,7 +102,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory, EmbeddedWebServerFactory embeddedWebServerFactory,
             WebSocketQueryApiServiceFactory webSocketQueryApiServiceFactory, WebSocketEventPublisherFactory webSocketEventPublisherFactory,
-            SocketService socketService, SerialComponentService serialComponentService) {
+            SocketService socketService, SerialComponentService serialComponentService, IdentificationService identificationService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -127,6 +129,7 @@ public class EngineServiceImpl implements EngineService, InstallService {
         this.setEmbeddedWebServerFactory(embeddedWebServerFactory);
         this.setWebSocketQueryApiServiceFactory(webSocketQueryApiServiceFactory);
         this.setWebSocketEventPublisherFactory(webSocketEventPublisherFactory);
+        this.setIdentificationService(identificationService);
         this.install();
         activate();
     }
@@ -271,6 +274,11 @@ public class EngineServiceImpl implements EngineService, InstallService {
         this.serialComponentService = serialComponentService;
     }
 
+    @Reference
+    public void setIdentificationService(IdentificationService identificationService) {
+        this.identificationService = identificationService;
+    }
+
     Thesaurus getThesaurus() {
         return thesaurus;
     }
@@ -383,6 +391,11 @@ public class EngineServiceImpl implements EngineService, InstallService {
         @Override
         public EventService eventService() {
             return eventService;
+        }
+
+        @Override
+        public IdentificationService identificationService() {
+            return identificationService;
         }
 
         @Override

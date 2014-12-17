@@ -28,6 +28,8 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import java.util.Optional;
+
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Before;
@@ -226,7 +228,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     }
 
     public OfflineLoadProfile createMockedOfflineLoadProfile(Device device) {
-        return new OfflineLoadProfileImpl(device.getLoadProfiles().get(0), mock(TopologyService.class));
+        return new OfflineLoadProfileImpl(device.getLoadProfiles().get(0), mock(TopologyService.class), mock(IdentificationService.class));
     }
 
     @Test

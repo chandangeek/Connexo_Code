@@ -23,7 +23,6 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.impl.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
@@ -70,6 +69,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.sql.Fetcher;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.text.DateFormat;
 import java.time.Clock;
@@ -109,6 +109,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         public EventService eventService();
 
+        public IdentificationService identificationService();
     }
 
     private final ServiceProvider serviceProvider;
@@ -184,6 +185,11 @@ public class ComServerDAOImpl implements ComServerDAO {
             return serviceProvider.engineService().findDeviceCacheByDevice(device);
         }
 
+        @Override
+        public IdentificationService identificationService() {
+            return serviceProvider.identificationService();
+        }
+
     }
 
     @Override
@@ -254,19 +260,6 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public OfflineDevice findDevice(DeviceIdentifier<?> identifier) {
-
-        // TODO put this where it belongs (in the identifier)
-
-        if(identifier.getDeviceIdentifierType().equals(DeviceIdentifierType.CallHomeId)){
-            List<Device> devicesWithCallHomeId = getDeviceDataService().findDevicesByPropertySpecValue("callHomeId", identifier.getIdentifier());
-            if(devicesWithCallHomeId.size() == 1) {
-                return new OfflineDeviceImpl(devicesWithCallHomeId.get(0), DeviceOffline.needsEverything, new OfflineDeviceServiceProvider());
-            } else if(devicesWithCallHomeId.isEmpty()){
-                return null;
-            } else if(devicesWithCallHomeId.size() > 1){
-                throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, Device.class, "callHomeId : " + identifier.getIdentifier());
-            }
-        }
         BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = identifier.findDevice();
         if (device != null) {
             return new OfflineDeviceImpl((Device) device, DeviceOffline.needsEverything, new OfflineDeviceServiceProvider());
@@ -277,17 +270,17 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
-        return new OfflineRegisterImpl((Register) identifier.findRegister());
+        return new OfflineRegisterImpl((Register) identifier.findRegister(), this.serviceProvider.identificationService());
     }
 
     @Override
     public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-        return new OfflineLoadProfileImpl((LoadProfile) loadProfileIdentifier.findLoadProfile(), this.serviceProvider.topologyService());
+        return new OfflineLoadProfileImpl((LoadProfile) loadProfileIdentifier.findLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService());
     }
 
     @Override
     public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
-        return new OfflineLogBookImpl((LogBook) logBookIdentifier.getLogBook());
+        return new OfflineLogBookImpl((LogBook) logBookIdentifier.getLogBook(), this.serviceProvider.identificationService());
     }
 
     //    @Override
@@ -499,7 +492,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<DeviceMessage<Device>> deviceMessages) {
-        return deviceMessages.stream().map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice().getDeviceProtocolPluggableClass().getDeviceProtocol())).collect(Collectors.toList());
+        return deviceMessages.stream().map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice().getDeviceProtocolPluggableClass().getDeviceProtocol(), this.serviceProvider.identificationService())).collect(Collectors.toList());
     }
 
     private List<DeviceMessage<Device>> doConfirmSentMessagesAndGetPending(DeviceIdentifier<Device> deviceIdentifier, int confirmationCount) {
@@ -649,12 +642,12 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
-        return new DeviceIdentifierForAlreadyKnownDevice((Device) loadProfileIdentifier.findLoadProfile().getDevice());
+        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(loadProfileIdentifier.findLoadProfile().getDevice());
     }
 
     @Override
     public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
-        return new DeviceIdentifierForAlreadyKnownDevice(((LogBook) logBookIdentifier.getLogBook()).getDevice());
+        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(((LogBook) logBookIdentifier.getLogBook()).getDevice());
     }
 
     @Override

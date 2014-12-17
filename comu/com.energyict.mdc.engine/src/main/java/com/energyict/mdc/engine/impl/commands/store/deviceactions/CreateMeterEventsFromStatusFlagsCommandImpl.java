@@ -79,7 +79,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImpl extends SimpleComComman
                     collectedMeterEvents.addAll(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                 }
                 DeviceIdentifier deviceIdentifier = loadProfileCommand.getOfflineDevice().getDeviceIdentifier();
-                DeviceLogBook deviceLogBook = new DeviceLogBook(new LogBookIdentifierByDeviceAndObisCode(deviceIdentifier, DeviceLogBook.GENERIC_LOGBOOK_TYPE_OBISCODE));
+                DeviceLogBook deviceLogBook = new DeviceLogBook(getCommandRoot().getServiceProvider().identificationService().createLogbookIdentifierByObisCodeAndDeviceIdentifier(DeviceLogBook.GENERIC_LOGBOOK_TYPE_OBISCODE, deviceIdentifier));
                 deviceLogBook.setMeterEvents(collectedMeterEvents);
                 this.loadProfileCommand.addCollectedDataItem(deviceLogBook);
             }

@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
@@ -43,6 +44,8 @@ public interface CommandRoot extends CompositeComCommand {
         public MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
         public TransactionService transactionService();
+
+        public IdentificationService identificationService();
 
     }
 

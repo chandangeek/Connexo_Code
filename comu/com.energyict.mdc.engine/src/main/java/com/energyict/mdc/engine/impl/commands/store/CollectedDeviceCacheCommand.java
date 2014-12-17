@@ -32,8 +32,8 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
         // we will only perform the update when the cache actually changed
         DeviceProtocolCache collectedDeviceCache = this.deviceCache.getCollectedDeviceCache();
         if (collectedDeviceCache != null && collectedDeviceCache.contentChanged()) {
-            DeviceIdentifier<Device> deviceIdentifier = this.deviceCache.getDeviceIdentifier();
-            Device device = deviceIdentifier.findDevice();
+            DeviceIdentifier<?> deviceIdentifier = this.deviceCache.getDeviceIdentifier();
+            Device device = (Device) deviceIdentifier.findDevice();
             Optional<DeviceCache> deviceCache = getEngineService().findDeviceCacheByDevice(device);
             if (deviceCache.isPresent()) {
                 DeviceCache actualDeviceCache = deviceCache.get();
