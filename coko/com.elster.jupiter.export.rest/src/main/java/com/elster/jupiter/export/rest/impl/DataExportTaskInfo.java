@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.util.time.Never;
@@ -43,7 +44,7 @@ public class DataExportTaskInfo {
     public Long lastRun;
 
 
-    public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus) {
+    public DataExportTaskInfo(ReadingTypeDataExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService) {
         id = dataExportTask.getId();
         name = dataExportTask.getName();
 
@@ -78,7 +79,7 @@ public class DataExportTaskInfo {
         dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter), Collections.<PropertyInfo>emptyList()) ;
         properties = new PropertyUtils().convertPropertySpecsToPropertyInfos(dataExportTask.getPropertySpecs(), dataExportTask.getProperties());
 
-        lastExportOccurence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus)).orElse(null);
+        lastExportOccurence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService)).orElse(null);
 
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {

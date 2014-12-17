@@ -84,7 +84,7 @@ public class DataExportTaskResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ReadingTypeDataExportTask> list = queryTasks(params);
 
-        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus);
+        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService);
         infos.total = params.determineTotal(list.size());
 
         return infos;
@@ -101,7 +101,7 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return new DataExportTaskInfo(fetchDataExportTask(id, securityContext), thesaurus);
+        return new DataExportTaskInfo(fetchDataExportTask(id, securityContext), thesaurus, timeService);
     }
 
     @POST
@@ -148,7 +148,7 @@ public class DataExportTaskResource {
             dataExportTask.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus, timeService)).build();
     }
 
     @DELETE
@@ -192,7 +192,7 @@ public class DataExportTaskResource {
             task.save();
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus, timeService)).build();
     }
 
     @GET
@@ -225,7 +225,7 @@ public class DataExportTaskResource {
 
         List<? extends DataExportOccurrence> occurrences = occurrencesFinder.find();
 
-        DataExportTaskHistoryInfos infos = new DataExportTaskHistoryInfos(queryParameters.clipToLimit(occurrences), thesaurus);
+        DataExportTaskHistoryInfos infos = new DataExportTaskHistoryInfos(queryParameters.clipToLimit(occurrences), thesaurus, timeService);
         infos.total = queryParameters.determineTotal(occurrences.size());
         return infos;
     }

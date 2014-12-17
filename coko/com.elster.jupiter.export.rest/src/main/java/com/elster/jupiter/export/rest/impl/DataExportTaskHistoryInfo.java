@@ -3,17 +3,15 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.ON_REQUEST;
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.SCHEDULED;
@@ -36,12 +34,12 @@ public class DataExportTaskHistoryInfo {
     public DataExportTaskHistoryInfo() {
     }
 
-    public DataExportTaskHistoryInfo (DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
+    public DataExportTaskHistoryInfo(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
         this.id = dataExportOccurrence.getId();
 
         this.trigger = (dataExportOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
         if (dataExportOccurrence.wasScheduled()) {
-            String scheduledTriggerDescription = this.getScheduledTriggerDescription(dataExportOccurrence, thesaurus);
+            String scheduledTriggerDescription = this.getScheduledTriggerDescription(dataExportOccurrence, thesaurus, timeService);
             if (scheduledTriggerDescription != null) {
                 this.trigger = this.trigger + " (" + scheduledTriggerDescription + ")";
             }
@@ -88,12 +86,26 @@ public class DataExportTaskHistoryInfo {
         return thesaurus.getStringBeyondComponent(status.toString(), status.toString());
     }
 
-    private String getScheduledTriggerDescription(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
+    private String getScheduledTriggerDescription(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
         ScheduleExpression scheduleExpression = dataExportOccurrence.getTask().getScheduleExpression();
         if (Never.NEVER.equals(scheduleExpression)) {
             return null;
         }
-        TimeDuration every = ((TemporalExpression) scheduleExpression).getEvery();
+        if (scheduleExpression instanceof PeriodicalScheduleExpression) {
+            return fromPeriodicalScheduleExpression((PeriodicalScheduleExpression) scheduleExpression, timeService);
+        }
+        if (scheduleExpression instanceof TemporalExpression) {
+            return fromTemporalExpression((TemporalExpression) scheduleExpression, thesaurus);
+        }
+        return scheduleExpression.toString();
+    }
+
+    private String fromPeriodicalScheduleExpression(PeriodicalScheduleExpression scheduleExpression, TimeService timeService) {
+        return timeService.toLocalizedString(scheduleExpression);
+    }
+
+    private String fromTemporalExpression(TemporalExpression scheduleExpression, Thesaurus thesaurus) {
+        TimeDuration every = scheduleExpression.getEvery();
         int count = every.getCount();
         TimeDuration.TimeUnit unit = every.getTimeUnit();
         String everyTranslation = thesaurus.getString("every", "every");
@@ -127,10 +139,10 @@ public class DataExportTaskHistoryInfo {
                 unitTranslation = thesaurus.getString("multipleYears", "years");
             }
         }
-         if (count == 1) {
-             return everyTranslation + " " + unitTranslation;
-         } else {
-             return everyTranslation + " " + count + " " + unitTranslation;
-         }
+        if (count == 1) {
+            return everyTranslation + " " + unitTranslation;
+        } else {
+            return everyTranslation + " " + count + " " + unitTranslation;
+        }
     }
 }
