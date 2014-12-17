@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -218,6 +219,12 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     @Override
     public List<EndDevice> getMembers(final Instant instant) {
         return getMemberships().stream()
+                .sorted(new Comparator<EndDeviceMembership>() {
+                    @Override
+                    public int compare(EndDeviceMembership o1, EndDeviceMembership o2) {
+                        return o1.getEndDevice().getName().compareToIgnoreCase(o2.getEndDevice().getName());
+                    }
+                })
                 .filter(Active.at(instant))
                 .map(To.END_DEVICE)
                 .collect(Collectors.toList());
