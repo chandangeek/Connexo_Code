@@ -1,12 +1,9 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
+import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
@@ -22,16 +19,19 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.ScheduleExpression;
-import org.joda.time.DateTimeConstants;
-
-import javax.inject.Inject;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link DataCollectionKpi} interface.
@@ -142,6 +142,28 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
 
     Optional<RecurrentTask> connectionKpiTask() {
         return connectionKpiTask.getOptional();
+    }
+
+    @Override
+    public Optional<BigDecimal> getStaticConnectionKpiTarget() {
+        if (this.connectionKpi.isPresent()) {
+            List<? extends KpiMember> members = this.connectionKpi.get().getMembers();
+            if (!members.isEmpty()) {
+                return Optional.of(members.get(0).getTarget(Instant.now()));
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<BigDecimal> getStaticCommunicationKpiTarget() {
+        if (this.communicationKpi.isPresent()) {
+            List<? extends KpiMember> members = this.communicationKpi.get().getMembers();
+            if (!members.isEmpty()) {
+                return Optional.of(members.get(0).getTarget(Instant.now()));
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

@@ -1,13 +1,13 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.kpi.KpiBuilder;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.energyict.mdc.common.services.DefaultFinder;
+import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-
-import com.elster.jupiter.kpi.KpiBuilder;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.google.inject.Inject;
-
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
@@ -34,6 +34,11 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
     @Override
     public List<DataCollectionKpi> findAllDataCollectionKpis() {
         return this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).find();
+    }
+
+    @Override
+    public Finder<DataCollectionKpi> dataCollectionKpiFinder() {
+        return DefaultFinder.of(DataCollectionKpi.class, this.deviceDataModelService.dataModel());
     }
 
     @Override

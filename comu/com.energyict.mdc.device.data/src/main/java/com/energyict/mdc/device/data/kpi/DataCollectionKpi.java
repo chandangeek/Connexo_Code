@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 
+import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,20 @@ public interface DataCollectionKpi extends HasId {
      * @return A flag that indicates if this DataCollectionKpi calculates the connection setup KPI.
      */
     public Optional<TemporalAmount> connectionSetupKpiCalculationIntervalLength();
+
+    /**
+     * @return  Returns the static target for the connection kpi, if present.
+     *    Optional will be empty if this Kpi does not support connection Kpis or
+     *    if no entries have been registered for the Kpi so far
+     */
+    public Optional<BigDecimal> getStaticConnectionKpiTarget();
+
+    /**
+     * @return  Returns the static target for the communication kpi, if present.
+     *    Optional will be empty if this Kpi does not support communication Kpis or
+     *    if no entries have been registered for the Kpi so far
+     */
+    public Optional<BigDecimal> getStaticCommunicationKpiTarget();
 
     /**
      * Gets the available {@link DataCollectionKpiScore}s that relate to

@@ -1,16 +1,11 @@
 package com.energyict.mdc.device.data.kpi;
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-
+import com.energyict.mdc.common.services.Finder;
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Provides services to define and calculate key performance
@@ -33,6 +28,14 @@ public interface DataCollectionKpiService {
      * @return The List of DataCollectionKpi
      */
     public List<DataCollectionKpi> findAllDataCollectionKpis();
+
+    /**
+     * Finds all {@link DataCollectionKpi} that are defined in the system through a Finder
+     * implementation, allowing paged searching and sorting
+     *
+     * @return Finder for DataCollectionKpi
+     */
+    public Finder<DataCollectionKpi> dataCollectionKpiFinder();
 
     /**
      * Finds the {@link DataCollectionKpi} with the specified id.
