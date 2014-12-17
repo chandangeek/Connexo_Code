@@ -40,11 +40,10 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
         });
     },
 
-    showOverview: function (mRID, loadProfileId, channelId) {
+    showOverview: function (mRID, channelId) {
         var me = this,
             models = {
                 device: me.getModel('Mdc.model.Device'),
-                loadProfile: me.getModel('Mdc.model.LoadProfileOfDevice'),
                 channel: me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice')
             },
             dataStore = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
@@ -59,7 +58,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
 
         dataStore.getProxy().setUrl({
             mRID: mRID,
-            loadProfileId: loadProfileId,
             channelId: channelId
         });
 
@@ -69,16 +67,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
             }
         });
 
-        models.loadProfile.getProxy().setUrl(mRID);
-        models.loadProfile.load(loadProfileId, {
-            success: function (record) {
-                me.getApplication().fireEvent('loadProfileOfDeviceLoad', record);
-            }
-        });
-
         models.channel.getProxy().setUrl({
-            mRID: mRID,
-            loadProfileId: loadProfileId
+            mRID: mRID
         });
 
         models.channel.load(channelId, {
@@ -147,7 +137,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
         if (changedData.length) {
             page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
             Ext.Ajax.request({
-                url: Ext.String.format('/api/ddr/devices/{0}/loadprofiles/{1}/channels/{2}/data', router.arguments.mRID, router.arguments.loadProfileId, router.arguments.channelId),
+                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', router.arguments.mRID, router.arguments.channelId),
                 method: 'PUT',
                 jsonData: Ext.encode(changedData),
                 timeout: 300000,
@@ -155,7 +145,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
                     page.setLoading(false);
                 },
                 success: function () {
-                    router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/tableData').forward(router.arguments, router.queryParams);
+                    router.getRoute('devices/device/channels/channel/tableData').forward(router.arguments, router.queryParams);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceloadprofilechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
                 },
                 failure: function (response) {
@@ -174,7 +164,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileChannelDataEditReadings', {
                                 },
                                 cancellation: function () {
                                     this.close();
-                                    router.getRoute('devices/device/loadprofiles/loadprofile/channels/channel/tableData').forward(router.arguments, router.queryParams);
+                                    router.getRoute('devices/device/channels/channel/tableData').forward(router.arguments, router.queryParams);
                                 }
                             }).show({
                                 msg: failureResponseText.message ? failureResponseText.message :
