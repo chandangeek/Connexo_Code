@@ -32,12 +32,17 @@ Ext.define('Uni.controller.Navigation', {
         {
             ref: 'searchButton',
             selector: 'navigationHeader #globalSearch'
+        },
+        {
+            ref: 'onlineHelpButton',
+            selector: 'navigationHeader #global-online-help'
         }
     ],
 
     applicationTitle: 'Connexo Multi Sense',
     applicationTitleSeparator: '-',
     searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.device', 'privilege.view.device']),
+    onlineHelpEnabled: false,
 
     init: function () {
         var me = this;
@@ -58,6 +63,9 @@ Ext.define('Uni.controller.Navigation', {
             },
             'navigationHeader #globalSearch': {
                 afterrender: me.initSearch
+            },
+            'navigationHeader #global-online-help': {
+                afterrender: me.initOnlineHelp
             }
         });
 
@@ -124,6 +132,11 @@ Ext.define('Uni.controller.Navigation', {
     initSearch: function () {
         var me = this;
         me.getSearchButton().setVisible(me.searchEnabled);
+    },
+
+    initOnlineHelp: function () {
+        var me = this;
+        me.getOnlineHelpButton().setVisible(me.onlineHelpEnabled);
     },
 
     onAfterRenderNavigationMenu: function () {
