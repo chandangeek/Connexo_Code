@@ -17,7 +17,6 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.jayway.jsonpath.JsonModel;
 
@@ -81,7 +80,7 @@ public class DeviceFieldTest extends DeviceDataRestApplicationJerseyTest {
     }
     
     @Test
-    public void testGetGatewaysEmptryResult() {
+    public void testGetGatewaysEmptyResult() {
         Finder<Device> finder = mock(Finder.class);
         when(deviceService.findAllDevices(Matchers.any(Condition.class))).thenReturn(finder);
         when(finder.from(Matchers.any(QueryParameters.class))).thenReturn(finder);
