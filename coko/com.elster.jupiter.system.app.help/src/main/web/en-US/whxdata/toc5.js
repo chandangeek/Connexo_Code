@@ -1,1 +1,0 @@
-gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc4.js\"  name=\"Users\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Manage_users/Users.htm\"><item name=\"Configure users\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Manage_users/Users.htm#TOC_Configure_usersbc-1\" /></data>";
