@@ -297,7 +297,7 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
 
         var reportDescription = step2.down('#report-description');
 
-        reportDescription.setFieldLabel(Uni.I18n.translate('generatereport.reportNameTitle', 'YFN', 'Report: ' + reportRecord.get('name')));
+        reportDescription.setFieldLabel(Uni.I18n.translate('generatereport.reportNameTitle', 'YFN', 'Report')+': ' + reportRecord.get('name'));
         reportDescription.setValue( reportRecord.get('description'));
 
 
@@ -815,27 +815,27 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
     },
     translateFilterType : function(filterType){
         switch(filterType){
-            case 'EQUAL': return Uni.I18n.translate('generatereport.reportTypeEQUAL', 'YFN', 'Equal to');
-            case 'NOTEQUAL': return Uni.I18n.translate('generatereport.reportTypeNOTEQUAL', 'YFN', 'Different from');
-            case 'GREATER': return Uni.I18n.translate('generatereport.reportTypeGREATER', 'YFN', 'Greater than');
-            case 'GREATEREQUAL': return Uni.I18n.translate('generatereport.reportTypeGREATEREQUAL', 'YFN', 'Greater than or equal to');
-            case 'LESS': return Uni.I18n.translate('generatereport.reportTypeLESS', 'YFN', 'Less than');
-            case 'LESSEQUAL': return Uni.I18n.translate('generatereport.reportTypeLESSEQUAL', 'YFN', 'Less than or equal to');
-            case 'BETWEEN': return Uni.I18n.translate('generatereport.reportTypeBETWEEN', 'YFN', 'Between');
-            case 'NOTBETWEEN': return Uni.I18n.translate('generatereport.reportTypeNOTBETWEEN', 'YFN', 'Not Between');
-            case 'INLIST': return Uni.I18n.translate('generatereport.reportTypeINLIST', 'YFN', 'In List');
-            case 'NOTINLIST': return Uni.I18n.translate('generatereport.reportTypeNOTINLIST', 'YFN', 'Not In List');
-            case 'ISNULL': return Uni.I18n.translate('generatereport.reportTypeISNULL', 'YFN', 'Is Null');
-            case 'ISNOTNULL': return Uni.I18n.translate('generatereport.reportTypeISNOTNULL', 'YFN', 'Is Not Null');
-            case 'EQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeEQUALCOLUMN', 'YFN', 'Equals Column');
-            case 'NOTEQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeNOTEQUALCOLUMN', 'YFN', 'Different from Column');
-            case 'GREATERCOLUMN': return Uni.I18n.translate('generatereport.reportTypeGREATERCOLUMN', 'YFN', 'Greater than Column');
-            case 'GREATEREQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeGREATEREQUALCOLUMN', 'YFN', 'Greater than or Equal to Column');
-            case 'LESSCOLUMN': return Uni.I18n.translate('generatereport.reportTypeLESSCOLUMN', 'YFN', 'Less than Column');
-            case 'LESSEQUALCOLUMN': return Uni.I18n.translate('generatereport.reportTypeLESSEQUALCOLUMN', 'YFN', 'Less than or Equal to Column');
-            case 'MINIMUMDATE': return Uni.I18n.translate('generatereport.reportTypeMINIMUMDATE', 'YFN', 'Minimum Date');
-            case 'MAXIMUMDATE': return Uni.I18n.translate('generatereport.reportTypeMAXIMUMDATE', 'YFN', 'Maximum Date');
-            case 'LINKFILTER': return Uni.I18n.translate('generatereport.reportTypeLINKFILTER', 'YFN', 'Link to Filter');
+            case 'EQUAL': return Uni.I18n.translate('generatereport.filterTypeEQUAL', 'YFN', 'Equal to');
+            case 'NOTEQUAL': return Uni.I18n.translate('generatereport.filterTypeNOTEQUAL', 'YFN', 'Different from');
+            case 'GREATER': return Uni.I18n.translate('generatereport.filterTypeGREATER', 'YFN', 'Greater than');
+            case 'GREATEREQUAL': return Uni.I18n.translate('generatereport.filterTypeGREATEREQUAL', 'YFN', 'Greater than or equal to');
+            case 'LESS': return Uni.I18n.translate('generatereport.filterTypeLESS', 'YFN', 'Less than');
+            case 'LESSEQUAL': return Uni.I18n.translate('generatereport.filterTypeLESSEQUAL', 'YFN', 'Less than or equal to');
+            case 'BETWEEN': return Uni.I18n.translate('generatereport.filterTypeBETWEEN', 'YFN', 'Between');
+            case 'NOTBETWEEN': return Uni.I18n.translate('generatereport.filterTypeNOTBETWEEN', 'YFN', 'Not Between');
+            case 'INLIST': return Uni.I18n.translate('generatereport.filterTypeINLIST', 'YFN', 'In List');
+            case 'NOTINLIST': return Uni.I18n.translate('generatereport.filterTypeNOTINLIST', 'YFN', 'Not In List');
+            case 'ISNULL': return Uni.I18n.translate('generatereport.filterTypeISNULL', 'YFN', 'Is Null');
+            case 'ISNOTNULL': return Uni.I18n.translate('generatereport.filterTypeISNOTNULL', 'YFN', 'Is Not Null');
+            case 'EQUALCOLUMN': return Uni.I18n.translate('generatereport.filterTypeEQUALCOLUMN', 'YFN', 'Equals Column');
+            case 'NOTEQUALCOLUMN': return Uni.I18n.translate('generatereport.filterTypeNOTEQUALCOLUMN', 'YFN', 'Different from Column');
+            case 'GREATERCOLUMN': return Uni.I18n.translate('generatereport.filterTypeGREATERCOLUMN', 'YFN', 'Greater than Column');
+            case 'GREATEREQUALCOLUMN': return Uni.I18n.translate('generatereport.filterTypeGREATEREQUALCOLUMN', 'YFN', 'Greater than or Equal to Column');
+            case 'LESSCOLUMN': return Uni.I18n.translate('generatereport.filterTypeLESSCOLUMN', 'YFN', 'Less than Column');
+            case 'LESSEQUALCOLUMN': return Uni.I18n.translate('generatereport.filterTypeLESSEQUALCOLUMN', 'YFN', 'Less than or Equal to Column');
+            case 'MINIMUMDATE': return Uni.I18n.translate('generatereport.filterTypeMINIMUMDATE', 'YFN', 'Minimum Date');
+            case 'MAXIMUMDATE': return Uni.I18n.translate('generatereport.filterTypeMAXIMUMDATE', 'YFN', 'Maximum Date');
+            case 'LINKFILTER': return Uni.I18n.translate('generatereport.filterTypeLINKFILTER', 'YFN', 'Link to Filter');
             return filterType;
         }
     },

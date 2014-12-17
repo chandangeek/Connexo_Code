@@ -13,14 +13,14 @@ Ext.define('Yfn.view.generatereport.Step2', {
     ],
 
 
-    title: Uni.I18n.translate('generatereport.wizard.step3title', 'YFN', 'Step 2 of 3:  Select report filter'),
+    title: Uni.I18n.translate('generatereport.wizard.step2itle', 'YFN', 'Step 2 of 3:  Select report filter'),
 
     items: [
         {
             itemId: 'step2-generatereport-errors',
             xtype: 'uni-form-error-message',
             hidden: true,
-            text: Uni.I18n.translate('generatereport.noDevicesSelected', 'MDC', 'Please select at least one device.')
+            text: ''
         },
         {
             xtype: 'form',
