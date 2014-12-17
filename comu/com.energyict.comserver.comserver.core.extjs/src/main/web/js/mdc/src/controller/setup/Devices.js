@@ -88,10 +88,12 @@ Ext.define('Mdc.controller.setup.Devices', {
         connectionMethod.status = connectionMethod.status == 'active' ? 'inactive' : 'active';
         record.set('connectionMethod', connectionMethod);
         record.save({
-            callback: function () {
-                me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translate('device.connection.toggle.' + connectionMethod.status, 'MDC', 'Connection status changed to: ' + connectionMethod.status)
-                );
+            callback: function (record, operation, success) {
+                if (success) {
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translate('device.connection.toggle.' + connectionMethod.status, 'MDC', 'Connection status changed to: ' + connectionMethod.status)
+                    );
+                }
             }
         });
     },
@@ -99,12 +101,14 @@ Ext.define('Mdc.controller.setup.Devices', {
     communicationToggle: function (record) {
         var me = this;
         var status = !record.get('isOnHold');
-        record.set('status', status);
+        record.set('isOnHold', status);
         record.save({
-            callback: function () {
-                me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translate('device.communication.toggle.' + status, 'MDC', 'Communication status changed to: ' + status)
-                );
+            callback: function (record, operation, success) {
+                if (success) {
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translate('device.communication.toggle.' + status, 'MDC', 'Communication status changed to: ' + status)
+                    );
+                }
             }
         });
     },
@@ -115,7 +119,7 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         Ext.Ajax.request({
             method: 'PUT',
-            url: '/api/ddr/{mRID}/communications/activate'.replace('{mRID}', router.arguments.mRID),
+            url: '/api/ddr/devices/{mRID}/communications/activate'.replace('{mRID}', router.arguments.mRID),
             success: function() {
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('device.communication.activateAll', 'MDC', 'Communication tasks activated')
@@ -130,7 +134,7 @@ Ext.define('Mdc.controller.setup.Devices', {
 
         Ext.Ajax.request({
             method: 'PUT',
-            url: '/api/ddr/{mRID}/communications/deactivate'.replace('{mRID}', router.arguments.mRID),
+            url: '/api/ddr/devices/{mRID}/communications/deactivate'.replace('{mRID}', router.arguments.mRID),
             success: function() {
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('device.communication.deactivateAll', 'MDC', 'Communication tasks deactivated')
