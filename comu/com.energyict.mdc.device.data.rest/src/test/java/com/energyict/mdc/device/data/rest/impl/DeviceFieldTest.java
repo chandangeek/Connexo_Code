@@ -15,6 +15,7 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.QueryParameters;
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
@@ -63,8 +64,8 @@ public class DeviceFieldTest extends DeviceDataRestApplicationJerseyTest {
     public void testGetGateways() {
         Finder<Device> finder = mock(Finder.class);
         when(deviceService.findAllDevices(Matchers.any(Condition.class))).thenReturn(finder);
-        when(finder.paged(Matchers.anyInt(), Matchers.anyInt())).thenReturn(finder);
-        when(finder.sorted(Matchers.anyString(), Matchers.anyBoolean())).thenReturn(finder);
+        when(finder.from(Matchers.any(QueryParameters.class))).thenReturn(finder);
+        when(finder.sorted("mRID", true)).thenReturn(finder);
         
         Device device1 = mockDevice(1L, "device1", true);
         Device device2 = mockDevice(2L, "device2", false);
@@ -75,20 +76,20 @@ public class DeviceFieldTest extends DeviceDataRestApplicationJerseyTest {
         
         JsonModel model = JsonModel.model(response);
         assertThat(model.<List<?>>get("$.gateways")).hasSize(2);
-        assertThat(model.<List<Integer>>get("$.gateways[*].id")).containsExactly(1, 1);
-        assertThat(model.<List<String>>get("$.gateways[*].name")).containsExactly("device1", "device1");
+        assertThat(model.<List<Integer>>get("$.gateways[*].id")).containsExactly(1, 2);
+        assertThat(model.<List<String>>get("$.gateways[*].name")).containsExactly("device1", "device2");
     }
     
     @Test
     public void testGetGatewaysEmptryResult() {
         Finder<Device> finder = mock(Finder.class);
         when(deviceService.findAllDevices(Matchers.any(Condition.class))).thenReturn(finder);
-        when(finder.paged(Matchers.anyInt(), Matchers.anyInt())).thenReturn(finder);
-        when(finder.sorted(Matchers.anyString(), Matchers.anyBoolean())).thenReturn(finder);
+        when(finder.from(Matchers.any(QueryParameters.class))).thenReturn(finder);
+        when(finder.sorted("mRID", true)).thenReturn(finder);
         
         when(finder.find()).thenReturn(Arrays.asList());
         
-        String response = target("field/gateways").queryParam("search", "00").queryParam("excludeDeviceMRID", "001").queryParam("limit", 2).request().get(String.class);
+        String response = target("field/gateways").queryParam("search", "00").queryParam("excludeDeviceMRID", "001").queryParam("start", 0).queryParam("limit", 2).request().get(String.class);
         
         JsonModel model = JsonModel.model(response);
         assertThat(model.<List<?>>get("$.gateways")).isEmpty();
@@ -98,9 +99,6 @@ public class DeviceFieldTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(id);
         when(device.getmRID()).thenReturn(mrid);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.canActAsGateway()).thenReturn(canActAsGateway);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         return device;
     }
 }

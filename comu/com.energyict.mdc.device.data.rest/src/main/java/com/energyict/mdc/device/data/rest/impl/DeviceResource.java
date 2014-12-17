@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 
-import com.elster.jupiter.datavault.impl.ExceptionFactory;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
@@ -18,6 +17,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.TopologyTimeline;
 import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -62,6 +62,7 @@ public class DeviceResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final IssueService issueService;
+    private final TopologyService topologyService;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
     private final Provider<LogBookResource> logBookResourceProvider;
@@ -88,6 +89,7 @@ public class DeviceResource {
             DeviceService deviceService,
             DeviceConfigurationService deviceConfigurationService,
             IssueService issueService,
+            TopologyService topologyService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileResource> loadProfileResourceProvider,
             Provider<LogBookResource> logBookResourceProvider,
@@ -112,6 +114,7 @@ public class DeviceResource {
         this.deviceService = deviceService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.issueService = issueService;
+        this.topologyService = topologyService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileResourceProvider = loadProfileResourceProvider;
         this.logBookResourceProvider = logBookResourceProvider;
@@ -179,12 +182,11 @@ public class DeviceResource {
     public DeviceInfo updateDevice(@PathParam("mRID") String id, DeviceInfo info, @Context SecurityContext securityContext) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
         if (info.masterDevicemRID == null) {
-            //delete master
-            //topologyService.clearPhysicalGateway(device);
+            topologyService.clearPhysicalGateway(device);
         } else {
             Device gateway = resourceHelper.findDeviceByMrIdOrThrowException(info.masterDevicemRID);
-            //setPhysicalGateway.setPhisicalGateway(device, gateway);
-        }        
+            topologyService.setPhysicalGateway(device, gateway);
+        }
         return DeviceInfo.from(device, getSlaveDevicesForDevice(device), deviceImportService, deviceService, issueService);
     }
 
