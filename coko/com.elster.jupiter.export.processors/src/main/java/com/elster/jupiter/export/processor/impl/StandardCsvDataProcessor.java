@@ -243,7 +243,11 @@ public class StandardCsvDataProcessor implements DataProcessor {
         if (!fileNameUpdated.toString().isEmpty()) {
             fileNameUpdated.append('_');
         }
-        fileNameUpdated.append(date.format(formatter)).append('.').append(extension);
+        fileNameUpdated.append(date.format(formatter));
+
+        if (!extension.isEmpty()) {
+            fileNameUpdated.append('.').append(extension);
+        }
 
         Path path = fileSystem.getPath(this.path);
         if (path.isAbsolute()) {
