@@ -22,7 +22,8 @@ Ext.define('Cfg.controller.Main', {
 
     init: function () {
         var me = this;
-        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'])) {
+        if (Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
+                                    'privilege.view.fineTuneValidationConfiguration.onDevice','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'])) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'CFG', 'Administration'),
                 href: me.getApplication().getController('Cfg.controller.history.Validation').tokenizeShowOverview(),

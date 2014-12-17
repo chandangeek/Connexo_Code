@@ -12,7 +12,8 @@ Ext.define('Cfg.controller.history.Validation', {
                     route: 'validation/rulesets',
                     action: 'showRuleSets',
                     controller: 'Cfg.controller.Validation',
-                    privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
+                    privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
+                                'privilege.view.fineTuneValidationConfiguration.onDevice','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                     items: {
                         add: {
                             title: Uni.I18n.translate('validation.addRuleSet', 'CFG', 'Add validation rule set'),
@@ -26,7 +27,8 @@ Ext.define('Cfg.controller.history.Validation', {
                             route: '{ruleSetId}',
                             controller: 'Cfg.controller.Validation',
                             action: 'showRuleSetOverview',
-                            privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
+                            privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
+                                        'privilege.view.fineTuneValidationConfiguration.onDevice','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                             callback: function (route) {
                                 this.getApplication().on('loadRuleSet', function (record) {
                                     route.setTitle(record.get('name'));
@@ -46,7 +48,8 @@ Ext.define('Cfg.controller.history.Validation', {
                                     title: 'Validation rules',
                                     route: 'rules',
                                     controller: 'Cfg.controller.Validation',
-                                    privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
+                                    privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
+                                                'privilege.view.fineTuneValidationConfiguration.onDevice','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                                     action: 'showRules',
                                     items: {
                                         add: {
@@ -69,7 +72,8 @@ Ext.define('Cfg.controller.history.Validation', {
                                             title: 'Overview',
                                             route: '{ruleId}',
                                             controller: 'Cfg.controller.Validation',
-                                            privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'],
+                                            privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
+                                                        'privilege.view.fineTuneValidationConfiguration.onDevice','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                                             action: 'showRuleOverview',
                                             callback: function (route) {
                                                 this.getApplication().on('loadRule', function (record) {
@@ -103,14 +107,15 @@ Ext.define('Cfg.controller.history.Validation', {
                                     title: 'Device configurations',
                                     route: 'deviceconfigurations',
                                     controller: 'Mdc.controller.setup.RuleDeviceConfigurations',
-                                    privileges: ['privilege.administrate.deviceConfiguration','privilege.view.deviceConfiguration'],
+                                    privileges: ['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration',
+                                                'privilege.view.fineTuneValidationConfiguration.onDevice','privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                                     action: 'showDeviceConfigView',
                                     items: {
                                         add: {
                                             title: 'Add',
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.RuleDeviceConfigurations',
-                                            privileges: ['privilege.administrate.deviceConfiguration'],
+                                            privileges: ['privilege.view.fineTuneValidationConfiguration.onDeviceConfiguration'],
                                             action: 'showAddDeviceConfigView'
                                         }
                                     }
