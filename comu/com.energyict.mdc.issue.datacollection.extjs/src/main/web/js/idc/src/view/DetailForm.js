@@ -40,7 +40,7 @@ Ext.define('Idc.view.DetailForm', {
                                 result = '';
 
                             if (value) {
-                                if (value.serialNumber && Uni.Auth.hasAnyPrivilege(['privilege.administrate.device','privilege.view.device'])) {
+                                if (value.serialNumber && Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'])) {
                                     url = me.router.getRoute('devices/device').buildUrl({mRID: value.serialNumber});
                                     result = '<a href="' + url + '">' + value.name + ' ' + value.serialNumber + '</a>';
                                 } else {

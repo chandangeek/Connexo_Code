@@ -48,7 +48,7 @@ Ext.define('Idc.controller.history.Workspace', {
                                             title: 'Action',
                                             route: 'action/{actionId}',
                                             controller: 'Idc.controller.ApplyAction',
-                                            privileges: ['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue','privilege.view.scheduleDevice'],
+                                            privileges: ['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue','privilege.operate.deviceCommunication'],
                                             callback: function (route) {
                                                 this.getApplication().on('issueActionLoad', function (record) {
                                                     route.setTitle(record.get('name'));
