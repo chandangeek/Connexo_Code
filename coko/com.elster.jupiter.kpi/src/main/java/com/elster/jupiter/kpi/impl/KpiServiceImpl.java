@@ -40,7 +40,6 @@ public class KpiServiceImpl implements IKpiService, InstallService {
 
     private static final long VAULT_ID = 1L;
     private static final long RECORD_SPEC_ID = 1L;
-    private static final int MONTHS_PER_YEAR = 12;
 
     private volatile IdsService idsService;
     private volatile EventService eventService;
@@ -143,7 +142,7 @@ public class KpiServiceImpl implements IKpiService, InstallService {
 
     @Reference
     public final void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(COMPONENT_NAME, "CIM Metering");
+        dataModel = ormService.newDataModel(COMPONENT_NAME, "Key Performance Indicators");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
