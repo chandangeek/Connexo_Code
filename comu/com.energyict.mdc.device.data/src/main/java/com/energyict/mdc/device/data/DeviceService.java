@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.common.services.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import com.elster.jupiter.util.conditions.Condition;
@@ -82,4 +83,13 @@ public interface DeviceService {
      */
     public List<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue);
 
+    /**
+     * Finds all devices which have a connectionTask of the given ConnectionType and a property matching the given arguments.
+     *
+     * @param connectionTypeClass the type of the connectionTask
+     * @param propertyName        the name of the property
+     * @param propertyValue       the value of the property
+     * @return a list of all devices matching the given criteria
+     */
+    public List<Device> findDevicesByConnectionTypeAndProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue);
 }

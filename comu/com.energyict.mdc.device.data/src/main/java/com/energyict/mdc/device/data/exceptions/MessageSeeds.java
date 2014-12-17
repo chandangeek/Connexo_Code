@@ -93,6 +93,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_MESSAGE_STATUS_INVALID_MOVE(2062, Keys.DEVICE_MESSAGE_STATUS_INVALID_MOVE, "You can not move a device message from status {0} to {1}", Level.SEVERE),
     DEVICE_MESSAGE_INVALID_REVOKE(2063, Keys.DEVICE_MESSAGE_INVALID_REVOKE, "You can not revoke this command anymore", Level.SEVERE),
     RELEASE_DATE_IS_REQUIRED(2064, Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED, "The release date is required for a device message", Level.SEVERE),
+    DUPLICATE_FOUND(2065, Keys.DUPLICATE_FOUND, "A duplicate '{0}' was found when a unique result was expected for '{1}'", Level.SEVERE),
+
     ;
 
     private final int number;
@@ -216,6 +218,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_MESSAGE_STATUS_INVALID_MOVE = "deviceMessage.status.invalid.move";
         public static final String DEVICE_MESSAGE_INVALID_REVOKE = "deviceMessage.revoke.invalid.status";
         public static final String DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED = "releaseDateIsRequired.deviceMessage";
+        public static final String DUPLICATE_FOUND = "duplicateFound";
     }
 
 }

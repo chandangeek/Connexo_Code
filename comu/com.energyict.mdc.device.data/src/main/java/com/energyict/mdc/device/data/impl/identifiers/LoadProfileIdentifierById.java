@@ -1,0 +1,80 @@
+package com.energyict.mdc.device.data.impl.identifiers;
+
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Implementation of a LoadProfileIdentifier that uniquely identifies a LoadProfile based on the database ID of the loadprofile
+ *
+ * Copyrights EnergyICT
+ * Date: 13/05/13
+ * Time: 13:30
+ */
+@XmlRootElement
+public class LoadProfileIdentifierById implements LoadProfileIdentifier {
+
+    private Long id;
+    private LoadProfileService loadProfileService;
+
+    private LoadProfile loadProfile;
+
+    /**
+     * Constructor only to be used by JSON (de)marshalling
+     */
+    public LoadProfileIdentifierById() {
+    }
+
+    public LoadProfileIdentifierById(Long id, LoadProfileService loadProfileService) {
+        this.id = id;
+        this.loadProfileService = loadProfileService;
+    }
+
+    @Override
+    public LoadProfile findLoadProfile() {
+        if (loadProfile == null) {
+            this.loadProfile = this.loadProfileService.findById(id).orElseThrow(() -> new NotFoundException("LoadProfile with id " + this.id + " not found"));
+        }
+        return loadProfile;
+    }
+
+    @XmlAttribute
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public LoadProfileIdentifierType getLoadProfileIdentifierType() {
+        return LoadProfileIdentifierType.DataBaseId;
+    }
+
+    @Override
+    public List<Object> getIdentifier() {
+        return Arrays.asList((Object) getId());
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
+
+    @Override
+    public String toString() {
+        return "id" + this.id;
+    }
+
+}

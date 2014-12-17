@@ -5,10 +5,14 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import javax.inject.Inject;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Copyrights EnergyICT
@@ -18,12 +22,16 @@ import org.osgi.service.component.annotations.Component;
 @Component(name = "com.energyict.mdc.device.data.delete.queryenddevicegroup.eventhandler", service = TopicHandler.class, immediate = true)
 public class DeviceGroupDeletionEventHandler implements TopicHandler {
 
-    private final DataCollectionKpiService dataCollectionKpiService;
-    private final Thesaurus thesaurus;
+    private volatile DataCollectionKpiService dataCollectionKpiService;
+    private volatile Thesaurus thesaurus;
+
+    // For OSGi purposes only
+    public DeviceGroupDeletionEventHandler() {
+    }
 
     @Inject
     public DeviceGroupDeletionEventHandler(DataCollectionKpiService dataCollectionKpiService, Thesaurus thesaurus) {
-        this.dataCollectionKpiService = dataCollectionKpiService;
+        setDataCollectionKpiService(dataCollectionKpiService);
         this.thesaurus = thesaurus;
     }
 
@@ -43,4 +51,14 @@ public class DeviceGroupDeletionEventHandler implements TopicHandler {
     }
 
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setDataCollectionKpiService(DataCollectionKpiService dataCollectionKpiService) {
+        this.dataCollectionKpiService = dataCollectionKpiService;
+    }
 }

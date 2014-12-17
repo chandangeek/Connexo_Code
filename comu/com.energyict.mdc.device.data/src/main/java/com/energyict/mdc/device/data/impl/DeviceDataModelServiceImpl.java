@@ -23,6 +23,7 @@ import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.model.EngineModelService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
@@ -73,7 +74,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
+@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class, InstallService.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME,"osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
 public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService {
 
     private volatile DataModel dataModel;
@@ -93,6 +94,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile EngineModelService engineModelService;
     private volatile SchedulingService schedulingService;
     private volatile SecurityPropertyService securityPropertyService;
+//    private volatile IdentificationService identificationService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
@@ -114,7 +116,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       EngineModelService engineModelService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService,
                                       SchedulingService schedulingService, MessageService messageService,
-                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, IdentificationService identificationService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -133,6 +135,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setSecurityPropertyService(securityPropertyService);
         this.setUserService(userService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+//        this.setIdentificationService(identificationService);
         this.activate(bundleContext);
         this.install(true);
     }
@@ -316,6 +319,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.taskService = taskService;
     }
 
+//    @Reference
+//    public void setIdentificationService(IdentificationService identificationService) {
+//        this.identificationService = identificationService;
+//    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -346,6 +354,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(ServerDeviceService.class).toInstance(deviceService);
                 bind(LoadProfileService.class).toInstance(loadProfileService);
                 bind(LogBookService.class).toInstance(logBookService);
+//                bind(IdentificationService.class).toInstance(identificationService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             }
         };
@@ -500,4 +509,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         }
     }
 
+
+    public void testSearch(){
+        this.deviceService.findDevicesByConnectionTypeAndProperty(null, "", "");
+    }
 }
