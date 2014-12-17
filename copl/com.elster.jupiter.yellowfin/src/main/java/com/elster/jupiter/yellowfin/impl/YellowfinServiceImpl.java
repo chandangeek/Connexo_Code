@@ -59,12 +59,12 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
         yellowfinUrl = context.getProperty(YELLOWFIN_URL);
 
         yellowfinWebServiceUser = context.getProperty(YELLOWFIN_WEBSERVICES_USER);
-        yellowfinWebServiceUser = yellowfinWebServiceUser.isEmpty() ? DEFAULT_YELLOWFIN_USER : yellowfinWebServiceUser;
+        yellowfinWebServiceUser = (yellowfinWebServiceUser == null) ? DEFAULT_YELLOWFIN_USER : yellowfinWebServiceUser;
 
         yellowfinWebServicePassword = context.getProperty(YELLOWFIN_WEBSERVICES_PASSWORD);
-        yellowfinWebServicePassword = yellowfinWebServicePassword.isEmpty() ? DEFAULT_YELLOWFIN_PASSWORD : yellowfinWebServicePassword;
+        yellowfinWebServicePassword = (yellowfinWebServicePassword == null) ? DEFAULT_YELLOWFIN_PASSWORD : yellowfinWebServicePassword;
 
-        if(!yellowfinUrl.isEmpty()){
+        if(yellowfinUrl != null){
             Pattern pattern = Pattern.compile("(https?://)([^:^/]*):([0-9]\\d*)?(.*)?");
             Matcher matcher = pattern.matcher(yellowfinUrl);
             matcher.find();
@@ -74,7 +74,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService {
             }
         }
 
-        yellowfinUrl = yellowfinUrl.isEmpty() ? DEFAULT_YELLOWFIN_URL : yellowfinUrl;
+        yellowfinUrl = (yellowfinUrl == null) ? DEFAULT_YELLOWFIN_URL : yellowfinUrl;
     }
 
     @Reference
