@@ -2,6 +2,7 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.topology.CommunicationPathSegment;
+import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
 import com.energyict.mdc.device.topology.PLCNeighbor;
 
 import com.elster.jupiter.orm.Column;
@@ -114,6 +115,27 @@ public enum TableSpecs {
                     references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
                     onDelete(CASCADE).
                     map(PLCNeighborImpl.Field.NEIGHBOR.fieldName()).
+                    add();
+        }
+    },
+
+    DTL_G3DEVICEADDRESS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<G3DeviceAddressInformation> table = dataModel.addTable(name(), G3DeviceAddressInformation.class);
+            table.map(G3DeviceAddressInformationImpl.class);
+            Column device = table.column("DEVICE").notNull().number().conversion(NUMBER2LONG).add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
+            table.column("IPV6ADDRESS").varChar().notNull().map(G3DeviceAddressInformationImpl.Field.IPV6_ADDRESS.fieldName()).add();
+            table.column("SHORTIPV6ADDRESS").number().conversion(NUMBER2INT).notNull().map(G3DeviceAddressInformationImpl.Field.IPV6_SHORT_ADDRESS.fieldName()).add();
+            table.column("LOGICALDEVICEID").number().conversion(NUMBER2INT).notNull().map(G3DeviceAddressInformationImpl.Field.LOGICAL_DEVICE_ID.fieldName()).add();
+            table.primaryKey("PK_DTL_G3ADDRESSINFO").on(device, intervalColumns.get(0)).add();
+            table.foreignKey("FK_DTL_G3ADDRESSINFO_DEVICE").
+                    on(device).
+                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    onDelete(CASCADE).
+                    map(G3DeviceAddressInformationImpl.Field.DEVICE.fieldName()).
                     add();
         }
     }

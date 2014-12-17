@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
 import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
@@ -845,6 +846,240 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         builder.complete();
 
         // Asserts: see expected exception rule
+    }
+
+    @Test
+    @Transactional
+    public void findG3AddressInformationThatWasNeverCreated() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+
+        //Business method
+        Optional<G3DeviceAddressInformation> addressInformation = topologyService.getG3DeviceAddressInformation(device);
+
+        // Asserts
+        assertThat(addressInformation.isPresent()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void createFirstG3AddressInformation() {
+        Instant effectiveTimestamp = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(effectiveTimestamp);
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+
+        // Business method
+        int expectedIPv6ShortAddress = 0x417A;
+        int expectedLogicalDeviceId = 13;
+        String expectedIPv6Address = "1080:0:0:0:8:800:200C:417A";
+        G3DeviceAddressInformation addressInformation = topologyService.setG3DeviceAddressInformation(device, expectedIPv6Address, expectedIPv6ShortAddress, expectedLogicalDeviceId);
+
+        // Asserts
+        assertThat(addressInformation).isNotNull();
+        assertThat(addressInformation.getDevice()).isEqualTo(device);
+        assertThat(addressInformation.getIPv6Address().getHostName()).isEqualToIgnoringCase(expectedIPv6Address);
+        assertThat(addressInformation.getIpv6ShortAddress()).isEqualTo(expectedIPv6ShortAddress);
+        assertThat(addressInformation.getLogicalDeviceId()).isEqualTo(expectedLogicalDeviceId);
+        assertThat(addressInformation.isEffectiveAt(effectiveTimestamp)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Keys.INVALID_IPV6_ADDRESS)
+    public void createG3AddressInformationWithInvalidIPv6Address() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+
+        // Business method
+        topologyService.setG3DeviceAddressInformation(device, "this is not an IPv6Address", 0x417A, 13);
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = MessageSeeds.Keys.INVALID_IPV6_ADDRESS)
+    public void createG3AddressInformationWithIPv4Address() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+
+        // Business method
+        topologyService.setG3DeviceAddressInformation(device, "10.0.2.53", 0x417A, 13);
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", strict = false)
+    public void createG3AddressInformationWithVeryLongIPv6Address() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+
+        // Business method
+        topologyService.setG3DeviceAddressInformation(device, "createG3AddressInformationWithVeryLongIPv6Address", 0x417A, 13);
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    public void createG3AddressInformationWithEmptyIPv6Address() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+
+        // Business method
+        topologyService.setG3DeviceAddressInformation(device, "", 0x417A, 13);
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
+    public void createG3AddressInformationWithNullIPv6Address() {
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+
+        // Business method
+        topologyService.setG3DeviceAddressInformation(device, null, 0x417A, 13);
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Test
+    @Transactional
+    public void findG3AddressInformation() {
+        // Create address information first
+        Instant effectiveTimestamp = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(effectiveTimestamp);
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        int expectedIPv6ShortAddress = 0x417A;
+        int expectedLogicalDeviceId = 13;
+        String expectedIPv6Address = "1080:0:0:0:8:800:200C:417A";
+        topologyService.setG3DeviceAddressInformation(device, expectedIPv6Address, expectedIPv6ShortAddress, expectedLogicalDeviceId);
+
+        // Business method
+        Optional<G3DeviceAddressInformation> addressInformation = topologyService.getG3DeviceAddressInformation(device);
+
+        // Asserts
+        assertThat(addressInformation).isNotNull();
+        assertThat(addressInformation.isPresent()).isTrue();
+        assertThat(addressInformation.get().getDevice().getId()).isEqualTo(device.getId());
+        assertThat(addressInformation.get().getIPv6Address().getHostAddress()).isEqualToIgnoringCase(expectedIPv6Address);
+        assertThat(addressInformation.get().getIpv6ShortAddress()).isEqualTo(expectedIPv6ShortAddress);
+        assertThat(addressInformation.get().getLogicalDeviceId()).isEqualTo(expectedLogicalDeviceId);
+        assertThat(addressInformation.get().isEffectiveAt(effectiveTimestamp)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void addSameG3AddressInformationReturnsExisting() {
+        // Create address information first
+        Instant initialEffectiveTimestamp = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(initialEffectiveTimestamp);
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        int expectedIPv6ShortAddress = 0x417A;
+        int expectedLogicalDeviceId = 13;
+        String expectedIPv6Address = "1080:0:0:0:8:800:200C:417A";
+        G3DeviceAddressInformation initialAddressInformation = topologyService.setG3DeviceAddressInformation(device, expectedIPv6Address, expectedIPv6ShortAddress, expectedLogicalDeviceId);
+        Instant updateEffectiveTimestamp = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(updateEffectiveTimestamp);
+
+        // Business method
+        G3DeviceAddressInformation updatedAddressInformation = topologyService.setG3DeviceAddressInformation(device, expectedIPv6Address, expectedIPv6ShortAddress, expectedLogicalDeviceId);
+
+        // Asserts
+        assertThat(updatedAddressInformation.isEffectiveAt(initialEffectiveTimestamp)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void updateG3AddressInformation() {
+        // Create address information first
+        Instant initialEffectiveTimestamp = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(initialEffectiveTimestamp);
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        int initialIPv6ShortAddress = 0x14A7;
+        int initialLogicalDeviceId = 19;
+        String expectedIPv6Address = "1080:0:0:0:8:800:200C:417A";
+        G3DeviceAddressInformation initialAddressInformation = topologyService.setG3DeviceAddressInformation(device, expectedIPv6Address, initialIPv6ShortAddress, initialLogicalDeviceId);
+        Instant updateEffectiveTimestamp = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(updateEffectiveTimestamp);
+
+        int expectedIPv6ShortAddress = 0x417A;
+        int expectedLogicalDeviceId = 13;
+
+        // Business method
+        G3DeviceAddressInformation updatedAddressInformation = topologyService.setG3DeviceAddressInformation(device, expectedIPv6Address, expectedIPv6ShortAddress, expectedLogicalDeviceId);
+
+        // Asserts
+        assertThat(updatedAddressInformation).isNotNull();
+        assertThat(updatedAddressInformation.getDevice()).isEqualTo(device);
+        assertThat(updatedAddressInformation.getIPv6Address().getHostName()).isEqualToIgnoringCase(expectedIPv6Address);
+        assertThat(updatedAddressInformation.getIpv6ShortAddress()).isEqualTo(expectedIPv6ShortAddress);
+        assertThat(updatedAddressInformation.getLogicalDeviceId()).isEqualTo(expectedLogicalDeviceId);
+        assertThat(updatedAddressInformation.isEffectiveAt(updateEffectiveTimestamp)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void findG3AddressInformationInPast() {
+        // Create first address information
+        Instant initialEffectiveTimestamp = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(initialEffectiveTimestamp);
+        ServerDeviceService deviceService = this.getDeviceService();
+        TopologyService topologyService = this.getTopologyService();
+        Device device = deviceService.newDevice(deviceConfiguration, "device", "DEVICE");
+        device.save();
+        int initialIPv6ShortAddress = 0x14A7;
+        int initialLogicalDeviceId = 19;
+        String expectedIPv6Address = "1080:0:0:0:8:800:200C:417A";
+        topologyService.setG3DeviceAddressInformation(device, expectedIPv6Address, initialIPv6ShortAddress, initialLogicalDeviceId);
+
+        // Update the address information
+        Instant updateEffectiveTimestamp = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(updateEffectiveTimestamp);
+        int updatedIPv6ShortAddress = 0x417A;
+        int updatedLogicalDeviceId = 13;
+        topologyService.setG3DeviceAddressInformation(device, expectedIPv6Address, updatedIPv6ShortAddress, updatedLogicalDeviceId);
+
+        // Business method
+        Optional<G3DeviceAddressInformation> addressInformation = topologyService.getG3DeviceAddressInformation(device, initialEffectiveTimestamp);
+
+        // Asserts
+        assertThat(addressInformation).isNotNull();
+        assertThat(addressInformation.isPresent()).isTrue();
+        assertThat(addressInformation.get().getDevice().getId()).isEqualTo(device.getId());
+        assertThat(addressInformation.get().getIPv6Address().getHostAddress()).isEqualToIgnoringCase(expectedIPv6Address);
+        assertThat(addressInformation.get().getIpv6ShortAddress()).isEqualTo(initialIPv6ShortAddress);
+        assertThat(addressInformation.get().getLogicalDeviceId()).isEqualTo(initialLogicalDeviceId);
+        assertThat(addressInformation.get().isEffectiveAt(initialEffectiveTimestamp)).isTrue();
     }
 
     private ServerDeviceService getDeviceService() {

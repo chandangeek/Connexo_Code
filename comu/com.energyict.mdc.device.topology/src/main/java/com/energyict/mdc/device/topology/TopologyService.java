@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
+import java.net.Inet6Address;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -147,7 +148,7 @@ public interface TopologyService {
     public G3NeighborhoodBuilder buildG3Neighborhood(Device device);
 
     /**
-     * Find the neighboring {@link Device}'s,
+     * Find the neighboring {@link Device}s,
      * for the G3/PLC communication technology.
      *
      * @param device The Device whose neighborhood will be returned
@@ -156,7 +157,7 @@ public interface TopologyService {
     public List<Device> findDevicesInG3Neighborhood(Device device);
 
     /**
-     * Find the neighboring {@link Device}'s,
+     * Find the neighboring {@link Device}s,
      * for the G3/PLC communication technology.
      *
      * @param device The Device whose neighborhood will be returned
@@ -164,6 +165,38 @@ public interface TopologyService {
      * @return The List of Device
      */
     public List<Device> findDevicesInG3Neighborhood(Device device, Instant when);
+
+    /**
+     * Gets the current {@link G3DeviceAddressInformation} for the specified {@link Device}.
+     *
+     * @param device The Device
+     * @return The G3DeviceAddressInformation
+     */
+    public Optional<G3DeviceAddressInformation> getG3DeviceAddressInformation(Device device);
+
+    /**
+     * Gets the {@link G3DeviceAddressInformation} for the specified {@link Device}
+     * that was effective on the specified timestamp.
+     *
+     * @param device The Device
+     * @param when The timestamp on which the G3DeviceAddressInformation should be effective
+     * @return The G3DeviceAddressInformation
+     */
+    public Optional<G3DeviceAddressInformation> getG3DeviceAddressInformation(Device device, Instant when);
+
+    /**
+     * Sets the {@link G3DeviceAddressInformation} for the specified {@link Device}.
+     * Overrules the G3DeviceAddressInformation that is currently effective unless
+     * the information has not changed, in which case the current information
+     * remains effective.
+     *
+     * @param device The Device
+     * @param ipv6Address The IPv6 address
+     * @param ipv6ShortAddress The short version of the IPv6 address
+     * @param logicalDeviceId The logical device identifier
+     * @return The newly created G3DeviceAddressInformation or the existing one if nothing was changed
+     */
+    public G3DeviceAddressInformation setG3DeviceAddressInformation(Device device, String ipv6Address, int ipv6ShortAddress, int logicalDeviceId);
 
     /**
      * Build all the neighbors of one {@link Device}.

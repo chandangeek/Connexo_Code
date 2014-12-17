@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
+import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
 import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
@@ -546,6 +547,72 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
                 .collect(Collectors.toList());
     }
 
+    private G3NeighborImpl newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
+        return this.dataModel.getInstance(G3NeighborImpl.class).createFor(device, neighbor, modulationScheme, modulation, phaseInfo);
+    }
+
+    private G3NeighborImpl newG3Neighbor(G3NeighborImpl existingNeighbor) {
+        return newG3Neighbor(existingNeighbor.getDevice(), existingNeighbor.getNeighbor(), existingNeighbor.getModulationScheme(), existingNeighbor.getModulation(), existingNeighbor.getPhaseInfo());
+    }
+
+    @Override
+    public Optional<G3DeviceAddressInformation> getG3DeviceAddressInformation(Device device) {
+        Condition condition = this.getEffectiveG3DeviceAddressCondition(device);
+        return this.atMostOne(this.dataModel.mapper(G3DeviceAddressInformation.class).select(condition), device);
+    }
+
+    private Condition getEffectiveG3DeviceAddressCondition(Device device) {
+        return where("device").isEqualTo(device).and(where("interval").isEffective());
+    }
+
+    @Override
+    public Optional<G3DeviceAddressInformation> getG3DeviceAddressInformation(Device device, Instant when) {
+        Condition condition = this.getEffectiveG3DeviceAddressCondition(device, when);
+        return this.atMostOne(this.dataModel.mapper(G3DeviceAddressInformation.class).select(condition), device);
+    }
+
+    private Condition getEffectiveG3DeviceAddressCondition(Device device, Instant instant) {
+        return where("device").isEqualTo(device).and(where("interval").isEffective(instant));
+    }
+
+    private Optional<G3DeviceAddressInformation> atMostOne(List<G3DeviceAddressInformation> addressInformations, Device device) {
+        if (addressInformations.isEmpty()) {
+            return Optional.empty();
+        }
+        else if (addressInformations.size() > 1) {
+            throw new IllegalStateException("Expecting at most 1 effective G3DeviceAddressInformation entity for device with mRID " + device.getmRID());
+        }
+        else {
+            return Optional.of(addressInformations.get(0));
+        }
+    }
+
+    @Override
+    public G3DeviceAddressInformation setG3DeviceAddressInformation(Device device, String ipv6Address, int ipv6ShortAddress, int logicalDeviceId) {
+        Optional<G3DeviceAddressInformation> currentAddressInfo = this.getG3DeviceAddressInformation(device);
+        if (currentAddressInfo.isPresent()) {
+            G3DeviceAddressInformationImpl candidate = (G3DeviceAddressInformationImpl) currentAddressInfo.get();
+            if (candidate.differentFrom(ipv6Address, ipv6ShortAddress, logicalDeviceId)) {
+                G3DeviceAddressInformationImpl newAddressInformation = this.createG3DeviceAddressInformation(device, ipv6Address, ipv6ShortAddress, logicalDeviceId);
+                candidate.terminate(newAddressInformation.getEffectiveStart());
+                candidate.save();
+                return newAddressInformation;
+            }
+            else {
+                return candidate;
+            }
+        }
+        else {
+            return this.createG3DeviceAddressInformation(device, ipv6Address, ipv6ShortAddress, logicalDeviceId);
+        }
+    }
+
+    private G3DeviceAddressInformationImpl createG3DeviceAddressInformation(Device device, String ipv6Address, int ipv6ShortAddress, int logicalDeviceId) {
+        G3DeviceAddressInformationImpl newAddressInformation = this.dataModel.getInstance(G3DeviceAddressInformationImpl.class).createFrom(device, ipv6Address, ipv6ShortAddress, logicalDeviceId);
+        newAddressInformation.save();
+        return newAddressInformation;
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(TopologyService.COMPONENT_NAME, "Device topology");
@@ -577,14 +644,6 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     private interface FirstLevelTopologyTimeslicer {
         List<ServerTopologyTimeslice> firstLevelTopologyTimeslices(Device device, Range<Instant> period);
-    }
-
-    private G3NeighborImpl newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
-        return this.dataModel.getInstance(G3NeighborImpl.class).createFor(device, neighbor, modulationScheme, modulation, phaseInfo);
-    }
-
-    private G3NeighborImpl newG3Neighbor(G3NeighborImpl existingNeighbor) {
-        return newG3Neighbor(existingNeighbor.getDevice(), existingNeighbor.getNeighbor(), existingNeighbor.getModulationScheme(), existingNeighbor.getModulation(), existingNeighbor.getPhaseInfo());
     }
 
     private class G3NeighborhoodBuilderImpl implements G3NeighborhoodBuilder {
