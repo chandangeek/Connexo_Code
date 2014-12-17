@@ -894,7 +894,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             },
                             items: {
                                 edit: {
-                                    title: Uni.I18n.translate('general.editDeviceGroup', 'MDC', 'Edit device group'),
+                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                     route: 'edit',
                                     controller: 'Mdc.controller.setup.AddDeviceGroupAction',
                                     action: 'showEditDeviceGroup',
