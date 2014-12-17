@@ -58,6 +58,12 @@ Ext.define('Mdc.controller.setup.Devices', {
                 run: this.communicationRun,
                 runNow: this.communicationRunNow,
                 toggleActivation: this.communicationToggle
+            },
+            'deviceSetup #device-communications-panel #activate-all': {
+                click: this.communicationActivateAll
+            },
+            'deviceSetup #device-communications-panel #deactivate-all': {
+                click: this.communicationDeactivateAll
             }
         });
     },
@@ -98,6 +104,36 @@ Ext.define('Mdc.controller.setup.Devices', {
             callback: function () {
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('device.communication.toggle.' + status, 'MDC', 'Communication status changed to: ' + status)
+                );
+            }
+        });
+    },
+
+    communicationActivateAll: function() {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router');
+
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: '/api/ddr/{mRID}/communications/activate'.replace('{mRID}', router.arguments.mRID),
+            success: function() {
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('device.communication.activateAll', 'MDC', 'Communication tasks activated')
+                );
+            }
+        });
+    },
+
+    communicationDeactivateAll: function() {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router');
+
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: '/api/ddr/{mRID}/communications/deactivate'.replace('{mRID}', router.arguments.mRID),
+            success: function() {
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('device.communication.deactivateAll', 'MDC', 'Communication tasks deactivated')
                 );
             }
         });
@@ -144,20 +180,20 @@ Ext.define('Mdc.controller.setup.Devices', {
                 var deviceConnectionsStore = device.connections();
                 deviceConnectionsStore.getProxy().setUrl(mRID);
                 deviceConnectionsStore.load(function() {
-                    widget.down('device-connections-list').reconfigure(deviceConnectionsStore);
+                    widget.down('#device-connections-panel').bindStore(deviceConnectionsStore);
                 });
 
                 var deviceCommunicationsStore = device.communications();
                 deviceCommunicationsStore.getProxy().setUrl(mRID);
                 deviceCommunicationsStore.load(function() {
-                    widget.down('device-communications-list').reconfigure(deviceCommunicationsStore);
+                    widget.down('#device-communications-panel').bindStore(deviceCommunicationsStore);
                 });
 
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId')});
                 me.getDeviceGeneralInformationDeviceTypeLink().getEl().setHTML(device.get('deviceTypeName'));
                 me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().set({href: '#/administration/devicetypes/' + device.get('deviceTypeId') + '/deviceconfigurations/' + device.get('deviceConfigurationId')});
-                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName')),
+                me.getDeviceGeneralInformationDeviceConfigurationLink().getEl().setHTML(device.get('deviceConfigurationName'));
                 me.getDeviceCommunicationTopologyPanel().setRecord(device);
                 me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device.get('nbrOfDataCollectionIssues'));
                 me.getDeviceGeneralInformationForm().loadRecord(device);
