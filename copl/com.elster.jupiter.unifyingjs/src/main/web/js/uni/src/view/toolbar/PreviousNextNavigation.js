@@ -110,7 +110,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             arguments = Ext.clone(me.router.arguments),
             queryParams = Ext.clone(me.router.queryParams),
             currentIndex = store.indexOfId(arguments[me.routerIdArgument]),
-            storeCurrentPage = store.lastOptions.page,
+            storeCurrentPage = store.lastOptions?store.lastOptions.page:1,
             storePageSize = store.pageSize,
             storeTotal = store.getTotalCount();
 
@@ -122,7 +122,10 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
             queryParams[me.totalProperty] = storePageSize * storeCurrentPage > storeTotal ? storeTotal : -(storeTotal - 1);
         }
 
-        if (queryParams[me.totalProperty] < 0) {
+        if(store.getCount()<=1){
+            itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'UNI', '{0} of {1}'), 1, 1 + ' ' + me.itemsName);
+        }
+        else if (queryParams[me.totalProperty] < 0) {
             itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgMoreItems', 'UNI', '{0} of more than {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, -queryParams[me.totalProperty]) + ' ' + me.itemsName;
         } else {
             itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'UNI', '{0} of {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, queryParams[me.totalProperty]) + ' ' + me.itemsName;
